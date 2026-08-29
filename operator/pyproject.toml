@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "video-paper-wiki-operator"
+version = "0.1.0"
+description = "Operator-only vpwiki-admin stub (not installed by default uv sync)"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+vpwiki-admin = "video_paper_wiki_operator.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_paper_wiki_operator"]
