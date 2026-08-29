@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.run-manifest.v1.schema.json",
+  "title": "video-paper-wiki.run-manifest.v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "run_id", "tool_versions", "input_hashes", "output_hashes", "started_at", "ended_at", "error_code"],
+  "properties": {
+    "schema": {"const": "video-paper-wiki.run-manifest.v1"}, "run_id": {"type": "string"},
+    "tool_versions": {"type": "object", "additionalProperties": false, "required": ["vpwiki", "python"], "properties": {"vpwiki": {"type": "string"}, "python": {"type": "string"}, "docling": {"type": "string"}, "docling_core": {"type": "string"}, "claude_obsidian": {"type": "string"}}},
+    "input_hashes": {"type": "object", "additionalProperties": false, "properties": {"ingest_plan_sha256": {"$ref": "#/$defs/sha256"}, "prepared_sha256": {"$ref": "#/$defs/sha256"}, "source_sha256": {"$ref": "#/$defs/sha256"}, "parser_config_sha256": {"$ref": "#/$defs/sha256"}, "model_manifest_sha256": {"$ref": "#/$defs/sha256"}}},
+    "output_hashes": {"type": "object", "additionalProperties": false, "properties": {"document_json_sha256": {"$ref": "#/$defs/sha256"}, "draft_sha256": {"$ref": "#/$defs/sha256"}, "receipt_sha256": {"$ref": "#/$defs/sha256"}}},
+    "started_at": {"type": "string", "format": "date-time"}, "ended_at": {"type": "string", "format": "date-time"}, "error_code": {"type": ["string", "null"]}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

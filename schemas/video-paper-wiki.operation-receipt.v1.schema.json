@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.operation-receipt.v1.schema.json",
+  "title": "video-paper-wiki.operation-receipt.v1",
+  "$comment": "intent_sha256 = SHA256(RFC8785-JCS({sequence, previous, operation_id, writes, claimed_inputs})). It excludes receipt/head self fields; bundle hash, approval hash, and receipt self-hash are forbidden to avoid hash cycles.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "sequence", "previous", "operation_id", "operation_type", "intent_sha256", "writes", "claimed_inputs"],
+  "properties": {
+    "schema": {"const": "video-paper-wiki.operation-receipt.v1"}, "sequence": {"type": "integer", "minimum": 1},
+    "previous": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/previous"}]}, "operation_id": {"type": "string", "minLength": 1},
+    "operation_type": {"enum": ["ingest", "generic", "capture"]}, "intent_sha256": {"$ref": "#/$defs/sha256"},
+    "writes": {"type": "array", "items": {"$ref": "#/$defs/write_entry"}}, "claimed_inputs": {"type": "array", "items": {"$ref": "#/$defs/claimed_input"}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "previous": {"type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": {"path": {"type": "string", "pattern": "^wiki/meta/operations/[0-9]{12}-.+\\.json$"}, "sha256": {"$ref": "#/$defs/sha256"}}},
+    "write_entry": {"type": "object", "additionalProperties": false, "required": ["path", "mode", "before_sha256", "after_sha256"], "properties": {"path": {"type": "string"}, "mode": {"enum": ["create", "replace"]}, "before_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}, "after_sha256": {"$ref": "#/$defs/sha256"}}, "allOf": [{"if": {"required": ["mode"], "patternProperties": {"^mode$": {"const": "create"}}}, "then": {"patternProperties": {"^before_sha256$": {"type": "null"}}}}, {"if": {"required": ["mode"], "patternProperties": {"^mode$": {"const": "replace"}}}, "then": {"patternProperties": {"^before_sha256$": {"type": "string"}}}}]},
+    "claimed_input": {"type": "object", "additionalProperties": false, "required": ["path", "mode", "sha256"], "properties": {"path": {"type": "string"}, "mode": {"const": "read"}, "sha256": {"$ref": "#/$defs/sha256"}}}
+  }
+}

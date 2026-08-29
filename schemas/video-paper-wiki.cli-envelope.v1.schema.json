@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.cli-envelope.v1.schema.json",
+  "title": "video-paper-wiki.cli-envelope.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {"ok": {}, "command": {}, "data": {}, "error": {}},
+  "oneOf": [
+    {
+      "type": "object", "additionalProperties": false, "required": ["ok", "command", "data"],
+      "properties": {"ok": {"const": true}, "command": {"type": "string"}, "data": {"type": "object", "additionalProperties": true}}
+    },
+    {
+      "type": "object", "additionalProperties": false, "required": ["ok", "command", "error"],
+      "properties": {"ok": {"const": false}, "command": {"type": "string"}, "error": {"type": "object", "additionalProperties": false, "required": ["code", "message", "details"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}, "details": {"type": "object", "additionalProperties": true}}}}
+    }
+  ]
+}
