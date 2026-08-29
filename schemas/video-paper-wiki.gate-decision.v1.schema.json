@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.gate-decision.v1.schema.json",
+  "title": "video-paper-wiki.gate-decision.v1",
+  "$comment": "event_id = \"gde-\" + SHA256(RFC8785-JCS(gate decision without event_id)).hexdigest()[:20]. This is the human-only HUMAN-GATE-BASELINE-001 single event chain.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema", "gate_id", "event_id", "previous_event_id", "actor_kind", "choice", "baseline_manifest_sha256", "derived_full_map_repo_ids", "decided_by", "decided_at", "reason"],
+  "properties": {
+    "schema": {"const": "video-paper-wiki.gate-decision.v1"}, "gate_id": {"const": "HUMAN-GATE-BASELINE-001"},
+    "event_id": {"type": "string", "pattern": "^gde-[0-9a-f]{20}$"}, "previous_event_id": {"type": ["string", "null"], "pattern": "^gde-[0-9a-f]{20}$"},
+    "actor_kind": {"const": "human"}, "choice": {"enum": ["keep-modelscope", "replace-with-open-sora"]},
+    "baseline_manifest_sha256": {"$ref": "#/$defs/sha256"},
+    "derived_full_map_repo_ids": {"type": "array", "minItems": 5, "maxItems": 5, "uniqueItems": true, "items": {"type": "string", "pattern": "^github:[a-z0-9._-]+/[a-z0-9._-]+$"}},
+    "decided_by": {"type": "string"}, "decided_at": {"type": "string", "format": "date-time"}, "reason": {"type": "string"}
+  },
+  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}
