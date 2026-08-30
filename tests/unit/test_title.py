@@ -19,6 +19,9 @@ CATALOG = (
     ("arxiv-2209.14792", "Make-A-Video"),
     ("arxiv-2310.12190", "DynamiCrafter"),
     ("arxiv-2401.03048", "Latte"),
+    ("arxiv-2210.02399", "Phenaki"),
+    ("arxiv-2212.05199", "MAGVIT"),
+    ("arxiv-2312.14125", "VideoPoet"),
 )
 
 
