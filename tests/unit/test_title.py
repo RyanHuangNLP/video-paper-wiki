@@ -47,6 +47,9 @@ CATALOG = (
     ("arxiv-2310.15127", "VideoCrafter1"),
     ("arxiv-2312.03541", "MAGVIT-v2"),
     ("arxiv-2312.13253", "Emu Video"),
+    ("arxiv-2403.14773", "StreamingT2V"),
+    ("arxiv-2404.02101", "CameraCtrl"),
+    ("arxiv-2407.02371", "OpenVid-1M"),
 )
 
 
