@@ -29,6 +29,7 @@ EXPECTED_PAPER_IDS = {
         "arxiv-2204.03458",
         "arxiv-2209.14792",
         "arxiv-2210.02303",
+        "arxiv-2211.11018",
         "arxiv-2212.11565",
         "arxiv-2302.03011",
         "arxiv-2303.12346",
@@ -37,6 +38,7 @@ EXPECTED_PAPER_IDS = {
         "arxiv-2307.04725",
         "arxiv-2309.15103",
         "arxiv-2309.15807",
+        "arxiv-2310.07713",
         "arxiv-2310.15127",
         "arxiv-2310.20700",
         "arxiv-2311.04145",
@@ -61,7 +63,7 @@ EXPECTED_PAPER_IDS = {
     "evaluation": ["arxiv-1812.01717", "arxiv-2311.06908", "arxiv-2311.17982", "arxiv-2312.12456", "arxiv-2406.15252"],
     "data": ["arxiv-2307.06942", "arxiv-2402.19479", "arxiv-2403.04916", "arxiv-2407.02371", "arxiv-2410.05755"],
     "motion-control": ["arxiv-2212.11565", "arxiv-2306.02018", "arxiv-2307.04725", "arxiv-2308.08089", "arxiv-2310.08465", "arxiv-2310.12190", "arxiv-2311.16933", "arxiv-2312.03641", "arxiv-2402.03162", "arxiv-2404.02101", "arxiv-2408.03810"],
-    "language-model": ["arxiv-2205.15868", "arxiv-2210.02399", "arxiv-2312.03541", "arxiv-2312.14125", "arxiv-2410.02757"],
+    "language-model": ["arxiv-2205.15868", "arxiv-2210.02399", "arxiv-2312.03541", "arxiv-2312.14125", "arxiv-2402.04424", "arxiv-2410.02757"],
 }
 EXPECTED_BLURB_ZH = {
     "video-diffusion": "用扩散模型生成视频，覆盖文生视频和图生视频。",
@@ -74,7 +76,7 @@ EXPECTED_BLURB_ZH = {
 FORBIDDEN_KEY_FRAGMENTS = ("pdf", "fetch")
 ALLOWED_TOPIC_KEYS = {"id", "heading_zh", "paper_ids", "blurb_zh"}
 FROZEN_TOPICS_SHA256 = (
-    "89238fea12284e919339cf510af8ced3a9c2a1b7bb6cbf1e5225388600613d30"
+    "26d16fdbe2f5331a4d6d3e5517702bcd661439066a6e19959c9d4ed3f55bfe9a"
 )
 
 

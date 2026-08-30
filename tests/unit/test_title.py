@@ -68,6 +68,9 @@ CATALOG = (
     ("arxiv-2308.08089", "DragNUWA"),
     ("arxiv-2407.07667", "VEnhancer"),
     ("arxiv-2410.05755", "Koala-36M"),
+    ("arxiv-2211.11018", "MagicVideo"),
+    ("arxiv-2310.07713", "ScaleCrafter"),
+    ("arxiv-2402.04424", "Video-LaVIT"),
 )
 
 
