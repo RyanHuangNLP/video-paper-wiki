@@ -127,8 +127,10 @@ def _sort_key(item: dict[str, Any]) -> tuple[bool, int, str]:
     return (year is None, year if year is not None else 0, item["paper_id"])
 
 
-def scan_list(root: Path) -> dict[str, Any]:
+def scan_list(root: Path, topic: str | None = None) -> dict[str, Any]:
     """Return papers metadata from top-level papers/*.md. Does not create files."""
     papers = [_parse_paper(path) for path in _md_files(root / _PAPERS)]
+    if topic is not None:
+        papers = [item for item in papers if topic in item["topics"]]
     papers.sort(key=_sort_key)
     return {"papers": papers}

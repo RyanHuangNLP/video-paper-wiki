@@ -67,6 +67,11 @@ def list_papers(_args: object | None = None) -> int:
             LIST_COMMAND, "USAGE", f"{LIST_COMMAND} requires --{('VAULT').lower()}"
         )
     root = Path(str(raw_root)).expanduser()
+    raw_topic = _attr(_args, "topic_id")
+    if raw_topic is not None and str(raw_topic) == "":
+        return emit_error(
+            LIST_COMMAND, "USAGE", f"{LIST_COMMAND} requires a non-empty --topic"
+        )
     if not root.is_dir():
         return emit_error(
             LIST_COMMAND,
@@ -74,7 +79,9 @@ def list_papers(_args: object | None = None) -> int:
             "directory is missing or not a directory; this command does not create it",
             {"path": str(raw_root)},
         )
-    return emit_success(LIST_COMMAND, scan_list(root))
+    return emit_success(
+        LIST_COMMAND, scan_list(root, None if raw_topic is None else str(raw_topic))
+    )
 
 
 def show(_args: object | None = None) -> int:

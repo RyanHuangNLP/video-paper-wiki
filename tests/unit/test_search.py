@@ -584,6 +584,160 @@ def test_list_ignores_nested_papers_and_wiki(
     assert network_attempts == []
 
 
+def test_list_topic_filters_handwritten_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "diffusion.md",
+        "---\n"
+        "paper_id: diffusion-id\n"
+        "title: Diffusion Paper\n"
+        "year: 2022\n"
+        "topics: [video-diffusion]\n"
+        "---\n",
+    )
+    _write(
+        notes / "papers" / "eval.md",
+        "---\n"
+        "paper_id: eval-id\n"
+        "title: Evaluation Paper\n"
+        "year: 2018\n"
+        "topics: [evaluation]\n"
+        "---\n",
+    )
+    code = main(["vault", "list", "--vault", str(notes), "--topic", "video-diffusion"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.list"
+    papers = payload["data"]["papers"]
+    assert papers == [
+        {
+            "paper_id": "diffusion-id",
+            "title": "Diffusion Paper",
+            "year": 2022,
+            "topics": ["video-diffusion"],
+        }
+    ]
+    assert isinstance(papers[0]["year"], int)
+    code = main(["vault", "list", "--vault", str(notes), "--topic", "evaluation"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    papers = payload["data"]["papers"]
+    assert papers == [
+        {
+            "paper_id": "eval-id",
+            "title": "Evaluation Paper",
+            "year": 2018,
+            "topics": ["evaluation"],
+        }
+    ]
+    assert isinstance(papers[0]["year"], int)
+    assert network_attempts == []
+
+
+def test_list_topic_missing_is_empty_ok(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "diffusion.md",
+        "---\n"
+        "paper_id: diffusion-id\n"
+        "title: Diffusion Paper\n"
+        "year: 2022\n"
+        "topics: [video-diffusion]\n"
+        "---\n",
+    )
+    code = main(["vault", "list", "--vault", str(notes), "--topic", "missing-topic"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.list"
+    assert payload["data"]["papers"] == []
+    assert network_attempts == []
+
+
+def test_list_empty_topic_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "list", "--vault", str(notes), "--topic", ""])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.list"
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_list_after_ingest_filter_by_topic(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    for paper_id in ("arxiv-2209.14792", "arxiv-1812.01717"):
+        code = main(
+            [
+                "ingest",
+                "run",
+                "--path",
+                str(TINY_PDF),
+                "--paper-id",
+                paper_id,
+                "--vault",
+                str(dest),
+            ]
+        )
+        assert code == 0
+        capsys.readouterr()
+    code = main(["vault", "list", "--vault", str(dest)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.list"
+    papers = payload["data"]["papers"]
+    assert [item["paper_id"] for item in papers] == [
+        "arxiv-1812.01717",
+        "arxiv-2209.14792",
+    ]
+    assert papers[0]["title"] == "Towards Accurate Generative Models of Video"
+    assert papers[1]["title"] == "Make-A-Video"
+    assert papers[0]["year"] == 2018
+    assert papers[1]["year"] == 2022
+    assert isinstance(papers[0]["year"], int)
+    assert isinstance(papers[1]["year"], int)
+    assert not isinstance(papers[0]["year"], str)
+    assert "evaluation" in papers[0]["topics"]
+    assert "video-diffusion" in papers[1]["topics"]
+    code = main(["vault", "list", "--vault", str(dest), "--topic", "video-diffusion"])
+    assert code == 0
+    filtered = _stdout_json(capsys)["data"]["papers"]
+    assert [item["paper_id"] for item in filtered] == ["arxiv-2209.14792"]
+    assert filtered[0]["title"] == "Make-A-Video"
+    assert filtered[0]["year"] == 2022
+    assert isinstance(filtered[0]["year"], int)
+    assert "video-diffusion" in filtered[0]["topics"]
+    assert all(item["paper_id"] != "arxiv-1812.01717" for item in filtered)
+    code = main(["vault", "list", "--vault", str(dest), "--topic", "evaluation"])
+    assert code == 0
+    filtered = _stdout_json(capsys)["data"]["papers"]
+    assert [item["paper_id"] for item in filtered] == ["arxiv-1812.01717"]
+    assert filtered[0]["title"] == "Towards Accurate Generative Models of Video"
+    assert filtered[0]["year"] == 2018
+    assert isinstance(filtered[0]["year"], int)
+    assert "evaluation" in filtered[0]["topics"]
+    assert all(item["paper_id"] != "arxiv-2209.14792" for item in filtered)
+    assert network_attempts == []
+
+
 def test_show_missing_dir_refuses_and_does_not_create(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
