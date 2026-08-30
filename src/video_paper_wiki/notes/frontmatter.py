@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from video_paper_wiki.notes.clear_draft import apply_empty_draft_sections
 from video_paper_wiki.notes.conclusions import apply_frozen_conclusion
 from video_paper_wiki.notes.links import (
     backlink_catalog_ids,
@@ -74,4 +75,5 @@ def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
     raw_title = document.get("title", "")
     draft_title = raw_title if isinstance(raw_title, str) else ("" if raw_title is None else str(raw_title))
     header = render_paper_copy_frontmatter(paper_id, draft_title)
-    return apply_frozen_conclusion(header + "\n" + render_paper_sections(document), paper_id)
+    body = apply_frozen_conclusion(header + "\n" + render_paper_sections(document), paper_id)
+    return apply_empty_draft_sections(body)

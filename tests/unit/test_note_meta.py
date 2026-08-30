@@ -159,12 +159,13 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     _assert_frozen_headings(work)
     _assert_frozen_headings(copied)
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
-    work_rest = work_body[work_body.index("## 研究问题"):]
-    copy_rest = copy_body[copy_body.index("## 研究问题"):]
-    assert copy_rest.startswith(work_rest)
     from video_paper_wiki.notes.section import section_text
     assert section_text(copied, "一句话结论") == "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
     assert "Tiny VPKB paper" in section_text(work, "一句话结论")
+    for heading in ("研究问题", "方法", "表示与架构", "训练与数据", "实验与结果", "局限", "关联"):
+        assert section_text(copied, heading) == ""
+    assert section_text(copied, "证据状态") == section_text(work, "证据状态")
+    assert section_text(copied, "代码与资源") == section_text(work, "代码与资源")
     assert "## 相关论文" in copy_body
     assert "## 相关论文" not in work_body
     assert "arxiv_id" not in work
@@ -265,7 +266,10 @@ def test_ingest_non_catalog_paper_id_x_empty_topics(
     assert "topics: []" in copied
     assert "related: []" in copied
     assert "backlinks: []" in copied
-    assert copy_body == work_body
+    from video_paper_wiki.notes.section import section_text
+    for heading in ("研究问题", "方法", "表示与架构", "训练与数据", "实验与结果", "局限", "关联"):
+        assert section_text(copied, heading) == ""
+    assert section_text(copied, "证据状态") == section_text(work, "证据状态")
     assert "## 相关论文" not in copied
     assert "related:" not in work
     assert "backlinks:" not in work
