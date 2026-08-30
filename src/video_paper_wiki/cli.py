@@ -13,6 +13,7 @@ from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import ingest as ingest_commands
 from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.commands import search as search_commands
+from video_paper_wiki.commands import wiki as wiki_commands
 from video_paper_wiki.envelope import emit_error, emit_success
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -190,6 +191,13 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--vault", dest="notes_root", required=True)
     show.add_argument("paper_id")
     show.set_defaults(handler=search_commands.show)
+
+    wiki = sub.add_parser("wiki")
+    wiki_sub = wiki.add_subparsers(dest="wiki_cmd", required=True)
+    wiki_show = wiki_sub.add_parser("show")
+    wiki_show.add_argument("--vault", dest="notes_root", required=True)
+    wiki_show.add_argument("topic_id")
+    wiki_show.set_defaults(handler=wiki_commands.show)
 
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
