@@ -41,6 +41,9 @@ CATALOG = (
     ("arxiv-2205.15868", "CogVideo"),
     ("arxiv-2210.02303", "Imagen Video"),
     ("arxiv-2309.15807", "Show-1"),
+    ("arxiv-2309.15103", "LaVie"),
+    ("arxiv-2311.16933", "SparseCtrl"),
+    ("arxiv-2312.12456", "EvalCrafter"),
 )
 
 

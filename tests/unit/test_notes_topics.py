@@ -199,7 +199,7 @@ def test_topics_seed_bytes_and_video_diffusion_paper_ids_unchanged() -> None:
     path = Path(__file__).resolve().parents[2] / "docs" / "seed" / "engine-mvp-topics.json"
     raw = path.read_bytes()
     assert hashlib.sha256(raw).hexdigest() == (
-        "f20145d839e754248dafeaaa8b283f9cbdea02adb25719c1f0bd0b9195f4d32e"
+        "486a691c81d489a79b02221bed39dfbe301266d12181bf49da4eafac28f3df2e"
     )
     payload = json.loads(raw.decode("utf-8"))
     video = next(topic for topic in payload["topics"] if topic["id"] == "video-diffusion")
