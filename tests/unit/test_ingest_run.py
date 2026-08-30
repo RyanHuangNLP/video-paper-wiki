@@ -234,6 +234,9 @@ SEED_PAPER_IDS = (
     "arxiv-2402.14709",
     "arxiv-2406.08119",
     "arxiv-2410.13720",
+    "arxiv-2302.03011",
+    "arxiv-2408.03810",
+    "arxiv-2406.15252",
 )
 SEED_ARXIV_IDS = (
     "2204.03458",
@@ -282,6 +285,9 @@ SEED_ARXIV_IDS = (
     "2402.14709",
     "2406.08119",
     "2410.13720",
+    "2302.03011",
+    "2408.03810",
+    "2406.15252",
 )
 
 
@@ -294,7 +300,7 @@ def _prepare_run_env(tmp_path, monkeypatch):
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
 
 
-def test_ingest_run_pdf_dir_forty_six_paper_id_files(
+def test_ingest_run_pdf_dir_forty_nine_paper_id_files(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     _prepare_run_env(tmp_path, monkeypatch)
@@ -352,7 +358,7 @@ def test_ingest_run_pdf_dir_empty_dir_blob_source_not_found(
     assert payload["command"] == "ingest.run"
     assert payload["error"]["code"] == "BLOB_SOURCE_NOT_FOUND"
     skipped = payload["error"]["details"]["skipped"]
-    assert len(skipped) == 46
+    assert len(skipped) == 49
     assert [row["paper_id"] for row in skipped] == list(SEED_PAPER_IDS)
     assert [row["arxiv_id"] for row in skipped] == list(SEED_ARXIV_IDS)
     assert not (tmp_path / ".work").exists()
@@ -406,7 +412,7 @@ def test_ingest_run_path_and_pdf_dir_usage(
     assert network_attempts == []
 
 
-def test_ingest_run_pdf_dir_partial_one_of_forty_six(
+def test_ingest_run_pdf_dir_partial_one_of_forty_nine(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     _prepare_run_env(tmp_path, monkeypatch)
@@ -418,7 +424,7 @@ def test_ingest_run_pdf_dir_partial_one_of_forty_six(
     payload = _stdout_json(capsys)
     data = payload["data"]
     assert [paper["paper_id"] for paper in data["papers"]] == ["arxiv-2311.15127"]
-    assert len(data["skipped"]) == 45
+    assert len(data["skipped"]) == 48
     assert {row["paper_id"] for row in data["skipped"]} == {
         paper_id for paper_id in SEED_PAPER_IDS if paper_id != "arxiv-2311.15127"
     }

@@ -59,6 +59,9 @@ CATALOG = (
     ("arxiv-2402.14709", "Snap Video"),
     ("arxiv-2406.08119", "OmniTokenizer"),
     ("arxiv-2410.13720", "Movie Gen"),
+    ("arxiv-2302.03011", "Gen-1"),
+    ("arxiv-2408.03810", "AnimateDiff-Lightning"),
+    ("arxiv-2406.15252", "VideoScore"),
 )
 
 
