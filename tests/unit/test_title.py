@@ -56,6 +56,9 @@ CATALOG = (
     ("arxiv-2310.08465", "MotionDirector"),
     ("arxiv-2405.18911", "EasyAnimate"),
     ("arxiv-2403.04916", "VidProM"),
+    ("arxiv-2402.14709", "Snap Video"),
+    ("arxiv-2406.08119", "OmniTokenizer"),
+    ("arxiv-2410.13720", "Movie Gen"),
 )
 
 
