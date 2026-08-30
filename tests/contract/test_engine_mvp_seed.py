@@ -19,6 +19,9 @@ EXPECTED_PAPER_IDS = (
     "arxiv-2401.12945",
     "arxiv-2408.06072",
     "arxiv-2412.03603",
+    "arxiv-2410.05954",
+    "arxiv-2307.06942",
+    "arxiv-2402.19479",
 )
 EXPECTED_ABS_URLS = (
     "https://arxiv.org/abs/2204.03458",
@@ -33,6 +36,9 @@ EXPECTED_ABS_URLS = (
     "https://arxiv.org/abs/2401.12945",
     "https://arxiv.org/abs/2408.06072",
     "https://arxiv.org/abs/2412.03603",
+    "https://arxiv.org/abs/2410.05954",
+    "https://arxiv.org/abs/2307.06942",
+    "https://arxiv.org/abs/2402.19479",
 )
 FORBIDDEN_KEY_FRAGMENTS = ("pdf", "fetch")
 
@@ -53,7 +59,7 @@ def test_engine_mvp_seed_catalog_exact_ids_and_urls() -> None:
     assert SEED.is_file()
     payload = json.loads(SEED.read_text(encoding="utf-8"))
     papers = payload["papers"]
-    assert len(papers) == 12
+    assert len(papers) == 15
     assert [paper["paper_id"] for paper in papers] == list(EXPECTED_PAPER_IDS)
     assert [paper["abs_url"] for paper in papers] == list(EXPECTED_ABS_URLS)
     _assert_no_pdf_or_fetch_keys(payload)

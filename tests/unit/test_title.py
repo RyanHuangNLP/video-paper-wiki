@@ -25,6 +25,9 @@ CATALOG = (
     ("arxiv-2401.12945", "Lumiere"),
     ("arxiv-2408.06072", "CogVideoX"),
     ("arxiv-2412.03603", "HunyuanVideo"),
+    ("arxiv-2410.05954", "Pyramidal Flow Matching"),
+    ("arxiv-2307.06942", "InternVid"),
+    ("arxiv-2402.19479", "Panda-70M"),
 )
 
 
