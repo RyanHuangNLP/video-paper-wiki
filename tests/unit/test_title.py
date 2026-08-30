@@ -53,6 +53,9 @@ CATALOG = (
     ("arxiv-2402.03162", "Direct-a-Video"),
     ("arxiv-2402.04324", "ConsistI2V"),
     ("arxiv-2311.06908", "FETV"),
+    ("arxiv-2310.08465", "MotionDirector"),
+    ("arxiv-2405.18911", "EasyAnimate"),
+    ("arxiv-2403.04916", "VidProM"),
 )
 
 
