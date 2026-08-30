@@ -11,7 +11,12 @@ from jsonschema import Draft202012Validator, ValidationError
 
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.envelope import emit_error, emit_success
-from video_paper_wiki.parse import build_draft, paper_id_from_sha256, parse_pdf_to_draft_fields
+from video_paper_wiki.parse import (
+    build_draft,
+    claims_from_parse_fields,
+    paper_id_from_sha256,
+    parse_pdf_to_draft_fields,
+)
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -88,10 +93,16 @@ def export(_args: object | None = None) -> int:
             {"sha256": sha},
         )
     paper_id = paper_id_from_sha256(sha)
+    claims = claims_from_parse_fields(
+        fields,
+        artifact_sha256=sha,
+        artifact_path=blob.as_posix(),
+    )
     document = build_draft(
         paper_id=paper_id,
         title=str(fields.get("title", "")),
         title_zh=str(fields.get("title_zh", "")),
+        claims=claims,
     )
     try:
         _validate_document(document)

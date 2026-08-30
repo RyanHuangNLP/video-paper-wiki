@@ -10,6 +10,7 @@ from pathlib import Path
 
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
+from video_paper_wiki.commands import ingest as ingest_commands
 from video_paper_wiki.envelope import emit_error, emit_success
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -122,6 +123,9 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = sub.add_parser("ingest")
     ingest_sub = ingest.add_subparsers(dest="ingest_cmd", required=True)
     ingest_sub.add_parser("plan").set_defaults(handler=_cmd_not_implemented("ingest.plan"))
+    ingest_put = ingest_sub.add_parser("put")
+    ingest_put.add_argument("--path", required=True)
+    ingest_put.set_defaults(handler=ingest_commands.put)
     ingest_prepare = ingest_sub.add_parser("prepare")
     ingest_prepare.set_defaults(_vpkb_family="ingest")
     _add_prepare_flags(ingest_prepare)

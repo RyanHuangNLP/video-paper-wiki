@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -14,6 +15,27 @@ ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
 DRAFT_SCHEMA = ROOT / "schemas" / "video-paper-wiki.paper-analysis-draft.v1.schema.json"
+SECTION_IDS = [
+    "one_sentence_conclusion",
+    "research_question",
+    "method",
+    "representation_architecture",
+    "training_data",
+    "experiments_results",
+    "limitations",
+    "code_resources",
+    "evidence_status",
+    "related",
+]
+LOCATOR_FIELDS = (
+    "kind",
+    "source_id",
+    "page",
+    "ref",
+    "artifact_path",
+    "artifact_sha256",
+    "text_sha256",
+)
 
 
 def _stdout_json(capsys) -> dict:
@@ -117,18 +139,7 @@ def test_export_success_mocked_parser_writes_schema_valid_draft(
     assert document["title"] == "Stub Paper"
     assert document["taxonomy"] == []
     assert document["claims"] == []
-    assert [section["id"] for section in document["sections"]] == [
-        "one_sentence_conclusion",
-        "research_question",
-        "method",
-        "representation_architecture",
-        "training_data",
-        "experiments_results",
-        "limitations",
-        "code_resources",
-        "evidence_status",
-        "related",
-    ]
+    assert [section["id"] for section in document["sections"]] == SECTION_IDS
     assert network_attempts == []
 
 
@@ -175,6 +186,7 @@ def test_local_parser_fails_closed_without_models(tmp_path, monkeypatch, network
         raise AssertionError("expected ParserUnavailable when models are missing")
     assert network_attempts == []
 
+
 def test_export_blob_present_without_models_no_network(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     blob_root = tmp_path / "blobs"
     monkeypatch.chdir(tmp_path)
@@ -182,8 +194,59 @@ def test_export_blob_present_without_models_no_network(tmp_path, monkeypatch, ca
     monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
     digest = BlobStore(blob_root).put_from_path(TINY_PDF)
     code = main(["draft", "export", "--sha256", digest])
-    assert code == 2
+    assert code == 0
     payload = _stdout_json(capsys)
-    assert payload["error"]["code"] == "PARSER_MODEL_NOT_FETCHED"
+    assert payload["ok"] is True
+    assert payload["command"] == "draft.export"
+    written = Path(payload["data"]["path"])
+    document = json.loads(written.read_text(encoding="utf-8"))
+    _schema_validator().validate(document)
+    assert document["title"]
+    assert document["claims"]
+    assert [section["id"] for section in document["sections"]] == SECTION_IDS
     assert network_attempts == []
-    assert not (tmp_path / ".work" / "drafts").exists()
+
+
+def _assert_complete_claim(document: dict, sha256: str) -> None:
+    assert document["claims"]
+    claim = document["claims"][0]
+    assert claim["claim_text"]
+    assert claim["assessment"] == "provisional"
+    assert claim["section"] in SECTION_IDS
+    assert isinstance(claim["core"], bool)
+    assert claim["locators"]
+    locator = claim["locators"][0]
+    for field in LOCATOR_FIELDS:
+        assert field in locator
+    assert locator["kind"] == "pdf"
+    assert locator["page"] >= 1
+    assert locator["artifact_sha256"] == sha256
+    assert locator["text_sha256"] == hashlib.sha256(claim["claim_text"].encode("utf-8")).hexdigest()
+    assert [section["id"] for section in document["sections"]] == SECTION_IDS
+
+
+def test_put_export_validate_pipeline_tiny_pdf(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
+
+    put_code = main(["ingest", "put", "--path", str(TINY_PDF)])
+    assert put_code == 0
+    put_payload = _stdout_json(capsys)
+    sha256 = put_payload["data"]["sha256"]
+
+    export_code = main(["draft", "export", "--sha256", sha256])
+    assert export_code == 0
+    export_payload = _stdout_json(capsys)
+    draft_path = Path(export_payload["data"]["path"])
+    document = json.loads(draft_path.read_text(encoding="utf-8"))
+    _schema_validator().validate(document)
+    _assert_complete_claim(document, sha256)
+
+    validate_code = main(["draft", "validate", "--path", str(draft_path)])
+    assert validate_code == 0
+    validate_payload = _stdout_json(capsys)
+    assert validate_payload["ok"] is True
+    assert validate_payload["command"] == "draft.validate"
+    assert network_attempts == []
