@@ -161,8 +161,9 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
     from video_paper_wiki.notes.section import section_text
     assert section_text(copied, "一句话结论") == "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
+    assert section_text(copied, "研究问题") == "没有成对视频-文本数据时，怎样做文生视频？"
     assert "Tiny VPKB paper" in section_text(work, "一句话结论")
-    for heading in ("研究问题", "方法", "表示与架构", "训练与数据", "实验与结果", "局限", "关联"):
+    for heading in ("方法", "表示与架构", "训练与数据", "实验与结果", "局限", "关联"):
         assert section_text(copied, heading) == ""
     assert section_text(copied, "证据状态") == section_text(work, "证据状态")
     assert section_text(copied, "代码与资源") == section_text(work, "代码与资源")

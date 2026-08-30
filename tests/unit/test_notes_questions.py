@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
-from video_paper_wiki.notes.clear_draft import apply_empty_draft_sections
+from video_paper_wiki.notes.questions import apply_frozen_question
 from video_paper_wiki.notes.section import section_text
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -12,14 +12,11 @@ MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
 
 MAV = "arxiv-2209.14792"
-MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
 MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
+MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 METHOD = "The model uses a diffusion transformer."
-CODE = "https://example.com/make-a-video"
-EVIDENCE = "provisional; local pypdf extract"
-CLEAR = (
-    "研究问题",
+STILL_EMPTY = (
     "方法",
     "表示与架构",
     "训练与数据",
@@ -27,20 +24,13 @@ CLEAR = (
     "局限",
     "关联",
 )
-KEEP = (
-    "一句话结论",
-    "代码与资源",
-    "证据状态",
-    "主题",
-    "相关论文",
-)
 
 
 def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def test_apply_empties_listed_sections_keeps_others() -> None:
+def test_apply_replaces_only_question_body() -> None:
     text = (
         "---\n"
         "title: Make-A-Video\n"
@@ -59,65 +49,40 @@ def test_apply_empties_listed_sections_keeps_others() -> None:
         "\n"
         f"{METHOD}\n"
         "\n"
-        "## 表示与架构\n"
-        "\n"
-        f"{REMNANT}\n"
-        "\n"
-        "## 训练与数据\n"
-        "\n"
-        f"{REMNANT}\n"
-        "\n"
-        "## 实验与结果\n"
-        "\n"
-        f"{REMNANT}\n"
-        "\n"
-        "## 局限\n"
-        "\n"
-        f"{REMNANT}\n"
-        "\n"
-        "## 代码与资源\n"
-        "\n"
-        f"{CODE}\n"
-        "\n"
-        "## 证据状态\n"
-        "\n"
-        f"{EVIDENCE}\n"
-        "\n"
-        "## 关联\n"
-        "\n"
-        f"{REMNANT}\n"
-        "\n"
         "## 主题\n"
         "\n"
         "[视频扩散](../wiki/video-diffusion.md)\n"
-        "\n"
-        "## 相关论文\n"
-        "\n"
-        "[CogVideoX](./arxiv-2408.06072.md) (2024)\n"
     )
     yaml = text.split("---", 2)[1]
-    out = apply_empty_draft_sections(text)
-    assert out.split("---", 2)[1] == yaml
-    assert section_text(out, "一句话结论") == MAV_SENTENCE
-    assert section_text(out, "代码与资源") == CODE
-    assert section_text(out, "证据状态") == EVIDENCE
-    assert section_text(out, "主题") == "[视频扩散](../wiki/video-diffusion.md)"
-    assert section_text(out, "相关论文") == "[CogVideoX](./arxiv-2408.06072.md) (2024)"
-    for heading in CLEAR:
-        assert section_text(out, heading) == ""
-        assert f"## {heading}\n\n## " in out or heading == "关联"
-    assert "## 关联\n\n## 主题" in out
+    out = apply_frozen_question(text, MAV)
+    assert section_text(out, "研究问题") == MAV_QUESTION
     assert REMNANT not in out
-    assert METHOD not in out
+    assert section_text(out, "一句话结论") == MAV_SENTENCE
+    assert section_text(out, "方法") == METHOD
+    assert section_text(out, "主题") == "[视频扩散](../wiki/video-diffusion.md)"
+    assert out.split("---", 2)[1] == yaml
+    assert out.index("## 一句话结论") < out.index("## 研究问题")
+    assert "## 研究问题\n\n" + MAV_QUESTION + "\n\n## 方法" in out
 
 
-def test_apply_does_not_add_missing_headings() -> None:
-    text = f"# title\n\n{REMNANT}\n"
-    assert apply_empty_draft_sections(text) == text
-    assert "## 方法" not in apply_empty_draft_sections(text)
+def test_apply_skips_unknown_paper_and_missing_heading() -> None:
+    remnant = (
+        "## 研究问题\n"
+        "\n"
+        f"{REMNANT}\n"
+        "\n"
+        "## 方法\n"
+        "\n"
+        f"{METHOD}\n"
+    )
+    assert apply_frozen_question(remnant, "fixture-unknown") == remnant
+    assert apply_frozen_question(remnant, "") == remnant
+    no_heading = f"# title\n\n{REMNANT}\n"
+    assert apply_frozen_question(no_heading, MAV) == no_heading
+    assert "## 研究问题" not in apply_frozen_question(no_heading, MAV)
 
 
-def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
+def test_review_export_swaps_vault_question_keeps_work_note(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -127,7 +92,7 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
     document["claims"] = [
         {
             "claim_text": REMNANT,
-            "section": "one_sentence_conclusion",
+            "section": "research_question",
             "core": True,
             "assessment": "provisional",
             "locators": [],
@@ -135,20 +100,6 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
         {
             "claim_text": METHOD,
             "section": "method",
-            "core": False,
-            "assessment": "provisional",
-            "locators": [],
-        },
-        {
-            "claim_text": CODE,
-            "section": "code_resources",
-            "core": False,
-            "assessment": "provisional",
-            "locators": [],
-        },
-        {
-            "claim_text": EVIDENCE,
-            "section": "evidence_status",
             "core": False,
             "assessment": "provisional",
             "locators": [],
@@ -167,34 +118,30 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
     assert payload["data"]["vault_path"] == copied.as_posix()
     work_text = work.read_text(encoding="utf-8")
     copied_text = copied.read_text(encoding="utf-8")
-    assert section_text(work_text, "一句话结论") == REMNANT
-    assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
-    assert section_text(work_text, "方法") == METHOD
-    assert section_text(copied_text, "方法") == ""
-    assert METHOD not in copied_text
-    assert REMNANT not in copied_text
-    assert section_text(copied_text, "代码与资源") == CODE
-    assert section_text(copied_text, "证据状态") == EVIDENCE
-    assert section_text(work_text, "代码与资源") == CODE
+    assert section_text(work_text, "研究问题") == REMNANT
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
-    for heading in CLEAR:
-        if heading == "研究问题":
-            assert f"## {heading}" in copied_text
-            continue
+    assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
+    assert REMNANT not in copied_text
+    assert MAV_QUESTION not in work_text
+    assert section_text(work_text, "方法") == METHOD
+    for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
+    assert section_text(copied_text, "代码与资源") == section_text(work_text, "代码与资源")
+    assert section_text(copied_text, "证据状态") == section_text(work_text, "证据状态")
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
-    wiki = dest / "wiki" / "video-diffusion.md"
-    assert wiki.is_file()
-    assert METHOD not in wiki.read_text(encoding="utf-8")
-    assert "## 方法" not in wiki.read_text(encoding="utf-8")
-    assert MAV_SENTENCE not in (dest / "index.md").read_text(encoding="utf-8")
+    wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
+    assert MAV_QUESTION not in wiki_text
+    assert "## 研究问题" not in wiki_text
+    index_text = (dest / "index.md").read_text(encoding="utf-8")
+    assert MAV_QUESTION not in index_text
+    assert "## 研究问题" not in index_text
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
-def test_ingest_clears_vault_remnants_keeps_work_note(
+def test_ingest_writes_frozen_question_on_vault_copy(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -217,20 +164,17 @@ def test_ingest_clears_vault_remnants_keeps_work_note(
     payload = _stdout_json(capsys)
     work_text = Path(payload["data"]["note_path"]).read_text(encoding="utf-8")
     copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
-    assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
-    assert section_text(work_text, "一句话结论") != MAV_SENTENCE
-    assert MAV_SENTENCE not in work_text
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
-    for heading in CLEAR:
-        if heading == "研究问题":
-            assert f"## {heading}" in copied_text
-            continue
+    assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
+    assert MAV_QUESTION not in work_text
+    assert MAV_SENTENCE not in work_text
+    for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
-        assert f"## {heading}" in copied_text
-    assert section_text(copied_text, "证据状态") == section_text(work_text, "证据状态")
-    assert section_text(copied_text, "代码与资源") == section_text(work_text, "代码与资源")
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
-    assert "## 主题" not in work_text.split("## 关联", 1)[1]
+    wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
+    assert MAV_QUESTION not in wiki_text
+    assert "## 研究问题" not in wiki_text
+    assert MAV_QUESTION not in (dest / "index.md").read_text(encoding="utf-8")
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
