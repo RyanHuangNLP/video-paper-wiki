@@ -11,7 +11,7 @@ from video_paper_wiki.blob_store import BlobStore
 from video_paper_wiki.cli import main
 from video_paper_wiki.commands import draft
 from video_paper_wiki.parse.docling_local import ParserUnavailable
-from video_paper_wiki.parse.draft_document import EVIDENCE_STATUS_TEXT, claims_from_body
+from video_paper_wiki.parse.draft_document import EVIDENCE_STATUS_TEXT, claims_from_body, claims_from_parse_fields
 from video_paper_wiki.parse.pypdf_local import parse_pdf_to_draft_fields as parse_pypdf_fields
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -508,3 +508,164 @@ def test_sectioned_pdf_fills_abstract_and_method(
     assert "This abstract sentence is the conclusion claim." in conclusion_block
     assert "We train a diffusion transformer on video latents." in method_block
     assert network_attempts == []
+
+
+FIGURE_TABLE_BODY = """Method
+We train a frozen tokenizer for video generation.
+Figure 9
+Raw Processed
+0.12 0.34 0.56 12% 8.1 0.99
+"""
+
+CONCLUSION_THEN_LIMITATIONS_BODY = """Abstract
+A tokenizer paper about video generation.
+Conclusion
+We recap that the frozen tokenizer works well overall.
+Limitations
+The model fails on long uncurated videos.
+"""
+
+JUNK_LABEL_BODY = """Raw Processed
+(a)
+(b)
+"""
+
+BACKFILL_BODY = """Video generation is a challenging open problem.
+We present a method that uses a frozen tokenizer.
+We train a U-Net for latent video synthesis.
+The training dataset of ten million clips is curated from the web.
+"""
+
+RELATED_WORK_ONLY_BODY = """Related Work
+Prior work uses a training dataset of images and a U-Net model.
+"""
+
+
+def test_figure_table_not_used_as_method_claim(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=FIGURE_TABLE_BODY,
+        artifact_sha256="11" * 32,
+        artifact_path="figure-table.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "method" in by_section
+    method_text = by_section["method"]["claim_text"]
+    assert "frozen tokenizer" in method_text
+    assert "We train" in method_text
+    assert "Figure 9" not in method_text
+    assert "Raw Processed" not in method_text
+    assert "0.12" not in method_text
+    assert "12%" not in method_text
+    for claim in claims:
+        assert "Figure 9" not in claim["claim_text"]
+        assert "0.12 0.34" not in claim["claim_text"]
+    assert network_attempts == []
+
+
+def test_figure_table_pdf_keeps_method_prose(tmp_path, network_attempts) -> None:
+    pdf_path = tmp_path / "figure-table.pdf"
+    pdf_path.write_bytes(
+        _minimal_pdf(
+            [
+                [
+                    "Method",
+                    "We train a frozen tokenizer for video generation.",
+                    "Figure 9",
+                    "Raw Processed",
+                    "0.12 0.34 0.56 12% 8.1 0.99",
+                ]
+            ],
+            title="Figure Table Paper",
+        )
+    )
+    fields = parse_pypdf_fields(pdf_path)
+    digest = "22" * 32
+    claims = claims_from_parse_fields(
+        fields,
+        artifact_sha256=digest,
+        artifact_path="sources/demo/figure-table.pdf",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "method" in by_section
+    method_text = by_section["method"]["claim_text"]
+    assert "frozen tokenizer" in method_text
+    assert "Figure 9" not in method_text
+    assert "Raw Processed" not in method_text
+    assert "0.12" not in method_text
+    assert network_attempts == []
+
+
+def test_conclusion_heading_does_not_fill_limitations(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=CONCLUSION_THEN_LIMITATIONS_BODY,
+        artifact_sha256="33" * 32,
+        artifact_path="x.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "limitations" in by_section
+    limitations = by_section["limitations"]["claim_text"]
+    assert "long uncurated videos" in limitations
+    assert "recap" not in limitations
+    assert "works well overall" not in limitations
+    assert network_attempts == []
+
+
+def test_short_junk_labels_are_not_section_claims(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=JUNK_LABEL_BODY,
+        artifact_sha256="44" * 32,
+        artifact_path="x.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "training_data" not in by_section
+    assert "method" not in by_section
+    assert "representation_architecture" not in by_section
+    for claim in claims:
+        lowered = claim["claim_text"].lower()
+        assert "raw processed" not in lowered
+        assert claim["claim_text"].strip() not in {"(a)", "(b)", "Raw Processed"}
+    if "evidence_status" in by_section:
+        assert by_section["evidence_status"]["claim_text"] == EVIDENCE_STATUS_TEXT
+    assert network_attempts == []
+
+
+def test_keyword_backfill_without_method_heading(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=BACKFILL_BODY,
+        artifact_sha256="55" * 32,
+        artifact_path="x.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    filled = set(by_section) & {"method", "representation_architecture", "training_data"}
+    assert filled
+    if "method" in by_section:
+        assert "method" in by_section["method"]["claim_text"].lower()
+    if "representation_architecture" in by_section:
+        assert "U-Net" in by_section["representation_architecture"]["claim_text"]
+    if "training_data" in by_section:
+        assert "training dataset" in by_section["training_data"]["claim_text"]
+    assert by_section["one_sentence_conclusion"]["claim_text"].startswith(
+        "Video generation is a challenging open problem."
+    )
+    assert network_attempts == []
+
+
+def test_backfill_does_not_steal_related_work(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=RELATED_WORK_ONLY_BODY,
+        artifact_sha256="66" * 32,
+        artifact_path="x.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "related" in by_section
+    assert "training dataset" in by_section["related"]["claim_text"]
+    assert "training_data" not in by_section
+    assert "method" not in by_section
+    assert "representation_architecture" not in by_section
+    assert network_attempts == []
+

@@ -72,8 +72,6 @@ _EXACT_HEADINGS: dict[str, str] = {
     "benchmarks": "experiments_results",
     "limitation": "limitations",
     "limitations": "limitations",
-    "conclusion": "limitations",
-    "conclusions": "limitations",
     "局限": "limitations",
     "code": "code_resources",
     "resources": "code_resources",
@@ -95,12 +93,30 @@ _HEADING_RULES: tuple[tuple[str, str], ...] = (
         rf"^{_OPTIONAL_PREFIX_RE}(experiments?|experimental|results?|evaluation|benchmarks?)\b",
         "experiments_results",
     ),
-    (rf"^{_OPTIONAL_PREFIX_RE}(limitations?|conclusions?|局限)", "limitations"),
+    (rf"^{_OPTIONAL_PREFIX_RE}(limitations?|局限)", "limitations"),
     (rf"^{_OPTIONAL_PREFIX_RE}(code|resources?|github)\b", "code_resources"),
     (rf"^project\s+page\b", "code_resources"),
 )
 _HEADING_COMPILED: tuple[tuple[re.Pattern[str], str], ...] = tuple(
     (re.compile(pattern, re.I), section) for pattern, section in _HEADING_RULES
+)
+_UNMAPPED_HEADINGS = frozenset({"conclusion", "conclusions"})
+_CAPTION_LINE_RE = re.compile(
+    r"^(?:Figure|Fig\.?|Table|Tab\.|Algorithm|Appendix)(?:\s|$|[:.]|\d)",
+    re.I,
+)
+_PANEL_MARKER_RE = re.compile(
+    r"^\(?[a-z0-9]\)?$|^\([ivx]+\)$|^[a-z0-9][\).]$",
+    re.I,
+)
+_NUMERIC_JUNK_RATIO = 0.4
+_BACKFILL_SECTIONS: tuple[tuple[str, re.Pattern[str]], ...] = (
+    ("method", re.compile(r"\b(method|approach|model)\b", re.I)),
+    (
+        "representation_architecture",
+        re.compile(r"\b(architecture|representation|u-?net|dit|tokenizer)\b", re.I),
+    ),
+    ("training_data", re.compile(r"\b(training|dataset|data)\b", re.I)),
 )
 
 
@@ -173,7 +189,7 @@ def _heading_shape(rest: str) -> bool:
     return True
 
 
-def _heading_section(line: str) -> str | None:
+def _heading_parts(line: str) -> tuple[str, str] | None:
     raw = line.strip()
     if not raw or len(raw) > HEADING_MAX_LEN:
         return None
@@ -187,11 +203,22 @@ def _heading_section(line: str) -> str | None:
     words = rest.split()
     if len(words) > 8:
         return None
-    key = rest.rstrip(".:").strip().lower()
+    shaped = rest.rstrip(".:").strip()
+    if not shaped:
+        return None
+    return shaped.lower(), shaped
+
+
+def _heading_section(line: str) -> str | None:
+    if _is_caption_line(line):
+        return None
+    parts = _heading_parts(line)
+    if parts is None:
+        return None
+    key, shaped = parts
     exact = _EXACT_HEADINGS.get(key)
     if exact is not None:
         return exact
-    shaped = rest.rstrip(".:").strip()
     if not _heading_shape(shaped):
         return None
     if _SENTENCE_CUES_RE.search(shaped):
@@ -200,6 +227,112 @@ def _heading_section(line: str) -> str | None:
         if pattern.search(shaped):
             return section
     return None
+
+
+def _is_unmapped_heading(line: str) -> bool:
+    """Conclusion headings cut sections but never map to limitations."""
+    if _is_caption_line(line):
+        return False
+    parts = _heading_parts(line)
+    if parts is None:
+        return False
+    key, _shaped = parts
+    if key in _UNMAPPED_HEADINGS:
+        return True
+    return bool(re.match(rf"^{_OPTIONAL_PREFIX_RE}conclusions?$", key, re.I))
+
+
+def _is_caption_line(line: str) -> bool:
+    return bool(_CAPTION_LINE_RE.match(line.strip()))
+
+
+def _is_panel_token(token: str) -> bool:
+    return bool(_PANEL_MARKER_RE.match(token.strip()))
+
+
+def _is_numeric_token(token: str) -> bool:
+    bare = token.strip("()[]{},;:·")
+    if not bare or not any(char.isdigit() for char in bare):
+        return False
+    core = re.sub(r"[%°a-zA-Z]{0,3}$", "", bare)
+    core = core.strip("()[]±+-,")
+    if not core:
+        return False
+    try:
+        float(core.replace(",", ""))
+        return True
+    except ValueError:
+        return bool(re.fullmatch(r"[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?", core))
+
+
+def _numeric_ratio(text: str) -> float:
+    tokens = text.split()
+    if not tokens:
+        return 0.0
+    numeric = sum(1 for token in tokens if _is_numeric_token(token))
+    return numeric / len(tokens)
+
+
+def _is_short_label_line(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped:
+        return True
+    if "://" in stripped:
+        return False
+    tokens = stripped.split()
+    if tokens and all(_is_panel_token(token) for token in tokens):
+        return True
+    if len(tokens) <= 2 and not re.search(r"[.!?]", stripped):
+        if _SENTENCE_CUES_RE.search(stripped):
+            return False
+        return True
+    return False
+
+
+def _is_junk_line(line: str) -> bool:
+    stripped = line.strip()
+    if not stripped:
+        return True
+    if _is_caption_line(stripped):
+        return True
+    if _numeric_ratio(stripped) >= _NUMERIC_JUNK_RATIO:
+        return True
+    return _is_short_label_line(stripped)
+
+
+def _is_junk_text(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped:
+        return True
+    if _numeric_ratio(stripped) >= _NUMERIC_JUNK_RATIO:
+        return True
+    lines = [part.strip() for part in stripped.splitlines() if part.strip()]
+    if lines and all(_is_junk_line(part) for part in lines):
+        return True
+    return _is_short_label_line(stripped)
+
+
+def _is_heading_cut(line: str) -> bool:
+    return _heading_section(line) is not None or _is_unmapped_heading(line)
+
+
+def _filter_claim_lines(seglines: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    return [
+        (page_no, text)
+        for page_no, text in seglines
+        if not _is_caption_line(text) and not _is_junk_line(text)
+    ]
+
+
+def _line_used_in_claims(line: str, used_texts: list[str]) -> bool:
+    if not line:
+        return False
+    for text in used_texts:
+        if not text:
+            continue
+        if line in text or text in line:
+            return True
+    return False
 
 
 def _normalize_pages(
@@ -297,8 +430,13 @@ def claims_from_body(
     current_lines: list[tuple[int, str]] = []
     current_page = lines[0][0]
     for page_no, line in lines:
+        if _is_caption_line(line):
+            if not current_lines:
+                current_page = page_no
+            current_lines.append((page_no, line))
+            continue
         mapped = _heading_section(line)
-        if mapped is not None:
+        if mapped is not None or _is_unmapped_heading(line):
             segments.append((current_section, current_lines, current_page))
             current_section = mapped
             current_lines = []
@@ -309,48 +447,112 @@ def claims_from_body(
         current_lines.append((page_no, line))
     segments.append((current_section, current_lines, current_page))
 
+    related_lines = {
+        text
+        for section, seglines, _start in segments
+        if section == "related"
+        for _page, text in seglines
+    }
+
     filled: dict[str, tuple[str, int]] = {}
+    used_claim_texts: list[str] = []
     for section, seglines, start_page in segments:
         if section is None:
             continue
         if section in filled:
             continue
-        chunk = _clip_claim_text(_join_lines(seglines))
-        if not chunk:
+        usable = _filter_claim_lines(seglines)
+        chunk = _clip_claim_text(_join_lines(usable))
+        if not chunk or _is_junk_text(chunk):
             continue
         if section == "one_sentence_conclusion":
             chunk = _clip_claim_text(_first_sentence(chunk))
-            if not chunk:
+            if not chunk or _is_junk_text(chunk):
                 continue
-        loc_page = seglines[0][0] if seglines else start_page
+        loc_page = usable[0][0] if usable else start_page
         filled[section] = (chunk, loc_page)
+        used_claim_texts.append(chunk)
 
     if "code_resources" not in filled:
         for page_no, line in lines:
-            if _heading_section(line) is not None:
+            if _is_heading_cut(line):
                 continue
             if _CODE_LINE_RE.search(line):
                 filled["code_resources"] = (_clip_claim_text(line), page_no)
+                used_claim_texts.append(line)
                 break
 
     if "one_sentence_conclusion" not in filled:
         title_norm = str(title or "").strip()
         candidates: list[tuple[int, str]] = []
         for page_no, line in lines:
-            if _heading_section(line) is not None:
+            if _is_heading_cut(line) or _is_caption_line(line) or _is_junk_line(line):
                 continue
             if title_norm and line == title_norm:
                 continue
             candidates.append((page_no, line))
-        source_lines = candidates if candidates else lines
-        sentence = _first_sentence(_join_lines(source_lines))
-        if not sentence:
-            sentence = _first_sentence(_join_lines(lines))
-        if sentence:
-            filled["one_sentence_conclusion"] = (
-                _clip_claim_text(sentence),
-                source_lines[0][0],
-            )
+        if not candidates:
+            candidates = [
+                (page_no, line)
+                for page_no, line in lines
+                if not _is_heading_cut(line)
+                and not _is_caption_line(line)
+                and not _is_junk_line(line)
+            ]
+        sentence = ""
+        source_page = lines[0][0]
+        if candidates:
+            sentence = _first_sentence(_join_lines(candidates))
+            source_page = candidates[0][0]
+        if sentence and not _is_junk_text(sentence):
+            filled["one_sentence_conclusion"] = (_clip_claim_text(sentence), source_page)
+            used_claim_texts.append(sentence)
+
+    title_norm = str(title or "").strip()
+    unused: list[tuple[int, str]] = []
+    for page_no, line in lines:
+        if _is_heading_cut(line) or _is_caption_line(line) or _is_junk_line(line):
+            continue
+        if title_norm and line == title_norm:
+            continue
+        if line in related_lines:
+            continue
+        if _line_used_in_claims(line, used_claim_texts):
+            continue
+        unused.append((page_no, line))
+
+    for section_id, pattern in _BACKFILL_SECTIONS:
+        if section_id in filled:
+            continue
+        match_at: int | None = None
+        for index, (_page_no, line) in enumerate(unused):
+            if pattern.search(line):
+                match_at = index
+                break
+        if match_at is None:
+            continue
+        excerpt_lines: list[tuple[int, str]] = []
+        total = 0
+        for page_no, line in unused[match_at:]:
+            addition = line if not excerpt_lines else f"\n{line}"
+            if excerpt_lines and total + len(addition) > CLAIM_TEXT_MAX:
+                break
+            excerpt_lines.append((page_no, line))
+            total += len(addition)
+            joined = " ".join(text for _page, text in excerpt_lines)
+            if re.search(r"[.!?]", joined) or total >= CLAIM_TEXT_MAX:
+                break
+        chunk = _clip_claim_text(_join_lines(excerpt_lines))
+        if not chunk or _is_junk_text(chunk):
+            continue
+        loc_page = excerpt_lines[0][0]
+        filled[section_id] = (chunk, loc_page)
+        used_claim_texts.append(chunk)
+        unused = [
+            item
+            for item in unused
+            if not _line_used_in_claims(item[1], [chunk])
+        ]
 
     first_extracted_page = page_texts[0][0]
     filled["evidence_status"] = (EVIDENCE_STATUS_TEXT, first_extracted_page)
