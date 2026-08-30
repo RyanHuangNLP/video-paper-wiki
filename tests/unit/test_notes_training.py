@@ -17,10 +17,10 @@ MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文
 MAV_METHOD = "先训图像扩散，再加时空卷积和注意力，用图像-文本对齐做文生视频。"
 MAV_ARCH = "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
 MAV_TRAIN = "先用图像-文本数据训图像扩散，再用无标签视频学时空模块。"
+MAV_EXP = "无成对视频-文本数据也能做出有竞争力的文生视频。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 EXPERIMENTS = "The experiment leftover should stay put."
 STILL_EMPTY = (
-    "实验与结果",
     "局限",
     "关联",
 )
@@ -135,6 +135,7 @@ def test_review_export_swaps_vault_training_keeps_work_note(
     copied_text = copied.read_text(encoding="utf-8")
     assert section_text(work_text, "训练与数据") == REMNANT
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
+    assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "方法") == MAV_METHOD
@@ -183,6 +184,7 @@ def test_ingest_writes_frozen_training_on_vault_copy(
     work_text = Path(payload["data"]["note_path"]).read_text(encoding="utf-8")
     copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
+    assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "表示与架构") == MAV_ARCH
     assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "研究问题") == MAV_QUESTION

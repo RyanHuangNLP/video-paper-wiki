@@ -7,6 +7,7 @@ from typing import Any, Mapping
 from video_paper_wiki.notes.architectures import apply_frozen_architecture
 from video_paper_wiki.notes.clear_draft import apply_empty_draft_sections
 from video_paper_wiki.notes.conclusions import apply_frozen_conclusion
+from video_paper_wiki.notes.experiments import apply_frozen_experiments
 from video_paper_wiki.notes.links import (
     backlink_catalog_ids,
     related_catalog_papers,
@@ -84,4 +85,5 @@ def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
     body = apply_frozen_question(body, paper_id)
     body = apply_frozen_method(body, paper_id)
     body = apply_frozen_architecture(body, paper_id)
-    return apply_frozen_training(body, paper_id)
+    body = apply_frozen_training(body, paper_id)
+    return apply_frozen_experiments(body, paper_id)

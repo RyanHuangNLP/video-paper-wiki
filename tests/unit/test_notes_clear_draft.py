@@ -17,6 +17,7 @@ MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
 MAV_METHOD = "先训图像扩散，再加时空卷积和注意力，用图像-文本对齐做文生视频。"
 MAV_ARCH = "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
 MAV_TRAIN = "先用图像-文本数据训图像扩散，再用无标签视频学时空模块。"
+MAV_EXP = "无成对视频-文本数据也能做出有竞争力的文生视频。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 METHOD = "The model uses a diffusion transformer."
 CODE = "https://example.com/make-a-video"
@@ -176,6 +177,7 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
     assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "表示与架构") == MAV_ARCH
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
+    assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert METHOD not in copied_text
     assert REMNANT not in copied_text
     assert section_text(copied_text, "代码与资源") == CODE
@@ -184,7 +186,7 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "方法") == MAV_METHOD
     for heading in CLEAR:
-        if heading in ("研究问题", "方法", "表示与架构", "训练与数据"):
+        if heading in ("研究问题", "方法", "表示与架构", "训练与数据", "实验与结果"):
             assert f"## {heading}" in copied_text
             continue
         assert section_text(copied_text, heading) == ""
@@ -230,8 +232,9 @@ def test_ingest_clears_vault_remnants_keeps_work_note(
     assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "表示与架构") == MAV_ARCH
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
+    assert section_text(copied_text, "实验与结果") == MAV_EXP
     for heading in CLEAR:
-        if heading in ("研究问题", "方法", "表示与架构", "训练与数据"):
+        if heading in ("研究问题", "方法", "表示与架构", "训练与数据", "实验与结果"):
             assert f"## {heading}" in copied_text
             continue
         assert section_text(copied_text, heading) == ""
