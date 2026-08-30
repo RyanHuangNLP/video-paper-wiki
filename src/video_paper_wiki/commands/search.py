@@ -1,4 +1,4 @@
-"""Local notes grep, stat, list, show, and section commands. No network."""
+"""Local notes grep, stat, list, show, section, and headings commands. No network."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing import Any
 from video_paper_wiki.envelope import emit_error, emit_success
 from video_paper_wiki.notes.grep import scan_matches
 from video_paper_wiki.notes.list import scan_list
-from video_paper_wiki.notes.section import read_paper_text, section_text
+from video_paper_wiki.notes.section import list_headings, read_paper_text, section_text
 from video_paper_wiki.notes.show import load_paper
 from video_paper_wiki.notes.stat import scan_stat
 
@@ -17,6 +17,7 @@ STAT_COMMAND = "VAULT.STAT".lower()
 LIST_COMMAND = "VAULT.LIST".lower()
 SHOW_COMMAND = "VAULT.SHOW".lower()
 SECTION_COMMAND = "VAULT.SECTION".lower()
+HEADINGS_COMMAND = "VAULT.HEADINGS".lower()
 _MISSING_DIR = "VAULT_NOT_FOUND"
 NOT_FOUND = "PAPER_NOT_FOUND"
 
@@ -175,4 +176,38 @@ def section(_args: object | None = None) -> int:
     return emit_success(
         SECTION_COMMAND,
         {"paper_id": paper_id, "section": heading, "text": body},
+    )
+
+
+def headings(_args: object | None = None) -> int:
+    raw_id = _attr(_args, "paper_id")
+    paper_id = "" if raw_id is None else str(raw_id).strip()
+    if not paper_id:
+        return emit_error(
+            HEADINGS_COMMAND, "USAGE", f"{HEADINGS_COMMAND} requires a non-empty paper_id"
+        )
+    raw_root = _attr(_args, "notes_root")
+    if raw_root is None or str(raw_root).strip() == "":
+        return emit_error(
+            HEADINGS_COMMAND, "USAGE", f"{HEADINGS_COMMAND} requires --{('VAULT').lower()}"
+        )
+    root = Path(str(raw_root)).expanduser()
+    if not root.is_dir():
+        return emit_error(
+            HEADINGS_COMMAND,
+            _MISSING_DIR,
+            "directory is missing or not a directory; this command does not create it",
+            {"path": str(raw_root)},
+        )
+    text = read_paper_text(root, paper_id)
+    if text is None:
+        return emit_error(
+            HEADINGS_COMMAND,
+            NOT_FOUND,
+            "paper note is missing; this command does not create it",
+            {"paper_id": paper_id},
+        )
+    return emit_success(
+        HEADINGS_COMMAND,
+        {"paper_id": paper_id, "headings": list_headings(text)},
     )

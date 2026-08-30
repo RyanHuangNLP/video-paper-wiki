@@ -36,6 +36,11 @@ def _heading_text(line: str) -> str:
     return line[2:].strip()
 
 
+def list_headings(text: str) -> list[str]:
+    """## heading texts in file order, prefix stripped. Empty if none."""
+    return [_heading_text(line) for line in text.splitlines() if _is_heading(line)]
+
+
 def section_text(text: str, section: str) -> str | None:
     """Body under the first exact ## heading, or None if that heading is absent."""
     wanted = str(section)
