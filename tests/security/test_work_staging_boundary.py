@@ -13,7 +13,13 @@ from jsonschema import Draft202012Validator
 
 from tests.support import make_checkout, plant_blob, work_draft, work_prepared, work_review
 from video_paper_wiki.cli import main
-from video_paper_wiki.staging import stage_bytes
+from video_paper_wiki.resources import _package_text, _repo_file
+from video_paper_wiki.staging import (
+    CODE_WORK_PATH_ESCAPE,
+    CODE_WORK_PATH_UNSAFE,
+    StagingError,
+    _assert_inside_work,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
@@ -359,6 +365,195 @@ def test_no_network_clients_or_boundary_bypasses(network_attempts) -> None:
     assert concat_vault is False
     staging = (SRC / "staging.py").read_text(encoding="utf-8")
     assert "paper_id" not in staging
+    assert network_attempts == []
+
+
+def test_resolved_path_outside_work_is_exactly_escape(
+    tmp_path, monkeypatch, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    work = checkout / ".work"
+    work.mkdir()
+    target = work / "b1" / ".." / ".." / "secret.md"
+    with pytest.raises(StagingError) as exc:
+        _assert_inside_work(target, work)
+    assert exc.value.code == CODE_WORK_PATH_ESCAPE
+    assert exc.value.code != CODE_WORK_PATH_UNSAFE
+    assert not (external / "paper.md").exists()
+    assert (external / "secret.bin").read_bytes() == b"SENTINEL-BYTES"
+    assert network_attempts == []
+
+
+def test_intermediate_dir_swap_after_mkdir_is_unsafe(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    before = _snapshot(external)
+    draft = _clone_mav_draft(checkout)
+    real_mkdir = os.mkdir
+
+    def racing_mkdir(name, mode=0o777, **kwargs):
+        result = real_mkdir(name, mode, **kwargs)
+        review = checkout / ".work" / "b1" / "review"
+        if name == "review" and review.is_dir() and not review.is_symlink():
+            stolen = tmp_path / "stolen-review"
+            review.rename(stolen)
+            review.symlink_to(external)
+        return result
+
+    monkeypatch.setattr(os, "mkdir", racing_mkdir)
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out
+    lines = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(lines) == 1, captured.out
+    payload = json.loads(lines[0])
+    Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
+    assert (external / "secret.bin").read_bytes() == b"SENTINEL-BYTES"
+    assert not (external / "paper.md").exists()
+    assert _snapshot(external) == before
+    assert network_attempts == []
+
+
+def test_intermediate_dir_swap_during_link_does_not_escape(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    before = _snapshot(external)
+    review_dir = checkout / ".work" / "b1" / "review"
+    review_dir.mkdir(parents=True)
+    draft = _clone_mav_draft(checkout)
+    real_link = os.link
+
+    def racing_link(src, dst, *args, **kwargs):
+        if review_dir.exists() and not review_dir.is_symlink():
+            stolen = tmp_path / "stolen-review"
+            review_dir.rename(stolen)
+            review_dir.symlink_to(external)
+        return real_link(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(os, "link", racing_link)
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out
+    lines = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(lines) == 1, captured.out
+    payload = json.loads(lines[0])
+    Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert (external / "secret.bin").read_bytes() == b"SENTINEL-BYTES"
+    assert not (external / "paper.md").exists()
+    assert _snapshot(external) == before
+    if payload.get("ok") is False:
+        assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
+        assert code == 2
+    assert network_attempts == []
+
+
+def test_batch_file_slot_is_unsafe_json_envelope(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    work = checkout / ".work"
+    work.mkdir()
+    (work / "b1").write_bytes(b"not-a-dir")
+    before = _snapshot(external)
+    draft = _clone_mav_draft(checkout)
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out
+    assert "NotADirectoryError" not in captured.out
+    lines = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(lines) == 1, captured.out
+    payload = json.loads(lines[0])
+    Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
+    assert _snapshot(external) == before
+    assert network_attempts == []
+
+
+def test_intermediate_file_slot_is_unsafe_json_envelope(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    parent = checkout / ".work" / "b1"
+    parent.mkdir(parents=True)
+    (parent / "review").write_bytes(b"not-a-dir")
+    before = _snapshot(external)
+    draft = _clone_mav_draft(checkout)
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out
+    assert "NotADirectoryError" not in captured.out
+    lines = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(lines) == 1, captured.out
+    payload = json.loads(lines[0])
+    Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert code == 2
+    assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
+    assert _snapshot(external) == before
+    assert network_attempts == []
+
+
+def test_project_not_table_is_workspace_invalid_json(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    root = tmp_path / "repo"
+    root.mkdir()
+    (root / ".git").mkdir()
+    (root / "pyproject.toml").write_text('project = "video-paper-wiki"\n', encoding="utf-8")
+    monkeypatch.chdir(root)
+    code = main(["doctor"])
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out
+    assert "AttributeError" not in captured.out
+    lines = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(lines) == 1, captured.out
+    payload = json.loads(lines[0])
+    Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "WORKSPACE_ROOT_INVALID"
+    assert network_attempts == []
+
+
+def test_corrupt_engine_mvp_json_rejected_via_cli(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    draft = _clone_mav_draft(checkout)
+    bad = tmp_path / "bad-engine-mvp.json"
+    bad.write_bytes(b'{"papers": []}\n' + bytes([0xFF]))
+
+    def fake_package(*parts: str):
+        if parts and parts[-1] == "engine-mvp.json":
+            return None
+        return _package_text(*parts)
+
+    def fake_repo(relative: Path):
+        if Path(relative).name == "engine-mvp.json":
+            return bad
+        return _repo_file(relative)
+
+    monkeypatch.setattr("video_paper_wiki.resources._package_text", fake_package)
+    monkeypatch.setattr("video_paper_wiki.resources._repo_file", fake_repo)
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out
+    lines = [line for line in captured.out.splitlines() if line.strip()]
+    assert len(lines) == 1, captured.out
+    payload = json.loads(lines[0])
+    Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "INVALID_ENCODING"
+    work = checkout / ".work"
+    assert not work.exists() or list(work.rglob("*")) == []
+    assert (external / "secret.bin").read_bytes() == b"SENTINEL-BYTES"
     assert network_attempts == []
 
 

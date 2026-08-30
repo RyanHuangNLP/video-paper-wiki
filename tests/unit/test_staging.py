@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from tests.support import work_draft, work_prepared, work_review
+from video_paper_wiki import staging as staging_mod
 from video_paper_wiki.staging import (
     CODE_INVALID_BATCH_ID,
     CODE_STAGING_CONFLICT,
@@ -13,6 +14,7 @@ from video_paper_wiki.staging import (
     CODE_WORK_PATH_UNSAFE,
     CODE_WORKSPACE_ROOT_INVALID,
     StagingError,
+    _assert_inside_work,
     stage_bytes,
     validate_batch_id,
 )
@@ -181,4 +183,67 @@ def test_git_symlink_is_invalid(tmp_path: Path, monkeypatch) -> None:
 def test_relative_dotdot_is_unsafe(checkout: Path) -> None:
     with pytest.raises(StagingError) as exc:
         stage_bytes(batch_id="b1", relative=("..", "paper.md"), data=b"x")
-    assert exc.value.code in {CODE_WORK_PATH_UNSAFE, CODE_WORK_PATH_ESCAPE}
+    assert exc.value.code == CODE_WORK_PATH_UNSAFE
+
+
+def test_resolved_path_outside_work_is_escape(checkout: Path) -> None:
+    work = checkout / ".work"
+    work.mkdir()
+    target = work / "b1" / ".." / ".." / "secret.md"
+    with pytest.raises(StagingError) as exc:
+        _assert_inside_work(target, work)
+    assert exc.value.code == CODE_WORK_PATH_ESCAPE
+    assert exc.value.code != CODE_WORK_PATH_UNSAFE
+
+
+def test_batch_as_file_is_unsafe(checkout: Path) -> None:
+    work = checkout / ".work"
+    work.mkdir()
+    (work / "b1").write_bytes(b"not-a-dir")
+    with pytest.raises(StagingError) as exc:
+        stage_bytes(batch_id="b1", relative=("review", "paper.md"), data=b"x")
+    assert exc.value.code == CODE_WORK_PATH_UNSAFE
+
+
+def test_intermediate_as_file_is_unsafe(checkout: Path) -> None:
+    parent = checkout / ".work" / "b1"
+    parent.mkdir(parents=True)
+    (parent / "review").write_bytes(b"not-a-dir")
+    with pytest.raises(StagingError) as exc:
+        stage_bytes(batch_id="b1", relative=("review", "paper.md"), data=b"x")
+    assert exc.value.code == CODE_WORK_PATH_UNSAFE
+
+
+def test_intermediate_fifo_is_unsafe(checkout: Path) -> None:
+    parent = checkout / ".work" / "b1"
+    parent.mkdir(parents=True)
+    os.mkfifo(parent / "review")
+    with pytest.raises(StagingError) as exc:
+        stage_bytes(batch_id="b1", relative=("review", "paper.md"), data=b"x")
+    assert exc.value.code == CODE_WORK_PATH_UNSAFE
+
+
+def test_project_not_a_table_is_invalid(tmp_path: Path, monkeypatch) -> None:
+    (tmp_path / ".git").mkdir()
+    (tmp_path / "pyproject.toml").write_text('project = "video-paper-wiki"\n', encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(StagingError) as exc:
+        stage_bytes(batch_id="b1", relative=("review", "paper.md"), data=b"x")
+    assert exc.value.code == CODE_WORKSPACE_ROOT_INVALID
+
+
+def test_already_staged_when_install_sees_same_bytes(checkout: Path, monkeypatch) -> None:
+    first = stage_bytes(
+        batch_id="b1",
+        relative=("draft", "paper-analysis-draft.v1.json"),
+        data=b"abc",
+    )
+    assert first.already_staged is False
+    monkeypatch.setattr(staging_mod, "_existing_same_bytes", lambda *_args, **_kwargs: False)
+    second = stage_bytes(
+        batch_id="b1",
+        relative=("draft", "paper-analysis-draft.v1.json"),
+        data=b"abc",
+    )
+    assert second.already_staged is True
+    assert (checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json").read_bytes() == b"abc"

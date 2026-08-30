@@ -128,3 +128,25 @@ def test_query_with_json_is_single_envelope(capsys) -> None:
     assert code == 2
     assert payload["ok"] is False
     assert payload["command"] == "query"
+
+
+def test_query_abbrev_json_is_usage(capsys) -> None:
+    code = main(["query", "--j"])
+    payload, _err = _stdout_payload(capsys)
+    _assert_usage(code, payload)
+    assert payload["command"] == "query"
+    assert payload["error"]["code"] == "USAGE"
+
+
+def _walk_parsers(parser: argparse.ArgumentParser) -> list[argparse.ArgumentParser]:
+    found = [parser]
+    for action in parser._actions:
+        if isinstance(action, argparse._SubParsersAction):
+            for child in action.choices.values():
+                found.extend(_walk_parsers(child))
+    return found
+
+
+def test_allow_abbrev_disabled_on_every_parser() -> None:
+    for parser in _walk_parsers(build_parser()):
+        assert parser.allow_abbrev is False

@@ -24,14 +24,38 @@ class UsageError(Exception):
 
 
 class _JsonArgumentParser(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs) -> None:
+        kwargs["allow_abbrev"] = False
+        super().__init__(*args, **kwargs)
+
     def error(self, message: str) -> None:
         raise UsageError(message)
+
+    def add_subparsers(self, **kwargs):
+        kwargs["parser_class"] = type(self)
+        return super().add_subparsers(**kwargs)
+
+
+def _add_parser(sub: argparse._SubParsersAction, name: str, **kwargs) -> argparse.ArgumentParser:
+    kwargs["allow_abbrev"] = False
+    return sub.add_parser(name, **kwargs)
 
 
 def _dotted(argv_head: list[str]) -> str:
     if not argv_head:
         return "vpwiki"
     return ".".join(argv_head)
+
+
+def _command_from_argv(args: list[str]) -> str:
+    parts: list[str] = []
+    for token in args:
+        if token.startswith("-"):
+            continue
+        parts.append(token)
+        if len(parts) >= 2:
+            break
+    return _dotted(parts) if parts else "vpwiki"
 
 
 def _cmd_doctor(_args: argparse.Namespace) -> int:
@@ -122,70 +146,70 @@ def _add_prepare_flags(parser: argparse.ArgumentParser) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = _JsonArgumentParser(prog="vpwiki", add_help=True)
+    parser = _JsonArgumentParser(prog="vpwiki", add_help=True, allow_abbrev=False)
     sub = parser.add_subparsers(dest="command")
 
-    doctor = sub.add_parser("doctor")
+    doctor = _add_parser(sub, "doctor")
     doctor.set_defaults(handler=_cmd_doctor)
 
-    init = sub.add_parser("init")
+    init = _add_parser(sub, "init")
     init_sub = init.add_subparsers(dest="init_cmd", required=True)
-    init_sub.add_parser("plan").set_defaults(handler=_cmd_not_implemented("init.plan"))
-    init_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("init.inspect"))
+    _add_parser(init_sub, "plan").set_defaults(handler=_cmd_not_implemented("init.plan"))
+    _add_parser(init_sub, "inspect").set_defaults(handler=_cmd_not_implemented("init.inspect"))
 
-    seed = sub.add_parser("seed")
+    seed = _add_parser(sub, "seed")
     seed_sub = seed.add_subparsers(dest="seed_cmd", required=True)
-    seed_sub.add_parser("validate").set_defaults(handler=_cmd_not_implemented("seed.validate"))
-    seed_sub.add_parser("status").set_defaults(handler=_cmd_not_implemented("seed.status"))
+    _add_parser(seed_sub, "validate").set_defaults(handler=_cmd_not_implemented("seed.validate"))
+    _add_parser(seed_sub, "status").set_defaults(handler=_cmd_not_implemented("seed.status"))
 
-    ingest = sub.add_parser("ingest")
+    ingest = _add_parser(sub, "ingest")
     ingest_sub = ingest.add_subparsers(dest="ingest_cmd", required=True)
-    ingest_sub.add_parser("plan").set_defaults(handler=_cmd_not_implemented("ingest.plan"))
-    ingest_prepare = ingest_sub.add_parser("prepare")
+    _add_parser(ingest_sub, "plan").set_defaults(handler=_cmd_not_implemented("ingest.plan"))
+    ingest_prepare = _add_parser(ingest_sub, "prepare")
     ingest_prepare.set_defaults(_vpkb_family="ingest")
     _add_prepare_flags(ingest_prepare)
-    ingest_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("ingest.inspect"))
+    _add_parser(ingest_sub, "inspect").set_defaults(handler=_cmd_not_implemented("ingest.inspect"))
 
-    capture = sub.add_parser("capture")
+    capture = _add_parser(sub, "capture")
     capture_sub = capture.add_subparsers(dest="capture_cmd", required=True)
-    capture_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("capture.inspect"))
+    _add_parser(capture_sub, "inspect").set_defaults(handler=_cmd_not_implemented("capture.inspect"))
 
-    draft = sub.add_parser("draft")
+    draft = _add_parser(sub, "draft")
     draft_sub = draft.add_subparsers(dest="draft_cmd", required=True)
-    draft_export = draft_sub.add_parser("export")
+    draft_export = _add_parser(draft_sub, "export")
     draft_export.add_argument("--sha256", required=True)
     draft_export.add_argument("--paper-id", dest="paper_id", default=None)
     draft_export.add_argument("--batch-id", required=True)
     draft_export.set_defaults(handler=draft_commands.export)
-    draft_validate = draft_sub.add_parser("validate")
+    draft_validate = _add_parser(draft_sub, "validate")
     draft_validate.add_argument("--path", required=True)
     draft_validate.set_defaults(handler=draft_commands.validate)
 
-    review = sub.add_parser("review")
+    review = _add_parser(sub, "review")
     review_sub = review.add_subparsers(dest="review_cmd", required=True)
-    review_export = review_sub.add_parser("export")
+    review_export = _add_parser(review_sub, "export")
     review_export.add_argument("--draft", required=True)
     review_export.add_argument("--batch-id", required=True)
     review_export.set_defaults(handler=review_commands.export)
-    review_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("review.inspect"))
+    _add_parser(review_sub, "inspect").set_defaults(handler=_cmd_not_implemented("review.inspect"))
 
-    code_map = sub.add_parser("code-map")
+    code_map = _add_parser(sub, "code-map")
     code_map_sub = code_map.add_subparsers(dest="code_map_cmd", required=True)
-    code_map_sub.add_parser("plan").set_defaults(handler=_cmd_not_implemented("code-map.plan"))
-    code_map_prepare = code_map_sub.add_parser("prepare")
+    _add_parser(code_map_sub, "plan").set_defaults(handler=_cmd_not_implemented("code-map.plan"))
+    code_map_prepare = _add_parser(code_map_sub, "prepare")
     code_map_prepare.set_defaults(_vpkb_family="code-map")
     _add_prepare_flags(code_map_prepare)
-    code_map_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("code-map.inspect"))
+    _add_parser(code_map_sub, "inspect").set_defaults(handler=_cmd_not_implemented("code-map.inspect"))
 
-    index = sub.add_parser("index")
+    index = _add_parser(sub, "index")
     index_sub = index.add_subparsers(dest="index_cmd", required=True)
-    index_sub.add_parser("status").set_defaults(handler=_cmd_not_implemented("index.status"))
+    _add_parser(index_sub, "status").set_defaults(handler=_cmd_not_implemented("index.status"))
 
-    query = sub.add_parser("query")
+    query = _add_parser(sub, "query")
     query.add_argument("--json", action="store_true")
     query.set_defaults(handler=_cmd_query)
 
-    audit = sub.add_parser("audit")
+    audit = _add_parser(sub, "audit")
     audit.set_defaults(handler=_cmd_not_implemented("audit"))
 
     return parser
@@ -197,13 +221,13 @@ def main(argv: list[str] | None = None) -> int:
     try:
         ns = parser.parse_args(args)
     except UsageError as exc:
-        command = _dotted(args[:2]) if args else "vpwiki"
+        command = _command_from_argv(args)
         sys.stderr.write(f"{exc.message}\n")
         return emit_error(command, "USAGE", exc.message)
     handler = getattr(ns, "handler", None)
     if handler is None:
         sys.stderr.write("missing command\n")
-        return emit_error(_dotted(args[:2]) if args else "vpwiki", "USAGE", "missing command")
+        return emit_error(_command_from_argv(args), "USAGE", "missing command")
     if getattr(ns, "command", None) == "query" and not getattr(ns, "json", False):
         sys.stderr.write("query requires --json\n")
         return emit_error("query", "USAGE", "query requires --json")
@@ -211,16 +235,25 @@ def main(argv: list[str] | None = None) -> int:
         resolve_checkout_root()
     except StagingError as exc:
         sys.stderr.write(f"{exc.message}\n")
-        return emit_staging_error(_dotted(args[:2]) if args else "vpwiki", exc)
+        return emit_staging_error(_command_from_argv(args), exc)
     try:
         return handler(ns)
+    except StagingError as exc:
+        sys.stderr.write(f"{exc.message}\n")
+        return emit_staging_error(_command_from_argv(args), exc)
     except InvalidEncoding as exc:
-        command = _dotted(args[:2]) if args else "vpwiki"
+        command = _command_from_argv(args)
         return emit_error(
             command,
             "INVALID_ENCODING",
             "file is not valid UTF-8; this command does not rewrite it",
             {"path": exc.path.as_posix()},
+        )
+    except NotADirectoryError:
+        return emit_error(
+            _command_from_argv(args),
+            "WORK_PATH_UNSAFE",
+            "directory slot is not a directory",
         )
 
 
