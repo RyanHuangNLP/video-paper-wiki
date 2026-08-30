@@ -669,3 +669,190 @@ def test_backfill_does_not_steal_related_work(network_attempts) -> None:
     assert "representation_architecture" not in by_section
     assert network_attempts == []
 
+GSO_CAPTION_BODY = """Method
+Figure 9
+Objects (GSO) test dataset on the (b) Training progress of the model.
+We train a frozen tokenizer on video latents.
+"""
+
+GSO_CAPTION_WITH_FIGURE_MENTION_BODY = """Method
+Figure 9
+Objects (GSO) test dataset on the (b) Training progress of the model. Figure 9
+"""
+
+GSO_CAPTION_ONLY_BODY = """Method
+Figure 9
+Objects (GSO) test dataset on the (b) Training progress of the model.
+"""
+
+TRUNCATED_LEAD_BODY = """Method
+ing a diffusion model for video.
+We train a U-Net on latents.
+"""
+
+TRUNCATED_LEAD_ONLY_BODY = """Method
+ing a diffusion model for video.
+"""
+
+TRAINING_PANEL_CAPTION_BODY = """Training
+Left: Optical Flow Score
+Right: Temporal consistency of warped frames.
+"""
+
+BACKFILL_GSO_CAPTION_BODY = """Video generation is a challenging open problem.
+Objects (GSO) test dataset on the (b) Training progress of the model.
+"""
+
+
+def test_gso_caption_remnant_not_method_claim(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=GSO_CAPTION_BODY,
+        artifact_sha256="77" * 32,
+        artifact_path="gso.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "method" in by_section
+    method_text = by_section["method"]["claim_text"]
+    assert "frozen tokenizer" in method_text
+    assert "GSO" not in method_text
+    assert "Figure 9" not in method_text
+    assert "(b) Training progress" not in method_text
+    for claim in claims:
+        assert "GSO" not in claim["claim_text"]
+        assert "Figure 9" not in claim["claim_text"]
+        assert "(b) Training progress" not in claim["claim_text"]
+    assert network_attempts == []
+
+
+def test_gso_caption_with_figure_mention_not_method_claim(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=GSO_CAPTION_WITH_FIGURE_MENTION_BODY,
+        artifact_sha256="88" * 32,
+        artifact_path="gso-figure.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "method" not in by_section
+    for claim in claims:
+        assert "GSO" not in claim["claim_text"]
+        assert "Figure 9" not in claim["claim_text"]
+        assert "(b) Training progress" not in claim["claim_text"]
+    assert network_attempts == []
+
+
+def test_gso_caption_only_does_not_fill_method(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=GSO_CAPTION_ONLY_BODY,
+        artifact_sha256="99" * 32,
+        artifact_path="gso-only.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "method" not in by_section
+    for claim in claims:
+        assert "GSO" not in claim["claim_text"]
+        assert "Figure 9" not in claim["claim_text"]
+        assert "(b) Training progress" not in claim["claim_text"]
+    assert network_attempts == []
+
+
+def test_truncated_leading_word_is_not_a_claim(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=TRUNCATED_LEAD_BODY,
+        artifact_sha256="aa" * 32,
+        artifact_path="truncated.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    for claim in claims:
+        assert "ing a diffusion model" not in claim["claim_text"]
+    assert "method" in by_section
+    assert "U-Net on latents" in by_section["method"]["claim_text"]
+    assert network_attempts == []
+
+
+def test_truncated_leading_word_without_followup_skips_section(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=TRUNCATED_LEAD_ONLY_BODY,
+        artifact_sha256="bb" * 32,
+        artifact_path="truncated-only.pdf",
+        title="",
+    )
+    for claim in claims:
+        assert "ing a diffusion model" not in claim["claim_text"]
+    assert "method" not in {claim["section"] for claim in claims}
+    assert network_attempts == []
+
+
+def test_training_panel_caption_not_used_as_training_data(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=TRAINING_PANEL_CAPTION_BODY,
+        artifact_sha256="cc" * 32,
+        artifact_path="training-caption.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "training_data" not in by_section
+    for claim in claims:
+        lowered = claim["claim_text"].lower()
+        assert "optical flow score" not in lowered
+        assert not lowered.startswith("left:")
+        assert not lowered.startswith("right:")
+    assert network_attempts == []
+
+
+def test_backfill_does_not_use_gso_caption(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=BACKFILL_GSO_CAPTION_BODY,
+        artifact_sha256="dd" * 32,
+        artifact_path="backfill-gso.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert "method" not in by_section
+    assert "training_data" not in by_section
+    for claim in claims:
+        assert "GSO" not in claim["claim_text"]
+        assert "(b) Training progress" not in claim["claim_text"]
+    assert network_attempts == []
+
+TRUNCATED_SAME_LINE_BODY = """Method
+ing a diffusion model for video. We train a U-Net on latents.
+"""
+
+HYPHENATION_LEFTOVER_BODY = """Method
+changes to accommodate the video backbone.
+We train a U-Net on latents.
+"""
+
+
+def test_truncated_lead_same_line_uses_next_sentence(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=TRUNCATED_SAME_LINE_BODY,
+        artifact_sha256="ee" * 32,
+        artifact_path="truncated-same-line.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    for claim in claims:
+        assert "ing a diffusion model" not in claim["claim_text"]
+    assert "method" in by_section
+    assert "U-Net on latents" in by_section["method"]["claim_text"]
+    assert network_attempts == []
+
+
+def test_hyphenation_leftover_not_used_as_method_claim(network_attempts) -> None:
+    claims = claims_from_body(
+        body_text=HYPHENATION_LEFTOVER_BODY,
+        artifact_sha256="ff" * 32,
+        artifact_path="hyphenation.pdf",
+        title="",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    for claim in claims:
+        assert not claim["claim_text"].startswith("changes to accommodate")
+    assert "method" in by_section
+    assert "U-Net on latents" in by_section["method"]["claim_text"]
+    assert network_attempts == []
+

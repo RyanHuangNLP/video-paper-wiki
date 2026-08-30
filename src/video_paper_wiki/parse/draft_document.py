@@ -105,6 +105,34 @@ _CAPTION_LINE_RE = re.compile(
     r"^(?:Figure|Fig\.?|Table|Tab\.|Algorithm|Appendix)(?:\s|$|[:.]|\d)",
     re.I,
 )
+_CAPTION_REF_RE = re.compile(r"\bFigure\s*\d|\bFig\.|\bTable\s*\d", re.I)
+_CAPTION_OPENING_RE = re.compile(
+    r"^(?:\(\s*[a-z]\s*\)|(?:Left|Right|Top|Bottom)\s*:)",
+    re.I,
+)
+_PANEL_IN_TEXT_RE = re.compile(r"\([a-z]\)")
+_TRUNCATED_LEAD_RE = re.compile(r"^[a-z]{2,}\b")
+_SENTENCE_STARTERS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "we",
+        "this",
+        "these",
+        "those",
+        "that",
+        "our",
+        "it",
+        "they",
+        "in",
+        "on",
+        "for",
+        "to",
+        "as",
+        "using",
+    }
+)
 _PANEL_MARKER_RE = re.compile(
     r"^\(?[a-z0-9]\)?$|^\([ivx]+\)$|^[a-z0-9][\).]$",
     re.I,
@@ -243,7 +271,16 @@ def _is_unmapped_heading(line: str) -> bool:
 
 
 def _is_caption_line(line: str) -> bool:
-    return bool(_CAPTION_LINE_RE.match(line.strip()))
+    stripped = line.strip()
+    if not stripped:
+        return False
+    if _CAPTION_LINE_RE.match(stripped):
+        return True
+    if _CAPTION_REF_RE.search(stripped):
+        return True
+    if _CAPTION_OPENING_RE.match(stripped):
+        return True
+    return bool(_PANEL_IN_TEXT_RE.search(stripped))
 
 
 def _is_panel_token(token: str) -> bool:
@@ -282,11 +319,76 @@ def _is_short_label_line(text: str) -> bool:
     tokens = stripped.split()
     if tokens and all(_is_panel_token(token) for token in tokens):
         return True
-    if len(tokens) <= 2 and not re.search(r"[.!?]", stripped):
-        if _SENTENCE_CUES_RE.search(stripped):
-            return False
+    if re.search(r"[.!?]", stripped) or _SENTENCE_CUES_RE.search(stripped):
+        return False
+    if len(tokens) <= 2:
+        return True
+    # Heading-like score/label captions: "Optical Flow Score"
+    if 3 <= len(tokens) <= 6 and _heading_shape(stripped):
         return True
     return False
+
+
+def _is_truncated_lead(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped or "://" in stripped:
+        return False
+    match = _TRUNCATED_LEAD_RE.match(stripped)
+    if match is None:
+        return False
+    return match.group(0) not in _SENTENCE_STARTERS
+
+
+def _rest_after_first_sentence(text: str) -> str:
+    stripped = text.strip()
+    if not stripped:
+        return ""
+    for index, char in enumerate(stripped):
+        if char in ".!?" and (index + 1 == len(stripped) or stripped[index + 1].isspace()):
+            return stripped[index + 1 :].strip()
+    lines = stripped.splitlines()
+    if len(lines) <= 1:
+        return ""
+    return "\n".join(part.strip() for part in lines[1:] if part.strip())
+
+
+def _drop_truncated_prefix(text: str) -> str:
+    remaining = text.strip()
+    seen: set[str] = set()
+    while remaining and remaining not in seen:
+        seen.add(remaining)
+        if not _is_truncated_lead(remaining):
+            return remaining
+        remaining = _rest_after_first_sentence(remaining)
+    return remaining
+
+
+def _first_usable_sentence(text: str) -> str:
+    remaining = _drop_truncated_prefix(text)
+    while remaining:
+        sentence = _first_sentence(remaining)
+        if not sentence:
+            return ""
+        if _is_truncated_lead(sentence) or _is_caption_line(sentence) or _is_junk_line(sentence):
+            remaining = _drop_truncated_prefix(_rest_after_first_sentence(remaining))
+            continue
+        if _is_junk_text(sentence):
+            remaining = _drop_truncated_prefix(_rest_after_first_sentence(remaining))
+            continue
+        return sentence
+    return ""
+
+
+def _looks_like_prose(text: str) -> bool:
+    stripped = text.strip()
+    if not stripped or _is_caption_line(stripped) or _is_junk_line(stripped):
+        return False
+    if _is_truncated_lead(stripped):
+        return False
+    if not _SENTENCE_CUES_RE.search(stripped):
+        return False
+    first_token = stripped.split()[0].lower().strip(".,:;!?")
+    return stripped[:1].isupper() or first_token in _SENTENCE_STARTERS
 
 
 def _is_junk_line(line: str) -> bool:
@@ -294,6 +396,8 @@ def _is_junk_line(line: str) -> bool:
     if not stripped:
         return True
     if _is_caption_line(stripped):
+        return True
+    if _is_truncated_lead(stripped) and not _rest_after_first_sentence(stripped):
         return True
     if _numeric_ratio(stripped) >= _NUMERIC_JUNK_RATIO:
         return True
@@ -303,6 +407,8 @@ def _is_junk_line(line: str) -> bool:
 def _is_junk_text(text: str) -> bool:
     stripped = text.strip()
     if not stripped:
+        return True
+    if _is_truncated_lead(stripped) and not _drop_truncated_prefix(stripped):
         return True
     if _numeric_ratio(stripped) >= _NUMERIC_JUNK_RATIO:
         return True
@@ -317,11 +423,21 @@ def _is_heading_cut(line: str) -> bool:
 
 
 def _filter_claim_lines(seglines: list[tuple[int, str]]) -> list[tuple[int, str]]:
-    return [
-        (page_no, text)
-        for page_no, text in seglines
-        if not _is_caption_line(text) and not _is_junk_line(text)
-    ]
+    usable: list[tuple[int, str]] = []
+    after_caption = False
+    for page_no, text in seglines:
+        stripped = text.strip()
+        if _is_caption_line(stripped):
+            after_caption = True
+            continue
+        cleaned = _drop_truncated_prefix(stripped)
+        if not cleaned or _is_junk_line(cleaned):
+            continue
+        if after_caption and not _looks_like_prose(cleaned):
+            continue
+        after_caption = False
+        usable.append((page_no, cleaned))
+    return usable
 
 
 def _line_used_in_claims(line: str, used_texts: list[str]) -> bool:
@@ -462,11 +578,11 @@ def claims_from_body(
         if section in filled:
             continue
         usable = _filter_claim_lines(seglines)
-        chunk = _clip_claim_text(_join_lines(usable))
+        chunk = _drop_truncated_prefix(_clip_claim_text(_join_lines(usable)))
         if not chunk or _is_junk_text(chunk):
             continue
         if section == "one_sentence_conclusion":
-            chunk = _clip_claim_text(_first_sentence(chunk))
+            chunk = _clip_claim_text(_first_usable_sentence(chunk))
             if not chunk or _is_junk_text(chunk):
                 continue
         loc_page = usable[0][0] if usable else start_page
@@ -486,23 +602,27 @@ def claims_from_body(
         title_norm = str(title or "").strip()
         candidates: list[tuple[int, str]] = []
         for page_no, line in lines:
-            if _is_heading_cut(line) or _is_caption_line(line) or _is_junk_line(line):
+            if _is_heading_cut(line):
                 continue
-            if title_norm and line == title_norm:
+            cleaned = _drop_truncated_prefix(line)
+            if not cleaned or _is_caption_line(cleaned) or _is_junk_line(cleaned):
                 continue
-            candidates.append((page_no, line))
+            if title_norm and (line == title_norm or cleaned == title_norm):
+                continue
+            candidates.append((page_no, cleaned))
         if not candidates:
-            candidates = [
-                (page_no, line)
-                for page_no, line in lines
-                if not _is_heading_cut(line)
-                and not _is_caption_line(line)
-                and not _is_junk_line(line)
-            ]
+            candidates = []
+            for page_no, line in lines:
+                if _is_heading_cut(line):
+                    continue
+                cleaned = _drop_truncated_prefix(line)
+                if not cleaned or _is_caption_line(cleaned) or _is_junk_line(cleaned):
+                    continue
+                candidates.append((page_no, cleaned))
         sentence = ""
         source_page = lines[0][0]
         if candidates:
-            sentence = _first_sentence(_join_lines(candidates))
+            sentence = _first_usable_sentence(_join_lines(candidates))
             source_page = candidates[0][0]
         if sentence and not _is_junk_text(sentence):
             filled["one_sentence_conclusion"] = (_clip_claim_text(sentence), source_page)
@@ -511,15 +631,20 @@ def claims_from_body(
     title_norm = str(title or "").strip()
     unused: list[tuple[int, str]] = []
     for page_no, line in lines:
-        if _is_heading_cut(line) or _is_caption_line(line) or _is_junk_line(line):
+        if _is_heading_cut(line):
             continue
-        if title_norm and line == title_norm:
+        cleaned = _drop_truncated_prefix(line)
+        if not cleaned or _is_caption_line(cleaned) or _is_junk_line(cleaned):
             continue
-        if line in related_lines:
+        if title_norm and (line == title_norm or cleaned == title_norm):
             continue
-        if _line_used_in_claims(line, used_claim_texts):
+        if line in related_lines or cleaned in related_lines:
             continue
-        unused.append((page_no, line))
+        if _line_used_in_claims(line, used_claim_texts) or _line_used_in_claims(
+            cleaned, used_claim_texts
+        ):
+            continue
+        unused.append((page_no, cleaned))
 
     for section_id, pattern in _BACKFILL_SECTIONS:
         if section_id in filled:
@@ -542,8 +667,8 @@ def claims_from_body(
             joined = " ".join(text for _page, text in excerpt_lines)
             if re.search(r"[.!?]", joined) or total >= CLAIM_TEXT_MAX:
                 break
-        chunk = _clip_claim_text(_join_lines(excerpt_lines))
-        if not chunk or _is_junk_text(chunk):
+        chunk = _drop_truncated_prefix(_clip_claim_text(_join_lines(excerpt_lines)))
+        if not chunk or _is_junk_text(chunk) or _is_caption_line(chunk):
             continue
         loc_page = excerpt_lines[0][0]
         filled[section_id] = (chunk, loc_page)
