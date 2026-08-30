@@ -36,10 +36,10 @@ EXPECTED = {
 }
 FROZEN_SHA256 = "85c4f71517cf84f04850c25e7fe70fa10e771930cf854bea68fc93cc3da9eb73"
 FROZEN_SEED_SHA256 = (
-    "2f0b65e9ce4e57864cadc5367afc0c41999e4c82b1694ee94f440cedd22d7ef6"
+    "395656a16fd5760a2e1064b9688d677997ed776018cc0d80a3a640c5a9f4c8e3"
 )
 FROZEN_TOPICS_SHA256 = (
-    "a1aa08a996381da317ebed53d6a6860537729d28f371158961676f23086a2b82"
+    "8e236a37866230927eede4f74c8cc9ebb320fe043f99705ab9c5a44d21341656"
 )
 FROZEN_RELATED_SHA256 = (
     "03454c4833c436af191eaa1eb775070609d13371d4d724893112decb95c8f621"
@@ -66,7 +66,7 @@ def test_engine_mvp_architectures_file_frozen() -> None:
         paper["paper_id"]
         for paper in json.loads(SEED.read_text(encoding="utf-8"))["papers"]
     }
-    assert set(payload["architectures"]) == seed_ids
+    assert set(payload["architectures"]) <= seed_ids
     assert len(payload["architectures"]) == 19
     assert hashlib.sha256(SEED.read_bytes()).hexdigest() == FROZEN_SEED_SHA256
     assert hashlib.sha256(TOPICS.read_bytes()).hexdigest() == FROZEN_TOPICS_SHA256

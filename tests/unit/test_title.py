@@ -32,6 +32,9 @@ CATALOG = (
     ("arxiv-2306.02018", "VideoComposer"),
     ("arxiv-2312.03641", "MotionCtrl"),
     ("arxiv-1812.01717", "Towards Accurate Generative Models of Video"),
+    ("arxiv-2304.08818", "Align Your Latents"),
+    ("arxiv-2307.04725", "AnimateDiff"),
+    ("arxiv-2311.04145", "I2VGen-XL"),
 )
 
 
