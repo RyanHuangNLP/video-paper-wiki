@@ -192,3 +192,166 @@ def test_no_retrieval_gold_or_bm25_added() -> None:
             for marker in tracked_markers:
                 assert marker not in text, f"{path} contains {marker}"
     assert list((ROOT / "schemas").glob("*retrieval*")) == []
+
+
+
+def test_stat_empty_existing_dir(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "stat", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.stat"
+    assert payload["data"] == {"papers": 0, "wiki_pages": 0, "years": {}}
+    assert list(notes.iterdir()) == []
+    assert network_attempts == []
+
+
+def test_stat_after_ingest_make_a_video(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "arxiv-2209.14792",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    capsys.readouterr()
+    code = main(["vault", "stat", "--vault", str(dest)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.stat"
+    data = payload["data"]
+    assert data["papers"] >= 1
+    assert data["wiki_pages"] == 6
+    assert data["years"]["2022"] >= 1
+    assert list(data["years"]) == sorted(data["years"], key=int)
+    assert not (dest / "wiki" / "index.md").exists()
+    assert network_attempts == []
+
+
+def test_stat_two_catalog_years_and_planted_wiki_index(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    for paper_id in ("arxiv-1812.01717", "arxiv-2408.06072"):
+        code = main(
+            [
+                "ingest",
+                "run",
+                "--path",
+                str(TINY_PDF),
+                "--paper-id",
+                paper_id,
+                "--vault",
+                str(dest),
+            ]
+        )
+        assert code == 0
+        capsys.readouterr()
+    planted = dest / "wiki" / "index.md"
+    planted.write_text("junk year: 1999\n", encoding="utf-8")
+    code = main(["vault", "stat", "--vault", str(dest)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    data = payload["data"]
+    assert data["papers"] == 2
+    assert data["wiki_pages"] == 6
+    assert data["years"]["2018"] >= 1
+    assert data["years"]["2024"] >= 1
+    assert list(data["years"]) == ["2018", "2024"]
+    assert planted.is_file()
+    assert network_attempts == []
+
+
+def test_stat_undated_paper_counted_but_omitted_from_years(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "x",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    capsys.readouterr()
+    code = main(["vault", "stat", "--vault", str(dest)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    data = payload["data"]
+    assert data["papers"] == 1
+    assert "2022" not in data["years"]
+    assert data["years"] == {}
+    assert network_attempts == []
+
+
+def test_stat_missing_dir_refuses_and_does_not_create(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    missing = tmp_path / "missing-root"
+    code = main(["vault", "stat", "--vault", str(missing)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.stat"
+    assert payload["error"]["code"] == "VAULT_NOT_FOUND"
+    assert not missing.exists()
+    assert network_attempts == []
+
+
+def test_stat_ignores_body_year_and_nested_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "a.md",
+        "---\ntitle: Dated\nyear: 2022\n---\n\nBody mentions year: 1999\n",
+    )
+    _write(
+        notes / "papers" / "nested" / "b.md",
+        "---\nyear: 2018\n---\n",
+    )
+    _write(notes / "papers" / "c.txt", "year: 2024\n")
+    _write(notes / "wiki" / "topic.md", "topic\n")
+    _write(notes / "wiki" / "index.md", "index\n")
+    _write(notes / "index.md", "root index\n")
+    code = main(["vault", "stat", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["data"] == {
+        "papers": 1,
+        "wiki_pages": 1,
+        "years": {"2022": 1},
+    }
+    assert network_attempts == []

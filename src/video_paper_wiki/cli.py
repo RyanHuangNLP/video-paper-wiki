@@ -180,6 +180,9 @@ def build_parser() -> argparse.ArgumentParser:
     grep.add_argument("--vault", dest="notes_root", required=True)
     grep.add_argument("query")
     grep.set_defaults(handler=search_commands.grep)
+    stat = vault_sub.add_parser("stat")
+    stat.add_argument("--vault", dest="notes_root", required=True)
+    stat.set_defaults(handler=search_commands.stat)
 
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
