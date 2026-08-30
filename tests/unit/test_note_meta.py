@@ -166,8 +166,9 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert section_text(copied, "表示与架构") == "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
     assert section_text(copied, "训练与数据") == "先用图像-文本数据训图像扩散，再用无标签视频学时空模块。"
     assert section_text(copied, "实验与结果") == "无成对视频-文本数据也能做出有竞争力的文生视频。"
+    assert section_text(copied, "局限") == "没有成对视频-文本，细粒度文本控制偏弱。"
     assert "Tiny VPKB paper" in section_text(work, "一句话结论")
-    for heading in ("局限", "关联"):
+    for heading in ("关联",):
         assert section_text(copied, heading) == ""
     assert section_text(copied, "证据状态") == section_text(work, "证据状态")
     assert section_text(copied, "代码与资源") == section_text(work, "代码与资源")
