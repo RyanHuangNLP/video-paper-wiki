@@ -31,6 +31,7 @@ CATALOG = (
     ("arxiv-2405.18750", "T2V-Turbo"),
     ("arxiv-2306.02018", "VideoComposer"),
     ("arxiv-2312.03641", "MotionCtrl"),
+    ("arxiv-1812.01717", "Towards Accurate Generative Models of Video"),
 )
 
 
