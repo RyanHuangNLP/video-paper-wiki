@@ -19,11 +19,10 @@ MAV_ARCH = "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
 MAV_TRAIN = "先用图像-文本数据训图像扩散，再用无标签视频学时空模块。"
 MAV_EXP = "无成对视频-文本数据也能做出有竞争力的文生视频。"
 MAV_LIMIT = "没有成对视频-文本，细粒度文本控制偏弱。"
+MAV_ASSOC = "证明图像先验可以迁到视频，后面 SVD、DynamiCrafter 也走这条路。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 RELATED = "The related leftover should stay put."
-STILL_EMPTY = (
-    "关联",
-)
+STILL_EMPTY: tuple[str, ...] = ()
 
 
 def _stdout_json(capsys) -> dict:
@@ -145,6 +144,7 @@ def test_review_export_swaps_vault_limitations_keeps_work_note(
     copied_text = copied.read_text(encoding="utf-8")
     assert section_text(work_text, "局限") == REMNANT
     assert section_text(copied_text, "局限") == MAV_LIMIT
+    assert section_text(copied_text, "关联") == MAV_ASSOC
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "方法") == MAV_METHOD
@@ -195,6 +195,7 @@ def test_ingest_writes_frozen_limitations_on_vault_copy(
     work_text = Path(payload["data"]["note_path"]).read_text(encoding="utf-8")
     copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
     assert section_text(copied_text, "局限") == MAV_LIMIT
+    assert section_text(copied_text, "关联") == MAV_ASSOC
     assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
     assert section_text(copied_text, "表示与架构") == MAV_ARCH

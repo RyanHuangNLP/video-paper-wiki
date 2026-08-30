@@ -19,11 +19,10 @@ MAV_ARCH = "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
 MAV_TRAIN = "先用图像-文本数据训图像扩散，再用无标签视频学时空模块。"
 MAV_EXP = "无成对视频-文本数据也能做出有竞争力的文生视频。"
 MAV_LIMIT = "没有成对视频-文本，细粒度文本控制偏弱。"
+MAV_ASSOC = "证明图像先验可以迁到视频，后面 SVD、DynamiCrafter 也走这条路。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 METHOD = "The model uses a diffusion transformer."
-STILL_EMPTY = (
-    "关联",
-)
+STILL_EMPTY: tuple[str, ...] = ()
 
 
 def _stdout_json(capsys) -> dict:
@@ -134,6 +133,7 @@ def test_review_export_swaps_vault_method_keeps_work_note(
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
     assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "局限") == MAV_LIMIT
+    assert section_text(copied_text, "关联") == MAV_ASSOC
     for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
@@ -179,6 +179,7 @@ def test_ingest_writes_frozen_method_on_vault_copy(
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
     assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "局限") == MAV_LIMIT
+    assert section_text(copied_text, "关联") == MAV_ASSOC
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert MAV_METHOD not in work_text

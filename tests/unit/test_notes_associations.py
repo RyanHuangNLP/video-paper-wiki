@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
-from video_paper_wiki.notes.architectures import apply_frozen_architecture
+from video_paper_wiki.notes.associations import apply_frozen_associations
 from video_paper_wiki.notes.section import section_text
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -21,7 +21,7 @@ MAV_EXP = "无成对视频-文本数据也能做出有竞争力的文生视频�
 MAV_LIMIT = "没有成对视频-文本，细粒度文本控制偏弱。"
 MAV_ASSOC = "证明图像先验可以迁到视频，后面 SVD、DynamiCrafter 也走这条路。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
-TRAINING = "The training recipe leftover should stay put."
+RELATED_LINKS = "[CogVideoX](./arxiv-2408.06072.md) (2024)"
 STILL_EMPTY: tuple[str, ...] = ()
 
 
@@ -29,11 +29,13 @@ def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def test_apply_replaces_only_architecture_body() -> None:
+def test_apply_replaces_only_association_body() -> None:
     text = (
         "---\n"
         "title: Make-A-Video\n"
         "paper_id: arxiv-2209.14792\n"
+        "related: [arxiv-2408.06072]\n"
+        "backlinks: [arxiv-2311.15127]\n"
         "---\n"
         "\n"
         "## 一句话结论\n"
@@ -50,48 +52,66 @@ def test_apply_replaces_only_architecture_body() -> None:
         "\n"
         "## 表示与架构\n"
         "\n"
-        f"{REMNANT}\n"
+        f"{MAV_ARCH}\n"
         "\n"
         "## 训练与数据\n"
         "\n"
-        f"{TRAINING}\n"
+        f"{MAV_TRAIN}\n"
         "\n"
-        "## 主题\n"
+        "## 实验与结果\n"
         "\n"
-        "[视频扩散](../wiki/video-diffusion.md)\n"
+        f"{MAV_EXP}\n"
+        "\n"
+        "## 局限\n"
+        "\n"
+        f"{MAV_LIMIT}\n"
+        "\n"
+        "## 关联\n"
+        "\n"
+        f"{REMNANT}\n"
+        "\n"
+        "## 相关论文\n"
+        "\n"
+        f"{RELATED_LINKS}\n"
     )
     yaml = text.split("---", 2)[1]
-    out = apply_frozen_architecture(text, MAV)
-    assert section_text(out, "表示与架构") == MAV_ARCH
+    out = apply_frozen_associations(text, MAV)
+    assert section_text(out, "关联") == MAV_ASSOC
     assert REMNANT not in out
     assert section_text(out, "一句话结论") == MAV_SENTENCE
     assert section_text(out, "研究问题") == MAV_QUESTION
     assert section_text(out, "方法") == MAV_METHOD
-    assert section_text(out, "训练与数据") == TRAINING
-    assert section_text(out, "主题") == "[视频扩散](../wiki/video-diffusion.md)"
+    assert section_text(out, "表示与架构") == MAV_ARCH
+    assert section_text(out, "训练与数据") == MAV_TRAIN
+    assert section_text(out, "实验与结果") == MAV_EXP
+    assert section_text(out, "局限") == MAV_LIMIT
+    assert section_text(out, "相关论文") == RELATED_LINKS
     assert out.split("---", 2)[1] == yaml
-    assert out.index("## 方法") < out.index("## 表示与架构")
-    assert "## 表示与架构\n\n" + MAV_ARCH + "\n\n## 训练与数据" in out
+    assert "related: [arxiv-2408.06072]" in out
+    assert "backlinks: [arxiv-2311.15127]" in out
+    assert out.index("## 局限") < out.index("## 关联")
+    assert out.index("## 关联") < out.index("## 相关论文")
+    assert "## 关联\n\n" + MAV_ASSOC + "\n\n## 相关论文" in out
 
 
 def test_apply_skips_unknown_paper_and_missing_heading() -> None:
     remnant = (
-        "## 表示与架构\n"
+        "## 关联\n"
         "\n"
         f"{REMNANT}\n"
         "\n"
-        "## 训练与数据\n"
+        "## 相关论文\n"
         "\n"
-        f"{TRAINING}\n"
+        f"{RELATED_LINKS}\n"
     )
-    assert apply_frozen_architecture(remnant, "fixture-unknown") == remnant
-    assert apply_frozen_architecture(remnant, "") == remnant
+    assert apply_frozen_associations(remnant, "fixture-unknown") == remnant
+    assert apply_frozen_associations(remnant, "") == remnant
     no_heading = f"# title\n\n{REMNANT}\n"
-    assert apply_frozen_architecture(no_heading, MAV) == no_heading
-    assert "## 表示与架构" not in apply_frozen_architecture(no_heading, MAV)
+    assert apply_frozen_associations(no_heading, MAV) == no_heading
+    assert "## 关联" not in apply_frozen_associations(no_heading, MAV)
 
 
-def test_review_export_swaps_vault_architecture_keeps_work_note(
+def test_review_export_swaps_vault_association_keeps_work_note(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -101,15 +121,8 @@ def test_review_export_swaps_vault_architecture_keeps_work_note(
     document["claims"] = [
         {
             "claim_text": REMNANT,
-            "section": "representation_architecture",
+            "section": "related",
             "core": True,
-            "assessment": "provisional",
-            "locators": [],
-        },
-        {
-            "claim_text": TRAINING,
-            "section": "training_data",
-            "core": False,
             "assessment": "provisional",
             "locators": [],
         },
@@ -127,18 +140,21 @@ def test_review_export_swaps_vault_architecture_keeps_work_note(
     assert payload["data"]["vault_path"] == copied.as_posix()
     work_text = work.read_text(encoding="utf-8")
     copied_text = copied.read_text(encoding="utf-8")
-    assert section_text(work_text, "表示与架构") == REMNANT
-    assert section_text(copied_text, "表示与架构") == MAV_ARCH
+    yaml = copied_text.split("---", 2)[1]
+    assert section_text(work_text, "关联") == REMNANT
+    assert section_text(copied_text, "关联") == MAV_ASSOC
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "方法") == MAV_METHOD
-    assert REMNANT not in copied_text
-    assert MAV_ARCH not in work_text
-    assert section_text(work_text, "训练与数据") == TRAINING
+    assert section_text(copied_text, "表示与架构") == MAV_ARCH
     assert section_text(copied_text, "训练与数据") == MAV_TRAIN
     assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "局限") == MAV_LIMIT
-    assert section_text(copied_text, "关联") == MAV_ASSOC
+    assert REMNANT not in copied_text
+    assert MAV_ASSOC not in work_text
+    assert MAV_ASSOC not in section_text(copied_text, "相关论文")
+    assert "related:" in yaml
+    assert "backlinks:" in yaml
     for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
@@ -147,16 +163,16 @@ def test_review_export_swaps_vault_architecture_keeps_work_note(
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert MAV_ARCH not in wiki_text
-    assert "## 表示与架构" not in wiki_text
+    assert MAV_ASSOC not in wiki_text
+    assert "## 关联" not in wiki_text
     index_text = (dest / "index.md").read_text(encoding="utf-8")
-    assert MAV_ARCH not in index_text
-    assert "## 表示与架构" not in index_text
+    assert MAV_ASSOC not in index_text
+    assert "## 关联" not in index_text
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
-def test_ingest_writes_frozen_architecture_on_vault_copy(
+def test_ingest_writes_frozen_association_on_vault_copy(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -179,25 +195,33 @@ def test_ingest_writes_frozen_architecture_on_vault_copy(
     payload = _stdout_json(capsys)
     work_text = Path(payload["data"]["note_path"]).read_text(encoding="utf-8")
     copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
-    assert section_text(copied_text, "表示与架构") == MAV_ARCH
-    assert section_text(copied_text, "训练与数据") == MAV_TRAIN
-    assert section_text(copied_text, "实验与结果") == MAV_EXP
-    assert section_text(copied_text, "局限") == MAV_LIMIT
+    yaml = copied_text.split("---", 2)[1]
     assert section_text(copied_text, "关联") == MAV_ASSOC
+    assert section_text(copied_text, "局限") == MAV_LIMIT
+    assert section_text(copied_text, "实验与结果") == MAV_EXP
+    assert section_text(copied_text, "训练与数据") == MAV_TRAIN
+    assert section_text(copied_text, "表示与架构") == MAV_ARCH
     assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
+    assert MAV_ASSOC not in work_text
+    assert MAV_LIMIT not in work_text
+    assert MAV_EXP not in work_text
+    assert MAV_TRAIN not in work_text
     assert MAV_ARCH not in work_text
     assert MAV_METHOD not in work_text
     assert MAV_QUESTION not in work_text
     assert MAV_SENTENCE not in work_text
+    assert MAV_ASSOC not in section_text(copied_text, "相关论文")
+    assert "related:" in yaml
+    assert "backlinks:" in yaml
     for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert MAV_ARCH not in wiki_text
-    assert "## 表示与架构" not in wiki_text
-    assert MAV_ARCH not in (dest / "index.md").read_text(encoding="utf-8")
+    assert MAV_ASSOC not in wiki_text
+    assert "## 关联" not in wiki_text
+    assert MAV_ASSOC not in (dest / "index.md").read_text(encoding="utf-8")
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
