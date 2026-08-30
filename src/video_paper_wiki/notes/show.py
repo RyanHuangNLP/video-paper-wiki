@@ -18,15 +18,20 @@ _RELATED_HEADING = "## 相关论文"
 _RELATED_LINK = re.compile(r"\./([^/\s)]+)\.md")
 
 
-def _related_from_yaml(text: str) -> list[str] | None:
-    """Parsed related if the YAML key exists; None if the key is absent."""
+def _yaml_id_list(text: str, key: str) -> list[str] | None:
+    """Parsed inline list if the YAML key exists; None if the key is absent."""
     block = _opening_frontmatter(text)
     if block is None:
         return None
-    raw = _field_value(block, "related")
+    raw = _field_value(block, key)
     if raw is None:
         return None
     return _parse_topics(raw)
+
+
+def _related_from_yaml(text: str) -> list[str] | None:
+    """Parsed related if the YAML key exists; None if the key is absent."""
+    return _yaml_id_list(text, "related")
 
 
 def _related_ids(text: str) -> list[str]:
@@ -58,20 +63,24 @@ def load_paper(root: Path, paper_id: str) -> dict[str, Any] | None:
     path = (root / _PAPERS / f"{wanted}.md")
     if not path.is_file():
         return None
+    empty = {
+        "paper_id": wanted,
+        "title": "",
+        "arxiv_id": "",
+        "year": None,
+        "topics": [],
+        "related": [],
+        "backlinks": [],
+    }
     try:
         text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError):
-        return {
-            "paper_id": wanted,
-            "title": "",
-            "arxiv_id": "",
-            "year": None,
-            "topics": [],
-            "related": [],
-        }
+        return empty
     fields = yaml_fields(text, wanted)
     yaml_related = _related_from_yaml(text)
     related = _related_ids(text) if yaml_related is None else yaml_related
+    yaml_backlinks = _yaml_id_list(text, "backlinks")
+    backlinks = [] if yaml_backlinks is None else yaml_backlinks
     return {
         "paper_id": fields["paper_id"],
         "title": fields["title"],
@@ -79,4 +88,5 @@ def load_paper(root: Path, paper_id: str) -> dict[str, Any] | None:
         "year": fields["year"],
         "topics": fields["topics"],
         "related": related,
+        "backlinks": backlinks,
     }

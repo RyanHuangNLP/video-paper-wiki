@@ -1033,8 +1033,10 @@ def test_show_handwritten_yaml_and_related_file_order(
     assert not isinstance(data["year"], str)
     assert data["topics"] == ["video-diffusion", "tokenization"]
     assert data["related"] == ["arxiv-2209.14792", "arxiv-2501.00001"]
+    assert data["backlinks"] == []
     assert "arxiv_id" in data
     assert "related" in data
+    assert "backlinks" in data
     assert network_attempts == []
 
 
@@ -1060,6 +1062,7 @@ def test_show_yaml_related_wins_over_markdown(
     assert code == 0
     data = _stdout_json(capsys)["data"]
     assert data["related"] == ["arxiv-1111.11111", "arxiv-2222.22222"]
+    assert data["backlinks"] == []
     assert network_attempts == []
 
 
@@ -1107,6 +1110,7 @@ def test_show_no_related_section_is_empty_list(
     payload = _stdout_json(capsys)
     data = payload["data"]
     assert data["related"] == []
+    assert data["backlinks"] == []
     assert data["arxiv_id"] == ""
     assert data["year"] == 2021
     assert isinstance(data["year"], int)
@@ -1150,6 +1154,8 @@ def test_show_after_ingest_make_a_video(
     assert "video-diffusion" in data["topics"]
     assert isinstance(data["related"], list)
     assert "arxiv-2209.14792" not in data["related"]
+    from video_paper_wiki.notes.links import backlink_catalog_ids
+    assert data["backlinks"] == backlink_catalog_ids("arxiv-2209.14792")
     assert note.read_text(encoding="utf-8") == original
     assert network_attempts == []
 
@@ -1602,4 +1608,93 @@ def test_headings_ignores_nested_papers(
     assert payload["error"]["code"] == "PAPER_NOT_FOUND"
     assert (notes / "papers" / "nested" / "x.md").is_file()
     assert not (notes / "papers" / "x.md").exists()
+    assert network_attempts == []
+
+
+def test_show_yaml_backlinks_used_as_is(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "arxiv_id: 2408.06072\n"
+        "year: 2024\n"
+        "topics: [video-diffusion]\n"
+        "related: [arxiv-1111.11111]\n"
+        "backlinks: [arxiv-3333.33333, arxiv-4444.44444]\n"
+        "---\n\n"
+        "## 相关论文\n\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "arxiv-2408.06072"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["command"] == "vault.show"
+    data = payload["data"]
+    assert data["related"] == ["arxiv-1111.11111"]
+    assert data["backlinks"] == ["arxiv-3333.33333", "arxiv-4444.44444"]
+    assert list(data) == [
+        "paper_id",
+        "title",
+        "arxiv_id",
+        "year",
+        "topics",
+        "related",
+        "backlinks",
+    ]
+    assert network_attempts == []
+
+
+def test_show_yaml_empty_backlinks_skips_markdown(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "year: 2024\n"
+        "topics: []\n"
+        "related: []\n"
+        "backlinks: []\n"
+        "---\n\n"
+        "## 相关论文\n\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "arxiv-2408.06072"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["related"] == []
+    assert data["backlinks"] == []
+    assert network_attempts == []
+
+
+def test_show_missing_backlinks_key_is_empty_list(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "lonely.md",
+        "---\n"
+        "title: Lonely\n"
+        "paper_id: lonely\n"
+        "year: 2021\n"
+        "topics: []\n"
+        "related: [arxiv-2209.14792]\n"
+        "---\n\n"
+        "## 相关论文\n\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "lonely"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["related"] == ["arxiv-2209.14792"]
+    assert data["backlinks"] == []
     assert network_attempts == []
