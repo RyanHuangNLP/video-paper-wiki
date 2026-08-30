@@ -9,6 +9,10 @@ import sys
 from pathlib import Path
 
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
+from video_paper_wiki.commands import draft as draft_commands
+from video_paper_wiki.commands import ingest as ingest_commands
+from video_paper_wiki.commands import review as review_commands
+from video_paper_wiki.commands import search as search_commands
 from video_paper_wiki.envelope import emit_error, emit_success
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -121,6 +125,16 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = sub.add_parser("ingest")
     ingest_sub = ingest.add_subparsers(dest="ingest_cmd", required=True)
     ingest_sub.add_parser("plan").set_defaults(handler=_cmd_not_implemented("ingest.plan"))
+    ingest_put = ingest_sub.add_parser("put")
+    ingest_put.add_argument("--path", required=True)
+    ingest_put.set_defaults(handler=ingest_commands.put)
+    ingest_run = ingest_sub.add_parser("run")
+    ingest_run.add_argument("--path", default=None)
+    ingest_run.add_argument("--pdf-dir", dest="pdf_dir", default=None)
+    ingest_run.add_argument("--vault", dest="notes_root", default=None)
+    ingest_run.add_argument("--paper-id", dest="paper_id", default=None)
+    ingest_run.add_argument("--seed", dest="seed_path", default=None)
+    ingest_run.set_defaults(handler=ingest_commands.run)
     ingest_prepare = ingest_sub.add_parser("prepare")
     ingest_prepare.set_defaults(_vpkb_family="ingest")
     _add_prepare_flags(ingest_prepare)
@@ -132,12 +146,20 @@ def build_parser() -> argparse.ArgumentParser:
 
     draft = sub.add_parser("draft")
     draft_sub = draft.add_subparsers(dest="draft_cmd", required=True)
-    draft_sub.add_parser("export").set_defaults(handler=_cmd_not_implemented("draft.export"))
-    draft_sub.add_parser("validate").set_defaults(handler=_cmd_not_implemented("draft.validate"))
+    draft_export = draft_sub.add_parser("export")
+    draft_export.add_argument("--sha256", required=True)
+    draft_export.add_argument("--paper-id", dest="paper_id", default=None)
+    draft_export.set_defaults(handler=draft_commands.export)
+    draft_validate = draft_sub.add_parser("validate")
+    draft_validate.add_argument("--path", required=True)
+    draft_validate.set_defaults(handler=draft_commands.validate)
 
     review = sub.add_parser("review")
     review_sub = review.add_subparsers(dest="review_cmd", required=True)
-    review_sub.add_parser("export").set_defaults(handler=_cmd_not_implemented("review.export"))
+    review_export = review_sub.add_parser("export")
+    review_export.add_argument("--draft", required=True)
+    review_export.add_argument("--vault", dest="notes_root", default=None)
+    review_export.set_defaults(handler=review_commands.export)
     review_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("review.inspect"))
 
     code_map = sub.add_parser("code-map")
@@ -151,6 +173,16 @@ def build_parser() -> argparse.ArgumentParser:
     index = sub.add_parser("index")
     index_sub = index.add_subparsers(dest="index_cmd", required=True)
     index_sub.add_parser("status").set_defaults(handler=_cmd_not_implemented("index.status"))
+
+    vault = sub.add_parser("vault")
+    vault_sub = vault.add_subparsers(dest="vault_cmd", required=True)
+    grep = vault_sub.add_parser("grep")
+    grep.add_argument("--vault", dest="notes_root", required=True)
+    grep.add_argument("query")
+    grep.set_defaults(handler=search_commands.grep)
+    stat = vault_sub.add_parser("stat")
+    stat.add_argument("--vault", dest="notes_root", required=True)
+    stat.set_defaults(handler=search_commands.stat)
 
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
