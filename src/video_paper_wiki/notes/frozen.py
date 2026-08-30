@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from video_paper_wiki.notes.architectures import load_architectures
 from video_paper_wiki.notes.associations import load_associations
+from video_paper_wiki.notes.code_resources import load_code_urls
 from video_paper_wiki.notes.conclusions import load_conclusions
 from video_paper_wiki.notes.experiments import load_experiments
 from video_paper_wiki.notes.limitations import load_limitations
@@ -46,6 +47,7 @@ def require_managed_seed(paper_id: str) -> None:
         ("engine-mvp-experiments.json", load_experiments),
         ("engine-mvp-limitations.json", load_limitations),
         ("engine-mvp-associations.json", load_associations),
+        ("engine-mvp-code-urls.json", load_code_urls),
     )
     for filename, loader in overlays:
         mapping = loader()

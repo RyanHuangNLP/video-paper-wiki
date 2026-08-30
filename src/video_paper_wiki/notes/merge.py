@@ -16,7 +16,9 @@ OWNED_YAML_KEYS = (
 )
 _OWNED = frozenset(OWNED_YAML_KEYS)
 _FROZEN_HEADINGS = tuple(heading for _section_id, heading in SECTION_SPECS)
-_FROZEN = frozenset(_FROZEN_HEADINGS)
+_SYSTEM_HEADINGS = ("主题", "相关论文")
+_MERGED_HEADINGS = _FROZEN_HEADINGS + _SYSTEM_HEADINGS
+_MERGED = frozenset(_MERGED_HEADINGS)
 
 
 def split_frontmatter(text: str) -> tuple[str | None, str]:
@@ -99,28 +101,28 @@ def _split_h2_blocks(body: str) -> list[tuple[str | None, list[str]]]:
 
 
 def merge_body(existing_body: str, rendered_body: str) -> str:
-    """Replace the ten frozen H2 bodies; preserve unknown H2s and extra prose."""
+    """Replace frozen H2s and system trailers; preserve unknown H2s and extra prose."""
     existing_blocks = _split_h2_blocks(existing_body)
-    rendered_frozen: dict[str, list[str]] = {}
+    rendered_owned: dict[str, list[str]] = {}
     for heading, lines in _split_h2_blocks(rendered_body):
-        if heading in _FROZEN:
-            rendered_frozen[heading] = lines
+        if heading in _MERGED:
+            rendered_owned[heading] = lines
     out_blocks: list[list[str]] = []
     seen: set[str] = set()
-    last_frozen_at = -1
+    last_owned_at = -1
     for heading, lines in existing_blocks:
-        if heading in _FROZEN:
-            out_blocks.append(rendered_frozen.get(heading, lines))
+        if heading in _MERGED:
+            out_blocks.append(rendered_owned.get(heading, lines))
             seen.add(heading)
-            last_frozen_at = len(out_blocks) - 1
+            last_owned_at = len(out_blocks) - 1
             continue
         out_blocks.append(lines)
-        if heading is None and last_frozen_at < 0:
-            last_frozen_at = 0
-    missing = [heading for heading in _FROZEN_HEADINGS if heading not in seen]
-    extras = [rendered_frozen[heading] for heading in missing if heading in rendered_frozen]
+        if heading is None and last_owned_at < 0:
+            last_owned_at = 0
+    missing = [heading for heading in _MERGED_HEADINGS if heading not in seen]
+    extras = [rendered_owned[heading] for heading in missing if heading in rendered_owned]
     if extras:
-        insert_at = last_frozen_at + 1 if last_frozen_at >= 0 else len(out_blocks)
+        insert_at = last_owned_at + 1 if last_owned_at >= 0 else len(out_blocks)
         for offset, block in enumerate(extras):
             out_blocks.insert(insert_at + offset, block)
     lines: list[str] = []

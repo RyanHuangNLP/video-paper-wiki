@@ -14,6 +14,7 @@ from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.envelope import emit_error, emit_success
+from video_paper_wiki.notes.encoding import InvalidEncoding, read_utf8
 from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
 from video_paper_wiki.resources import load_seed_json, resolve_seed_path
 
@@ -109,12 +110,23 @@ def _papers_from_payload(
     return papers, None
 
 
+def _encoding_error(path: Path) -> int:
+    return emit_error(
+        _COMMAND,
+        "INVALID_ENCODING",
+        "seed catalog is not valid UTF-8",
+        {"path": path.as_posix()},
+    )
+
+
 def _load_seed_papers(seed_path: Path | None) -> tuple[list[dict[str, Any]] | None, int | None]:
     if seed_path is not None:
         try:
             if not seed_path.is_file():
                 return None, _seed_not_found(seed_path.as_posix())
-            text = seed_path.read_text(encoding="utf-8")
+            text = read_utf8(seed_path)
+        except InvalidEncoding as exc:
+            return None, _encoding_error(exc.path)
         except OSError:
             return None, _seed_not_found(seed_path.as_posix())
         try:
@@ -124,7 +136,10 @@ def _load_seed_papers(seed_path: Path | None) -> tuple[list[dict[str, Any]] | No
                 seed_path.as_posix(), f"seed is not valid JSON: {exc.msg}"
             )
         return _papers_from_payload(payload, seed_path.as_posix())
-    payload = load_seed_json(_SEED_FILE)
+    try:
+        payload = load_seed_json(_SEED_FILE)
+    except InvalidEncoding as exc:
+        return None, _encoding_error(exc.path)
     if payload is None:
         return None, _seed_not_found(None)
     return _papers_from_payload(payload, _SEED_FILE)

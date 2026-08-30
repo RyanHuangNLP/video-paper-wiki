@@ -16,7 +16,10 @@ def is_http_url(value: str) -> bool:
     stripped = str(value).strip()
     if not stripped or any(ch.isspace() for ch in stripped):
         return False
-    parts = urlsplit(stripped)
+    try:
+        parts = urlsplit(stripped)
+    except ValueError:
+        return False
     return parts.scheme in {"http", "https"} and bool(parts.netloc)
 
 
@@ -35,14 +38,12 @@ def valid_http_urls(values: list[str]) -> list[str]:
     return urls
 
 
-def load_code_urls() -> dict[str, list[str]]:
-    """paper_id -> http(s) URLs. Missing or unreadable seed → {}."""
+def load_code_urls() -> dict[str, list[str]] | None:
+    """paper_id -> http(s) URLs. Legal empty seed → {}. Missing or unreadable → None."""
     payload = load_seed_json(_CODE_URLS_FILE)
-    if not isinstance(payload, dict):
-        return {}
-    raw_map = payload.get("code_urls", payload)
-    if not isinstance(raw_map, dict):
-        return {}
+    if not isinstance(payload, dict) or not isinstance(payload.get("code_urls"), dict):
+        return None
+    raw_map = payload["code_urls"]
     mapping: dict[str, list[str]] = {}
     for raw_id, raw_urls in raw_map.items():
         if not isinstance(raw_id, str) or not raw_id.strip():
@@ -62,7 +63,10 @@ def code_urls_for(paper_id: str) -> list[str]:
     wanted = str(paper_id).strip()
     if not wanted:
         return []
-    return list(load_code_urls().get(wanted, []))
+    mapping = load_code_urls()
+    if mapping is None:
+        return []
+    return list(mapping.get(wanted, []))
 
 
 def apply_clean_code_resources(text: str, paper_id: str = "") -> str:

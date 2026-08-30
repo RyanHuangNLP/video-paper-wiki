@@ -555,3 +555,29 @@ def test_ingest_run_without_notes_root_does_not_write_index(
     assert not (tmp_path / "index.md").exists()
     assert list(tmp_path.rglob("index.md")) == []
     assert network_attempts == []
+
+
+def test_ingest_run_seed_latin1_invalid_encoding(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    seed = tmp_path / "latin1-seed.json"
+    seed.write_bytes(b'{"papers": [{"title": "caf\xe9"}]}\n')
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    code = main(
+        ["ingest", "run", "--pdf-dir", str(pdf_dir), "--seed", str(seed)]
+    )
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out.strip())
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["command"] == "ingest.run"
+    assert payload["error"]["code"] == "INVALID_ENCODING"
+    assert payload["error"]["details"]["path"] == seed.as_posix()
+    assert "Traceback" not in captured.out
+    assert "Traceback" not in captured.err
+    assert "UnicodeDecodeError" not in captured.out
+    assert "UnicodeDecodeError" not in captured.err
+    assert not (tmp_path / ".work").exists()
+    assert network_attempts == []

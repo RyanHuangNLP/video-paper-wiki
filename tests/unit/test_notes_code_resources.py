@@ -6,9 +6,12 @@ from pathlib import Path
 from video_paper_wiki.cli import main
 from video_paper_wiki.notes.code_resources import (
     apply_clean_code_resources,
+    is_http_url,
+    load_code_urls,
     valid_http_urls,
 )
 from video_paper_wiki.notes.section import section_text
+from video_paper_wiki.resources import read_seed_text as _real_seed
 
 ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
@@ -56,6 +59,39 @@ def test_valid_http_urls_offline_scheme_and_netloc() -> None:
             CODE,
         ]
     ) == [CODE, CODE_HTTP]
+
+
+def test_is_http_url_urlsplit_value_error_is_invalid() -> None:
+    assert is_http_url("http://[") is False
+    assert valid_http_urls(["http://[", CODE, "https://["]) == [CODE]
+
+
+def test_load_code_urls_legal_empty_object() -> None:
+    assert load_code_urls() == {}
+
+
+def test_load_code_urls_missing_file_is_none(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "video_paper_wiki.resources.read_seed_text",
+        lambda filename: None if filename == "engine-mvp-code-urls.json" else _real_seed(filename),
+    )
+    assert load_code_urls() is None
+
+
+def test_load_code_urls_invalid_json_is_none(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "video_paper_wiki.resources.read_seed_text",
+        lambda filename: "{" if filename == "engine-mvp-code-urls.json" else _real_seed(filename),
+    )
+    assert load_code_urls() is None
+
+
+def test_load_code_urls_not_an_object_is_none(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "video_paper_wiki.resources.read_seed_text",
+        lambda filename: "[]" if filename == "engine-mvp-code-urls.json" else _real_seed(filename),
+    )
+    assert load_code_urls() is None
 
 
 def test_apply_keeps_urls_drops_remnants(monkeypatch) -> None:

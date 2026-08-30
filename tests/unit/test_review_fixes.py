@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
+from video_paper_wiki.notes.code_resources import load_code_urls
+from video_paper_wiki.notes.encoding import InvalidEncoding
 from video_paper_wiki.notes.frozen import FrozenSeedMissing, require_managed_seed
 from video_paper_wiki.notes.merge import merge_paper_copy
 from video_paper_wiki.notes.section import section_text
@@ -83,6 +85,17 @@ def test_expanded_catalog_paper_clears_remnants_without_inventing(
     assert network_attempts == []
 
 
+def _patch_code_urls_seed(monkeypatch, text: str | None) -> None:
+    real = read_seed_text
+
+    def _fake(filename: str) -> str | None:
+        if filename == "engine-mvp-code-urls.json":
+            return text
+        return real(filename)
+
+    monkeypatch.setattr("video_paper_wiki.resources.read_seed_text", _fake)
+
+
 def test_missing_required_overlay_is_fail_closed(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
@@ -99,6 +112,62 @@ def test_missing_required_overlay_is_fail_closed(
     assert payload["error"]["details"]["source"] == "engine-mvp-conclusions.json"
     assert not (dest / "papers").exists()
     assert not (tmp_path / ".work" / "notes").exists()
+    assert network_attempts == []
+
+
+def test_missing_code_urls_seed_is_fail_closed(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    _patch_code_urls_seed(monkeypatch, None)
+    assert load_code_urls() is None
+    draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == MAV
+    assert payload["error"]["details"]["source"] == "engine-mvp-code-urls.json"
+    assert not (dest / "papers").exists()
+    assert not (tmp_path / ".work" / "notes").exists()
+    assert network_attempts == []
+
+
+def test_invalid_code_urls_json_is_fail_closed(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    _patch_code_urls_seed(monkeypatch, "{not-json")
+    assert load_code_urls() is None
+    draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["source"] == "engine-mvp-code-urls.json"
+    assert not (dest / "papers").exists()
+    assert not (tmp_path / ".work" / "notes").exists()
+    assert network_attempts == []
+
+
+def test_empty_code_urls_object_still_exports(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    _patch_code_urls_seed(monkeypatch, '{"code_urls": {}}\n')
+    assert load_code_urls() == {}
+    draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    assert code == 0
+    _stdout_json(capsys)
+    assert (dest / "papers" / f"{MAV}.md").is_file()
+    assert (tmp_path / ".work" / "notes" / f"{MAV}.md").is_file()
     assert network_attempts == []
 
 
@@ -179,6 +248,64 @@ def test_merge_preserves_unknown_h2_and_owned_yaml() -> None:
     assert CUSTOM in body
 
 
+def test_merge_replaces_system_related_links_keeps_custom_h2() -> None:
+    existing = (
+        "---\n"
+        "title: MAGVIT\n"
+        "paper_id: arxiv-2212.05199\n"
+        "related: [arxiv-2312.03541, arxiv-2406.08119]\n"
+        "---\n"
+        "\n"
+        "## 一句话结论\n"
+        "\n"
+        "old conclusion\n"
+        "\n"
+        "## 自定义\n"
+        "\n"
+        f"{CUSTOM}\n"
+        "\n"
+        "## 主题\n"
+        "\n"
+        "[视频 tokenizer](../wiki/tokenization.md)\n"
+        "\n"
+        "## 相关论文\n"
+        "\n"
+        "[MAGVIT-v2](./arxiv-2312.03541.md) (2023)\n"
+        "[OmniTokenizer](./arxiv-2406.08119.md) (2024)\n"
+    )
+    rendered = (
+        "---\n"
+        "title: MAGVIT\n"
+        "paper_id: arxiv-2212.05199\n"
+        "related: [arxiv-2310.05737, arxiv-2406.09399]\n"
+        "---\n"
+        "\n"
+        "## 一句话结论\n"
+        "\n"
+        "new conclusion\n"
+        "\n"
+        "## 主题\n"
+        "\n"
+        "[视频 tokenizer](../wiki/tokenization.md)\n"
+        "\n"
+        "## 相关论文\n"
+        "\n"
+        "[MAGVIT-v2](./arxiv-2310.05737.md) (2023)\n"
+        "[OmniTokenizer](./arxiv-2406.09399.md) (2024)\n"
+    )
+    merged = merge_paper_copy(existing, rendered)
+    related = section_text(merged, "相关论文")
+    assert related is not None
+    assert "arxiv-2310.05737" in related
+    assert "arxiv-2406.09399" in related
+    assert "arxiv-2312.03541" not in related
+    assert "arxiv-2406.08119" not in related
+    assert "arxiv-2312.03541" not in merged
+    assert "arxiv-2406.08119" not in merged
+    assert section_text(merged, "自定义") == CUSTOM
+    assert section_text(merged, "一句话结论") == "new conclusion"
+
+
 def test_review_export_merges_existing_note(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
@@ -206,6 +333,40 @@ def test_review_export_merges_existing_note(
     assert network_attempts == []
 
 
+def test_review_export_refreshes_related_trailer_ids(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    magvit = "arxiv-2212.05199"
+    draft = _clone_draft(tmp_path, magvit, "MAGVIT")
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    assert code == 0
+    capsys.readouterr()
+    copied = dest / "papers" / f"{magvit}.md"
+    mutated = copied.read_text(encoding="utf-8")
+    mutated = mutated.replace("arxiv-2310.05737", "arxiv-2312.03541")
+    mutated = mutated.replace("arxiv-2406.09399", "arxiv-2406.08119")
+    mutated = mutated + "\n## 自定义\n\n" + CUSTOM + "\n"
+    copied.write_text(mutated, encoding="utf-8")
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    assert code == 0
+    _stdout_json(capsys)
+    text = copied.read_text(encoding="utf-8")
+    related = section_text(text, "相关论文")
+    assert related is not None
+    assert "arxiv-2310.05737" in related
+    assert "arxiv-2406.09399" in related
+    assert "arxiv-2312.03541" not in related
+    assert "arxiv-2406.08119" not in related
+    assert section_text(text, "自定义") == CUSTOM
+    work = (tmp_path / ".work" / "notes" / f"{magvit}.md").read_text(encoding="utf-8")
+    assert "## 相关论文" not in work
+    assert "## 主题" not in work
+    assert network_attempts == []
+
+
 def test_resources_loader_finds_seed_and_schema() -> None:
     seed = read_seed_text("engine-mvp.json")
     assert seed is not None
@@ -216,6 +377,19 @@ def test_resources_loader_finds_seed_and_schema() -> None:
     urls = read_seed_text("engine-mvp-code-urls.json")
     assert urls is not None
     assert '"code_urls"' in urls
+
+
+def test_repo_seed_latin1_raises_invalid_encoding(tmp_path, monkeypatch) -> None:
+    bad = tmp_path / "latin1-seed.json"
+    bad.write_bytes(b'{"papers": []}\n' + bytes([0xE9]))
+    monkeypatch.setattr("video_paper_wiki.resources._package_text", lambda *_parts: None)
+    monkeypatch.setattr("video_paper_wiki.resources._repo_file", lambda _relative: bad)
+    try:
+        read_seed_text("engine-mvp.json")
+    except InvalidEncoding as exc:
+        assert exc.path == bad
+    else:
+        raise AssertionError("expected InvalidEncoding")
 
 
 def _assert_invalid_encoding(code: int, payload: dict, command: str, captured, path: Path) -> None:

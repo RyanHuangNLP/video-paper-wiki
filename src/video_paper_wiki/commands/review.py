@@ -63,17 +63,27 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
             "draft file is missing or not a file",
             {"path": path.as_posix(), "reason": str(exc)},
         )
+    if not isinstance(document, dict):
+        return None, _draft_invalid(
+            "draft document must be an object",
+            {"path": path.as_posix()},
+        )
+    if "paper_id" in document:
+        try:
+            validate_paper_id(str(document.get("paper_id", "")))
+        except InvalidPaperId:
+            return None, emit_error(
+                COMMAND,
+                "INVALID_PAPER_ID",
+                "paper_id is empty or not a safe path segment",
+                {"paper_id": str(document.get("paper_id", ""))},
+            )
     try:
         _validate_document(document)
     except ValidationError as exc:
         return None, _draft_invalid(exc.message, {"path": path.as_posix()})
     except FileNotFoundError as exc:
         return None, _draft_invalid(str(exc), {"path": path.as_posix()})
-    if not isinstance(document, dict):
-        return None, _draft_invalid(
-            "draft document must be an object",
-            {"path": path.as_posix()},
-        )
     return document, None
 
 
@@ -150,11 +160,13 @@ def export(_args: object | None = None) -> int:
     work_path.parent.mkdir(parents=True, exist_ok=True)
     work_path.write_text(markdown, encoding="utf-8")
     if extra_file is not None and extra_root is not None:
-        rendered = render_paper_copy_markdown(document)
+        rendered = render_paper_copy_markdown(document) + paper_note_link_suffix(
+            paper_id
+        )
         if existing_copy is not None:
             copied = merge_paper_copy(existing_copy, rendered)
         else:
-            copied = rendered + paper_note_link_suffix(paper_id)
+            copied = rendered
         extra_file.parent.mkdir(parents=True, exist_ok=True)
         extra_file.write_text(copied, encoding="utf-8")
         upsert_index_entry(extra_root, paper_id, _display_title(document, paper_id))

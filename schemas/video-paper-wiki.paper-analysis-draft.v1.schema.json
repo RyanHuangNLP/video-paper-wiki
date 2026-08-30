@@ -5,7 +5,7 @@
   "type": "object", "additionalProperties": false,
   "required": ["schema", "paper_id", "title", "title_zh", "sections", "taxonomy", "claims"],
   "properties": {
-    "schema": {"const": "video-paper-wiki.paper-analysis-draft.v1"}, "paper_id": {"type": "string", "minLength": 1}, "title": {"type": "string"}, "title_zh": {"type": "string"},
+    "schema": {"const": "video-paper-wiki.paper-analysis-draft.v1"}, "paper_id": {"type": "string", "minLength": 1, "pattern": "^(?!.*\\.\\.)[^/\\\\]+$"}, "title": {"type": "string"}, "title_zh": {"type": "string"},
     "sections": {"type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true, "items": {"$ref": "#/$defs/section"}},
     "taxonomy": {"type": "array", "items": {"$ref": "#/$defs/taxonomy_ref"}}, "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}}
   },

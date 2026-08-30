@@ -23,7 +23,12 @@ def _package_text(*parts: str) -> str | None:
         if not traversable.is_file():
             return None
         return traversable.read_text(encoding="utf-8")
-    except (OSError, FileNotFoundError, UnicodeDecodeError, IsADirectoryError, AttributeError):
+    except UnicodeDecodeError as exc:
+        from video_paper_wiki.notes.encoding import InvalidEncoding
+
+        path = Path(traversable) if isinstance(traversable, Path) else Path(*parts)
+        raise InvalidEncoding(path) from exc
+    except (OSError, FileNotFoundError, IsADirectoryError, AttributeError):
         return None
 
 
@@ -42,8 +47,10 @@ def _repo_text(relative: Path) -> str | None:
     path = _repo_file(relative)
     if path is None:
         return None
+    from video_paper_wiki.notes.encoding import read_utf8
+
     try:
-        return path.read_text(encoding="utf-8")
+        return read_utf8(path)
     except OSError:
         return None
 
