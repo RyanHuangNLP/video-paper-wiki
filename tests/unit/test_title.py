@@ -77,6 +77,9 @@ CATALOG = (
     ("arxiv-2304.01186", "Follow-Your-Pose"),
     ("arxiv-2308.01419", "Make-Your-Video"),
     ("arxiv-2311.17482", "MicroCinema"),
+    ("arxiv-2302.01329", "Dreamix"),
+    ("arxiv-2305.10874", "VideoFactory"),
+    ("arxiv-2406.18522", "ChronoMagic-Bench"),
 )
 
 
