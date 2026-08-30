@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
+from video_paper_wiki.notes.architectures import apply_frozen_architecture
 from video_paper_wiki.notes.clear_draft import apply_empty_draft_sections
 from video_paper_wiki.notes.conclusions import apply_frozen_conclusion
 from video_paper_wiki.notes.links import (
@@ -80,4 +81,5 @@ def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
     body = apply_frozen_conclusion(header + "\n" + render_paper_sections(document), paper_id)
     body = apply_empty_draft_sections(body)
     body = apply_frozen_question(body, paper_id)
-    return apply_frozen_method(body, paper_id)
+    body = apply_frozen_method(body, paper_id)
+    return apply_frozen_architecture(body, paper_id)

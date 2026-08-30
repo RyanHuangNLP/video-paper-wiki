@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
-from video_paper_wiki.notes.methods import apply_frozen_method
+from video_paper_wiki.notes.architectures import apply_frozen_architecture
 from video_paper_wiki.notes.section import section_text
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,7 +17,7 @@ MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文
 MAV_METHOD = "先训图像扩散，再加时空卷积和注意力，用图像-文本对齐做文生视频。"
 MAV_ARCH = "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
-METHOD = "The model uses a diffusion transformer."
+TRAINING = "The training recipe leftover should stay put."
 STILL_EMPTY = (
     "训练与数据",
     "实验与结果",
@@ -30,7 +30,7 @@ def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def test_apply_replaces_only_method_body() -> None:
+def test_apply_replaces_only_architecture_body() -> None:
     text = (
         "---\n"
         "title: Make-A-Video\n"
@@ -47,47 +47,52 @@ def test_apply_replaces_only_method_body() -> None:
         "\n"
         "## 方法\n"
         "\n"
-        f"{REMNANT}\n"
+        f"{MAV_METHOD}\n"
         "\n"
         "## 表示与架构\n"
         "\n"
-        f"{METHOD}\n"
+        f"{REMNANT}\n"
+        "\n"
+        "## 训练与数据\n"
+        "\n"
+        f"{TRAINING}\n"
         "\n"
         "## 主题\n"
         "\n"
         "[视频扩散](../wiki/video-diffusion.md)\n"
     )
     yaml = text.split("---", 2)[1]
-    out = apply_frozen_method(text, MAV)
-    assert section_text(out, "方法") == MAV_METHOD
+    out = apply_frozen_architecture(text, MAV)
+    assert section_text(out, "表示与架构") == MAV_ARCH
     assert REMNANT not in out
     assert section_text(out, "一句话结论") == MAV_SENTENCE
     assert section_text(out, "研究问题") == MAV_QUESTION
-    assert section_text(out, "表示与架构") == METHOD
+    assert section_text(out, "方法") == MAV_METHOD
+    assert section_text(out, "训练与数据") == TRAINING
     assert section_text(out, "主题") == "[视频扩散](../wiki/video-diffusion.md)"
     assert out.split("---", 2)[1] == yaml
-    assert out.index("## 研究问题") < out.index("## 方法")
-    assert "## 方法\n\n" + MAV_METHOD + "\n\n## 表示与架构" in out
+    assert out.index("## 方法") < out.index("## 表示与架构")
+    assert "## 表示与架构\n\n" + MAV_ARCH + "\n\n## 训练与数据" in out
 
 
 def test_apply_skips_unknown_paper_and_missing_heading() -> None:
     remnant = (
-        "## 方法\n"
+        "## 表示与架构\n"
         "\n"
         f"{REMNANT}\n"
         "\n"
-        "## 表示与架构\n"
+        "## 训练与数据\n"
         "\n"
-        f"{METHOD}\n"
+        f"{TRAINING}\n"
     )
-    assert apply_frozen_method(remnant, "fixture-unknown") == remnant
-    assert apply_frozen_method(remnant, "") == remnant
+    assert apply_frozen_architecture(remnant, "fixture-unknown") == remnant
+    assert apply_frozen_architecture(remnant, "") == remnant
     no_heading = f"# title\n\n{REMNANT}\n"
-    assert apply_frozen_method(no_heading, MAV) == no_heading
-    assert "## 方法" not in apply_frozen_method(no_heading, MAV)
+    assert apply_frozen_architecture(no_heading, MAV) == no_heading
+    assert "## 表示与架构" not in apply_frozen_architecture(no_heading, MAV)
 
 
-def test_review_export_swaps_vault_method_keeps_work_note(
+def test_review_export_swaps_vault_architecture_keeps_work_note(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -97,14 +102,14 @@ def test_review_export_swaps_vault_method_keeps_work_note(
     document["claims"] = [
         {
             "claim_text": REMNANT,
-            "section": "method",
+            "section": "representation_architecture",
             "core": True,
             "assessment": "provisional",
             "locators": [],
         },
         {
-            "claim_text": METHOD,
-            "section": "representation_architecture",
+            "claim_text": TRAINING,
+            "section": "training_data",
             "core": False,
             "assessment": "provisional",
             "locators": [],
@@ -123,14 +128,14 @@ def test_review_export_swaps_vault_method_keeps_work_note(
     assert payload["data"]["vault_path"] == copied.as_posix()
     work_text = work.read_text(encoding="utf-8")
     copied_text = copied.read_text(encoding="utf-8")
-    assert section_text(work_text, "方法") == REMNANT
-    assert section_text(copied_text, "方法") == MAV_METHOD
+    assert section_text(work_text, "表示与架构") == REMNANT
+    assert section_text(copied_text, "表示与架构") == MAV_ARCH
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
+    assert section_text(copied_text, "方法") == MAV_METHOD
     assert REMNANT not in copied_text
-    assert MAV_METHOD not in work_text
-    assert section_text(work_text, "表示与架构") == METHOD
-    assert section_text(copied_text, "表示与架构") == MAV_ARCH
+    assert MAV_ARCH not in work_text
+    assert section_text(work_text, "训练与数据") == TRAINING
     for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
@@ -139,16 +144,16 @@ def test_review_export_swaps_vault_method_keeps_work_note(
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert MAV_METHOD not in wiki_text
-    assert "## 方法" not in wiki_text
+    assert MAV_ARCH not in wiki_text
+    assert "## 表示与架构" not in wiki_text
     index_text = (dest / "index.md").read_text(encoding="utf-8")
-    assert MAV_METHOD not in index_text
-    assert "## 方法" not in index_text
+    assert MAV_ARCH not in index_text
+    assert "## 表示与架构" not in index_text
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
-def test_ingest_writes_frozen_method_on_vault_copy(
+def test_ingest_writes_frozen_architecture_on_vault_copy(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -171,10 +176,11 @@ def test_ingest_writes_frozen_method_on_vault_copy(
     payload = _stdout_json(capsys)
     work_text = Path(payload["data"]["note_path"]).read_text(encoding="utf-8")
     copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
-    assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "表示与架构") == MAV_ARCH
+    assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
+    assert MAV_ARCH not in work_text
     assert MAV_METHOD not in work_text
     assert MAV_QUESTION not in work_text
     assert MAV_SENTENCE not in work_text
@@ -183,8 +189,8 @@ def test_ingest_writes_frozen_method_on_vault_copy(
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert MAV_METHOD not in wiki_text
-    assert "## 方法" not in wiki_text
-    assert MAV_METHOD not in (dest / "index.md").read_text(encoding="utf-8")
+    assert MAV_ARCH not in wiki_text
+    assert "## 表示与架构" not in wiki_text
+    assert MAV_ARCH not in (dest / "index.md").read_text(encoding="utf-8")
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
