@@ -16,10 +16,10 @@ MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
 MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
 MAV_METHOD = "先训图像扩散，再加时空卷积和注意力，用图像-文本对齐做文生视频。"
 MAV_ARCH = "图像 U-Net 加上伪 3D 时空卷积和时空注意力。"
+MAV_TRAIN = "先用图像-文本数据训图像扩散，再用无标签视频学时空模块。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 METHOD = "The model uses a diffusion transformer."
 STILL_EMPTY = (
-    "训练与数据",
     "实验与结果",
     "局限",
     "关联",
@@ -131,6 +131,7 @@ def test_review_export_swaps_vault_method_keeps_work_note(
     assert MAV_METHOD not in work_text
     assert section_text(work_text, "表示与架构") == METHOD
     assert section_text(copied_text, "表示与架构") == MAV_ARCH
+    assert section_text(copied_text, "训练与数据") == MAV_TRAIN
     for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
@@ -173,6 +174,7 @@ def test_ingest_writes_frozen_method_on_vault_copy(
     copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
     assert section_text(copied_text, "方法") == MAV_METHOD
     assert section_text(copied_text, "表示与架构") == MAV_ARCH
+    assert section_text(copied_text, "训练与数据") == MAV_TRAIN
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert MAV_METHOD not in work_text
