@@ -1038,6 +1038,55 @@ def test_show_handwritten_yaml_and_related_file_order(
     assert network_attempts == []
 
 
+def test_show_yaml_related_wins_over_markdown(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "arxiv_id: 2408.06072\n"
+        "year: 2024\n"
+        "topics: [video-diffusion]\n"
+        "related: [arxiv-1111.11111, arxiv-2222.22222]\n"
+        "---\n\n"
+        "## 相关论文\n\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "arxiv-2408.06072"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["related"] == ["arxiv-1111.11111", "arxiv-2222.22222"]
+    assert network_attempts == []
+
+
+def test_show_yaml_empty_related_skips_markdown(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "year: 2024\n"
+        "topics: []\n"
+        "related: []\n"
+        "---\n\n"
+        "## 相关论文\n\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "arxiv-2408.06072"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["related"] == []
+    assert network_attempts == []
+
+
 def test_show_no_related_section_is_empty_list(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:

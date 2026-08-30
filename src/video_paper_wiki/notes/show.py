@@ -6,11 +6,27 @@ import re
 from pathlib import Path
 from typing import Any
 
-from video_paper_wiki.notes.list import yaml_fields
+from video_paper_wiki.notes.list import (
+    _field_value,
+    _opening_frontmatter,
+    _parse_topics,
+    yaml_fields,
+)
 
 _PAPERS = "papers"
 _RELATED_HEADING = "## 相关论文"
 _RELATED_LINK = re.compile(r"\./([^/\s)]+)\.md")
+
+
+def _related_from_yaml(text: str) -> list[str] | None:
+    """Parsed related if the YAML key exists; None if the key is absent."""
+    block = _opening_frontmatter(text)
+    if block is None:
+        return None
+    raw = _field_value(block, "related")
+    if raw is None:
+        return None
+    return _parse_topics(raw)
 
 
 def _related_ids(text: str) -> list[str]:
@@ -54,11 +70,13 @@ def load_paper(root: Path, paper_id: str) -> dict[str, Any] | None:
             "related": [],
         }
     fields = yaml_fields(text, wanted)
+    yaml_related = _related_from_yaml(text)
+    related = _related_ids(text) if yaml_related is None else yaml_related
     return {
         "paper_id": fields["paper_id"],
         "title": fields["title"],
         "arxiv_id": fields["arxiv_id"],
         "year": fields["year"],
         "topics": fields["topics"],
-        "related": _related_ids(text),
+        "related": related,
     }
