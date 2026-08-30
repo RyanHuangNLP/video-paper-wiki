@@ -94,6 +94,21 @@ def test_load_code_urls_not_an_object_is_none(monkeypatch) -> None:
     assert load_code_urls() is None
 
 
+def test_load_code_urls_latin1_is_none(tmp_path, monkeypatch) -> None:
+    bad = tmp_path / "docs" / "seed" / "engine-mvp-code-urls.json"
+    bad.parent.mkdir(parents=True)
+    bad.write_bytes(b'{"code_urls": {}}\n' + bytes([0xE9]))
+    from video_paper_wiki.notes.encoding import read_utf8
+
+    def _seed(filename: str) -> str | None:
+        if filename == "engine-mvp-code-urls.json":
+            return read_utf8(bad)
+        return _real_seed(filename)
+
+    monkeypatch.setattr("video_paper_wiki.resources.read_seed_text", _seed)
+    assert load_code_urls() is None
+
+
 def test_apply_keeps_urls_drops_remnants(monkeypatch) -> None:
     monkeypatch.setattr(
         "video_paper_wiki.notes.code_resources.load_code_urls",

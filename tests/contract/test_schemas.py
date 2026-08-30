@@ -69,7 +69,7 @@ def test_nested_objects_reject_extra_fields(schema_name: str) -> None:
         Draft202012Validator(schema, format_checker=FormatChecker()).validate(invalid)
 
 
-@pytest.mark.parametrize("paper_id", ["/tmp", "../"])
+@pytest.mark.parametrize("paper_id", ["/tmp", "../", "   ", "a\n.."])
 def test_paper_analysis_draft_paper_id_rejects_path_segments(paper_id: str) -> None:
     schema = load_json(Path("schemas") / "video-paper-wiki.paper-analysis-draft.v1.schema.json")
     document = copy.deepcopy(load_json(_fixture_for(schema)))
@@ -78,3 +78,11 @@ def test_paper_analysis_draft_paper_id_rejects_path_segments(paper_id: str) -> N
     document["paper_id"] = paper_id
     with pytest.raises(ValidationError):
         validator.validate(document)
+
+
+def test_paper_analysis_draft_paper_id_accepts_catalog_id() -> None:
+    schema = load_json(Path("schemas") / "video-paper-wiki.paper-analysis-draft.v1.schema.json")
+    document = copy.deepcopy(load_json(_fixture_for(schema)))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    document["paper_id"] = "arxiv-2209.14792"
+    validator.validate(document)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from urllib.parse import urlsplit
 
+from video_paper_wiki.notes.encoding import InvalidEncoding
 from video_paper_wiki.notes.headings import replace_h2_body
 from video_paper_wiki.resources import load_seed_json
 
@@ -40,7 +41,10 @@ def valid_http_urls(values: list[str]) -> list[str]:
 
 def load_code_urls() -> dict[str, list[str]] | None:
     """paper_id -> http(s) URLs. Legal empty seed → {}. Missing or unreadable → None."""
-    payload = load_seed_json(_CODE_URLS_FILE)
+    try:
+        payload = load_seed_json(_CODE_URLS_FILE)
+    except InvalidEncoding:
+        return None
     if not isinstance(payload, dict) or not isinstance(payload.get("code_urls"), dict):
         return None
     raw_map = payload["code_urls"]

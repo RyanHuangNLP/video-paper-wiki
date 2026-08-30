@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from video_paper_wiki import resources as seed_resources
 from video_paper_wiki.cli import main
 from video_paper_wiki.notes.code_resources import load_code_urls
 from video_paper_wiki.notes.encoding import InvalidEncoding
@@ -149,6 +150,57 @@ def test_invalid_code_urls_json_is_fail_closed(
     payload = _stdout_json(capsys)
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert payload["error"]["details"]["source"] == "engine-mvp-code-urls.json"
+    assert not (dest / "papers").exists()
+    assert not (tmp_path / ".work" / "notes").exists()
+    assert network_attempts == []
+
+
+def _latin1_code_urls_seed(tmp_path: Path, monkeypatch) -> Path:
+    bad = tmp_path / "docs" / "seed" / "engine-mvp-code-urls.json"
+    bad.parent.mkdir(parents=True, exist_ok=True)
+    bad.write_bytes(b'{"code_urls": {}}\n' + bytes([0xE9]))
+    real_package = seed_resources._package_text
+    real_repo_file = seed_resources._repo_file
+
+    def _package_text(*parts: str) -> str | None:
+        if parts and parts[-1] == "engine-mvp-code-urls.json":
+            return None
+        return real_package(*parts)
+
+    def _repo_file(relative: Path) -> Path | None:
+        if Path(relative) == Path("docs") / "seed" / "engine-mvp-code-urls.json":
+            return bad
+        return real_repo_file(relative)
+
+    monkeypatch.setattr("video_paper_wiki.resources._package_text", _package_text)
+    monkeypatch.setattr("video_paper_wiki.resources._repo_file", _repo_file)
+    return bad
+
+
+def test_latin1_code_urls_seed_is_fail_closed(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    _latin1_code_urls_seed(tmp_path, monkeypatch)
+    assert load_code_urls() is None
+    draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out.strip())
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["command"] == "review.export"
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == MAV
+    assert payload["error"]["details"]["source"] == "engine-mvp-code-urls.json"
+    assert "Traceback" not in captured.out
+    assert "Traceback" not in captured.err
+    assert "UnicodeDecodeError" not in captured.out
+    assert "UnicodeDecodeError" not in captured.err
+    assert "InvalidEncoding" not in captured.out
+    assert "InvalidEncoding" not in captured.err
     assert not (dest / "papers").exists()
     assert not (tmp_path / ".work" / "notes").exists()
     assert network_attempts == []

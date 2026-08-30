@@ -178,6 +178,24 @@ def test_validate_missing_file(tmp_path, monkeypatch, capsys, network_attempts) 
     assert network_attempts == []
 
 
+@pytest.mark.parametrize("paper_id", ["   ", "a\n..", "/tmp", "../"])
+def test_validate_rejects_unsafe_paper_id(
+    paper_id, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = paper_id
+    path = tmp_path / "draft.json"
+    path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    code = main(["draft", "validate", "--path", str(path)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "draft.validate"
+    assert payload["error"]["code"] == "DRAFT_INVALID"
+    assert network_attempts == []
+
+
 def test_local_parser_fails_closed_without_models(tmp_path, monkeypatch, network_attempts) -> None:
     monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
     from video_paper_wiki.parse.docling_local import parse_pdf_to_draft_fields
