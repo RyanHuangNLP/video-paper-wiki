@@ -98,7 +98,14 @@ def test_export_existing_dir_writes_papers_copy(tmp_path, monkeypatch, capsys, n
     assert copied.is_file()
     work_text = work.read_text(encoding="utf-8")
     copied_text = copied.read_text(encoding="utf-8")
-    assert copied_text == work_text
+    assert work_text.startswith("---\npaper_id:")
+    assert "title_zh:" in work_text
+    assert "arxiv_id" not in work_text.split("---", 2)[1]
+    assert "topics:" not in work_text.split("---", 2)[1]
+    assert copied_text.startswith("---\ntitle:")
+    assert "paper_id: fixture-minimal" in copied_text
+    assert "topics: []" in copied_text
+    assert copied_text != work_text
     for heading in HEADING_ZH:
         assert f"## {heading}" in work_text
         assert f"## {heading}" in copied_text

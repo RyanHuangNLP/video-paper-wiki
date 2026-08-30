@@ -143,8 +143,15 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     assert "](./arxiv-" in copied_text
     assert "](./arxiv-2209.14792.md)" not in copied_text
     assert "## 相关论文" in copied_text
-    assert work_text not in copied_text or copied_text != work_text
-    assert copied_text.startswith(work_text.rstrip("\n"))
+    assert copied_text != work_text
+    assert work_text.startswith("---\npaper_id:")
+    assert "title_zh:" in work_text
+    assert "arxiv_id" not in work_text.split("---", 2)[1]
+    assert "topics:" not in work_text.split("---", 2)[1]
+    assert copied_text.startswith("---\ntitle:")
+    assert "title: Make-A-Video" in copied_text
+    assert "year: 2022" in copied_text
+    assert "topics: [video-diffusion]" in copied_text
     assert not (dest / "wiki" / "index.md").exists()
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     assert "[Make-A-Video](papers/arxiv-2209.14792.md)" in index_text
@@ -190,7 +197,12 @@ def test_ingest_non_topic_paper_omits_trailers(
 
     work = (tmp_path / ".work" / "notes" / "not-a-topic.md").read_text(encoding="utf-8")
     copied = (dest / "papers" / "not-a-topic.md").read_text(encoding="utf-8")
-    assert copied == work
+    assert copied != work
+    assert work.startswith("---\npaper_id:")
+    assert "title_zh:" in work
+    assert "topics:" not in work.split("---", 2)[1]
+    assert copied.startswith("---\ntitle:")
+    assert "topics: []" in copied
     _assert_frozen_headings(copied)
     after = _trailer_after_related(copied)
     assert "## 主题" not in after
@@ -211,7 +223,12 @@ def test_export_minimal_fixture_omits_trailers(
     _stdout_json(capsys)
     work = (tmp_path / ".work" / "notes" / "fixture-minimal.md").read_text(encoding="utf-8")
     copied = (dest / "papers" / "fixture-minimal.md").read_text(encoding="utf-8")
-    assert copied == work
+    assert copied != work
+    assert work.startswith("---\npaper_id:")
+    assert "title_zh:" in work
+    assert "topics:" not in work.split("---", 2)[1]
+    assert copied.startswith("---\ntitle:")
+    assert "topics: []" in copied
     _assert_frozen_headings(copied)
     after = _trailer_after_related(copied)
     assert "## 主题" not in after

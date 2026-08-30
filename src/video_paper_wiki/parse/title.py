@@ -32,7 +32,7 @@ def _resolve_seed_path() -> Path | None:
     return None
 
 
-def catalog_title_for_paper_id(paper_id: str) -> str | None:
+def _catalog_entry(paper_id: str) -> dict | None:
     path = _resolve_seed_path()
     if path is None:
         return None
@@ -50,9 +50,27 @@ def catalog_title_for_paper_id(paper_id: str) -> str | None:
             continue
         if str(item.get("paper_id", "")).strip() != wanted:
             continue
-        title = item.get("title")
-        if isinstance(title, str) and title.strip():
-            return title.strip()
+        return item
+    return None
+
+
+def catalog_title_for_paper_id(paper_id: str) -> str | None:
+    item = _catalog_entry(paper_id)
+    if item is None:
+        return None
+    title = item.get("title")
+    if isinstance(title, str) and title.strip():
+        return title.strip()
+    return None
+
+
+def catalog_arxiv_id_for_paper_id(paper_id: str) -> str | None:
+    item = _catalog_entry(paper_id)
+    if item is None:
+        return None
+    arxiv_id = item.get("arxiv_id")
+    if isinstance(arxiv_id, str) and arxiv_id.strip():
+        return arxiv_id.strip()
     return None
 
 

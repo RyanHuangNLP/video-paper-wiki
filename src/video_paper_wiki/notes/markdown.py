@@ -26,10 +26,8 @@ def _yaml_scalar(value: str) -> str:
     return value
 
 
-def render_paper_markdown(document: Mapping[str, Any]) -> str:
-    paper_id = str(document.get("paper_id", ""))
-    title = str(document.get("title", ""))
-    title_zh = str(document.get("title_zh", ""))
+def render_paper_sections(document: Mapping[str, Any]) -> str:
+    """Ten frozen heading_zh sections; no YAML."""
     by_section: dict[str, list[str]] = {section_id: [] for section_id, _heading in SECTION_SPECS}
     claims = document.get("claims") or []
     if isinstance(claims, list):
@@ -41,14 +39,7 @@ def render_paper_markdown(document: Mapping[str, Any]) -> str:
             if section in by_section and text:
                 by_section[section].append(text)
 
-    lines = [
-        "---",
-        f"paper_id: {_yaml_scalar(paper_id)}",
-        f"title: {_yaml_scalar(title)}",
-        f"title_zh: {_yaml_scalar(title_zh)}",
-        "---",
-        "",
-    ]
+    lines: list[str] = []
     for section_id, heading_zh in SECTION_SPECS:
         lines.append(f"## {heading_zh}")
         lines.append("")
@@ -56,3 +47,20 @@ def render_paper_markdown(document: Mapping[str, Any]) -> str:
             lines.append(text)
             lines.append("")
     return "\n".join(lines)
+
+
+def render_paper_markdown(document: Mapping[str, Any]) -> str:
+    paper_id = str(document.get("paper_id", ""))
+    title = str(document.get("title", ""))
+    title_zh = str(document.get("title_zh", ""))
+    header = "\n".join(
+        [
+            "---",
+            f"paper_id: {_yaml_scalar(paper_id)}",
+            f"title: {_yaml_scalar(title)}",
+            f"title_zh: {_yaml_scalar(title_zh)}",
+            "---",
+            "",
+        ]
+    )
+    return header + "\n" + render_paper_sections(document)

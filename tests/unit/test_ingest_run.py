@@ -62,7 +62,15 @@ def test_ingest_run_existing_dir_copies_papers_and_reports_copy(
     assert Path(data["note_path"]).is_file()
     assert data["vault_path"] == copied.as_posix()
     assert copied.is_file()
-    assert copied.read_text(encoding="utf-8") == Path(data["note_path"]).read_text(encoding="utf-8")
+    work_text = Path(data["note_path"]).read_text(encoding="utf-8")
+    copied_text = copied.read_text(encoding="utf-8")
+    assert work_text.startswith("---\npaper_id:")
+    assert "title_zh:" in work_text
+    assert "topics:" not in work_text.split("---", 2)[1]
+    assert copied_text.startswith("---\ntitle:")
+    assert f"paper_id: {paper_id}" in copied_text
+    assert "topics: []" in copied_text
+    assert copied_text != work_text
     index_md = existing / "index.md"
     assert index_md.is_file()
     index_text = index_md.read_text(encoding="utf-8")
