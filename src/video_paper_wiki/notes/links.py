@@ -42,6 +42,24 @@ def related_catalog_papers(paper_id: str) -> list[tuple[str, str]]:
     return [(sibling, titles[sibling]) for sibling in sort_paper_ids(titles)]
 
 
+def backlink_catalog_ids(paper_id: str) -> list[str]:
+    """Catalog papers whose related list includes paper_id, year then paper_id."""
+    from video_paper_wiki.notes.index import sort_paper_ids
+    from video_paper_wiki.parse.title import catalog_paper_ids
+
+    wanted = str(paper_id).strip()
+    if not wanted:
+        return []
+    found: list[str] = []
+    for other in catalog_paper_ids():
+        if other == wanted:
+            continue
+        related = [sibling for sibling, _title in related_catalog_papers(other)]
+        if wanted in related:
+            found.append(other)
+    return sort_paper_ids(found)
+
+
 def paper_note_link_suffix(paper_id: str) -> str:
     """Trailing ## 主题 / ## 相关论文 blocks, or empty if paper is in no topic.
 

@@ -54,6 +54,7 @@ def _assert_work_frontmatter(text: str) -> str:
     assert "year:" not in fm
     assert "topics:" not in fm
     assert "related:" not in fm
+    assert "backlinks:" not in fm
     assert fm.count("\n") == 2
     return body
 
@@ -62,10 +63,32 @@ def _assert_copy_frontmatter_keys(text: str) -> str:
     assert text.startswith("---\ntitle:")
     fm, body = _frontmatter_and_body(text)
     lines = fm.splitlines()
+    assert lines[0].startswith("title:")
     assert lines[1].startswith("paper_id:")
     assert lines[2].startswith("arxiv_id:")
-    assert lines[-2].startswith("topics:")
-    assert lines[-1].startswith("related:")
+    names = [line.split(":", 1)[0] for line in lines]
+    if "year" in names:
+        assert names == [
+            "title",
+            "paper_id",
+            "arxiv_id",
+            "year",
+            "topics",
+            "related",
+            "backlinks",
+        ]
+    else:
+        assert names == [
+            "title",
+            "paper_id",
+            "arxiv_id",
+            "topics",
+            "related",
+            "backlinks",
+        ]
+    assert lines[-3].startswith("topics:")
+    assert lines[-2].startswith("related:")
+    assert lines[-1].startswith("backlinks:")
     assert "title_zh" not in fm
     assert text.count("\n---\n") == 1
     return body
@@ -121,11 +144,14 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert "arxiv_id: 2209.14792" in copied
     assert "year: 2022" in copied
     assert "topics: [video-diffusion]" in copied
-    from video_paper_wiki.notes.links import related_catalog_papers
+    from video_paper_wiki.notes.links import backlink_catalog_ids, related_catalog_papers
 
     related_ids = [pid for pid, _title in related_catalog_papers("arxiv-2209.14792")]
     assert related_ids
     assert f"related: [{', '.join(related_ids)}]" in copied
+    backlinks = backlink_catalog_ids("arxiv-2209.14792")
+    assert backlinks
+    assert f"backlinks: [{', '.join(backlinks)}]" in copied
     import re
 
     link_ids = re.findall(r"\]\(\./([^)]+)\.md\)", copied.split("## 相关论文", 1)[1])
@@ -140,6 +166,7 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert "year:" not in work
     assert "topics:" not in work
     assert "related:" not in work
+    assert "backlinks:" not in work
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
@@ -163,13 +190,16 @@ def test_ingest_cogvideox_year_and_two_topics(
     assert "arxiv_id: 2408.06072" in copied
     assert "year: 2024" in copied
     assert "topics: [video-diffusion, tokenization]" in copied
-    from video_paper_wiki.notes.links import related_catalog_papers
+    from video_paper_wiki.notes.links import backlink_catalog_ids, related_catalog_papers
 
     related_ids = [pid for pid, _title in related_catalog_papers("arxiv-2408.06072")]
     assert related_ids
     assert f"related: [{', '.join(related_ids)}]" in copied
+    backlinks = backlink_catalog_ids("arxiv-2408.06072")
+    assert f"backlinks: [{', '.join(backlinks)}]" in copied
     assert "topics:" not in work
     assert "related:" not in work
+    assert "backlinks:" not in work
     assert "year:" not in work
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
     assert "[视频 tokenizer](../wiki/tokenization.md)" in copied
@@ -195,15 +225,18 @@ def test_ingest_towards_accurate_year_2018_evaluation(
     assert "arxiv_id: 1812.01717" in copied
     assert "year: 2018" in copied
     assert "topics: [evaluation]" in copied
-    from video_paper_wiki.notes.links import related_catalog_papers
+    from video_paper_wiki.notes.links import backlink_catalog_ids, related_catalog_papers
 
     related_ids = [pid for pid, _title in related_catalog_papers("arxiv-1812.01717")]
     assert related_ids
     assert f"related: [{', '.join(related_ids)}]" in copied
+    backlinks = backlink_catalog_ids("arxiv-1812.01717")
+    assert f"backlinks: [{', '.join(backlinks)}]" in copied
     assert "title_zh:" in work
     assert "arxiv_id" not in work
     assert "topics:" not in work
     assert "related:" not in work
+    assert "backlinks:" not in work
     assert network_attempts == []
 
 
@@ -226,9 +259,11 @@ def test_ingest_non_catalog_paper_id_x_empty_topics(
     assert "year:" not in _frontmatter_and_body(copied)[0]
     assert "topics: []" in copied
     assert "related: []" in copied
+    assert "backlinks: []" in copied
     assert copy_body == work_body
     assert "## 相关论文" not in copied
     assert "related:" not in work
+    assert "backlinks:" not in work
     assert copied != work
     assert network_attempts == []
 
@@ -255,9 +290,11 @@ def test_export_minimal_fixture_copy_frontmatter(
     assert "year:" not in _frontmatter_and_body(copied)[0]
     assert "topics: []" in copied
     assert "related: []" in copied
+    assert "backlinks: []" in copied
     assert copy_body == work_body
     assert copied != work
     assert "## 相关论文" not in copied
     assert "related:" not in work
+    assert "backlinks:" not in work
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []

@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
-from video_paper_wiki.notes import paper_note_link_suffix, related_catalog_papers
+from video_paper_wiki.notes import backlink_catalog_ids, paper_note_link_suffix, related_catalog_papers
 from video_paper_wiki.notes.links import paper_note_link_suffix as suffix_direct
 from video_paper_wiki.parse.draft_document import SECTION_SPECS
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
@@ -183,7 +183,11 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     assert "year: 2022" in copied_text
     assert "topics: [video-diffusion]" in copied_text
     assert f"related: [{', '.join(related_ids)}]" in copied_text
+    backlinks = backlink_catalog_ids("arxiv-2209.14792")
+    assert backlinks
+    assert f"backlinks: [{', '.join(backlinks)}]" in copied_text
     assert "related:" not in work_text.split("---", 2)[1]
+    assert "backlinks:" not in work_text.split("---", 2)[1]
     assert not (dest / "wiki" / "index.md").exists()
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in index_text
@@ -237,7 +241,9 @@ def test_ingest_non_topic_paper_omits_trailers(
     assert copied.startswith("---\ntitle:")
     assert "topics: []" in copied
     assert "related: []" in copied
+    assert "backlinks: []" in copied
     assert "related:" not in work.split("---", 2)[1]
+    assert "backlinks:" not in work.split("---", 2)[1]
     _assert_frozen_headings(copied)
     after = _trailer_after_related(copied)
     assert "## 主题" not in after
@@ -265,7 +271,9 @@ def test_export_minimal_fixture_omits_trailers(
     assert copied.startswith("---\ntitle:")
     assert "topics: []" in copied
     assert "related: []" in copied
+    assert "backlinks: []" in copied
     assert "related:" not in work.split("---", 2)[1]
+    assert "backlinks:" not in work.split("---", 2)[1]
     _assert_frozen_headings(copied)
     after = _trailer_after_related(copied)
     assert "## 主题" not in after
@@ -273,6 +281,54 @@ def test_export_minimal_fixture_omits_trailers(
     assert "../wiki/" not in work
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
+
+
+def test_backlink_catalog_ids_is_reverse_related() -> None:
+    from video_paper_wiki.notes.index import sort_paper_ids
+    from video_paper_wiki.parse.title import catalog_paper_ids
+
+    for paper_id in catalog_paper_ids():
+        expected = []
+        for other in catalog_paper_ids():
+            if other == paper_id:
+                continue
+            related = [sibling for sibling, _title in related_catalog_papers(other)]
+            if paper_id in related:
+                expected.append(other)
+        assert backlink_catalog_ids(paper_id) == sort_paper_ids(expected)
+    assert backlink_catalog_ids("") == []
+    assert backlink_catalog_ids("fixture-minimal") == []
+    assert backlink_catalog_ids("x") == []
+
+
+def test_backlinks_include_untitled_source(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "video_paper_wiki.notes.links.load_topics",
+        lambda: [
+            {
+                "id": "video-diffusion",
+                "heading_zh": "视频扩散",
+                "paper_ids": ["ghost", "arxiv-2204.03458"],
+            }
+        ],
+    )
+
+    def _titles(paper_id: str) -> str | None:
+        if paper_id == "ghost":
+            return None
+        return catalog_title_for_paper_id(paper_id)
+
+    monkeypatch.setattr("video_paper_wiki.notes.links.catalog_title_for_paper_id", _titles)
+    monkeypatch.setattr(
+        "video_paper_wiki.parse.title.catalog_paper_ids",
+        lambda: ["ghost", "arxiv-2204.03458"],
+    )
+    assert [paper_id for paper_id, _title in related_catalog_papers("ghost")] == [
+        "arxiv-2204.03458"
+    ]
+    assert related_catalog_papers("arxiv-2204.03458") == []
+    assert backlink_catalog_ids("arxiv-2204.03458") == ["ghost"]
+    assert backlink_catalog_ids("ghost") == []
 
 
 def test_frozen_seed_topics_json_unchanged() -> None:

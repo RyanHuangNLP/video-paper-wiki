@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from video_paper_wiki.notes.links import related_catalog_papers, topics_containing
+from video_paper_wiki.notes.links import (
+    backlink_catalog_ids,
+    related_catalog_papers,
+    topics_containing,
+)
 from video_paper_wiki.notes.markdown import _yaml_scalar, render_paper_sections
 from video_paper_wiki.parse.title import catalog_arxiv_id_for_paper_id, catalog_title_for_paper_id
 
@@ -57,6 +61,7 @@ def render_paper_copy_frontmatter(paper_id: str, draft_title: str) -> str:
     lines.append(f"topics: {_yaml_flow_list(topic_ids_for_paper(paper_id))}")
     related_ids = [sibling for sibling, _title in related_catalog_papers(paper_id)]
     lines.append(f"related: {_yaml_flow_list(related_ids)}")
+    lines.append(f"backlinks: {_yaml_flow_list(backlink_catalog_ids(paper_id))}")
     lines.append("---")
     lines.append("")
     return "\n".join(lines)

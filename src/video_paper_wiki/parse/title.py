@@ -74,6 +74,27 @@ def catalog_arxiv_id_for_paper_id(paper_id: str) -> str | None:
     return None
 
 
+def catalog_paper_ids() -> list[str]:
+    """paper_id values from engine-mvp.json, catalog order."""
+    path = _resolve_seed_path()
+    if path is None:
+        return []
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    if not isinstance(payload, dict) or not isinstance(payload.get("papers"), list):
+        return []
+    ids: list[str] = []
+    for item in payload["papers"]:
+        if not isinstance(item, dict):
+            continue
+        paper_id = str(item.get("paper_id", "")).strip()
+        if paper_id:
+            ids.append(paper_id)
+    return ids
+
+
 def looks_like_header(line: str) -> bool:
     folded = line.strip().casefold()
     if not folded:

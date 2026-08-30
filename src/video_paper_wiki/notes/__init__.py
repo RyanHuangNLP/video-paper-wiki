@@ -7,7 +7,11 @@ from video_paper_wiki.notes.section import list_headings, read_paper_text, secti
 from video_paper_wiki.notes.grep import scan_matches
 from video_paper_wiki.notes.stat import scan_stat
 from video_paper_wiki.notes.index import upsert_index_entry
-from video_paper_wiki.notes.links import paper_note_link_suffix, related_catalog_papers
+from video_paper_wiki.notes.links import (
+    backlink_catalog_ids,
+    paper_note_link_suffix,
+    related_catalog_papers,
+)
 from video_paper_wiki.notes.markdown import render_paper_markdown
 from video_paper_wiki.notes.topics import load_topics, refresh_topic_pages
 
@@ -23,6 +27,7 @@ __all__ = [
     "scan_matches",
     "scan_stat",
     "related_catalog_papers",
+    "backlink_catalog_ids",
     "render_paper_copy_markdown",
     "render_paper_markdown",
     "upsert_index_entry",
