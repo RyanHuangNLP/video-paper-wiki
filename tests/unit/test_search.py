@@ -1177,3 +1177,233 @@ def test_show_ignores_nested_papers(
     assert (notes / "papers" / "nested" / "x.md").is_file()
     assert not (notes / "papers" / "x.md").exists()
     assert network_attempts == []
+
+
+def test_section_missing_dir_refuses_and_does_not_create(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    missing = tmp_path / "missing-root"
+    code = main(["vault", "section", "--vault", str(missing), "arxiv-2408.06072", "方法"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.section"
+    assert payload["error"]["code"] == "VAULT_NOT_FOUND"
+    assert not missing.exists()
+    assert network_attempts == []
+
+
+def test_section_empty_paper_id_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "section", "--vault", str(notes), "", "方法"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.section"
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_section_empty_heading_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", ""])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.section"
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_section_missing_vault_flag_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    code = main(["vault", "section", "arxiv-2408.06072", "方法"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_section_missing_file_does_not_create_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    before = list(notes.rglob("*"))
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "方法"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.section"
+    assert payload["error"]["code"] == "PAPER_NOT_FOUND"
+    assert not (notes / "papers").exists()
+    assert list(notes.rglob("*")) == before
+    assert network_attempts == []
+
+
+def test_section_unsafe_ids_are_not_found(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    before = list(notes.rglob("*"))
+    for paper_id in ("../x", "foo/bar", "foo\\bar", ".", ".."):
+        code = main(["vault", "section", "--vault", str(notes), paper_id, "方法"])
+        assert code == 2
+        payload = _stdout_json(capsys)
+        assert payload["ok"] is False
+        assert payload["command"] == "vault.section"
+        assert payload["error"]["code"] == "PAPER_NOT_FOUND"
+    assert list(notes.rglob("*")) == before
+    assert not (tmp_path / "x.md").exists()
+    assert not (notes / "papers").exists()
+    assert network_attempts == []
+
+
+def test_section_handwritten_extracts_exact_headings(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "---\n\n"
+        "## 一句话结论\n"
+        "A one liner.\n"
+        "## 方法\n"
+        "The method body.\n"
+        "still method.\n"
+        "## 关联\n"
+        "Frozen related section.\n"
+        "## 相关论文\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n",
+    )
+    original = (notes / "papers" / "arxiv-2408.06072.md").read_text(encoding="utf-8")
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "方法"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.section"
+    data = payload["data"]
+    assert data["paper_id"] == "arxiv-2408.06072"
+    assert data["section"] == "方法"
+    assert data["text"] == "The method body.\nstill method."
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "相关论文"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["section"] == "相关论文"
+    assert data["text"] == "[Make-A-Video](./arxiv-2209.14792.md) (2022)"
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "一句话结论"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["text"] == "A one liner."
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "关联"])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["text"] == "Frozen related section."
+    assert data["text"] != "[Make-A-Video](./arxiv-2209.14792.md) (2022)"
+    assert (notes / "papers" / "arxiv-2408.06072.md").read_text(encoding="utf-8") == original
+    assert network_attempts == []
+
+
+def test_section_missing_heading_does_not_create(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    path = notes / "papers" / "arxiv-2408.06072.md"
+    _write(path, "## 方法\nThe method body.\n")
+    original = path.read_text(encoding="utf-8")
+    code = main(["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "局限"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.section"
+    assert payload["error"]["code"] == "SECTION_NOT_FOUND"
+    assert payload["error"]["details"]["paper_id"] == "arxiv-2408.06072"
+    assert payload["error"]["details"]["section"] == "局限"
+    assert path.read_text(encoding="utf-8") == original
+    assert network_attempts == []
+
+
+def test_section_after_ingest_make_a_video(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "arxiv-2209.14792",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    capsys.readouterr()
+    note = dest / "papers" / "arxiv-2209.14792.md"
+    original = note.read_text(encoding="utf-8")
+    code = main(
+        ["vault", "section", "--vault", str(dest), "arxiv-2209.14792", "证据状态"]
+    )
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.section"
+    data = payload["data"]
+    assert data["paper_id"] == "arxiv-2209.14792"
+    assert data["section"] == "证据状态"
+    assert isinstance(data["text"], str)
+    assert data["text"]
+    code = main(
+        ["vault", "section", "--vault", str(dest), "arxiv-2209.14792", "相关论文"]
+    )
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["section"] == "相关论文"
+    assert isinstance(data["text"], str)
+    assert note.read_text(encoding="utf-8") == original
+    assert network_attempts == []
+
+
+def test_section_ignores_nested_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "nested" / "x.md",
+        "## 方法\nNested method.\n",
+    )
+    code = main(["vault", "section", "--vault", str(notes), "x", "方法"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.section"
+    assert payload["error"]["code"] == "PAPER_NOT_FOUND"
+    assert (notes / "papers" / "nested" / "x.md").is_file()
+    assert not (notes / "papers" / "x.md").exists()
+    assert network_attempts == []

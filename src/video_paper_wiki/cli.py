@@ -193,6 +193,11 @@ def build_parser() -> argparse.ArgumentParser:
     show.add_argument("--vault", dest="notes_root", required=True)
     show.add_argument("paper_id")
     show.set_defaults(handler=search_commands.show)
+    section = vault_sub.add_parser("section")
+    section.add_argument("--vault", dest="notes_root", required=True)
+    section.add_argument("paper_id")
+    section.add_argument("section")
+    section.set_defaults(handler=search_commands.section)
 
     wiki = sub.add_parser("wiki")
     wiki_sub = wiki.add_subparsers(dest="wiki_cmd", required=True)
