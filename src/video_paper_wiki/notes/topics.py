@@ -55,11 +55,15 @@ def load_topics() -> list[dict[str, Any]] | None:
             for paper_id in paper_ids:
                 if isinstance(paper_id, str) and paper_id.strip():
                     ids.append(paper_id.strip())
+        blurb = item.get("blurb_zh")
+        if not isinstance(blurb, str):
+            blurb = ""
         topics.append(
             {
                 "id": topic_id.strip(),
                 "heading_zh": heading,
                 "paper_ids": ids,
+                "blurb_zh": blurb,
             }
         )
     return topics
@@ -71,8 +75,13 @@ def _paper_note_exists(root: Path, paper_id: str) -> bool:
     return (root / "papers" / f"{paper_id}.md").is_file()
 
 
-def _topic_page_text(heading_zh: str, paper_ids: list[str], root: Path) -> str:
+def _topic_page_text(
+    heading_zh: str, paper_ids: list[str], root: Path, blurb_zh: str = ""
+) -> str:
     lines = [f"# {heading_zh}", ""]
+    if blurb_zh:
+        lines.append(blurb_zh)
+        lines.append("")
     for paper_id in paper_ids:
         title = catalog_title_for_paper_id(paper_id)
         if title is None:
@@ -138,7 +147,12 @@ def refresh_topic_pages(root: Path) -> None:
     for topic in topics:
         page = wiki_dir / f"{topic['id']}.md"
         page.write_text(
-            _topic_page_text(topic["heading_zh"], topic["paper_ids"], root),
+            _topic_page_text(
+                topic["heading_zh"],
+                topic["paper_ids"],
+                root,
+                topic.get("blurb_zh", ""),
+            ),
             encoding="utf-8",
         )
     index_path = root / "index.md"

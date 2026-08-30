@@ -17,6 +17,24 @@ TOPIC_INDEX_LINKS = (
     "[语言模型路线](wiki/language-model.md)",
 )
 
+BLURB_ZH = {
+    "video-diffusion": "用扩散模型生成视频，覆盖文生视频和图生视频。",
+    "tokenization": "把视频压成离散或连续 token，供扩散或语言模型使用。",
+    "evaluation": "视频生成质量与时序一致性的评测指标和基准。",
+    "data": "大规模视频-文本数据，用来训练表征或生成模型。",
+    "motion-control": "用轨迹、条件或组合模块控制生成视频里的运动。",
+    "language-model": "用自回归语言模型作为视频生成主干。",
+}
+
+HEADING_ZH = {
+    "video-diffusion": "视频扩散",
+    "tokenization": "视频 tokenizer",
+    "evaluation": "评测",
+    "data": "数据",
+    "motion-control": "运动控制",
+    "language-model": "语言模型路线",
+}
+
 
 def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
@@ -54,9 +72,22 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
 
     wiki = dest / "wiki"
     vd = (wiki / "video-diffusion.md").read_text(encoding="utf-8")
+    blurb = BLURB_ZH["video-diffusion"]
+    link = "[Make-A-Video](../papers/arxiv-2209.14792.md)"
     assert vd.startswith("# 视频扩散\n")
-    assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in vd
+    assert blurb in vd
+    assert link in vd
+    assert vd.index("# 视频扩散") < vd.index(blurb) < vd.index(link)
+    assert vd == f"# 视频扩散\n\n{blurb}\n\n{link}\n"
     assert not (wiki / "index.md").exists()
+
+    for topic_id, heading in HEADING_ZH.items():
+        page = (wiki / f"{topic_id}.md").read_text(encoding="utf-8")
+        assert page.startswith(f"# {heading}\n")
+        assert BLURB_ZH[topic_id] in page
+        if topic_id != "video-diffusion":
+            assert "../papers/" not in page
+            assert page == f"# {heading}\n\n{BLURB_ZH[topic_id]}\n"
 
     evaluation = (wiki / "evaluation.md").read_text(encoding="utf-8")
     assert evaluation.startswith("# 评测\n")
@@ -68,6 +99,8 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
     assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in index_text
     assert "## 主题" in index_text
     assert "[视频扩散](wiki/video-diffusion.md)" in index_text
+    for blurb_text in BLURB_ZH.values():
+        assert blurb_text not in index_text
     paper_at = index_text.splitlines().index("[Make-A-Video](papers/arxiv-2209.14792.md) (2022)")
     topics_at = index_text.splitlines().index("## 主题")
     assert paper_at < topics_at
@@ -90,11 +123,19 @@ def test_ingest_second_paper_keeps_papers_above_topics(
 
     vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
     assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in vd
+    assert BLURB_ZH["video-diffusion"] in vd
+    assert vd.index(BLURB_ZH["video-diffusion"]) < vd.index(
+        "[Make-A-Video](../papers/arxiv-2209.14792.md)"
+    )
     assert "VBench" not in vd
 
     evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
     assert evaluation.startswith("# 评测\n")
+    assert BLURB_ZH["evaluation"] in evaluation
     assert "[VBench](../papers/arxiv-2311.17982.md)" in evaluation
+    assert evaluation.index(BLURB_ZH["evaluation"]) < evaluation.index(
+        "[VBench](../papers/arxiv-2311.17982.md)"
+    )
 
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     lines = index_text.splitlines()
@@ -107,6 +148,8 @@ def test_ingest_second_paper_keeps_papers_above_topics(
     vbench_line = lines.index("[VBench](papers/arxiv-2311.17982.md) (2023)")
     assert vbench_line < topics_at
     assert "[评测](wiki/evaluation.md)" in lines
+    for blurb_text in BLURB_ZH.values():
+        assert blurb_text not in index_text
     assert index_text.count("## 主题") == 1
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
@@ -130,19 +173,27 @@ def test_ingest_pdf_dir_fills_tokenization_page(
 
     tok = (dest / "wiki" / "tokenization.md").read_text(encoding="utf-8")
     assert tok.startswith("# 视频 tokenizer\n")
+    assert BLURB_ZH["tokenization"] in tok
     assert "[Phenaki](../papers/arxiv-2210.02399.md)" in tok
     assert "[MAGVIT](../papers/arxiv-2212.05199.md)" in tok
     assert "[CogVideoX](../papers/arxiv-2408.06072.md)" in tok
+    assert tok.index(BLURB_ZH["tokenization"]) < tok.index(
+        "[Phenaki](../papers/arxiv-2210.02399.md)"
+    )
 
     vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
     assert "[CogVideoX](../papers/arxiv-2408.06072.md)" in vd
+    assert BLURB_ZH["video-diffusion"] in vd
     assert "Phenaki" not in vd
 
     lm = (dest / "wiki" / "language-model.md").read_text(encoding="utf-8")
     assert "[Phenaki](../papers/arxiv-2210.02399.md)" in lm
+    assert BLURB_ZH["language-model"] in lm
 
     assert not (dest / "wiki" / "index.md").exists()
     index_text = (dest / "index.md").read_text(encoding="utf-8")
+    for blurb_text in BLURB_ZH.values():
+        assert blurb_text not in index_text
     topics_at = index_text.splitlines().index("## 主题")
     for paper_id in ("arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2408.06072"):
         line = next(

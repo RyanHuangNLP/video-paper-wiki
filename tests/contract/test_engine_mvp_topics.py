@@ -16,10 +16,44 @@ EXPECTED_TOPIC_IDS = (
     "motion-control",
     "language-model",
 )
+EXPECTED_HEADING_ZH = {
+    "video-diffusion": "视频扩散",
+    "tokenization": "视频 tokenizer",
+    "evaluation": "评测",
+    "data": "数据",
+    "motion-control": "运动控制",
+    "language-model": "语言模型路线",
+}
+EXPECTED_PAPER_IDS = {
+    "video-diffusion": [
+        "arxiv-2204.03458",
+        "arxiv-2209.14792",
+        "arxiv-2311.15127",
+        "arxiv-2401.03048",
+        "arxiv-2401.12945",
+        "arxiv-2405.18750",
+        "arxiv-2408.06072",
+        "arxiv-2410.05954",
+        "arxiv-2412.03603",
+    ],
+    "tokenization": ["arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2408.06072"],
+    "evaluation": ["arxiv-1812.01717", "arxiv-2311.17982"],
+    "data": ["arxiv-2307.06942", "arxiv-2402.19479"],
+    "motion-control": ["arxiv-2306.02018", "arxiv-2310.12190", "arxiv-2312.03641"],
+    "language-model": ["arxiv-2210.02399", "arxiv-2312.14125"],
+}
+EXPECTED_BLURB_ZH = {
+    "video-diffusion": "用扩散模型生成视频，覆盖文生视频和图生视频。",
+    "tokenization": "把视频压成离散或连续 token，供扩散或语言模型使用。",
+    "evaluation": "视频生成质量与时序一致性的评测指标和基准。",
+    "data": "大规模视频-文本数据，用来训练表征或生成模型。",
+    "motion-control": "用轨迹、条件或组合模块控制生成视频里的运动。",
+    "language-model": "用自回归语言模型作为视频生成主干。",
+}
 FORBIDDEN_KEY_FRAGMENTS = ("pdf", "fetch")
-ALLOWED_TOPIC_KEYS = {"id", "heading_zh", "paper_ids"}
+ALLOWED_TOPIC_KEYS = {"id", "heading_zh", "paper_ids", "blurb_zh"}
 FROZEN_TOPICS_SHA256 = (
-    "3df830cb7dbd7a467aec5a92fbaae06554423b03984b35028d9457e9f9446f52"
+    "a1aa08a996381da317ebed53d6a6860537729d28f371158961676f23086a2b82"
 )
 
 
@@ -44,6 +78,10 @@ def test_engine_mvp_topics_file_ids_catalog_and_overlaps() -> None:
     catalog_ids = {paper["paper_id"] for paper in catalog["papers"]}
     for topic in topics:
         assert set(topic.keys()) == ALLOWED_TOPIC_KEYS
+        tid = topic["id"]
+        assert topic["heading_zh"] == EXPECTED_HEADING_ZH[tid]
+        assert topic["paper_ids"] == EXPECTED_PAPER_IDS[tid]
+        assert topic["blurb_zh"] == EXPECTED_BLURB_ZH[tid]
         for paper_id in topic["paper_ids"]:
             assert paper_id in catalog_ids
     _assert_no_pdf_or_fetch_keys(payload)

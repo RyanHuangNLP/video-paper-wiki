@@ -3,7 +3,21 @@ from __future__ import annotations
 from pathlib import Path
 
 from video_paper_wiki.notes import load_topics, refresh_topic_pages
+from video_paper_wiki.notes.topics import _topic_page_text
 from video_paper_wiki.notes.topics import refresh_topic_pages as refresh_direct
+
+VIDEO_DIFFUSION_BLURB = "用扩散模型生成视频，覆盖文生视频和图生视频。"
+EVALUATION_BLURB = "视频生成质量与时序一致性的评测指标和基准。"
+
+
+def test_load_topics_keeps_blurb_zh() -> None:
+    topics = load_topics()
+    assert topics is not None
+    by_id = {topic["id"]: topic for topic in topics}
+    assert by_id["video-diffusion"]["blurb_zh"] == VIDEO_DIFFUSION_BLURB
+    assert by_id["evaluation"]["blurb_zh"] == EVALUATION_BLURB
+    for topic in topics:
+        assert isinstance(topic["blurb_zh"], str)
 
 
 def test_refresh_skips_unknown_and_missing_papers(tmp_path: Path) -> None:
@@ -19,7 +33,11 @@ def test_refresh_skips_unknown_and_missing_papers(tmp_path: Path) -> None:
 
     vd = (root / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
     assert vd.startswith("# 视频扩散\n")
+    assert VIDEO_DIFFUSION_BLURB in vd
     assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in vd
+    assert vd.index(VIDEO_DIFFUSION_BLURB) < vd.index(
+        "[Make-A-Video](../papers/arxiv-2209.14792.md)"
+    )
     assert "not-in-catalog" not in vd
     assert "arxiv-2311.15127" not in vd
     assert "Stable Video Diffusion" not in vd
@@ -32,7 +50,9 @@ def test_refresh_never_writes_wiki_index(tmp_path: Path) -> None:
     refresh_topic_pages(root)
     assert not (root / "wiki" / "index.md").exists()
     assert (root / "wiki" / "video-diffusion.md").is_file()
-    assert (root / "wiki" / "evaluation.md").read_text(encoding="utf-8").startswith("# 评测\n")
+    evaluation = (root / "wiki" / "evaluation.md").read_text(encoding="utf-8")
+    assert evaluation.startswith("# 评测\n")
+    assert EVALUATION_BLURB in evaluation
 
 
 def test_refresh_never_creates_notes_root(tmp_path: Path) -> None:
@@ -72,3 +92,33 @@ def test_refresh_skips_unknown_paper_id_even_if_note_exists(
     assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in text
     assert "ghost" not in text
     assert not (root / "wiki" / "index.md").exists()
+
+
+def test_topic_page_empty_blurb_keeps_blank_then_links(tmp_path: Path) -> None:
+    root = tmp_path / "notes-root"
+    papers = root / "papers"
+    papers.mkdir(parents=True)
+    (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
+    text = _topic_page_text(
+        "视频扩散",
+        ["arxiv-2209.14792"],
+        root,
+        "",
+    )
+    assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md)\n"
+
+
+def test_load_topics_missing_blurb_is_empty_string(tmp_path: Path, monkeypatch) -> None:
+    topics_path = tmp_path / "docs" / "seed" / "engine-mvp-topics.json"
+    topics_path.parent.mkdir(parents=True)
+    topics_path.write_text(
+        '{"topics":[{"id":"video-diffusion","heading_zh":"视频扩散","paper_ids":[]}]}',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "video_paper_wiki.notes.topics._resolve_topics_path",
+        lambda: topics_path,
+    )
+    topics = load_topics()
+    assert topics is not None
+    assert topics[0]["blurb_zh"] == ""
