@@ -257,3 +257,41 @@ def test_show_ignores_nested_wiki(
     assert (notes / "wiki" / "nested" / "evaluation.md").is_file()
     assert not (notes / "wiki" / "evaluation.md").exists()
     assert network_attempts == []
+
+
+def test_show_ignores_related_topic_links(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "wiki" / "evaluation.md",
+        "# 评测\n"
+        "\n"
+        "这是简介。\n"
+        "\n"
+        "[VBench](../papers/arxiv-2311.17982.md) (2023)\n"
+        "\n"
+        "## 相关主题\n"
+        "[数据](./data.md)\n"
+        "[视频扩散](./video-diffusion.md)\n",
+    )
+    original = (notes / "wiki" / "evaluation.md").read_text(encoding="utf-8")
+    code = main(["wiki", "show", "--vault", str(notes), "evaluation"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    data = payload["data"]
+    assert data["id"] == "evaluation"
+    assert data["heading_zh"] == "评测"
+    assert data["blurb_zh"] == "这是简介。"
+    assert data["papers"] == [
+        {
+            "paper_id": "arxiv-2311.17982",
+            "title": "VBench",
+            "year": 2023,
+        }
+    ]
+    assert "related" not in data
+    assert "data" not in {item["paper_id"] for item in data["papers"]}
+    assert (notes / "wiki" / "evaluation.md").read_text(encoding="utf-8") == original
+    assert network_attempts == []

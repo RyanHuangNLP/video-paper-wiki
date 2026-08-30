@@ -36,6 +36,29 @@ HEADING_ZH = {
 }
 
 
+RELATED_IDS = {
+    "video-diffusion": [
+        "evaluation",
+        "language-model",
+        "motion-control",
+        "tokenization",
+    ],
+    "tokenization": ["language-model", "video-diffusion"],
+    "evaluation": ["data", "video-diffusion"],
+    "data": ["evaluation"],
+    "motion-control": ["video-diffusion"],
+    "language-model": ["tokenization", "video-diffusion"],
+}
+
+
+def _related_block(topic_id: str) -> str:
+    links = "\n".join(
+        f"[{HEADING_ZH[related_id]}](./{related_id}.md)"
+        for related_id in RELATED_IDS[topic_id]
+    )
+    return f"## 相关主题\n{links}\n"
+
+
 def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
@@ -78,7 +101,7 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
     assert blurb in vd
     assert link in vd
     assert vd.index("# 视频扩散") < vd.index(blurb) < vd.index(link)
-    assert vd == f"# 视频扩散\n\n{blurb}\n\n{link}\n"
+    assert vd == f"# 视频扩散\n\n{blurb}\n\n{link}\n\n{_related_block('video-diffusion')}"
     assert not (wiki / "index.md").exists()
 
     for topic_id, heading in HEADING_ZH.items():
@@ -87,7 +110,7 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
         assert BLURB_ZH[topic_id] in page
         if topic_id != "video-diffusion":
             assert "../papers/" not in page
-            assert page == f"# {heading}\n\n{BLURB_ZH[topic_id]}\n"
+            assert page == f"# {heading}\n\n{BLURB_ZH[topic_id]}\n\n{_related_block(topic_id)}"
 
     evaluation = (wiki / "evaluation.md").read_text(encoding="utf-8")
     assert evaluation.startswith("# 评测\n")
@@ -279,7 +302,7 @@ def test_ingest_1812_evaluation_year_and_heading_format(
     assert blurb in evaluation
     assert link in evaluation
     assert evaluation.index("# 评测") < evaluation.index(blurb) < evaluation.index(link)
-    assert evaluation == f"# 评测\n\n{blurb}\n\n{link}\n"
+    assert evaluation == f"# 评测\n\n{blurb}\n\n{link}\n\n{_related_block('evaluation')}"
     assert not (dest / "wiki" / "index.md").exists()
 
     index_text = (dest / "index.md").read_text(encoding="utf-8")
@@ -370,4 +393,30 @@ def test_ingest_non_catalog_paper_id_x_is_not_a_wiki_link(
     assert x_line.endswith(".md)")
     assert " (20" not in x_line
     assert f"{x_line} (" not in index_text
+    assert network_attempts == []
+
+
+def test_ingest_writes_related_topics_and_leaves_notes(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare(tmp_path, monkeypatch)
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    paper_before = None
+    assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
+    _stdout_json(capsys)
+    note = dest / "papers" / "arxiv-2209.14792.md"
+    paper_before = note.read_text(encoding="utf-8")
+    index_before = (dest / "index.md").read_text(encoding="utf-8")
+    vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
+    assert vd.endswith(_related_block("video-diffusion"))
+    assert "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)" in vd
+    assert vd.index("[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)") < vd.index(
+        "## 相关主题"
+    )
+    assert " (20" not in vd.split("## 相关主题", 1)[1]
+    assert not (dest / "wiki" / "index.md").exists()
+    assert note.read_text(encoding="utf-8") == paper_before
+    assert (dest / "index.md").read_text(encoding="utf-8") == index_before
+    assert "## 相关主题" not in index_before
     assert network_attempts == []

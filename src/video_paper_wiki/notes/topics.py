@@ -9,18 +9,28 @@ from typing import Any
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
 
 _TOPICS_RELATIVE = Path("docs") / "seed" / "engine-mvp-topics.json"
+_RELATED_RELATIVE = Path("docs") / "seed" / "engine-mvp-topic-related.json"
 _TOPICS_HEADING = "## 主题"
+_RELATED_HEADING = "## 相关主题"
 
 
-def _resolve_topics_path() -> Path | None:
+def _resolve_seed(relative: Path) -> Path | None:
     for parent in Path(__file__).resolve().parents:
-        candidate = parent / _TOPICS_RELATIVE
+        candidate = parent / relative
         if candidate.is_file():
             return candidate
-    cwd_candidate = Path.cwd() / _TOPICS_RELATIVE
+    cwd_candidate = Path.cwd() / relative
     if cwd_candidate.is_file():
         return cwd_candidate
     return None
+
+
+def _resolve_topics_path() -> Path | None:
+    return _resolve_seed(_TOPICS_RELATIVE)
+
+
+def _resolve_related_path() -> Path | None:
+    return _resolve_seed(_RELATED_RELATIVE)
 
 
 def _safe_segment(value: str) -> bool:
@@ -69,14 +79,65 @@ def load_topics() -> list[dict[str, Any]] | None:
     return topics
 
 
+def load_topic_related() -> dict[str, list[str]] | None:
+    path = _resolve_related_path()
+    if path is None:
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict) or not isinstance(payload.get("related"), dict):
+        return None
+    related: dict[str, list[str]] = {}
+    for raw_id, raw_ids in payload["related"].items():
+        if not isinstance(raw_id, str) or not _safe_segment(raw_id.strip()):
+            continue
+        ids: list[str] = []
+        if isinstance(raw_ids, list):
+            for item in raw_ids:
+                if isinstance(item, str) and _safe_segment(item.strip()):
+                    ids.append(item.strip())
+        related[raw_id.strip()] = ids
+    return related
+
+
 def _paper_note_exists(root: Path, paper_id: str) -> bool:
     if not _safe_segment(paper_id):
         return False
     return (root / "papers" / f"{paper_id}.md").is_file()
 
 
+def _related_section_lines(topic_id: str) -> list[str]:
+    graph = load_topic_related()
+    if not graph:
+        return []
+    wanted = graph.get(topic_id)
+    if not wanted:
+        return []
+    topics = load_topics()
+    if not topics:
+        return []
+    headings = {topic["id"]: topic["heading_zh"] for topic in topics}
+    links: list[str] = []
+    for related_id in sorted(dict.fromkeys(wanted)):
+        if related_id == topic_id:
+            continue
+        heading = headings.get(related_id)
+        if not heading:
+            continue
+        links.append(f"[{heading}](./{related_id}.md)")
+    if not links:
+        return []
+    return [_RELATED_HEADING, *links]
+
+
 def _topic_page_text(
-    heading_zh: str, paper_ids: list[str], root: Path, blurb_zh: str = ""
+    heading_zh: str,
+    paper_ids: list[str],
+    root: Path,
+    blurb_zh: str = "",
+    topic_id: str | None = None,
 ) -> str:
     # Lazy import: notes.index -> frontmatter -> links -> topics.
     from video_paper_wiki.notes.index import paper_index_year, sort_paper_ids
@@ -104,6 +165,12 @@ def _topic_page_text(
         if year is not None:
             line = f"{line} ({year})"
         lines.append(line)
+    if topic_id:
+        related = _related_section_lines(topic_id)
+        if related:
+            if lines and lines[-1] != "":
+                lines.append("")
+            lines.extend(related)
     text = "\n".join(lines)
     if not text.endswith("\n"):
         text += "\n"
@@ -167,6 +234,7 @@ def refresh_topic_pages(root: Path) -> None:
                 topic["paper_ids"],
                 root,
                 topic.get("blurb_zh", ""),
+                topic["id"],
             ),
             encoding="utf-8",
         )

@@ -210,3 +210,68 @@ def test_command_modules_still_have_no_lowercase_vault() -> None:
     commands = Path(__file__).resolve().parents[2] / "src" / "video_paper_wiki" / "commands"
     for path in commands.glob("*.py"):
         assert "vault" not in path.read_text(encoding="utf-8"), path.name
+
+
+def test_refresh_appends_related_topics_sorted_by_id(tmp_path: Path) -> None:
+    root = tmp_path / "notes-root"
+    root.mkdir()
+    papers = root / "papers"
+    papers.mkdir()
+    (papers / "arxiv-2209.14792.md").write_text("# Make-A-Video\n", encoding="utf-8")
+    (root / "index.md").write_text("# Video Paper Wiki\n", encoding="utf-8")
+    refresh_topic_pages(root)
+    vd = (root / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
+    paper = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
+    assert "## 相关主题" in vd
+    assert vd.index(paper) < vd.index("## 相关主题")
+    assert "[评测](./evaluation.md)" in vd
+    assert "[语言模型路线](./language-model.md)" in vd
+    assert "[运动控制](./motion-control.md)" in vd
+    assert "[视频 tokenizer](./tokenization.md)" in vd
+    assert vd.index("[评测](./evaluation.md)") < vd.index(
+        "[语言模型路线](./language-model.md)"
+    )
+    assert vd.index("[语言模型路线](./language-model.md)") < vd.index(
+        "[运动控制](./motion-control.md)"
+    )
+    assert vd.index("[运动控制](./motion-control.md)") < vd.index(
+        "[视频 tokenizer](./tokenization.md)"
+    )
+    assert " (20" not in vd.split("## 相关主题", 1)[1]
+    data = (root / "wiki" / "data.md").read_text(encoding="utf-8")
+    assert data.endswith("## 相关主题\n[评测](./evaluation.md)\n")
+    assert not (root / "wiki" / "index.md").exists()
+    paper_note = (papers / "arxiv-2209.14792.md").read_text(encoding="utf-8")
+    assert paper_note == "# Make-A-Video\n"
+
+
+def test_topic_page_omits_related_heading_without_topic_id(tmp_path: Path) -> None:
+    root = tmp_path / "notes-root"
+    papers = root / "papers"
+    papers.mkdir(parents=True)
+    (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
+    text = _topic_page_text("视频扩散", ["arxiv-2209.14792"], root, "")
+    assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)\n"
+    assert "## 相关主题" not in text
+
+
+def test_topic_page_omits_related_heading_when_graph_missing(
+    tmp_path: Path, monkeypatch
+) -> None:
+    root = tmp_path / "notes-root"
+    papers = root / "papers"
+    papers.mkdir(parents=True)
+    (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
+    monkeypatch.setattr(
+        "video_paper_wiki.notes.topics.load_topic_related",
+        lambda: None,
+    )
+    text = _topic_page_text(
+        "视频扩散",
+        ["arxiv-2209.14792"],
+        root,
+        "",
+        "video-diffusion",
+    )
+    assert "## 相关主题" not in text
+    assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)\n"
