@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "video-paper-wiki"
+version = "0.1.0"
+description = "Agent-safe CLI skeleton for Video Paper Wiki (VPKB-000-02)"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+vpwiki = "video_paper_wiki.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/video_paper_wiki"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
