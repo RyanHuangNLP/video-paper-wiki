@@ -391,9 +391,19 @@ def test_ingest_run_pdf_dir_existing_dir_copies_papers(
         copied = existing / "papers" / f"{paper_id}.md"
         assert paper["vault_path"] == copied.as_posix()
         assert copied.is_file()
-        assert copied.read_text(encoding="utf-8") == Path(paper["note_path"]).read_text(
-            encoding="utf-8"
-        )
+        work_text = Path(paper["note_path"]).read_text(encoding="utf-8")
+        copied_text = copied.read_text(encoding="utf-8")
+        assert "## 一句话结论" in work_text
+        assert "## 关联" in work_text
+        assert "../wiki/" not in work_text
+        assert "## 相关论文" not in work_text
+        assert "## 一句话结论" in copied_text
+        assert "## 关联" in copied_text
+        assert copied_text != work_text
+        assert "## 主题" in copied_text.split("## 关联", 1)[1]
+        assert "../wiki/" in copied_text
+        assert "## 相关论文" in copied_text
+        assert f"](./{paper_id}.md)" not in copied_text
         assert f"papers/{paper_id}.md" in (existing / "index.md").read_text(encoding="utf-8")
         assert paper_id in (existing / "index.md").read_text(encoding="utf-8")
     assert (existing / "index.md").is_file()

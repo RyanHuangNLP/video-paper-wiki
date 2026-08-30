@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -17,6 +18,9 @@ EXPECTED_TOPIC_IDS = (
 )
 FORBIDDEN_KEY_FRAGMENTS = ("pdf", "fetch")
 ALLOWED_TOPIC_KEYS = {"id", "heading_zh", "paper_ids"}
+FROZEN_TOPICS_SHA256 = (
+    "3df830cb7dbd7a467aec5a92fbaae06554423b03984b35028d9457e9f9446f52"
+)
 
 
 def _assert_no_pdf_or_fetch_keys(obj: object) -> None:
@@ -51,3 +55,9 @@ def test_engine_mvp_topics_file_ids_catalog_and_overlaps() -> None:
     assert "arxiv-2408.06072" in by_id["tokenization"]
     assert "arxiv-2210.02399" in by_id["tokenization"]
     assert "arxiv-2210.02399" in by_id["language-model"]
+
+
+def test_engine_mvp_topics_file_bytes_unchanged() -> None:
+    digest = hashlib.sha256(TOPICS.read_bytes()).hexdigest()
+    assert digest == FROZEN_TOPICS_SHA256
+    assert TOPICS.read_text(encoding="utf-8") == TOPICS.read_bytes().decode("utf-8")

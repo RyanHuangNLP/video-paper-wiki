@@ -96,7 +96,15 @@ def test_export_existing_dir_writes_papers_copy(tmp_path, monkeypatch, capsys, n
     assert payload["data"]["vault_path"] == copied.as_posix()
     assert work.is_file()
     assert copied.is_file()
-    assert copied.read_text(encoding="utf-8") == work.read_text(encoding="utf-8")
+    work_text = work.read_text(encoding="utf-8")
+    copied_text = copied.read_text(encoding="utf-8")
+    assert copied_text == work_text
+    for heading in HEADING_ZH:
+        assert f"## {heading}" in work_text
+        assert f"## {heading}" in copied_text
+    assert "../wiki/" not in work_text
+    assert "## 相关论文" not in copied_text
+    assert "## 主题" not in work_text.split("## 关联", 1)[1]
     assert not (existing / "wiki" / "index.md").exists()
     index_md = existing / "index.md"
     assert index_md.is_file()
