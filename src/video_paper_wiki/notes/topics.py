@@ -79,18 +79,25 @@ def _topic_page_text(
     heading_zh: str, paper_ids: list[str], root: Path, blurb_zh: str = ""
 ) -> str:
     # Lazy import: notes.index -> frontmatter -> links -> topics.
-    from video_paper_wiki.notes.index import paper_index_year
+    from video_paper_wiki.notes.index import paper_index_year, sort_paper_ids
 
     lines = [f"# {heading_zh}", ""]
     if blurb_zh:
         lines.append(blurb_zh)
         lines.append("")
 
+    renderable: list[str] = []
     for paper_id in paper_ids:
         title = catalog_title_for_paper_id(paper_id)
         if title is None:
             continue
         if not _paper_note_exists(root, paper_id):
+            continue
+        renderable.append(paper_id)
+
+    for paper_id in sort_paper_ids(renderable):
+        title = catalog_title_for_paper_id(paper_id)
+        if title is None:
             continue
         line = f"[{title}](../papers/{paper_id}.md)"
         year = paper_index_year(paper_id)

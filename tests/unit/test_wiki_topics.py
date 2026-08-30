@@ -155,6 +155,43 @@ def test_ingest_second_paper_keeps_papers_above_topics(
     assert network_attempts == []
 
 
+def test_ingest_2311_then_2209_sorts_video_diffusion_by_year(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare(tmp_path, monkeypatch)
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    assert _ingest(TINY_PDF, "arxiv-2311.15127", dest) == 0
+    capsys.readouterr()
+    assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
+    _stdout_json(capsys)
+
+    vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
+    blurb = BLURB_ZH["video-diffusion"]
+    mav = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
+    svd = "[Stable Video Diffusion](../papers/arxiv-2311.15127.md) (2023)"
+    assert vd.startswith("# 视频扩散\n")
+    assert blurb in vd
+    assert mav in vd
+    assert svd in vd
+    assert vd.index("# 视频扩散") < vd.index(blurb) < vd.index(mav) < vd.index(svd)
+    assert not (dest / "wiki" / "index.md").exists()
+
+    index_lines = (dest / "index.md").read_text(encoding="utf-8").splitlines()
+    mav_index = "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)"
+    svd_index = "[Stable Video Diffusion](papers/arxiv-2311.15127.md) (2023)"
+    assert index_lines.index(mav_index) < index_lines.index(svd_index)
+    assert index_lines.index(svd_index) < index_lines.index("## 主题")
+
+    topics_path = ROOT / "docs" / "seed" / "engine-mvp-topics.json"
+    payload = json.loads(topics_path.read_text(encoding="utf-8"))
+    video_ids = next(
+        topic["paper_ids"] for topic in payload["topics"] if topic["id"] == "video-diffusion"
+    )
+    assert video_ids[:2] == ["arxiv-2204.03458", "arxiv-2209.14792"]
+    assert network_attempts == []
+
+
 def test_ingest_pdf_dir_fills_tokenization_page(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:

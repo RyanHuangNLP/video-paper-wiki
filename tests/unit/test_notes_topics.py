@@ -145,32 +145,31 @@ def test_topic_page_omits_year_when_unparseable(tmp_path: Path, monkeypatch) -> 
     )
     undated = "[Undated Paper](../papers/x.md)"
     dated = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
-    assert text == f"# 评测\n\n{EVALUATION_BLURB}\n\n{undated}\n{dated}\n"
+    assert text == f"# 评测\n\n{EVALUATION_BLURB}\n\n{dated}\n{undated}\n"
     assert undated in text
     assert f"{undated} (" not in text
-    assert " (20" not in text.splitlines()[4]
-    assert text.splitlines()[4].endswith(".md)")
+    assert " (20" not in text.splitlines()[5]
+    assert text.splitlines()[5].endswith(".md)")
+    assert text.index(dated) < text.index(undated)
 
 
-def test_topic_page_keeps_seed_paper_id_order_not_year(tmp_path: Path) -> None:
+def test_topic_page_sorts_renderable_ids_by_year_not_input_order(
+    tmp_path: Path,
+) -> None:
     root = tmp_path / "notes-root"
     papers = root / "papers"
     papers.mkdir(parents=True)
     (papers / "arxiv-2408.06072.md").write_text("# cog\n", encoding="utf-8")
-    (papers / "arxiv-1812.01717.md").write_text("# towards\n", encoding="utf-8")
+    (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
     text = _topic_page_text(
-        "评测",
-        ["arxiv-2408.06072", "arxiv-1812.01717"],
+        "视频扩散",
+        ["arxiv-2408.06072", "arxiv-2209.14792"],
         root,
-        EVALUATION_BLURB,
     )
+    mav = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
     cog = "[CogVideoX](../papers/arxiv-2408.06072.md) (2024)"
-    towards = (
-        "[Towards Accurate Generative Models of Video]"
-        "(../papers/arxiv-1812.01717.md) (2018)"
-    )
-    assert text == f"# 评测\n\n{EVALUATION_BLURB}\n\n{cog}\n{towards}\n"
-    assert text.index(cog) < text.index(towards)
+    assert text == f"# 视频扩散\n\n{mav}\n{cog}\n"
+    assert text.index(mav) < text.index(cog)
 
 
 def test_topic_page_reuses_paper_index_year(tmp_path: Path, monkeypatch) -> None:
@@ -190,7 +189,21 @@ def test_topic_page_reuses_paper_index_year(tmp_path: Path, monkeypatch) -> None
     (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
     text = _topic_page_text("视频扩散", ["arxiv-2209.14792"], root, "")
     assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md) (2099)\n"
-    assert seen == ["arxiv-2209.14792"]
+    assert seen == ["arxiv-2209.14792", "arxiv-2209.14792"]
+
+
+def test_topics_seed_bytes_and_video_diffusion_paper_ids_unchanged() -> None:
+    import hashlib
+    import json
+
+    path = Path(__file__).resolve().parents[2] / "docs" / "seed" / "engine-mvp-topics.json"
+    raw = path.read_bytes()
+    assert hashlib.sha256(raw).hexdigest() == (
+        "a1aa08a996381da317ebed53d6a6860537729d28f371158961676f23086a2b82"
+    )
+    payload = json.loads(raw.decode("utf-8"))
+    video = next(topic for topic in payload["topics"] if topic["id"] == "video-diffusion")
+    assert video["paper_ids"][:2] == ["arxiv-2204.03458", "arxiv-2209.14792"]
 
 
 def test_command_modules_still_have_no_lowercase_vault() -> None:
