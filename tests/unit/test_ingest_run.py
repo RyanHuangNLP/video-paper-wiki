@@ -168,3 +168,186 @@ def test_ingest_run_illegal_paper_id(
     assert not blob_root.exists()
     assert not (tmp_path / ".work").exists()
     assert network_attempts == []
+
+
+SEED_PAPER_IDS = (
+    "arxiv-2204.03458",
+    "arxiv-2311.15127",
+    "arxiv-2311.17982",
+)
+SEED_ARXIV_IDS = (
+    "2204.03458",
+    "2311.15127",
+    "2311.17982",
+)
+
+
+def _copy_tiny(dest: Path) -> None:
+    dest.write_bytes(TINY_PDF.read_bytes())
+
+
+def _prepare_run_env(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+
+
+def test_ingest_run_pdf_dir_three_paper_id_files(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    for paper_id in SEED_PAPER_IDS:
+        _copy_tiny(pdf_dir / f"{paper_id}.pdf")
+    code = main(["ingest", "run", "--pdf-dir", str(pdf_dir)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "ingest.run"
+    data = payload["data"]
+    assert [paper["paper_id"] for paper in data["papers"]] == list(SEED_PAPER_IDS)
+    assert data["skipped"] == []
+    for paper_id in SEED_PAPER_IDS:
+        assert (tmp_path / ".work" / "notes" / f"{paper_id}.md").is_file()
+        paper = next(item for item in data["papers"] if item["paper_id"] == paper_id)
+        assert Path(paper["draft_path"]).is_file()
+        assert Path(paper["note_path"]).is_file()
+        assert "sha256" in paper
+    assert network_attempts == []
+
+
+def test_ingest_run_pdf_dir_matches_arxiv_id_filename(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    _copy_tiny(pdf_dir / "2311.15127.pdf")
+    code = main(["ingest", "run", "--pdf-dir", str(pdf_dir)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    data = payload["data"]
+    assert [paper["paper_id"] for paper in data["papers"]] == ["arxiv-2311.15127"]
+    skipped_ids = [row["paper_id"] for row in data["skipped"]]
+    assert skipped_ids == ["arxiv-2204.03458", "arxiv-2311.17982"]
+    assert (tmp_path / ".work" / "notes" / "arxiv-2311.15127.md").is_file()
+    assert network_attempts == []
+
+
+def test_ingest_run_pdf_dir_empty_dir_blob_source_not_found(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    code = main(["ingest", "run", "--pdf-dir", str(pdf_dir)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "ingest.run"
+    assert payload["error"]["code"] == "BLOB_SOURCE_NOT_FOUND"
+    skipped = payload["error"]["details"]["skipped"]
+    assert len(skipped) == 3
+    assert [row["paper_id"] for row in skipped] == list(SEED_PAPER_IDS)
+    assert [row["arxiv_id"] for row in skipped] == list(SEED_ARXIV_IDS)
+    assert not (tmp_path / ".work").exists()
+    assert network_attempts == []
+
+
+def test_ingest_run_pdf_dir_missing_dir_exit_2_no_network(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    missing = tmp_path / "missing-pdfs"
+    code = main(["ingest", "run", "--pdf-dir", str(missing)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "BLOB_SOURCE_NOT_FOUND"
+    assert not missing.exists()
+    assert not (tmp_path / ".work").exists()
+    assert network_attempts == []
+
+
+def test_ingest_run_neither_path_nor_pdf_dir_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    code = main(["ingest", "run"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "ingest.run"
+    assert payload["error"]["code"] == "USAGE"
+    assert "ingest.run requires --path or --pdf-dir" in payload["error"]["message"]
+    assert network_attempts == []
+
+
+def test_ingest_run_path_and_pdf_dir_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    code = main(
+        ["ingest", "run", "--path", str(TINY_PDF), "--pdf-dir", str(pdf_dir)]
+    )
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "ingest.run"
+    assert payload["error"]["code"] == "USAGE"
+    assert not (tmp_path / ".work").exists()
+    assert network_attempts == []
+
+
+def test_ingest_run_pdf_dir_partial_one_of_three(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    _copy_tiny(pdf_dir / "arxiv-2311.15127.pdf")
+    code = main(["ingest", "run", "--pdf-dir", str(pdf_dir)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    data = payload["data"]
+    assert [paper["paper_id"] for paper in data["papers"]] == ["arxiv-2311.15127"]
+    assert len(data["skipped"]) == 2
+    assert {row["paper_id"] for row in data["skipped"]} == {
+        "arxiv-2204.03458",
+        "arxiv-2311.17982",
+    }
+    assert (tmp_path / ".work" / "notes" / "arxiv-2311.15127.md").is_file()
+    assert not (tmp_path / ".work" / "notes" / "arxiv-2204.03458.md").exists()
+    assert not (tmp_path / ".work" / "notes" / "arxiv-2311.17982.md").exists()
+    assert network_attempts == []
+
+
+def test_ingest_run_pdf_dir_existing_dir_copies_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare_run_env(tmp_path, monkeypatch)
+    pdf_dir = tmp_path / "pdfs"
+    pdf_dir.mkdir()
+    for paper_id in SEED_PAPER_IDS:
+        _copy_tiny(pdf_dir / f"{paper_id}.pdf")
+    existing = tmp_path / "obsidian-root"
+    existing.mkdir()
+    code = main(
+        ["ingest", "run", "--pdf-dir", str(pdf_dir), "--vault", str(existing)]
+    )
+    assert code == 0
+    payload = _stdout_json(capsys)
+    data = payload["data"]
+    assert data["skipped"] == []
+    assert [paper["paper_id"] for paper in data["papers"]] == list(SEED_PAPER_IDS)
+    for paper in data["papers"]:
+        paper_id = paper["paper_id"]
+        copied = existing / "papers" / f"{paper_id}.md"
+        assert paper["vault_path"] == copied.as_posix()
+        assert copied.is_file()
+        assert copied.read_text(encoding="utf-8") == Path(paper["note_path"]).read_text(
+            encoding="utf-8"
+        )
+    assert network_attempts == []

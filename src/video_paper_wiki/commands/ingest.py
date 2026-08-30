@@ -17,6 +17,8 @@ from video_paper_wiki.envelope import emit_error, emit_success
 from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
 
 _COPY_KEY = "VAULT_PATH".lower()
+_SEED_RELATIVE = Path("docs") / "seed" / "engine-mvp.json"
+_COMMAND = "ingest.run"
 
 
 def put(_args: object | None = None) -> int:
@@ -68,10 +70,220 @@ def _replay(captured: str, code: int) -> int:
     return code
 
 
+def _raw(args: object | None, name: str) -> Any:
+    if args is None:
+        return None
+    return getattr(args, name, None)
+
+
+def _resolve_seed_path(explicit: Any) -> Path | None:
+    if explicit is not None and str(explicit).strip() != "":
+        return Path(str(explicit)).expanduser()
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / _SEED_RELATIVE
+        if candidate.is_file():
+            return candidate
+    cwd_candidate = Path.cwd() / _SEED_RELATIVE
+    if cwd_candidate.is_file():
+        return cwd_candidate
+    return None
+
+
+def _seed_not_found(path: str | None) -> int:
+    details: dict[str, Any] = {} if path is None else {"path": path}
+    return emit_error(
+        _COMMAND,
+        "SEED_NOT_FOUND",
+        "seed catalog is missing or unreadable; this command does not download",
+        details,
+    )
+
+
+def _seed_invalid(path: str, reason: str) -> int:
+    return emit_error(
+        _COMMAND,
+        "SEED_INVALID",
+        reason,
+        {"path": path},
+    )
+
+
+def _load_seed_papers(seed_path: Path) -> tuple[list[dict[str, Any]] | None, int | None]:
+    try:
+        if not seed_path.is_file():
+            return None, _seed_not_found(seed_path.as_posix())
+        text = seed_path.read_text(encoding="utf-8")
+    except OSError:
+        return None, _seed_not_found(seed_path.as_posix())
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError as exc:
+        return None, _seed_invalid(seed_path.as_posix(), f"seed is not valid JSON: {exc.msg}")
+    if not isinstance(payload, dict) or not isinstance(payload.get("papers"), list):
+        return None, _seed_invalid(seed_path.as_posix(), "seed catalog must be an object with a papers array")
+    papers: list[dict[str, Any]] = []
+    for item in payload["papers"]:
+        if not isinstance(item, dict):
+            return None, _seed_invalid(seed_path.as_posix(), "seed papers entries must be objects")
+        papers.append(item)
+    return papers, None
+
+
+def _match_pdf(pdf_dir: Path, paper_id: str, arxiv_id: str) -> Path | None:
+    if paper_id:
+        by_id = pdf_dir / f"{paper_id}.pdf"
+        if by_id.is_file():
+            return by_id
+    if arxiv_id:
+        by_arxiv = pdf_dir / f"{arxiv_id}.pdf"
+        if by_arxiv.is_file():
+            return by_arxiv
+    return None
+
+
+def _success_record(data: dict[str, Any]) -> dict[str, Any]:
+    record: dict[str, Any] = {
+        "sha256": data["sha256"],
+        "paper_id": data["paper_id"],
+        "draft_path": data["draft_path"],
+        "note_path": data["note_path"],
+    }
+    if _COPY_KEY in data:
+        record[_COPY_KEY] = data[_COPY_KEY]
+    return record
+
+
+def _skip_row(paper_id: str, arxiv_id: str, reason: str) -> dict[str, str]:
+    return {"paper_id": paper_id, "arxiv_id": arxiv_id, "reason": reason}
+
+
+def _inner_reason(captured: str) -> str:
+    try:
+        payload = json.loads(captured.strip())
+        code = payload.get("error", {}).get("code")
+        if isinstance(code, str) and code:
+            return code
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        pass
+    return "inner ingest.run failed"
+
+
+def _blob_source_not_found(
+    seed_path: Path,
+    pdf_dir_raw: str,
+    skipped: list[dict[str, str]],
+) -> int:
+    return emit_error(
+        _COMMAND,
+        "BLOB_SOURCE_NOT_FOUND",
+        "local pdf-dir is missing, not a directory, or has no matching pdf; this command does not download",
+        {
+            "seed": seed_path.as_posix(),
+            "pdf_dir": pdf_dir_raw,
+            "skipped": skipped,
+        },
+    )
+
+
+def _run_pdf_dir(_args: object) -> int:
+    pdf_dir_raw = str(_raw(_args, "pdf_dir"))
+    notes_root = _raw(_args, "notes_root")
+    seed_path = _resolve_seed_path(_raw(_args, "seed_path"))
+    if seed_path is None:
+        return _seed_not_found(None)
+    seed_papers, err = _load_seed_papers(seed_path)
+    if err is not None:
+        return err
+    assert seed_papers is not None
+
+    pdf_dir = Path(pdf_dir_raw).expanduser()
+    skipped: list[dict[str, str]] = []
+    if not pdf_dir.is_dir():
+        for paper in seed_papers:
+            skipped.append(
+                _skip_row(
+                    str(paper.get("paper_id", "")),
+                    str(paper.get("arxiv_id", "")),
+                    "pdf-dir is missing or not a directory",
+                )
+            )
+        return _blob_source_not_found(seed_path, pdf_dir_raw, skipped)
+
+    successes: list[dict[str, Any]] = []
+    first_failure: tuple[int, str] | None = None
+    for paper in seed_papers:
+        paper_id = str(paper.get("paper_id", ""))
+        arxiv_id = str(paper.get("arxiv_id", ""))
+        matched = _match_pdf(pdf_dir, paper_id, arxiv_id)
+        if matched is None:
+            skipped.append(_skip_row(paper_id, arxiv_id, "local pdf not found"))
+            continue
+        code, captured = _invoke(
+            run,
+            Namespace(path=str(matched), paper_id=paper_id, notes_root=notes_root),
+        )
+        if code != 0:
+            skipped.append(_skip_row(paper_id, arxiv_id, _inner_reason(captured)))
+            if first_failure is None:
+                first_failure = (code, captured)
+            continue
+        try:
+            payload = json.loads(captured.strip())
+            data = payload["data"]
+        except (json.JSONDecodeError, KeyError, TypeError):
+            skipped.append(_skip_row(paper_id, arxiv_id, "inner ingest.run envelope invalid"))
+            if first_failure is None:
+                first_failure = (code, captured)
+            continue
+        successes.append(_success_record(data))
+
+    if successes:
+        return emit_success(
+            _COMMAND,
+            {
+                "seed": seed_path.as_posix(),
+                "pdf_dir": pdf_dir.as_posix(),
+                "papers": successes,
+                "skipped": skipped,
+            },
+        )
+    if first_failure is not None:
+        return _replay(first_failure[1], first_failure[0])
+    return _blob_source_not_found(seed_path, pdf_dir_raw, skipped)
+
+
 def run(_args: object | None = None) -> int:
-    raw = None if _args is None else getattr(_args, "path", None)
-    notes_root = None if _args is None else getattr(_args, "notes_root", None)
-    paper_id_arg = None if _args is None else getattr(_args, "paper_id", None)
+    path_raw = _raw(_args, "path")
+    pdf_dir_raw = _raw(_args, "pdf_dir")
+    seed_raw = _raw(_args, "seed_path")
+    notes_root = _raw(_args, "notes_root")
+    paper_id_arg = _raw(_args, "paper_id")
+
+    has_path = path_raw is not None
+    has_pdf_dir = pdf_dir_raw is not None and str(pdf_dir_raw).strip() != ""
+    has_seed = seed_raw is not None and str(seed_raw).strip() != ""
+
+    if has_path and has_pdf_dir:
+        return emit_error(
+            _COMMAND,
+            "USAGE",
+            "ingest.run --path and --pdf-dir are mutually exclusive",
+        )
+    if not has_path and not has_pdf_dir:
+        return emit_error(
+            _COMMAND,
+            "USAGE",
+            "ingest.run requires --path or --pdf-dir",
+        )
+    if has_seed and has_path:
+        return emit_error(
+            _COMMAND,
+            "USAGE",
+            "ingest.run --seed requires --pdf-dir",
+        )
+    if has_pdf_dir:
+        return _run_pdf_dir(_args if _args is not None else Namespace())
+
     if paper_id_arg is not None:
         try:
             validate_paper_id(str(paper_id_arg))
@@ -83,7 +295,7 @@ def run(_args: object | None = None) -> int:
                 {"paper_id": str(paper_id_arg)},
             )
 
-    code, captured = _invoke(put, Namespace(path=raw))
+    code, captured = _invoke(put, Namespace(path=path_raw))
     if code != 0:
         return _replay(captured, code)
     put_data = json.loads(captured.strip())["data"]
