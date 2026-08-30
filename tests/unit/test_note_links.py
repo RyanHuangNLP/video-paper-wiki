@@ -73,7 +73,7 @@ def test_suffix_topic_paper_deduped_related_stable_order() -> None:
     assert "arxiv-2209.14792" not in ids
     assert len(ids) == len(set(ids))
     assert related == related_catalog_papers("arxiv-2209.14792")
-    assert "[Video Diffusion Models](./arxiv-2204.03458.md)" in first
+    assert "[Video Diffusion Models](./arxiv-2204.03458.md) (2022)" in first
     assert "](./arxiv-2209.14792.md)" not in first
 
 
@@ -89,10 +89,26 @@ def test_suffix_cogvideox_unions_topics_and_skips_self() -> None:
     assert "arxiv-2408.06072" not in ids
     assert len(ids) == len(set(ids))
     assert "arxiv-2204.03458" in ids
+    assert "arxiv-2209.14792" in ids
     assert "arxiv-2210.02399" in ids
-    assert ids.index("arxiv-2204.03458") < ids.index("arxiv-2210.02399")
-    assert "[Phenaki](./arxiv-2210.02399.md)" in text
-    assert "[Video Diffusion Models](./arxiv-2204.03458.md)" in text
+    assert ids.index("arxiv-2204.03458") < ids.index("arxiv-2209.14792")
+    assert ids.index("arxiv-2209.14792") < ids.index("arxiv-2210.02399")
+    from video_paper_wiki.notes.index import paper_index_year, sort_paper_ids
+
+    assert ids == sort_paper_ids(ids)
+    years = [paper_index_year(pid) for pid in ids]
+    dated = [(i, y) for i, y in enumerate(years) if y is not None]
+    assert [y for _i, y in dated] == sorted(y for _i, y in dated)
+    y2022 = [pid for pid in ids if paper_index_year(pid) == 2022]
+    later = [pid for pid in ids if (paper_index_year(pid) or 0) > 2022]
+    assert "arxiv-2204.03458" in y2022
+    assert "arxiv-2209.14792" in y2022
+    assert "arxiv-2210.02399" in y2022
+    assert y2022 == sorted(y2022)
+    if later:
+        assert ids.index(y2022[-1]) < ids.index(later[0])
+    assert "[Phenaki](./arxiv-2210.02399.md) (2022)" in text
+    assert "[Video Diffusion Models](./arxiv-2204.03458.md) (2022)" in text
     assert "](./arxiv-2408.06072.md)" not in text
 
 
@@ -118,7 +134,7 @@ def test_related_skips_sibling_without_catalog_title(monkeypatch) -> None:
     assert [paper_id for paper_id, _title in related] == ["arxiv-2204.03458"]
     text = paper_note_link_suffix("arxiv-2209.14792")
     assert "ghost" not in text
-    assert "[Video Diffusion Models](./arxiv-2204.03458.md)" in text
+    assert "[Video Diffusion Models](./arxiv-2204.03458.md) (2022)" in text
 
 
 def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
@@ -138,11 +154,25 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     _assert_frozen_headings(work_text)
     _assert_frozen_headings(copied_text)
     assert "../wiki/" not in work_text
+    assert "## 主题" not in work_text
     assert "## 相关论文" not in work_text
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied_text
     assert "](./arxiv-" in copied_text
     assert "](./arxiv-2209.14792.md)" not in copied_text
     assert "## 相关论文" in copied_text
+    from video_paper_wiki.notes.index import paper_index_year, sort_paper_ids
+
+    related = related_catalog_papers("arxiv-2209.14792")
+    related_ids = [pid for pid, _title in related]
+    assert related_ids == sort_paper_ids(related_ids)
+    block = copied_text.split("## 相关论文", 1)[1]
+    for pid, title in related:
+        year = paper_index_year(pid)
+        expected = f"[{title}](./{pid}.md)"
+        if year is not None:
+            expected = f"{expected} ({year})"
+        assert expected in block
+        assert expected in copied_text
     assert copied_text != work_text
     assert work_text.startswith("---\npaper_id:")
     assert "title_zh:" in work_text
@@ -175,11 +205,12 @@ def test_ingest_cogvideox_unions_both_topics(
     copied = (dest / "papers" / "arxiv-2408.06072.md").read_text(encoding="utf-8")
     _assert_frozen_headings(work)
     assert "../wiki/" not in work
+    assert "## 主题" not in work
     assert "## 相关论文" not in work
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
     assert "[视频 tokenizer](../wiki/tokenization.md)" in copied
-    assert "[Phenaki](./arxiv-2210.02399.md)" in copied
-    assert "[Video Diffusion Models](./arxiv-2204.03458.md)" in copied
+    assert "[Phenaki](./arxiv-2210.02399.md) (2022)" in copied
+    assert "[Video Diffusion Models](./arxiv-2204.03458.md) (2022)" in copied
     assert "](./arxiv-2408.06072.md)" not in copied
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
@@ -236,3 +267,28 @@ def test_export_minimal_fixture_omits_trailers(
     assert "../wiki/" not in work
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
+
+
+def test_frozen_seed_topics_json_unchanged() -> None:
+    import hashlib
+    import subprocess
+
+    for rel in (
+        "docs/seed/engine-mvp.json",
+        "docs/seed/engine-mvp-topics.json",
+    ):
+        path = ROOT / rel
+        assert path.is_file()
+        git = subprocess.check_output(
+            ["git", "hash-object", str(path)],
+            cwd=ROOT,
+        ).decode().strip()
+        head = subprocess.check_output(
+            ["git", "rev-parse", f"HEAD:{rel}"],
+            cwd=ROOT,
+        ).decode().strip()
+        assert git == head
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        assert digest == hashlib.sha256(
+            subprocess.check_output(["git", "show", f"HEAD:{rel}"], cwd=ROOT)
+        ).hexdigest()

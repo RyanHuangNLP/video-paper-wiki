@@ -23,7 +23,9 @@ def topics_containing(paper_id: str) -> list[dict[str, Any]]:
 
 
 def related_catalog_papers(paper_id: str) -> list[tuple[str, str]]:
-    """Catalog-titled siblings that share a topic, json order, deduped, no self."""
+    """Catalog-titled siblings that share a topic, year-sorted, deduped, no self."""
+    from video_paper_wiki.notes.index import sort_paper_ids
+
     wanted = str(paper_id).strip()
     related: list[tuple[str, str]] = []
     seen: set[str] = set()
@@ -36,7 +38,8 @@ def related_catalog_papers(paper_id: str) -> list[tuple[str, str]]:
             if title is None:
                 continue
             related.append((sibling, title))
-    return related
+    titles = {sibling: title for sibling, title in related}
+    return [(sibling, titles[sibling]) for sibling in sort_paper_ids(titles)]
 
 
 def paper_note_link_suffix(paper_id: str) -> str:
@@ -44,6 +47,8 @@ def paper_note_link_suffix(paper_id: str) -> str:
 
     Intended only for the papers/<id>.md copy. Work notes stay the 10-section body.
     """
+    from video_paper_wiki.notes.index import paper_index_year
+
     matching = topics_containing(paper_id)
     if not matching:
         return ""
@@ -54,7 +59,11 @@ def paper_note_link_suffix(paper_id: str) -> str:
     lines.append(_RELATED_HEADING)
     lines.append("")
     for sibling_id, title in related_catalog_papers(paper_id):
-        lines.append(f"[{title}](./{sibling_id}.md)")
+        line = f"[{title}](./{sibling_id}.md)"
+        year = paper_index_year(sibling_id)
+        if year is not None:
+            line = f"{line} ({year})"
+        lines.append(line)
     text = "\n".join(lines)
     if not text.endswith("\n"):
         text += "\n"
