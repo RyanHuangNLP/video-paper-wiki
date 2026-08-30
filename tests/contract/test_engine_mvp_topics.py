@@ -42,6 +42,7 @@ EXPECTED_PAPER_IDS = {
         "arxiv-2401.03048",
         "arxiv-2401.10147",
         "arxiv-2401.12945",
+        "arxiv-2402.04324",
         "arxiv-2403.14773",
         "arxiv-2405.18750",
         "arxiv-2408.06072",
@@ -49,9 +50,9 @@ EXPECTED_PAPER_IDS = {
         "arxiv-2412.03603",
     ],
     "tokenization": ["arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2312.03541", "arxiv-2408.06072"],
-    "evaluation": ["arxiv-1812.01717", "arxiv-2311.17982", "arxiv-2312.12456"],
+    "evaluation": ["arxiv-1812.01717", "arxiv-2311.06908", "arxiv-2311.17982", "arxiv-2312.12456"],
     "data": ["arxiv-2307.06942", "arxiv-2402.19479", "arxiv-2407.02371"],
-    "motion-control": ["arxiv-2212.11565", "arxiv-2306.02018", "arxiv-2307.04725", "arxiv-2310.12190", "arxiv-2311.16933", "arxiv-2312.03641", "arxiv-2404.02101"],
+    "motion-control": ["arxiv-2212.11565", "arxiv-2306.02018", "arxiv-2307.04725", "arxiv-2310.12190", "arxiv-2311.16933", "arxiv-2312.03641", "arxiv-2402.03162", "arxiv-2404.02101"],
     "language-model": ["arxiv-2205.15868", "arxiv-2210.02399", "arxiv-2312.03541", "arxiv-2312.14125"],
 }
 EXPECTED_BLURB_ZH = {
@@ -65,7 +66,7 @@ EXPECTED_BLURB_ZH = {
 FORBIDDEN_KEY_FRAGMENTS = ("pdf", "fetch")
 ALLOWED_TOPIC_KEYS = {"id", "heading_zh", "paper_ids", "blurb_zh"}
 FROZEN_TOPICS_SHA256 = (
-    "0220e6aa3d0c98844985ff701d330e1c2907ba9135eb713ca7c8274fb786be1e"
+    "e81e63b0749e5d5ad2e4bc0388f40af06ebe5254a644a708010eae08a4459b0e"
 )
 
 

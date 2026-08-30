@@ -50,6 +50,9 @@ CATALOG = (
     ("arxiv-2403.14773", "StreamingT2V"),
     ("arxiv-2404.02101", "CameraCtrl"),
     ("arxiv-2407.02371", "OpenVid-1M"),
+    ("arxiv-2402.03162", "Direct-a-Video"),
+    ("arxiv-2402.04324", "ConsistI2V"),
+    ("arxiv-2311.06908", "FETV"),
 )
 
 
