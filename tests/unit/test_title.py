@@ -28,6 +28,9 @@ CATALOG = (
     ("arxiv-2410.05954", "Pyramidal Flow Matching"),
     ("arxiv-2307.06942", "InternVid"),
     ("arxiv-2402.19479", "Panda-70M"),
+    ("arxiv-2405.18750", "T2V-Turbo"),
+    ("arxiv-2306.02018", "VideoComposer"),
+    ("arxiv-2312.03641", "MotionCtrl"),
 )
 
 
