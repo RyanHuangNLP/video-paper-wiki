@@ -35,6 +35,9 @@ CATALOG = (
     ("arxiv-2304.08818", "Align Your Latents"),
     ("arxiv-2307.04725", "AnimateDiff"),
     ("arxiv-2311.04145", "I2VGen-XL"),
+    ("arxiv-2212.11565", "Tune-A-Video"),
+    ("arxiv-2303.13439", "Text2Video-Zero"),
+    ("arxiv-2401.10147", "VideoCrafter2"),
 )
 
 
