@@ -76,6 +76,8 @@ def test_export_minimal_fixture_writes_work_notes(tmp_path, monkeypatch, capsys,
         assert f"## {heading}" in text
     positions = [text.index(f"## {heading}") for heading in HEADING_ZH]
     assert positions == sorted(positions)
+    assert not (tmp_path / "index.md").exists()
+    assert list(tmp_path.rglob("index.md")) == []
     assert network_attempts == []
 
 
@@ -96,6 +98,12 @@ def test_export_existing_dir_writes_papers_copy(tmp_path, monkeypatch, capsys, n
     assert copied.is_file()
     assert copied.read_text(encoding="utf-8") == work.read_text(encoding="utf-8")
     assert not (existing / "wiki" / "index.md").exists()
+    index_md = existing / "index.md"
+    assert index_md.is_file()
+    index_text = index_md.read_text(encoding="utf-8")
+    assert "papers/fixture-minimal.md" in index_text
+    assert "fixture-minimal" in index_text
+    assert "Minimal Draft Fixture" in index_text
     assert network_attempts == []
 
 
@@ -158,4 +166,47 @@ def test_export_claims_under_frozen_headings(tmp_path, monkeypatch, capsys, netw
     assert CLAIM_TEXT not in text[:method_at]
     for heading in HEADING_ZH:
         assert f"## {heading}" in text
+    assert network_attempts == []
+
+
+
+def _clone_draft(tmp_path: Path, paper_id: str, title: str) -> Path:
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = paper_id
+    document["title"] = title
+    path = tmp_path / f"{paper_id}.json"
+    path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def test_export_two_drafts_keeps_both_index_lines(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    monkeypatch.chdir(tmp_path)
+    existing = tmp_path / "obsidian-root"
+    existing.mkdir()
+    second = _clone_draft(tmp_path, "fixture-second", "Second Draft Fixture")
+    code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(existing)])
+    assert code == 0
+    capsys.readouterr()
+    code = main(["review", "export", "--draft", str(second), "--vault", str(existing)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    index_text = (existing / "index.md").read_text(encoding="utf-8")
+    assert "papers/fixture-minimal.md" in index_text
+    assert "papers/fixture-second.md" in index_text
+    assert "Minimal Draft Fixture" in index_text
+    assert "Second Draft Fixture" in index_text
+    assert "fixture-minimal" in index_text
+    assert "fixture-second" in index_text
+    assert not (existing / "wiki" / "index.md").exists()
+    assert network_attempts == []
+
+
+def test_export_without_notes_root_does_not_write_index(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    monkeypatch.chdir(tmp_path)
+    code = main(["review", "export", "--draft", str(MINIMAL)])
+    assert code == 0
+    capsys.readouterr()
+    assert not (tmp_path / "index.md").exists()
+    assert list(tmp_path.rglob("index.md")) == []
     assert network_attempts == []

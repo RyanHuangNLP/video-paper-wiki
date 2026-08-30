@@ -10,7 +10,7 @@ from jsonschema import ValidationError
 
 from video_paper_wiki.commands.draft import _validate_document
 from video_paper_wiki.envelope import emit_error, emit_success
-from video_paper_wiki.notes import render_paper_markdown
+from video_paper_wiki.notes import render_paper_markdown, upsert_index_entry
 
 COMMAND = "review.export"
 # Uppercase literals: commands/*.py source must not contain certain lowercase tokens.
@@ -60,6 +60,15 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
     return document, None
 
 
+def _display_title(document: dict[str, Any], paper_id: str) -> str:
+    raw = document.get("title", "")
+    if isinstance(raw, str):
+        return raw
+    if raw is None:
+        return ""
+    return str(raw)
+
+
 def export(_args: object | None = None) -> int:
     raw = _attr(_args, "draft")
     if raw is None or str(raw).strip() == "":
@@ -72,6 +81,7 @@ def export(_args: object | None = None) -> int:
     paper_id = str(document["paper_id"])
     markdown = render_paper_markdown(document)
     extra_root_raw = _attr(_args, "notes_root")
+    extra_root: Path | None = None
     extra_file: Path | None = None
     if extra_root_raw is not None and str(extra_root_raw).strip() != "":
         extra_root = Path(str(extra_root_raw)).expanduser()
@@ -87,9 +97,10 @@ def export(_args: object | None = None) -> int:
     work_path = Path.cwd() / ".work" / "notes" / f"{paper_id}.md"
     work_path.parent.mkdir(parents=True, exist_ok=True)
     work_path.write_text(markdown, encoding="utf-8")
-    if extra_file is not None:
+    if extra_file is not None and extra_root is not None:
         extra_file.parent.mkdir(parents=True, exist_ok=True)
         extra_file.write_text(markdown, encoding="utf-8")
+        upsert_index_entry(extra_root, paper_id, _display_title(document, paper_id))
 
     data: dict[str, Any] = {
         "path": work_path.as_posix(),

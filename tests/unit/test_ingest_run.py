@@ -37,6 +37,8 @@ def test_ingest_run_without_copy_writes_work_drafts_and_notes(
     assert draft_path.is_file()
     assert note_path.is_file()
     assert "vault_path" not in data
+    assert not (tmp_path / "index.md").exists()
+    assert list(tmp_path.rglob("index.md")) == []
     assert network_attempts == []
 
 
@@ -61,6 +63,12 @@ def test_ingest_run_existing_dir_copies_papers_and_reports_copy(
     assert data["vault_path"] == copied.as_posix()
     assert copied.is_file()
     assert copied.read_text(encoding="utf-8") == Path(data["note_path"]).read_text(encoding="utf-8")
+    index_md = existing / "index.md"
+    assert index_md.is_file()
+    index_text = index_md.read_text(encoding="utf-8")
+    assert paper_id in index_text
+    assert f"papers/{paper_id}.md" in index_text
+    assert not (existing / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
@@ -350,4 +358,70 @@ def test_ingest_run_pdf_dir_existing_dir_copies_papers(
         assert copied.read_text(encoding="utf-8") == Path(paper["note_path"]).read_text(
             encoding="utf-8"
         )
+        assert f"papers/{paper_id}.md" in (existing / "index.md").read_text(encoding="utf-8")
+        assert paper_id in (existing / "index.md").read_text(encoding="utf-8")
+    assert (existing / "index.md").is_file()
+    assert not (existing / "wiki" / "index.md").exists()
+    assert network_attempts == []
+
+
+
+def test_ingest_run_two_papers_keeps_both_index_lines(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "x",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    capsys.readouterr()
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "y",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    index_text = (dest / "index.md").read_text(encoding="utf-8")
+    assert "x" in index_text
+    assert "papers/x.md" in index_text
+    assert "y" in index_text
+    assert "papers/y.md" in index_text
+    assert index_text.count("](papers/") >= 2
+    assert not (dest / "wiki" / "index.md").exists()
+    assert network_attempts == []
+
+
+def test_ingest_run_without_notes_root_does_not_write_index(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    code = main(["ingest", "run", "--path", str(TINY_PDF), "--paper-id", "x"])
+    assert code == 0
+    capsys.readouterr()
+    assert not (tmp_path / "index.md").exists()
+    assert list(tmp_path.rglob("index.md")) == []
     assert network_attempts == []
