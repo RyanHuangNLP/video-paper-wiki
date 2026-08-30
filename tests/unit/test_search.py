@@ -355,3 +355,230 @@ def test_stat_ignores_body_year_and_nested_papers(
         "years": {"2022": 1},
     }
     assert network_attempts == []
+
+
+def test_list_missing_dir_refuses_and_does_not_create(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    missing = tmp_path / "missing-root"
+    code = main(["vault", "list", "--vault", str(missing)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.list"
+    assert payload["error"]["code"] == "VAULT_NOT_FOUND"
+    assert not missing.exists()
+    assert network_attempts == []
+
+
+def test_list_empty_vault_dir(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "list", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.list"
+    assert payload["data"]["papers"] == []
+    assert network_attempts == []
+
+
+def test_list_empty_papers_dir(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    (notes / "papers").mkdir(parents=True)
+    code = main(["vault", "list", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["data"]["papers"] == []
+    assert network_attempts == []
+
+
+def test_list_missing_vault_flag_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    code = main(["vault", "list"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_list_two_handwritten_papers_year_sorted(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "newer.md",
+        "---\n"
+        "paper_id: newer-id\n"
+        "title: Newer Paper\n"
+        "year: 2024\n"
+        "topics: [gamma]\n"
+        "---\n\n"
+        "Body mentions year: 1999 and topics: [ignore]\n",
+    )
+    _write(
+        notes / "papers" / "older.md",
+        "---\n"
+        "paper_id: older-id\n"
+        "title: Older Paper\n"
+        "year: 2018\n"
+        "topics: [alpha, beta]\n"
+        "---\n\n"
+        "Body year: 2024\n",
+    )
+    code = main(["vault", "list", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.list"
+    papers = payload["data"]["papers"]
+    assert papers == [
+        {
+            "paper_id": "older-id",
+            "title": "Older Paper",
+            "year": 2018,
+            "topics": ["alpha", "beta"],
+        },
+        {
+            "paper_id": "newer-id",
+            "title": "Newer Paper",
+            "year": 2024,
+            "topics": ["gamma"],
+        },
+    ]
+    assert isinstance(papers[0]["year"], int)
+    assert isinstance(papers[1]["year"], int)
+    assert not isinstance(papers[0]["year"], str)
+    assert isinstance(papers[0]["topics"], list)
+    assert network_attempts == []
+
+
+def test_list_same_year_sorted_by_paper_id(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "zeta.md",
+        "---\npaper_id: zeta\ntitle: Z\nyear: 2020\ntopics: []\n---\n",
+    )
+    _write(
+        notes / "papers" / "alpha.md",
+        "---\npaper_id: alpha\ntitle: A\nyear: 2020\ntopics: []\n---\n",
+    )
+    code = main(["vault", "list", "--vault", str(notes)])
+    assert code == 0
+    papers = _stdout_json(capsys)["data"]["papers"]
+    assert [item["paper_id"] for item in papers] == ["alpha", "zeta"]
+    assert papers[0]["year"] == papers[1]["year"] == 2020
+    assert isinstance(papers[0]["year"], int)
+    assert network_attempts == []
+
+
+def test_list_undated_year_is_null_and_sorts_last(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "undated.md",
+        "---\npaper_id: undated\ntitle: No Year\ntopics: [misc]\n---\n",
+    )
+    _write(
+        notes / "papers" / "dated.md",
+        "---\npaper_id: dated\ntitle: Has Year\nyear: 2022\ntopics: []\n---\n",
+    )
+    code = main(["vault", "list", "--vault", str(notes)])
+    assert code == 0
+    papers = _stdout_json(capsys)["data"]["papers"]
+    assert [item["paper_id"] for item in papers] == ["dated", "undated"]
+    assert papers[0]["year"] == 2022
+    assert isinstance(papers[0]["year"], int)
+    assert papers[1]["year"] is None
+    assert network_attempts == []
+
+
+def test_list_after_ingest_make_a_video_then_cogvideox(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    for paper_id in ("arxiv-2209.14792", "arxiv-2408.06072"):
+        code = main(
+            [
+                "ingest",
+                "run",
+                "--path",
+                str(TINY_PDF),
+                "--paper-id",
+                paper_id,
+                "--vault",
+                str(dest),
+            ]
+        )
+        assert code == 0
+        capsys.readouterr()
+    code = main(["vault", "list", "--vault", str(dest)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.list"
+    papers = payload["data"]["papers"]
+    assert [item["paper_id"] for item in papers] == [
+        "arxiv-2209.14792",
+        "arxiv-2408.06072",
+    ]
+    assert papers[0]["title"] == "Make-A-Video"
+    assert papers[1]["title"] == "CogVideoX"
+    assert papers[0]["year"] == 2022
+    assert papers[1]["year"] == 2024
+    assert isinstance(papers[0]["year"], int)
+    assert isinstance(papers[1]["year"], int)
+    assert not isinstance(papers[0]["year"], str)
+    assert "video-diffusion" in papers[0]["topics"]
+    assert "video-diffusion" in papers[1]["topics"]
+    assert isinstance(papers[0]["topics"], list)
+    assert network_attempts == []
+
+
+def test_list_ignores_nested_papers_and_wiki(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "keep.md",
+        "---\npaper_id: keep\ntitle: Keep\nyear: 2021\ntopics: [ok]\n---\n",
+    )
+    _write(
+        notes / "papers" / "nested" / "x.md",
+        "---\npaper_id: nested\ntitle: Nested\nyear: 2018\ntopics: [no]\n---\n",
+    )
+    _write(
+        notes / "wiki" / "topic.md",
+        "---\npaper_id: wiki\ntitle: Wiki\nyear: 2019\ntopics: [no]\n---\n",
+    )
+    _write(notes / "wiki" / "index.md", "wiki index\n")
+    _write(notes / "index.md", "root index\n")
+    code = main(["vault", "list", "--vault", str(notes)])
+    assert code == 0
+    papers = _stdout_json(capsys)["data"]["papers"]
+    assert papers == [
+        {
+            "paper_id": "keep",
+            "title": "Keep",
+            "year": 2021,
+            "topics": ["ok"],
+        }
+    ]
+    assert network_attempts == []
