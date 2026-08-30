@@ -18,6 +18,7 @@ from video_paper_wiki.parse import (
 )
 from video_paper_wiki.parse.draft_document import InvalidPaperId, resolve_paper_id, validate_paper_id
 from video_paper_wiki.parse.docling_local import ParserUnavailable
+from video_paper_wiki.parse.title import resolve_draft_title
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 DRAFT_SCHEMA_FILENAME = "video-paper-wiki.paper-analysis-draft.v1.schema.json"
@@ -109,9 +110,19 @@ def export(_args: object | None = None) -> int:
         artifact_sha256=sha,
         artifact_path=blob.as_posix(),
     )
+    raw_title = str(fields.get("title") or "")
+    page1_text = ""
+    raw_pages = fields.get("pages")
+    if isinstance(raw_pages, list) and raw_pages:
+        first = raw_pages[0]
+        if isinstance(first, dict):
+            page1_text = str(first.get("text") or "")
+    if not page1_text:
+        page1_text = str(fields.get("body_text") or "")
+    title = resolve_draft_title(paper_id, raw_title, page1_text)
     document = build_draft(
         paper_id=paper_id,
-        title=str(fields.get("title", "")),
+        title=title,
         title_zh=str(fields.get("title_zh", "")),
         claims=claims,
     )
