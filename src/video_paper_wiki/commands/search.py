@@ -1,4 +1,4 @@
-"""Local notes grep, stat, list, show, section, and headings commands. No network."""
+"""Local notes grep, stat, list, show, section, headings, and doctor commands. No network."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from video_paper_wiki.notes.list import scan_list
 from video_paper_wiki.notes.section import list_headings, read_paper_text, section_text
 from video_paper_wiki.notes.show import load_paper
 from video_paper_wiki.notes.stat import scan_stat
+from video_paper_wiki.notes.doctor import scan_doctor
 
 COMMAND = "VAULT.GREP".lower()
 STAT_COMMAND = "VAULT.STAT".lower()
@@ -18,6 +19,7 @@ LIST_COMMAND = "VAULT.LIST".lower()
 SHOW_COMMAND = "VAULT.SHOW".lower()
 SECTION_COMMAND = "VAULT.SECTION".lower()
 HEADINGS_COMMAND = "VAULT.HEADINGS".lower()
+DOCTOR_COMMAND = "VAULT.DOCTOR".lower()
 _MISSING_DIR = "VAULT_NOT_FOUND"
 NOT_FOUND = "PAPER_NOT_FOUND"
 
@@ -211,3 +213,20 @@ def headings(_args: object | None = None) -> int:
         HEADINGS_COMMAND,
         {"paper_id": paper_id, "headings": list_headings(text)},
     )
+
+
+def doctor(_args: object | None = None) -> int:
+    raw_root = _attr(_args, "notes_root")
+    if raw_root is None or str(raw_root).strip() == "":
+        return emit_error(
+            DOCTOR_COMMAND, "USAGE", f"{DOCTOR_COMMAND} requires --{('VAULT').lower()}"
+        )
+    root = Path(str(raw_root)).expanduser()
+    if not root.is_dir():
+        return emit_error(
+            DOCTOR_COMMAND,
+            _MISSING_DIR,
+            "directory is missing or not a directory; this command does not create it",
+            {"path": str(raw_root)},
+        )
+    return emit_success(DOCTOR_COMMAND, scan_doctor(root))

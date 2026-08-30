@@ -1698,3 +1698,194 @@ def test_show_missing_backlinks_key_is_empty_list(
     assert data["related"] == ["arxiv-2209.14792"]
     assert data["backlinks"] == []
     assert network_attempts == []
+
+
+def test_doctor_missing_dir_refuses_and_does_not_create(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    missing = tmp_path / "missing-root"
+    code = main(["vault", "doctor", "--vault", str(missing)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.doctor"
+    assert payload["error"]["code"] == "VAULT_NOT_FOUND"
+    assert not missing.exists()
+    assert network_attempts == []
+
+
+def test_doctor_missing_vault_flag_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    code = main(["vault", "doctor"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.doctor"
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_doctor_empty_vault_dir(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "doctor", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.doctor"
+    assert payload["data"] == {"papers": 0, "wiki_pages": 0, "missing_yaml": []}
+    assert list(notes.iterdir()) == []
+    assert network_attempts == []
+
+
+def test_doctor_complete_yaml_is_empty_missing(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "year: 2024\n"
+        "topics: [video-diffusion]\n"
+        "related: []\n"
+        "backlinks: []\n"
+        "---\n\n"
+        "body\n",
+    )
+    _write(notes / "wiki" / "video-diffusion.md", "topic\n")
+    _write(notes / "wiki" / "index.md", "index\n")
+    _write(notes / "papers" / "nested" / "x.md", "no yaml\n")
+    code = main(["vault", "doctor", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["command"] == "vault.doctor"
+    assert payload["data"] == {
+        "papers": 1,
+        "wiki_pages": 1,
+        "missing_yaml": [],
+    }
+    assert network_attempts == []
+
+
+def test_doctor_empty_values_are_not_missing(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "empty.md",
+        "---\n"
+        'title: ""\n'
+        "paper_id:\n"
+        "year: null\n"
+        "topics: []\n"
+        "related: []\n"
+        "backlinks: []\n"
+        "---\n",
+    )
+    code = main(["vault", "doctor", "--vault", str(notes)])
+    assert code == 0
+    data = _stdout_json(capsys)["data"]
+    assert data["papers"] == 1
+    assert data["missing_yaml"] == []
+    assert network_attempts == []
+
+
+def test_doctor_reports_missing_keys_and_stays_ok(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    original_a = (
+        "---\n"
+        "title: Dated\n"
+        "paper_id: a\n"
+        "year: 2022\n"
+        "topics: []\n"
+        "---\n\n"
+        "body\n"
+    )
+    original_z = "no frontmatter here\n"
+    _write(notes / "papers" / "z.md", original_z)
+    _write(notes / "papers" / "a.md", original_a)
+    _write(
+        notes / "papers" / "complete.md",
+        "---\n"
+        "title: Done\n"
+        "paper_id: complete\n"
+        "year: 2020\n"
+        "topics: []\n"
+        "related: []\n"
+        "backlinks: []\n"
+        "---\n",
+    )
+    _write(notes / "wiki" / "topic.md", "topic\n")
+    before = (notes / "papers" / "a.md").read_text(encoding="utf-8")
+    code = main(["vault", "doctor", "--vault", str(notes)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.doctor"
+    data = payload["data"]
+    assert data["papers"] == 3
+    assert data["wiki_pages"] == 1
+    assert data["missing_yaml"] == [
+        {"paper_id": "a", "fields": ["related", "backlinks"]},
+        {
+            "paper_id": "z",
+            "fields": [
+                "title",
+                "paper_id",
+                "year",
+                "topics",
+                "related",
+                "backlinks",
+            ],
+        },
+    ]
+    assert (notes / "papers" / "a.md").read_text(encoding="utf-8") == before
+    assert (notes / "papers" / "z.md").read_text(encoding="utf-8") == original_z
+    assert network_attempts == []
+
+
+def test_doctor_after_ingest_make_a_video(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "arxiv-2209.14792",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    capsys.readouterr()
+    note = dest / "papers" / "arxiv-2209.14792.md"
+    original = note.read_text(encoding="utf-8")
+    code = main(["vault", "doctor", "--vault", str(dest)])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.doctor"
+    data = payload["data"]
+    assert data["papers"] >= 1
+    assert data["wiki_pages"] == 6
+    assert data["missing_yaml"] == []
+    assert note.read_text(encoding="utf-8") == original
+    assert network_attempts == []
