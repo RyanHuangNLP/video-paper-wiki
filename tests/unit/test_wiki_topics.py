@@ -226,11 +226,26 @@ def test_ingest_without_notes_root_writes_no_wiki(
 def test_ingest_1812_evaluation_year_and_heading_format(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    seed_dir = ROOT / "docs" / "seed"
+    schemas_dir = ROOT / "schemas"
+    before = {
+        path: path.read_bytes()
+        for folder in (seed_dir, schemas_dir)
+        for path in folder.rglob("*")
+        if path.is_file()
+    }
     _prepare(tmp_path, monkeypatch)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     assert _ingest(TINY_PDF, "arxiv-1812.01717", dest) == 0
     _stdout_json(capsys)
+    after = {
+        path: path.read_bytes()
+        for folder in (seed_dir, schemas_dir)
+        for path in folder.rglob("*")
+        if path.is_file()
+    }
+    assert after == before
 
     evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
     blurb = BLURB_ZH["evaluation"]

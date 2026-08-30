@@ -85,7 +85,6 @@ def _topic_page_text(
     if blurb_zh:
         lines.append(blurb_zh)
         lines.append("")
-
     for paper_id in paper_ids:
         title = catalog_title_for_paper_id(paper_id)
         if title is None:
