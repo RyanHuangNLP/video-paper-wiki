@@ -187,6 +187,7 @@ def build_parser() -> argparse.ArgumentParser:
     listing = vault_sub.add_parser("list")
     listing.add_argument("--vault", dest="notes_root", required=True)
     listing.add_argument("--topic", dest="topic_id", default=None)
+    listing.add_argument("--year", dest="year_raw", default=None)
     listing.set_defaults(handler=search_commands.list_papers)
     show = vault_sub.add_parser("show")
     show.add_argument("--vault", dest="notes_root", required=True)

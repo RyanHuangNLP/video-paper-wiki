@@ -72,6 +72,17 @@ def list_papers(_args: object | None = None) -> int:
         return emit_error(
             LIST_COMMAND, "USAGE", f"{LIST_COMMAND} requires a non-empty --topic"
         )
+    raw_year = _attr(_args, "year_raw")
+    year: int | None = None
+    if raw_year is not None:
+        token = str(raw_year)
+        if not token.isdigit() or int(token) < 1:
+            return emit_error(
+                LIST_COMMAND,
+                "USAGE",
+                f"{LIST_COMMAND} requires a positive integer --year",
+            )
+        year = int(token)
     if not root.is_dir():
         return emit_error(
             LIST_COMMAND,
@@ -80,7 +91,12 @@ def list_papers(_args: object | None = None) -> int:
             {"path": str(raw_root)},
         )
     return emit_success(
-        LIST_COMMAND, scan_list(root, None if raw_topic is None else str(raw_topic))
+        LIST_COMMAND,
+        scan_list(
+            root,
+            None if raw_topic is None else str(raw_topic),
+            year,
+        ),
     )
 
 
