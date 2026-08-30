@@ -73,7 +73,7 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
     wiki = dest / "wiki"
     vd = (wiki / "video-diffusion.md").read_text(encoding="utf-8")
     blurb = BLURB_ZH["video-diffusion"]
-    link = "[Make-A-Video](../papers/arxiv-2209.14792.md)"
+    link = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
     assert vd.startswith("# 视频扩散\n")
     assert blurb in vd
     assert link in vd
@@ -122,19 +122,19 @@ def test_ingest_second_paper_keeps_papers_above_topics(
     _stdout_json(capsys)
 
     vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in vd
+    assert "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)" in vd
     assert BLURB_ZH["video-diffusion"] in vd
     assert vd.index(BLURB_ZH["video-diffusion"]) < vd.index(
-        "[Make-A-Video](../papers/arxiv-2209.14792.md)"
+        "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
     )
     assert "VBench" not in vd
 
     evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
     assert evaluation.startswith("# 评测\n")
     assert BLURB_ZH["evaluation"] in evaluation
-    assert "[VBench](../papers/arxiv-2311.17982.md)" in evaluation
+    assert "[VBench](../papers/arxiv-2311.17982.md) (2023)" in evaluation
     assert evaluation.index(BLURB_ZH["evaluation"]) < evaluation.index(
-        "[VBench](../papers/arxiv-2311.17982.md)"
+        "[VBench](../papers/arxiv-2311.17982.md) (2023)"
     )
 
     index_text = (dest / "index.md").read_text(encoding="utf-8")
@@ -174,34 +174,36 @@ def test_ingest_pdf_dir_fills_tokenization_page(
     tok = (dest / "wiki" / "tokenization.md").read_text(encoding="utf-8")
     assert tok.startswith("# 视频 tokenizer\n")
     assert BLURB_ZH["tokenization"] in tok
-    assert "[Phenaki](../papers/arxiv-2210.02399.md)" in tok
-    assert "[MAGVIT](../papers/arxiv-2212.05199.md)" in tok
-    assert "[CogVideoX](../papers/arxiv-2408.06072.md)" in tok
-    assert tok.index(BLURB_ZH["tokenization"]) < tok.index(
-        "[Phenaki](../papers/arxiv-2210.02399.md)"
-    )
+    assert "[Phenaki](../papers/arxiv-2210.02399.md) (2022)" in tok
+    assert "[MAGVIT](../papers/arxiv-2212.05199.md) (2022)" in tok
+    assert "[CogVideoX](../papers/arxiv-2408.06072.md) (2024)" in tok
+    phenaki = "[Phenaki](../papers/arxiv-2210.02399.md) (2022)"
+    magvit = "[MAGVIT](../papers/arxiv-2212.05199.md) (2022)"
+    cog = "[CogVideoX](../papers/arxiv-2408.06072.md) (2024)"
+    assert tok.index(BLURB_ZH["tokenization"]) < tok.index(phenaki) < tok.index(magvit) < tok.index(cog)
 
     vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert "[CogVideoX](../papers/arxiv-2408.06072.md)" in vd
+    assert "[CogVideoX](../papers/arxiv-2408.06072.md) (2024)" in vd
     assert BLURB_ZH["video-diffusion"] in vd
     assert "Phenaki" not in vd
 
     lm = (dest / "wiki" / "language-model.md").read_text(encoding="utf-8")
-    assert "[Phenaki](../papers/arxiv-2210.02399.md)" in lm
+    assert "[Phenaki](../papers/arxiv-2210.02399.md) (2022)" in lm
     assert BLURB_ZH["language-model"] in lm
 
     assert not (dest / "wiki" / "index.md").exists()
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     for blurb_text in BLURB_ZH.values():
         assert blurb_text not in index_text
-    topics_at = index_text.splitlines().index("## 主题")
-    for paper_id in ("arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2408.06072"):
-        line = next(
-            i
-            for i, row in enumerate(index_text.splitlines())
-            if f"](papers/{paper_id}.md)" in row
-        )
-        assert line < topics_at
+    lines = index_text.splitlines()
+    topics_at = lines.index("## 主题")
+    phenaki_i = next(i for i, row in enumerate(lines) if "](papers/arxiv-2210.02399.md)" in row)
+    magvit_i = next(i for i, row in enumerate(lines) if "](papers/arxiv-2212.05199.md)" in row)
+    cog_i = next(i for i, row in enumerate(lines) if "](papers/arxiv-2408.06072.md)" in row)
+    assert phenaki_i < magvit_i < cog_i < topics_at
+    assert lines[phenaki_i].endswith("(2022)")
+    assert lines[magvit_i].endswith("(2022)")
+    assert lines[cog_i].endswith("(2024)")
     assert network_attempts == []
 
 
@@ -218,4 +220,117 @@ def test_ingest_without_notes_root_writes_no_wiki(
     assert not (tmp_path / "index.md").exists()
     assert list(tmp_path.rglob("wiki")) == []
     assert list(tmp_path.rglob("index.md")) == []
+    assert network_attempts == []
+
+
+def test_ingest_1812_evaluation_year_and_heading_format(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare(tmp_path, monkeypatch)
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    assert _ingest(TINY_PDF, "arxiv-1812.01717", dest) == 0
+    _stdout_json(capsys)
+
+    evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
+    blurb = BLURB_ZH["evaluation"]
+    link = (
+        "[Towards Accurate Generative Models of Video]"
+        "(../papers/arxiv-1812.01717.md) (2018)"
+    )
+    assert evaluation.startswith("# 评测\n")
+    assert blurb in evaluation
+    assert link in evaluation
+    assert evaluation.index("# 评测") < evaluation.index(blurb) < evaluation.index(link)
+    assert evaluation == f"# 评测\n\n{blurb}\n\n{link}\n"
+    assert not (dest / "wiki" / "index.md").exists()
+
+    index_text = (dest / "index.md").read_text(encoding="utf-8")
+    assert (
+        "[Towards Accurate Generative Models of Video]"
+        "(papers/arxiv-1812.01717.md) (2018)"
+    ) in index_text
+    assert network_attempts == []
+
+
+def test_ingest_2408_and_1812_keep_seed_order_index_year_sorted(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare(tmp_path, monkeypatch)
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    assert _ingest(TINY_PDF, "arxiv-2408.06072", dest) == 0
+    capsys.readouterr()
+    assert _ingest(TINY_PDF, "arxiv-1812.01717", dest) == 0
+    capsys.readouterr()
+    assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
+    _stdout_json(capsys)
+
+    evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
+    towards = (
+        "[Towards Accurate Generative Models of Video]"
+        "(../papers/arxiv-1812.01717.md) (2018)"
+    )
+    assert evaluation.startswith("# 评测\n")
+    assert BLURB_ZH["evaluation"] in evaluation
+    assert towards in evaluation
+    assert evaluation.index(BLURB_ZH["evaluation"]) < evaluation.index(towards)
+    assert "VBench" not in evaluation
+
+    vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
+    mav = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
+    cog = "[CogVideoX](../papers/arxiv-2408.06072.md) (2024)"
+    assert vd.startswith("# 视频扩散\n")
+    assert BLURB_ZH["video-diffusion"] in vd
+    assert mav in vd
+    assert cog in vd
+    assert vd.index(BLURB_ZH["video-diffusion"]) < vd.index(mav) < vd.index(cog)
+
+    tok = (dest / "wiki" / "tokenization.md").read_text(encoding="utf-8")
+    assert tok.startswith("# 视频 tokenizer\n")
+    assert BLURB_ZH["tokenization"] in tok
+    assert cog in tok
+    assert tok.index(BLURB_ZH["tokenization"]) < tok.index(cog)
+
+    assert not (dest / "wiki" / "index.md").exists()
+    index_lines = (dest / "index.md").read_text(encoding="utf-8").splitlines()
+    towards_index = (
+        "[Towards Accurate Generative Models of Video]"
+        "(papers/arxiv-1812.01717.md) (2018)"
+    )
+    mav_index = "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)"
+    cog_index = "[CogVideoX](papers/arxiv-2408.06072.md) (2024)"
+    assert index_lines[0] == "# Video Paper Wiki"
+    assert index_lines.index(towards_index) < index_lines.index(mav_index)
+    assert index_lines.index(mav_index) < index_lines.index(cog_index)
+    assert index_lines.index(cog_index) < index_lines.index("## 主题")
+    assert network_attempts == []
+
+
+def test_ingest_non_catalog_paper_id_x_is_not_a_wiki_link(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    _prepare(tmp_path, monkeypatch)
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    assert _ingest(TINY_PDF, "x", dest) == 0
+    capsys.readouterr()
+    assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
+    _stdout_json(capsys)
+
+    wiki = dest / "wiki"
+    for page in wiki.glob("*.md"):
+        body = page.read_text(encoding="utf-8")
+        assert "](../papers/x.md)" not in body
+        assert "papers/x.md" not in body
+    vd = (wiki / "video-diffusion.md").read_text(encoding="utf-8")
+    assert "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)" in vd
+    assert not (wiki / "index.md").exists()
+
+    index_text = (dest / "index.md").read_text(encoding="utf-8")
+    assert "](papers/x.md)" in index_text
+    x_line = next(line for line in index_text.splitlines() if "](papers/x.md)" in line)
+    assert x_line.endswith(".md)")
+    assert " (20" not in x_line
+    assert f"{x_line} (" not in index_text
     assert network_attempts == []

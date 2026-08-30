@@ -34,9 +34,9 @@ def test_refresh_skips_unknown_and_missing_papers(tmp_path: Path) -> None:
     vd = (root / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
     assert vd.startswith("# 视频扩散\n")
     assert VIDEO_DIFFUSION_BLURB in vd
-    assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in vd
+    assert "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)" in vd
     assert vd.index(VIDEO_DIFFUSION_BLURB) < vd.index(
-        "[Make-A-Video](../papers/arxiv-2209.14792.md)"
+        "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
     )
     assert "not-in-catalog" not in vd
     assert "arxiv-2311.15127" not in vd
@@ -89,7 +89,7 @@ def test_refresh_skips_unknown_paper_id_even_if_note_exists(
     )
     refresh_direct(root)
     text = (root / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert "[Make-A-Video](../papers/arxiv-2209.14792.md)" in text
+    assert "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)" in text
     assert "ghost" not in text
     assert not (root / "wiki" / "index.md").exists()
 
@@ -105,7 +105,7 @@ def test_topic_page_empty_blurb_keeps_blank_then_links(tmp_path: Path) -> None:
         root,
         "",
     )
-    assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md)\n"
+    assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)\n"
 
 
 def test_load_topics_missing_blurb_is_empty_string(tmp_path: Path, monkeypatch) -> None:
@@ -122,3 +122,78 @@ def test_load_topics_missing_blurb_is_empty_string(tmp_path: Path, monkeypatch) 
     topics = load_topics()
     assert topics is not None
     assert topics[0]["blurb_zh"] == ""
+
+
+def test_topic_page_omits_year_when_unparseable(tmp_path: Path, monkeypatch) -> None:
+    root = tmp_path / "notes-root"
+    papers = root / "papers"
+    papers.mkdir(parents=True)
+    (papers / "x.md").write_text("# undated\n", encoding="utf-8")
+    (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
+    monkeypatch.setattr(
+        "video_paper_wiki.notes.topics.catalog_title_for_paper_id",
+        lambda paper_id: {
+            "x": "Undated Paper",
+            "arxiv-2209.14792": "Make-A-Video",
+        }.get(paper_id),
+    )
+    text = _topic_page_text(
+        "评测",
+        ["x", "arxiv-2209.14792"],
+        root,
+        EVALUATION_BLURB,
+    )
+    undated = "[Undated Paper](../papers/x.md)"
+    dated = "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)"
+    assert text == f"# 评测\n\n{EVALUATION_BLURB}\n\n{undated}\n{dated}\n"
+    assert undated in text
+    assert f"{undated} (" not in text
+    assert " (20" not in text.splitlines()[4]
+    assert text.splitlines()[4].endswith(".md)")
+
+
+def test_topic_page_keeps_seed_paper_id_order_not_year(tmp_path: Path) -> None:
+    root = tmp_path / "notes-root"
+    papers = root / "papers"
+    papers.mkdir(parents=True)
+    (papers / "arxiv-2408.06072.md").write_text("# cog\n", encoding="utf-8")
+    (papers / "arxiv-1812.01717.md").write_text("# towards\n", encoding="utf-8")
+    text = _topic_page_text(
+        "评测",
+        ["arxiv-2408.06072", "arxiv-1812.01717"],
+        root,
+        EVALUATION_BLURB,
+    )
+    cog = "[CogVideoX](../papers/arxiv-2408.06072.md) (2024)"
+    towards = (
+        "[Towards Accurate Generative Models of Video]"
+        "(../papers/arxiv-1812.01717.md) (2018)"
+    )
+    assert text == f"# 评测\n\n{EVALUATION_BLURB}\n\n{cog}\n{towards}\n"
+    assert text.index(cog) < text.index(towards)
+
+
+def test_topic_page_reuses_paper_index_year(tmp_path: Path, monkeypatch) -> None:
+    seen: list[str] = []
+
+    def fake_year(paper_id: str):
+        seen.append(paper_id)
+        return 2099
+
+    monkeypatch.setattr(
+        "video_paper_wiki.notes.index.paper_index_year",
+        fake_year,
+    )
+    root = tmp_path / "notes-root"
+    papers = root / "papers"
+    papers.mkdir(parents=True)
+    (papers / "arxiv-2209.14792.md").write_text("# mav\n", encoding="utf-8")
+    text = _topic_page_text("视频扩散", ["arxiv-2209.14792"], root, "")
+    assert text == "# 视频扩散\n\n[Make-A-Video](../papers/arxiv-2209.14792.md) (2099)\n"
+    assert seen == ["arxiv-2209.14792"]
+
+
+def test_command_modules_still_have_no_lowercase_vault() -> None:
+    commands = Path(__file__).resolve().parents[2] / "src" / "video_paper_wiki" / "commands"
+    for path in commands.glob("*.py"):
+        assert "vault" not in path.read_text(encoding="utf-8"), path.name
