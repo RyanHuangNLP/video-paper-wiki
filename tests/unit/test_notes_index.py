@@ -54,3 +54,56 @@ def test_upsert_index_entry_creates_file_and_falls_back_title(tmp_path: Path) ->
     assert "[Hello (World)](papers/brackets.md)" in text
     assert "[empty-title](papers/empty-title.md)" in text
     assert "# Video Paper Wiki" in text.splitlines()[0]
+
+
+def test_upsert_index_entry_inserts_papers_before_topics_section(tmp_path: Path) -> None:
+    root = tmp_path / "notes-root"
+    root.mkdir()
+    (root / "index.md").write_text(
+        "# Video Paper Wiki\n"
+        "[Alpha Paper](papers/alpha.md)\n"
+        "## 主题\n"
+        "[视频扩散](wiki/video-diffusion.md)\n",
+        encoding="utf-8",
+    )
+    upsert_index_entry(root, "beta", "Beta Paper")
+    text = (root / "index.md").read_text(encoding="utf-8")
+    lines = text.splitlines()
+    assert text.startswith("# Video Paper Wiki\n")
+    assert "# Papers" not in text
+    assert lines.index("[Beta Paper](papers/beta.md)") < lines.index("## 主题")
+    assert lines.index("[Alpha Paper](papers/alpha.md)") < lines.index("## 主题")
+    assert "[视频扩散](wiki/video-diffusion.md)" in lines
+    assert text.count("## 主题") == 1
+    assert text.endswith("\n")
+
+    upsert_index_entry(root, "alpha", "Alpha Renamed")
+    text = (root / "index.md").read_text(encoding="utf-8")
+    lines = text.splitlines()
+    assert text.startswith("# Video Paper Wiki\n")
+    assert lines.index("[Alpha Renamed](papers/alpha.md)") < lines.index("## 主题")
+    assert "[Alpha Paper](papers/alpha.md)" not in lines
+    assert lines.count("[Alpha Renamed](papers/alpha.md)") == 1
+
+
+def test_upsert_index_entry_keeps_papers_heading_and_inserts_above_topics(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "notes-root"
+    root.mkdir()
+    (root / "index.md").write_text(
+        "# Papers\n"
+        "\n"
+        "[other](papers/other.md)\n"
+        "## 主题\n"
+        "[评测](wiki/evaluation.md)\n",
+        encoding="utf-8",
+    )
+    upsert_index_entry(root, "alpha", "Alpha Paper")
+    text = (root / "index.md").read_text(encoding="utf-8")
+    lines = text.splitlines()
+    assert text.startswith("# Papers\n")
+    assert "# Video Paper Wiki" not in text
+    assert lines.index("[Alpha Paper](papers/alpha.md)") < lines.index("## 主题")
+    assert lines.index("[other](papers/other.md)") < lines.index("## 主题")
+    assert "[评测](wiki/evaluation.md)" in lines

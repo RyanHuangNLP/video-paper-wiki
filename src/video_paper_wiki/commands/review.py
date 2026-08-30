@@ -10,7 +10,7 @@ from jsonschema import ValidationError
 
 from video_paper_wiki.commands.draft import _validate_document
 from video_paper_wiki.envelope import emit_error, emit_success
-from video_paper_wiki.notes import render_paper_markdown, upsert_index_entry
+from video_paper_wiki.notes import refresh_topic_pages, render_paper_markdown, upsert_index_entry
 
 COMMAND = "review.export"
 # Uppercase literals: commands/*.py source must not contain certain lowercase tokens.
@@ -101,6 +101,7 @@ def export(_args: object | None = None) -> int:
         extra_file.parent.mkdir(parents=True, exist_ok=True)
         extra_file.write_text(markdown, encoding="utf-8")
         upsert_index_entry(extra_root, paper_id, _display_title(document, paper_id))
+        refresh_topic_pages(extra_root)
 
     data: dict[str, Any] = {
         "path": work_path.as_posix(),
