@@ -12,6 +12,7 @@ from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import ingest as ingest_commands
 from video_paper_wiki.commands import review as review_commands
+from video_paper_wiki.commands import search as search_commands
 from video_paper_wiki.envelope import emit_error, emit_success
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -172,6 +173,13 @@ def build_parser() -> argparse.ArgumentParser:
     index = sub.add_parser("index")
     index_sub = index.add_subparsers(dest="index_cmd", required=True)
     index_sub.add_parser("status").set_defaults(handler=_cmd_not_implemented("index.status"))
+
+    vault = sub.add_parser("vault")
+    vault_sub = vault.add_subparsers(dest="vault_cmd", required=True)
+    grep = vault_sub.add_parser("grep")
+    grep.add_argument("--vault", dest="notes_root", required=True)
+    grep.add_argument("query")
+    grep.set_defaults(handler=search_commands.grep)
 
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
