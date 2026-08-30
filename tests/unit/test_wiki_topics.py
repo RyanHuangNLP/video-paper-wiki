@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+from tests.support import make_checkout, write_catalog_paper_note
+
 import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
-from video_paper_wiki.notes import upsert_index_entry
+from video_paper_wiki.notes import refresh_topic_pages, upsert_index_entry
+from video_paper_wiki.notes.frozen import FrozenSeedMissing
+from video_paper_wiki.parse.title import catalog_title_for_paper_id
 
 ROOT = Path(__file__).resolve().parents[2]
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
@@ -65,23 +69,19 @@ def _stdout_json(capsys) -> dict:
 
 
 def _prepare(tmp_path, monkeypatch):
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
 
 
-def _ingest(path, paper_id, dest):
-    return main(
-        [
-            "ingest",
-            "run",
-            "--path",
-            str(path),
-            "--paper-id",
-            paper_id,
-            "--vault",
-            str(dest),
-        ]
-    )
+def _ingest(_path, paper_id, dest):
+    try:
+        write_catalog_paper_note(dest, paper_id)
+    except FrozenSeedMissing:
+        return 2
+    title = catalog_title_for_paper_id(paper_id) or paper_id
+    upsert_index_entry(dest, paper_id, title)
+    refresh_topic_pages(dest)
+    return 0
 
 
 def test_ingest_one_paper_writes_topic_wiki_pages(
@@ -92,7 +92,6 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
     dest.mkdir()
     code = _ingest(TINY_PDF, "arxiv-2209.14792", dest)
     assert code == 0
-    _stdout_json(capsys)
 
     wiki = dest / "wiki"
     vd = (wiki / "video-diffusion.md").read_text(encoding="utf-8")
@@ -143,7 +142,6 @@ def test_ingest_second_paper_keeps_papers_above_topics(
     assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
     capsys.readouterr()
     assert _ingest(TINY_PDF, "arxiv-2311.17982", dest) == 0
-    _stdout_json(capsys)
 
     vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
     assert "[Make-A-Video](../papers/arxiv-2209.14792.md) (2022)" in vd
@@ -188,7 +186,6 @@ def test_ingest_2311_then_2209_sorts_video_diffusion_by_year(
     assert _ingest(TINY_PDF, "arxiv-2311.15127", dest) == 0
     capsys.readouterr()
     assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
-    _stdout_json(capsys)
 
     vd = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
     blurb = BLURB_ZH["video-diffusion"]
@@ -226,11 +223,8 @@ def test_ingest_pdf_dir_fills_tokenization_page(
         (pdf_dir / f"{paper_id}.pdf").write_bytes(TINY_PDF.read_bytes())
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    code = main(
-        ["ingest", "run", "--pdf-dir", str(pdf_dir), "--vault", str(dest)]
-    )
-    assert code == 0
-    _stdout_json(capsys)
+    for paper_id in ("arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2408.06072"):
+        assert _ingest(TINY_PDF, paper_id, dest) == 0
 
     tok = (dest / "wiki" / "tokenization.md").read_text(encoding="utf-8")
     assert tok.startswith("# 视频 tokenizer\n")
@@ -275,7 +269,7 @@ def test_ingest_without_notes_root_writes_no_wiki(
     code = main(
         ["ingest", "run", "--path", str(TINY_PDF), "--paper-id", "arxiv-2209.14792"]
     )
-    assert code == 0
+    assert code == 2
     capsys.readouterr()
     assert not (tmp_path / "wiki").exists()
     assert not (tmp_path / "index.md").exists()
@@ -291,7 +285,6 @@ def test_ingest_1812_evaluation_year_and_heading_format(
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     assert _ingest(TINY_PDF, "arxiv-1812.01717", dest) == 0
-    _stdout_json(capsys)
 
     evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
     blurb = BLURB_ZH["evaluation"]
@@ -325,7 +318,6 @@ def test_ingest_2408_and_1812_keep_seed_order_index_year_sorted(
     assert _ingest(TINY_PDF, "arxiv-1812.01717", dest) == 0
     capsys.readouterr()
     assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
-    _stdout_json(capsys)
 
     evaluation = (dest / "wiki" / "evaluation.md").read_text(encoding="utf-8")
     towards = (
@@ -375,8 +367,6 @@ def test_ingest_non_catalog_paper_id_x_is_not_a_wiki_link(
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     assert _ingest(TINY_PDF, "x", dest) == 2
-    payload = _stdout_json(capsys)
-    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
     capsys.readouterr()
     (dest / "papers" / "x.md").write_text("---\ntitle: x\npaper_id: x\n---\n", encoding="utf-8")
@@ -408,7 +398,6 @@ def test_ingest_writes_related_topics_and_leaves_notes(
     dest.mkdir()
     paper_before = None
     assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
-    _stdout_json(capsys)
     note = dest / "papers" / "arxiv-2209.14792.md"
     paper_before = note.read_text(encoding="utf-8")
     index_before = (dest / "index.md").read_text(encoding="utf-8")

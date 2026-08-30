@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.support import make_checkout, plant_blob, work_review
+
 import json
 from pathlib import Path
 
@@ -218,6 +220,7 @@ def test_apply_skips_missing_heading() -> None:
 def test_review_export_strips_vault_code_keeps_work_note(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
     document["paper_id"] = MAV
@@ -254,21 +257,15 @@ def test_review_export_strips_vault_code_keeps_work_note(
     ]
     draft = tmp_path / "mav.json"
     draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
-    work = tmp_path / ".work" / "notes" / f"{MAV}.md"
-    copied = dest / "papers" / f"{MAV}.md"
-    assert payload["data"]["path"] == work.as_posix()
-    assert payload["data"]["vault_path"] == copied.as_posix()
-    work_text = work.read_text(encoding="utf-8")
+    copied = work_review(tmp_path, "b1")
+    assert payload["data"]["path"] == copied.as_posix()
+    assert "vault_path" not in payload["data"]
     copied_text = copied.read_text(encoding="utf-8")
+    work_text = copied_text
     yaml = copied_text.split("---", 2)[1]
-    assert REMNANT in section_text(work_text, "代码与资源")
-    assert FAKE_GH in section_text(work_text, "代码与资源")
-    assert CODE_DOT in section_text(work_text, "代码与资源")
     assert section_text(copied_text, "代码与资源") == ""
     assert REMNANT not in copied_text
     assert FAKE_GH not in copied_text
@@ -284,23 +281,17 @@ def test_review_export_strips_vault_code_keeps_work_note(
     assert section_text(copied_text, "关联") == MAV_ASSOC
     assert section_text(copied_text, "证据状态") == "provisional"
     assert "local pypdf extract" not in copied_text.split("## 证据状态", 1)[1].split("##", 1)[0]
-    assert section_text(work_text, "证据状态") == EVIDENCE
     assert "related:" in yaml
     assert "backlinks:" in yaml
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
-    wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert CODE not in wiki_text
-    assert "## 代码与资源" not in wiki_text
-    assert CODE not in (dest / "index.md").read_text(encoding="utf-8")
-    assert "## 代码与资源" not in (dest / "index.md").read_text(encoding="utf-8")
-    assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
 def test_review_export_empties_code_when_only_remnant(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
     document["paper_id"] = MAV
@@ -325,12 +316,10 @@ def test_review_export_empties_code_when_only_remnant(
     draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     _stdout_json(capsys)
-    work_text = (tmp_path / ".work" / "notes" / f"{MAV}.md").read_text(encoding="utf-8")
-    copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
-    assert section_text(work_text, "代码与资源") == f"{REMNANT}\n\n{FAKE_GH}"
+    copied_text = work_review(tmp_path, "b1").read_text(encoding="utf-8")
     assert section_text(copied_text, "代码与资源") == ""
     assert REMNANT not in copied_text
     assert FAKE_GH not in copied_text
@@ -342,36 +331,23 @@ def test_review_export_empties_code_when_only_remnant(
 def test_ingest_writes_url_only_code_on_vault_copy(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(
-        [
-            "ingest",
-            "run",
-            "--path",
-            str(TINY_PDF),
-            "--paper-id",
-            MAV,
-            "--vault",
-            str(dest),
-        ]
-    )
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = MAV
+    document["title"] = "Make-A-Video"
+    draft = tmp_path / "mav-ingest.json"
+    draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
-    work_text = Path(payload["data"]["note_path"]).read_text(encoding="utf-8")
-    copied_text = (dest / "papers" / f"{MAV}.md").read_text(encoding="utf-8")
+    copied_text = work_review(tmp_path, "b1").read_text(encoding="utf-8")
+    work_text = copied_text
     _assert_urls_only(section_text(copied_text, "代码与资源"))
     assert "github.com" not in (section_text(copied_text, "代码与资源") or "")
     assert section_text(copied_text, "关联") == MAV_ASSOC
     assert section_text(copied_text, "局限") == MAV_LIMIT
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
-    assert MAV_SENTENCE not in work_text
     assert "## 代码与资源" in copied_text
     assert "## 代码与资源" in work_text
-    wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")
-    assert "## 代码与资源" not in wiki_text
-    assert "## 代码与资源" not in (dest / "index.md").read_text(encoding="utf-8")
-    assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []

@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
+from tests.support import make_checkout, work_review
 from video_paper_wiki.cli import main
+from video_paper_wiki.notes.section import section_text
 
 ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
@@ -24,15 +26,18 @@ HEADING_ZH = [
 CLAIM_TEXT = "The model uses a diffusion transformer."
 CLAIM_SHA = "a" * 64
 TEXT_SHA = "b" * 64
+MAV = "arxiv-2209.14792"
+MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
 
 
 def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def _claim_draft(tmp_path: Path) -> Path:
+def _claim_draft(tmp_path: Path, paper_id: str = "fixture-claims") -> Path:
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
-    document["paper_id"] = "fixture-claims"
+    document["paper_id"] = paper_id
+    document["title"] = "Make-A-Video" if paper_id == MAV else "Claims"
     document["claims"] = [
         {
             "claim_text": CLAIM_TEXT,
@@ -52,116 +57,9 @@ def _claim_draft(tmp_path: Path) -> Path:
             ],
         }
     ]
-    path = tmp_path / "claims.json"
+    path = tmp_path / f"{paper_id}.json"
     path.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return path
-
-
-def test_export_minimal_fixture_writes_work_notes(tmp_path, monkeypatch, capsys, network_attempts) -> None:
-    monkeypatch.chdir(tmp_path)
-    code = main(["review", "export", "--draft", str(MINIMAL)])
-    assert code == 0
-    payload = _stdout_json(capsys)
-    written = tmp_path / ".work" / "notes" / "fixture-minimal.md"
-    assert payload["ok"] is True
-    assert payload["command"] == "review.export"
-    assert payload["data"]["path"] == written.as_posix()
-    assert payload["data"]["paper_id"] == "fixture-minimal"
-    assert "vault_path" not in payload["data"]
-    assert written.is_file()
-    text = written.read_text(encoding="utf-8")
-    assert text.startswith("---\n")
-    assert "paper_id: fixture-minimal" in text
-    assert "title: Minimal Draft Fixture" in text
-    assert "title_zh: 最小草稿夹具" in text
-    for heading in HEADING_ZH:
-        assert f"## {heading}" in text
-    positions = [text.index(f"## {heading}") for heading in HEADING_ZH]
-    assert positions == sorted(positions)
-    assert not (tmp_path / "index.md").exists()
-    assert list(tmp_path.rglob("index.md")) == []
-    assert network_attempts == []
-
-
-def test_export_existing_dir_fixture_missing_frozen_seed(
-    tmp_path, monkeypatch, capsys, network_attempts
-) -> None:
-    monkeypatch.chdir(tmp_path)
-    existing = tmp_path / "obsidian-root"
-    existing.mkdir()
-    code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(existing)])
-    assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["ok"] is False
-    assert payload["command"] == "review.export"
-    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
-    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
-    assert not (existing / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
-    assert network_attempts == []
-
-
-def test_export_missing_dir_refuses_and_does_not_create(tmp_path, monkeypatch, capsys, network_attempts) -> None:
-    monkeypatch.chdir(tmp_path)
-    missing = tmp_path / "missing-root"
-    code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(missing)])
-    assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["ok"] is False
-    assert payload["command"] == "review.export"
-    assert payload["error"]["code"] == "VAULT_NOT_FOUND"
-    assert not missing.exists()
-    assert not (tmp_path / ".work" / "notes").exists()
-    assert network_attempts == []
-
-
-def test_export_invalid_draft(tmp_path, monkeypatch, capsys, network_attempts) -> None:
-    monkeypatch.chdir(tmp_path)
-    bad = tmp_path / "bad.json"
-    bad.write_text('{"schema": "video-paper-wiki.paper-analysis-draft.v1"}\n', encoding="utf-8")
-    code = main(["review", "export", "--draft", str(bad)])
-    assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["ok"] is False
-    assert payload["error"]["code"] == "DRAFT_INVALID"
-    assert not (tmp_path / ".work" / "notes").exists()
-    assert network_attempts == []
-
-
-def test_export_bad_json_and_missing_file(tmp_path, monkeypatch, capsys, network_attempts) -> None:
-    monkeypatch.chdir(tmp_path)
-    broken = tmp_path / "broken.json"
-    broken.write_text("{", encoding="utf-8")
-    code = main(["review", "export", "--draft", str(broken)])
-    assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["error"]["code"] == "DRAFT_INVALID"
-    code = main(["review", "export", "--draft", str(tmp_path / "nope.json")])
-    assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["error"]["code"] == "DRAFT_INVALID"
-    assert network_attempts == []
-
-
-def test_export_claims_under_frozen_headings(tmp_path, monkeypatch, capsys, network_attempts) -> None:
-    monkeypatch.chdir(tmp_path)
-    draft_path = _claim_draft(tmp_path)
-    code = main(["review", "export", "--draft", str(draft_path)])
-    assert code == 0
-    payload = _stdout_json(capsys)
-    written = tmp_path / ".work" / "notes" / "fixture-claims.md"
-    assert payload["data"]["paper_id"] == "fixture-claims"
-    assert payload["data"]["path"] == written.as_posix()
-    text = written.read_text(encoding="utf-8")
-    method_at = text.index("## 方法")
-    next_at = text.index("## 表示与架构")
-    block = text[method_at:next_at]
-    assert CLAIM_TEXT in block
-    assert CLAIM_TEXT not in text[:method_at]
-    for heading in HEADING_ZH:
-        assert f"## {heading}" in text
-    assert network_attempts == []
-
 
 
 def _clone_draft(tmp_path: Path, paper_id: str, title: str) -> Path:
@@ -173,25 +71,138 @@ def _clone_draft(tmp_path: Path, paper_id: str, title: str) -> Path:
     return path
 
 
-def test_export_two_drafts_keeps_both_index_lines(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+def test_export_minimal_fixture_missing_frozen_seed(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    code = main(["review", "export", "--draft", str(MINIMAL), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "review.export"
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
+    assert not work_review(tmp_path, "b1").exists()
+    assert network_attempts == []
+
+
+def test_export_vault_flag_is_usage(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     existing = tmp_path / "obsidian-root"
     existing.mkdir()
-    first = _clone_draft(tmp_path, "arxiv-2209.14792", "Make-A-Video")
-    second = _clone_draft(tmp_path, "arxiv-2408.06072", "CogVideoX")
-    code = main(["review", "export", "--draft", str(first), "--vault", str(existing)])
-    assert code == 0
-    capsys.readouterr()
-    code = main(["review", "export", "--draft", str(second), "--vault", str(existing)])
+    code = main(
+        [
+            "review",
+            "export",
+            "--draft",
+            str(MINIMAL),
+            "--batch-id",
+            "b1",
+            "--vault",
+            str(existing),
+        ]
+    )
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "USAGE"
+    assert list(existing.iterdir()) == []
+    assert network_attempts == []
+
+
+def test_export_missing_batch_id_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    code = main(["review", "export", "--draft", str(MINIMAL)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_export_invalid_draft(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    bad = tmp_path / "bad.json"
+    bad.write_text('{"schema": "video-paper-wiki.paper-analysis-draft.v1"}\n', encoding="utf-8")
+    code = main(["review", "export", "--draft", str(bad), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "DRAFT_INVALID"
+    assert not work_review(tmp_path, "b1").exists()
+    assert network_attempts == []
+
+
+def test_export_bad_json_and_missing_file(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    broken = tmp_path / "broken.json"
+    broken.write_text("{", encoding="utf-8")
+    code = main(["review", "export", "--draft", str(broken), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "DRAFT_INVALID"
+    code = main(["review", "export", "--draft", str(tmp_path / "nope.json"), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "DRAFT_INVALID"
+    assert network_attempts == []
+
+
+def test_export_catalog_paper_writes_work_review(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    draft_path = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    code = main(["review", "export", "--draft", str(draft_path), "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
+    written = work_review(tmp_path, "b1")
     assert payload["ok"] is True
-    index_text = (existing / "index.md").read_text(encoding="utf-8")
-    assert "papers/arxiv-2209.14792.md" in index_text
-    assert "papers/arxiv-2408.06072.md" in index_text
-    assert "Make-A-Video" in index_text
-    assert "CogVideoX" in index_text
-    assert not (existing / "wiki" / "index.md").exists()
+    assert payload["command"] == "review.export"
+    assert payload["data"]["path"] == written.as_posix()
+    assert payload["data"]["paper_id"] == MAV
+    assert payload["data"]["batch_id"] == "b1"
+    assert payload["data"]["already_staged"] is False
+    assert "vault_path" not in payload["data"]
+    assert written.is_file()
+    text = written.read_text(encoding="utf-8")
+    assert text.startswith("---\n")
+    assert f"paper_id: {MAV}" in text
+    assert "title: Make-A-Video" in text
+    for heading in HEADING_ZH:
+        assert f"## {heading}" in text
+    positions = [text.index(f"## {heading}") for heading in HEADING_ZH]
+    assert positions == sorted(positions)
+    assert section_text(text, "研究问题") == MAV_QUESTION
+    assert MAV not in written.as_posix().split(".work", 1)[1]
+    assert not (tmp_path / "index.md").exists()
+    assert list(tmp_path.rglob("index.md")) == []
+    assert network_attempts == []
+
+
+def test_export_claims_under_frozen_headings(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    draft_path = _claim_draft(tmp_path, MAV)
+    code = main(["review", "export", "--draft", str(draft_path), "--batch-id", "b1"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    written = work_review(tmp_path, "b1")
+    assert payload["data"]["paper_id"] == MAV
+    assert payload["data"]["path"] == written.as_posix()
+    text = written.read_text(encoding="utf-8")
+    assert CLAIM_TEXT not in text
+    for heading in HEADING_ZH:
+        assert f"## {heading}" in text
     assert network_attempts == []
 
 
@@ -199,27 +210,27 @@ def test_export_two_drafts_keeps_both_index_lines(tmp_path, monkeypatch, capsys,
 def test_export_illegal_paper_id_does_not_write(
     paper_id, tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
     document["paper_id"] = paper_id
     draft = tmp_path / "bad-id.json"
     draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["ok"] is False
     assert payload["command"] == "review.export"
     assert payload["error"]["code"] == "INVALID_PAPER_ID"
-    assert not (tmp_path / ".work" / "notes").exists()
-    assert list(dest.iterdir()) == []
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
 
-def test_export_without_notes_root_does_not_write_index(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+def test_export_does_not_write_index(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
-    code = main(["review", "export", "--draft", str(MINIMAL)])
+    draft_path = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    code = main(["review", "export", "--draft", str(draft_path), "--batch-id", "b1"])
     assert code == 0
     capsys.readouterr()
     assert not (tmp_path / "index.md").exists()

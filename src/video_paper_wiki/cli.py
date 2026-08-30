@@ -6,19 +6,15 @@ import argparse
 import re
 import shutil
 import sys
-from pathlib import Path
 
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
-from video_paper_wiki.commands import ingest as ingest_commands
 from video_paper_wiki.commands import review as review_commands
-from video_paper_wiki.commands import search as search_commands
-from video_paper_wiki.commands import wiki as wiki_commands
-from video_paper_wiki.envelope import emit_error, emit_success
+from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.notes.encoding import InvalidEncoding
+from video_paper_wiki.staging import StagingError, resolve_checkout_root, stage_bytes
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
-
 
 
 class UsageError(Exception):
@@ -62,6 +58,16 @@ def _cmd_not_implemented(command: str):
     return _run
 
 
+def _cmd_query(args: argparse.Namespace) -> int:
+    if not args.json:
+        return emit_error("query", "USAGE", "query requires --json")
+    return emit_error(
+        "query",
+        "NOT_IMPLEMENTED",
+        "query is not implemented in VPKB-000-02",
+    )
+
+
 def _prepare_command_name(args: argparse.Namespace) -> str:
     return "ingest.prepare" if args._vpkb_family == "ingest" else "code-map.prepare"
 
@@ -79,22 +85,31 @@ def _cmd_prepare(args: argparse.Namespace) -> int:
     sha = sha.lower()
     approval_present = args.approval_hash is not None
     store = BlobStore(resolve_blob_root())
-    if store.get(sha) is None:
+    blob = store.get(sha)
+    if blob is None:
         return emit_error(
             command,
             "BLOB_NOT_FOUND",
             "local blob is missing; fetch is operator-only and this command does not download",
             {"sha256": sha, "approval_hash_present": approval_present},
         )
-    work_dir = Path(args.work_dir)
-    staged = store.stage(sha, work_dir / args.batch_id)
+    try:
+        data = blob.read_bytes()
+        staged = stage_bytes(
+            batch_id=args.batch_id,
+            relative=("prepared", f"{sha}.blob"),
+            data=data,
+        )
+    except StagingError as exc:
+        return emit_staging_error(command, exc)
     return emit_success(
         command,
         {
             "sha256": sha,
             "batch_id": args.batch_id,
-            "staged_path": staged.as_posix(),
+            "staged_path": staged.path.as_posix(),
             "approval_hash_present": approval_present,
+            "already_staged": staged.already_staged,
         },
     )
 
@@ -102,8 +117,7 @@ def _cmd_prepare(args: argparse.Namespace) -> int:
 def _add_prepare_flags(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--sha256", required=True)
     parser.add_argument("--approval-hash", default=None)
-    parser.add_argument("--batch-id", default="default")
-    parser.add_argument("--work-dir", default=str(Path.cwd() / ".work"))
+    parser.add_argument("--batch-id", required=True)
     parser.set_defaults(handler=_cmd_prepare)
 
 
@@ -127,16 +141,6 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = sub.add_parser("ingest")
     ingest_sub = ingest.add_subparsers(dest="ingest_cmd", required=True)
     ingest_sub.add_parser("plan").set_defaults(handler=_cmd_not_implemented("ingest.plan"))
-    ingest_put = ingest_sub.add_parser("put")
-    ingest_put.add_argument("--path", required=True)
-    ingest_put.set_defaults(handler=ingest_commands.put)
-    ingest_run = ingest_sub.add_parser("run")
-    ingest_run.add_argument("--path", default=None)
-    ingest_run.add_argument("--pdf-dir", dest="pdf_dir", default=None)
-    ingest_run.add_argument("--vault", dest="notes_root", default=None)
-    ingest_run.add_argument("--paper-id", dest="paper_id", default=None)
-    ingest_run.add_argument("--seed", dest="seed_path", default=None)
-    ingest_run.set_defaults(handler=ingest_commands.run)
     ingest_prepare = ingest_sub.add_parser("prepare")
     ingest_prepare.set_defaults(_vpkb_family="ingest")
     _add_prepare_flags(ingest_prepare)
@@ -151,6 +155,7 @@ def build_parser() -> argparse.ArgumentParser:
     draft_export = draft_sub.add_parser("export")
     draft_export.add_argument("--sha256", required=True)
     draft_export.add_argument("--paper-id", dest="paper_id", default=None)
+    draft_export.add_argument("--batch-id", required=True)
     draft_export.set_defaults(handler=draft_commands.export)
     draft_validate = draft_sub.add_parser("validate")
     draft_validate.add_argument("--path", required=True)
@@ -160,7 +165,7 @@ def build_parser() -> argparse.ArgumentParser:
     review_sub = review.add_subparsers(dest="review_cmd", required=True)
     review_export = review_sub.add_parser("export")
     review_export.add_argument("--draft", required=True)
-    review_export.add_argument("--vault", dest="notes_root", default=None)
+    review_export.add_argument("--batch-id", required=True)
     review_export.set_defaults(handler=review_commands.export)
     review_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("review.inspect"))
 
@@ -176,51 +181,9 @@ def build_parser() -> argparse.ArgumentParser:
     index_sub = index.add_subparsers(dest="index_cmd", required=True)
     index_sub.add_parser("status").set_defaults(handler=_cmd_not_implemented("index.status"))
 
-    vault = sub.add_parser("vault")
-    vault_sub = vault.add_subparsers(dest="vault_cmd", required=True)
-    grep = vault_sub.add_parser("grep")
-    grep.add_argument("--vault", dest="notes_root", required=True)
-    grep.add_argument("query")
-    grep.set_defaults(handler=search_commands.grep)
-    stat = vault_sub.add_parser("stat")
-    stat.add_argument("--vault", dest="notes_root", required=True)
-    stat.set_defaults(handler=search_commands.stat)
-    listing = vault_sub.add_parser("list")
-    listing.add_argument("--vault", dest="notes_root", required=True)
-    listing.add_argument("--topic", dest="topic_id", default=None)
-    listing.add_argument("--year", dest="year_raw", default=None)
-    listing.set_defaults(handler=search_commands.list_papers)
-    show = vault_sub.add_parser("show")
-    show.add_argument("--vault", dest="notes_root", required=True)
-    show.add_argument("paper_id")
-    show.set_defaults(handler=search_commands.show)
-    section = vault_sub.add_parser("section")
-    section.add_argument("--vault", dest="notes_root", required=True)
-    section.add_argument("paper_id")
-    section.add_argument("section")
-    section.set_defaults(handler=search_commands.section)
-    headings = vault_sub.add_parser("headings")
-    headings.add_argument("--vault", dest="notes_root", required=True)
-    headings.add_argument("paper_id")
-    headings.set_defaults(handler=search_commands.headings)
-    notes_check = vault_sub.add_parser("doctor")
-    notes_check.add_argument("--vault", dest="notes_root", required=True)
-    notes_check.set_defaults(handler=search_commands.doctor)
-
-    wiki = sub.add_parser("wiki")
-    wiki_sub = wiki.add_subparsers(dest="wiki_cmd", required=True)
-    wiki_show = wiki_sub.add_parser("show")
-    wiki_show.add_argument("--vault", dest="notes_root", required=True)
-    wiki_show.add_argument("topic_id")
-    wiki_show.set_defaults(handler=wiki_commands.show)
-
-    wiki_list = wiki_sub.add_parser("list")
-    wiki_list.add_argument("--vault", dest="notes_root", required=True)
-    wiki_list.set_defaults(handler=wiki_commands.list_pages)
-
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
-    query.set_defaults(handler=_cmd_not_implemented("query"))
+    query.set_defaults(handler=_cmd_query)
 
     audit = sub.add_parser("audit")
     audit.set_defaults(handler=_cmd_not_implemented("audit"))
@@ -241,6 +204,14 @@ def main(argv: list[str] | None = None) -> int:
     if handler is None:
         sys.stderr.write("missing command\n")
         return emit_error(_dotted(args[:2]) if args else "vpwiki", "USAGE", "missing command")
+    if getattr(ns, "command", None) == "query" and not getattr(ns, "json", False):
+        sys.stderr.write("query requires --json\n")
+        return emit_error("query", "USAGE", "query requires --json")
+    try:
+        resolve_checkout_root()
+    except StagingError as exc:
+        sys.stderr.write(f"{exc.message}\n")
+        return emit_staging_error(_dotted(args[:2]) if args else "vpwiki", exc)
     try:
         return handler(ns)
     except InvalidEncoding as exc:

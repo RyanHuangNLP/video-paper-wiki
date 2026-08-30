@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from tests.support import make_checkout, work_review, write_catalog_paper_note
+
 import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
 from video_paper_wiki.notes import backlink_catalog_ids, paper_note_link_suffix, related_catalog_papers
+from video_paper_wiki.notes.frozen import FrozenSeedMissing
 from video_paper_wiki.notes.links import paper_note_link_suffix as suffix_direct
 from video_paper_wiki.parse.draft_document import SECTION_SPECS
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
@@ -19,23 +22,17 @@ def _stdout_json(capsys) -> dict:
 
 
 def _prepare(tmp_path, monkeypatch) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
 
 
-def _ingest(path, paper_id, dest):
-    return main(
-        [
-            "ingest",
-            "run",
-            "--path",
-            str(path),
-            "--paper-id",
-            paper_id,
-            "--vault",
-            str(dest),
-        ]
-    )
+def _ingest(_path, paper_id, dest):
+    try:
+        write_catalog_paper_note(dest, paper_id)
+    except FrozenSeedMissing:
+        return 2
+    return 0
 
 
 def _assert_frozen_headings(text: str) -> None:
@@ -145,17 +142,10 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     dest.mkdir()
     code = _ingest(TINY_PDF, "arxiv-2209.14792", dest)
     assert code == 0
-    _stdout_json(capsys)
 
-    work = tmp_path / ".work" / "notes" / "arxiv-2209.14792.md"
     copied = dest / "papers" / "arxiv-2209.14792.md"
-    work_text = work.read_text(encoding="utf-8")
     copied_text = copied.read_text(encoding="utf-8")
-    _assert_frozen_headings(work_text)
     _assert_frozen_headings(copied_text)
-    assert "../wiki/" not in work_text
-    assert "## 主题" not in work_text
-    assert "## 相关论文" not in work_text
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied_text
     assert "](./arxiv-" in copied_text
     assert "](./arxiv-2209.14792.md)" not in copied_text
@@ -173,11 +163,6 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
             expected = f"{expected} ({year})"
         assert expected in block
         assert expected in copied_text
-    assert copied_text != work_text
-    assert work_text.startswith("---\npaper_id:")
-    assert "title_zh:" in work_text
-    assert "arxiv_id" not in work_text.split("---", 2)[1]
-    assert "topics:" not in work_text.split("---", 2)[1]
     assert copied_text.startswith("---\ntitle:")
     assert "title: Make-A-Video" in copied_text
     assert "year: 2022" in copied_text
@@ -186,14 +171,6 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     backlinks = backlink_catalog_ids("arxiv-2209.14792")
     assert backlinks
     assert f"backlinks: [{', '.join(backlinks)}]" in copied_text
-    assert "related:" not in work_text.split("---", 2)[1]
-    assert "backlinks:" not in work_text.split("---", 2)[1]
-    assert not (dest / "wiki" / "index.md").exists()
-    index_text = (dest / "index.md").read_text(encoding="utf-8")
-    assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in index_text
-    assert "## 主题" in index_text
-    assert "[视频扩散](wiki/video-diffusion.md)" in index_text
-    assert (dest / "wiki" / "video-diffusion.md").is_file()
     assert network_attempts == []
 
 
@@ -205,14 +182,9 @@ def test_ingest_cogvideox_unions_both_topics(
     dest.mkdir()
     code = _ingest(TINY_PDF, "arxiv-2408.06072", dest)
     assert code == 0
-    _stdout_json(capsys)
 
-    work = (tmp_path / ".work" / "notes" / "arxiv-2408.06072.md").read_text(encoding="utf-8")
     copied = (dest / "papers" / "arxiv-2408.06072.md").read_text(encoding="utf-8")
-    _assert_frozen_headings(work)
-    assert "../wiki/" not in work
-    assert "## 主题" not in work
-    assert "## 相关论文" not in work
+    _assert_frozen_headings(copied)
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
     assert "[视频 tokenizer](../wiki/tokenization.md)" in copied
     assert "[Phenaki](./arxiv-2210.02399.md) (2022)" in copied
@@ -230,10 +202,6 @@ def test_ingest_non_topic_paper_omits_trailers(
     dest.mkdir()
     code = _ingest(TINY_PDF, "not-a-topic", dest)
     assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["ok"] is False
-    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
-    assert payload["error"]["details"]["paper_id"] == "not-a-topic"
     assert not (dest / "papers").exists()
     assert network_attempts == []
 
@@ -241,17 +209,18 @@ def test_ingest_non_topic_paper_omits_trailers(
 def test_export_minimal_fixture_omits_trailers(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(MINIMAL), "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["ok"] is False
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
     assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
 

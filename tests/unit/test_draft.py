@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from video_paper_wiki.blob_store import BlobStore
+from tests.support import make_checkout, plant_blob, work_draft
 from video_paper_wiki.cli import main
 from video_paper_wiki.commands import draft
 from video_paper_wiki.parse.docling_local import ParserUnavailable
@@ -50,30 +50,33 @@ def _schema_validator() -> Draft202012Validator:
     return Draft202012Validator(json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8")))
 
 
-def test_draft_export_no_args_still_not_implemented(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+def test_draft_export_no_args_is_usage(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     code = draft.export()
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["command"] == "draft.export"
-    assert payload["error"]["code"] == "NOT_IMPLEMENTED"
+    assert payload["error"]["code"] == "USAGE"
     assert network_attempts == []
 
 
-def test_draft_validate_no_args_still_not_implemented(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+def test_draft_validate_no_args_is_usage(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     code = draft.validate()
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["command"] == "draft.validate"
-    assert payload["error"]["code"] == "NOT_IMPLEMENTED"
+    assert payload["error"]["code"] == "USAGE"
     assert network_attempts == []
 
 
 def test_export_missing_blob_no_network(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
-    code = main(["draft", "export", "--sha256", "a" * 64])
+    code = main(["draft", "export", "--sha256", "a" * 64, "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["ok"] is False
@@ -83,8 +86,9 @@ def test_export_missing_blob_no_network(tmp_path, monkeypatch, capsys, network_a
 
 
 def test_export_invalid_sha256_no_network(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
-    code = main(["draft", "export", "--sha256", "not-a-sha"])
+    code = main(["draft", "export", "--sha256", "not-a-sha", "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["error"]["code"] == "INVALID_SHA256"
@@ -93,9 +97,10 @@ def test_export_invalid_sha256_no_network(tmp_path, monkeypatch, capsys, network
 
 def test_export_parser_unavailable_no_download(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
-    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
 
     def _unavailable(_path: Path) -> dict:
         raise ParserUnavailable("docling extra is not installed")
@@ -104,21 +109,22 @@ def test_export_parser_unavailable_no_download(tmp_path, monkeypatch, capsys, ne
         "video_paper_wiki.commands.draft.parse_pdf_to_draft_fields",
         _unavailable,
     )
-    code = main(["draft", "export", "--sha256", digest])
+    code = main(["draft", "export", "--sha256", digest, "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["error"]["code"] == "PARSER_MODEL_NOT_FETCHED"
     assert network_attempts == []
-    assert not (tmp_path / ".work" / "drafts").exists()
+    assert not (tmp_path / ".work" / "b1" / "draft").exists()
 
 
 def test_export_success_mocked_parser_writes_schema_valid_draft(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
-    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
 
     def _stub(_path: Path) -> dict:
         return {"title": "Stub Paper", "title_zh": ""}
@@ -127,13 +133,13 @@ def test_export_success_mocked_parser_writes_schema_valid_draft(
         "video_paper_wiki.commands.draft.parse_pdf_to_draft_fields",
         _stub,
     )
-    code = main(["draft", "export", "--sha256", digest])
+    code = main(["draft", "export", "--sha256", digest, "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
     assert payload["command"] == "draft.export"
     paper_id = digest[:12]
-    written = tmp_path / ".work" / "drafts" / paper_id / "paper-analysis-draft.v1.json"
+    written = work_draft(tmp_path, "b1")
     assert payload["data"]["path"] == written.as_posix()
     assert payload["data"]["paper_id"] == paper_id
     assert payload["data"]["sha256"] == digest
@@ -158,6 +164,7 @@ def test_validate_minimal_fixture(capsys, network_attempts) -> None:
 
 
 def test_validate_bad_file(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     bad = tmp_path / "bad.json"
     bad.write_text('{"schema": "video-paper-wiki.paper-analysis-draft.v1"}\n', encoding="utf-8")
@@ -170,6 +177,7 @@ def test_validate_bad_file(tmp_path, monkeypatch, capsys, network_attempts) -> N
 
 
 def test_validate_missing_file(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     code = main(["draft", "validate", "--path", str(tmp_path / "missing.json")])
     assert code == 2
@@ -182,6 +190,7 @@ def test_validate_missing_file(tmp_path, monkeypatch, capsys, network_attempts) 
 def test_validate_rejects_unsafe_paper_id(
     paper_id, tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
     document["paper_id"] = paper_id
@@ -211,11 +220,12 @@ def test_local_parser_fails_closed_without_models(tmp_path, monkeypatch, network
 
 def test_export_blob_present_without_models_no_network(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
     monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
-    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
-    code = main(["draft", "export", "--sha256", digest])
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    code = main(["draft", "export", "--sha256", digest, "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
@@ -249,16 +259,14 @@ def _assert_complete_claim(document: dict, sha256: str) -> None:
 
 def test_put_export_validate_pipeline_tiny_pdf(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
     monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
 
-    put_code = main(["ingest", "put", "--path", str(TINY_PDF)])
-    assert put_code == 0
-    put_payload = _stdout_json(capsys)
-    sha256 = put_payload["data"]["sha256"]
+    sha256 = plant_blob(blob_root, TINY_PDF.read_bytes())
 
-    export_code = main(["draft", "export", "--sha256", sha256])
+    export_code = main(["draft", "export", "--sha256", sha256, "--batch-id", "b1"])
     assert export_code == 0
     export_payload = _stdout_json(capsys)
     draft_path = Path(export_payload["data"]["path"])
@@ -279,17 +287,18 @@ def test_export_paper_id_writes_stable_draft_path(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
     monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
-    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
     paper_id = "arxiv-2311.15127"
-    code = main(["draft", "export", "--sha256", digest, "--paper-id", paper_id])
+    code = main(["draft", "export", "--sha256", digest, "--paper-id", paper_id, "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
     assert payload["command"] == "draft.export"
-    written = tmp_path / ".work" / "drafts" / paper_id / "paper-analysis-draft.v1.json"
+    written = work_draft(tmp_path, "b1")
     assert payload["data"]["path"] == written.as_posix()
     assert payload["data"]["paper_id"] == paper_id
     assert payload["data"]["sha256"] == digest
@@ -304,9 +313,10 @@ def test_export_paper_id_writes_stable_draft_path(
 def test_export_illegal_paper_id(
     paper_id, tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
-    code = main(["draft", "export", "--sha256", "a" * 64, "--paper-id", paper_id])
+    code = main(["draft", "export", "--sha256", "a" * 64, "--paper-id", paper_id, "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["ok"] is False
@@ -469,10 +479,11 @@ def test_heading_matcher_ignores_long_sentences_with_keywords(network_attempts) 
 
 def test_tiny_pdf_exports_required_claims(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
-    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
-    code = main(["draft", "export", "--sha256", digest])
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    code = main(["draft", "export", "--sha256", digest, "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
     document = json.loads(Path(payload["data"]["path"]).read_text(encoding="utf-8"))
@@ -493,10 +504,11 @@ def test_sectioned_pdf_fills_abstract_and_method(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
-    digest = BlobStore(blob_root).put_from_path(SECTIONED_PDF)
-    code = main(["draft", "export", "--sha256", digest])
+    digest = plant_blob(blob_root, SECTIONED_PDF.read_bytes())
+    code = main(["draft", "export", "--sha256", digest, "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
     draft_path = Path(payload["data"]["path"])
@@ -515,16 +527,6 @@ def test_sectioned_pdf_fills_abstract_and_method(
         if section != "one_sentence_conclusion":
             assert claim["core"] is False
         _assert_locator(claim, digest)
-
-    review_code = main(["review", "export", "--draft", str(draft_path)])
-    assert review_code == 0
-    review_payload = _stdout_json(capsys)
-    note = Path(review_payload["data"]["path"])
-    text = note.read_text(encoding="utf-8")
-    conclusion_block = text[text.index("## 一句话结论") : text.index("## 研究问题")]
-    method_block = text[text.index("## 方法") : text.index("## 表示与架构")]
-    assert "This abstract sentence is the conclusion claim." in conclusion_block
-    assert "We train a diffusion transformer on video latents." in method_block
     assert network_attempts == []
 
 

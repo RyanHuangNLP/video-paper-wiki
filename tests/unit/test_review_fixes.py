@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from tests.support import make_checkout, work_review
 from video_paper_wiki import resources as seed_resources
 from video_paper_wiki.cli import main
 from video_paper_wiki.notes.code_resources import load_code_urls
@@ -57,6 +58,7 @@ def test_require_managed_seed_rejects_unknown_ids() -> None:
 def test_expanded_catalog_paper_clears_remnants_without_inventing(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     draft = _clone_draft(
         tmp_path,
@@ -72,17 +74,13 @@ def test_expanded_catalog_paper_clears_remnants_without_inventing(
             }
         ],
     )
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     _stdout_json(capsys)
-    copied = (dest / "papers" / f"{EXPANDED}.md").read_text(encoding="utf-8")
-    work = (tmp_path / ".work" / "notes" / f"{EXPANDED}.md").read_text(encoding="utf-8")
-    assert section_text(work, "研究问题") == REMNANT
-    assert section_text(copied, "研究问题") == ""
-    assert REMNANT not in copied
-    assert section_text(copied, "证据状态") == "provisional"
+    work = work_review(tmp_path, "b1").read_text(encoding="utf-8")
+    assert section_text(work, "研究问题") == ""
+    assert REMNANT not in work
+    assert section_text(work, "证据状态") == "provisional"
     assert network_attempts == []
 
 
@@ -100,58 +98,52 @@ def _patch_code_urls_seed(monkeypatch, text: str | None) -> None:
 def test_missing_required_overlay_is_fail_closed(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr("video_paper_wiki.notes.frozen.load_conclusions", lambda: None)
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert payload["error"]["details"]["paper_id"] == MAV
     assert payload["error"]["details"]["source"] == "engine-mvp-conclusions.json"
-    assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
 
 def test_missing_code_urls_seed_is_fail_closed(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     _patch_code_urls_seed(monkeypatch, None)
     assert load_code_urls() is None
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert payload["error"]["details"]["paper_id"] == MAV
     assert payload["error"]["details"]["source"] == "engine-mvp-code-urls.json"
-    assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
 
 def test_invalid_code_urls_json_is_fail_closed(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     _patch_code_urls_seed(monkeypatch, "{not-json")
     assert load_code_urls() is None
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert payload["error"]["details"]["source"] == "engine-mvp-code-urls.json"
-    assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
 
@@ -180,13 +172,12 @@ def _latin1_code_urls_seed(tmp_path: Path, monkeypatch) -> Path:
 def test_latin1_code_urls_seed_is_fail_closed(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     _latin1_code_urls_seed(tmp_path, monkeypatch)
     assert load_code_urls() is None
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     captured = capsys.readouterr()
     payload = json.loads(captured.out.strip())
     assert code == 2
@@ -201,44 +192,40 @@ def test_latin1_code_urls_seed_is_fail_closed(
     assert "UnicodeDecodeError" not in captured.err
     assert "InvalidEncoding" not in captured.out
     assert "InvalidEncoding" not in captured.err
-    assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
 
 def test_empty_code_urls_object_still_exports(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     _patch_code_urls_seed(monkeypatch, '{"code_urls": {}}\n')
     assert load_code_urls() == {}
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     _stdout_json(capsys)
-    assert (dest / "papers" / f"{MAV}.md").is_file()
-    assert (tmp_path / ".work" / "notes" / f"{MAV}.md").is_file()
+    assert work_review(tmp_path, "b1").is_file()
     assert network_attempts == []
 
 
 def test_review_export_does_not_open_pdf(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
 
     def _boom(*_args, **_kwargs):
-        raise AssertionError("vault write path must not read a PDF")
+        raise AssertionError("review export must not read a PDF")
 
     monkeypatch.setattr("video_paper_wiki.parse.pypdf_local.parse_pdf_to_draft_fields", _boom)
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     _stdout_json(capsys)
-    assert (dest / "papers" / f"{MAV}.md").is_file()
+    assert work_review(tmp_path, "b1").is_file()
     assert network_attempts == []
 
 
@@ -358,64 +345,45 @@ def test_merge_replaces_system_related_links_keeps_custom_h2() -> None:
     assert section_text(merged, "一句话结论") == "new conclusion"
 
 
-def test_review_export_merges_existing_note(
+def test_review_export_same_bytes_are_idempotent(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
-    capsys.readouterr()
-    copied = dest / "papers" / f"{MAV}.md"
-    original = copied.read_text(encoding="utf-8")
-    mutated = original.replace("---\n", "---\ntags: [keep-me]\n", 1)
-    mutated = mutated + "\n## 自定义\n\n" + CUSTOM + "\n"
-    copied.write_text(mutated, encoding="utf-8")
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    first = _stdout_json(capsys)
+    assert first["data"]["already_staged"] is False
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
-    _stdout_json(capsys)
-    text = copied.read_text(encoding="utf-8")
-    assert "tags: [keep-me]" in text.split("---", 2)[1]
-    assert section_text(text, "自定义") == CUSTOM
+    second = _stdout_json(capsys)
+    assert second["data"]["already_staged"] is True
+    text = work_review(tmp_path, "b1").read_text(encoding="utf-8")
     assert section_text(text, "研究问题") == MAV_QUESTION
-    work = (tmp_path / ".work" / "notes" / f"{MAV}.md").read_text(encoding="utf-8")
-    assert "自定义" not in work
+    assert "自定义" not in text
     assert network_attempts == []
 
 
-def test_review_export_refreshes_related_trailer_ids(
+def test_review_export_writes_related_trailer_ids(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     magvit = "arxiv-2212.05199"
     draft = _clone_draft(tmp_path, magvit, "MAGVIT")
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
-    assert code == 0
-    capsys.readouterr()
-    copied = dest / "papers" / f"{magvit}.md"
-    mutated = copied.read_text(encoding="utf-8")
-    mutated = mutated.replace("arxiv-2310.05737", "arxiv-2312.03541")
-    mutated = mutated.replace("arxiv-2406.09399", "arxiv-2406.08119")
-    mutated = mutated + "\n## 自定义\n\n" + CUSTOM + "\n"
-    copied.write_text(mutated, encoding="utf-8")
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0
     _stdout_json(capsys)
-    text = copied.read_text(encoding="utf-8")
+    text = work_review(tmp_path, "b1").read_text(encoding="utf-8")
     related = section_text(text, "相关论文")
     assert related is not None
     assert "arxiv-2310.05737" in related
     assert "arxiv-2406.09399" in related
     assert "arxiv-2312.03541" not in related
     assert "arxiv-2406.08119" not in related
-    assert section_text(text, "自定义") == CUSTOM
-    work = (tmp_path / ".work" / "notes" / f"{magvit}.md").read_text(encoding="utf-8")
-    assert "## 相关论文" not in work
-    assert "## 主题" not in work
+    assert "## 主题" in text
+    assert magvit not in work_review(tmp_path, "b1").as_posix().split(".work", 1)[1]
     assert network_attempts == []
 
 
@@ -456,45 +424,45 @@ def _assert_invalid_encoding(code: int, payload: dict, command: str, captured, p
     assert "UnicodeDecodeError" not in captured.err
 
 
-def test_notes_commands_invalid_encoding_json_envelope(
+def test_notes_library_invalid_encoding_does_not_rewrite(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     notes = tmp_path / "notes-root"
     bad = notes / "papers" / "arxiv-2408.06072.md"
     _latin1_note(bad)
-    cases = [
-        (["vault", "grep", "--vault", str(notes), "body"], "vault.grep"),
-        (["vault", "stat", "--vault", str(notes)], "vault.stat"),
-        (["vault", "list", "--vault", str(notes)], "vault.list"),
-        (["vault", "show", "--vault", str(notes), "arxiv-2408.06072"], "vault.show"),
-        (["vault", "section", "--vault", str(notes), "arxiv-2408.06072", "方法"], "vault.section"),
-        (["vault", "headings", "--vault", str(notes), "arxiv-2408.06072"], "vault.headings"),
-        (["vault", "doctor", "--vault", str(notes)], "vault.doctor"),
-    ]
-    for argv, command in cases:
-        code = main(argv)
-        captured = capsys.readouterr()
-        payload = json.loads(captured.out.strip())
-        _assert_invalid_encoding(code, payload, command, captured, bad)
-        assert bad.exists()
+    from video_paper_wiki.notes.grep import scan_matches
+
+    try:
+        scan_matches(notes, "body")
+    except InvalidEncoding as exc:
+        assert exc.path == bad
+    else:
+        raise AssertionError("expected InvalidEncoding")
+    assert bad.exists()
+    assert bad.read_bytes().startswith(b"---")
+    code = main(["vault", "grep", "--vault", str(notes), "body"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out.strip())
+    assert code == 2
+    assert payload["error"]["code"] == "USAGE"
+    assert "Traceback" not in captured.out
     assert network_attempts == []
 
 
-def test_review_export_existing_note_invalid_encoding(
+def test_review_export_latin1_draft_invalid_encoding(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
-    dest = tmp_path / "obsidian-root"
-    dest.mkdir()
-    bad = dest / "papers" / f"{MAV}.md"
-    _latin1_note(bad)
-    draft = _clone_draft(tmp_path, MAV, "Make-A-Video")
+    bad = tmp_path / "latin1.json"
+    bad.write_bytes(b'{"schema": "video-paper-wiki.paper-analysis-draft.v1", "title": "caf\xe9"}\n')
     before = bad.read_bytes()
-    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(bad), "--batch-id", "b1"])
     captured = capsys.readouterr()
     payload = json.loads(captured.out.strip())
     _assert_invalid_encoding(code, payload, "review.export", captured, bad)
     assert bad.read_bytes() == before
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []

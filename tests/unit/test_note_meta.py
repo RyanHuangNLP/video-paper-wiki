@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from tests.support import make_checkout, work_review, write_catalog_paper_note
+
 import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
 from video_paper_wiki.notes import year_from_arxiv_id
+from video_paper_wiki.notes.frozen import FrozenSeedMissing
 from video_paper_wiki.notes.frontmatter import resolve_arxiv_id, topic_ids_for_paper
 from video_paper_wiki.parse.draft_document import SECTION_SPECS
 from video_paper_wiki.parse.title import catalog_arxiv_id_for_paper_id
@@ -19,23 +22,17 @@ def _stdout_json(capsys) -> dict:
 
 
 def _prepare(tmp_path, monkeypatch) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
 
 
-def _ingest(path, paper_id, dest):
-    return main(
-        [
-            "ingest",
-            "run",
-            "--path",
-            str(path),
-            "--paper-id",
-            paper_id,
-            "--vault",
-            str(dest),
-        ]
-    )
+def _ingest(_path, paper_id, dest):
+    try:
+        write_catalog_paper_note(dest, paper_id)
+    except FrozenSeedMissing:
+        return 2
+    return 0
 
 
 def _frontmatter_and_body(text: str) -> tuple[str, str]:
@@ -132,11 +129,8 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     dest.mkdir()
     code = _ingest(TINY_PDF, "arxiv-2209.14792", dest)
     assert code == 0
-    _stdout_json(capsys)
 
-    work = (tmp_path / ".work" / "notes" / "arxiv-2209.14792.md").read_text(encoding="utf-8")
     copied = (dest / "papers" / "arxiv-2209.14792.md").read_text(encoding="utf-8")
-    work_body = _assert_work_frontmatter(work)
     copy_body = _assert_copy_frontmatter_keys(copied)
     assert copied.startswith("---\n")
     assert "title: Make-A-Video" in copied
@@ -156,7 +150,6 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
 
     link_ids = re.findall(r"\]\(\./([^)]+)\.md\)", copied.split("## 相关论文", 1)[1])
     assert link_ids == related_ids
-    _assert_frozen_headings(work)
     _assert_frozen_headings(copied)
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
     from video_paper_wiki.notes.section import section_text
@@ -168,18 +161,10 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert section_text(copied, "实验与结果") == "无成对视频-文本数据也能做出有竞争力的文生视频。"
     assert section_text(copied, "局限") == "没有成对视频-文本，细粒度文本控制偏弱。"
     assert section_text(copied, "关联") == "证明图像先验可以迁到视频，后面 SVD、DynamiCrafter 也走这条路。"
-    assert "Tiny VPKB paper" in section_text(work, "一句话结论")
     assert section_text(copied, "证据状态") == "provisional"
     assert "local pypdf extract" not in section_text(copied, "证据状态")
     assert section_text(copied, "代码与资源") == ""
     assert "## 相关论文" in copy_body
-    assert "## 相关论文" not in work_body
-    assert "arxiv_id" not in work
-    assert "year:" not in work
-    assert "topics:" not in work
-    assert "related:" not in work
-    assert "backlinks:" not in work
-    assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
@@ -191,11 +176,8 @@ def test_ingest_cogvideox_year_and_two_topics(
     dest.mkdir()
     code = _ingest(TINY_PDF, "arxiv-2408.06072", dest)
     assert code == 0
-    _stdout_json(capsys)
 
-    work = (tmp_path / ".work" / "notes" / "arxiv-2408.06072.md").read_text(encoding="utf-8")
     copied = (dest / "papers" / "arxiv-2408.06072.md").read_text(encoding="utf-8")
-    _assert_work_frontmatter(work)
     _assert_copy_frontmatter_keys(copied)
     assert "title: CogVideoX" in copied
     assert "paper_id: arxiv-2408.06072" in copied
@@ -209,13 +191,8 @@ def test_ingest_cogvideox_year_and_two_topics(
     assert f"related: [{', '.join(related_ids)}]" in copied
     backlinks = backlink_catalog_ids("arxiv-2408.06072")
     assert f"backlinks: [{', '.join(backlinks)}]" in copied
-    assert "topics:" not in work
-    assert "related:" not in work
-    assert "backlinks:" not in work
-    assert "year:" not in work
     assert "[视频扩散](../wiki/video-diffusion.md)" in copied
     assert "[视频 tokenizer](../wiki/tokenization.md)" in copied
-    assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []
 
 
@@ -227,11 +204,8 @@ def test_ingest_towards_accurate_year_2018_evaluation(
     dest.mkdir()
     code = _ingest(TINY_PDF, "arxiv-1812.01717", dest)
     assert code == 0
-    _stdout_json(capsys)
 
-    work = (tmp_path / ".work" / "notes" / "arxiv-1812.01717.md").read_text(encoding="utf-8")
     copied = (dest / "papers" / "arxiv-1812.01717.md").read_text(encoding="utf-8")
-    _assert_work_frontmatter(work)
     _assert_copy_frontmatter_keys(copied)
     assert "title: Towards Accurate Generative Models of Video" in copied
     assert "arxiv_id: 1812.01717" in copied
@@ -244,11 +218,6 @@ def test_ingest_towards_accurate_year_2018_evaluation(
     assert f"related: [{', '.join(related_ids)}]" in copied
     backlinks = backlink_catalog_ids("arxiv-1812.01717")
     assert f"backlinks: [{', '.join(backlinks)}]" in copied
-    assert "title_zh:" in work
-    assert "arxiv_id" not in work
-    assert "topics:" not in work
-    assert "related:" not in work
-    assert "backlinks:" not in work
     assert network_attempts == []
 
 
@@ -260,27 +229,23 @@ def test_ingest_non_catalog_paper_id_x_frozen_seed_missing(
     dest.mkdir()
     code = _ingest(TINY_PDF, "x", dest)
     assert code == 2
-    payload = _stdout_json(capsys)
-    assert payload["ok"] is False
-    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
-    assert payload["error"]["details"]["paper_id"] == "x"
     assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes" / "x.md").exists()
     assert network_attempts == []
 
 
 def test_export_minimal_fixture_copy_frontmatter(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(dest)])
+    code = main(["review", "export", "--draft", str(MINIMAL), "--batch-id", "b1"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["ok"] is False
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
     assert not (dest / "papers").exists()
-    assert not (tmp_path / ".work" / "notes").exists()
+    assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []

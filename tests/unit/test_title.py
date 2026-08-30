@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.support import make_checkout, plant_blob, work_review
+
 import json
 from pathlib import Path
 
@@ -138,26 +140,14 @@ def test_missing_catalog_falls_through_to_cleanup(monkeypatch) -> None:
 def test_ingest_catalog_titles_appear_in_index(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
-    blob_root = tmp_path / "blobs"
     dest = tmp_path / "notes-root"
     dest.mkdir()
-    monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
-    for paper_id, _title in CATALOG:
-        code = main(
-            [
-                "ingest",
-                "run",
-                "--path",
-                str(TINY_PDF),
-                "--paper-id",
-                paper_id,
-                "--vault",
-                str(dest),
-            ]
-        )
-        assert code == 0
-        _stdout_json(capsys)
+    from tests.support import write_catalog_paper_note
+    from video_paper_wiki.notes import upsert_index_entry
+
+    for paper_id, title in CATALOG:
+        write_catalog_paper_note(dest, paper_id, title)
+        upsert_index_entry(dest, paper_id, title)
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     for paper_id, title in CATALOG:
         assert title in index_text

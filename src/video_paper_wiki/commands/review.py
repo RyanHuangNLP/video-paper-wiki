@@ -1,4 +1,4 @@
-"""Review export: local markdown notes only. No network, no apply."""
+"""Review export: stage markdown under .work/<batch-id>/review/. No apply."""
 
 from __future__ import annotations
 
@@ -9,23 +9,14 @@ from typing import Any
 from jsonschema import ValidationError
 
 from video_paper_wiki.commands.draft import _validate_document
-from video_paper_wiki.envelope import emit_error, emit_success
-from video_paper_wiki.notes import (
-    paper_note_link_suffix,
-    refresh_topic_pages,
-    render_paper_copy_markdown,
-    render_paper_markdown,
-    upsert_index_entry,
-)
+from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
+from video_paper_wiki.notes import paper_note_link_suffix, render_paper_copy_markdown
 from video_paper_wiki.notes.encoding import InvalidEncoding, read_utf8
-from video_paper_wiki.notes.frozen import FrozenSeedMissing, require_managed_seed
-from video_paper_wiki.notes.merge import merge_paper_copy
+from video_paper_wiki.notes.frozen import FrozenSeedMissing
 from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
+from video_paper_wiki.staging import StagingError, stage_bytes
 
 COMMAND = "review.export"
-# Uppercase literals: commands/*.py source must not contain certain lowercase tokens.
-_MISSING_DIR = "VAULT_NOT_FOUND"
-_COPY_KEY = "VAULT_PATH".lower()
 
 
 def _attr(args: object | None, name: str) -> Any:
@@ -87,17 +78,11 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
     return document, None
 
 
-def _display_title(document: dict[str, Any], paper_id: str) -> str:
-    raw = document.get("title", "")
-    if isinstance(raw, str):
-        return raw
-    if raw is None:
-        return ""
-    return str(raw)
-
-
 def export(_args: object | None = None) -> int:
     raw = _attr(_args, "draft")
+    batch_id = _attr(_args, "batch_id")
+    if batch_id is None:
+        return emit_error(COMMAND, "USAGE", "review.export requires --batch-id")
     if raw is None or str(raw).strip() == "":
         return emit_error(COMMAND, "USAGE", "review.export requires --draft")
     draft_path = Path(str(raw)).expanduser()
@@ -114,68 +99,29 @@ def export(_args: object | None = None) -> int:
             "paper_id is empty or not a safe path segment",
             {"paper_id": str(document.get("paper_id", ""))},
         )
-    markdown = render_paper_markdown(document)
-    extra_root_raw = _attr(_args, "notes_root")
-    extra_root: Path | None = None
-    extra_file: Path | None = None
-    existing_copy: str | None = None
-    if extra_root_raw is not None and str(extra_root_raw).strip() != "":
-        extra_root = Path(str(extra_root_raw)).expanduser()
-        if not extra_root.is_dir():
-            return emit_error(
-                COMMAND,
-                _MISSING_DIR,
-                "directory is missing or not a directory; this command does not create it",
-                {"path": str(extra_root_raw)},
-            )
-        try:
-            require_managed_seed(paper_id)
-        except FrozenSeedMissing as exc:
-            return emit_error(
-                COMMAND,
-                "FROZEN_SEED_MISSING",
-                "paper_id is not in the managed seed catalog or a required overlay is missing",
-                {"paper_id": paper_id, "source": exc.source},
-            )
-        extra_file = extra_root / "papers" / f"{paper_id}.md"
-        if extra_file.is_file():
-            try:
-                existing_copy = read_utf8(extra_file)
-            except InvalidEncoding:
-                return emit_error(
-                    COMMAND,
-                    "INVALID_ENCODING",
-                    "existing paper note is not valid UTF-8",
-                    {"path": extra_file.as_posix()},
-                )
-            except OSError as exc:
-                return emit_error(
-                    COMMAND,
-                    "INVALID_ENCODING",
-                    "existing paper note is unreadable",
-                    {"path": extra_file.as_posix(), "reason": str(exc)},
-                )
-
-    work_path = Path.cwd() / ".work" / "notes" / f"{paper_id}.md"
-    work_path.parent.mkdir(parents=True, exist_ok=True)
-    work_path.write_text(markdown, encoding="utf-8")
-    if extra_file is not None and extra_root is not None:
-        rendered = render_paper_copy_markdown(document) + paper_note_link_suffix(
-            paper_id
+    try:
+        markdown = render_paper_copy_markdown(document) + paper_note_link_suffix(paper_id)
+    except FrozenSeedMissing as exc:
+        return emit_error(
+            COMMAND,
+            "FROZEN_SEED_MISSING",
+            "paper_id is not in the managed seed catalog or a required overlay is missing",
+            {"paper_id": paper_id, "source": exc.source},
         )
-        if existing_copy is not None:
-            copied = merge_paper_copy(existing_copy, rendered)
-        else:
-            copied = rendered
-        extra_file.parent.mkdir(parents=True, exist_ok=True)
-        extra_file.write_text(copied, encoding="utf-8")
-        upsert_index_entry(extra_root, paper_id, _display_title(document, paper_id))
-        refresh_topic_pages(extra_root)
-
-    data: dict[str, Any] = {
-        "path": work_path.as_posix(),
-        "paper_id": paper_id,
-    }
-    if extra_file is not None:
-        data[_COPY_KEY] = extra_file.as_posix()
-    return emit_success(COMMAND, data)
+    try:
+        staged = stage_bytes(
+            batch_id=batch_id,
+            relative=("review", "paper.md"),
+            data=markdown.encode("utf-8"),
+        )
+    except StagingError as exc:
+        return emit_staging_error(COMMAND, exc)
+    return emit_success(
+        COMMAND,
+        {
+            "path": staged.path.as_posix(),
+            "paper_id": paper_id,
+            "batch_id": batch_id,
+            "already_staged": staged.already_staged,
+        },
+    )

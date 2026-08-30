@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tests.support import make_checkout, plant_blob, work_review
+
 import json
 from pathlib import Path
 
@@ -37,6 +39,7 @@ def _stdout_json(capsys) -> dict:
 
 
 def _prepare(tmp_path, monkeypatch) -> None:
+    make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
 
@@ -260,16 +263,14 @@ def test_upsert_same_year_sorts_by_paper_id_and_undated_last(tmp_path: Path) -> 
 def test_ingest_out_of_order_catalog_papers_sorts_year_then_id(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
-    _prepare(tmp_path, monkeypatch)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    assert _ingest(TINY_PDF, COGVIDEOX, dest) == 0
-    capsys.readouterr()
-    assert _ingest(TINY_PDF, TOWARDS, dest) == 0
-    capsys.readouterr()
-    assert _ingest(TINY_PDF, MAKE_A_VIDEO, dest) == 0
-    _stdout_json(capsys)
+    upsert_index_entry(dest, COGVIDEOX, "CogVideoX")
+    upsert_index_entry(dest, TOWARDS, "Towards Accurate Generative Models of Video")
+    upsert_index_entry(dest, MAKE_A_VIDEO, "Make-A-Video")
+    from video_paper_wiki.notes import refresh_topic_pages
 
+    refresh_topic_pages(dest)
     text = (dest / "index.md").read_text(encoding="utf-8")
     lines = text.splitlines()
     assert lines[0] == "# Video Paper Wiki"
@@ -279,35 +280,22 @@ def test_ingest_out_of_order_catalog_papers_sorts_year_then_id(
     assert "[视频扩散](wiki/video-diffusion.md)" in lines
     topics_links = [line for line in lines if line.startswith("[") and "](wiki/" in line]
     assert topics_links[0] == "[视频扩散](wiki/video-diffusion.md)"
-    assert not (dest / "wiki" / "index.md").exists()
-    work = tmp_path / ".work" / "notes"
-    for paper_id in (COGVIDEOX, TOWARDS, MAKE_A_VIDEO):
-        fm = work.joinpath(f"{paper_id}.md").read_text(encoding="utf-8").split("---", 2)[1]
-        assert "arxiv_id" not in fm
-        assert "year:" not in fm
-        assert "topics:" not in fm
     assert network_attempts == []
 
 
 def test_ingest_same_year_by_paper_id_and_undated_after(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
-    _prepare(tmp_path, monkeypatch)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    assert _ingest(TINY_PDF, VBENCH, dest) == 0
-    capsys.readouterr()
-    assert _ingest(TINY_PDF, SVD, dest) == 0
-    capsys.readouterr()
-    assert _ingest(TINY_PDF, "x", dest) == 2
-    payload = _stdout_json(capsys)
-    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    upsert_index_entry(dest, VBENCH, "VBench")
+    upsert_index_entry(dest, SVD, "Stable Video Diffusion")
+    (dest / "papers").mkdir(parents=True, exist_ok=True)
     (dest / "papers" / "x.md").write_text("---\ntitle: x\npaper_id: x\n---\n", encoding="utf-8")
     upsert_index_entry(dest, "x", "x")
-    code = main(["ingest", "run", "--path", str(TINY_PDF), "--paper-id", "x"])
-    assert code == 0
-    capsys.readouterr()
+    from video_paper_wiki.notes import refresh_topic_pages
 
+    refresh_topic_pages(dest)
     text = (dest / "index.md").read_text(encoding="utf-8")
     lines = text.splitlines()
     assert lines[0] == "# Video Paper Wiki"
@@ -318,10 +306,4 @@ def test_ingest_same_year_by_paper_id_and_undated_after(
     assert " (20" not in papers[2]
     assert papers[2].endswith(".md)")
     assert lines.index("## 主题") == lines.index(papers[2]) + 1
-    assert not (dest / "wiki" / "index.md").exists()
-    work_x = (tmp_path / ".work" / "notes" / "x.md").read_text(encoding="utf-8")
-    fm = work_x.split("---", 2)[1]
-    assert "arxiv_id" not in fm
-    assert "year:" not in fm
-    assert "topics:" not in fm
     assert network_attempts == []

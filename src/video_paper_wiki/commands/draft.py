@@ -10,7 +10,7 @@ from typing import Any
 from jsonschema import Draft202012Validator, ValidationError
 
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
-from video_paper_wiki.envelope import emit_error, emit_success
+from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.parse import (
     build_draft,
     claims_from_parse_fields,
@@ -20,6 +20,7 @@ from video_paper_wiki.parse.draft_document import InvalidPaperId, resolve_paper_
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 from video_paper_wiki.parse.title import resolve_draft_title
 from video_paper_wiki.resources import read_schema_text
+from video_paper_wiki.staging import StagingError, stage_bytes
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 DRAFT_SCHEMA_FILENAME = "video-paper-wiki.paper-analysis-draft.v1.schema.json"
@@ -50,6 +51,13 @@ def _validate_document(document: object) -> None:
 def export(_args: object | None = None) -> int:
     raw = _attr(_args, "sha256")
     explicit = _attr(_args, "paper_id")
+    batch_id = _attr(_args, "batch_id")
+    if batch_id is None:
+        return emit_error(
+            "draft.export",
+            "USAGE",
+            "draft.export requires --batch-id",
+        )
     if explicit is not None:
         try:
             validate_paper_id(str(explicit))
@@ -63,8 +71,8 @@ def export(_args: object | None = None) -> int:
     if raw is None or str(raw).strip() == "":
         return emit_error(
             "draft.export",
-            "NOT_IMPLEMENTED",
-            "draft.export is an empty VPKB-000-04 stub",
+            "USAGE",
+            "draft.export requires --sha256",
         )
     sha = str(raw).strip()
     if not SHA256_RE.fullmatch(sha):
@@ -131,15 +139,23 @@ def export(_args: object | None = None) -> int:
             exc.message,
             {"sha256": sha, "paper_id": paper_id},
         )
-    out = Path.cwd() / ".work" / "drafts" / paper_id / DRAFT_FILENAME
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    payload = json.dumps(document, ensure_ascii=False, indent=2) + "\n"
+    try:
+        staged = stage_bytes(
+            batch_id=batch_id,
+            relative=("draft", DRAFT_FILENAME),
+            data=payload.encode("utf-8"),
+        )
+    except StagingError as exc:
+        return emit_staging_error("draft.export", exc)
     return emit_success(
         "draft.export",
         {
-            "path": out.as_posix(),
+            "path": staged.path.as_posix(),
             "paper_id": paper_id,
             "sha256": sha,
+            "batch_id": batch_id,
+            "already_staged": staged.already_staged,
         },
     )
 
@@ -149,8 +165,8 @@ def validate(_args: object | None = None) -> int:
     if raw is None or str(raw).strip() == "":
         return emit_error(
             "draft.validate",
-            "NOT_IMPLEMENTED",
-            "draft.validate is an empty VPKB-000-04 stub",
+            "USAGE",
+            "draft.validate requires --path",
         )
     path = Path(str(raw)).expanduser()
     if not path.is_file():
