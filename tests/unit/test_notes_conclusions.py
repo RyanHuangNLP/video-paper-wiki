@@ -13,6 +13,7 @@ TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
 
 MAV = "arxiv-2209.14792"
 MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
+MAV_METHOD = "先训图像扩散，再加时空卷积和注意力，用图像-文本对齐做文生视频。"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 METHOD = "The model uses a diffusion transformer."
 
@@ -112,7 +113,7 @@ def test_review_export_swaps_vault_conclusion_keeps_work_note(
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert REMNANT not in copied_text
     assert section_text(work_text, "方法") == METHOD
-    assert section_text(copied_text, "方法") == ""
+    assert section_text(copied_text, "方法") == MAV_METHOD
     assert "arxiv_id:" in copied_text.split("---", 2)[1]
     assert "topics:" in copied_text.split("---", 2)[1]
     assert "## 主题" in copied_text
@@ -157,7 +158,7 @@ def test_ingest_writes_frozen_conclusion_on_vault_copy(
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(work_text, "一句话结论") != MAV_SENTENCE
     assert MAV_SENTENCE not in work_text
-    assert section_text(copied_text, "方法") == ""
+    assert section_text(copied_text, "方法") == MAV_METHOD
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     assert not (dest / "wiki" / "index.md").exists()

@@ -12,6 +12,7 @@ from video_paper_wiki.notes.links import (
     topics_containing,
 )
 from video_paper_wiki.notes.markdown import _yaml_scalar, render_paper_sections
+from video_paper_wiki.notes.methods import apply_frozen_method
 from video_paper_wiki.notes.questions import apply_frozen_question
 from video_paper_wiki.parse.title import catalog_arxiv_id_for_paper_id, catalog_title_for_paper_id
 
@@ -78,4 +79,5 @@ def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
     header = render_paper_copy_frontmatter(paper_id, draft_title)
     body = apply_frozen_conclusion(header + "\n" + render_paper_sections(document), paper_id)
     body = apply_empty_draft_sections(body)
-    return apply_frozen_question(body, paper_id)
+    body = apply_frozen_question(body, paper_id)
+    return apply_frozen_method(body, paper_id)
