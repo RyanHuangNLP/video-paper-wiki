@@ -17,6 +17,7 @@ def test_upsert_index_entry_writes_updates_and_preserves(tmp_path: Path) -> None
     assert "[Alpha Paper](papers/alpha.md)" in text
     assert "[other](papers/other.md)" in text
     assert text.startswith("# Papers\n")
+    assert "# Video Paper Wiki" not in text
     assert text.endswith("\n")
 
     upsert_index_entry(root, "beta", "Beta Paper")
@@ -45,8 +46,11 @@ def test_upsert_index_entry_creates_file_and_falls_back_title(tmp_path: Path) ->
     root.mkdir()
     path = upsert_index_entry(root, "empty-title", "   ")
     text = path.read_text(encoding="utf-8")
-    assert text == "[empty-title](papers/empty-title.md)\n"
+    assert text.startswith("# Video Paper Wiki\n")
+    assert text == "# Video Paper Wiki\n[empty-title](papers/empty-title.md)\n"
     upsert_index_entry(root, "brackets", "Hello [World]")
     text = path.read_text(encoding="utf-8")
+    assert text.startswith("# Video Paper Wiki\n")
     assert "[Hello (World)](papers/brackets.md)" in text
     assert "[empty-title](papers/empty-title.md)" in text
+    assert "# Video Paper Wiki" in text.splitlines()[0]

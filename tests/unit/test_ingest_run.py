@@ -66,6 +66,7 @@ def test_ingest_run_existing_dir_copies_papers_and_reports_copy(
     index_md = existing / "index.md"
     assert index_md.is_file()
     index_text = index_md.read_text(encoding="utf-8")
+    assert index_text.startswith("# Video Paper Wiki\n")
     assert paper_id in index_text
     assert f"papers/{paper_id}.md" in index_text
     assert not (existing / "wiki" / "index.md").exists()
@@ -182,11 +183,17 @@ SEED_PAPER_IDS = (
     "arxiv-2204.03458",
     "arxiv-2311.15127",
     "arxiv-2311.17982",
+    "arxiv-2209.14792",
+    "arxiv-2310.12190",
+    "arxiv-2401.03048",
 )
 SEED_ARXIV_IDS = (
     "2204.03458",
     "2311.15127",
     "2311.17982",
+    "2209.14792",
+    "2310.12190",
+    "2401.03048",
 )
 
 
@@ -199,7 +206,7 @@ def _prepare_run_env(tmp_path, monkeypatch):
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
 
 
-def test_ingest_run_pdf_dir_three_paper_id_files(
+def test_ingest_run_pdf_dir_six_paper_id_files(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     _prepare_run_env(tmp_path, monkeypatch)
@@ -237,7 +244,9 @@ def test_ingest_run_pdf_dir_matches_arxiv_id_filename(
     data = payload["data"]
     assert [paper["paper_id"] for paper in data["papers"]] == ["arxiv-2311.15127"]
     skipped_ids = [row["paper_id"] for row in data["skipped"]]
-    assert skipped_ids == ["arxiv-2204.03458", "arxiv-2311.17982"]
+    assert skipped_ids == [
+        paper_id for paper_id in SEED_PAPER_IDS if paper_id != "arxiv-2311.15127"
+    ]
     assert (tmp_path / ".work" / "notes" / "arxiv-2311.15127.md").is_file()
     assert network_attempts == []
 
@@ -255,7 +264,7 @@ def test_ingest_run_pdf_dir_empty_dir_blob_source_not_found(
     assert payload["command"] == "ingest.run"
     assert payload["error"]["code"] == "BLOB_SOURCE_NOT_FOUND"
     skipped = payload["error"]["details"]["skipped"]
-    assert len(skipped) == 3
+    assert len(skipped) == 6
     assert [row["paper_id"] for row in skipped] == list(SEED_PAPER_IDS)
     assert [row["arxiv_id"] for row in skipped] == list(SEED_ARXIV_IDS)
     assert not (tmp_path / ".work").exists()
@@ -309,7 +318,7 @@ def test_ingest_run_path_and_pdf_dir_usage(
     assert network_attempts == []
 
 
-def test_ingest_run_pdf_dir_partial_one_of_three(
+def test_ingest_run_pdf_dir_partial_one_of_six(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     _prepare_run_env(tmp_path, monkeypatch)
@@ -321,14 +330,15 @@ def test_ingest_run_pdf_dir_partial_one_of_three(
     payload = _stdout_json(capsys)
     data = payload["data"]
     assert [paper["paper_id"] for paper in data["papers"]] == ["arxiv-2311.15127"]
-    assert len(data["skipped"]) == 2
+    assert len(data["skipped"]) == 5
     assert {row["paper_id"] for row in data["skipped"]} == {
-        "arxiv-2204.03458",
-        "arxiv-2311.17982",
+        paper_id for paper_id in SEED_PAPER_IDS if paper_id != "arxiv-2311.15127"
     }
     assert (tmp_path / ".work" / "notes" / "arxiv-2311.15127.md").is_file()
-    assert not (tmp_path / ".work" / "notes" / "arxiv-2204.03458.md").exists()
-    assert not (tmp_path / ".work" / "notes" / "arxiv-2311.17982.md").exists()
+    for paper_id in SEED_PAPER_IDS:
+        if paper_id == "arxiv-2311.15127":
+            continue
+        assert not (tmp_path / ".work" / "notes" / f"{paper_id}.md").exists()
     assert network_attempts == []
 
 
@@ -361,6 +371,7 @@ def test_ingest_run_pdf_dir_existing_dir_copies_papers(
         assert f"papers/{paper_id}.md" in (existing / "index.md").read_text(encoding="utf-8")
         assert paper_id in (existing / "index.md").read_text(encoding="utf-8")
     assert (existing / "index.md").is_file()
+    assert (existing / "index.md").read_text(encoding="utf-8").startswith("# Video Paper Wiki\n")
     assert not (existing / "wiki" / "index.md").exists()
     assert network_attempts == []
 

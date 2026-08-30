@@ -32,7 +32,7 @@ def upsert_index_entry(root: Path, paper_id: str, title: str) -> Path:
     if index_path.is_file():
         lines = index_path.read_text(encoding="utf-8").splitlines()
     else:
-        lines = []
+        lines = ["# Video Paper Wiki"]
     replaced = False
     for i, line in enumerate(lines):
         if needle in line:
