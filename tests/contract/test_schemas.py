@@ -67,3 +67,14 @@ def test_nested_objects_reject_extra_fields(schema_name: str) -> None:
     nested["unexpected_field"] = True
     with pytest.raises(ValidationError):
         Draft202012Validator(schema, format_checker=FormatChecker()).validate(invalid)
+
+
+@pytest.mark.parametrize("paper_id", ["/tmp", "../"])
+def test_paper_analysis_draft_paper_id_rejects_path_segments(paper_id: str) -> None:
+    schema = load_json(Path("schemas") / "video-paper-wiki.paper-analysis-draft.v1.schema.json")
+    document = copy.deepcopy(load_json(_fixture_for(schema)))
+    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    validator.validate(document)
+    document["paper_id"] = paper_id
+    with pytest.raises(ValidationError):
+        validator.validate(document)
