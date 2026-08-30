@@ -182,6 +182,8 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     assert "title: Make-A-Video" in copied_text
     assert "year: 2022" in copied_text
     assert "topics: [video-diffusion]" in copied_text
+    assert f"related: [{', '.join(related_ids)}]" in copied_text
+    assert "related:" not in work_text.split("---", 2)[1]
     assert not (dest / "wiki" / "index.md").exists()
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in index_text
@@ -234,6 +236,8 @@ def test_ingest_non_topic_paper_omits_trailers(
     assert "topics:" not in work.split("---", 2)[1]
     assert copied.startswith("---\ntitle:")
     assert "topics: []" in copied
+    assert "related: []" in copied
+    assert "related:" not in work.split("---", 2)[1]
     _assert_frozen_headings(copied)
     after = _trailer_after_related(copied)
     assert "## 主题" not in after
@@ -260,6 +264,8 @@ def test_export_minimal_fixture_omits_trailers(
     assert "topics:" not in work.split("---", 2)[1]
     assert copied.startswith("---\ntitle:")
     assert "topics: []" in copied
+    assert "related: []" in copied
+    assert "related:" not in work.split("---", 2)[1]
     _assert_frozen_headings(copied)
     after = _trailer_after_related(copied)
     assert "## 主题" not in after
