@@ -30,9 +30,9 @@ def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def test_catalog_covers_thirty_one_seed_papers() -> None:
+def test_catalog_covers_thirty_four_seed_papers() -> None:
     ids = catalog_paper_ids()
-    assert len(ids) == 31
+    assert len(ids) == 34
     assert MAV in ids
 
 
