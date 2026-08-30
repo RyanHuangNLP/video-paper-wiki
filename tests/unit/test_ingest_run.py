@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from video_paper_wiki.cli import main
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -90,4 +92,79 @@ def test_ingest_run_missing_dir_refuses_and_does_not_create(
     assert payload["ok"] is False
     assert payload["error"]["code"] == "VAULT_NOT_FOUND"
     assert not missing.exists()
+    assert network_attempts == []
+
+
+
+def test_ingest_run_paper_id_writes_stable_draft_and_note(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    paper_id = "arxiv-2311.15127"
+    code = main(["ingest", "run", "--path", str(TINY_PDF), "--paper-id", paper_id])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "ingest.run"
+    data = payload["data"]
+    assert data["paper_id"] == paper_id
+    draft_path = Path(data["draft_path"])
+    note_path = Path(data["note_path"])
+    assert draft_path == tmp_path / ".work" / "drafts" / paper_id / "paper-analysis-draft.v1.json"
+    assert note_path == tmp_path / ".work" / "notes" / f"{paper_id}.md"
+    assert draft_path.is_file()
+    assert note_path.is_file()
+    document = json.loads(draft_path.read_text(encoding="utf-8"))
+    assert document["paper_id"] == paper_id
+    assert network_attempts == []
+
+
+def test_ingest_run_paper_id_copies_under_stable_id(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    existing = tmp_path / "obsidian-root"
+    existing.mkdir()
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    paper_id = "arxiv-2311.15127"
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            paper_id,
+            "--vault",
+            str(existing),
+        ]
+    )
+    assert code == 0
+    payload = _stdout_json(capsys)
+    data = payload["data"]
+    copied = existing / "papers" / f"{paper_id}.md"
+    assert data["paper_id"] == paper_id
+    assert data["vault_path"] == copied.as_posix()
+    assert copied.is_file()
+    assert network_attempts == []
+
+
+@pytest.mark.parametrize("paper_id", ["", "/", "..", "a/b", "a\\b", "foo/../bar"])
+def test_ingest_run_illegal_paper_id(
+    paper_id, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    code = main(["ingest", "run", "--path", str(TINY_PDF), "--paper-id", paper_id])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "ingest.run"
+    assert payload["error"]["code"] == "INVALID_PAPER_ID"
+    assert not blob_root.exists()
+    assert not (tmp_path / ".work").exists()
     assert network_attempts == []

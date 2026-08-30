@@ -14,6 +14,7 @@ from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.envelope import emit_error, emit_success
+from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
 
 _COPY_KEY = "VAULT_PATH".lower()
 
@@ -70,6 +71,17 @@ def _replay(captured: str, code: int) -> int:
 def run(_args: object | None = None) -> int:
     raw = None if _args is None else getattr(_args, "path", None)
     notes_root = None if _args is None else getattr(_args, "notes_root", None)
+    paper_id_arg = None if _args is None else getattr(_args, "paper_id", None)
+    if paper_id_arg is not None:
+        try:
+            validate_paper_id(str(paper_id_arg))
+        except InvalidPaperId:
+            return emit_error(
+                "ingest.run",
+                "INVALID_PAPER_ID",
+                "paper_id is empty or not a safe path segment",
+                {"paper_id": str(paper_id_arg)},
+            )
 
     code, captured = _invoke(put, Namespace(path=raw))
     if code != 0:
@@ -77,7 +89,10 @@ def run(_args: object | None = None) -> int:
     put_data = json.loads(captured.strip())["data"]
     sha256 = put_data["sha256"]
 
-    code, captured = _invoke(draft_commands.export, Namespace(sha256=sha256))
+    code, captured = _invoke(
+        draft_commands.export,
+        Namespace(sha256=sha256, paper_id=paper_id_arg),
+    )
     if code != 0:
         return _replay(captured, code)
     export_data = json.loads(captured.strip())["data"]

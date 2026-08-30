@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
+import pytest
 from jsonschema import Draft202012Validator
 
 from video_paper_wiki.blob_store import BlobStore
@@ -249,4 +250,46 @@ def test_put_export_validate_pipeline_tiny_pdf(tmp_path, monkeypatch, capsys, ne
     validate_payload = _stdout_json(capsys)
     assert validate_payload["ok"] is True
     assert validate_payload["command"] == "draft.validate"
+    assert network_attempts == []
+
+
+
+def test_export_paper_id_writes_stable_draft_path(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
+    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
+    paper_id = "arxiv-2311.15127"
+    code = main(["draft", "export", "--sha256", digest, "--paper-id", paper_id])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "draft.export"
+    written = tmp_path / ".work" / "drafts" / paper_id / "paper-analysis-draft.v1.json"
+    assert payload["data"]["path"] == written.as_posix()
+    assert payload["data"]["paper_id"] == paper_id
+    assert payload["data"]["sha256"] == digest
+    assert written.is_file()
+    document = json.loads(written.read_text(encoding="utf-8"))
+    _schema_validator().validate(document)
+    assert document["paper_id"] == paper_id
+    assert network_attempts == []
+
+
+@pytest.mark.parametrize("paper_id", ["", "/", "..", "a/b", "a\\b", "foo/../bar"])
+def test_export_illegal_paper_id(
+    paper_id, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    code = main(["draft", "export", "--sha256", "a" * 64, "--paper-id", paper_id])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "draft.export"
+    assert payload["error"]["code"] == "INVALID_PAPER_ID"
+    assert not (tmp_path / ".work").exists()
     assert network_attempts == []

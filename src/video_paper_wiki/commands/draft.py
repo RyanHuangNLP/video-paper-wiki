@@ -14,9 +14,9 @@ from video_paper_wiki.envelope import emit_error, emit_success
 from video_paper_wiki.parse import (
     build_draft,
     claims_from_parse_fields,
-    paper_id_from_sha256,
     parse_pdf_to_draft_fields,
 )
+from video_paper_wiki.parse.draft_document import InvalidPaperId, resolve_paper_id, validate_paper_id
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -52,6 +52,17 @@ def _validate_document(document: object) -> None:
 
 def export(_args: object | None = None) -> int:
     raw = _attr(_args, "sha256")
+    explicit = _attr(_args, "paper_id")
+    if explicit is not None:
+        try:
+            validate_paper_id(str(explicit))
+        except InvalidPaperId:
+            return emit_error(
+                "draft.export",
+                "INVALID_PAPER_ID",
+                "paper_id is empty or not a safe path segment",
+                {"paper_id": str(explicit)},
+            )
     if raw is None or str(raw).strip() == "":
         return emit_error(
             "draft.export",
@@ -92,7 +103,7 @@ def export(_args: object | None = None) -> int:
             str(exc),
             {"sha256": sha},
         )
-    paper_id = paper_id_from_sha256(sha)
+    paper_id = resolve_paper_id(None if explicit is None else str(explicit), sha)
     claims = claims_from_parse_fields(
         fields,
         artifact_sha256=sha,

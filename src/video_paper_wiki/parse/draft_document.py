@@ -28,6 +28,28 @@ def paper_id_from_sha256(sha256: str) -> str:
     return sha256.strip().lower()[:12]
 
 
+class InvalidPaperId(ValueError):
+    """Raised when an explicit paper_id is empty or not a safe path segment."""
+
+    def __init__(self, paper_id: str) -> None:
+        super().__init__("paper_id is empty or not a safe path segment")
+        self.paper_id = paper_id
+
+
+def validate_paper_id(paper_id: str) -> str:
+    raw = str(paper_id)
+    value = raw.strip()
+    if not value or "/" in value or "\\" in value or ".." in value:
+        raise InvalidPaperId(raw)
+    return value
+
+
+def resolve_paper_id(explicit: str | None, sha256: str) -> str:
+    if explicit is None:
+        return paper_id_from_sha256(sha256)
+    return validate_paper_id(explicit)
+
+
 def empty_sections() -> list[dict[str, str]]:
     return [{"id": section_id, "heading_zh": heading_zh} for section_id, heading_zh in SECTION_SPECS]
 
