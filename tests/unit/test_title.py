@@ -38,6 +38,9 @@ CATALOG = (
     ("arxiv-2212.11565", "Tune-A-Video"),
     ("arxiv-2303.13439", "Text2Video-Zero"),
     ("arxiv-2401.10147", "VideoCrafter2"),
+    ("arxiv-2205.15868", "CogVideo"),
+    ("arxiv-2210.02303", "Imagen Video"),
+    ("arxiv-2309.15807", "Show-1"),
 )
 
 
