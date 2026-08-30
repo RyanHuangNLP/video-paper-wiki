@@ -13,12 +13,18 @@ PINNED_COMMIT = "9f8c1199047eac2c3828496279fbb7ba9540b90b"
 
 def test_docling_is_optional_not_default() -> None:
     data = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
-    assert data["project"]["dependencies"] == []
+    deps = data["project"]["dependencies"]
+    assert "jsonschema>=4.23" in deps
+    assert "pypdf>=5.0" in deps
+    assert all("docling" not in item for item in deps)
     extras = data["project"]["optional-dependencies"]
     assert extras["docling"] == ["docling==2.117.0"]
     assert data["tool"]["uv"]["default-groups"] == ["dev"]
     assert "docling" not in data["tool"]["uv"]["default-groups"]
     assert "docling" not in data.get("dependency-groups", {})
+    wheel = data["tool"]["hatch"]["build"]["targets"]["wheel"]
+    assert wheel["force-include"]["docs/seed"] == "video_paper_wiki/seed"
+    assert wheel["force-include"]["schemas"] == "video_paper_wiki/schemas"
 
 
 def test_uv_lock_pins_docling_version() -> None:

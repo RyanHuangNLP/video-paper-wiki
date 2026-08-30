@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from video_paper_wiki.notes.encoding import read_utf8
+from video_paper_wiki.notes.headings import h2_heading_text, is_atx_h2
+
 _PAPERS = "papers"
 
 
@@ -14,31 +17,32 @@ def _safe_paper_id(paper_id: str) -> str | None:
     return wanted
 
 
-def read_paper_text(root: Path, paper_id: str) -> str | None:
-    """Return papers/<paper_id>.md text, or None if the file is missing."""
+def paper_note_path(root: Path, paper_id: str) -> Path | None:
     wanted = _safe_paper_id(paper_id)
     if wanted is None:
         return None
-    path = root / _PAPERS / f"{wanted}.md"
-    if not path.is_file():
+    return root / _PAPERS / f"{wanted}.md"
+
+
+def read_paper_text(root: Path, paper_id: str) -> str | None:
+    """Return papers/<paper_id>.md text, or None if the file is missing.
+
+    Invalid UTF-8 raises InvalidEncoding.
+    """
+    path = paper_note_path(root, paper_id)
+    if path is None or not path.is_file():
         return None
-    try:
-        return path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return ""
-
-
-def _is_heading(line: str) -> bool:
-    return line.startswith("##")
-
-
-def _heading_text(line: str) -> str:
-    return line[2:].strip()
+    return read_utf8(path)
 
 
 def list_headings(text: str) -> list[str]:
     """## heading texts in file order, prefix stripped. Empty if none."""
-    return [_heading_text(line) for line in text.splitlines() if _is_heading(line)]
+    headings: list[str] = []
+    for line in text.splitlines():
+        heading = h2_heading_text(line)
+        if heading is not None:
+            headings.append(heading)
+    return headings
 
 
 def section_text(text: str, section: str) -> str | None:
@@ -47,14 +51,14 @@ def section_text(text: str, section: str) -> str | None:
     lines = text.splitlines()
     start: int | None = None
     for index, line in enumerate(lines):
-        if _is_heading(line) and _heading_text(line) == wanted:
+        if h2_heading_text(line) == wanted:
             start = index + 1
             break
     if start is None:
         return None
     end = len(lines)
     for index in range(start, len(lines)):
-        if _is_heading(lines[index]):
+        if is_atx_h2(lines[index]):
             end = index
             break
     return "\n".join(lines[start:end]).strip()

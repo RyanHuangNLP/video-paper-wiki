@@ -19,6 +19,7 @@ from video_paper_wiki.parse import (
 from video_paper_wiki.parse.draft_document import InvalidPaperId, resolve_paper_id, validate_paper_id
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 from video_paper_wiki.parse.title import resolve_draft_title
+from video_paper_wiki.resources import read_schema_text
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 DRAFT_SCHEMA_FILENAME = "video-paper-wiki.paper-analysis-draft.v1.schema.json"
@@ -31,20 +32,15 @@ def _attr(args: object | None, name: str) -> Any:
     return getattr(args, name, None)
 
 
-def _schema_path() -> Path:
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent / "schemas" / DRAFT_SCHEMA_FILENAME
-        if candidate.is_file():
-            return candidate
-    cwd_candidate = Path.cwd() / "schemas" / DRAFT_SCHEMA_FILENAME
-    if cwd_candidate.is_file():
-        return cwd_candidate
-    raise FileNotFoundError(DRAFT_SCHEMA_FILENAME)
+def _schema_document() -> dict[str, Any]:
+    text = read_schema_text(DRAFT_SCHEMA_FILENAME)
+    if text is None:
+        raise FileNotFoundError(DRAFT_SCHEMA_FILENAME)
+    return json.loads(text)
 
 
 def _draft_validator() -> Draft202012Validator:
-    schema = json.loads(_schema_path().read_text(encoding="utf-8"))
-    return Draft202012Validator(schema)
+    return Draft202012Validator(_schema_document())
 
 
 def _validate_document(document: object) -> None:
@@ -166,6 +162,13 @@ def validate(_args: object | None = None) -> int:
         )
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
+    except UnicodeDecodeError:
+        return emit_error(
+            "draft.validate",
+            "INVALID_ENCODING",
+            "draft file is not valid UTF-8",
+            {"path": path.as_posix()},
+        )
     except json.JSONDecodeError as exc:
         return emit_error(
             "draft.validate",

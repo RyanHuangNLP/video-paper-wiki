@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from video_paper_wiki.notes.encoding import read_utf8
+
 _PAPERS = "papers"
 
 
@@ -105,8 +107,8 @@ def yaml_fields(text: str, stem: str) -> dict[str, Any]:
 def _parse_paper(path: Path) -> dict[str, Any]:
     stem = path.stem
     try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
+        text = read_utf8(path)
+    except OSError:
         return {
             "paper_id": stem,
             "title": "",

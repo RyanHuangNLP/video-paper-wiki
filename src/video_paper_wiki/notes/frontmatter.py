@@ -11,6 +11,7 @@ from video_paper_wiki.notes.code_resources import apply_clean_code_resources
 from video_paper_wiki.notes.conclusions import apply_frozen_conclusion
 from video_paper_wiki.notes.evidence import apply_frozen_evidence
 from video_paper_wiki.notes.experiments import apply_frozen_experiments
+from video_paper_wiki.notes.frozen import require_managed_seed
 from video_paper_wiki.notes.limitations import apply_frozen_limitations
 from video_paper_wiki.notes.links import (
     backlink_catalog_ids,
@@ -79,13 +80,18 @@ def render_paper_copy_frontmatter(paper_id: str, draft_title: str) -> str:
 
 
 def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
-    """papers/<id>.md YAML + the ten-section body. Caller appends the #30 suffix."""
+    """papers/<id>.md YAML + the ten-section body. Caller appends the #30 suffix.
+
+    Fail-closed when paper_id is not in the managed catalog. Clears the ten
+    frozen H2 bodies, then overlays frozen sentences / seeded URLs.
+    """
     paper_id = str(document.get("paper_id", ""))
+    require_managed_seed(paper_id)
     raw_title = document.get("title", "")
     draft_title = raw_title if isinstance(raw_title, str) else ("" if raw_title is None else str(raw_title))
     header = render_paper_copy_frontmatter(paper_id, draft_title)
-    body = apply_frozen_conclusion(header + "\n" + render_paper_sections(document), paper_id)
-    body = apply_empty_draft_sections(body)
+    body = apply_empty_draft_sections(header + "\n" + render_paper_sections(document))
+    body = apply_frozen_conclusion(body, paper_id)
     body = apply_frozen_question(body, paper_id)
     body = apply_frozen_method(body, paper_id)
     body = apply_frozen_architecture(body, paper_id)
@@ -93,5 +99,5 @@ def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
     body = apply_frozen_experiments(body, paper_id)
     body = apply_frozen_limitations(body, paper_id)
     body = apply_frozen_associations(body, paper_id)
-    body = apply_clean_code_resources(body)
+    body = apply_clean_code_resources(body, paper_id)
     return apply_frozen_evidence(body, paper_id)

@@ -4,7 +4,10 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
-from video_paper_wiki.notes.code_resources import apply_clean_code_resources
+from video_paper_wiki.notes.code_resources import (
+    apply_clean_code_resources,
+    valid_http_urls,
+)
 from video_paper_wiki.notes.section import section_text
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -41,7 +44,25 @@ def _assert_urls_only(body: str | None) -> None:
         assert line.startswith("http://") or line.startswith("https://")
 
 
-def test_apply_keeps_urls_drops_remnants() -> None:
+def test_valid_http_urls_offline_scheme_and_netloc() -> None:
+    assert valid_http_urls(
+        [
+            CODE,
+            CODE_HTTP,
+            "ftp://example.com/x",
+            "https://",
+            "not-a-url",
+            "github.com/someone/make-a-video",
+            CODE,
+        ]
+    ) == [CODE, CODE_HTTP]
+
+
+def test_apply_keeps_urls_drops_remnants(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "video_paper_wiki.notes.code_resources.load_code_urls",
+        lambda: {MAV: [CODE, CODE_HTTP]},
+    )
     text = (
         "---\n"
         "title: Make-A-Video\n"
@@ -98,7 +119,7 @@ def test_apply_keeps_urls_drops_remnants() -> None:
         f"{RELATED_LINKS}\n"
     )
     yaml = text.split("---", 2)[1]
-    out = apply_clean_code_resources(text)
+    out = apply_clean_code_resources(text, MAV)
     assert section_text(out, "代码与资源") == f"{CODE}\n{CODE_HTTP}"
     assert REMNANT not in out
     assert FAKE_GH not in out
@@ -129,7 +150,7 @@ def test_apply_empties_section_when_no_url() -> None:
         "\n"
         f"{EVIDENCE}\n"
     )
-    out = apply_clean_code_resources(text)
+    out = apply_clean_code_resources(text, MAV)
     assert section_text(out, "代码与资源") == ""
     assert "## 代码与资源\n\n## 证据状态" in out
     assert section_text(out, "证据状态") == EVIDENCE
@@ -139,8 +160,8 @@ def test_apply_empties_section_when_no_url() -> None:
 
 def test_apply_skips_missing_heading() -> None:
     remnant = f"# title\n\n{REMNANT}\n"
-    assert apply_clean_code_resources(remnant) == remnant
-    assert "## 代码与资源" not in apply_clean_code_resources(remnant)
+    assert apply_clean_code_resources(remnant, MAV) == remnant
+    assert "## 代码与资源" not in apply_clean_code_resources(remnant, MAV)
 
 
 def test_review_export_strips_vault_code_keeps_work_note(
@@ -197,9 +218,10 @@ def test_review_export_strips_vault_code_keeps_work_note(
     assert REMNANT in section_text(work_text, "代码与资源")
     assert FAKE_GH in section_text(work_text, "代码与资源")
     assert CODE_DOT in section_text(work_text, "代码与资源")
-    assert section_text(copied_text, "代码与资源") == CODE
+    assert section_text(copied_text, "代码与资源") == ""
     assert REMNANT not in copied_text
     assert FAKE_GH not in copied_text
+    assert CODE not in copied_text
     assert "github.com/someone/make-a-video" not in copied_text
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION

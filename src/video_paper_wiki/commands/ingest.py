@@ -15,9 +15,10 @@ from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.envelope import emit_error, emit_success
 from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
+from video_paper_wiki.resources import load_seed_json, resolve_seed_path
 
 _COPY_KEY = "VAULT_PATH".lower()
-_SEED_RELATIVE = Path("docs") / "seed" / "engine-mvp.json"
+_SEED_FILE = "engine-mvp.json"
 _COMMAND = "ingest.run"
 
 
@@ -76,19 +77,6 @@ def _raw(args: object | None, name: str) -> Any:
     return getattr(args, name, None)
 
 
-def _resolve_seed_path(explicit: Any) -> Path | None:
-    if explicit is not None and str(explicit).strip() != "":
-        return Path(str(explicit)).expanduser()
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent / _SEED_RELATIVE
-        if candidate.is_file():
-            return candidate
-    cwd_candidate = Path.cwd() / _SEED_RELATIVE
-    if cwd_candidate.is_file():
-        return cwd_candidate
-    return None
-
-
 def _seed_not_found(path: str | None) -> int:
     details: dict[str, Any] = {} if path is None else {"path": path}
     return emit_error(
@@ -108,25 +96,38 @@ def _seed_invalid(path: str, reason: str) -> int:
     )
 
 
-def _load_seed_papers(seed_path: Path) -> tuple[list[dict[str, Any]] | None, int | None]:
-    try:
-        if not seed_path.is_file():
-            return None, _seed_not_found(seed_path.as_posix())
-        text = seed_path.read_text(encoding="utf-8")
-    except OSError:
-        return None, _seed_not_found(seed_path.as_posix())
-    try:
-        payload = json.loads(text)
-    except json.JSONDecodeError as exc:
-        return None, _seed_invalid(seed_path.as_posix(), f"seed is not valid JSON: {exc.msg}")
+def _papers_from_payload(
+    payload: object, path_label: str
+) -> tuple[list[dict[str, Any]] | None, int | None]:
     if not isinstance(payload, dict) or not isinstance(payload.get("papers"), list):
-        return None, _seed_invalid(seed_path.as_posix(), "seed catalog must be an object with a papers array")
+        return None, _seed_invalid(path_label, "seed catalog must be an object with a papers array")
     papers: list[dict[str, Any]] = []
     for item in payload["papers"]:
         if not isinstance(item, dict):
-            return None, _seed_invalid(seed_path.as_posix(), "seed papers entries must be objects")
+            return None, _seed_invalid(path_label, "seed papers entries must be objects")
         papers.append(item)
     return papers, None
+
+
+def _load_seed_papers(seed_path: Path | None) -> tuple[list[dict[str, Any]] | None, int | None]:
+    if seed_path is not None:
+        try:
+            if not seed_path.is_file():
+                return None, _seed_not_found(seed_path.as_posix())
+            text = seed_path.read_text(encoding="utf-8")
+        except OSError:
+            return None, _seed_not_found(seed_path.as_posix())
+        try:
+            payload = json.loads(text)
+        except json.JSONDecodeError as exc:
+            return None, _seed_invalid(
+                seed_path.as_posix(), f"seed is not valid JSON: {exc.msg}"
+            )
+        return _papers_from_payload(payload, seed_path.as_posix())
+    payload = load_seed_json(_SEED_FILE)
+    if payload is None:
+        return None, _seed_not_found(None)
+    return _papers_from_payload(payload, _SEED_FILE)
 
 
 def _match_pdf(pdf_dir: Path, paper_id: str, arxiv_id: str) -> Path | None:
@@ -169,7 +170,7 @@ def _inner_reason(captured: str) -> str:
 
 
 def _blob_source_not_found(
-    seed_path: Path,
+    seed_label: str,
     pdf_dir_raw: str,
     skipped: list[dict[str, str]],
 ) -> int:
@@ -178,7 +179,7 @@ def _blob_source_not_found(
         "BLOB_SOURCE_NOT_FOUND",
         "local pdf-dir is missing, not a directory, or has no matching pdf; this command does not download",
         {
-            "seed": seed_path.as_posix(),
+            "seed": seed_label,
             "pdf_dir": pdf_dir_raw,
             "skipped": skipped,
         },
@@ -188,13 +189,16 @@ def _blob_source_not_found(
 def _run_pdf_dir(_args: object) -> int:
     pdf_dir_raw = str(_raw(_args, "pdf_dir"))
     notes_root = _raw(_args, "notes_root")
-    seed_path = _resolve_seed_path(_raw(_args, "seed_path"))
-    if seed_path is None:
-        return _seed_not_found(None)
+    explicit = _raw(_args, "seed_path")
+    if explicit is not None and str(explicit).strip() != "":
+        seed_path: Path | None = Path(str(explicit)).expanduser()
+    else:
+        seed_path = resolve_seed_path(_SEED_FILE)
     seed_papers, err = _load_seed_papers(seed_path)
     if err is not None:
         return err
     assert seed_papers is not None
+    seed_label = seed_path.as_posix() if seed_path is not None else _SEED_FILE
 
     pdf_dir = Path(pdf_dir_raw).expanduser()
     skipped: list[dict[str, str]] = []
@@ -207,7 +211,7 @@ def _run_pdf_dir(_args: object) -> int:
                     "pdf-dir is missing or not a directory",
                 )
             )
-        return _blob_source_not_found(seed_path, pdf_dir_raw, skipped)
+        return _blob_source_not_found(seed_label, pdf_dir_raw, skipped)
 
     successes: list[dict[str, Any]] = []
     first_failure: tuple[int, str] | None = None
@@ -241,7 +245,7 @@ def _run_pdf_dir(_args: object) -> int:
         return emit_success(
             _COMMAND,
             {
-                "seed": seed_path.as_posix(),
+                "seed": seed_label,
                 "pdf_dir": pdf_dir.as_posix(),
                 "papers": successes,
                 "skipped": skipped,
@@ -249,7 +253,7 @@ def _run_pdf_dir(_args: object) -> int:
         )
     if first_failure is not None:
         return _replay(first_failure[1], first_failure[0])
-    return _blob_source_not_found(seed_path, pdf_dir_raw, skipped)
+    return _blob_source_not_found(seed_label, pdf_dir_raw, skipped)
 
 
 def run(_args: object | None = None) -> int:

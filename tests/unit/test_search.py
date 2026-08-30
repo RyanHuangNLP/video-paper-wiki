@@ -286,23 +286,11 @@ def test_stat_undated_paper_counted_but_omitted_from_years(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    code = main(
-        [
-            "ingest",
-            "run",
-            "--path",
-            str(TINY_PDF),
-            "--paper-id",
-            "x",
-            "--vault",
-            str(dest),
-        ]
-    )
-    assert code == 0
-    capsys.readouterr()
+    papers = dest / "papers"
+    papers.mkdir()
+    (papers / "x.md").write_text("---\ntitle: Undated\npaper_id: x\n---\n", encoding="utf-8")
     code = main(["vault", "stat", "--vault", str(dest)])
     assert code == 0
     payload = _stdout_json(capsys)

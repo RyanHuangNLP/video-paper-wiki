@@ -34,9 +34,6 @@ CLEAR = (
     "关联",
 )
 KEEP = (
-    "一句话结论",
-    "代码与资源",
-    "证据状态",
     "主题",
     "相关论文",
 )
@@ -104,9 +101,9 @@ def test_apply_empties_listed_sections_keeps_others() -> None:
     yaml = text.split("---", 2)[1]
     out = apply_empty_draft_sections(text)
     assert out.split("---", 2)[1] == yaml
-    assert section_text(out, "一句话结论") == MAV_SENTENCE
-    assert section_text(out, "代码与资源") == CODE
-    assert section_text(out, "证据状态") == EVIDENCE
+    assert section_text(out, "一句话结论") == ""
+    assert section_text(out, "代码与资源") == ""
+    assert section_text(out, "证据状态") == ""
     assert section_text(out, "主题") == "[视频扩散](../wiki/video-diffusion.md)"
     assert section_text(out, "相关论文") == "[CogVideoX](./arxiv-2408.06072.md) (2024)"
     for heading in CLEAR:
@@ -115,6 +112,9 @@ def test_apply_empties_listed_sections_keeps_others() -> None:
     assert "## 关联\n\n## 主题" in out
     assert REMNANT not in out
     assert METHOD not in out
+    assert CODE not in out
+    assert MAV_SENTENCE not in out
+    assert EVIDENCE not in out
 
 
 def test_apply_does_not_add_missing_headings() -> None:
@@ -184,7 +184,7 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
     assert section_text(copied_text, "关联") == MAV_ASSOC
     assert METHOD not in copied_text
     assert REMNANT not in copied_text
-    assert section_text(copied_text, "代码与资源") == CODE
+    assert section_text(copied_text, "代码与资源") == ""
     assert section_text(copied_text, "证据状态") == "provisional"
     assert section_text(work_text, "证据状态") == EVIDENCE
     assert section_text(work_text, "代码与资源") == CODE
@@ -248,7 +248,7 @@ def test_ingest_clears_vault_remnants_keeps_work_note(
         assert f"## {heading}" in copied_text
     assert section_text(copied_text, "证据状态") == "provisional"
     assert "local pypdf extract" not in section_text(copied_text, "证据状态")
-    assert section_text(copied_text, "代码与资源") == section_text(work_text, "代码与资源")
+    assert section_text(copied_text, "代码与资源") == ""
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     assert "## 主题" not in work_text.split("## 关联", 1)[1]

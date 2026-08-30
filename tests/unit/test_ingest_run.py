@@ -51,33 +51,12 @@ def test_ingest_run_existing_dir_copies_papers_and_reports_copy(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
     code = main(["ingest", "run", "--path", str(TINY_PDF), "--vault", str(existing)])
-    assert code == 0
+    assert code == 2
     payload = _stdout_json(capsys)
-    assert payload["ok"] is True
-    assert payload["command"] == "ingest.run"
-    data = payload["data"]
-    paper_id = data["paper_id"]
-    copied = existing / "papers" / f"{paper_id}.md"
-    assert Path(data["draft_path"]).is_file()
-    assert Path(data["note_path"]).is_file()
-    assert data["vault_path"] == copied.as_posix()
-    assert copied.is_file()
-    work_text = Path(data["note_path"]).read_text(encoding="utf-8")
-    copied_text = copied.read_text(encoding="utf-8")
-    assert work_text.startswith("---\npaper_id:")
-    assert "title_zh:" in work_text
-    assert "topics:" not in work_text.split("---", 2)[1]
-    assert copied_text.startswith("---\ntitle:")
-    assert f"paper_id: {paper_id}" in copied_text
-    assert "topics: []" in copied_text
-    assert copied_text != work_text
-    index_md = existing / "index.md"
-    assert index_md.is_file()
-    index_text = index_md.read_text(encoding="utf-8")
-    assert index_text.startswith("# Video Paper Wiki\n")
-    assert paper_id in index_text
-    assert f"papers/{paper_id}.md" in index_text
-    assert not (existing / "wiki" / "index.md").exists()
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert not (existing / "papers").exists()
+    assert not list(existing.rglob("*.md"))
     assert network_attempts == []
 
 
@@ -532,7 +511,7 @@ def test_ingest_run_two_papers_keeps_both_index_lines(
             "--path",
             str(TINY_PDF),
             "--paper-id",
-            "x",
+            "arxiv-2209.14792",
             "--vault",
             str(dest),
         ]
@@ -546,7 +525,7 @@ def test_ingest_run_two_papers_keeps_both_index_lines(
             "--path",
             str(TINY_PDF),
             "--paper-id",
-            "y",
+            "arxiv-2408.06072",
             "--vault",
             str(dest),
         ]
@@ -555,10 +534,10 @@ def test_ingest_run_two_papers_keeps_both_index_lines(
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
     index_text = (dest / "index.md").read_text(encoding="utf-8")
-    assert "x" in index_text
-    assert "papers/x.md" in index_text
-    assert "y" in index_text
-    assert "papers/y.md" in index_text
+    assert "arxiv-2209.14792" in index_text
+    assert "papers/arxiv-2209.14792.md" in index_text
+    assert "arxiv-2408.06072" in index_text
+    assert "papers/arxiv-2408.06072.md" in index_text
     assert index_text.count("](papers/") >= 2
     assert not (dest / "wiki" / "index.md").exists()
     assert network_attempts == []

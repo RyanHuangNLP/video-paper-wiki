@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import json
-from pathlib import Path
+from video_paper_wiki.resources import load_seed_json
 
-_SEED_RELATIVE = Path("docs") / "seed" / "engine-mvp.json"
+_SEED_FILE = "engine-mvp.json"
 
 _HEADER_PREFIXES: tuple[str, ...] = (
     "published in",
@@ -21,26 +20,16 @@ _HEADER_NEEDLES: tuple[str, ...] = (
 )
 
 
-def _resolve_seed_path() -> Path | None:
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent / _SEED_RELATIVE
-        if candidate.is_file():
-            return candidate
-    cwd_candidate = Path.cwd() / _SEED_RELATIVE
-    if cwd_candidate.is_file():
-        return cwd_candidate
-    return None
+def _catalog_payload() -> dict | None:
+    payload = load_seed_json(_SEED_FILE)
+    if not isinstance(payload, dict) or not isinstance(payload.get("papers"), list):
+        return None
+    return payload
 
 
 def _catalog_entry(paper_id: str) -> dict | None:
-    path = _resolve_seed_path()
-    if path is None:
-        return None
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    if not isinstance(payload, dict) or not isinstance(payload.get("papers"), list):
+    payload = _catalog_payload()
+    if payload is None:
         return None
     wanted = str(paper_id).strip()
     if not wanted:
@@ -76,14 +65,8 @@ def catalog_arxiv_id_for_paper_id(paper_id: str) -> str | None:
 
 def catalog_paper_ids() -> list[str]:
     """paper_id values from engine-mvp.json, catalog order."""
-    path = _resolve_seed_path()
-    if path is None:
-        return []
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return []
-    if not isinstance(payload, dict) or not isinstance(payload.get("papers"), list):
+    payload = _catalog_payload()
+    if payload is None:
         return []
     ids: list[str] = []
     for item in payload["papers"]:

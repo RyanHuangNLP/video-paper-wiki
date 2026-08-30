@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from video_paper_wiki.notes.encoding import read_utf8
 from video_paper_wiki.notes.list import (
     _field_value,
     _opening_frontmatter,
@@ -73,8 +74,8 @@ def load_paper(root: Path, paper_id: str) -> dict[str, Any] | None:
         "backlinks": [],
     }
     try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
+        text = read_utf8(path)
+    except OSError:
         return empty
     fields = yaml_fields(text, wanted)
     yaml_related = _related_from_yaml(text)

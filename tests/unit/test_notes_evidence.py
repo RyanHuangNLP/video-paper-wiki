@@ -162,7 +162,7 @@ def test_review_export_freezes_vault_evidence_keeps_work_note(
     assert section_text(copied_text, "证据状态") == FROZEN
     assert LEFTOVER not in copied_text
     assert "local pypdf extract" not in copied_text
-    assert section_text(copied_text, "代码与资源") == CODE
+    assert section_text(copied_text, "代码与资源") == ""
     assert section_text(copied_text, "一句话结论") == MAV_SENTENCE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "方法") == MAV_METHOD

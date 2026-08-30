@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from video_paper_wiki.notes.encoding import read_utf8
 from video_paper_wiki.notes.list import _field_value, _opening_frontmatter
 from video_paper_wiki.notes.stat import _md_files
 
@@ -28,8 +29,8 @@ def scan_doctor(root: Path) -> dict[str, Any]:
     missing_yaml: list[dict[str, Any]] = []
     for path in papers:
         try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+            text = read_utf8(path)
+        except OSError:
             missing_yaml.append({"paper_id": path.stem, "fields": list(_REQUIRED)})
             continue
         fields = _missing_keys(text)

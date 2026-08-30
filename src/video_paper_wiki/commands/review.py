@@ -17,6 +17,10 @@ from video_paper_wiki.notes import (
     render_paper_markdown,
     upsert_index_entry,
 )
+from video_paper_wiki.notes.encoding import InvalidEncoding, read_utf8
+from video_paper_wiki.notes.frozen import FrozenSeedMissing, require_managed_seed
+from video_paper_wiki.notes.merge import merge_paper_copy
+from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
 
 COMMAND = "review.export"
 # Uppercase literals: commands/*.py source must not contain certain lowercase tokens.
@@ -41,7 +45,14 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
             {"path": path.as_posix()},
         )
     try:
-        document = json.loads(path.read_text(encoding="utf-8"))
+        document = json.loads(read_utf8(path))
+    except InvalidEncoding:
+        return None, emit_error(
+            COMMAND,
+            "INVALID_ENCODING",
+            "draft file is not valid UTF-8",
+            {"path": path.as_posix()},
+        )
     except json.JSONDecodeError as exc:
         return None, _draft_invalid(
             f"draft is not valid JSON: {exc.msg}",
@@ -84,11 +95,20 @@ def export(_args: object | None = None) -> int:
     if err is not None:
         return err
     assert document is not None
-    paper_id = str(document["paper_id"])
+    try:
+        paper_id = validate_paper_id(str(document["paper_id"]))
+    except InvalidPaperId:
+        return emit_error(
+            COMMAND,
+            "INVALID_PAPER_ID",
+            "paper_id is empty or not a safe path segment",
+            {"paper_id": str(document.get("paper_id", ""))},
+        )
     markdown = render_paper_markdown(document)
     extra_root_raw = _attr(_args, "notes_root")
     extra_root: Path | None = None
     extra_file: Path | None = None
+    existing_copy: str | None = None
     if extra_root_raw is not None and str(extra_root_raw).strip() != "":
         extra_root = Path(str(extra_root_raw)).expanduser()
         if not extra_root.is_dir():
@@ -98,17 +118,45 @@ def export(_args: object | None = None) -> int:
                 "directory is missing or not a directory; this command does not create it",
                 {"path": str(extra_root_raw)},
             )
+        try:
+            require_managed_seed(paper_id)
+        except FrozenSeedMissing as exc:
+            return emit_error(
+                COMMAND,
+                "FROZEN_SEED_MISSING",
+                "paper_id is not in the managed seed catalog or a required overlay is missing",
+                {"paper_id": paper_id, "source": exc.source},
+            )
         extra_file = extra_root / "papers" / f"{paper_id}.md"
+        if extra_file.is_file():
+            try:
+                existing_copy = read_utf8(extra_file)
+            except InvalidEncoding:
+                return emit_error(
+                    COMMAND,
+                    "INVALID_ENCODING",
+                    "existing paper note is not valid UTF-8",
+                    {"path": extra_file.as_posix()},
+                )
+            except OSError as exc:
+                return emit_error(
+                    COMMAND,
+                    "INVALID_ENCODING",
+                    "existing paper note is unreadable",
+                    {"path": extra_file.as_posix(), "reason": str(exc)},
+                )
 
     work_path = Path.cwd() / ".work" / "notes" / f"{paper_id}.md"
     work_path.parent.mkdir(parents=True, exist_ok=True)
     work_path.write_text(markdown, encoding="utf-8")
     if extra_file is not None and extra_root is not None:
+        rendered = render_paper_copy_markdown(document)
+        if existing_copy is not None:
+            copied = merge_paper_copy(existing_copy, rendered)
+        else:
+            copied = rendered + paper_note_link_suffix(paper_id)
         extra_file.parent.mkdir(parents=True, exist_ok=True)
-        extra_file.write_text(
-            render_paper_copy_markdown(document) + paper_note_link_suffix(paper_id),
-            encoding="utf-8",
-        )
+        extra_file.write_text(copied, encoding="utf-8")
         upsert_index_entry(extra_root, paper_id, _display_title(document, paper_id))
         refresh_topic_pages(extra_root)
 

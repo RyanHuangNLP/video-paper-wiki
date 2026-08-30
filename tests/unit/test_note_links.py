@@ -229,27 +229,12 @@ def test_ingest_non_topic_paper_omits_trailers(
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     code = _ingest(TINY_PDF, "not-a-topic", dest)
-    assert code == 0
-    _stdout_json(capsys)
-
-    work = (tmp_path / ".work" / "notes" / "not-a-topic.md").read_text(encoding="utf-8")
-    copied = (dest / "papers" / "not-a-topic.md").read_text(encoding="utf-8")
-    assert copied != work
-    assert work.startswith("---\npaper_id:")
-    assert "title_zh:" in work
-    assert "topics:" not in work.split("---", 2)[1]
-    assert copied.startswith("---\ntitle:")
-    assert "topics: []" in copied
-    assert "related: []" in copied
-    assert "backlinks: []" in copied
-    assert "related:" not in work.split("---", 2)[1]
-    assert "backlinks:" not in work.split("---", 2)[1]
-    _assert_frozen_headings(copied)
-    after = _trailer_after_related(copied)
-    assert "## 主题" not in after
-    assert "## 相关论文" not in copied
-    assert "../wiki/" not in copied
-    assert not (dest / "wiki" / "index.md").exists()
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "not-a-topic"
+    assert not (dest / "papers").exists()
     assert network_attempts == []
 
 
@@ -260,26 +245,13 @@ def test_export_minimal_fixture_omits_trailers(
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(dest)])
-    assert code == 0
-    _stdout_json(capsys)
-    work = (tmp_path / ".work" / "notes" / "fixture-minimal.md").read_text(encoding="utf-8")
-    copied = (dest / "papers" / "fixture-minimal.md").read_text(encoding="utf-8")
-    assert copied != work
-    assert work.startswith("---\npaper_id:")
-    assert "title_zh:" in work
-    assert "topics:" not in work.split("---", 2)[1]
-    assert copied.startswith("---\ntitle:")
-    assert "topics: []" in copied
-    assert "related: []" in copied
-    assert "backlinks: []" in copied
-    assert "related:" not in work.split("---", 2)[1]
-    assert "backlinks:" not in work.split("---", 2)[1]
-    _assert_frozen_headings(copied)
-    after = _trailer_after_related(copied)
-    assert "## 主题" not in after
-    assert "## 相关论文" not in copied
-    assert "../wiki/" not in work
-    assert not (dest / "wiki" / "index.md").exists()
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
+    assert not (dest / "papers").exists()
+    assert not (tmp_path / ".work" / "notes").exists()
     assert network_attempts == []
 
 

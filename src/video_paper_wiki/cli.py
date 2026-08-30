@@ -15,6 +15,7 @@ from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.commands import search as search_commands
 from video_paper_wiki.commands import wiki as wiki_commands
 from video_paper_wiki.envelope import emit_error, emit_success
+from video_paper_wiki.notes.encoding import InvalidEncoding
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
 
@@ -240,7 +241,16 @@ def main(argv: list[str] | None = None) -> int:
     if handler is None:
         sys.stderr.write("missing command\n")
         return emit_error(_dotted(args[:2]) if args else "vpwiki", "USAGE", "missing command")
-    return handler(ns)
+    try:
+        return handler(ns)
+    except InvalidEncoding as exc:
+        command = _dotted(args[:2]) if args else "vpwiki"
+        return emit_error(
+            command,
+            "INVALID_ENCODING",
+            "file is not valid UTF-8; this command does not rewrite it",
+            {"path": exc.path.as_posix()},
+        )
 
 
 if __name__ == "__main__":

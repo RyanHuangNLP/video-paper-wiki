@@ -2,35 +2,17 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
+from video_paper_wiki.notes.encoding import read_utf8
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
+from video_paper_wiki.resources import load_seed_json
 
-_TOPICS_RELATIVE = Path("docs") / "seed" / "engine-mvp-topics.json"
-_RELATED_RELATIVE = Path("docs") / "seed" / "engine-mvp-topic-related.json"
+_TOPICS_FILE = "engine-mvp-topics.json"
+_RELATED_FILE = "engine-mvp-topic-related.json"
 _TOPICS_HEADING = "## 主题"
 _RELATED_HEADING = "## 相关主题"
-
-
-def _resolve_seed(relative: Path) -> Path | None:
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent / relative
-        if candidate.is_file():
-            return candidate
-    cwd_candidate = Path.cwd() / relative
-    if cwd_candidate.is_file():
-        return cwd_candidate
-    return None
-
-
-def _resolve_topics_path() -> Path | None:
-    return _resolve_seed(_TOPICS_RELATIVE)
-
-
-def _resolve_related_path() -> Path | None:
-    return _resolve_seed(_RELATED_RELATIVE)
 
 
 def _safe_segment(value: str) -> bool:
@@ -40,13 +22,7 @@ def _safe_segment(value: str) -> bool:
 
 
 def load_topics() -> list[dict[str, Any]] | None:
-    path = _resolve_topics_path()
-    if path is None:
-        return None
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
+    payload = load_seed_json(_TOPICS_FILE)
     if not isinstance(payload, dict) or not isinstance(payload.get("topics"), list):
         return None
     topics: list[dict[str, Any]] = []
@@ -80,13 +56,7 @@ def load_topics() -> list[dict[str, Any]] | None:
 
 
 def load_topic_related() -> dict[str, list[str]] | None:
-    path = _resolve_related_path()
-    if path is None:
-        return None
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
+    payload = load_seed_json(_RELATED_FILE)
     if not isinstance(payload, dict) or not isinstance(payload.get("related"), dict):
         return None
     related: dict[str, list[str]] = {}
@@ -241,5 +211,5 @@ def refresh_topic_pages(root: Path) -> None:
     index_path = root / "index.md"
     if not index_path.is_file():
         return
-    updated = _replace_topics_section(index_path.read_text(encoding="utf-8"), topics)
+    updated = _replace_topics_section(read_utf8(index_path), topics)
     index_path.write_text(updated, encoding="utf-8")

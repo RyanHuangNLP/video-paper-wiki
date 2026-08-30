@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from video_paper_wiki.cli import main
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -81,44 +83,21 @@ def test_export_minimal_fixture_writes_work_notes(tmp_path, monkeypatch, capsys,
     assert network_attempts == []
 
 
-def test_export_existing_dir_writes_papers_copy(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+def test_export_existing_dir_fixture_missing_frozen_seed(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
     monkeypatch.chdir(tmp_path)
     existing = tmp_path / "obsidian-root"
     existing.mkdir()
     code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(existing)])
-    assert code == 0
+    assert code == 2
     payload = _stdout_json(capsys)
-    work = tmp_path / ".work" / "notes" / "fixture-minimal.md"
-    copied = existing / "papers" / "fixture-minimal.md"
-    assert payload["ok"] is True
-    assert payload["data"]["path"] == work.as_posix()
-    assert payload["data"]["paper_id"] == "fixture-minimal"
-    assert payload["data"]["vault_path"] == copied.as_posix()
-    assert work.is_file()
-    assert copied.is_file()
-    work_text = work.read_text(encoding="utf-8")
-    copied_text = copied.read_text(encoding="utf-8")
-    assert work_text.startswith("---\npaper_id:")
-    assert "title_zh:" in work_text
-    assert "arxiv_id" not in work_text.split("---", 2)[1]
-    assert "topics:" not in work_text.split("---", 2)[1]
-    assert copied_text.startswith("---\ntitle:")
-    assert "paper_id: fixture-minimal" in copied_text
-    assert "topics: []" in copied_text
-    assert copied_text != work_text
-    for heading in HEADING_ZH:
-        assert f"## {heading}" in work_text
-        assert f"## {heading}" in copied_text
-    assert "../wiki/" not in work_text
-    assert "## 相关论文" not in copied_text
-    assert "## 主题" not in work_text.split("## 关联", 1)[1]
-    assert not (existing / "wiki" / "index.md").exists()
-    index_md = existing / "index.md"
-    assert index_md.is_file()
-    index_text = index_md.read_text(encoding="utf-8")
-    assert "papers/fixture-minimal.md" in index_text
-    assert "fixture-minimal" in index_text
-    assert "Minimal Draft Fixture" in index_text
+    assert payload["ok"] is False
+    assert payload["command"] == "review.export"
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
+    assert not (existing / "papers").exists()
+    assert not (tmp_path / ".work" / "notes").exists()
     assert network_attempts == []
 
 
@@ -198,8 +177,9 @@ def test_export_two_drafts_keeps_both_index_lines(tmp_path, monkeypatch, capsys,
     monkeypatch.chdir(tmp_path)
     existing = tmp_path / "obsidian-root"
     existing.mkdir()
-    second = _clone_draft(tmp_path, "fixture-second", "Second Draft Fixture")
-    code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(existing)])
+    first = _clone_draft(tmp_path, "arxiv-2209.14792", "Make-A-Video")
+    second = _clone_draft(tmp_path, "arxiv-2408.06072", "CogVideoX")
+    code = main(["review", "export", "--draft", str(first), "--vault", str(existing)])
     assert code == 0
     capsys.readouterr()
     code = main(["review", "export", "--draft", str(second), "--vault", str(existing)])
@@ -207,13 +187,33 @@ def test_export_two_drafts_keeps_both_index_lines(tmp_path, monkeypatch, capsys,
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
     index_text = (existing / "index.md").read_text(encoding="utf-8")
-    assert "papers/fixture-minimal.md" in index_text
-    assert "papers/fixture-second.md" in index_text
-    assert "Minimal Draft Fixture" in index_text
-    assert "Second Draft Fixture" in index_text
-    assert "fixture-minimal" in index_text
-    assert "fixture-second" in index_text
+    assert "papers/arxiv-2209.14792.md" in index_text
+    assert "papers/arxiv-2408.06072.md" in index_text
+    assert "Make-A-Video" in index_text
+    assert "CogVideoX" in index_text
     assert not (existing / "wiki" / "index.md").exists()
+    assert network_attempts == []
+
+
+@pytest.mark.parametrize("paper_id", ["/tmp", "../", "a\\b", "..", "foo/../bar"])
+def test_export_illegal_paper_id_does_not_write(
+    paper_id, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = paper_id
+    draft = tmp_path / "bad-id.json"
+    draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(["review", "export", "--draft", str(draft), "--vault", str(dest)])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "review.export"
+    assert payload["error"]["code"] == "INVALID_PAPER_ID"
+    assert not (tmp_path / ".work" / "notes").exists()
+    assert list(dest.iterdir()) == []
     assert network_attempts == []
 
 

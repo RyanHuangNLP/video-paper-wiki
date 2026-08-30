@@ -6,6 +6,7 @@ import re
 from collections.abc import Iterable
 from pathlib import Path
 
+from video_paper_wiki.notes.encoding import read_utf8
 from video_paper_wiki.notes.frontmatter import resolve_arxiv_id, year_from_arxiv_id
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
 
@@ -85,7 +86,7 @@ def upsert_index_entry(root: Path, paper_id: str, title: str) -> Path:
     """
     index_path = root / "index.md"
     if index_path.is_file():
-        lines = index_path.read_text(encoding="utf-8").splitlines()
+        lines = read_utf8(index_path).splitlines()
     else:
         lines = ["# Video Paper Wiki"]
     if lines and _is_h1(lines[0]):

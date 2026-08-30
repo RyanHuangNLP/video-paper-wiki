@@ -1,38 +1,72 @@
-"""Keep only real URLs under ## 代码与资源 on vault paper copies. No network."""
+"""Seed http(s) URLs under ## 代码与资源. Offline urlsplit only. No PDF reads."""
 
 from __future__ import annotations
 
+from urllib.parse import urlsplit
+
+from video_paper_wiki.notes.headings import replace_h2_body
+from video_paper_wiki.resources import load_seed_json
+
 _HEADING = "代码与资源"
+_CODE_URLS_FILE = "engine-mvp-code-urls.json"
 
 
-def _kept_url(line: str) -> str | None:
-    stripped = line.strip()
-    if stripped.endswith("."):
-        stripped = stripped[:-1]
-    if stripped.startswith("http://") or stripped.startswith("https://"):
-        return stripped
-    return None
+def is_http_url(value: str) -> bool:
+    """True when *value* has an http(s) scheme and a netloc. No network."""
+    stripped = str(value).strip()
+    if not stripped or any(ch.isspace() for ch in stripped):
+        return False
+    parts = urlsplit(stripped)
+    return parts.scheme in {"http", "https"} and bool(parts.netloc)
 
 
-def apply_clean_code_resources(text: str) -> str:
-    """Keep http(s) lines under ## 代码与资源. Drop leftover sentences."""
-    lines = text.splitlines()
-    start: int | None = None
-    for index, line in enumerate(lines):
-        if line.startswith("##") and line[2:].strip() == _HEADING:
-            start = index
-            break
-    if start is None:
-        return text
-    end = len(lines)
-    for index in range(start + 1, len(lines)):
-        if lines[index].startswith("##"):
-            end = index
-            break
-    urls = [url for line in lines[start + 1 : end] if (url := _kept_url(line))]
-    mid = [""] + urls + [""] if urls else [""]
-    replaced = lines[: start + 1] + mid + lines[end:]
-    out = "\n".join(replaced)
-    if not out.endswith("\n"):
-        out += "\n"
-    return out
+def valid_http_urls(values: list[str]) -> list[str]:
+    """Keep http(s) URLs with a netloc, in order. Drop invalid. No network."""
+    urls: list[str] = []
+    seen: set[str] = set()
+    for raw in values:
+        if not isinstance(raw, str):
+            continue
+        candidate = raw.strip()
+        if not is_http_url(candidate) or candidate in seen:
+            continue
+        seen.add(candidate)
+        urls.append(candidate)
+    return urls
+
+
+def load_code_urls() -> dict[str, list[str]]:
+    """paper_id -> http(s) URLs. Missing or unreadable seed → {}."""
+    payload = load_seed_json(_CODE_URLS_FILE)
+    if not isinstance(payload, dict):
+        return {}
+    raw_map = payload.get("code_urls", payload)
+    if not isinstance(raw_map, dict):
+        return {}
+    mapping: dict[str, list[str]] = {}
+    for raw_id, raw_urls in raw_map.items():
+        if not isinstance(raw_id, str) or not raw_id.strip():
+            continue
+        values: list[str] = []
+        if isinstance(raw_urls, list):
+            values = [item for item in raw_urls if isinstance(item, str)]
+        elif isinstance(raw_urls, str):
+            values = [raw_urls]
+        urls = valid_http_urls(values)
+        if urls:
+            mapping[raw_id.strip()] = urls
+    return mapping
+
+
+def code_urls_for(paper_id: str) -> list[str]:
+    wanted = str(paper_id).strip()
+    if not wanted:
+        return []
+    return list(load_code_urls().get(wanted, []))
+
+
+def apply_clean_code_resources(text: str, paper_id: str = "") -> str:
+    """Replace ## 代码与资源 with seeded http(s) URLs. Never reads a PDF body."""
+    urls = code_urls_for(paper_id)
+    body = [""] + urls + [""] if urls else [""]
+    return replace_h2_body(text, _HEADING, body)

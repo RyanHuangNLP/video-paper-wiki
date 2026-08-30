@@ -109,15 +109,12 @@ def test_topic_page_empty_blurb_keeps_blank_then_links(tmp_path: Path) -> None:
 
 
 def test_load_topics_missing_blurb_is_empty_string(tmp_path: Path, monkeypatch) -> None:
-    topics_path = tmp_path / "docs" / "seed" / "engine-mvp-topics.json"
-    topics_path.parent.mkdir(parents=True)
-    topics_path.write_text(
-        '{"topics":[{"id":"video-diffusion","heading_zh":"视频扩散","paper_ids":[]}]}',
-        encoding="utf-8",
-    )
+    payload = {
+        "topics": [{"id": "video-diffusion", "heading_zh": "视频扩散", "paper_ids": []}]
+    }
     monkeypatch.setattr(
-        "video_paper_wiki.notes.topics._resolve_topics_path",
-        lambda: topics_path,
+        "video_paper_wiki.notes.topics.load_seed_json",
+        lambda filename: payload if filename == "engine-mvp-topics.json" else None,
     )
     topics = load_topics()
     assert topics is not None

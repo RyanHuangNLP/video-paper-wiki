@@ -2540,6 +2540,10 @@ wheels = [
 name = "video-paper-wiki"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "jsonschema" },
+    { name = "pypdf" },
+]
 
 [package.optional-dependencies]
 docling = [
@@ -2548,21 +2552,19 @@ docling = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "jsonschema" },
-    { name = "pypdf" },
     { name = "pytest" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "docling", marker = "extra == 'docling'", specifier = "==2.117.0" }]
+requires-dist = [
+    { name = "docling", marker = "extra == 'docling'", specifier = "==2.117.0" },
+    { name = "jsonschema", specifier = ">=4.23" },
+    { name = "pypdf", specifier = ">=5.0" },
+]
 provides-extras = ["docling"]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "jsonschema", specifier = ">=4.23" },
-    { name = "pypdf", specifier = ">=5.0" },
-    { name = "pytest", specifier = ">=8" },
-]
+dev = [{ name = "pytest", specifier = ">=8" }]
 
 [[package]]
 name = "websockets"

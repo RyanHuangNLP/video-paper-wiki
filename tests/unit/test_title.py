@@ -128,7 +128,7 @@ def test_normal_titles_unchanged() -> None:
 
 
 def test_missing_catalog_falls_through_to_cleanup(monkeypatch) -> None:
-    monkeypatch.setattr("video_paper_wiki.parse.title._resolve_seed_path", lambda: None)
+    monkeypatch.setattr("video_paper_wiki.parse.title._catalog_payload", lambda: None)
     title = resolve_draft_title("arxiv-2209.14792", LETTER_SPACED, "")
     assert title != "Make-A-Video"
     assert "T EXT" not in title

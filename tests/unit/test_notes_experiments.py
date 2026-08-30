@@ -152,7 +152,7 @@ def test_review_export_swaps_vault_experiments_keeps_work_note(
     for heading in STILL_EMPTY:
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
-    assert section_text(copied_text, "代码与资源") == section_text(work_text, "代码与资源")
+    assert section_text(copied_text, "代码与资源") == ""
     assert section_text(copied_text, "证据状态") == "provisional"
     assert "local pypdf extract" not in section_text(copied_text, "证据状态")
     assert "## 主题" in copied_text

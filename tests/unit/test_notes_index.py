@@ -299,8 +299,14 @@ def test_ingest_same_year_by_paper_id_and_undated_after(
     capsys.readouterr()
     assert _ingest(TINY_PDF, SVD, dest) == 0
     capsys.readouterr()
-    assert _ingest(TINY_PDF, "x", dest) == 0
-    _stdout_json(capsys)
+    assert _ingest(TINY_PDF, "x", dest) == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    (dest / "papers" / "x.md").write_text("---\ntitle: x\npaper_id: x\n---\n", encoding="utf-8")
+    upsert_index_entry(dest, "x", "x")
+    code = main(["ingest", "run", "--path", str(TINY_PDF), "--paper-id", "x"])
+    assert code == 0
+    capsys.readouterr()
 
     text = (dest / "index.md").read_text(encoding="utf-8")
     lines = text.splitlines()

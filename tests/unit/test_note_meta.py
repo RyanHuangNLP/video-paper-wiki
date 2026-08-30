@@ -171,7 +171,7 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert "Tiny VPKB paper" in section_text(work, "一句话结论")
     assert section_text(copied, "证据状态") == "provisional"
     assert "local pypdf extract" not in section_text(copied, "证据状态")
-    assert section_text(copied, "代码与资源") == section_text(work, "代码与资源")
+    assert section_text(copied, "代码与资源") == ""
     assert "## 相关论文" in copy_body
     assert "## 相关论文" not in work_body
     assert "arxiv_id" not in work
@@ -252,34 +252,20 @@ def test_ingest_towards_accurate_year_2018_evaluation(
     assert network_attempts == []
 
 
-def test_ingest_non_catalog_paper_id_x_empty_topics(
+def test_ingest_non_catalog_paper_id_x_frozen_seed_missing(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
     _prepare(tmp_path, monkeypatch)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     code = _ingest(TINY_PDF, "x", dest)
-    assert code == 0
-    _stdout_json(capsys)
-
-    work = (tmp_path / ".work" / "notes" / "x.md").read_text(encoding="utf-8")
-    copied = (dest / "papers" / "x.md").read_text(encoding="utf-8")
-    work_body = _assert_work_frontmatter(work)
-    copy_body = _assert_copy_frontmatter_keys(copied)
-    assert "paper_id: x" in copied
-    assert 'arxiv_id: ""' in copied
-    assert "year:" not in _frontmatter_and_body(copied)[0]
-    assert "topics: []" in copied
-    assert "related: []" in copied
-    assert "backlinks: []" in copied
-    from video_paper_wiki.notes.section import section_text
-    for heading in ("研究问题", "方法", "表示与架构", "训练与数据", "实验与结果", "局限", "关联"):
-        assert section_text(copied, heading) == ""
-    assert section_text(copied, "证据状态") == section_text(work, "证据状态")
-    assert "## 相关论文" not in copied
-    assert "related:" not in work
-    assert "backlinks:" not in work
-    assert copied != work
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "x"
+    assert not (dest / "papers").exists()
+    assert not (tmp_path / ".work" / "notes" / "x.md").exists()
     assert network_attempts == []
 
 
@@ -290,26 +276,11 @@ def test_export_minimal_fixture_copy_frontmatter(
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
     code = main(["review", "export", "--draft", str(MINIMAL), "--vault", str(dest)])
-    assert code == 0
-    _stdout_json(capsys)
-    work = (tmp_path / ".work" / "notes" / "fixture-minimal.md").read_text(encoding="utf-8")
-    copied = (dest / "papers" / "fixture-minimal.md").read_text(encoding="utf-8")
-    work_body = _assert_work_frontmatter(work)
-    copy_body = _assert_copy_frontmatter_keys(copied)
-    assert work.startswith("---\npaper_id:")
-    assert "title: Minimal Draft Fixture" in work
-    assert "title_zh: 最小草稿夹具" in work
-    assert "title: Minimal Draft Fixture" in copied
-    assert "paper_id: fixture-minimal" in copied
-    assert 'arxiv_id: ""' in copied
-    assert "year:" not in _frontmatter_and_body(copied)[0]
-    assert "topics: []" in copied
-    assert "related: []" in copied
-    assert "backlinks: []" in copied
-    assert copy_body == work_body
-    assert copied != work
-    assert "## 相关论文" not in copied
-    assert "related:" not in work
-    assert "backlinks:" not in work
-    assert not (dest / "wiki" / "index.md").exists()
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
+    assert not (dest / "papers").exists()
+    assert not (tmp_path / ".work" / "notes").exists()
     assert network_attempts == []

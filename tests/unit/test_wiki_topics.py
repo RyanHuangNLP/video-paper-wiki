@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
+from video_paper_wiki.notes import upsert_index_entry
 
 ROOT = Path(__file__).resolve().parents[2]
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
@@ -373,10 +374,13 @@ def test_ingest_non_catalog_paper_id_x_is_not_a_wiki_link(
     _prepare(tmp_path, monkeypatch)
     dest = tmp_path / "obsidian-root"
     dest.mkdir()
-    assert _ingest(TINY_PDF, "x", dest) == 0
-    capsys.readouterr()
+    assert _ingest(TINY_PDF, "x", dest) == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
     assert _ingest(TINY_PDF, "arxiv-2209.14792", dest) == 0
-    _stdout_json(capsys)
+    capsys.readouterr()
+    (dest / "papers" / "x.md").write_text("---\ntitle: x\npaper_id: x\n---\n", encoding="utf-8")
+    upsert_index_entry(dest, "x", "x")
 
     wiki = dest / "wiki"
     for page in wiki.glob("*.md"):

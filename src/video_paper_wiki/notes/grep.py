@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from video_paper_wiki.notes.encoding import read_utf8
+
 _SCAN_FOLDERS = ("papers", "wiki")
 _SKIP_WIKI_INDEX = "index.md"
 
@@ -23,7 +25,7 @@ def scan_matches(root: Path, query: str) -> list[dict[str, Any]]:
             if folder == "wiki" and path.name == _SKIP_WIKI_INDEX:
                 continue
             rel = f"{folder}/{path.name}"
-            text = path.read_text(encoding="utf-8")
+            text = read_utf8(path)
             for line_no, line in enumerate(text.splitlines(), start=1):
                 if needle in line.casefold():
                     matches.append({"path": rel, "line": line_no, "text": line})

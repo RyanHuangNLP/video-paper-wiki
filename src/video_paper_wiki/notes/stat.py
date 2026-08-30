@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from video_paper_wiki.notes.encoding import read_utf8
+
 _PAPERS = "papers"
 _WIKI = "wiki"
 _SKIP_WIKI_INDEX = "index.md"
@@ -60,8 +62,8 @@ def scan_stat(root: Path) -> dict[str, Any]:
     histogram: dict[str, int] = {}
     for path in papers:
         try:
-            text = path.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
+            text = read_utf8(path)
+        except OSError:
             continue
         year = year_from_frontmatter(text)
         if year is None:
