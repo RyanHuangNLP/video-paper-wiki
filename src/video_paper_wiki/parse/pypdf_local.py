@@ -7,9 +7,11 @@ from typing import Any
 
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 
+_MAX_PAGES = 20
+
 
 def parse_pdf_to_draft_fields(pdf_path: Path) -> dict[str, Any]:
-    """Extract title and body text from a local PDF with pypdf."""
+    """Extract title and up to 20 pages of body text from a local PDF with pypdf."""
 
     try:
         from pypdf import PdfReader
@@ -24,17 +26,18 @@ def parse_pdf_to_draft_fields(pdf_path: Path) -> dict[str, Any]:
         if raw_title:
             title = str(raw_title).strip()
 
-    body_text = ""
-    page_no = 1
-    for index, page in enumerate(reader.pages, start=1):
+    pages: list[dict[str, Any]] = []
+    for index, page in enumerate(reader.pages[:_MAX_PAGES], start=1):
         extracted = (page.extract_text() or "").strip()
         if extracted:
-            body_text = extracted
-            page_no = index
-            break
+            pages.append({"page": index, "text": extracted})
 
-    if not title and body_text:
-        for line in body_text.splitlines():
+    body_text = "\n".join(item["text"] for item in pages)
+    page_no = int(pages[0]["page"]) if pages else 1
+
+    if not title:
+        source = pages[0]["text"] if pages else body_text
+        for line in source.splitlines():
             stripped = line.strip()
             if stripped:
                 title = stripped
@@ -45,5 +48,6 @@ def parse_pdf_to_draft_fields(pdf_path: Path) -> dict[str, Any]:
         "title_zh": "",
         "body_text": body_text,
         "page": page_no,
+        "pages": pages,
         "parser": "pypdf",
     }

@@ -11,10 +11,13 @@ from video_paper_wiki.blob_store import BlobStore
 from video_paper_wiki.cli import main
 from video_paper_wiki.commands import draft
 from video_paper_wiki.parse.docling_local import ParserUnavailable
+from video_paper_wiki.parse.draft_document import EVIDENCE_STATUS_TEXT, claims_from_body
+from video_paper_wiki.parse.pypdf_local import parse_pdf_to_draft_fields as parse_pypdf_fields
 
 ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+SECTIONED_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "sectioned.pdf"
 DRAFT_SCHEMA = ROOT / "schemas" / "video-paper-wiki.paper-analysis-draft.v1.schema.json"
 SECTION_IDS = [
     "one_sentence_conclusion",
@@ -292,4 +295,216 @@ def test_export_illegal_paper_id(
     assert payload["command"] == "draft.export"
     assert payload["error"]["code"] == "INVALID_PAPER_ID"
     assert not (tmp_path / ".work").exists()
+    assert network_attempts == []
+
+
+MULTI_HEADING_BODY = """Video Paper Title
+Abstract
+Frozen tokenizers enable efficient video generation. This is extra abstract.
+1 Introduction
+We ask whether a frozen tokenizer method is enough for video.
+Training
+The dataset contains ten million video clips.
+3) Experiments
+Results show a twelve percent FVD gain on the benchmark.
+Limitations
+The model fails on long uncurated videos.
+Related Work
+Prior diffusion video models include VideoGPT.
+https://github.com/example/vpkb-demo
+"""
+
+
+def _minimal_pdf(pages: list[list[str]], *, title: str = "") -> bytes:
+    def esc(value: str) -> str:
+        return value.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+
+    def content_stream(lines: list[str]) -> bytes:
+        out = ["BT\n/F1 12 Tf\n18 TL\n72 720 Td\n"]
+        for index, line in enumerate(lines):
+            if index:
+                out.append("T*\n")
+            out.append(f"({esc(line)}) Tj\n")
+        out.append("ET\n")
+        return "".join(out).encode("latin-1")
+
+    n_pages = len(pages)
+    font_obj = 3 + 2 * n_pages
+    info_obj = 4 + 2 * n_pages
+    objs: dict[int, bytes] = {}
+    kids = " ".join(f"{3 + index} 0 R" for index in range(n_pages))
+    objs[1] = b"<< /Type /Catalog /Pages 2 0 R >>"
+    objs[2] = f"<< /Type /Pages /Kids [{kids}] /Count {n_pages} >>".encode("ascii")
+    for index, lines in enumerate(pages):
+        page_obj = 3 + index
+        content_obj = 3 + n_pages + index
+        objs[page_obj] = (
+            f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] "
+            f"/Contents {content_obj} 0 R /Resources << /Font << /F1 {font_obj} 0 R >> >> >>"
+        ).encode("ascii")
+        stream = content_stream(lines)
+        objs[content_obj] = (
+            f"<< /Length {len(stream)} >>\nstream\n".encode("ascii") + stream + b"endstream"
+        )
+    objs[font_obj] = b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"
+    objs[info_obj] = f"<< /Title ({esc(title)}) >>".encode("latin-1") if title else b"<< >>"
+
+    header = b"%PDF-1.4\n%\x80\x80\x80\x80\n"
+    pieces = [header]
+    offsets: dict[int, int] = {}
+    pos = len(header)
+    max_obj = info_obj
+    for number in range(1, max_obj + 1):
+        serialized = f"{number} 0 obj\n".encode("ascii") + objs[number] + b"\nendobj\n"
+        offsets[number] = pos
+        pieces.append(serialized)
+        pos += len(serialized)
+    xref_lines = [f"xref\n0 {max_obj + 1}\n", "0000000000 65535 f \n"]
+    for number in range(1, max_obj + 1):
+        xref_lines.append(f"{offsets[number]:010d} 00000 n \n")
+    trailer = (
+        f"trailer\n<< /Size {max_obj + 1} /Root 1 0 R /Info {info_obj} 0 R >>\n"
+        f"startxref\n{pos}\n%%EOF\n"
+    )
+    pieces.append("".join(xref_lines).encode("ascii"))
+    pieces.append(trailer.encode("ascii"))
+    return b"".join(pieces)
+
+
+def _claims_by_section(document: dict) -> dict[str, dict]:
+    return {claim["section"]: claim for claim in document["claims"]}
+
+
+def _assert_locator(claim: dict, sha256: str) -> None:
+    assert claim["assessment"] == "provisional"
+    assert claim["claim_text"]
+    locator = claim["locators"][0]
+    for field in LOCATOR_FIELDS:
+        assert field in locator
+    assert locator["kind"] == "pdf"
+    assert locator["page"] >= 1
+    assert locator["ref"] == f"#/page/{locator['page']}"
+    assert locator["artifact_sha256"] == sha256
+    assert locator["source_id"] == sha256[:12]
+    assert locator["text_sha256"] == hashlib.sha256(claim["claim_text"].encode("utf-8")).hexdigest()
+
+
+def test_pypdf_extracts_up_to_twenty_pages(tmp_path, network_attempts) -> None:
+    pages = [[f"Page {index} visible text"] for index in range(1, 22)]
+    pdf_path = tmp_path / "many.pdf"
+    pdf_path.write_bytes(_minimal_pdf(pages, title="Many Pages"))
+    fields = parse_pypdf_fields(pdf_path)
+    assert fields["parser"] == "pypdf"
+    assert fields["title"] == "Many Pages"
+    assert [item["page"] for item in fields["pages"]] == list(range(1, 21))
+    assert "Page 20 visible text" in fields["body_text"]
+    assert "Page 21 visible text" not in fields["body_text"]
+    assert network_attempts == []
+
+
+def test_claims_from_body_maps_multi_heading_string(network_attempts) -> None:
+    digest = "ab" * 32
+    claims = claims_from_body(
+        body_text=MULTI_HEADING_BODY,
+        artifact_sha256=digest,
+        artifact_path="sources/demo/paper.pdf",
+        title="Video Paper Title",
+    )
+    by_section = {claim["section"]: claim for claim in claims}
+    assert by_section["one_sentence_conclusion"]["claim_text"] == (
+        "Frozen tokenizers enable efficient video generation."
+    )
+    assert "Video Paper Title" not in by_section["one_sentence_conclusion"]["claim_text"]
+    assert "frozen tokenizer method" in by_section["research_question"]["claim_text"]
+    assert "ten million video clips" in by_section["training_data"]["claim_text"]
+    assert "twelve percent FVD" in by_section["experiments_results"]["claim_text"]
+    assert "long uncurated videos" in by_section["limitations"]["claim_text"]
+    assert "VideoGPT" in by_section["related"]["claim_text"]
+    assert "github.com" in by_section["code_resources"]["claim_text"]
+    assert by_section["evidence_status"]["claim_text"] == EVIDENCE_STATUS_TEXT
+    assert by_section["one_sentence_conclusion"]["core"] is True
+    for section, claim in by_section.items():
+        if section != "one_sentence_conclusion":
+            assert claim["core"] is False
+        _assert_locator(claim, digest)
+        assert claim["locators"][0]["artifact_path"] == "sources/demo/paper.pdf"
+    assert network_attempts == []
+
+
+def test_heading_matcher_ignores_long_sentences_with_keywords(network_attempts) -> None:
+    body = (
+        "This long sentence describes the method and the training data used "
+        "in our study without being a heading."
+    )
+    claims = claims_from_body(
+        body_text=body,
+        artifact_sha256="cd" * 32,
+        artifact_path="x.pdf",
+        title="",
+    )
+    assert {claim["section"] for claim in claims} == {
+        "one_sentence_conclusion",
+        "evidence_status",
+    }
+    assert network_attempts == []
+
+
+def test_tiny_pdf_exports_required_claims(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    digest = BlobStore(blob_root).put_from_path(TINY_PDF)
+    code = main(["draft", "export", "--sha256", digest])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    document = json.loads(Path(payload["data"]["path"]).read_text(encoding="utf-8"))
+    _schema_validator().validate(document)
+    by_section = _claims_by_section(document)
+    assert "one_sentence_conclusion" in by_section
+    assert "evidence_status" in by_section
+    assert by_section["evidence_status"]["claim_text"] == EVIDENCE_STATUS_TEXT
+    assert by_section["one_sentence_conclusion"]["core"] is True
+    for section, claim in by_section.items():
+        if section != "one_sentence_conclusion":
+            assert claim["core"] is False
+        _assert_locator(claim, digest)
+    assert network_attempts == []
+
+
+def test_sectioned_pdf_fills_abstract_and_method(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    digest = BlobStore(blob_root).put_from_path(SECTIONED_PDF)
+    code = main(["draft", "export", "--sha256", digest])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    draft_path = Path(payload["data"]["path"])
+    document = json.loads(draft_path.read_text(encoding="utf-8"))
+    _schema_validator().validate(document)
+    assert document["title"] == "Sectioned VPKB Paper"
+    by_section = _claims_by_section(document)
+    conclusion = by_section["one_sentence_conclusion"]["claim_text"]
+    assert conclusion == "This abstract sentence is the conclusion claim."
+    assert conclusion != document["title"]
+    assert "diffusion transformer" in by_section["method"]["claim_text"]
+    assert by_section["evidence_status"]["claim_text"] == EVIDENCE_STATUS_TEXT
+    assert by_section["method"]["locators"][0]["page"] == 2
+    assert by_section["one_sentence_conclusion"]["core"] is True
+    for section, claim in by_section.items():
+        if section != "one_sentence_conclusion":
+            assert claim["core"] is False
+        _assert_locator(claim, digest)
+
+    review_code = main(["review", "export", "--draft", str(draft_path)])
+    assert review_code == 0
+    review_payload = _stdout_json(capsys)
+    note = Path(review_payload["data"]["path"])
+    text = note.read_text(encoding="utf-8")
+    conclusion_block = text[text.index("## 一句话结论") : text.index("## 研究问题")]
+    method_block = text[text.index("## 方法") : text.index("## 表示与架构")]
+    assert "This abstract sentence is the conclusion claim." in conclusion_block
+    assert "We train a diffusion transformer on video latents." in method_block
     assert network_attempts == []
