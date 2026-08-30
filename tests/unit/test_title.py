@@ -74,6 +74,9 @@ CATALOG = (
     ("arxiv-2310.15169", "FreeNoise"),
     ("arxiv-2305.13077", "ControlVideo"),
     ("arxiv-2402.01573", "Boximator"),
+    ("arxiv-2304.01186", "Follow-Your-Pose"),
+    ("arxiv-2308.01419", "Make-Your-Video"),
+    ("arxiv-2311.17482", "MicroCinema"),
 )
 
 
