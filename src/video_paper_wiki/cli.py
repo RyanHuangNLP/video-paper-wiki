@@ -11,6 +11,7 @@ from pathlib import Path
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import ingest as ingest_commands
+from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.envelope import emit_error, emit_success
 
 SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -146,7 +147,10 @@ def build_parser() -> argparse.ArgumentParser:
 
     review = sub.add_parser("review")
     review_sub = review.add_subparsers(dest="review_cmd", required=True)
-    review_sub.add_parser("export").set_defaults(handler=_cmd_not_implemented("review.export"))
+    review_export = review_sub.add_parser("export")
+    review_export.add_argument("--draft", required=True)
+    review_export.add_argument("--vault", dest="notes_root", default=None)
+    review_export.set_defaults(handler=review_commands.export)
     review_sub.add_parser("inspect").set_defaults(handler=_cmd_not_implemented("review.inspect"))
 
     code_map = sub.add_parser("code-map")
