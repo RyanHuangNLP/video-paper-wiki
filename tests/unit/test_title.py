@@ -65,6 +65,9 @@ CATALOG = (
     ("arxiv-2303.12346", "NUWA-XL"),
     ("arxiv-2310.20700", "SEINE"),
     ("arxiv-2410.02757", "Loong"),
+    ("arxiv-2308.08089", "DragNUWA"),
+    ("arxiv-2407.07667", "VEnhancer"),
+    ("arxiv-2410.05755", "Koala-36M"),
 )
 
 
