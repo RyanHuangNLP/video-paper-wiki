@@ -582,3 +582,195 @@ def test_list_ignores_nested_papers_and_wiki(
         }
     ]
     assert network_attempts == []
+
+
+def test_show_missing_dir_refuses_and_does_not_create(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    missing = tmp_path / "missing-root"
+    code = main(["vault", "show", "--vault", str(missing), "arxiv-2408.06072"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.show"
+    assert payload["error"]["code"] == "VAULT_NOT_FOUND"
+    assert not missing.exists()
+    assert network_attempts == []
+
+
+def test_show_empty_paper_id_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    code = main(["vault", "show", "--vault", str(notes), ""])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.show"
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_show_missing_vault_flag_is_usage(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    code = main(["vault", "show", "arxiv-2408.06072"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "USAGE"
+    assert network_attempts == []
+
+
+def test_show_missing_file_does_not_create_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    notes.mkdir()
+    before = list(notes.rglob("*"))
+    code = main(["vault", "show", "--vault", str(notes), "arxiv-2408.06072"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.show"
+    assert payload["error"]["code"] == "PAPER_NOT_FOUND"
+    assert not (notes / "papers").exists()
+    assert list(notes.rglob("*")) == before
+    assert network_attempts == []
+
+
+def test_show_handwritten_yaml_and_related_file_order(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "arxiv-2408.06072.md",
+        "---\n"
+        "title: CogVideoX\n"
+        "paper_id: arxiv-2408.06072\n"
+        "arxiv_id: 2408.06072\n"
+        "year: 2024\n"
+        "topics: [video-diffusion, tokenization]\n"
+        "---\n\n"
+        "Body mentions year: 1999\n\n"
+        "## 相关论文\n\n"
+        "[Make-A-Video](./arxiv-2209.14792.md) (2022)\n"
+        "[Later Paper](./arxiv-2501.00001.md) (2025)\n"
+        "\n## 其他\n\n"
+        "[Ignored](./arxiv-ignored.md)\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "arxiv-2408.06072"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.show"
+    data = payload["data"]
+    assert data["paper_id"] == "arxiv-2408.06072"
+    assert data["title"] == "CogVideoX"
+    assert data["arxiv_id"] == "2408.06072"
+    assert data["year"] == 2024
+    assert isinstance(data["year"], int)
+    assert not isinstance(data["year"], str)
+    assert data["topics"] == ["video-diffusion", "tokenization"]
+    assert data["related"] == ["arxiv-2209.14792", "arxiv-2501.00001"]
+    assert "arxiv_id" in data
+    assert "related" in data
+    assert network_attempts == []
+
+
+def test_show_no_related_section_is_empty_list(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "lonely.md",
+        "---\n"
+        "title: Lonely\n"
+        "paper_id: lonely\n"
+        "year: 2021\n"
+        "topics: []\n"
+        "---\n\n"
+        "No related heading here.\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "lonely"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    data = payload["data"]
+    assert data["related"] == []
+    assert data["arxiv_id"] == ""
+    assert data["year"] == 2021
+    assert isinstance(data["year"], int)
+    assert network_attempts == []
+
+
+def test_show_after_ingest_make_a_video(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
+    dest = tmp_path / "obsidian-root"
+    dest.mkdir()
+    code = main(
+        [
+            "ingest",
+            "run",
+            "--path",
+            str(TINY_PDF),
+            "--paper-id",
+            "arxiv-2209.14792",
+            "--vault",
+            str(dest),
+        ]
+    )
+    assert code == 0
+    capsys.readouterr()
+    note = dest / "papers" / "arxiv-2209.14792.md"
+    original = note.read_text(encoding="utf-8")
+    code = main(["vault", "show", "--vault", str(dest), "arxiv-2209.14792"])
+    assert code == 0
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is True
+    assert payload["command"] == "vault.show"
+    data = payload["data"]
+    assert data["paper_id"] == "arxiv-2209.14792"
+    assert data["title"] == "Make-A-Video"
+    assert data["year"] == 2022
+    assert isinstance(data["year"], int)
+    assert data["arxiv_id"] == "2209.14792"
+    assert "video-diffusion" in data["topics"]
+    assert isinstance(data["related"], list)
+    assert "arxiv-2209.14792" not in data["related"]
+    assert note.read_text(encoding="utf-8") == original
+    assert network_attempts == []
+
+
+def test_show_ignores_nested_papers(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    notes = tmp_path / "notes-root"
+    _write(
+        notes / "papers" / "nested" / "x.md",
+        "---\n"
+        "paper_id: nested\n"
+        "title: Nested\n"
+        "year: 2018\n"
+        "topics: [no]\n"
+        "---\n",
+    )
+    code = main(["vault", "show", "--vault", str(notes), "x"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "vault.show"
+    assert payload["error"]["code"] == "PAPER_NOT_FOUND"
+    assert (notes / "papers" / "nested" / "x.md").is_file()
+    assert not (notes / "papers" / "x.md").exists()
+    assert network_attempts == []

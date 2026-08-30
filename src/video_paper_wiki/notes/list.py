@@ -73,20 +73,13 @@ def _parse_topics(raw: str | None) -> list[str]:
     return items
 
 
-def _parse_paper(path: Path) -> dict[str, Any]:
-    paper_id = path.stem
+def yaml_fields(text: str, stem: str) -> dict[str, Any]:
+    """paper_id, title, arxiv_id, year, topics. Missing arxiv_id -> empty string."""
+    paper_id = stem
     title = ""
+    arxiv_id = ""
     year: int | None = None
     topics: list[str] = []
-    try:
-        text = path.read_text(encoding="utf-8")
-    except (OSError, UnicodeDecodeError):
-        return {
-            "paper_id": paper_id,
-            "title": title,
-            "year": year,
-            "topics": topics,
-        }
     block = _opening_frontmatter(text)
     if block is not None:
         raw_id = _field_value(block, "paper_id")
@@ -95,13 +88,37 @@ def _parse_paper(path: Path) -> dict[str, Any]:
         raw_title = _field_value(block, "title")
         if raw_title is not None:
             title = _unquote(raw_title)
+        raw_arxiv = _field_value(block, "arxiv_id")
+        if raw_arxiv is not None:
+            arxiv_id = _unquote(raw_arxiv)
         year = _parse_year(_field_value(block, "year"))
         topics = _parse_topics(_field_value(block, "topics"))
     return {
         "paper_id": paper_id,
         "title": title,
+        "arxiv_id": arxiv_id,
         "year": year,
         "topics": topics,
+    }
+
+
+def _parse_paper(path: Path) -> dict[str, Any]:
+    stem = path.stem
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return {
+            "paper_id": stem,
+            "title": "",
+            "year": None,
+            "topics": [],
+        }
+    fields = yaml_fields(text, stem)
+    return {
+        "paper_id": fields["paper_id"],
+        "title": fields["title"],
+        "year": fields["year"],
+        "topics": fields["topics"],
     }
 
 

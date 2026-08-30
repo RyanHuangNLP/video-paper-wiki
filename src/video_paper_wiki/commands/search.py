@@ -1,4 +1,4 @@
-"""Local notes grep and stat commands. No network."""
+"""Local notes grep, stat, list, and show commands. No network."""
 
 from __future__ import annotations
 
@@ -8,12 +8,15 @@ from typing import Any
 from video_paper_wiki.envelope import emit_error, emit_success
 from video_paper_wiki.notes.grep import scan_matches
 from video_paper_wiki.notes.list import scan_list
+from video_paper_wiki.notes.show import load_paper
 from video_paper_wiki.notes.stat import scan_stat
 
 COMMAND = "VAULT.GREP".lower()
 STAT_COMMAND = "VAULT.STAT".lower()
 LIST_COMMAND = "VAULT.LIST".lower()
+SHOW_COMMAND = "VAULT.SHOW".lower()
 _MISSING_DIR = "VAULT_NOT_FOUND"
+NOT_FOUND = "PAPER_NOT_FOUND"
 
 
 def _attr(args: object | None, name: str) -> Any:
@@ -72,3 +75,33 @@ def list_papers(_args: object | None = None) -> int:
             {"path": str(raw_root)},
         )
     return emit_success(LIST_COMMAND, scan_list(root))
+
+
+def show(_args: object | None = None) -> int:
+    raw_id = _attr(_args, "paper_id")
+    if raw_id is None or str(raw_id) == "":
+        return emit_error(
+            SHOW_COMMAND, "USAGE", f"{SHOW_COMMAND} requires a non-empty paper_id"
+        )
+    raw_root = _attr(_args, "notes_root")
+    if raw_root is None or str(raw_root).strip() == "":
+        return emit_error(
+            SHOW_COMMAND, "USAGE", f"{SHOW_COMMAND} requires --{('VAULT').lower()}"
+        )
+    root = Path(str(raw_root)).expanduser()
+    if not root.is_dir():
+        return emit_error(
+            SHOW_COMMAND,
+            _MISSING_DIR,
+            "directory is missing or not a directory; this command does not create it",
+            {"path": str(raw_root)},
+        )
+    record = load_paper(root, str(raw_id))
+    if record is None:
+        return emit_error(
+            SHOW_COMMAND,
+            NOT_FOUND,
+            "paper note is missing; this command does not create it",
+            {"paper_id": str(raw_id)},
+        )
+    return emit_success(SHOW_COMMAND, record)

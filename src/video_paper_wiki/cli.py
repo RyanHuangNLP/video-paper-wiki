@@ -186,6 +186,10 @@ def build_parser() -> argparse.ArgumentParser:
     listing = vault_sub.add_parser("list")
     listing.add_argument("--vault", dest="notes_root", required=True)
     listing.set_defaults(handler=search_commands.list_papers)
+    show = vault_sub.add_parser("show")
+    show.add_argument("--vault", dest="notes_root", required=True)
+    show.add_argument("paper_id")
+    show.set_defaults(handler=search_commands.show)
 
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
