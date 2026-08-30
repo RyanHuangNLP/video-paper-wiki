@@ -71,6 +71,9 @@ CATALOG = (
     ("arxiv-2211.11018", "MagicVideo"),
     ("arxiv-2310.07713", "ScaleCrafter"),
     ("arxiv-2402.04424", "Video-LaVIT"),
+    ("arxiv-2310.15169", "FreeNoise"),
+    ("arxiv-2305.13077", "ControlVideo"),
+    ("arxiv-2402.01573", "Boximator"),
 )
 
 
