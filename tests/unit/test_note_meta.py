@@ -169,7 +169,8 @@ def test_ingest_make_a_video_papers_copy_frontmatter(
     assert section_text(copied, "局限") == "没有成对视频-文本，细粒度文本控制偏弱。"
     assert section_text(copied, "关联") == "证明图像先验可以迁到视频，后面 SVD、DynamiCrafter 也走这条路。"
     assert "Tiny VPKB paper" in section_text(work, "一句话结论")
-    assert section_text(copied, "证据状态") == section_text(work, "证据状态")
+    assert section_text(copied, "证据状态") == "provisional"
+    assert "local pypdf extract" not in section_text(copied, "证据状态")
     assert section_text(copied, "代码与资源") == section_text(work, "代码与资源")
     assert "## 相关论文" in copy_body
     assert "## 相关论文" not in work_body

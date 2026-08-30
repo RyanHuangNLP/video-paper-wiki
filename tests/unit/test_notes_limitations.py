@@ -158,7 +158,8 @@ def test_review_export_swaps_vault_limitations_keeps_work_note(
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
     assert section_text(copied_text, "代码与资源") == section_text(work_text, "代码与资源")
-    assert section_text(copied_text, "证据状态") == section_text(work_text, "证据状态")
+    assert section_text(copied_text, "证据状态") == "provisional"
+    assert "local pypdf extract" not in section_text(copied_text, "证据状态")
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text
     wiki_text = (dest / "wiki" / "video-diffusion.md").read_text(encoding="utf-8")

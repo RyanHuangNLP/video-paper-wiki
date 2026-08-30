@@ -209,7 +209,8 @@ def test_review_export_strips_vault_code_keeps_work_note(
     assert section_text(copied_text, "实验与结果") == MAV_EXP
     assert section_text(copied_text, "局限") == MAV_LIMIT
     assert section_text(copied_text, "关联") == MAV_ASSOC
-    assert section_text(copied_text, "证据状态") == EVIDENCE
+    assert section_text(copied_text, "证据状态") == "provisional"
+    assert "local pypdf extract" not in copied_text.split("## 证据状态", 1)[1].split("##", 1)[0]
     assert section_text(work_text, "证据状态") == EVIDENCE
     assert "related:" in yaml
     assert "backlinks:" in yaml

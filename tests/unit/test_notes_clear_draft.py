@@ -185,7 +185,8 @@ def test_review_export_clears_vault_keeps_work_and_frozen_conclusion(
     assert METHOD not in copied_text
     assert REMNANT not in copied_text
     assert section_text(copied_text, "代码与资源") == CODE
-    assert section_text(copied_text, "证据状态") == EVIDENCE
+    assert section_text(copied_text, "证据状态") == "provisional"
+    assert section_text(work_text, "证据状态") == EVIDENCE
     assert section_text(work_text, "代码与资源") == CODE
     assert section_text(copied_text, "研究问题") == MAV_QUESTION
     assert section_text(copied_text, "方法") == MAV_METHOD
@@ -245,7 +246,8 @@ def test_ingest_clears_vault_remnants_keeps_work_note(
             continue
         assert section_text(copied_text, heading) == ""
         assert f"## {heading}" in copied_text
-    assert section_text(copied_text, "证据状态") == section_text(work_text, "证据状态")
+    assert section_text(copied_text, "证据状态") == "provisional"
+    assert "local pypdf extract" not in section_text(copied_text, "证据状态")
     assert section_text(copied_text, "代码与资源") == section_text(work_text, "代码与资源")
     assert "## 主题" in copied_text
     assert "## 相关论文" in copied_text

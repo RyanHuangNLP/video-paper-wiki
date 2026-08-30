@@ -9,6 +9,7 @@ from video_paper_wiki.notes.associations import apply_frozen_associations
 from video_paper_wiki.notes.clear_draft import apply_empty_draft_sections
 from video_paper_wiki.notes.code_resources import apply_clean_code_resources
 from video_paper_wiki.notes.conclusions import apply_frozen_conclusion
+from video_paper_wiki.notes.evidence import apply_frozen_evidence
 from video_paper_wiki.notes.experiments import apply_frozen_experiments
 from video_paper_wiki.notes.limitations import apply_frozen_limitations
 from video_paper_wiki.notes.links import (
@@ -92,4 +93,5 @@ def render_paper_copy_markdown(document: Mapping[str, Any]) -> str:
     body = apply_frozen_experiments(body, paper_id)
     body = apply_frozen_limitations(body, paper_id)
     body = apply_frozen_associations(body, paper_id)
-    return apply_clean_code_resources(body)
+    body = apply_clean_code_resources(body)
+    return apply_frozen_evidence(body, paper_id)
