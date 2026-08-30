@@ -199,6 +199,10 @@ def build_parser() -> argparse.ArgumentParser:
     wiki_show.add_argument("topic_id")
     wiki_show.set_defaults(handler=wiki_commands.show)
 
+    wiki_list = wiki_sub.add_parser("list")
+    wiki_list.add_argument("--vault", dest="notes_root", required=True)
+    wiki_list.set_defaults(handler=wiki_commands.list_pages)
+
     query = sub.add_parser("query")
     query.add_argument("--json", action="store_true")
     query.set_defaults(handler=_cmd_not_implemented("query"))

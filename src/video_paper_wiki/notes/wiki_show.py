@@ -1,4 +1,4 @@
-"""Load one top-level wiki/<id>.md. Read-only. No network."""
+"""Load top-level wiki/<id>.md pages. Read-only. No network."""
 
 from __future__ import annotations
 
@@ -62,3 +62,27 @@ def _parse_topic(topic_id: str, text: str) -> dict[str, Any]:
         "blurb_zh": blurb_zh,
         "papers": papers,
     }
+
+
+def scan_wiki_list(root: Path) -> dict[str, Any]:
+    """Return {pages: [...]} from top-level wiki/*.md. Does not create files."""
+    wiki_dir = root / "wiki"
+    pages: list[dict[str, Any]] = []
+    if wiki_dir.is_dir():
+        for path in wiki_dir.iterdir():
+            if not path.is_file() or path.suffix != ".md":
+                continue
+            record = load_topic(root, path.stem)
+            if record is None:
+                continue
+            pages.append(
+                {
+                    "id": record["id"],
+                    "heading_zh": record["heading_zh"],
+                    "blurb_zh": record["blurb_zh"],
+                    "paper_count": len(record["papers"]),
+                }
+            )
+        pages.sort(key=lambda item: item["id"])
+    return {"pages": pages}
+
