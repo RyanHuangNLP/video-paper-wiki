@@ -37,38 +37,38 @@ EXPECTED_PAPER_IDS = {
         "arxiv-2303.13439",
         "arxiv-2304.08818",
         "arxiv-2305.10874",
+        "arxiv-2306.00943",
         "arxiv-2307.04725",
-        "arxiv-2308.01419",
         "arxiv-2309.15103",
-        "arxiv-2309.15807",
-        "arxiv-2310.07713",
-        "arxiv-2310.15127",
+        "arxiv-2309.15818",
+        "arxiv-2310.07702",
         "arxiv-2310.15169",
+        "arxiv-2310.19512",
         "arxiv-2310.20700",
         "arxiv-2311.04145",
+        "arxiv-2311.10709",
         "arxiv-2311.15127",
-        "arxiv-2311.17482",
-        "arxiv-2312.13253",
+        "arxiv-2311.18829",
         "arxiv-2401.03048",
-        "arxiv-2401.10147",
+        "arxiv-2401.09047",
         "arxiv-2401.12945",
         "arxiv-2402.04324",
-        "arxiv-2402.14709",
+        "arxiv-2402.14797",
+        "arxiv-2403.12706",
         "arxiv-2403.14773",
         "arxiv-2405.18750",
-        "arxiv-2405.18911",
+        "arxiv-2405.18991",
         "arxiv-2407.07667",
-        "arxiv-2408.03810",
         "arxiv-2408.06072",
         "arxiv-2410.05954",
         "arxiv-2410.13720",
         "arxiv-2412.03603",
     ],
-    "tokenization": ["arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2312.03541", "arxiv-2406.08119", "arxiv-2408.06072"],
-    "evaluation": ["arxiv-1812.01717", "arxiv-2311.06908", "arxiv-2311.17982", "arxiv-2312.12456", "arxiv-2406.15252", "arxiv-2406.18522"],
-    "data": ["arxiv-2307.06942", "arxiv-2402.19479", "arxiv-2403.04916", "arxiv-2407.02371", "arxiv-2410.05755"],
-    "motion-control": ["arxiv-2212.11565", "arxiv-2304.01186", "arxiv-2305.13077", "arxiv-2306.02018", "arxiv-2307.04725", "arxiv-2308.08089", "arxiv-2310.08465", "arxiv-2310.12190", "arxiv-2311.16933", "arxiv-2312.03641", "arxiv-2402.01573", "arxiv-2402.03162", "arxiv-2404.02101", "arxiv-2408.03810"],
-    "language-model": ["arxiv-2205.15868", "arxiv-2210.02399", "arxiv-2312.03541", "arxiv-2312.14125", "arxiv-2402.04424", "arxiv-2410.02757"],
+    "tokenization": ["arxiv-2210.02399", "arxiv-2212.05199", "arxiv-2310.05737", "arxiv-2406.09399", "arxiv-2408.06072"],
+    "evaluation": ["arxiv-1812.01717", "arxiv-2310.11440", "arxiv-2311.01813", "arxiv-2311.17982", "arxiv-2406.15252", "arxiv-2406.18522"],
+    "data": ["arxiv-2307.06942", "arxiv-2402.19479", "arxiv-2403.06098", "arxiv-2407.02371", "arxiv-2410.08260"],
+    "motion-control": ["arxiv-2212.11565", "arxiv-2304.01186", "arxiv-2305.13077", "arxiv-2306.02018", "arxiv-2307.04725", "arxiv-2308.08089", "arxiv-2310.08465", "arxiv-2310.12190", "arxiv-2311.16933", "arxiv-2312.03641", "arxiv-2402.01566", "arxiv-2402.03162", "arxiv-2403.12706", "arxiv-2404.02101"],
+    "language-model": ["arxiv-2205.15868", "arxiv-2210.02399", "arxiv-2310.05737", "arxiv-2312.14125", "arxiv-2402.03161", "arxiv-2410.02757"],
 }
 EXPECTED_BLURB_ZH = {
     "video-diffusion": "用扩散模型生成视频，覆盖文生视频和图生视频。",
@@ -81,7 +81,7 @@ EXPECTED_BLURB_ZH = {
 FORBIDDEN_KEY_FRAGMENTS = ("pdf", "fetch")
 ALLOWED_TOPIC_KEYS = {"id", "heading_zh", "paper_ids", "blurb_zh"}
 FROZEN_TOPICS_SHA256 = (
-    "3bb9aad76e835b1f77c14bf6f83c7e039997763f78b8b59b22e2682007aedc5b"
+    "65b4f48decbf840b945723faff757642f515952ac85f03b0f8c430450574b45e"
 )
 
 
