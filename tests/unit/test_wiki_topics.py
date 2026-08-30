@@ -65,10 +65,10 @@ def test_ingest_one_paper_writes_topic_wiki_pages(
 
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     assert index_text.startswith("# Video Paper Wiki\n")
-    assert "[Make-A-Video](papers/arxiv-2209.14792.md)" in index_text
+    assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in index_text
     assert "## 主题" in index_text
     assert "[视频扩散](wiki/video-diffusion.md)" in index_text
-    paper_at = index_text.splitlines().index("[Make-A-Video](papers/arxiv-2209.14792.md)")
+    paper_at = index_text.splitlines().index("[Make-A-Video](papers/arxiv-2209.14792.md) (2022)")
     topics_at = index_text.splitlines().index("## 主题")
     assert paper_at < topics_at
     for link in TOPIC_INDEX_LINKS:
@@ -99,12 +99,12 @@ def test_ingest_second_paper_keeps_papers_above_topics(
     index_text = (dest / "index.md").read_text(encoding="utf-8")
     lines = index_text.splitlines()
     assert index_text.startswith("# Video Paper Wiki\n")
-    assert "[Make-A-Video](papers/arxiv-2209.14792.md)" in lines
-    assert "[VBench](papers/arxiv-2311.17982.md)" in lines
+    assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in lines
+    assert "[VBench](papers/arxiv-2311.17982.md) (2023)" in lines
     topics_at = lines.index("## 主题")
-    assert lines.index("[Make-A-Video](papers/arxiv-2209.14792.md)") < topics_at
-    assert lines.index("[VBench](papers/arxiv-2311.17982.md)") < topics_at
-    vbench_line = lines.index("[VBench](papers/arxiv-2311.17982.md)")
+    assert lines.index("[Make-A-Video](papers/arxiv-2209.14792.md) (2022)") < topics_at
+    assert lines.index("[VBench](papers/arxiv-2311.17982.md) (2023)") < topics_at
+    vbench_line = lines.index("[VBench](papers/arxiv-2311.17982.md) (2023)")
     assert vbench_line < topics_at
     assert "[评测](wiki/evaluation.md)" in lines
     assert index_text.count("## 主题") == 1

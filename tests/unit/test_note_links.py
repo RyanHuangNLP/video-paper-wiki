@@ -154,7 +154,7 @@ def test_ingest_make_a_video_appends_trailers_only_on_papers_copy(
     assert "topics: [video-diffusion]" in copied_text
     assert not (dest / "wiki" / "index.md").exists()
     index_text = (dest / "index.md").read_text(encoding="utf-8")
-    assert "[Make-A-Video](papers/arxiv-2209.14792.md)" in index_text
+    assert "[Make-A-Video](papers/arxiv-2209.14792.md) (2022)" in index_text
     assert "## 主题" in index_text
     assert "[视频扩散](wiki/video-diffusion.md)" in index_text
     assert (dest / "wiki" / "video-diffusion.md").is_file()
