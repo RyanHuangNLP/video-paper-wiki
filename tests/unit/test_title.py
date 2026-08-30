@@ -22,6 +22,9 @@ CATALOG = (
     ("arxiv-2210.02399", "Phenaki"),
     ("arxiv-2212.05199", "MAGVIT"),
     ("arxiv-2312.14125", "VideoPoet"),
+    ("arxiv-2401.12945", "Lumiere"),
+    ("arxiv-2408.06072", "CogVideoX"),
+    ("arxiv-2412.03603", "HunyuanVideo"),
 )
 
 
