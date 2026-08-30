@@ -1,0 +1,71 @@
+"""Frozen training sentences for vault paper notes. No network."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+_TRAINING_RELATIVE = Path("docs") / "seed" / "engine-mvp-training.json"
+_HEADING = "训练与数据"
+
+
+def _resolve_training_path() -> Path | None:
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / _TRAINING_RELATIVE
+        if candidate.is_file():
+            return candidate
+    cwd_candidate = Path.cwd() / _TRAINING_RELATIVE
+    if cwd_candidate.is_file():
+        return cwd_candidate
+    return None
+
+
+def load_training() -> dict[str, str] | None:
+    path = _resolve_training_path()
+    if path is None:
+        return None
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict) or not isinstance(payload.get("training"), dict):
+        return None
+    training: dict[str, str] = {}
+    for raw_id, raw_text in payload["training"].items():
+        if not isinstance(raw_id, str) or not raw_id.strip():
+            continue
+        if not isinstance(raw_text, str) or not raw_text.strip():
+            continue
+        training[raw_id.strip()] = raw_text.strip()
+    return training
+
+
+def apply_frozen_training(text: str, paper_id: str) -> str:
+    """Replace ## 训练与数据 body with the frozen sentence. Other sections stay."""
+    wanted = str(paper_id).strip()
+    if not wanted:
+        return text
+    training = load_training()
+    if not training:
+        return text
+    sentence = training.get(wanted)
+    if not sentence:
+        return text
+    lines = text.splitlines()
+    start: int | None = None
+    for index, line in enumerate(lines):
+        if line.startswith("##") and line[2:].strip() == _HEADING:
+            start = index
+            break
+    if start is None:
+        return text
+    end = len(lines)
+    for index in range(start + 1, len(lines)):
+        if lines[index].startswith("##"):
+            end = index
+            break
+    replaced = lines[: start + 1] + ["", sentence, ""] + lines[end:]
+    out = "\n".join(replaced)
+    if not out.endswith("\n"):
+        out += "\n"
+    return out
