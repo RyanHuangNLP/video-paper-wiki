@@ -62,6 +62,9 @@ CATALOG = (
     ("arxiv-2302.03011", "Gen-1"),
     ("arxiv-2408.03810", "AnimateDiff-Lightning"),
     ("arxiv-2406.15252", "VideoScore"),
+    ("arxiv-2303.12346", "NUWA-XL"),
+    ("arxiv-2310.20700", "SEINE"),
+    ("arxiv-2410.02757", "Loong"),
 )
 
 
