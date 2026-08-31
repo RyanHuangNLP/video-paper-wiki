@@ -1,0 +1,169 @@
+# Handoff metadata, not a runtime lifecycle database or a contract-freeze verdict.
+version: 1
+project: video-paper-wiki
+recorded_on: "2026-09-01"
+
+resume_context:
+  pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
+  reference_head: be2599759db7ea80aff60baae0e7859824307527
+  observed_branch: repair/vpkb000-plan-approval-prepare-follow2
+  requested_delivery_flow: [draft, integration]
+  delivery_status: not-recorded
+  delivery_note: >-
+    draft → integration is the requested continuation path. This index does not
+    assert that PR #94, its follow-up, or either branch has been merged.
+  catalog:
+    path: docs/seed/engine-mvp.json
+    observed_paper_count: 67
+    policy: frozen-67
+    note: >-
+      Preserve the existing 67-entry catalog and its overlays in this packet.
+      Its engine-mvp filename is not evidence that engine-mvp passed, and the
+      catalog does not supply a human baseline-gate decision.
+  planning_reference:
+    path: docs/video-paper-wiki-development-plan.md
+    ownership: existing-local-untracked-document
+    note: >-
+      Consult the existing plan for requirements; do not edit or stage it as
+      part of this packet. Historical plan status is not implementation evidence.
+
+human_gates:
+  HUMAN-GATE-BASELINE-001:
+    status: not-recorded
+    evidence: []
+    blocks: [VPKB-004, VPKB-005]
+    note: >-
+      No persisted decision evidence was identified in the reviewed checkout.
+      This means not-recorded, not that a product choice has been made or that
+      a prior human decision has been disproved. Do not infer a choice from
+      chat, the frozen catalog, or the old plan.
+    required_evidence:
+      - Human gate-decision event for this exact gate.
+      - Unique current head in wiki/meta/registries/gate-heads.json.
+      - Matching baseline manifest SHA-256 and derived five-repository list.
+      - Publication through the inspected and approved transaction path.
+
+work_packages:
+  - id: VPKB-000
+    title: Engineering foundation and shared engine contracts
+    status: in_progress
+    depends_on: []
+    active_packet: VPKB-000-pr94
+    observed_at_reference_head:
+      - Python packaging, uv.lock, and separate agent/operator entry-point packages.
+      - Agent-safe command tree, JSON envelope, JCS, identity, and taxonomy code.
+      - Twelve schema files with valid/invalid and prospective-validation fixtures.
+      - Docling and claude-obsidian pins, recorded as pinned rather than verified.
+    remaining_at_reference_head:
+      - Capture-inspection and code-evidence-manifest schemas and pure fixtures.
+      - Unified non-persistent transaction facade and its contract fixtures.
+      - Catalog SQLite base DDL, keys, ordering, generation/stale digest contracts.
+      - Projection stability comparator and exact runtime volatile-field allowlist.
+      - Pinned upstream chunk/BM25/tokenizer fixtures and source-digest evidence.
+      - Dependency/license verification evidence, distinct from version pins.
+      - Reproducible offline CI and recorded validation evidence.
+      - Task index, work-packet template, and durable verification handoff.
+    completion_rule: >-
+      Close only after the complete VPKB-000 requirements have reviewable
+      evidence. Completing the active PR #94 follow-up packet alone does not
+      freeze all shared contracts or close VPKB-000.
+
+  - id: VPKB-001
+    title: Vault and upstream transaction adaptation
+    status: not_started
+    depends_on: [VPKB-000]
+    prerequisite_status: not-satisfied
+    ordered_verification_slices: [adapter-contract, integrity-runtime]
+    note: >-
+      The slices are verification order within this package, not additional
+      work packages or runtime lifecycle states. Complete both before VPKB-002.
+
+  - id: VPKB-002
+    title: Three-paper and one-repository engine data chain
+    status: not_started
+    depends_on: [VPKB-001]
+    prerequisite_status: not-satisfied
+    note: >-
+      Requires the complete VPKB-001 acceptance evidence. Data-chain success
+      alone does not establish engine-mvp or corpus-v1 completion.
+
+  - id: VPKB-003
+    title: Repository skills and engine MVP acceptance
+    status: not_started
+    depends_on: [VPKB-002]
+    prerequisite_status: not-satisfied
+    note: >-
+      Requires skills, fresh-context safety checks, a repeated data chain,
+      and the required human visual acceptance before engine-mvp can close.
+
+  - id: VPKB-004
+    title: Official code evidence mapping
+    status: not_started
+    depends_on: [VPKB-003, HUMAN-GATE-BASELINE-001]
+    prerequisite_status: not-satisfied
+    note: Do not begin production mapping while the persisted human gate is unverified.
+
+  - id: VPKB-005
+    title: Baseline corpus and retrieval acceptance
+    status: not_started
+    depends_on: [VPKB-004, HUMAN-GATE-BASELINE-001]
+    prerequisite_status: not-satisfied
+    note: >-
+      Requires corpus quality, human core-claim review, retrieval thresholds,
+      raw-inclusive backup/restore evidence, and all required human gates.
+
+packets:
+  - id: VPKB-000-pr94
+    parent: VPKB-000
+    title: PR 94 input-safety regressions, reproducible checks, and handoff
+    status: complete
+    owner: root
+    base_commit: be2599759db7ea80aff60baae0e7859824307527
+    depends_on: []
+    scope:
+      - Fix and regress input-safety issues in the PR 94 continuation.
+      - Establish a replayable test environment and offline CI checks.
+      - Record current scope, remaining contract gaps, and verification handoff.
+    allowed_paths:
+      - src/video_paper_wiki/**
+      - tests/**
+      - pyproject.toml
+      - uv.lock
+      - .github/workflows/**
+      - README.md
+      - docs/ai/task-index.yaml
+      - docs/ai/work-packet-template.md
+      - artifacts/verification/VPKB-000-pr94/**
+    out_of_scope:
+      - Changes to the frozen 67-entry seed catalog or its overlays.
+      - Edits to the existing local untracked development plans and user files.
+      - VPKB-001 production capture, transaction, apply, audit, or index execution.
+      - Vault mutation, admin installation/execution, or human-gate self-approval.
+      - Claims of VPKB-000 freeze, engine-mvp completion, or corpus-v1 completion.
+    verification:
+      status: passed-locally
+      evidence_directory: artifacts/verification/VPKB-000-pr94/
+      evidence_owner: root
+      results:
+        - Python 3.12.14 on macOS arm64; 667 passed, zero failures or skips.
+        - Python 3.13.13 on macOS arm64; 667 passed, zero failures or skips.
+        - Installed-wheel smoke outside the source checkout passed.
+        - Independent input-boundary review found no remaining blocker in this packet.
+      note: >-
+        Exact commands, environment, source hashes, outcomes, and limitations
+        are recorded in the evidence directory. Remote CI outcomes must be
+        checked on the PR; local success is not VPKB-000 completion.
+    acceptance:
+      - Concrete input-safety regressions have meaningful regression coverage.
+      - Test setup and offline checks can be replayed from recorded instructions.
+      - Exact validation outcomes and limitations are saved in the evidence directory.
+      - Handoff preserves the frozen catalog and records remaining VPKB-000 gaps.
+    rollback: >-
+      Revert only this packet's reviewed changes or commits. Preserve all
+      pre-existing user files, catalog content, and unrelated working-tree edits;
+      do not use a blanket reset or clean operation.
+
+milestones:
+  engine-data-chain: {status: not-recorded, evidence: []}
+  engine-mvp: {status: not-recorded, evidence: []}
+  corpus-v1: {status: not-recorded, evidence: []}

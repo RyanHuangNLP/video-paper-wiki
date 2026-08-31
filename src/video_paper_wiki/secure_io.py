@@ -20,6 +20,8 @@ BLOB_LIMIT_EXCEEDED = "BLOB_LIMIT_EXCEEDED"
 
 READ_CHUNK = 1024 * 1024
 JSON_MAX_BYTES = 1_048_576
+JSON_MAX_DEPTH = 64
+JSON_WHITESPACE = " \t\r\n"
 
 
 class SecureIOError(Exception):
@@ -312,8 +314,62 @@ def read_regular_file(
             close_fd(fd)
 
 
+def _check_json_depth(text: str, *, invalid_code: str) -> None:
+    """Bound containers before decoding or recursively validating/canonicalizing."""
+
+    depth = 0
+    in_string = False
+    escaped = False
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+        elif char == '"':
+            in_string = True
+        elif char in "[{":
+            depth += 1
+            if depth > JSON_MAX_DEPTH:
+                raise SecureIOError(
+                    invalid_code,
+                    "JSON nesting exceeds the supported limit",
+                    {"reason": "depth", "max_depth": JSON_MAX_DEPTH},
+                )
+        elif char in "]}":
+            depth -= 1
+
+
+def _check_json_unicode(value: Any, *, invalid_code: str) -> None:
+    """JSON escapes must still decode to valid Unicode for JCS and stdout."""
+
+    pending = [value]
+    while pending:
+        current = pending.pop()
+        if isinstance(current, dict):
+            pending.extend(current.keys())
+            pending.extend(current.values())
+        elif isinstance(current, list):
+            pending.extend(current)
+        elif isinstance(current, str):
+            try:
+                current.encode("utf-8")
+            except UnicodeEncodeError as exc:
+                raise SecureIOError(
+                    invalid_code,
+                    "JSON contains an unpaired Unicode surrogate",
+                    {"reason": "unicode"},
+                ) from exc
+
+
 def parse_strict_json(data: bytes, *, invalid_code: str) -> Any:
-    """Parse UTF-8 JSON. Reject duplicate keys, floats, NaN/Infinity, trailing data."""
+    """Parse bounded UTF-8 JSON using only RFC 8259 whitespace.
+
+    Reject duplicate keys, floats, NaN/Infinity, BOMs, unpaired surrogates
+    and trailing data.
+    """
 
     try:
         text = data.decode("utf-8")
@@ -351,16 +407,21 @@ def parse_strict_json(data: bytes, *, invalid_code: str) -> Any:
         stripped = text.lstrip("\ufeff")
         if stripped != text:
             raise SecureIOError(invalid_code, "JSON must not contain a UTF-8 BOM", {"reason": "bom"})
-        obj, index = decoder.raw_decode(text)
+        _check_json_depth(text, invalid_code=invalid_code)
+        start = len(text) - len(text.lstrip(JSON_WHITESPACE))
+        obj, index = decoder.raw_decode(text, start)
     except SecureIOError:
         raise
     except json.JSONDecodeError as exc:
         raise SecureIOError(invalid_code, "JSON is invalid", {"reason": "syntax"}) from exc
+    except RecursionError as exc:
+        raise SecureIOError(invalid_code, "JSON nesting is too deep", {"reason": "depth"}) from exc
     except ValueError as exc:
         raise SecureIOError(invalid_code, "JSON is invalid", {"reason": "value"}) from exc
     trailing = text[index:]
-    if trailing.strip():
+    if trailing.strip(JSON_WHITESPACE):
         raise SecureIOError(invalid_code, "JSON has trailing data", {"reason": "trailing"})
+    _check_json_unicode(obj, invalid_code=invalid_code)
     return obj
 
 

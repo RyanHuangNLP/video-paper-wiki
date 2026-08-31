@@ -161,6 +161,35 @@ def test_prepare_plan_not_found_and_unsafe_paths(
     assert network_attempts == []
 
 
+@pytest.mark.parametrize("family", ["ingest", "code-map"])
+@pytest.mark.parametrize("schema_value", [{}, []])
+def test_prepare_non_string_plan_schema_is_a_refusal(
+    family, schema_value, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    request = (
+        paper_source_request(local_sha256="a" * 64)
+        if family == "ingest"
+        else code_evidence_request()
+    )
+    plan_path, ref_path, plan = _bind_plan(tmp_path, request, input_sha256="a" * 64)
+    plan["schema"] = schema_value
+    write_json(plan_path, plan)
+    original_bytes = plan_path.read_bytes()
+
+    code = main([family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    payload = _payload(capsys)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["command"] == f"{family}.prepare"
+    assert payload["error"]["code"] == "SCHEMA_INVALID"
+    assert payload["error"]["details"]["instance_pointer"] == "/schema"
+    assert not (tmp_path / ".work" / plan["batch_id"] / "prepared").exists()
+    assert plan_path.read_bytes() == original_bytes
+    assert network_attempts == []
+
+
 def _plant_special(path: Path, kind: str) -> socket.socket | None:
     if path.exists() or path.is_symlink():
         if path.is_dir() and not path.is_symlink():

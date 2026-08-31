@@ -804,6 +804,13 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             schema=expected_schema or "",
             keyword="type",
         )
+    if "schema" in document and not isinstance(document["schema"], str):
+        raise _schema_error(
+            "document schema must be a string",
+            schema=expected_schema or "",
+            instance_pointer="/schema",
+            keyword="type",
+        )
     schema_name = expected_schema or document.get("schema")
     if not isinstance(schema_name, str) or not schema_name:
         raise _schema_error(

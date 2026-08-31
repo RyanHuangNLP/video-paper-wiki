@@ -87,6 +87,20 @@ def test_schema_error_details_include_pointer_and_keyword() -> None:
     assert exc.value.details["keyword"]
 
 
+@pytest.mark.parametrize("schema_value", [{}, [], None, True, 1])
+@pytest.mark.parametrize("explicit_schema", [False, True])
+def test_non_string_schema_is_a_contract_error(schema_value, explicit_schema: bool) -> None:
+    schema_name = "video-paper-wiki.ingest-plan.v1"
+    document = load_json(VALID / f"{schema_name}.json")
+    document["schema"] = schema_value
+    with pytest.raises(ContractError) as exc:
+        validate_document(document, expected_schema=schema_name if explicit_schema else None)
+    assert exc.value.code == SCHEMA_INVALID
+    assert exc.value.exit_code == 2
+    assert exc.value.details["instance_pointer"] == "/schema"
+    assert exc.value.details["keyword"] == "type"
+
+
 def test_dotdot_artifact_schema_error_details() -> None:
     document = load_json(INVALID / "prepared_dotdot_artifact_path.json")
     with pytest.raises(ContractError) as exc:

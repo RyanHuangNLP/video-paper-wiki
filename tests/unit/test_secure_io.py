@@ -15,6 +15,7 @@ from video_paper_wiki.secure_io import (
     BLOB_LIMIT_EXCEEDED,
     BLOB_NOT_FOUND,
     BLOB_PATH_UNSAFE,
+    JSON_MAX_DEPTH,
     PLAN_NOT_FOUND,
     PLAN_PATH_UNSAFE,
     SOURCE_CHANGED,
@@ -128,6 +129,48 @@ def test_parse_strict_json_rejects_duplicate_float_nan_trailing_and_utf8() -> No
         parse_strict_json(b'{"a":1}\xff', invalid_code="X")
     with pytest.raises(SecureIOError):
         parse_strict_json(b'\xef\xbb\xbf{"a":1}', invalid_code="X")
+
+
+def test_strict_json_accepts_rfc_whitespace_and_quoted_brackets() -> None:
+    # Brackets, quotes and escaped backslashes inside strings are not containers.
+    value = {"text": '[{\\"' * (JSON_MAX_DEPTH + 1), "array": [1, True, None]}
+    raw = b" \r\n\t" + json.dumps(value).encode("utf-8") + b"\t\n\r "
+    assert parse_strict_json(raw, invalid_code="X") == value
+    assert parse_strict_json(b'{"emoji":"\\ud83d\\ude00"}', invalid_code="X") == {"emoji": "😀"}
+
+
+@pytest.mark.parametrize("raw", [b'{"schema":"\\ud800"}', b'{"\\udfff":1}', b'["\\ud800x\\udc00"]'])
+def test_strict_json_rejects_unpaired_surrogates_in_keys_and_values(raw) -> None:
+    with pytest.raises(SecureIOError) as exc:
+        parse_strict_json(raw, invalid_code="X")
+    assert exc.value.code == "X"
+    assert exc.value.details == {"reason": "unicode"}
+
+
+@pytest.mark.parametrize("whitespace", ["\u00a0", "\u2003", "\v", "\f"])
+@pytest.mark.parametrize("side", ["before", "after"])
+def test_strict_json_rejects_non_json_whitespace(whitespace, side) -> None:
+    text = whitespace + "{}" if side == "before" else "{}" + whitespace
+    with pytest.raises(SecureIOError) as exc:
+        parse_strict_json(text.encode("utf-8"), invalid_code="X")
+    assert exc.value.code == "X"
+    assert exc.value.exit_code == 2
+
+
+@pytest.mark.parametrize("opener,closer", [(b"[", b"]"), (b'{"a":', b"}")])
+def test_strict_json_bounds_container_depth_before_recursive_processing(opener, closer) -> None:
+    at_limit = opener * JSON_MAX_DEPTH + b"0" + closer * JSON_MAX_DEPTH
+    value = parse_strict_json(at_limit, invalid_code="X")
+    # The accepted boundary remains safe for the later canonicalization step.
+    from video_paper_wiki.jcs import canonicalize
+
+    assert canonicalize(value) == at_limit
+    for depth in (JSON_MAX_DEPTH + 1, 500, 10_000):
+        raw = opener * depth + b"0" + closer * depth
+        with pytest.raises(SecureIOError) as exc:
+            parse_strict_json(raw, invalid_code="X")
+        assert exc.value.code == "X"
+        assert exc.value.details == {"reason": "depth", "max_depth": JSON_MAX_DEPTH}
 
 
 def test_missing_symlink_dir_fifo_socket_device(tmp_path: Path) -> None:
