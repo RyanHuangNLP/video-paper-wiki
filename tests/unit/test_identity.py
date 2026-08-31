@@ -103,6 +103,27 @@ def test_page_slug_is_not_canonical() -> None:
     assert slug != doi
     assert ":" not in slug
     assert len(slug) == 4 + 64
+    old = paper_page_slug("arxiv:hep-th/9901001")
+    assert old == "arxiv-hep-th-9901001"
+    assert "/" not in old
+    assert not is_canonical_paper_id(old)
+
+
+def test_uppercase_doi_canonicalizes_and_is_not_kept() -> None:
+    assert not is_canonical_paper_id("doi:10.1234/Foo")
+    paper_id, aliases = establish_canonical_paper_id(existing_paper_id="doi:10.1234/Foo")
+    assert paper_id == "doi:10.1234/foo"
+    assert "doi:10.1234/Foo" not in (paper_id, *aliases)
+
+
+def test_existing_sha256_id_conflicts_without_bindings() -> None:
+    with pytest.raises(IdentityError) as exc:
+        establish_canonical_paper_id(
+            existing_paper_id="sha256:" + "a" * 64,
+            pdf_sha256="b" * 64,
+        )
+    assert exc.value.code == IDENTITY_CONFLICT
+    assert exc.value.exit_code == 75
 
 
 def test_repo_id_casefold_excludes_commit() -> None:

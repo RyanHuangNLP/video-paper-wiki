@@ -201,12 +201,93 @@ def _is_blocked_literal_host(host: str) -> bool:
     )
 
 
+def _path_has_illegal_segments(path: str) -> bool:
+    if not isinstance(path, str) or not path:
+        return True
+    if "\\" in path or path.startswith("/"):
+        return True
+    segments = path.split("/")
+    return any(segment in {"", ".", ".."} for segment in segments)
+
+
+def _reject_illegal_path(path: str, *, schema_name: str, pointer: str) -> None:
+    if _path_has_illegal_segments(path):
+        raise _schema_error(
+            "path must not contain empty, '.', or '..' segments",
+            schema=schema_name,
+            instance_pointer=pointer,
+            keyword="pattern",
+            extra={"path": path},
+        )
+
+
+def _plan_allowed_hosts(plan_kind: object) -> frozenset[str] | None:
+    if plan_kind == "paper-source":
+        return PAPER_HOSTS
+    if plan_kind == "code-evidence":
+        return CODE_HOSTS
+    return None
+
+
+def _check_https_input_url(
+    url: str,
+    *,
+    schema_name: str,
+    pointer: str,
+    allowed: frozenset[str] | None,
+    declared_host: str | None = None,
+    declared_hosts: set[str] | None = None,
+) -> str:
+    hostname = _url_hostname(url)
+    if hostname is None:
+        raise _schema_error(
+            "url must be HTTPS without userinfo",
+            schema=schema_name,
+            instance_pointer=pointer,
+            keyword="format",
+            extra={"url": url},
+        )
+    if _is_blocked_literal_host(hostname):
+        raise _schema_error(
+            "host must be a public exact hostname",
+            schema=schema_name,
+            instance_pointer=pointer,
+            keyword="pattern",
+            extra={"url": url, "host": hostname},
+        )
+    if allowed is not None and hostname not in allowed:
+        raise _schema_error(
+            "host is not on the plan-kind whitelist",
+            schema=schema_name,
+            instance_pointer=pointer,
+            keyword="enum",
+            extra={"url": url, "host": hostname},
+        )
+    if declared_host is not None and hostname != declared_host.casefold():
+        raise _schema_error(
+            "url hostname must equal declared host",
+            schema=schema_name,
+            instance_pointer=pointer,
+            keyword="const",
+            extra={"url": url, "host": declared_host, "hostname": hostname},
+        )
+    if declared_hosts and hostname not in declared_hosts:
+        raise _schema_error(
+            "url hostname must equal declared host",
+            schema=schema_name,
+            instance_pointer=pointer,
+            keyword="const",
+            extra={"url": url, "hostname": hostname, "declared_hosts": sorted(declared_hosts)},
+        )
+    return hostname
+
+
 def _check_network_targets(document: Mapping[str, Any], schema_name: str) -> None:
     targets = document.get("network_targets")
     if not isinstance(targets, list):
         return
+    allowed = _plan_allowed_hosts(document.get("plan_kind"))
     plan_kind = document.get("plan_kind")
-    allowed = PAPER_HOSTS if plan_kind == "paper-source" else CODE_HOSTS if plan_kind == "code-evidence" else None
     for index, target in enumerate(targets):
         if not isinstance(target, Mapping):
             continue
@@ -221,23 +302,13 @@ def _check_network_targets(document: Mapping[str, Any], schema_name: str) -> Non
                 keyword="pattern",
                 extra={"host": host},
             )
-        hostname = _url_hostname(url)
-        if hostname is None:
-            raise _schema_error(
-                "url must be HTTPS without userinfo",
-                schema=schema_name,
-                instance_pointer=f"{pointer}/url",
-                keyword="format",
-                extra={"url": url},
-            )
-        if hostname != host.casefold():
-            raise _schema_error(
-                "url hostname must equal declared host",
-                schema=schema_name,
-                instance_pointer=f"{pointer}/host",
-                keyword="const",
-                extra={"url": url, "host": host, "hostname": hostname},
-            )
+        _check_https_input_url(
+            url,
+            schema_name=schema_name,
+            pointer=f"{pointer}/url",
+            allowed=allowed,
+            declared_host=host,
+        )
         if allowed is not None and host.casefold() not in allowed:
             raise _schema_error(
                 "host is not on the plan-kind whitelist",
@@ -268,8 +339,66 @@ def _check_network_targets(document: Mapping[str, Any], schema_name: str) -> Non
                     )
 
 
+def _declared_network_hosts(document: Mapping[str, Any]) -> set[str]:
+    targets = document.get("network_targets")
+    hosts: set[str] = set()
+    if not isinstance(targets, list):
+        return hosts
+    for target in targets:
+        if not isinstance(target, Mapping):
+            continue
+        host = target.get("host")
+        if isinstance(host, str) and host:
+            hosts.add(host.casefold())
+        redirects = target.get("redirect_hosts")
+        if isinstance(redirects, list):
+            for redirect in redirects:
+                if isinstance(redirect, str) and redirect:
+                    hosts.add(redirect.casefold())
+    return hosts
+
+
+def _check_plan_input(document: Mapping[str, Any], schema_name: str) -> None:
+    source = document.get("input")
+    if not isinstance(source, Mapping):
+        return
+    allowed = _plan_allowed_hosts(document.get("plan_kind"))
+    declared = _declared_network_hosts(document)
+    pdf_url = source.get("pdf_url")
+    if isinstance(pdf_url, str):
+        _check_https_input_url(
+            pdf_url,
+            schema_name=schema_name,
+            pointer="/input/pdf_url",
+            allowed=allowed,
+            declared_hosts=declared or None,
+        )
+    for key, value in source.items():
+        if key == "pdf_url" or not isinstance(value, str):
+            continue
+        if "://" in value and key.endswith("url"):
+            _check_https_input_url(
+                value,
+                schema_name=schema_name,
+                pointer=f"/input/{key}",
+                allowed=allowed,
+                declared_hosts=declared or None,
+            )
+    arxiv_id = source.get("arxiv_id")
+    if arxiv_id is not None:
+        if not isinstance(arxiv_id, str) or not identity.is_version_stripped_arxiv_id(arxiv_id):
+            raise _schema_error(
+                "arxiv_id must be a version-stripped arXiv identifier",
+                schema=schema_name,
+                instance_pointer="/input/arxiv_id",
+                keyword="pattern",
+                extra={"arxiv_id": arxiv_id},
+            )
+
+
 def _check_plan_object(document: Mapping[str, Any], schema_name: str) -> None:
     _check_network_targets(document, schema_name)
+    _check_plan_input(document, schema_name)
     limits = document.get("limits")
     targets = document.get("network_targets")
     if isinstance(limits, Mapping) and isinstance(targets, list):
@@ -383,6 +512,25 @@ def _check_plan_object(document: Mapping[str, Any], schema_name: str) -> None:
 
 
 def _check_receipt_object(document: Mapping[str, Any]) -> None:
+    schema_name = "video-paper-wiki.operation-receipt.v1"
+    writes = document.get("writes")
+    if isinstance(writes, list):
+        for index, entry in enumerate(writes):
+            if isinstance(entry, Mapping) and isinstance(entry.get("path"), str):
+                _reject_illegal_path(
+                    str(entry["path"]),
+                    schema_name=schema_name,
+                    pointer=f"/writes/{index}/path",
+                )
+    claimed = document.get("claimed_inputs")
+    if isinstance(claimed, list):
+        for index, entry in enumerate(claimed):
+            if isinstance(entry, Mapping) and isinstance(entry.get("path"), str):
+                _reject_illegal_path(
+                    str(entry["path"]),
+                    schema_name=schema_name,
+                    pointer=f"/claimed_inputs/{index}/path",
+                )
     stated = document.get("intent_sha256")
     if not isinstance(stated, str):
         return
@@ -429,6 +577,11 @@ def _check_event_object(document: Mapping[str, Any], schema_name: str) -> None:
         )
 
 
+def _claim_missing(code: str, message: str, details: dict[str, Any]) -> ContractError:
+    exit_code = 75 if code == CLAIM_ID_COLLISION else 2
+    return ContractError(code, message, details, exit_code=exit_code)
+
+
 def _check_draft_object(document: Mapping[str, Any]) -> None:
     paper_id = document.get("paper_id")
     if not isinstance(paper_id, str) or not identity.is_canonical_paper_id(paper_id):
@@ -441,13 +594,50 @@ def _check_draft_object(document: Mapping[str, Any]) -> None:
     claims = document.get("claims")
     if not isinstance(claims, list):
         return
+    seen: dict[str, Mapping[str, Any]] = {}
     for index, claim in enumerate(claims):
         if not isinstance(claim, Mapping):
-            continue
+            raise _schema_error(
+                "claim must be an object",
+                schema="video-paper-wiki.paper-analysis-draft.v1",
+                instance_pointer=f"/claims/{index}",
+                keyword="type",
+            )
         stated = claim.get("claim_id")
         text = claim.get("claim_text")
-        if not isinstance(stated, str) or not isinstance(text, str):
-            continue
+        if not isinstance(stated, str):
+            raise _schema_error(
+                "claim is missing claim_id",
+                schema="video-paper-wiki.paper-analysis-draft.v1",
+                instance_pointer=f"/claims/{index}/claim_id",
+                keyword="required",
+            )
+        if not isinstance(text, str):
+            raise _claim_missing(
+                CLAIM_ID_MISMATCH,
+                "claim is missing claim_text",
+                {"claim_id": stated, "index": index},
+            )
+        previous = seen.get(stated)
+        if previous is not None:
+            raise _claim_missing(
+                CLAIM_ID_COLLISION,
+                "same claim_id with different ref attributes",
+                {"claim_id": stated, "index": index},
+            )
+        seen[stated] = claim
+        locators = claim.get("locators")
+        if isinstance(locators, list):
+            for lindex, locator in enumerate(locators):
+                if not isinstance(locator, Mapping):
+                    continue
+                artifact_path = locator.get("artifact_path")
+                if isinstance(artifact_path, str):
+                    _reject_illegal_path(
+                        artifact_path,
+                        schema_name="video-paper-wiki.paper-analysis-draft.v1",
+                        pointer=f"/claims/{index}/locators/{lindex}/artifact_path",
+                    )
         try:
             expected = identity.claim_id(subject, text, claim.get("locators"))
         except IdentityError as exc:
@@ -468,6 +658,26 @@ def _check_paper_record_object(document: Mapping[str, Any]) -> None:
             "paper_id is not a canonical paper ID",
             {"paper_id": paper_id},
         )
+    extraction = document.get("active_extraction_path")
+    if isinstance(extraction, str):
+        _reject_illegal_path(
+            extraction,
+            schema_name="video-paper-wiki.paper-record.v1",
+            pointer="/active_extraction_path",
+        )
+
+
+def _check_prepared_object(document: Mapping[str, Any]) -> None:
+    artifacts = document.get("artifacts")
+    if not isinstance(artifacts, list):
+        return
+    for index, artifact in enumerate(artifacts):
+        if isinstance(artifact, Mapping) and isinstance(artifact.get("path"), str):
+            _reject_illegal_path(
+                str(artifact["path"]),
+                schema_name="video-paper-wiki.prepared.v1",
+                pointer=f"/artifacts/{index}/path",
+            )
 
 
 def _check_repo_record_object(document: Mapping[str, Any]) -> None:
@@ -499,6 +709,8 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
     if schema_name == "video-paper-wiki.ingest-plan.v1":
         _check_plan_object(document, schema_name)
+    elif schema_name == "video-paper-wiki.prepared.v1":
+        _check_prepared_object(document)
     elif schema_name == "video-paper-wiki.operation-receipt.v1":
         _check_receipt_object(document)
     elif schema_name in {"video-paper-wiki.assessment-event.v1", "video-paper-wiki.gate-decision.v1"}:
@@ -639,6 +851,41 @@ def _claim_entries(bundle: Mapping[str, Any]) -> list[dict[str, Any]]:
     return entries
 
 
+def _assert_unique_claim_refs(
+    claims: Sequence[Any],
+    *,
+    ref_key: str,
+    pointer_prefix: str,
+) -> None:
+    seen: dict[str, Any] = {}
+    for index, item in enumerate(claims):
+        if not isinstance(item, Mapping):
+            raise _schema_error(
+                "claim must be an object",
+                schema="",
+                instance_pointer=f"{pointer_prefix}/{index}",
+                keyword="type",
+            )
+        stated = item.get("claim_id")
+        if not isinstance(stated, str):
+            raise _schema_error(
+                "claim is missing claim_id",
+                schema="",
+                instance_pointer=f"{pointer_prefix}/{index}/claim_id",
+                keyword="required",
+            )
+        refs = item.get(ref_key)
+        previous = seen.get(stated)
+        if previous is not None:
+            raise ContractError(
+                CLAIM_ID_COLLISION,
+                "same claim_id with different ref attributes",
+                {"claim_id": stated, "index": index},
+                exit_code=75,
+            )
+        seen[stated] = refs
+
+
 def _validate_claim_entries(
     entries: Sequence[Mapping[str, Any]],
     *,
@@ -649,8 +896,19 @@ def _validate_claim_entries(
         stated = item.get("claim_id")
         subject = item.get("stable_subject_id")
         text = item.get("canonical_claim_text")
-        if not isinstance(stated, str) or not isinstance(subject, str) or not isinstance(text, str):
-            continue
+        if not isinstance(stated, str):
+            raise _schema_error(
+                "claim is missing claim_id",
+                schema="",
+                instance_pointer="/claim_id",
+                keyword="required",
+            )
+        if not isinstance(subject, str) or not isinstance(text, str):
+            raise ContractError(
+                CLAIM_ID_MISMATCH,
+                "claim is missing required identity fields",
+                {"claim_id": stated, "stable_subject_id": subject},
+            )
         try:
             identity.bind_claim_id(
                 stated_claim_id=stated,
@@ -679,8 +937,10 @@ def _validate_events(bundle: Mapping[str, Any], claim_entries: Sequence[Mapping[
         claim = item.get("claim_id")
         if isinstance(claim, str):
             evidence = item.get("evidence")
-            if isinstance(evidence, list) and evidence:
-                evidence_by_claim[claim] = list(evidence)
+            if isinstance(evidence, list):
+                stored = evidence_by_claim.get(claim)
+                if stored is None or (not stored and evidence):
+                    evidence_by_claim[claim] = list(evidence)
             text = item.get("canonical_claim_text")
             if isinstance(text, str) and text:
                 text_by_claim[claim] = text
@@ -700,8 +960,8 @@ def _validate_events(bundle: Mapping[str, Any], claim_entries: Sequence[Mapping[
         claim_id = str(event.get("claim_id", ""))
         by_claim.setdefault(claim_id, []).append(event)
         fingerprint = event.get("evidence_fingerprint")
-        evidence = evidence_by_claim.get(claim_id)
-        if evidence is not None and isinstance(fingerprint, str):
+        if isinstance(fingerprint, str) and claim_id in evidence_by_claim:
+            evidence = evidence_by_claim[claim_id]
             try:
                 expected = identity.evidence_fingerprint(evidence)
             except IdentityError as exc:
@@ -749,6 +1009,17 @@ def _validate_events(bundle: Mapping[str, Any], claim_entries: Sequence[Mapping[
                         "event_id": event_id,
                         "claim_id": claim_id,
                         "parent_claim_id": parent.get("claim_id"),
+                    },
+                )
+            if parent.get("to_assessment") != event.get("from_assessment"):
+                raise ContractError(
+                    ASSESSMENT_CHAIN_INVALID,
+                    "parent to_assessment must equal child from_assessment",
+                    {
+                        "event_id": event_id,
+                        "previous_event_id": previous,
+                        "parent_to_assessment": parent.get("to_assessment"),
+                        "from_assessment": event.get("from_assessment"),
                     },
                 )
             if previous not in ids:
@@ -859,6 +1130,21 @@ def _validate_plan_prepared_draft_record(
             raise _mismatch(
                 "draft and paper record paper_id differ",
                 {"draft": paper_id, "paper_record": record.get("paper_id")},
+            )
+    if plan is not None and isinstance(paper_id, str) and identity.is_canonical_paper_id(paper_id):
+        stated_subject = plan.get("stable_subject_id")
+        try:
+            expected_subject = identity.paper_subject_id(paper_id)
+        except IdentityError as exc:
+            raise _from_identity(exc) from exc
+        if stated_subject != expected_subject:
+            raise _mismatch(
+                "plan subject does not match draft/record paper ID",
+                {
+                    "stable_subject_id": stated_subject,
+                    "paper_id": paper_id,
+                    "expected": expected_subject,
+                },
             )
     if prepared is not None:
         pdf_sha = prepared.get("pdf_sha256")
@@ -1057,6 +1343,9 @@ def validate_prospective(
                 keyword="type",
             )
         validate_document(dict(document), expected_schema=schema_name)
+    top_claims = bundle.get("claims")
+    if isinstance(top_claims, list):
+        _assert_unique_claim_refs(top_claims, ref_key="evidence", pointer_prefix="/claims")
     claim_entries = _claim_entries(bundle)
     _validate_claim_entries(claim_entries, existing_claim_bindings=claim_bindings)
     _validate_plan_prepared_draft_record(bundle, existing_paper_bindings=paper_bindings)

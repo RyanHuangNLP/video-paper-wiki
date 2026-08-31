@@ -20,7 +20,10 @@
           "properties": {
             "kind": {"const": "local-blob"},
             "local_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
-            "arxiv_id": {"type": "string", "minLength": 1},
+            "arxiv_id": {
+              "type": "string",
+              "pattern": "^(?:[0-9]{4}\\.[0-9]{4,5}|[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7})$"
+            },
             "pdf_url": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"}
           }
         },
@@ -30,7 +33,10 @@
           "required": ["kind", "arxiv_id"],
           "properties": {
             "kind": {"const": "arxiv"},
-            "arxiv_id": {"type": "string", "minLength": 1},
+            "arxiv_id": {
+              "type": "string",
+              "pattern": "^(?:[0-9]{4}\\.[0-9]{4,5}|[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7})$"
+            },
             "pdf_url": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"},
             "local_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
           }

@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 from video_paper_wiki.cli import main
+from video_paper_wiki.identity import claim_id
 from video_paper_wiki.notes.limitations import apply_frozen_limitations
 from video_paper_wiki.notes.section import section_text
 
@@ -14,6 +15,7 @@ MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
 
 MAV = "arxiv-2209.14792"
+MAV_CANON = "arxiv:2209.14792"
 MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
 MAV_SENTENCE = "用图像扩散先验做文生视频，不必成对的视频-文本数据。"
 MAV_METHOD = "先训图像扩散，再加时空卷积和注意力，用图像-文本对齐做文生视频。"
@@ -114,10 +116,11 @@ def test_review_export_swaps_vault_limitations_keeps_work_note(
     make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
-    document["paper_id"] = MAV
+    document["paper_id"] = MAV_CANON
     document["title"] = "Make-A-Video"
     document["claims"] = [
         {
+            "claim_id": claim_id(f"paper:{MAV_CANON}", REMNANT),
             "claim_text": REMNANT,
             "section": "limitations",
             "core": True,
@@ -125,6 +128,7 @@ def test_review_export_swaps_vault_limitations_keeps_work_note(
             "locators": [],
         },
         {
+            "claim_id": claim_id(f"paper:{MAV_CANON}", RELATED),
             "claim_text": RELATED,
             "section": "related",
             "core": False,
@@ -168,7 +172,7 @@ def test_ingest_writes_frozen_limitations_on_vault_copy(
     make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
-    document["paper_id"] = MAV
+    document["paper_id"] = MAV_CANON
     document["title"] = "Make-A-Video"
     draft = tmp_path / "mav-ingest.json"
     draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

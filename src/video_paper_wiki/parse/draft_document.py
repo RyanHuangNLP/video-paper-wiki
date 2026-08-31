@@ -166,13 +166,17 @@ def paper_id_from_sha256(sha256: str) -> str:
 
 
 def validate_paper_id_token(paper_id: str) -> str:
-    """Path-safe token used by review overlay lookup. Canonical IDs and catalog slugs both pass."""
+    """Accept a canonical paper ID. Page slugs and path tokens are not canonical IDs."""
+
+    from video_paper_wiki.identity import is_canonical_paper_id
 
     raw = str(paper_id)
     value = raw.strip()
+    if is_canonical_paper_id(value):
+        return value
     if not value or "/" in value or "\\" in value or ".." in value:
         raise InvalidPaperId(raw)
-    return value
+    raise InvalidPaperId(raw)
 
 
 def validate_paper_id(paper_id: str) -> str:
@@ -538,24 +542,13 @@ def _make_claim(
     artifact_sha256: str,
     artifact_path: str,
 ) -> dict[str, Any]:
-    digest = artifact_sha256.strip().lower()
-    page_no = page if isinstance(page, int) and page >= 1 else 1
+    del page, artifact_sha256, artifact_path
     return {
         "claim_text": claim_text,
         "section": section,
         "core": core,
         "assessment": "provisional",
-        "locators": [
-            {
-                "kind": "pdf",
-                "source_id": digest[:12],
-                "page": page_no,
-                "ref": f"#/page/{page_no}",
-                "artifact_path": artifact_path,
-                "artifact_sha256": digest,
-                "text_sha256": text_sha256(claim_text),
-            }
-        ],
+        "locators": [],
     }
 
 
@@ -740,25 +733,11 @@ def claims_from_parse_fields(
     artifact_sha256: str,
     artifact_path: str,
 ) -> list[dict[str, Any]]:
+    del artifact_sha256, artifact_path
     existing = fields.get("claims")
-    if isinstance(existing, list) and existing:
+    if isinstance(existing, list):
         return existing
-    body = str(fields.get("body_text") or "")
-    raw_page = fields.get("page", 1)
-    try:
-        page = int(raw_page)
-    except (TypeError, ValueError):
-        page = 1
-    raw_pages = fields.get("pages")
-    pages = raw_pages if isinstance(raw_pages, list) else None
-    return claims_from_body(
-        body_text=body,
-        artifact_sha256=artifact_sha256,
-        artifact_path=artifact_path,
-        page=page,
-        pages=pages,
-        title=str(fields.get("title") or ""),
-    )
+    return []
 
 
 def build_draft(

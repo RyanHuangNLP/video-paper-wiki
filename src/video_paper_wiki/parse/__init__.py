@@ -11,8 +11,6 @@ from video_paper_wiki.parse.draft_document import (
     SECTION_IDS,
     SECTION_SPECS,
     build_draft,
-    claims_from_body,
-    claims_from_parse_fields,
     paper_id_from_sha256,
 )
 
@@ -53,8 +51,6 @@ __all__ = [
     "SECTION_IDS",
     "SECTION_SPECS",
     "build_draft",
-    "claims_from_body",
-    "claims_from_parse_fields",
     "paper_id_from_sha256",
     "parse_pdf_to_draft_fields",
 ]

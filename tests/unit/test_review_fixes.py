@@ -373,7 +373,7 @@ def test_review_export_writes_related_trailer_ids(
 ) -> None:
     make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
-    magvit = "arxiv-2212.05199"
+    magvit = "arxiv:2212.05199"
     draft = _clone_draft(tmp_path, magvit, "MAGVIT")
     code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     assert code == 0

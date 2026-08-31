@@ -29,7 +29,10 @@ CLAIM_NAMESPACE = "video-paper-wiki.claim.v1"
 _ARXIV_NEW = re.compile(r"^([0-9]{4}\.[0-9]{4,5})(?:v[0-9]+)?$")
 _ARXIV_OLD = re.compile(r"^([a-z-]+(?:\.[A-Z]{2})?/[0-9]{7})(?:v[0-9]+)?$", re.I)
 _ARXIV_CANON = re.compile(r"^arxiv:(?:[0-9]{4}\.[0-9]{4,5}|[a-z-]+(?:\.[a-z]{2})?/[0-9]{7})$")
-_DOI_CANON = re.compile(r"^doi:10\.[0-9]{4,9}/.+$")
+_DOI_CANON = re.compile(r"^doi:10\.[0-9]{4,9}/[^\sA-Z]+$")
+_ARXIV_STRIPPED = re.compile(
+    r"^(?:[0-9]{4}\.[0-9]{4,5}|[a-z-]+(?:\.[a-z]{2})?/[0-9]{7})$"
+)
 _OPENALEX_CANON = re.compile(r"^openalex:W[0-9]+$")
 _SHA_CANON = re.compile(r"^sha256:[0-9a-f]{64}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -134,7 +137,7 @@ def paper_page_slug(paper_id: str) -> str:
         digest = hashlib.sha256(value.encode("utf-8")).hexdigest()
         return f"doi-{digest}"
     scheme, rest = value.split(":", 1)
-    return f"{scheme}-{rest}"
+    return f"{scheme}-{rest.replace('/', '-')}"
 
 
 def catalog_seed_key(paper_id: str) -> str:
@@ -152,6 +155,32 @@ def _invalid_paper(paper_id: object, *, reason: str) -> IdentityError:
         "paper_id is not a canonical paper ID",
         {"paper_id": paper_id, "reason": reason},
     )
+
+
+def is_version_stripped_arxiv_id(value: str) -> bool:
+    """True when *value* is a version-stripped arXiv id body (optional arxiv: prefix)."""
+
+    raw = str(value).strip()
+    if not raw:
+        return False
+    candidate = raw[6:] if raw.lower().startswith("arxiv:") else raw
+    return bool(_ARXIV_STRIPPED.fullmatch(candidate))
+
+
+def canonicalize_stated_paper_id(candidate: str) -> str:
+    """Return a canonical paper ID, lowercasing DOI suffixes and folding aliases."""
+
+    raw = str(candidate).strip()
+    if is_canonical_paper_id(raw):
+        return raw
+    for normalizer in (normalize_arxiv_id, normalize_doi, normalize_openalex_id, normalize_pdf_sha256):
+        try:
+            canonical = normalizer(raw)
+        except IdentityError:
+            continue
+        if is_canonical_paper_id(canonical):
+            return canonical
+    raise _invalid_paper(candidate, reason="existing paper ID is not canonical")
 
 
 def normalize_arxiv_id(candidate: str) -> str:
@@ -273,32 +302,41 @@ def establish_canonical_paper_id(
         if group:
             chosen = group[0]
             break
-    if chosen is None:
-        raise IdentityError(
-            INVALID_PAPER_ID,
-            "paper_id is not a canonical paper ID",
-            {"reason": "no identity candidates"},
-        )
 
     if existing_paper_id is not None and str(existing_paper_id).strip():
-        existing = str(existing_paper_id).strip()
-        if not is_canonical_paper_id(existing):
-            raise _invalid_paper(existing_paper_id, reason="existing paper ID is not canonical")
-        bound = bindings.get(existing)
-        if sha and bound is not None and bound != sha[0][len("sha256:") :]:
+        existing = canonicalize_stated_paper_id(str(existing_paper_id).strip())
+        digest = sha[0][len("sha256:") :] if sha else None
+        if existing.startswith("sha256:") and digest is not None and existing != sha[0]:
             raise _conflict(
                 "canonical paper ID is bound to a different PDF SHA-256",
-                {"paper_id": existing, "bound_sha256": bound, "pdf_sha256": sha[0][len("sha256:") :]},
+                {
+                    "paper_id": existing,
+                    "bound_sha256": existing[len("sha256:") :],
+                    "pdf_sha256": digest,
+                },
             )
-        if sha:
+        bound = bindings.get(existing)
+        if digest is not None and bound is not None and bound != digest:
+            raise _conflict(
+                "canonical paper ID is bound to a different PDF SHA-256",
+                {"paper_id": existing, "bound_sha256": bound, "pdf_sha256": digest},
+            )
+        if digest is not None:
             for other_id, other_sha in bindings.items():
-                if other_sha == sha[0][len("sha256:") :] and other_id != existing:
+                if other_sha == digest and other_id != existing:
                     raise _conflict(
                         "PDF SHA-256 is already bound to a different paper ID",
                         {"paper_id": existing, "bound_paper_id": other_id, "pdf_sha256": other_sha},
                     )
         aliases = tuple(item for item in discovered if item != existing)
         return existing, aliases
+
+    if chosen is None:
+        raise IdentityError(
+            INVALID_PAPER_ID,
+            "paper_id is not a canonical paper ID",
+            {"reason": "no identity candidates"},
+        )
 
     if sha:
         digest = sha[0][len("sha256:") :]

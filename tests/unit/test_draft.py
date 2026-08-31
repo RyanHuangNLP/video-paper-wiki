@@ -455,15 +455,11 @@ def _claims_by_section(document: dict) -> dict[str, dict]:
 def _assert_locator(claim: dict, sha256: str) -> None:
     assert claim["assessment"] == "provisional"
     assert claim["claim_text"]
-    locator = claim["locators"][0]
-    for field in LOCATOR_FIELDS:
-        assert field in locator
-    assert locator["kind"] == "pdf"
-    assert locator["page"] >= 1
-    assert locator["ref"] == f"#/page/{locator['page']}"
-    assert locator["artifact_sha256"] == sha256
-    assert locator["source_id"] == sha256[:12]
-    assert locator["text_sha256"] == hashlib.sha256(claim["claim_text"].encode("utf-8")).hexdigest()
+    assert claim.get("locators") == []
+    dumped = json.dumps(claim)
+    assert "#/page/" not in dumped
+    assert "source_id" not in claim
+    del sha256
 
 
 def test_pypdf_extracts_up_to_twenty_pages(tmp_path, network_attempts) -> None:
@@ -504,7 +500,7 @@ def test_claims_from_body_maps_multi_heading_string(network_attempts) -> None:
         if section != "one_sentence_conclusion":
             assert claim["core"] is False
         _assert_locator(claim, digest)
-        assert claim["locators"][0]["artifact_path"] == "sources/demo/paper.pdf"
+        assert "artifact_path" not in claim
     assert network_attempts == []
 
 
@@ -636,10 +632,14 @@ def test_figure_table_pdf_keeps_method_prose(tmp_path, network_attempts) -> None
     )
     fields = parse_pypdf_fields(pdf_path)
     digest = "22" * 32
-    claims = claims_from_parse_fields(
-        fields,
+    assert fields.get("claims") == []
+    assert fields.get("preview_only") is True
+    claims = claims_from_body(
+        body_text=str(fields.get("body_text") or ""),
         artifact_sha256=digest,
         artifact_path="sources/demo/figure-table.pdf",
+        title=str(fields.get("title") or ""),
+        pages=fields.get("pages") if isinstance(fields.get("pages"), list) else None,
     )
     by_section = {claim["section"]: claim for claim in claims}
     assert "method" in by_section
@@ -895,6 +895,13 @@ def test_truncated_lead_same_line_uses_next_sentence(network_attempts) -> None:
     assert "method" in by_section
     assert "U-Net on latents" in by_section["method"]["claim_text"]
     assert network_attempts == []
+
+
+def test_parse_package_does_not_export_pypdf_claim_helpers() -> None:
+    import video_paper_wiki.parse as parse_pkg
+
+    assert "claims_from_body" not in parse_pkg.__all__
+    assert "claims_from_parse_fields" not in parse_pkg.__all__
 
 
 def test_hyphenation_leftover_not_used_as_method_claim(network_attempts) -> None:

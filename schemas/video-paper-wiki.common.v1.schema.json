@@ -23,7 +23,7 @@
     },
     "canonical_paper_id": {
       "type": "string",
-      "pattern": "^(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/\\S+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
+      "pattern": "^(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/[^\\sA-Z]+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
     },
     "repo_id": {
       "type": "string",
@@ -52,7 +52,7 @@
     },
     "paper_subject_id": {
       "type": "string",
-      "pattern": "^paper:(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/\\S+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
+      "pattern": "^paper:(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/[^\\sA-Z]+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
     },
     "repo_subject_id": {
       "type": "string",
@@ -73,19 +73,19 @@
     "portable_vault_relative_path": {
       "type": "string",
       "minLength": 1,
-      "pattern": "^(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
     },
     "derived_artifact_path": {
       "type": "string",
-      "pattern": "^\\.raw/derived/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+      "pattern": "^\\.raw/derived/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
     },
     "captured_artifact_path": {
       "type": "string",
-      "pattern": "^\\.raw/captured/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+      "pattern": "^\\.raw/captured/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
     },
     "business_managed_path": {
       "type": "string",
-      "pattern": "^(?:\\.raw/(?:captured|derived)|wiki/(?:papers|code|concepts)|wiki/meta/(?:ledgers|records|reviews|gates|operations|registries))/(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*(?:^|/)\\.(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"
+      "pattern": "^(?:\\.raw/(?:captured|derived)|wiki/(?:papers|code|concepts)|wiki/meta/(?:ledgers|records|reviews|gates|operations|registries))/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
     },
     "receipt_path": {
       "type": "string",

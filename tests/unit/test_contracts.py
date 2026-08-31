@@ -7,6 +7,7 @@ import pytest
 
 from tests.contract.paths import INVALID, VALID, load_json
 from video_paper_wiki.contracts import (
+    CLAIM_ID_COLLISION,
     CROSS_OBJECT_IDENTITY_MISMATCH,
     PLAN_HASH_MISMATCH,
     SCHEMA_INVALID,
@@ -27,6 +28,7 @@ EXPECTED = {
     "prepared_duplicate_kind.json": SCHEMA_INVALID,
     "prepared_wrong_docling_version.json": SCHEMA_INVALID,
     "prepared_absolute_artifact_path.json": SCHEMA_INVALID,
+    "prepared_dotdot_artifact_path.json": SCHEMA_INVALID,
     "page_slug_as_paper_id.json": SCHEMA_INVALID,
     "paper_record_absolute_extraction_path.json": SCHEMA_INVALID,
     "official_without_evidence.json": SCHEMA_INVALID,
@@ -37,6 +39,12 @@ EXPECTED = {
     "receipt_write_outside.json": SCHEMA_INVALID,
     "receipt_claimed_etc_passwd.json": SCHEMA_INVALID,
     "receipt_empty_writes.json": SCHEMA_INVALID,
+    "loopback_pdf_url.json": SCHEMA_INVALID,
+    "pdf_url_non_allowlist_host.json": SCHEMA_INVALID,
+    "pdf_url_host_mismatch.json": SCHEMA_INVALID,
+    "local_blob_garbage_arxiv_id.json": SCHEMA_INVALID,
+    "local_blob_empty_arxiv_id.json": SCHEMA_INVALID,
+    "duplicate_claim_id_different_refs.json": CLAIM_ID_COLLISION,
 }
 
 
@@ -64,6 +72,16 @@ def test_schema_error_details_include_pointer_and_keyword() -> None:
     assert exc.value.code == SCHEMA_INVALID
     assert exc.value.details["schema"] == "video-paper-wiki.paper-analysis-draft.v1"
     assert exc.value.details["instance_pointer"] == "/paper_id"
+    assert exc.value.details["keyword"]
+
+
+def test_dotdot_artifact_schema_error_details() -> None:
+    document = load_json(INVALID / "prepared_dotdot_artifact_path.json")
+    with pytest.raises(ContractError) as exc:
+        validate_document(document, expected_schema=document["schema"])
+    assert exc.value.code == SCHEMA_INVALID
+    assert exc.value.details["schema"] == "video-paper-wiki.prepared.v1"
+    assert exc.value.details["instance_pointer"]
     assert exc.value.details["keyword"]
 
 

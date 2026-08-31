@@ -209,6 +209,68 @@ def test_export_claims_under_frozen_headings(
     assert network_attempts == []
 
 
+def test_export_page_slug_paper_id_is_invalid(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = "arxiv-2209.14792"
+    draft = tmp_path / "slug.json"
+    draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "INVALID_PAPER_ID"
+    assert not work_review(tmp_path, "b1").exists()
+    assert network_attempts == []
+
+
+def test_export_missing_claim_id_does_not_exit_zero(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = MAV
+    document["title"] = "Make-A-Video"
+    document["claims"] = [
+        {
+            "claim_text": CLAIM_TEXT,
+            "section": "method",
+            "core": True,
+            "assessment": "provisional",
+            "locators": [],
+        }
+    ]
+    draft = tmp_path / "missing-claim-id.json"
+    draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] in {"DRAFT_INVALID", "CLAIM_ID_MISMATCH"}
+    assert not work_review(tmp_path, "b1").exists()
+    assert network_attempts == []
+
+
+def test_export_old_style_arxiv_is_not_rejected_as_path_token(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    document = json.loads(MINIMAL.read_text(encoding="utf-8"))
+    document["paper_id"] = "arxiv:hep-th/9901001"
+    draft = tmp_path / "old-arxiv.json"
+    draft.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
+    assert payload["error"]["details"]["paper_id"] == "arxiv:hep-th/9901001"
+    assert not work_review(tmp_path, "b1").exists()
+    assert network_attempts == []
+
+
 @pytest.mark.parametrize("paper_id", ["/tmp", "../", "a\\b", "..", "foo/../bar"])
 def test_export_illegal_paper_id_does_not_write(
     paper_id, tmp_path, monkeypatch, capsys, network_attempts
