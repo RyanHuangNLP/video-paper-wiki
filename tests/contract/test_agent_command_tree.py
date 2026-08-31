@@ -97,7 +97,7 @@ def test_review_export_vault_flag_is_usage(capsys) -> None:
 
 def test_prepare_work_dir_flag_is_usage(capsys) -> None:
     for family in ("ingest", "code-map"):
-        code = main(
+        for argv in (
             [
                 family,
                 "prepare",
@@ -107,10 +107,15 @@ def test_prepare_work_dir_flag_is_usage(capsys) -> None:
                 "b1",
                 "--work-dir",
                 "/tmp",
-            ]
-        )
-        payload, _err = _stdout_payload(capsys)
-        _assert_usage(code, payload)
+            ],
+            [family, "prepare", "--sha256", "a" * 64],
+            [family, "prepare", "--approval-hash", "b" * 64],
+            [family, "prepare", "--batch-id", "b1"],
+            [family, "prepare", "--work-dir", "/tmp"],
+        ):
+            code = main(argv)
+            payload, _err = _stdout_payload(capsys)
+            _assert_usage(code, payload)
 
 
 def test_query_without_json_is_usage(capsys) -> None:

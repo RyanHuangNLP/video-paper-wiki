@@ -2,11 +2,20 @@ from __future__ import annotations
 
 import hashlib
 import json
+from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 PYPROJECT = '[project]\nname = "video-paper-wiki"\n'
 ROOT = Path(__file__).resolve().parents[1]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
+DEFAULT_PARSER = {
+    "engine": "docling",
+    "engine_version": "2.117.0",
+    "core_version": "2.92.0",
+    "config_sha256": "b" * 64,
+    "model_manifest_sha256": "c" * 64,
+}
 
 
 def make_checkout(path: Path) -> Path:
@@ -28,8 +37,130 @@ def plant_blob(root: Path, data: bytes) -> str:
     return digest
 
 
+def work_plan(root: Path, batch_id: str) -> Path:
+    return root / ".work" / batch_id / "plan" / "ingest-plan.v1.json"
+
+
 def work_prepared(root: Path, batch_id: str, sha256: str) -> Path:
     return root / ".work" / batch_id / "prepared" / f"{sha256}.blob"
+
+
+def write_json(path: Path, obj: object) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    return path
+
+
+def paper_source_request(
+    *,
+    batch_id: str = "batch-0001",
+    local_sha256: str,
+    arxiv_id: str = "2311.15127",
+    max_pages: int = 200,
+    max_bytes: int = 50_000_000,
+    **overrides: Any,
+) -> dict[str, Any]:
+    document: dict[str, Any] = {
+        "schema": "video-paper-wiki.ingest-plan.v1",
+        "plan_kind": "paper-source",
+        "batch_id": batch_id,
+        "stable_subject_id": f"paper:arxiv:{arxiv_id}",
+        "input": {
+            "kind": "local-blob",
+            "local_sha256": local_sha256,
+            "arxiv_id": arxiv_id,
+        },
+        "limits": {
+            "max_pages": max_pages,
+            "max_bytes": max_bytes,
+            "max_requests": 1,
+        },
+        "network_targets": [],
+        "parser": dict(DEFAULT_PARSER),
+    }
+    document.update(overrides)
+    return document
+
+
+def code_evidence_request(
+    *,
+    batch_id: str = "batch-code-1",
+    repository: str = "Vchitect/Latte",
+    commit: str = "a" * 40,
+    max_bytes: int = 50_000_000,
+    **overrides: Any,
+) -> dict[str, Any]:
+    from video_paper_wiki.identity import repo_subject_id
+
+    document: dict[str, Any] = {
+        "schema": "video-paper-wiki.ingest-plan.v1",
+        "plan_kind": "code-evidence",
+        "batch_id": batch_id,
+        "stable_subject_id": repo_subject_id(repository),
+        "input": {
+            "kind": "github-repo",
+            "repository": repository,
+            "commit": commit,
+        },
+        "limits": {
+            "max_bytes": max_bytes,
+            "max_requests": 1,
+        },
+        "network_targets": [],
+        "parser": dict(DEFAULT_PARSER),
+    }
+    document.update(overrides)
+    return document
+
+
+def complete_ingest_plan(request: dict[str, Any]) -> dict[str, Any]:
+    from video_paper_wiki.contracts import validate_document
+    from video_paper_wiki.identity import pipeline_fingerprint, plan_approval_hash
+
+    plan = deepcopy(request)
+    plan.pop("approval_hash", None)
+    plan.pop("pipeline_fingerprint", None)
+    plan["pipeline_fingerprint"] = pipeline_fingerprint(plan["parser"])
+    plan["approval_hash"] = plan_approval_hash(plan)
+    validate_document(plan, expected_schema="video-paper-wiki.ingest-plan.v1")
+    return plan
+
+
+def make_approval_ref(plan: dict[str, Any], **overrides: Any) -> dict[str, Any]:
+    from video_paper_wiki.approval import jcs_sha256
+    from video_paper_wiki.identity import pipeline_fingerprint
+
+    source = plan.get("input") if isinstance(plan.get("input"), dict) else {}
+    input_sha256 = overrides.pop("input_sha256", source.get("local_sha256"))
+    ref = {
+        "format": "video-paper-wiki.approval-ref.v1",
+        "plan_approval_hash": plan["approval_hash"],
+        "plan_kind": plan["plan_kind"],
+        "batch_id": plan["batch_id"],
+        "stable_subject_id": plan["stable_subject_id"],
+        "input_sha256": input_sha256,
+        "limits_sha256": jcs_sha256(plan["limits"]),
+        "network_targets_sha256": jcs_sha256(plan["network_targets"]),
+        "pipeline_fingerprint": plan.get("pipeline_fingerprint")
+        or pipeline_fingerprint(plan["parser"]),
+    }
+    ref.update(overrides)
+    return ref
+
+
+def pdf_bytes(*, pages: int = 1, encrypt: bool = False) -> bytes:
+    from io import BytesIO
+
+    from pypdf import PdfWriter
+
+    writer = PdfWriter()
+    for _ in range(pages):
+        writer.add_blank_page(width=72, height=72)
+    if encrypt:
+        writer.encrypt("secret")
+    buf = BytesIO()
+    writer.write(buf)
+    return buf.getvalue()
 
 
 def work_draft(root: Path, batch_id: str) -> Path:

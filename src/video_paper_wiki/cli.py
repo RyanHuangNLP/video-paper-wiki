@@ -3,18 +3,16 @@
 from __future__ import annotations
 
 import argparse
-import re
 import shutil
 import sys
 
-from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.commands import draft as draft_commands
+from video_paper_wiki.commands import plan as plan_commands
+from video_paper_wiki.commands import prepare as prepare_commands
 from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.notes.encoding import InvalidEncoding
-from video_paper_wiki.staging import StagingError, resolve_checkout_root, stage_bytes
-
-SHA256_RE = re.compile(r"^[0-9a-fA-F]{64}$")
+from video_paper_wiki.staging import StagingError, resolve_checkout_root
 
 
 class UsageError(Exception):
@@ -92,57 +90,15 @@ def _cmd_query(args: argparse.Namespace) -> int:
     )
 
 
-def _prepare_command_name(args: argparse.Namespace) -> str:
-    return "ingest.prepare" if args._vpkb_family == "ingest" else "code-map.prepare"
-
-
-def _cmd_prepare(args: argparse.Namespace) -> int:
-    command = _prepare_command_name(args)
-    sha = args.sha256.strip()
-    if not SHA256_RE.fullmatch(sha):
-        return emit_error(
-            command,
-            "INVALID_SHA256",
-            "sha256 must be exactly 64 hexadecimal characters",
-            {"sha256": sha},
-        )
-    sha = sha.lower()
-    approval_present = args.approval_hash is not None
-    store = BlobStore(resolve_blob_root())
-    blob = store.get(sha)
-    if blob is None:
-        return emit_error(
-            command,
-            "BLOB_NOT_FOUND",
-            "local blob is missing; fetch is operator-only and this command does not download",
-            {"sha256": sha, "approval_hash_present": approval_present},
-        )
-    try:
-        data = blob.read_bytes()
-        staged = stage_bytes(
-            batch_id=args.batch_id,
-            relative=("prepared", f"{sha}.blob"),
-            data=data,
-        )
-    except StagingError as exc:
-        return emit_staging_error(command, exc)
-    return emit_success(
-        command,
-        {
-            "sha256": sha,
-            "batch_id": args.batch_id,
-            "staged_path": staged.path.as_posix(),
-            "approval_hash_present": approval_present,
-            "already_staged": staged.already_staged,
-        },
-    )
+def _add_plan_flags(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--request", required=True)
+    parser.set_defaults(handler=plan_commands.run)
 
 
 def _add_prepare_flags(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--sha256", required=True)
-    parser.add_argument("--approval-hash", default=None)
-    parser.add_argument("--batch-id", required=True)
-    parser.set_defaults(handler=_cmd_prepare)
+    parser.add_argument("--plan", required=True)
+    parser.add_argument("--approval-ref", required=True)
+    parser.set_defaults(handler=prepare_commands.run)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -164,7 +120,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     ingest = _add_parser(sub, "ingest")
     ingest_sub = ingest.add_subparsers(dest="ingest_cmd", required=True)
-    _add_parser(ingest_sub, "plan").set_defaults(handler=_cmd_not_implemented("ingest.plan"))
+    ingest_plan = _add_parser(ingest_sub, "plan")
+    ingest_plan.set_defaults(_vpkb_family="ingest")
+    _add_plan_flags(ingest_plan)
     ingest_prepare = _add_parser(ingest_sub, "prepare")
     ingest_prepare.set_defaults(_vpkb_family="ingest")
     _add_prepare_flags(ingest_prepare)
@@ -195,7 +153,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     code_map = _add_parser(sub, "code-map")
     code_map_sub = code_map.add_subparsers(dest="code_map_cmd", required=True)
-    _add_parser(code_map_sub, "plan").set_defaults(handler=_cmd_not_implemented("code-map.plan"))
+    code_map_plan = _add_parser(code_map_sub, "plan")
+    code_map_plan.set_defaults(_vpkb_family="code-map")
+    _add_plan_flags(code_map_plan)
     code_map_prepare = _add_parser(code_map_sub, "prepare")
     code_map_prepare.set_defaults(_vpkb_family="code-map")
     _add_prepare_flags(code_map_prepare)

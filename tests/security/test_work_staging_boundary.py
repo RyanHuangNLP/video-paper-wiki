@@ -11,14 +11,27 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
-from tests.support import make_checkout, plant_blob, work_draft, work_prepared, work_review
+from tests.support import (
+    make_approval_ref,
+    make_checkout,
+    paper_source_request,
+    plant_blob,
+    complete_ingest_plan,
+    work_draft,
+    work_plan,
+    work_prepared,
+    work_review,
+    write_json,
+)
 from video_paper_wiki.cli import main
+from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.resources import _package_text, _repo_file
 from video_paper_wiki.staging import (
     CODE_WORK_PATH_ESCAPE,
     CODE_WORK_PATH_UNSAFE,
     StagingError,
     _assert_inside_work,
+    stage_bytes,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -259,17 +272,29 @@ def test_prepare_symlink_and_conflict_leave_external(
     checkout, external = _prepare_checkout(tmp_path, monkeypatch)
     blob_root = checkout / "blobs"
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
-    digest = plant_blob(blob_root, b"vpkb-prepare")
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
     (checkout / ".work").symlink_to(external)
     before = _snapshot(external)
-    code = main(["ingest", "prepare", "--sha256", digest, "--batch-id", "b1"])
+    ref = write_json(checkout / "ref.json", {"format": "video-paper-wiki.approval-ref.v1"})
+    code = main(
+        [
+            "ingest",
+            "prepare",
+            "--plan",
+            str(checkout / ".work" / "b1" / "plan" / "ingest-plan.v1.json"),
+            "--approval-ref",
+            str(ref),
+        ]
+    )
     payload = _stdout_payload(capsys)
     assert code == 2
-    assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
+    assert payload["error"]["code"] == "PLAN_PATH_UNSAFE"
     assert payload["error"]["details"].get("approval_hash_present") is not True
     assert "verified" not in payload["error"]["message"].lower()
+    assert "human_approved" not in json.dumps(payload)
     assert _snapshot(external) == before
     assert network_attempts == []
+    assert digest
 
 
 def test_writable_commands_share_one_batch_tree(
@@ -280,22 +305,31 @@ def test_writable_commands_share_one_batch_tree(
     blob_root = checkout / "blobs"
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
     digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    plan = complete_ingest_plan(paper_source_request(batch_id="shared", local_sha256=digest))
+    plan_path = stage_bytes(
+        batch_id="shared",
+        relative=("plan", "ingest-plan.v1.json"),
+        data=canonicalize(plan),
+    ).path
+    ref_path = write_json(checkout / "shared.approval-ref.json", make_approval_ref(plan))
     code = main(
         [
             "ingest",
             "prepare",
-            "--sha256",
-            digest,
-            "--batch-id",
-            "shared",
+            "--plan",
+            str(plan_path),
+            "--approval-ref",
+            str(ref_path),
         ]
     )
     payload = _stdout_payload(capsys)
     assert code == 0
     assert payload["data"]["already_staged"] is False
-    assert payload["data"]["approval_hash_present"] is False
+    assert payload["data"]["approval_ref_bound"] is True
+    assert "approval_hash_present" not in payload["data"]
     staged = Path(payload["data"]["staged_path"])
     assert staged == work_prepared(checkout, "shared", digest)
+    assert plan_path == work_plan(checkout, "shared")
     assert staged.is_file()
     code = main(
         [
