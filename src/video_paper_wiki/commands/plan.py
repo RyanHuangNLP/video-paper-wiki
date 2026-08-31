@@ -36,6 +36,14 @@ def _command_name(family: str) -> str:
 def _emit(command: str, exc: BaseException) -> int:
     if isinstance(exc, StagingError):
         return emit_staging_error(command, exc)
+    if isinstance(exc, TypeError):
+        return emit_error(
+            command,
+            PLAN_REQUEST_INVALID,
+            "request is not a valid plan shape",
+            {},
+            exit_code=2,
+        )
     code = str(getattr(exc, "code", PLAN_REQUEST_INVALID))
     message = str(getattr(exc, "message", exc))
     details = dict(getattr(exc, "details", {}) or {})
@@ -53,6 +61,9 @@ def _request_error(message: str, details: dict[str, Any] | None = None) -> Secur
 def _build_plan(request: object, expected_kind: str) -> dict[str, Any]:
     if not isinstance(request, dict):
         raise _request_error("request must be a JSON object")
+    stated_schema = request.get("schema")
+    if stated_schema is not None and not isinstance(stated_schema, str):
+        raise _request_error("request schema must be a string")
     present = sorted(DERIVED_FIELDS.intersection(request))
     if present:
         raise _request_error(
@@ -75,7 +86,7 @@ def _build_plan(request: object, expected_kind: str) -> dict[str, Any]:
     try:
         plan["pipeline_fingerprint"] = pipeline_fingerprint(parser)
         plan["approval_hash"] = plan_approval_hash(plan)
-    except (IdentityError, CanonicalJsonError) as exc:
+    except (IdentityError, CanonicalJsonError, TypeError) as exc:
         raise _request_error(
             "request cannot be canonicalized into a plan",
             dict(getattr(exc, "details", {}) or {}),
@@ -86,6 +97,8 @@ def _build_plan(request: object, expected_kind: str) -> dict[str, Any]:
         if getattr(exc, "code", None) == SCHEMA_INVALID:
             raise _request_error(str(exc.message), dict(exc.details)) from exc
         raise
+    except TypeError as exc:
+        raise _request_error("request is not a valid plan shape") from exc
     try:
         validate_batch_id(plan.get("batch_id"))
     except StagingError as exc:
@@ -95,6 +108,8 @@ def _build_plan(request: object, expected_kind: str) -> dict[str, Any]:
                 dict(exc.details),
             ) from exc
         raise
+    except TypeError as exc:
+        raise _request_error("request is not a valid plan shape") from exc
     return plan
 
 
@@ -121,7 +136,7 @@ def run(args: object | None = None) -> int:
             relative=("plan", PLAN_FILENAME),
             data=payload,
         )
-    except (SecureIOError, StagingError, ContractError, IdentityError, CanonicalJsonError) as exc:
+    except (SecureIOError, StagingError, ContractError, IdentityError, CanonicalJsonError, TypeError) as exc:
         return _emit(command, exc)
     return emit_success(
         command,

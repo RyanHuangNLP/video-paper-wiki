@@ -115,18 +115,16 @@ def _map_open_error(path: Path, exc: OSError, *, missing_code: str, unsafe_code:
     _raise(unsafe_code, "path is not a readable regular file", path)
 
 
-def _is_presence_or_type_race(exc: OSError) -> bool:
-    err = getattr(exc, "errno", None)
-    if isinstance(exc, FileNotFoundError) or err == errno.ENOENT:
+def _regular_identity_changed(parent_fd: int, name: str, first: os.stat_result) -> bool:
+    """True when *name* is no longer the same no-follow regular file as *first*."""
+
+    try:
+        now = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
+    except OSError:
         return True
-    if err in {errno.ELOOP, getattr(errno, "EMLINK", 31)}:
+    if stamp(now) != stamp(first):
         return True
-    if isinstance(exc, (NotADirectoryError, IsADirectoryError)) or err in {
-        errno.ENOTDIR,
-        errno.EISDIR,
-    }:
-        return True
-    if err in {errno.ENXIO, errno.EEXIST}:
+    if stat.S_ISLNK(now.st_mode) or not stat.S_ISREG(now.st_mode) or is_special(now):
         return True
     return False
 
@@ -229,7 +227,7 @@ def read_child_regular(
     try:
         fd = os.open(name, file_open_flags(), dir_fd=parent_fd)
     except OSError as exc:
-        if _is_presence_or_type_race(exc):
+        if _regular_identity_changed(parent_fd, name, lst):
             _raise(changed_code, "file changed during open", target)
         _map_open_error(target, exc, missing_code=missing_code, unsafe_code=unsafe_code)
         raise AssertionError("unreachable") from exc

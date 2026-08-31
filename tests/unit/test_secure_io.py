@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
@@ -70,6 +71,45 @@ def _to_socket(path: Path, holders: list) -> None:
     server.bind(str(path))
     server.listen(1)
     holders.append(server)
+
+
+def _to_chmod000_dir(path: Path) -> None:
+    path.unlink()
+    path.mkdir()
+    path.chmod(0)
+
+
+def _to_device_or_fallback(path: Path) -> None:
+    path.unlink()
+    try:
+        os.mknod(path, stat.S_IFCHR | 0o666, device=os.makedev(1, 3))
+    except OSError:
+        os.mkfifo(path)
+
+
+def _restore_chmod000_dir(path: Path) -> None:
+    if path.is_dir() and not path.is_symlink():
+        path.chmod(0o700)
+
+
+def _race_child_open_fail(monkeypatch, path: Path, mutator, err: int) -> None:
+    real_open = os.open
+    replaced = {"done": False}
+
+    def racing_open(name, flags, *args, **kwargs):
+        result_name = name if isinstance(name, str) else os.fsdecode(name)
+        if (
+            result_name == path.name
+            and not replaced["done"]
+            and kwargs.get("dir_fd") is not None
+            and not (flags & getattr(os, "O_DIRECTORY", 0))
+        ):
+            replaced["done"] = True
+            mutator(path)
+            raise OSError(err, os.strerror(err))
+        return real_open(name, flags, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", racing_open)
 
 
 def test_parse_strict_json_rejects_duplicate_float_nan_trailing_and_utf8() -> None:
@@ -208,6 +248,116 @@ def test_blob_lstat_open_type_race_is_source_changed(kind, tmp_path: Path, monke
     assert exc.value.code == SOURCE_CHANGED
     assert exc.value.exit_code == 75
     assert exc.value.code not in {BLOB_NOT_FOUND, BLOB_PATH_UNSAFE}
+
+
+def test_lstat_open_chmod000_dir_is_source_changed(tmp_path: Path, monkeypatch) -> None:
+    path = tmp_path / "doc.json"
+    path.write_text('{"ok":true}', encoding="utf-8")
+    _race_child_open(monkeypatch, path, _to_chmod000_dir)
+    try:
+        with pytest.raises(SecureIOError) as exc:
+            read_regular_file(
+                path,
+                missing_code=PLAN_NOT_FOUND,
+                unsafe_code=PLAN_PATH_UNSAFE,
+            )
+        assert exc.value.code == SOURCE_CHANGED
+        assert exc.value.exit_code == 75
+        assert exc.value.code not in {PLAN_NOT_FOUND, PLAN_PATH_UNSAFE}
+    finally:
+        _restore_chmod000_dir(path)
+
+
+@pytest.mark.parametrize(
+    "kind,err",
+    [
+        ("chmod000_dir", errno.EACCES),
+        ("fifo", errno.EACCES),
+        ("fifo", errno.EPERM),
+        ("device", errno.ENODEV),
+        ("device", errno.EACCES),
+        ("device", errno.EPERM),
+    ],
+)
+def test_lstat_open_failure_after_swap_is_source_changed(
+    kind, err, tmp_path: Path, monkeypatch
+) -> None:
+    path = tmp_path / "doc.json"
+    path.write_text('{"ok":true}', encoding="utf-8")
+    mutators = {
+        "chmod000_dir": _to_chmod000_dir,
+        "fifo": _to_fifo,
+        "device": _to_device_or_fallback,
+    }
+    _race_child_open_fail(monkeypatch, path, mutators[kind], err)
+    try:
+        with pytest.raises(SecureIOError) as exc:
+            read_regular_file(
+                path,
+                missing_code=PLAN_NOT_FOUND,
+                unsafe_code=PLAN_PATH_UNSAFE,
+            )
+        assert exc.value.code == SOURCE_CHANGED
+        assert exc.value.exit_code == 75
+        assert exc.value.code not in {PLAN_NOT_FOUND, PLAN_PATH_UNSAFE}
+    finally:
+        _restore_chmod000_dir(path)
+
+
+@pytest.mark.parametrize(
+    "kind,err",
+    [
+        ("chmod000_dir", errno.EACCES),
+        ("fifo", errno.EPERM),
+        ("device", errno.ENODEV),
+    ],
+)
+def test_blob_lstat_open_failure_after_swap_is_source_changed(
+    kind, err, tmp_path: Path, monkeypatch
+) -> None:
+    data = b"blob-bytes"
+    digest = hashlib.sha256(data).hexdigest()
+    root = tmp_path / "blobs"
+    root.mkdir()
+    path = root / digest
+    path.write_bytes(data)
+    mutators = {
+        "chmod000_dir": _to_chmod000_dir,
+        "fifo": _to_fifo,
+        "device": _to_device_or_fallback,
+    }
+    _race_child_open_fail(monkeypatch, path, mutators[kind], err)
+    try:
+        with pytest.raises(SecureIOError) as exc:
+            BlobStore(root).read(digest)
+        assert exc.value.code == SOURCE_CHANGED
+        assert exc.value.exit_code == 75
+        assert exc.value.code not in {BLOB_NOT_FOUND, BLOB_PATH_UNSAFE}
+    finally:
+        _restore_chmod000_dir(path)
+
+
+def test_same_file_open_eacces_is_path_unsafe(tmp_path: Path, monkeypatch) -> None:
+    path = tmp_path / "doc.json"
+    path.write_text('{"ok":true}', encoding="utf-8")
+    real_open = os.open
+
+    def denied_open(name, flags, *args, **kwargs):
+        result_name = name if isinstance(name, str) else os.fsdecode(name)
+        if (
+            result_name == path.name
+            and kwargs.get("dir_fd") is not None
+            and not (flags & getattr(os, "O_DIRECTORY", 0))
+        ):
+            raise OSError(errno.EACCES, os.strerror(errno.EACCES))
+        return real_open(name, flags, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", denied_open)
+    with pytest.raises(SecureIOError) as exc:
+        read_regular_file(path, missing_code=PLAN_NOT_FOUND, unsafe_code=PLAN_PATH_UNSAFE)
+    assert exc.value.code == PLAN_PATH_UNSAFE
+    assert exc.value.exit_code == 2
+    assert exc.value.code != SOURCE_CHANGED
 
 
 def test_in_place_modify_during_read_is_source_changed(tmp_path: Path, monkeypatch) -> None:

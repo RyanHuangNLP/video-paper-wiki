@@ -182,6 +182,31 @@ def test_plan_request_schema_failures_are_plan_request_invalid(
     assert network_attempts == []
 
 
+@pytest.mark.parametrize("family,factory", [
+    ("ingest", lambda: paper_source_request(local_sha256="a" * 64)),
+    ("code-map", lambda: code_evidence_request()),
+])
+@pytest.mark.parametrize("schema_value,label", [({}, "object"), ([], "array")])
+def test_plan_schema_object_or_array_is_plan_request_invalid(
+    family, factory, schema_value, label, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    request = factory()
+    request["schema"] = schema_value
+    path = write_json(tmp_path / f"{family}-schema-{label}.json", request)
+    code = main([family, "plan", "--request", str(path)])
+    payload = _payload(capsys)
+    dumped = json.dumps(payload)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "PLAN_REQUEST_INVALID"
+    assert payload["error"]["code"] not in {"SCHEMA_INVALID", "TypeError"}
+    assert "SCHEMA_INVALID" not in dumped
+    assert "TypeError" not in dumped
+    assert network_attempts == []
+
+
 def test_plan_missing_request_is_usage(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     make_checkout(tmp_path)
     monkeypatch.chdir(tmp_path)
