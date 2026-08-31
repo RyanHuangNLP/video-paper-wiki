@@ -1,10 +1,9 @@
-"""Local content-addressed blob store. Zero network."""
+"""Local content-addressed blob store. Read-only. Zero network."""
 
 from __future__ import annotations
 
 import hashlib
 import os
-import shutil
 from pathlib import Path
 
 
@@ -37,22 +36,3 @@ class BlobStore:
         if actual != digest:
             return None
         return path
-
-    def put_from_path(self, src: Path) -> str:
-        data = Path(src).read_bytes()
-        digest = hashlib.sha256(data).hexdigest()
-        dest = self.path_for(digest)
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        if not dest.exists():
-            dest.write_bytes(data)
-        return digest
-
-    def stage(self, sha256: str, dest_dir: Path) -> Path:
-        source = self.get(sha256)
-        if source is None:
-            raise FileNotFoundError(sha256)
-        dest_dir = Path(dest_dir)
-        dest_dir.mkdir(parents=True, exist_ok=True)
-        dest = dest_dir / _normalize_sha256(sha256)
-        shutil.copy2(source, dest)
-        return dest
