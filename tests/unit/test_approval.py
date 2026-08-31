@@ -15,6 +15,7 @@ from tests.support import (
 from video_paper_wiki.approval import (
     APPROVAL_REF_INVALID,
     APPROVAL_REF_MISMATCH,
+    PIPELINE_FINGERPRINT_MISMATCH,
     ApprovalError,
     approval_ref_sha256,
     bind_approval_ref,
@@ -155,6 +156,28 @@ def test_tampered_plan_material_rejects_old_ref(mutator, field) -> None:
         bind_approval_ref(mutated, ref)
     assert exc.value.code == APPROVAL_REF_MISMATCH
     assert exc.value.details["field"] == field
+
+
+def test_bind_requires_pipeline_fingerprint_present() -> None:
+    plan, ref = _paper_pair()
+    plan.pop("pipeline_fingerprint")
+    plan["approval_hash"] = plan_approval_hash(plan)
+    ref["plan_approval_hash"] = plan["approval_hash"]
+    with pytest.raises(ApprovalError) as exc:
+        bind_approval_ref(plan, ref)
+    assert exc.value.code == PIPELINE_FINGERPRINT_MISMATCH
+    assert exc.value.exit_code == 2
+
+
+def test_bind_plan_fingerprint_mismatch_is_pipeline_error() -> None:
+    plan, ref = _paper_pair()
+    plan["pipeline_fingerprint"] = "0" * 64
+    plan["approval_hash"] = plan_approval_hash(plan)
+    ref["plan_approval_hash"] = plan["approval_hash"]
+    with pytest.raises(ApprovalError) as exc:
+        bind_approval_ref(plan, ref)
+    assert exc.value.code == PIPELINE_FINGERPRINT_MISMATCH
+    assert exc.value.exit_code == 2
 
 
 def test_code_evidence_ref_does_not_require_local_sha256() -> None:

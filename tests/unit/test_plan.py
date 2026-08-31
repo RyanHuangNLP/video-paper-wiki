@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from tests.support import (
     ROOT,
     code_evidence_request,
@@ -147,6 +149,36 @@ def test_plan_code_map_fixture(tmp_path, monkeypatch, capsys, network_attempts) 
     assert payload["command"] == "code-map.plan"
     assert payload["data"]["plan"]["plan_kind"] == "code-evidence"
     assert Path(payload["data"]["plan_path"]) == work_plan(tmp_path, "batch-code-1")
+    assert network_attempts == []
+
+
+@pytest.mark.parametrize("family,factory", [
+    ("ingest", lambda: paper_source_request(local_sha256="a" * 64)),
+    ("code-map", lambda: code_evidence_request()),
+])
+@pytest.mark.parametrize(
+    "kind",
+    ["missing_field", "additional_properties", "wrong_schema"],
+)
+def test_plan_request_schema_failures_are_plan_request_invalid(
+    family, factory, kind, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    request = factory()
+    if kind == "missing_field":
+        request.pop("limits")
+    elif kind == "additional_properties":
+        request["note"] = "extra"
+    else:
+        request["schema"] = "video-paper-wiki.ingest-plan.v0"
+    path = write_json(tmp_path / f"{family}-{kind}.json", request)
+    code = main([family, "plan", "--request", str(path)])
+    payload = _payload(capsys)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "PLAN_REQUEST_INVALID"
+    assert "SCHEMA_INVALID" not in json.dumps(payload)
     assert network_attempts == []
 
 

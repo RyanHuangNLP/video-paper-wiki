@@ -12,6 +12,7 @@ from video_paper_wiki.approval import (
     ApprovalError,
     bind_approval_ref,
     parse_approval_ref,
+    require_pipeline_fingerprint,
 )
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
 from video_paper_wiki.contracts import (
@@ -189,6 +190,7 @@ def run(args: object | None = None) -> int:
                 "command family does not match plan_kind",
                 {"plan_kind": plan.get("plan_kind")},
             )
+        require_pipeline_fingerprint(plan)
         ref_path = Path(str(ref_raw))
         ref_obj = load_strict_json(
             ref_path,

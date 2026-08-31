@@ -21,6 +21,7 @@ from tests.support import (
     write_json,
 )
 from video_paper_wiki.cli import main
+from video_paper_wiki.identity import plan_approval_hash
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.staging import stage_bytes
 
@@ -370,6 +371,143 @@ def test_source_has_no_follow_helpers() -> None:
         assert "is_file(" not in text
         assert "read_bytes(" not in text
         assert "copy2" not in text
+
+
+def test_prepare_missing_pipeline_fingerprint(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    blob_root = tmp_path / "blobs"
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    data = TINY_PDF.read_bytes()
+    digest = plant_blob(blob_root, data)
+    request = paper_source_request(batch_id="fp1", local_sha256=digest)
+    plan = complete_ingest_plan(request)
+    plan.pop("pipeline_fingerprint")
+    plan["approval_hash"] = plan_approval_hash(plan)
+    staged = stage_bytes(
+        batch_id=plan["batch_id"],
+        relative=("plan", "ingest-plan.v1.json"),
+        data=canonicalize(plan),
+    )
+    ref = make_approval_ref(plan)
+    ref_path = write_json(tmp_path / "fp1.approval-ref.json", ref)
+    code = main(["ingest", "prepare", "--plan", str(staged.path), "--approval-ref", str(ref_path)])
+    payload = _payload(capsys)
+    assert code == 2
+    assert payload["error"]["code"] == "PIPELINE_FINGERPRINT_MISMATCH"
+    assert network_attempts == []
+
+
+def test_prepare_ref_only_fingerprint_mismatch(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    blob_root = tmp_path / "blobs"
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    request = paper_source_request(batch_id="fp2", local_sha256=digest)
+    plan_path, ref_path, _plan = _bind_plan(tmp_path, request)
+    ref = json.loads(ref_path.read_text(encoding="utf-8"))
+    ref["pipeline_fingerprint"] = "e" * 64
+    write_json(ref_path, ref)
+    code = main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    payload = _payload(capsys)
+    assert code == 2
+    assert payload["error"]["code"] == "APPROVAL_REF_MISMATCH"
+    assert payload["error"]["details"]["field"] == "pipeline_fingerprint"
+    assert network_attempts == []
+
+
+def _race_child_open(monkeypatch, path: Path, mutator) -> None:
+    real_open = os.open
+    replaced = {"done": False}
+
+    def racing_open(name, flags, *args, **kwargs):
+        result_name = name if isinstance(name, str) else os.fsdecode(name)
+        if (
+            result_name == path.name
+            and not replaced["done"]
+            and kwargs.get("dir_fd") is not None
+            and not (flags & getattr(os, "O_DIRECTORY", 0))
+        ):
+            replaced["done"] = True
+            mutator(path)
+        return real_open(name, flags, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", racing_open)
+
+
+@pytest.mark.parametrize("target", ["plan", "ref", "blob"])
+@pytest.mark.parametrize("kind", ["delete", "symlink", "dir", "fifo"])
+def test_prepare_lstat_open_race_is_source_changed(
+    target, kind, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    blob_root = tmp_path / "blobs"
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    data = TINY_PDF.read_bytes()
+    digest = plant_blob(blob_root, data)
+    request = paper_source_request(batch_id="race1", local_sha256=digest)
+    plan_path, ref_path, _plan = _bind_plan(tmp_path, request)
+    blob_path = blob_root / digest
+    path = {"plan": plan_path, "ref": ref_path, "blob": blob_path}[target]
+
+    def mutate(current: Path) -> None:
+        if current.exists() or current.is_symlink():
+            if current.is_dir() and not current.is_symlink():
+                current.rmdir()
+            else:
+                current.unlink()
+        if kind == "delete":
+            return
+        if kind == "symlink":
+            current.symlink_to("missing-target")
+        elif kind == "dir":
+            current.mkdir()
+        elif kind == "fifo":
+            os.mkfifo(current)
+
+    _race_child_open(monkeypatch, path, mutate)
+    code = main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    payload = _payload(capsys)
+    assert code == 75
+    assert payload["error"]["code"] == "SOURCE_CHANGED"
+    assert payload["error"]["code"] not in {
+        "BLOB_NOT_FOUND",
+        "PLAN_NOT_FOUND",
+        "PLAN_PATH_UNSAFE",
+        "BLOB_PATH_UNSAFE",
+        "APPROVAL_REF_INVALID",
+        "APPROVAL_REF_NOT_FOUND",
+    }
+    assert network_attempts == []
+
+
+@pytest.mark.parametrize("kind", ["duplicate", "float", "nan", "utf8"])
+def test_approval_ref_strict_json_is_invalid(
+    kind, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    blob_root = tmp_path / "blobs"
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    request = paper_source_request(batch_id="refbad", local_sha256=digest)
+    plan_path, ref_path, plan = _bind_plan(tmp_path, request)
+    good = json.dumps(make_approval_ref(plan), separators=(",", ":"))
+    if kind == "duplicate":
+        ref_path.write_text(good[:-1] + ',"format":"video-paper-wiki.approval-ref.v1"}', encoding="utf-8")
+    elif kind == "float":
+        ref_path.write_text('{"format":1.5}', encoding="utf-8")
+    elif kind == "nan":
+        ref_path.write_text('{"format":NaN}', encoding="utf-8")
+    else:
+        ref_path.write_bytes(b'{"format":"x"\xff}')
+    code = main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    payload = _payload(capsys)
+    assert code == 2
+    assert payload["error"]["code"] == "APPROVAL_REF_INVALID"
+    assert network_attempts == []
 
 
 def test_hard_byte_cap_monkeypatch(tmp_path, monkeypatch, capsys, network_attempts) -> None:

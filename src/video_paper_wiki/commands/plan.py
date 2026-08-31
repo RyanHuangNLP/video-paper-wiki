@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from video_paper_wiki.contracts import ContractError, validate_document
+from video_paper_wiki.contracts import SCHEMA_INVALID, ContractError, validate_document
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.identity import IdentityError, pipeline_fingerprint, plan_approval_hash
 from video_paper_wiki.jcs import CanonicalJsonError, canonicalize
@@ -40,6 +40,9 @@ def _emit(command: str, exc: BaseException) -> int:
     message = str(getattr(exc, "message", exc))
     details = dict(getattr(exc, "details", {}) or {})
     exit_code = int(getattr(exc, "exit_code", 2))
+    if code == SCHEMA_INVALID:
+        code = PLAN_REQUEST_INVALID
+        exit_code = 2
     return emit_error(command, code, message, details, exit_code=exit_code)
 
 
@@ -80,6 +83,8 @@ def _build_plan(request: object, expected_kind: str) -> dict[str, Any]:
     try:
         validate_document(plan, expected_schema=PLAN_SCHEMA)
     except ContractError as exc:
+        if getattr(exc, "code", None) == SCHEMA_INVALID:
+            raise _request_error(str(exc.message), dict(exc.details)) from exc
         raise
     try:
         validate_batch_id(plan.get("batch_id"))

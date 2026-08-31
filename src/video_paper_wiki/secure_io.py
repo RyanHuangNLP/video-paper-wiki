@@ -115,6 +115,22 @@ def _map_open_error(path: Path, exc: OSError, *, missing_code: str, unsafe_code:
     _raise(unsafe_code, "path is not a readable regular file", path)
 
 
+def _is_presence_or_type_race(exc: OSError) -> bool:
+    err = getattr(exc, "errno", None)
+    if isinstance(exc, FileNotFoundError) or err == errno.ENOENT:
+        return True
+    if err in {errno.ELOOP, getattr(errno, "EMLINK", 31)}:
+        return True
+    if isinstance(exc, (NotADirectoryError, IsADirectoryError)) or err in {
+        errno.ENOTDIR,
+        errno.EISDIR,
+    }:
+        return True
+    if err in {errno.ENXIO, errno.EEXIST}:
+        return True
+    return False
+
+
 def lexical_abs(path: Path | str) -> Path:
     """Absolute path with lexical `..` collapse. Does not follow symlinks."""
 
@@ -213,12 +229,14 @@ def read_child_regular(
     try:
         fd = os.open(name, file_open_flags(), dir_fd=parent_fd)
     except OSError as exc:
+        if _is_presence_or_type_race(exc):
+            _raise(changed_code, "file changed during open", target)
         _map_open_error(target, exc, missing_code=missing_code, unsafe_code=unsafe_code)
         raise AssertionError("unreachable") from exc
     try:
         fst = os.fstat(fd)
         if stat.S_ISLNK(fst.st_mode) or not stat.S_ISREG(fst.st_mode) or is_special(fst):
-            _raise(unsafe_code, "path is not a regular file", target)
+            _raise(changed_code, "file changed during open", target)
         if stamp(lst) != stamp(fst):
             _raise(changed_code, "file changed during open", target)
         chunks: list[bytes] = []

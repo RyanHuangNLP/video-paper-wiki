@@ -19,6 +19,7 @@ from video_paper_wiki.staging import StagingError, validate_batch_id
 APPROVAL_REF_FORMAT = "video-paper-wiki.approval-ref.v1"
 APPROVAL_REF_INVALID = "APPROVAL_REF_INVALID"
 APPROVAL_REF_MISMATCH = "APPROVAL_REF_MISMATCH"
+PIPELINE_FINGERPRINT_MISMATCH = "PIPELINE_FINGERPRINT_MISMATCH"
 APPROVAL_REF_KEYS = (
     "format",
     "plan_approval_hash",
@@ -109,16 +110,41 @@ def parse_approval_ref(value: object) -> dict[str, Any]:
     return payload
 
 
+def require_pipeline_fingerprint(plan: Mapping[str, Any]) -> str:
+    """Require plan.pipeline_fingerprint present and equal to the parser digest."""
+
+    parser = plan.get("parser")
+    if not isinstance(parser, Mapping):
+        raise ApprovalError(
+            PIPELINE_FINGERPRINT_MISMATCH,
+            "plan pipeline_fingerprint does not match the parser",
+            {"field": "pipeline_fingerprint"},
+        )
+    try:
+        expected = pipeline_fingerprint(parser)
+    except (IdentityError, CanonicalJsonError) as exc:
+        raise ApprovalError(
+            PIPELINE_FINGERPRINT_MISMATCH,
+            "plan pipeline_fingerprint does not match the parser",
+            {"field": "pipeline_fingerprint"},
+        ) from exc
+    stated = plan.get("pipeline_fingerprint")
+    if not isinstance(stated, str) or stated != expected:
+        raise ApprovalError(
+            PIPELINE_FINGERPRINT_MISMATCH,
+            "plan pipeline_fingerprint does not match the parser",
+            {"field": "pipeline_fingerprint"},
+        )
+    return expected
+
+
 def bind_approval_ref(plan: Mapping[str, Any], ref: Mapping[str, Any]) -> str:
     """Bind *ref* to *plan*. Return approval_ref_sha256. Never claims human approval."""
 
     parsed = parse_approval_ref(ref)
+    expected_pipeline = require_pipeline_fingerprint(plan)
     try:
         expected_approval = plan_approval_hash(plan)
-        parser = plan.get("parser")
-        if not isinstance(parser, Mapping):
-            raise _mismatch("pipeline_fingerprint")
-        expected_pipeline = pipeline_fingerprint(parser)
         expected_limits = jcs_sha256(plan.get("limits"))
         expected_targets = jcs_sha256(plan.get("network_targets"))
     except (IdentityError, CanonicalJsonError) as exc:
@@ -142,9 +168,6 @@ def bind_approval_ref(plan: Mapping[str, Any], ref: Mapping[str, Any]) -> str:
         raise _mismatch("limits_sha256")
     if parsed["network_targets_sha256"] != expected_targets:
         raise _mismatch("network_targets_sha256")
-    stated_pipeline = plan.get("pipeline_fingerprint")
-    if isinstance(stated_pipeline, str) and stated_pipeline != expected_pipeline:
-        raise _mismatch("pipeline_fingerprint")
     if parsed["pipeline_fingerprint"] != expected_pipeline:
         raise _mismatch("pipeline_fingerprint")
     source = plan.get("input")

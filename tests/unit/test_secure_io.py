@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import socket
@@ -8,8 +9,11 @@ from pathlib import Path
 
 import pytest
 
+from video_paper_wiki.blob_store import BlobStore
 from video_paper_wiki.secure_io import (
     BLOB_LIMIT_EXCEEDED,
+    BLOB_NOT_FOUND,
+    BLOB_PATH_UNSAFE,
     PLAN_NOT_FOUND,
     PLAN_PATH_UNSAFE,
     SOURCE_CHANGED,
@@ -20,6 +24,52 @@ from video_paper_wiki.secure_io import (
     read_regular_file,
     stamp,
 )
+
+
+def _race_child_open(monkeypatch, path: Path, mutator) -> None:
+    real_open = os.open
+    replaced = {"done": False}
+
+    def racing_open(name, flags, *args, **kwargs):
+        result_name = name if isinstance(name, str) else os.fsdecode(name)
+        if (
+            result_name == path.name
+            and not replaced["done"]
+            and kwargs.get("dir_fd") is not None
+            and not (flags & getattr(os, "O_DIRECTORY", 0))
+        ):
+            replaced["done"] = True
+            mutator(path)
+        return real_open(name, flags, *args, **kwargs)
+
+    monkeypatch.setattr(os, "open", racing_open)
+
+
+def _delete(path: Path) -> None:
+    path.unlink()
+
+
+def _to_symlink(path: Path) -> None:
+    path.unlink()
+    path.symlink_to("missing-target")
+
+
+def _to_dir(path: Path) -> None:
+    path.unlink()
+    path.mkdir()
+
+
+def _to_fifo(path: Path) -> None:
+    path.unlink()
+    os.mkfifo(path)
+
+
+def _to_socket(path: Path, holders: list) -> None:
+    path.unlink()
+    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    server.bind(str(path))
+    server.listen(1)
+    holders.append(server)
 
 
 def test_parse_strict_json_rejects_duplicate_float_nan_trailing_and_utf8() -> None:
@@ -108,6 +158,56 @@ def test_lstat_open_replace_is_source_changed(tmp_path: Path, monkeypatch) -> No
         read_regular_file(path, missing_code=PLAN_NOT_FOUND, unsafe_code=PLAN_PATH_UNSAFE)
     assert exc.value.code == SOURCE_CHANGED
     assert exc.value.exit_code == 75
+
+
+@pytest.mark.parametrize("kind", ["delete", "symlink", "dir", "fifo", "socket"])
+def test_lstat_open_type_race_is_source_changed(kind, tmp_path: Path, monkeypatch) -> None:
+    path = tmp_path / "doc.json"
+    path.write_text('{"ok":true}', encoding="utf-8")
+    holders: list = []
+    mutators = {
+        "delete": _delete,
+        "symlink": _to_symlink,
+        "dir": _to_dir,
+        "fifo": _to_fifo,
+        "socket": lambda current: _to_socket(current, holders),
+    }
+    _race_child_open(monkeypatch, path, mutators[kind])
+    try:
+        with pytest.raises(SecureIOError) as exc:
+            read_regular_file(
+                path,
+                missing_code=PLAN_NOT_FOUND,
+                unsafe_code=PLAN_PATH_UNSAFE,
+            )
+        assert exc.value.code == SOURCE_CHANGED
+        assert exc.value.exit_code == 75
+        assert exc.value.code not in {PLAN_NOT_FOUND, PLAN_PATH_UNSAFE}
+    finally:
+        for server in holders:
+            server.close()
+
+
+@pytest.mark.parametrize("kind", ["delete", "symlink", "dir", "fifo"])
+def test_blob_lstat_open_type_race_is_source_changed(kind, tmp_path: Path, monkeypatch) -> None:
+    data = b"blob-bytes"
+    digest = hashlib.sha256(data).hexdigest()
+    root = tmp_path / "blobs"
+    root.mkdir()
+    path = root / digest
+    path.write_bytes(data)
+    mutators = {
+        "delete": _delete,
+        "symlink": _to_symlink,
+        "dir": _to_dir,
+        "fifo": _to_fifo,
+    }
+    _race_child_open(monkeypatch, path, mutators[kind])
+    with pytest.raises(SecureIOError) as exc:
+        BlobStore(root).read(digest)
+    assert exc.value.code == SOURCE_CHANGED
+    assert exc.value.exit_code == 75
+    assert exc.value.code not in {BLOB_NOT_FOUND, BLOB_PATH_UNSAFE}
 
 
 def test_in_place_modify_during_read_is_source_changed(tmp_path: Path, monkeypatch) -> None:
