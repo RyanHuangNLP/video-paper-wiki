@@ -77,6 +77,71 @@ need separately defined immutable artifact bindings. A hash-only provenance
 field is not proof the referenced bytes exist; the final mapping must name
 which facts require a resolved artifact FK and which retain a supplied digest.
 
+## Field-coverage decisions from the current sources
+
+The complete column manifest still needs review; these additions prevent the
+initial family list from losing source fields before DDL is written.
+
+Both source and claim ledgers have a required canonical `generated_at`. Include
+an explicit ledger-metadata relation keyed by ledger kind, with its input path
+and original timestamp. Storing just row entries and the inventory SHA does not
+expose that canonical field for a lossless logical export. Do not substitute
+index-build time or remove the field as volatile.
+
+Source optional nullable content hash, three dates, independence key and supersedes
+need value/presence pairs if the final input profile admits omission. Claims
+similarly need a declared policy for location.anchor, reviewed_at, notes and
+supersedes. The separately frozen history binding requires explicit reviewed_at;
+if whole-input admission enforces that field's presence, its catalog value alone
+can represent null/string and no redundant presence bit is necessary. A tighter
+admission rule must be explicit; it cannot be a hidden SQL default. Required
+nullable repo/alignment license.spdx_id likewise needs a value, not an invented
+absence state. Optional archived bool has three possible states (absent/false/true),
+so nullable INTEGER with strict 0/1 checking suffices there.
+
+Taxonomy must preserve its root version and complete policy: unknown_terms,
+silent_create, statement_en and statement_zh. Axes have slug, bilingual labels,
+ordered aliases and ordered terms. Current terms have slug, label_zh, ordered
+aliases and canonical status; they have no label_en or parent field. Use distinct
+axis-alias and term-alias children with ordinals. A term's identity is (axis,slug),
+not its position or translated label. Repeated aliases, if allowed by final input
+admission, cannot be silently deduplicated for storage; this base release does
+not implement an alias resolver or choose a first ambiguous match.
+
+Assessment events retain every field in the existing schema, including actor,
+transition, exact reason/decided_by, timestamp spelling, predecessor, raw-text SHA
+and fingerprint. Derived head rows need only claim_id and head_event_id; the
+frozen `derive_assessment_heads` API supplies the mapping. A catalog join can
+recover head state/date from the original complete event rows. Do not add a
+second chronology selector or infer a head from maximum timestamp/event_id.
+
+The immutable run's root run_id, started_at, ended_at and explicit nullable
+error_code remain facts. Its required vpwiki/python versions and optional
+Docling/core/upstream versions, all optional named input/output hash fields and
+optional pipeline fingerprint each need exact presence preservation. A successful
+extraction-specific closure may require a subset, but historical rows must not
+synthesize hashes/version strings for an absent value. No manifest hash is
+implicitly a file SHA or a foreign key merely because its name ends in sha256.
+
+Code manifest rows must preserve the original repository spelling, full commit
+and origin path, complete input-file SHA, payload raw SHA/size, newline and line
+metadata, normalized SHA, proposal SHA, and inspected capture/source/approval/
+operation/manifest fields. An inspected manifest's operation_id is required but
+nullable. Proposal-only staging artifacts are not silently promoted to canonical
+inspected manifests. Multiple logical origins sharing one raw source remain
+separate rows; uniqueness applies to declared immutable origin/version keys.
+
+Alignment rows preserve each immutable manifest's input path/hash and complete
+paper/repository/commit, officiality evidence order, license and archived status.
+Capability children preserve their original array ordinal separately from unique
+name. Each keeps state, ordered full code locators, optional absence_scope with
+commit/tree_prefix/ordered search_patterns, and optional checkpoint_kind. In the
+current schema absence_scope is absent or an object, not explicit null; a query
+must not invent null compatibility because a nested contains branch is broader.
+Its tree_prefix and search_patterns are strings under the base schema; later
+code verification may impose additional semantics, but SQL must not secretly
+rewrite them or drop an empty value allowed by the admitted profile.
+
 ## Canonical row export decisions
 
 The proposed export root is a closed `video-paper-wiki.catalog-rows.v1`

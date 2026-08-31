@@ -156,3 +156,34 @@ imported or executed; no model or transitive package was fetched. Exact source
 Git provenance, model/transitive license coverage and legal compliance are not
 established. Downloaded package archives and selected read-only source extracts
 remain outside the repository; their hashes/member paths allow later replay.
+
+Later locator-only acceptance is recorded in `ledger-locator/ci-observation.json`,
+`ledger-locator/merge-parents.json` and `ledger-locator/architect-acceptance.json`.
+Head `3e2bebb1d50928a7af95e07b4868bdbe8113cd0b` passed run 33434824681 attempt 1,
+four jobs each 1464 tests, actual merge `e1ad0bac031867ceaf3342bd5f24d8a2d1b307fb`.
+The 365 unique source/delivery blobs and merge parents were independently checked.
+CI Python versions are 3.12.14/3.13.15; local remain 3.12.14/3.13.13. This later
+acceptance does not overwrite historical pending observations or accept the new
+assessment-history implementation, complete input/SQLite/generation or human gates.
+
+`dependency-source/architect-review.json` is a later independent check of the
+three exact locked wheels, docling sdist, nine inspected source-text members and
+clean detached vendor pin, including each available license file/declaration.
+This supplies bounded evidence for VPKB-000's named dependency/source-digest/
+license inventory. The plan does not require inventing a Git commit for a PyPI
+wheel: the distribution digest is explicit provenance, while the absence of an
+exact Git mapping remains stated. No human license gate, model/transitive audit,
+legal permission, parser execution or broader production acceptance is implied;
+the original pin manifest stays unchanged.
+
+The `assessment-history/` evidence directory records the next independently
+frozen pure slice, not an update to the older prospective validator. Its 292
+source inputs have snapshot `3564cd9e769825c6190fc4c03d93655bd2deed2b022ef752762c51244b7f41ae`;
+Python 3.12.14/3.13.13 each passed 1596 tests with no failures/errors/skips.
+The fresh installed wheel passed 18 schemas and all prior smoke checks plus the
+independently fixed 29 positive/38 negative histories. Source maps remained equal.
+Steward's separate 85 checks/184 focused tests passed. Historical event/claim hash
+formulas remain unchanged; cycle graph controls are explicitly synthetic. Actor
+labels do not authenticate humans, and complete supplied chains do not prove
+Vault inventory/receipt integrity. This candidate still needs its own commit/CI
+and exact-commit acceptance; the previous locator result is historical only.

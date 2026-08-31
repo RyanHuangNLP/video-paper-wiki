@@ -216,3 +216,62 @@ versioned normative document,
 Builder and Steward independently review it, and packet/schema/API ownership,
 fixtures and acceptance evidence paths are assigned. Do not start production
 rendering or SQLite file mutation from this preparation note.
+
+## Ledger locator acceptance and complete history implementation release
+
+Architect accepted only the locator slice at
+`3e2bebb1d50928a7af95e07b4868bdbe8113cd0b`, parent
+`208c206801214bb8f6e2f58f995ad7755ce87332`. All 288 source and 82 delivery files
+(365 unique paths) matched reviewed Git blobs. CI run 33434824681 attempt 1
+passed four jobs, each 1464 tests. Every job actually tested merge
+`e1ad0bac031867ceaf3342bd5f24d8a2d1b307fb`; Architect independently checked its
+parents as integration `08709894adfb20ec07e976783f0ba436d975b74f` and that head.
+The separate later decision and observations are in `ledger-locator/` under this
+packet's verification directory. Historical pending local records remain intact.
+PR94 stays open/draft, with no merge or human-gate authorization.
+
+The new [complete assessment-history contract](../contracts/assessment-history-v1.md)
+is frozen revision 1, SHA-256
+`ff7e7830d9931c52c447a2a95818dca091cb6d5bc97184d1be1103072ecf44cb`.
+Builder and Steward independently reviewed draft
+`00e928ec0ab43787c734436fac48c81bab7889009f35cdff59e3e8fc910bb7f6`;
+Architect changed only its status header on release. Slice baseline is the
+accepted locator head above. This releases one pure `derive_assessment_heads`
+API, not whole-input enumeration, a persisted head registry or publication.
+
+Builder owns only these new paths:
+
+- `src/video_paper_wiki/assessment_history.py`;
+- `tests/test_assessment_history.py`;
+- `tests/fixtures/assessment-history/**` (declared JSON fixtures).
+
+No edits to existing schema/identity/JCS/prospective validation, accepted
+codec/runtime/facade, schema registry, dependencies, CLI, vendor or test guards.
+No filesystem/Vault adapter, Docling/models, real review, network command, admin
+or Git mutation. Root owns normative contracts/task/team/packet documentation;
+Steward owns independent vectors/review and later serialized evidence/Git only
+after a new exact-candidate instruction. Report actual gaps to Root rather than
+expanding file ownership or changing a frozen rule.
+
+Require the frozen specification's graph/coverage/history/identity/date/type/
+resource/error/isolation fixtures, unchanged old goldens, full Python 3.12/3.13
+and fresh isolated installed-wheel acceptance, then a new candidate's CI. Return
+exact changed-file hashes and test evidence, then stop writing for independent
+review. A cycle tested with synthetic IDs/isolated hash stub is a graph control,
+not a claimed genuine self-consistent hashed event chain. Human actor labels and
+passing consistency tests never prove human authorization or receipt integrity.
+The complete canonical-input/SQLite/export/generation and VPKB-000 remain open.
+
+The history candidate has now completed local verification on 292 fixed source
+inputs, SHA-256 `3564cd9e769825c6190fc4c03d93655bd2deed2b022ef752762c51244b7f41ae`.
+Python 3.12.14 and 3.13.13 each passed 1596 tests, zero failures/errors/skips,
+with equal before/after source maps. Fresh offline wheel build/install and
+isolated smoke passed all prior checks plus the independent history vectors;
+wheel SHA-256 `23d40bf7676eeb631e1b8cb0fe4e7fc8c268ccfba529a2e625a2618f43d8fa15`.
+Builder's 290 targeted tests and Steward's 85 independent checks/184 focused
+tests passed. Steward fixed 29 positive/38 negative expectations before reading
+implementation; the vector bytes did not change. These include all human
+transition edges and an 801-event chain; Builder also tests a 1201-event chain.
+There are still 18 schemas. Only three authorized implementation/test files were
+added, with all prior 288 source inputs unchanged. New commit/CI and separate
+Architect exact-commit acceptance are pending; locator CI is not inherited.

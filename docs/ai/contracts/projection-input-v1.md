@@ -140,7 +140,125 @@ bytes; never collapse them to one origin keyed only by source_id. An inspection
 approval hash or nullable capture operation_id is preserved provenance, not
 permission or proof of a successfully authenticated capture.
 
+## Immutable extraction layout and acyclic publication proposal
+
+This section records the next Architect proposal, NOT a frozen release. The
+independent path/source review confirmed that broad existing schemas permit the
+layout but do not already enforce it. Old prepared fixtures with a literal `fp`
+directory are not proof of the new directory-to-fingerprint relationship.
+
+Use the existing planned source/pipeline organization, with exact names to review:
+`.raw/derived/<raw-pdf-sha256>/docling/<pipeline-fingerprint>/document.json`,
+`parser-config.json` and `model-manifest.json`; put timestamped run records in
+`.raw/derived/<raw-pdf-sha256>/runs/<run-id>.json`. Run IDs are filenames, not a
+selection order. Every qualifying run's source/config/model/document hashes and
+pipeline fingerprint must resolve within that source/pipeline binding. Preserve
+all runs and extraction versions; paper.active_extraction selects a document,
+not a latest run. Multiple qualifying runs for identical bound bytes do not
+collapse run facts. Exact immutable path reuse requires identical bytes; different
+document bytes for one source/pipeline must be refused as nondeterministic, never
+overwritten. These are new application constraints, leaving old schema/identity
+and prospective API admission unchanged.
+
+Keep the already-frozen five-field pipeline identity. Bind the vpwiki canonicalizer
+and document schema versions, exact serializer settings and relevant implementation
+identity inside the versioned canonical parser-config bytes; their raw SHA already
+participates in the existing pipeline tuple. The complete config/model manifest
+schemas and byte serialization still need release. Do not add undocumented keys
+to the old identity tuple or assert that package version 0.1.0 alone identifies a
+canonicalizer implementation. Actual software/resource collection and model-weight
+verification remain future adapter responsibilities.
+
+A canonical successful-extraction run profile should contain only its forward
+source/config/model/document bindings, required pinned parser versions, pipeline
+fingerprint, timestamps and error_code=null. An explicit narrow input/output-key
+profile can omit the optional staging/provenance hashes; this is preferable to
+inventing zero hashes or rehashing an already immutable run. In particular:
+
+- A prepared object may list the run_record's complete-file SHA. That same run
+  cannot also require the SHA of that prepared object: doing so creates a hash
+  cycle. Construct the extraction run before the prepared wrapper and omit
+  run.input_hashes.prepared_sha256 in this profile.
+- A publication receipt hashes the full run file among business writes. The run
+  cannot contain the hash of that same publication receipt. Omit its
+  output_hashes.receipt_sha256; the separate receipt/audit chain binds publication.
+- A draft that depends on that prepared object must not feed a draft hash back
+  into the already referenced extraction run. A later immutable provenance
+  record may refer to already existing artifacts only after its own acyclic
+  publication profile is defined; this draft does not authorize that extra type.
+
+The existing base run schema remains broader. Whether canonical historical
+failure/provenance runs receive a separate input kind/profile, or are explicitly
+outside the first closed corpus, must be decided before inventory freeze; never
+silently drop them or claim all schema-valid runs satisfy this extraction profile.
+No run under create-only `.raw/derived/**` may be retroactively edited to attach an
+apply result; frozen facade publication there remains ingest-only.
+
+Code and alignment manifests also need immutable derived families, qualified by
+their full stored-file SHA to avoid collapsing distinct origins or versions.
+That filename digest must not be confused with a code manifest's self-excluding
+manifest_sha256/proposal_sha256, raw payload hash, normalized whole-text hash or
+snippet hash. A parent publication receipt can hash the completed manifest file;
+feeding that file's self hash back into its capture approval graph is a different,
+forbidden dependency. Exact families and current-alignment selection remain open.
+The existing single-current prospective slots must not be used to reject all
+historical extraction/commit versions in this complete inventory.
+
+## Ledger application-profile design notes
+
+The pinned `claude_obsidian/ledgers.py` validates more than field shapes and
+permits some omitted optional values and additional fields. Do not call a new
+closed project profile an equivalent replacement for its public validator.
+Root has read source revision 9f8c119, including generated timestamps, source
+identity/date/freshness checks and claim risk/contradiction/anchor checks. A pure
+snapshot profile must explicitly separate the following concerns:
+
+- Preserve both ledgers' `generated_at` as canonical input, even for empty
+  ledgers; it is not a runtime volatile timestamp. Pinned ledger generation uses
+  whole-second UTC, whereas project assessment events allow 1..9 fractional
+  digits. These grammars must not be conflated.
+- Source rows contain origin kind/locator, content_kind, title, authority,
+  review_status and ordered pages. Existing optional nullable values include
+  content_sha256, ingested_at, retrieved_at, refresh_due, independence_key and
+  supersedes. A final profile must explicitly require or preserve presence for
+  each; `record.get` in upstream is not permission for the catalog to collapse
+  absence and null. Unknown extension fields must be preserved under an exact
+  released encoding or refused, never silently dropped.
+- Claim rows contain text, risk, assessment, confidence, location and evidence.
+  Existing location.anchor, reviewed_at, notes and supersedes may be omitted
+  or nullable under the upstream implementation. The new history binding
+  deliberately requires reviewed_at explicitly; whole-input admission must
+  state whether this closes the ledger profile to explicit presence rather
+  than inventing null. Generated page/anchor existence is a later comparison
+  against compiler output, not an invitation to read Markdown as canonical facts.
+- Source supersedes and claim supersedes need complete FKs and acyclic graphs;
+  source identity recomputation still belongs to the pinned public adapter.
+  Retention does not follow solely from current claim references: all declared
+  historical immutable artifacts and events must remain in the full inventory.
+- Source freshness, future-dated source observations and accepted high-risk
+  independent-support requirements involve an audit date and upstream policy.
+  A clock-free catalog digest does not certify them. Do not inject today's date
+  into generation, silently re-implement source grouping, or infer scientific
+  claim assessment from this structural validator. The later public validation
+  result must name its explicit audit context separately from the timeless
+  canonical row export.
+
+The closed corpus's raw-file policy remains a decision to freeze: file-origin
+sources need supplied bytes even when unreviewed/superseded/rejected, while
+URL/manual metadata may not have captured bytes. A PDF/code locator can qualify
+only through an explicit source/artifact binding; an HTTPS URL, source title,
+manual origin or matching file basename cannot prove captured PDF/code content.
+Do not narrow all legacy source origins implicitly merely to make current
+fixtures pass, or claim this draft establishes migration compatibility.
+
 ## Historical assessment validation direction
+
+The pure complete-event-graph behavior is now separately frozen in
+[assessment-history revision 1](assessment-history-v1.md), SHA-256
+`ff7e7830d9931c52c447a2a95818dca091cb6d5bc97184d1be1103072ecf44cb`.
+Its transient claim bindings do not replace the inventory/owner/byte adapter
+still required here. The following historical design direction is subordinate
+to that frozen API; the complete input contract remains NOT FROZEN.
 
 Whole-snapshot history cannot reuse the current prospective helper unchanged:
 it compares every event fingerprint with the current evidence. Historical
