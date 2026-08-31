@@ -1,0 +1,445 @@
+{
+  "plan": {
+    "schema": "video-paper-wiki.ingest-plan.v1",
+    "plan_kind": "paper-source",
+    "batch_id": "batch-0001",
+    "stable_subject_id": "paper:arxiv:2311.15127",
+    "input": {
+      "kind": "local-blob",
+      "local_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "arxiv_id": "2311.15127"
+    },
+    "limits": {
+      "max_pages": 200,
+      "max_bytes": 50000000,
+      "max_requests": 1
+    },
+    "network_targets": [],
+    "parser": {
+      "engine": "docling",
+      "engine_version": "2.117.0",
+      "core_version": "2.92.0",
+      "config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "model_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "approval_hash": "7830f21a4b4dbc7c914da30425f88595859a4489bb23a4ed6780cc6574e26109"
+  },
+  "prepared": {
+    "schema": "video-paper-wiki.prepared.v1",
+    "batch_id": "batch-0001",
+    "pdf_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "media_type": "application/pdf",
+    "page_count": 24,
+    "byte_count": 123456,
+    "docling_version": "2.117.0",
+    "docling_core_version": "2.92.0",
+    "parser_config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "model_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_fingerprint": "docling-2.117.0+core-2.92.0+vpwiki-0.1.0",
+    "artifacts": [
+      {
+        "kind": "document_json",
+        "path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      {
+        "kind": "parser_config",
+        "path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/parser-config.json",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "kind": "model_manifest",
+        "path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/model-manifest.json",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ],
+    "metadata_candidates": {
+      "title": "A Video Paper",
+      "title_zh": "一篇视频论文",
+      "authors": [
+        "Ada Example"
+      ],
+      "arxiv_id": "2311.15127"
+    }
+  },
+  "draft": {
+    "schema": "video-paper-wiki.paper-analysis-draft.v1",
+    "paper_id": "arxiv:2311.15127",
+    "title": "A Video Paper",
+    "title_zh": "一篇视频论文",
+    "sections": [
+      {
+        "id": "one_sentence_conclusion",
+        "heading_zh": "一句话结论"
+      },
+      {
+        "id": "research_question",
+        "heading_zh": "研究问题"
+      },
+      {
+        "id": "method",
+        "heading_zh": "方法"
+      },
+      {
+        "id": "representation_architecture",
+        "heading_zh": "表示与架构"
+      },
+      {
+        "id": "training_data",
+        "heading_zh": "训练与数据"
+      },
+      {
+        "id": "experiments_results",
+        "heading_zh": "实验与结果"
+      },
+      {
+        "id": "limitations",
+        "heading_zh": "局限"
+      },
+      {
+        "id": "code_resources",
+        "heading_zh": "代码与资源"
+      },
+      {
+        "id": "evidence_status",
+        "heading_zh": "证据状态"
+      },
+      {
+        "id": "related",
+        "heading_zh": "关联"
+      }
+    ],
+    "taxonomy": [
+      {
+        "axis": "backbone",
+        "slug": "dit"
+      }
+    ],
+    "claims": [
+      {
+        "claim_id": "clm-fc3a0a81a0e8e2bbf906",
+        "claim_text": "The model uses a diffusion transformer.",
+        "section": "method",
+        "core": true,
+        "locators": [
+          {
+            "kind": "pdf",
+            "source_id": "src-paper",
+            "page": 3,
+            "ref": "#/texts/7",
+            "bbox": [
+              10,
+              20,
+              100,
+              40
+            ],
+            "charspan": [
+              0,
+              47
+            ],
+            "artifact_path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+            "artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "text_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "assessment": "provisional"
+      }
+    ]
+  },
+  "paper_record": {
+    "schema": "video-paper-wiki.paper-record.v1",
+    "paper_id": "arxiv:2311.15127",
+    "title": "A Video Paper",
+    "title_zh": "一篇视频论文",
+    "authors": [
+      "Ada Example"
+    ],
+    "published_at": "2023-11-25",
+    "arxiv_id": "2311.15127",
+    "aliases": [
+      "Video Paper"
+    ],
+    "source_ids": [
+      "src-paper"
+    ],
+    "code_urls": [
+      "https://github.com/ExampleOrg/VideoModel"
+    ],
+    "taxonomy": [
+      {
+        "axis": "backbone",
+        "slug": "dit"
+      }
+    ],
+    "active_extraction_path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+    "active_extraction_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "section_claim_refs": [
+      {
+        "section": "method",
+        "claim_id": "clm-fc3a0a81a0e8e2bbf906",
+        "core": true,
+        "lifecycle": "active"
+      }
+    ],
+    "created_at": "2026-08-29T12:00:00Z",
+    "updated_at": "2026-08-29T12:00:00Z"
+  },
+  "alignment": {
+    "schema": "video-paper-wiki.paper-code-alignment.v1",
+    "paper_id": "arxiv:2311.15127",
+    "repository": "ExampleOrg/VideoModel",
+    "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "officiality": {
+      "status": "official",
+      "evidence": [
+        {
+          "kind": "pdf",
+          "source_id": "src-paper",
+          "page": 3,
+          "ref": "#/texts/7",
+          "bbox": [
+            10,
+            20,
+            100,
+            40
+          ],
+          "charspan": [
+            0,
+            47
+          ],
+          "artifact_path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+          "artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "text_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    },
+    "license": {
+      "spdx_id": "Apache-2.0",
+      "notes": "Declared in LICENSE."
+    },
+    "archived": false,
+    "capabilities": [
+      {
+        "name": "training",
+        "status": "present",
+        "locators": [
+          {
+            "kind": "code",
+            "source_id": "src-repo",
+            "repository": "ExampleOrg/VideoModel",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "path": "train.py",
+            "lines": {
+              "start": 10,
+              "end": 30
+            },
+            "symbol": "train",
+            "snippet_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          }
+        ]
+      },
+      {
+        "name": "inference",
+        "status": "present",
+        "locators": [
+          {
+            "kind": "code",
+            "source_id": "src-repo",
+            "repository": "ExampleOrg/VideoModel",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "path": "train.py",
+            "lines": {
+              "start": 10,
+              "end": 30
+            },
+            "symbol": "train",
+            "snippet_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          }
+        ]
+      },
+      {
+        "name": "data",
+        "status": "partial",
+        "locators": [
+          {
+            "kind": "code",
+            "source_id": "src-repo",
+            "repository": "ExampleOrg/VideoModel",
+            "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "path": "train.py",
+            "lines": {
+              "start": 10,
+              "end": 30
+            },
+            "symbol": "train",
+            "snippet_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+          }
+        ]
+      },
+      {
+        "name": "evaluation",
+        "status": "absent",
+        "locators": [],
+        "absence_scope": {
+          "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "tree_prefix": "eval",
+          "search_patterns": [
+            "eval",
+            "benchmark"
+          ]
+        }
+      },
+      {
+        "name": "checkpoints",
+        "status": "unverified",
+        "locators": [],
+        "checkpoint_kind": "link_only"
+      }
+    ]
+  },
+  "repo_record": {
+    "schema": "video-paper-wiki.repo-record.v1",
+    "repo_id": "github:exampleorg/videomodel",
+    "canonical_repository": "ExampleOrg/VideoModel",
+    "canonical_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "paper_ids": [
+      "arxiv:2311.15127"
+    ],
+    "officiality": "official",
+    "license": {
+      "spdx_id": "Apache-2.0",
+      "notes": "Declared in LICENSE."
+    },
+    "archived": false,
+    "capability_claim_refs": [
+      {
+        "capability": "training",
+        "claim_id": "clm-64fd1d8c5e92e6b4a97a",
+        "lifecycle": "active"
+      }
+    ],
+    "created_at": "2026-08-29T12:00:00Z",
+    "updated_at": "2026-08-29T12:00:00Z"
+  },
+  "receipt": {
+    "schema": "video-paper-wiki.operation-receipt.v1",
+    "sequence": 1,
+    "previous": null,
+    "operation_id": "ingest-arxiv-2311.15127",
+    "operation_type": "ingest",
+    "intent_sha256": "e8673c712d639186263fa0d710f2af2f09f04982edbec33eb33de658abf08a16",
+    "writes": [
+      {
+        "path": "wiki/papers/arxiv-2311.15127.md",
+        "mode": "create",
+        "before_sha256": null,
+        "after_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    ],
+    "claimed_inputs": [
+      {
+        "path": ".raw/captured/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.pdf",
+        "mode": "read",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "run_manifest": {
+    "schema": "video-paper-wiki.run-manifest.v1",
+    "run_id": "run-0001",
+    "tool_versions": {
+      "vpwiki": "0.1.0",
+      "python": "3.12.5",
+      "docling": "2.117.0"
+    },
+    "input_hashes": {
+      "ingest_plan_sha256": "601a403a6fd322769096c41573e14abcc85db115c841e4abe057f7022f4d3d46",
+      "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "output_hashes": {
+      "document_json_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    "started_at": "2026-08-29T12:00:00Z",
+    "ended_at": "2026-08-29T12:01:00Z",
+    "error_code": null
+  },
+  "claims": [
+    {
+      "claim_id": "clm-fc3a0a81a0e8e2bbf906",
+      "stable_subject_id": "paper:arxiv:2311.15127",
+      "canonical_claim_text": "The model uses a diffusion transformer.",
+      "evidence": [
+        {
+          "relation": "supports",
+          "kind": "pdf",
+          "source_id": "src-paper",
+          "page": 3,
+          "ref": "#/texts/7",
+          "bbox": [
+            10,
+            20,
+            100,
+            40
+          ],
+          "charspan": [
+            0,
+            47
+          ],
+          "artifact_path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+          "artifact_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "text_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "schema": "video-paper-wiki.assessment-event.v1",
+      "claim_id": "clm-fc3a0a81a0e8e2bbf906",
+      "previous_event_id": null,
+      "actor_kind": "system",
+      "transition_kind": "genesis",
+      "from_assessment": null,
+      "to_assessment": "provisional",
+      "claim_text_sha256": "0e8bc5cb2329fa4a22ed357a5da18f04cae1867c66a2b63e925c1e69983a35d2",
+      "evidence_fingerprint": "ce3c57ba6ac8c9805f851478ec52b8c75d736f0d84e7b4bb47536b38136f558b",
+      "decided_by": "vpwiki",
+      "decided_at": "2026-08-29T12:00:00Z",
+      "reason": "Initial provisional assessment.",
+      "event_id": "ase-84ac6bd2b2e8d20b790b"
+    },
+    {
+      "schema": "video-paper-wiki.assessment-event.v1",
+      "claim_id": "clm-29106927975bc78ea1df",
+      "previous_event_id": null,
+      "actor_kind": "system",
+      "transition_kind": "genesis",
+      "from_assessment": null,
+      "to_assessment": "provisional",
+      "claim_text_sha256": "a82c25990e7015d2f4ef80a890441f9189d97ef28cbc54dc8bfb4889c3fbe7e4",
+      "evidence_fingerprint": "ce3c57ba6ac8c9805f851478ec52b8c75d736f0d84e7b4bb47536b38136f558b",
+      "decided_by": "vpwiki",
+      "decided_at": "2026-08-29T12:00:00Z",
+      "reason": "Initial provisional assessment.",
+      "event_id": "ase-29d27e31f7882a413b62"
+    },
+    {
+      "schema": "video-paper-wiki.assessment-event.v1",
+      "claim_id": "clm-fc3a0a81a0e8e2bbf906",
+      "previous_event_id": "ase-29d27e31f7882a413b62",
+      "actor_kind": "system",
+      "transition_kind": "evidence_invalidation",
+      "from_assessment": "provisional",
+      "to_assessment": "provisional",
+      "claim_text_sha256": "0e8bc5cb2329fa4a22ed357a5da18f04cae1867c66a2b63e925c1e69983a35d2",
+      "evidence_fingerprint": "ce3c57ba6ac8c9805f851478ec52b8c75d736f0d84e7b4bb47536b38136f558b",
+      "decided_by": "vpwiki",
+      "decided_at": "2026-08-29T12:01:00Z",
+      "reason": "Cross-claim parent.",
+      "event_id": "ase-0596db02f7a94634e08a"
+    }
+  ],
+  "assessment_heads": {
+    "clm-fc3a0a81a0e8e2bbf906": "ase-84ac6bd2b2e8d20b790b"
+  }
+}
