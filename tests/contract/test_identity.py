@@ -4,8 +4,8 @@ import json
 from collections import OrderedDict
 
 from .paths import FIXTURES, load_json
-from .identity import claim_id, event_id, evidence_fingerprint, is_stable_subject_id, nfkc_collapse
-from .jcs import canonicalize
+from video_paper_wiki.identity import claim_id, event_id, evidence_fingerprint, is_stable_subject_id, nfkc_collapse
+from video_paper_wiki.jcs import canonicalize
 
 
 def test_jcs_integer_only_reference_behavior() -> None:
