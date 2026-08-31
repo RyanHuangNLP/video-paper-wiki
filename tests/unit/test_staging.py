@@ -254,6 +254,33 @@ def test_dir_swap_during_link_is_unsafe(checkout: Path, tmp_path: Path, monkeypa
     assert not (tmp_path / "stolen-review" / "paper.md").exists()
 
 
+@pytest.mark.parametrize("replace_with_symlink", [False, True])
+def test_work_tree_steal_during_link_is_unsafe(
+    checkout: Path, tmp_path: Path, monkeypatch, replace_with_symlink: bool
+) -> None:
+    review_dir = checkout / ".work" / "b1" / "review"
+    review_dir.mkdir(parents=True)
+    external = tmp_path / "outside-work"
+    external.mkdir()
+    real_link = os.link
+    stolen = tmp_path / "stolen-work"
+
+    def racing_link(src, dst, *args, **kwargs):
+        work = checkout / ".work"
+        if work.exists() and not work.is_symlink():
+            work.rename(stolen)
+            if replace_with_symlink:
+                work.symlink_to(external)
+        return real_link(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(os, "link", racing_link)
+    with pytest.raises(StagingError) as exc:
+        stage_bytes(batch_id="b1", relative=("review", "paper.md"), data=b"payload")
+    assert exc.value.code == CODE_WORK_PATH_UNSAFE
+    assert not (external / "paper.md").exists()
+    assert not (stolen / "b1" / "review" / "paper.md").exists()
+
+
 def test_already_staged_when_install_sees_same_bytes(checkout: Path, monkeypatch) -> None:
     first = stage_bytes(
         batch_id="b1",

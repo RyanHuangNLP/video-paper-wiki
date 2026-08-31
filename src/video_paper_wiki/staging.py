@@ -254,6 +254,19 @@ def _fd_proc_path(fd: int) -> str | None:
         return None
 
 
+def _parent_open_flags() -> int:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_DIRECTORY"):
+        flags |= os.O_DIRECTORY
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    return flags
+
+
+def _same_inode(left: os.stat_result, right: os.stat_result) -> bool:
+    return (left.st_dev, left.st_ino) == (right.st_dev, right.st_ino)
+
+
 def _fsync_fd(fd: int) -> None:
     try:
         os.fsync(fd)
@@ -261,33 +274,35 @@ def _fsync_fd(fd: int) -> None:
         pass
 
 
-def _require_fd_inside_work(fd: int, work_fd: int, path: Path) -> None:
-    st = os.fstat(fd)
+def _require_live_dir_fd(fd: int, path: Path) -> os.stat_result:
+    try:
+        st = os.fstat(fd)
+    except OSError:
+        _raise_unsafe(path, "directory slot is unsafe")
     if not stat.S_ISDIR(st.st_mode):
         _raise_unsafe(path, "directory slot is not a directory")
     raw = _fd_proc_path(fd)
+    if raw is not None and " (deleted)" in raw:
+        _raise_unsafe(path, "directory slot is unsafe")
+    return st
+
+
+def _require_fd_inside_work(fd: int, work_fd: int, path: Path) -> None:
+    st = _require_live_dir_fd(fd, path)
+    work_st = _require_live_dir_fd(work_fd, path)
+    raw = _fd_proc_path(fd)
     work_raw = _fd_proc_path(work_fd)
-    if raw is not None:
-        if " (deleted)" in raw:
+    if raw is not None and work_raw is not None:
+        work_n = os.path.normpath(work_raw)
+        fd_n = os.path.normpath(raw)
+        if fd_n != work_n and not _is_strict_child(fd_n, work_n):
             _raise_unsafe(path, "directory slot is unsafe")
-        if work_raw is not None:
-            if " (deleted)" in work_raw:
-                _raise_unsafe(path, "directory slot is unsafe")
-            work_n = os.path.normpath(work_raw)
-            fd_n = os.path.normpath(raw)
-            if fd_n != work_n and not _is_strict_child(fd_n, work_n):
-                _raise_unsafe(path, "directory slot is unsafe")
-    work_st = os.fstat(work_fd)
-    if (st.st_dev, st.st_ino) == (work_st.st_dev, work_st.st_ino):
+    if _same_inode(st, work_st):
         return
     current = os.dup(fd)
     try:
         seen = {(st.st_dev, st.st_ino)}
-        parent_flags = os.O_RDONLY
-        if hasattr(os, "O_DIRECTORY"):
-            parent_flags |= os.O_DIRECTORY
-        if hasattr(os, "O_CLOEXEC"):
-            parent_flags |= os.O_CLOEXEC
+        parent_flags = _parent_open_flags()
         while True:
             try:
                 parent = os.open("..", parent_flags, dir_fd=current)
@@ -298,10 +313,10 @@ def _require_fd_inside_work(fd: int, work_fd: int, path: Path) -> None:
             except OSError:
                 _close_fd(parent)
                 _raise_unsafe(path, "directory slot is unsafe")
-            key = (pst.st_dev, pst.st_ino)
-            if key == (work_st.st_dev, work_st.st_ino):
+            if _same_inode(pst, work_st):
                 _close_fd(parent)
                 return
+            key = (pst.st_dev, pst.st_ino)
             if key in seen:
                 _close_fd(parent)
                 _raise_unsafe(path, "directory slot is unsafe")
@@ -310,6 +325,60 @@ def _require_fd_inside_work(fd: int, work_fd: int, path: Path) -> None:
             current = parent
     finally:
         _close_fd(current)
+
+
+def _require_work_still_in_checkout(work_fd: int, checkout_fd: int, path: Path) -> None:
+    """Prove *work_fd* is still the real `.work` child of *checkout_fd*."""
+    work_st = _require_live_dir_fd(work_fd, path)
+    checkout_st = _require_live_dir_fd(checkout_fd, path)
+    if _same_inode(work_st, checkout_st):
+        _raise_unsafe(path, "directory slot is unsafe")
+    work_raw = _fd_proc_path(work_fd)
+    checkout_raw = _fd_proc_path(checkout_fd)
+    if work_raw is not None:
+        work_n = os.path.normpath(work_raw)
+        if os.path.basename(work_n) != WORK_DIRNAME:
+            _raise_unsafe(path, "directory slot is unsafe")
+        if checkout_raw is not None:
+            checkout_n = os.path.normpath(checkout_raw)
+            expected = os.path.normpath(os.path.join(checkout_n, WORK_DIRNAME))
+            if work_n != expected or not _is_strict_child(work_n, checkout_n):
+                _raise_unsafe(path, "directory slot is unsafe")
+    parent: int | None = None
+    try:
+        try:
+            parent = os.open("..", _parent_open_flags(), dir_fd=work_fd)
+            pst = os.fstat(parent)
+        except OSError:
+            _raise_unsafe(path, "directory slot is unsafe")
+        if not _same_inode(pst, checkout_st):
+            _raise_unsafe(path, "directory slot is unsafe")
+    finally:
+        _close_fd(parent)
+    named: int | None = None
+    try:
+        try:
+            named = os.open(WORK_DIRNAME, _dir_open_flags(), dir_fd=checkout_fd)
+            named_st = os.fstat(named)
+        except StagingError:
+            raise
+        except OSError as exc:
+            _map_oserror(path, exc)
+        if not stat.S_ISDIR(named_st.st_mode) or not _same_inode(named_st, work_st):
+            _raise_unsafe(path, "directory slot is unsafe")
+    finally:
+        _close_fd(named)
+
+
+def _require_staging_fds(
+    *,
+    parent_fd: int,
+    work_fd: int,
+    checkout_fd: int,
+    path: Path,
+) -> None:
+    _require_fd_inside_work(parent_fd, work_fd, path)
+    _require_work_still_in_checkout(work_fd, checkout_fd, path)
 
 
 def _stat_at(parent_fd: int, name: str, path: Path) -> os.stat_result | None:
@@ -448,13 +517,15 @@ def _atomic_install(
     data: bytes,
     *,
     target: Path,
+    checkout_fd: int,
 ) -> bool:
     """Install *data* as *filename* in *parent_fd*.
 
     Temp is a sibling under *parent_fd* (not the `.work` root). Re-check that
-    *parent_fd* is still a real directory inside `.work` immediately before and
-    after the link. If the post-link check fails, unlink dest via *parent_fd*
-    and raise WORK_PATH_UNSAFE.
+    *parent_fd* is still a real directory inside *work_fd* and that *work_fd*
+    is still checkout's real `.work` immediately before and after the link.
+    If the post-link check fails, unlink dest via *parent_fd* and raise
+    WORK_PATH_UNSAFE.
 
     Returns True when the target already held the same bytes, False when this
     call created the file.
@@ -463,7 +534,12 @@ def _atomic_install(
     tmp_name: str | None = None
     linked = False
     try:
-        _require_fd_inside_work(parent_fd, work_fd, target)
+        _require_staging_fds(
+            parent_fd=parent_fd,
+            work_fd=work_fd,
+            checkout_fd=checkout_fd,
+            path=target,
+        )
         tmp_fd, tmp_name = _mkstemp_at(parent_fd, target)
         try:
             offset = 0
@@ -474,7 +550,12 @@ def _atomic_install(
             _map_oserror(target, exc)
         _close_fd(tmp_fd)
         tmp_fd = None
-        _require_fd_inside_work(parent_fd, work_fd, target)
+        _require_staging_fds(
+            parent_fd=parent_fd,
+            work_fd=work_fd,
+            checkout_fd=checkout_fd,
+            path=target,
+        )
         try:
             _link_at(
                 src_name=tmp_name,
@@ -495,7 +576,12 @@ def _atomic_install(
                 _raise_unsafe(target, "target is not a regular file")
             current = _read_regular_file_at(parent_fd, filename, target)
             if current == data:
-                _require_fd_inside_work(parent_fd, work_fd, target)
+                _require_staging_fds(
+                    parent_fd=parent_fd,
+                    work_fd=work_fd,
+                    checkout_fd=checkout_fd,
+                    path=target,
+                )
                 return True
             raise StagingError(
                 CODE_STAGING_CONFLICT,
@@ -505,7 +591,12 @@ def _atomic_install(
         except (NotADirectoryError, OSError) as exc:
             _map_oserror(target, exc)
         try:
-            _require_fd_inside_work(parent_fd, work_fd, target)
+            _require_staging_fds(
+                parent_fd=parent_fd,
+                work_fd=work_fd,
+                checkout_fd=checkout_fd,
+                path=target,
+            )
         except StagingError:
             if linked:
                 _unlink_at(parent_fd, filename)
@@ -548,11 +639,13 @@ def _rewalk_parent(
     try:
         work_fd = _open_dir_at(checkout_fd, WORK_DIRNAME, work_root)
         owned.append(work_fd)
+        _require_work_still_in_checkout(work_fd, checkout_fd, work_root)
         current = work_fd
         for name, path in zip(names, paths, strict=True):
             nxt = _open_dir_at(current, name, path)
             owned.append(nxt)
             _require_fd_inside_work(nxt, work_fd, path)
+            _require_work_still_in_checkout(work_fd, checkout_fd, path)
             current = nxt
         return work_fd, current, owned
     except StagingError:
@@ -607,6 +700,7 @@ def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> 
         checkout_fd = _open_dir_path(checkout)
         work_created = _ensure_dir_at(checkout_fd, WORK_DIRNAME, work_root, work_fd=None)
         created.append(work_created)
+        _require_work_still_in_checkout(work_created, checkout_fd, work_root)
         current = work_created
         intermediate_names = (batch, *parts[:-1])
         intermediate_paths: list[Path] = []
@@ -616,6 +710,12 @@ def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> 
             intermediate_paths.append(current_path)
             nxt = _ensure_dir_at(current, part, current_path, work_fd=work_created)
             created.append(nxt)
+            _require_staging_fds(
+                parent_fd=nxt,
+                work_fd=work_created,
+                checkout_fd=checkout_fd,
+                path=current_path,
+            )
             current = nxt
         _assert_inside_work(target, work_root)
 
@@ -626,7 +726,12 @@ def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> 
             work_root,
         )
         if _existing_same_bytes(parent_fd, parts[-1], data, target):
-            _require_fd_inside_work(parent_fd, work_fd, target)
+            _require_staging_fds(
+                parent_fd=parent_fd,
+                work_fd=work_fd,
+                checkout_fd=checkout_fd,
+                path=target,
+            )
             return StageResult(path=target, already_staged=True)
         already = _atomic_install(
             work_fd,
@@ -634,6 +739,7 @@ def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> 
             parts[-1],
             data,
             target=target,
+            checkout_fd=checkout_fd,
         )
         return StageResult(path=target, already_staged=already)
     except StagingError:
