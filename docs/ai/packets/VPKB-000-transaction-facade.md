@@ -1,6 +1,7 @@
 # VPKB-000-transaction-facade
 
-Parent: VPKB-000. Status: frozen revision 1; local acceptance passed, candidate CI pending.
+Parent: VPKB-000. Status: complete; frozen revision 1 accepted at
+`5f4c186566c15ab5ee8df10c587e4709d6223f32`.
 Contract SHA-256: `a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67`.
 Architect: Sol/Ultra; Builder and Repo Steward: Sol/Medium.
 Predecessor: VPKB-000-capture-contracts, accepted at
@@ -88,10 +89,14 @@ The offline wheel build, isolated installation and installed-package smoke also
 passed with all 16 packaged schemas. Source digests were equal before/after all
 acceptance runs; that is a snapshot comparison, not continuous monitoring.
 
-Architect accepts these local results, not a future commit or CI checkout.
-Steward must verify the committed source against that snapshot, keep this PR
-draft toward `integration`, and record the new CI run/attempt, head/base and
-actual tested merge-preview SHA before candidate acceptance. This subpacket
+Those local results initially did not establish future commit/CI acceptance.
+Architect subsequently verified the committed source against that snapshot and
+all four CI jobs in run 33426054898 attempt 1: each passed 1239 tests on actual
+merge-preview checkout `8eba91629628058614ec7cd8a88dab501c567be7`,
+`refs/remotes/pull/94/merge`. The PR remained draft toward `integration`, with
+base `08709894adfb20ec07e976783f0ba436d975b74f`. The later `ci-observation.json`
+and `architect-acceptance.json` preserve this separately from the original local
+evidence. Fresh state was rechecked before this handoff update. This subpacket
 does not close VPKB-000, VPKB-001 or any human gate, and authorizes no merge.
 
 ## Decisions to freeze

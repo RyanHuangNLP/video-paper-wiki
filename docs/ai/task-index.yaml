@@ -6,7 +6,7 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 9d87dc67b949fc0cef5ac64b91a2d15aea8ec0fe
+  continued_head: 5f4c186566c15ab5ee8df10c587e4709d6223f32
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
@@ -96,7 +96,7 @@ work_packages:
     title: Engineering foundation and shared engine contracts
     status: in_progress
     depends_on: []
-    active_packet: VPKB-000-transaction-facade
+    active_packet: VPKB-000-projection-contracts
     observed_at_reference_head:
       - Python packaging, uv.lock, and separate agent/operator entry-point packages.
       - Agent-safe command tree, JSON envelope, JCS, identity, and taxonomy code.
@@ -260,8 +260,8 @@ packets:
   - id: VPKB-000-transaction-facade
     parent: VPKB-000
     title: Non-persistent transaction facade contracts
-    status: in_progress
-    phase: local_accepted_ci_pending
+    status: complete
+    phase: architect_accepted
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -280,7 +280,7 @@ packets:
       limitation: Not full domain prospective, structured locator, production adapter or human acceptance.
     source_review_status: pinned-checkout-and-compatibility-investigation-complete
     verification:
-      status: passed-locally-ci-pending
+      status: passed-locally-and-ci
       evidence_directory: artifacts/verification/VPKB-000-transaction-facade/
       source_count: 274
       source_snapshot_sha256: 437fb3bb0cc0c8baa26e93cb374b1814519771c3e0cd3df161e6ab24a466fa8e
@@ -289,7 +289,17 @@ packets:
         - Python 3.13.13 on macOS arm64; 1239 passed, zero failures/errors/skips.
         - Offline wheel build, isolated install and installed-package smoke passed with 16 schemas.
         - All 274 source inputs equal before and after full-suite and wheel acceptance.
-      remote_ci: not-yet-recorded-for-new-candidate
+      accepted_head: 5f4c186566c15ab5ee8df10c587e4709d6223f32
+      remote_ci:
+        evidence: artifacts/verification/VPKB-000-transaction-facade/ci-observation.json
+        acceptance: artifacts/verification/VPKB-000-transaction-facade/architect-acceptance.json
+        run_id: 33426054898
+        attempt: 1
+        conclusion: success
+        tested_ref: refs/remotes/pull/94/merge
+        tested_checkout_sha: 8eba91629628058614ec7cd8a88dab501c567be7
+        jobs: [99599768237, 99599768501, 99599768597, 99599768652]
+        result: Each Linux/macOS and Python 3.12/3.13 job passed all 1239 tests.
       merge_authorized: false
     note: >-
       Builder delivered stable source and targeted checks. Independent review
@@ -300,27 +310,51 @@ packets:
       bounded ownership to replace those scans with regressed AST import
       checks, preserving other security boundaries. The corrected source has
       75 scanner checks and 413 combined targeted checks passing. The new
-      274-input snapshot passed full local unit/wheel acceptance; exact committed
-      source and fresh candidate CI still need verification. Compatibility evidence
+      274-input snapshot passed full local unit/wheel acceptance. Architect then
+      verified the committed source and all four exact candidate CI logs.
+      Historical pending observations remain intact. Compatibility evidence
       does not establish VPKB-001 runtime safety, human gates or merge authority.
 
   - id: VPKB-000-projection-contracts
     parent: VPKB-000
     title: SQLite and projection stability shared contracts
-    status: not_started
-    phase: architecture_preparation
+    status: in_progress
+    phase: runtime_delivery_and_remaining_contract_review
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
     packet_document: docs/ai/packets/VPKB-000-projection-contracts.md
+    base_commit: 5f4c186566c15ab5ee8df10c587e4709d6223f32
     depends_on: [VPKB-000-transaction-facade]
-    contract_status: design-pending
-    implementation_status: not_started
+    contract_status: partially-frozen-runtime-only
+    runtime_contract:
+      path: docs/ai/contracts/projection-runtime-v1.md
+      revision: 1
+      sha256: e72531c11bb7cfdee2c5d73bc51006edaa6d7226f091c7008ea03d77a52411dc
+      status: frozen
+    implementation_status: runtime-complete-pending-ci
     note: >-
-      Preparation only. Exact DDL/row export/generation/volatile comparator and
-      pinned runtime schema fixtures are not yet frozen. Retrieval join/config/
-      gold and production index writers remain outside this packet.
-    verification: {status: not-run, results: []}
+      Runtime numeric comparison and pinned emitter profiles passed independent
+      review and full local verification. The first full attempt failed one
+      historical global BM25 substring guard in each Python version; failure
+      evidence is preserved, and its narrow test-policy correction was separately
+      reviewed and rerun. Canonical-input/locator, exact DDL/row
+      export and generation remain under design review; the whole packet is not
+      frozen or accepted. Retrieval join/config/gold and production index writers
+      remain outside this packet. Historical facade CI does not validate new work.
+    verification:
+      status: runtime-passed-locally-pending-ci
+      scope: runtime-slice-only-not-complete-projection-packet
+      evidence_directory: artifacts/verification/VPKB-000-projection-contracts/
+      source_count: 283
+      source_snapshot_sha256: f655b80ae32c6ea1c78b65f5e5f68c3b1e5cbdfe455a1e9fda6e5750cb22a2a8
+      results:
+        - Python 3.12.14 and 3.13.13 each passed all 1357 tests with no failures/errors/skips.
+        - Fresh offline wheel build/install and isolated smoke passed with 18 schemas.
+        - Independent 14 numeric vectors and 1000 JSON occurrence-boundary cases passed.
+        - Actual pinned public CLI twice rebuilt chunks/BM25; nine CJK terms, NFKC queries and overlap checks passed.
+        - All 283 source hashes matched before and after both full suites and wheel verification.
+      merge_authorized: false
 
 milestones:
   engine-data-chain: {status: not-recorded, evidence: []}

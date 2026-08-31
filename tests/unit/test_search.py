@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from tests.support import make_checkout
+from tests.security._projection_scope_policy import assert_projection_source_scope
 from video_paper_wiki.cli import main
 from video_paper_wiki.notes.doctor import scan_doctor
 from video_paper_wiki.notes.grep import scan_matches
@@ -65,19 +66,15 @@ def test_command_modules_have_no_lowercase_vault() -> None:
         assert "vault" not in text, f"{path.name} contains lowercase vault"
 
 
-def test_no_retrieval_gold_or_bm25_added() -> None:
-    tracked_markers = ("retrieval-gold", "retrieval_gold", "bm25")
+def test_no_retrieval_gold_or_unreleased_bm25_engine_added() -> None:
     src = ROOT / "src" / "video_paper_wiki"
     for path in src.rglob("*"):
         if not path.is_file():
             continue
-        name = path.name.lower()
-        assert "retrieval-gold" not in name
-        assert "bm25" not in name
-        if path.suffix == ".py":
-            text = path.read_text(encoding="utf-8").lower()
-            for marker in tracked_markers:
-                assert marker not in text, f"{path} contains {marker}"
+        assert_projection_source_scope(
+            path.relative_to(src).as_posix(),
+            path.read_text(encoding="utf-8") if path.suffix == ".py" else None,
+        )
     assert list((ROOT / "schemas").glob("*retrieval*")) == []
 
 

@@ -43,6 +43,8 @@ MAX_BYTES = 64 * 1024 * 1024
 MAX_REQUESTS = 4
 
 _SCHEMA_TITLES = {
+    "video-paper-wiki.upstream-chunk-profile.v1",
+    "video-paper-wiki.upstream-bm25-profile.v1",
     "video-paper-wiki.transaction-facade.v1",
     "video-paper-wiki.operation-head.v1",
     "video-paper-wiki.capture-inspection.v1",
@@ -814,6 +816,14 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
 def validate_document(document: object, expected_schema: str | None = None) -> dict[str, Any]:
     """Validate one document against the production schema registry."""
 
+    if expected_schema in (
+        "video-paper-wiki.upstream-chunk-profile.v1",
+        "video-paper-wiki.upstream-bm25-profile.v1",
+    ):
+        from video_paper_wiki.projection_runtime import validate_runtime_record
+
+        kind = "chunk" if expected_schema == "video-paper-wiki.upstream-chunk-profile.v1" else "bm25"
+        return validate_runtime_record(kind, document)
     if not isinstance(document, dict):
         raise _schema_error(
             "document must be an object",

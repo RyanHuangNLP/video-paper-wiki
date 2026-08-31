@@ -45,6 +45,18 @@ OS sandbox coverage. Runtime/Vault boundary tests remain intact. New-candidate
 remote CI and exact-commit Architect acceptance still need separate evidence;
 local success is not merge authorization.
 
+Later historical observations are preserved verbatim in
+[`ci-observation.json`](ci-observation.json) and
+[`architect-acceptance.json`](architect-acceptance.json). The former records all
+four CI jobs passing 1239 tests for candidate
+`5f4c186566c15ab5ee8df10c587e4709d6223f32`, base
+`08709894adfb20ec07e976783f0ba436d975b74f`, run `33426054898` attempt 1;
+the actual merge checkout was `8eba91629628058614ec7cd8a88dab501c567be7`.
+The separate acceptance records Architect's subsequent decision for this
+subpacket only; the earlier CI observation's pending-review field is historical.
+These later records do not rewrite the committed local results or authorize
+merge, VPKB-000 completion, production Vault work or a human gate.
+
 `behavior-results.json` preserves Builder's r4 and Steward's fresh steward1
 replay. Both used runner SHA-256
 `194ea887de43206cf5af9ccd993e1f9252d36e139308694f9d6bb13fa44d14ed`

@@ -1,8 +1,86 @@
-# VPKB-000-projection-contracts — preparation only
+# VPKB-000-projection-contracts — architecture review
 
-Parent VPKB-000. Status: design-pending; no implementation release.
-Predecessor: VPKB-000-transaction-facade (currently in progress).
+Parent VPKB-000. Status: in progress. Runtime comparison revision 1 is frozen;
+canonical inputs/locator, SQLite and generation are still under architecture
+review. Only the bounded runtime implementation below is released.
+Predecessor: VPKB-000-transaction-facade, accepted at
+`5f4c186566c15ab5ee8df10c587e4709d6223f32`; this is the packet baseline.
+CI run 33426054898 attempt 1 tested merge preview
+`8eba91629628058614ec7cd8a88dab501c567be7`, all four jobs passing 1239 tests.
+Historical evidence remains separate in the predecessor verification directory.
 Architect/Builder/Steward retain the existing model and ownership arrangement.
+
+## Runtime comparison implementation release
+
+Architect froze [projection-runtime-v1](../contracts/projection-runtime-v1.md)
+revision 1 after both medium agents independently reviewed the exact numeric
+domain, budgets, error ordering and actual pinned emitter profiles. SHA-256:
+`e72531c11bb7cfdee2c5d73bc51006edaa6d7226f091c7008ea03d77a52411dc`.
+Steward additionally checked five real chunks and a five-document/79-term BM25
+fixture against the draft. This is design evidence, not implementation acceptance.
+
+Builder owns only these implementation paths for the released runtime slice:
+
+- `src/video_paper_wiki/projection_runtime.py`;
+- `src/video_paper_wiki/contracts.py`, only new-profile dispatch/registration;
+- `schemas/video-paper-wiki.upstream-chunk-profile.v1.schema.json` and
+  `schemas/video-paper-wiki.upstream-bm25-profile.v1.schema.json`;
+- `tests/test_projection_runtime.py`, `tests/test_projection_runtime_upstream.py`
+  and `tests/fixtures/projection-runtime/**`;
+- minimal existing schema-count/packaging assertions required by the new
+  resources, with every affected path identified in handoff.
+- Bounded test-policy correction after full-suite attempt 1:
+  `tests/unit/test_search.py`, a narrow test-only scope helper and its regression
+  tests. The historical blanket `bm25` substring ban must recognize the two
+  explicitly released pure profile/dispatch source files while continuing to
+  reject retrieval gold and unapproved engine/tokenizer/build/query capability.
+  Do not rename production contract strings to evade the old test or remove
+  CLI/network/Vault protections. Every added helper path must be named in handoff.
+
+Do not alter existing identity/JCS/receipt semantics, the central schemas'
+existing error behavior, upstream files, package dependencies or security
+boundaries. Public pinned CLI tests may use disposable temporary Vaults with
+synthetic prefixes; no production builder, admin install or real Vault use.
+No Git mutations by Builder. Steward owns independent verification and later
+serialized Git only on an explicit candidate instruction; no commit/push yet.
+Architect owns normative contracts and task/team/packet metadata. Report a
+contract gap before changing frozen behavior; unaffected work can continue.
+
+Required runtime evidence is specified in the frozen contract: exact independent
+vectors, resource/error regressions, byte stability and public CJK/build/query
+fixtures, unchanged identity goldens, complete local suites and installed wheel,
+then candidate-bound CI. Evidence belongs under
+`artifacts/verification/VPKB-000-projection-contracts/` when ready. This release
+is a dependency within the whole projection packet, not completion of it.
+
+Runtime full-suite attempt 1 used 281 source inputs, SHA-256
+`8493064d7490511bffef198c5a8740740964855928480da2df7cf24ddb47a671`.
+Python 3.12.14 and 3.13.13 each reported 1322 passes and one failure, zero
+errors/skips: `test_no_retrieval_gold_or_bm25_added` still globally prohibited
+the now-required BM25 schema terminology. Source files were unchanged by both
+runs. The same source's isolated 18-schema wheel smoke passed, which does not
+turn either failed full suite into a pass. Preserve this evidence separately;
+the scoped policy correction requires a new source snapshot and full rerun.
+
+The corrected runtime candidate passed that new full local acceptance:
+Python 3.12.14 and 3.13.13 each passed 1357 tests, no failures/errors/skips.
+The 283-file source snapshot is
+`f655b80ae32c6ea1c78b65f5e5f68c3b1e5cbdfe455a1e9fda6e5750cb22a2a8`,
+unchanged before/after both suites and fresh offline wheel acceptance. The
+isolated installed wheel loads 18 schemas and passes all new numeric/profile
+checks plus prior identity/locator/facade smoke checks. Only three test-policy
+files changed after the first full attempt; all eight runtime implementation
+and fixture files retained their independently reviewed hashes. The test-only
+scope helper's limitations are explicit; CLI/runtime/network protections remain.
+New-commit CI and Architect's exact-commit decision are still pending. This is
+local acceptance of the runtime slice, not of the full projection packet.
+
+Remaining architecture drafts, not implementation releases:
+[canonical input/locator](../contracts/projection-input-v1.md) and
+[catalog/export/generation](../contracts/projection-catalog-v1.md). Both agents
+reviewed the complete locator wire section; the whole input and catalog
+contracts still need the exact inventory/path/closure/DDL decisions. Public
+locator transport feasibility is not complete coordinate or inventory proof.
 
 This is the remaining shared projection contract work, not an alternate path
 around facade acceptance. The complete VPKB-000 milestone also needs dependency
@@ -63,7 +141,8 @@ objects as well as the introductory documentation; they are not always equal.
   build/query fixtures must demonstrate the exact CJK terms and compatibility;
   static description alone is not a passing tokenizer contract.
 
-Before release, Architect supplies a complete versioned normative document,
+Before each remaining implementation release, Architect supplies its complete
+versioned normative document,
 Builder and Steward independently review it, and packet/schema/API ownership,
 fixtures and acceptance evidence paths are assigned. Do not start production
 rendering or SQLite file mutation from this preparation note.
