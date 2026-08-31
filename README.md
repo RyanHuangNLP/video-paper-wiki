@@ -36,7 +36,26 @@ uv run --offline --no-sync vpwiki doctor
 
 已开放的 Agent CLI 只读取本地输入，并将生成物暂存于 `.work/`；不提供 fetch、apply 或 index build。不要在此开发环境安装或执行 `vpwiki-admin`，也不要直接改写真实 Vault 的 `.raw/`、`wiki/`、账本或人工 gate 状态。
 
-在 Linux/macOS 上，安装依赖后用独立、较短的真实临时目录运行测试，避免 Unix socket 路径长度限制及临时路径中的符号链接干扰安全检查：
+完整测试还需要固定上游源码。在仓库根目录显式准备一次；首次初始化可能联网，只读取固定 gitlink，不跟随上游最新分支，也不修改 `.gitmodules` 的 `update=none`：
+
+```bash
+(
+  set -eu
+  VPKB_UPSTREAM_PIN=9f8c1199047eac2c3828496279fbb7ba9540b90b
+  test "$(git ls-tree HEAD vendor/claude-obsidian | awk '{print $3}')" = "$VPKB_UPSTREAM_PIN"
+  git submodule update --init --checkout -- vendor/claude-obsidian
+  test "$(git -C vendor/claude-obsidian rev-parse HEAD)" = "$VPKB_UPSTREAM_PIN"
+  if git -C vendor/claude-obsidian symbolic-ref -q HEAD; then
+    echo 'Compatibility fixtures require the detached gitlink pin.' >&2
+    exit 1
+  fi
+  test -z "$(git -C vendor/claude-obsidian status --porcelain --untracked-files=all)"
+)
+```
+
+`tests/upstream` 在独立临时 Vault 中通过公开 CLI/scripts 验证引擎兼容性；不操作真实 Vault、不安装 admin/Docling/models。缺失、漂移或脏的 pin 会明确失败，不跳过也不在 pytest 内下载。不要用清理上游本地改动的方式绕过检查。fixture 的合成来源、简化 Paper/head 和非完整 locator 映射不代表 VPKB-001 生产验收。
+
+在 Linux/macOS 上，安装依赖并准备上述 pin 后，用独立、较短的真实临时目录运行测试，避免 Unix socket 路径长度限制及临时路径中的符号链接干扰安全检查：
 
 ```bash
 (

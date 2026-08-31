@@ -45,6 +45,19 @@ jobs:
 
       # Toolchain and dependency setup may use the network. No operator package,
       # Docling extra, or parser models are installed by this workflow.
+      - name: Prepare the exact upstream compatibility fixture pin
+        run: |
+          set -euo pipefail
+          VPKB_UPSTREAM_PIN=9f8c1199047eac2c3828496279fbb7ba9540b90b
+          test "$(git ls-tree HEAD vendor/claude-obsidian | awk '{print $3}')" = "$VPKB_UPSTREAM_PIN"
+          git submodule update --init --checkout -- vendor/claude-obsidian
+          test "$(git -C vendor/claude-obsidian rev-parse HEAD)" = "$VPKB_UPSTREAM_PIN"
+          if git -C vendor/claude-obsidian symbolic-ref -q HEAD; then
+            echo 'Compatibility fixtures require the detached gitlink pin.' >&2
+            exit 1
+          fi
+          test -z "$(git -C vendor/claude-obsidian status --porcelain --untracked-files=all)"
+
       - name: Install Python and locked default dependencies
         run: |
           uv python install "$UV_PYTHON"

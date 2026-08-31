@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from tests.security._source_policy import assert_no_network_imports
 from tests.support import (
     make_approval_ref,
     make_checkout,
@@ -372,12 +373,10 @@ def test_writable_commands_share_one_batch_tree(
 
 
 def test_no_network_clients_or_boundary_bypasses(network_attempts) -> None:
-    forbidden_mods = ("requests", "httpx", "urllib.request", "http.client", "aiohttp")
     concat_vault = False
     for path in SRC.rglob("*.py"):
         text = path.read_text(encoding="utf-8")
-        for name in forbidden_mods:
-            assert name not in text, f"{path} contains {name}"
+        assert_no_network_imports(text, filename=str(path))
         if path.parent.name == "commands":
             assert "vault" not in text, f"{path.name} contains lowercase vault"
         tree = ast.parse(text, filename=str(path))

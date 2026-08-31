@@ -43,6 +43,8 @@ MAX_BYTES = 64 * 1024 * 1024
 MAX_REQUESTS = 4
 
 _SCHEMA_TITLES = {
+    "video-paper-wiki.transaction-facade.v1",
+    "video-paper-wiki.operation-head.v1",
     "video-paper-wiki.capture-inspection.v1",
     "video-paper-wiki.code-evidence-manifest.v1",
     "video-paper-wiki.ingest-plan.v1",
@@ -777,7 +779,11 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 
 
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
-    if schema_name == "video-paper-wiki.capture-inspection.v1":
+    if schema_name in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
+        from video_paper_wiki.transaction_contracts import _check_transaction, _check_operation_head
+
+        (_check_transaction if schema_name == "video-paper-wiki.transaction-facade.v1" else _check_operation_head)(document)
+    elif schema_name == "video-paper-wiki.capture-inspection.v1":
         from video_paper_wiki.capture_contracts import _check_capture_inspection
 
         _check_capture_inspection(document)
@@ -845,9 +851,22 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             schema=schema_name,
             keyword="type",
         )
+    if schema_name in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
+        from video_paper_wiki.transaction_contracts import _json_preflight
+
+        _json_preflight(document)
     schema = schema_by_title(schema_name)
     validator = _validator_for(schema)
-    errors = list(validator.iter_errors(document))
+    try:
+        errors = list(validator.iter_errors(document))
+    except (ValueError, RecursionError) as exc:
+        if schema_name not in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
+            raise
+        raise _schema_error(
+            "document cannot be schema-validated",
+            schema=schema_name,
+            keyword="type",
+        ) from exc
     if errors:
         _raise_validation_error(best_match(iter(errors)) or errors[0], schema_name)
     _post_schema_checks(document, schema_name)

@@ -1,13 +1,20 @@
 # VPKB-000-capture-contracts
 
 - Parent：VPKB-000。
-- 阶段：local_acceptance_complete_ci_pending；契约：frozen revision 2；实现：complete。
+- 阶段：architect_accepted；契约：frozen revision 2；实现：complete。
 - 冻结规范：`docs/ai/contracts/capture-contracts-v1.md`。
 - 契约SHA-256：`d54e1c36608ca0d57c0ea467f208a9645259ff2c879f23958a58c2280ed9e23d`。
 - Architect：Codex / `gpt-5.6-sol` / `ultra`。
 - Builder、Repo Steward：两个Codex子agent，各`gpt-5.6-sol` / `medium`。
 - Packet baseline：`65c279f3dac280f1046c08536f59887b0dc613c7`，接续PR94 draft → integration。
-- 验证产物：`artifacts/verification/VPKB-000-capture-contracts/`；本地验收通过，新候选CI待运行。
+- 验证产物：`artifacts/verification/VPKB-000-capture-contracts/`；本地与四项CI验收通过。
+
+2026-09-01重新核对：交付head为`9d87dc67b949fc0cef5ac64b91a2d15aea8ec0fe`，
+PR base为`08709894adfb20ec07e976783f0ba436d975b74f`。
+CI run `33420150322` attempt 1实际测试的是`refs/pull/94/merge`，
+checkout `3c0adb319fe768ba583d6efcdf836949161d7d8b`；四项各899 passed。
+新追加的`ci-observation.json`保留原观察时间、源码/lock摘要与job详情，
+没有覆盖先前local-results或将合并预览误记为head测试。Architect仅接受本子包；未授权合并。
 
 Architect已完成下述设计待办并经Builder、Steward独立审查，按上述摘要放行实现。
 精确字段/API/错误优先级以冻结规范为准；本文件保留设计清单和范围便于追踪。
@@ -66,7 +73,7 @@ Builder不修改CLI实际capture/code-map入口，不添加HTTP/admin调用，�
 | 每项审批材料变动导致绑定失效，无hash循环 | hash性质及变异测试 | passed-locally |
 | raw相同的多origin不会丢失repo/commit/path身份 | 多origin成功与冲突测试 | passed-locally |
 | 行规范逐字节可重放，越界/错误snippet hash拒绝 | Unicode/换行/范围边界fixtures | passed-locally；额外1365文本/8116范围复核 |
-| 667项既有回归保持，新增用例在3.12/3.13与Linux/macOS通过 | 准确命令、本地与CI结果 | macOS双版本各899 passed；新候选CI pending |
+| 667项既有回归保持，新增用例在3.12/3.13与Linux/macOS通过 | 准确命令、本地与CI结果 | macOS本地双版本及四项CI各899 passed |
 | 不宣称真实no-follow/锁/并发/上游执行或human gate通过 | 独立范围审查 | passed；仍未执行这些运行时验证 |
 
 Architect总审修复了非字符串根对象键和循环hash材料的异常泄漏；由Builder实现、

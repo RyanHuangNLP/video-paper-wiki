@@ -80,17 +80,24 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 2026-09-01核对结果：
 
 - PR：[#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94)，open/draft → `integration`，未合并。
-- 本地和PR head：`65c279f3dac280f1046c08536f59887b0dc613c7`。
+- 本地和PR head：`9d87dc67b949fc0cef5ac64b91a2d15aea8ec0fe`。
 - PR base：`08709894adfb20ec07e976783f0ba436d975b74f`。
-- [CI run 33414220542](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33414220542) 四项成功。
-  Ubuntu/Python3.13 job `99560901309` 的日志明确记录实际checkout为合并预览
-  `c532fe4bd12415ed3d04a24936f5fca75700471f`，667项通过；此处不把它说成裸head测试。
+- [CI run 33420150322](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33420150322) 四项成功，各899项通过。
+  实际checkout为合并预览`3c0adb319fe768ba583d6efcdf836949161d7d8b`，
+  不是裸head；精确环境与job记录在capture-contracts的`ci-observation.json`。
 - 保留已有未跟踪文件；目录/overlays仍冻结67。阶段仍是VPKB-000。
 
-下一个工作包是 [VPKB-000-capture-contracts](packets/VPKB-000-capture-contracts.md)：
-Architect先确定两份schema的精确语义和hash/行号规则，Builder再实现纯数据契约与fixtures，
-Steward准备独立验证并管理PR/CI。当前已冻结revision 2并放行Builder实现；
-准确阶段、规范摘要和验收状态以`task-index.yaml`为准，不沿用上一包的通过结论。
+capture/code-evidence子包已在上述head完成本地与CI验收。
+当前工作包是 [VPKB-000-transaction-facade](packets/VPKB-000-transaction-facade.md)：
+固定上游submodule已初始化到精确pin且保持干净；Builder运行公开CLI隔离fixture，
+Architect制定统一纯数据契约，Steward独立审查。准确阶段、规范摘要和验收状态以
+`task-index.yaml`为准；没有完成001生产适配，也不沿用上一包的通过结论。
+
+该包最新本地候选已通过 Python 3.12/3.13 各1239项及独立安装包验收，
+274个输入摘要为`437fb3bb0cc0c8baa26e93cb374b1814519771c3e0cd3df161e6ab24a466fa8e`。
+首次安全扫描误报的两次失败保留在独立证据中，没有改写成通过。
+此处的本地候选尚不代表新提交的CI验收；交付后必须核对PR当前head/base与实际测试checkout，
+不能把上面capture-contracts的旧CI套用到新代码。合并和人工gate仍未授权。
 
 短期保持同一PR中的单写者推进，并以`packet_base_sha..candidate_head_sha`单独审查每包增量，
 同时检查与其余代码的兼容性。PR94的完整历史diff不是下一包新增代码。
