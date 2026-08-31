@@ -2,8 +2,9 @@
 
 This directory records independent focused review, earlier locator feasibility
 investigations, the failed first full-suite attempt and successful corrected
-local verification. It is not candidate-CI or exact-commit final acceptance. VPKB-000,
-the complete projection packet, VPKB-001 and human gates remain open.
+local verification. Those historical records are not candidate-CI acceptance;
+the later runtime-only CI and Architect decision are separate files described
+below. VPKB-000, the complete projection packet, VPKB-001 and human gates remain open.
 
 `independent-results.json` records the exact eight reviewed runtime file hashes,
 frozen runtime revision 1 hash, commands, process exit and normalization digests.
@@ -116,3 +117,42 @@ unchanged because the correction touched tests only. These records include
 actual command/result/log/source hashes and normalized replay source; they do
 not inherit a remote CI result or identify a not-yet-created commit. Candidate
 head/base/actual checkout CI and Architect acceptance need separate evidence.
+
+Later runtime-only acceptance is now recorded separately in
+`runtime-ci-observation.json`, `runtime-merge-parents.json` and
+`runtime-architect-acceptance.json`. Candidate
+`208c206801214bb8f6e2f58f995ad7755ce87332` passed CI run 33431642237 attempt 1:
+all four Linux/macOS and Python 3.12/3.13 jobs passed 1357 tests. Every job
+actually checked out merge `1776de9b413d21471ccf2717910d10dbadb39ba6`; a read-only
+GitHub parent query independently bound it to the recorded head and integration
+base. CI's Python 3.13.15 is distinct from local 3.13.13. The observation's
+pending-Architect flag is preserved; the separate decision records acceptance.
+This does not accept the subsequent locator code, other architecture drafts,
+complete projection packet, VPKB-000, production adapters or human gates.
+
+The subsequent `ledger-locator/` directory records a separate pure-codec
+candidate based on that accepted runtime commit. Its frozen contract is
+`docs/ai/contracts/ledger-locator-v1.md` revision 1. The four new implementation
+and test files passed Builder's 242 targeted checks, independent Steward review
+with 54 boundary probes and 130 focused tests, and Architect's full local
+Python 3.12.14/3.13.13 suites: 1464 passes each, no failures/errors/skips.
+The 288-source snapshot is
+`b689ce10e8325ee430b9a893bf5da54a9f6a2f69b59d2e4dedbb76dca7e30fed`.
+Fresh offline wheel/build/install smoke passed with 18 schemas and the
+independently prepared 10 positive/21 negative wire vectors plus all three
+relations. Source bytes matched before/after every final check. Public fixture
+transport uses synthetic metadata and proves neither genuine extraction nor
+artifact/receipt/record closure. The local candidate still requires its own
+new-commit CI and exact-commit acceptance; the previous runtime run is separate.
+
+`dependency-source/` contains a bounded observation of the lock's docling
+2.117.0, docling-slim 2.117.0 and docling-core 2.92.0 distributions and the
+existing vendor pin. Archive SHA/size and license declarations were checked;
+the metadata-only docling wheel/sdist has no separate LICENSE, whereas slim
+and core supply one. Do not interpret a missing member as an invented license
+file or the metadata's MIT declaration as permission for all models/dependencies.
+The original dependency manifest remains `pinned`. No parser was installed,
+imported or executed; no model or transitive package was fetched. Exact source
+Git provenance, model/transitive license coverage and legal compliance are not
+established. Downloaded package archives and selected read-only source extracts
+remain outside the repository; their hashes/member paths allow later replay.

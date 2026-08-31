@@ -1,7 +1,7 @@
-# Canonical projection inputs — review draft 1
+# Canonical projection inputs — review draft 2
 
 Status: NOT FROZEN. Architect design for VPKB-000-projection-contracts at
-`5f4c186566c15ab5ee8df10c587e4709d6223f32`; no implementation release. The
+`208c206801214bb8f6e2f58f995ad7755ce87332`; no implementation release. The
 runtime comparison contract is separately frozen. This document must be read
 with the forthcoming SQLite/export/generation specification. It does not
 authorize a filesystem adapter, second ledger or production compiler.
@@ -30,103 +30,19 @@ treated as a substitute for bytes, a foreign-key target or a canonical event.
 
 ## Structured locator wire profile
 
-The fixed upstream claim ledger allows `evidence.locator` to be a string or
-null. Project-owned evidence requires the following non-null tagged string;
-its entire content occupies that existing field. No new upstream property or
-parallel mutable locator registry is introduced.
+The sole normative codec specification is now the separately frozen
+[ledger locator wire contract revision 1](ledger-locator-v1.md), SHA-256
+`493fc3d135141512c7956f3729726ae72febbb1a34cc8cd5669add96af16e191`.
+Its four pure APIs are in `video_paper_wiki.ledger_locator`. It uses the existing
+upstream evidence locator string, preserves full common PDF/code locator fields
+through integer-only canonical wire, and maps project uncertain to wire context.
+No second ledger, source-ID implementation or upstream property is introduced.
 
-Public pure APIs proposed in `video_paper_wiki.projection_inputs`:
-
-- `encode_ledger_locator(locator: object) -> str`;
-- `decode_ledger_locator(wire: str) -> dict`;
-- `encode_ledger_evidence(evidence: object) -> dict`;
-- `decode_ledger_evidence(evidence: object) -> dict`.
-
-The domain locator is the complete existing common.v1 PDF or code locator.
-The domain evidence is that flat locator plus exactly one `relation` field,
-matching the existing identity API. The wire evidence has exactly
-`source_id, relation, locator`; source_id equals the decoded locator source_id.
-Copies are independent and no caller value is mutated. No path is opened.
-
-The exact wire is the ASCII prefix `vpwiki-locator-v1:` followed by the
-existing integer-only JCS, with no LF, of this closed envelope:
-
-```json
-{"schema":"video-paper-wiki.ledger-locator.v1","locator":{},"bbox_rationals":[[41,4],[41,2],[801,8],[163,4]]}
-```
-
-Here `locator` is the original complete locator except that PDF `bbox`, when
-present, is removed and encoded in the optional `bbox_rationals`. The example
-locator object is a placeholder, not a valid empty locator. The envelope has
-exactly required `schema,locator` and optional `bbox_rationals`; the latter is
-permitted only for a PDF and corresponds to bbox presence. Original `charspan`,
-code `symbol` and every other declared locator field are preserved. There is
-no relation inside this envelope and no hidden second copy of bbox.
-
-`bbox_rationals` is an exact built-in list of exactly four exact built-in
-two-element lists. Each coordinate becomes `[n,d]`: integer n becomes `[n,1]`; a finite float
-uses its reduced `as_integer_ratio()`. n and d are exact ints, never bool or
-float, within the frozen runtime codec's 2048-bit bound. A valid pair has d>0,
-gcd(abs(n),d)=1. For d=1 decode to int. For d>1, d is a power of two and n/d
-must be a finite binary64 whose exact `as_integer_ratio()` is the original
-pair; do not accept an underflowed, overflowed or rounded rational. Zero is
-only `[0,1]`. Integer 1/float 1.0 and either zero sign intentionally share
-numeric material; Python coordinate type and zero sign are not preserved.
-Fractional coordinates round-trip exactly. These choices do not alter the
-existing evidence fingerprint, which deliberately excludes bbox/charspan.
-Full-locator round-trip checks are necessary; fingerprint equality alone
-cannot prove display-coordinate preservation.
-
-Validate the complete decoded locator against common.v1 with exact built-in
-JSON types: all integer fields reject bool/float. PDF bbox alone permits finite
-int/float coordinates. Integers obey the 2048-bit runtime limit. Code lines
-must satisfy start<=end; PDF charspan, if present, must satisfy
-0<=start<=end. These relation checks are a stricter project profile. Existing
-public common/identity validation behavior is not changed. Required paths and
-hashes retain their existing common.v1 grammars, but match the entire value
-with `fullmatch`, not regex `$` (which can accept a trailing LF). Apply that
-full-value rule to source_id, repository, commit, all SHA fields and both path
-kinds. Additionally source_id must fit the pinned upstream safe-ID subset
-`src-[A-Za-z0-9][A-Za-z0-9._-]*`; this is not source-ID recomputation.
-A PDF artifact_path must be
-under `.raw/derived/`, never an alias for the captured PDF itself.
-
-Wire is an exact built-in scalar string of at most 65,536 UTF-8 bytes including
-prefix. Encoding checks this bound too; it must not truncate strings. Apply
-the frozen runtime preflight limits before copying/recursing. Decoding rejects
-duplicate JSON keys, structural whitespace/noncanonical JCS, nonfinite/floating envelope
-numbers, surrogates, unknown fields, malformed ratios, cycles/custom objects
-on encode, or a second discriminator/relation. Decode and re-encode must
-produce the identical wire string. Neither spelling normalization nor a
-legacy free-text fallback is allowed for this tagged project profile.
-Whitespace inside a valid ref/symbol or other string value is data and remains
-preserved; the structural whitespace rule must not strip or reject it.
-
-The versioned relation mapping is:
-
-| Domain relation | Existing upstream wire relation |
-| --- | --- |
-| supports | supports |
-| contradicts | contradicts |
-| uncertain | context |
-
-Apply this mapping only when the evidence uses this validated project locator
-profile. It is a transport choice for the project's `uncertain`, not a claim
-that arbitrary upstream context evidence has that meaning. Encoding never
-sends wire `uncertain`; decoding never passes wire `context` to the identity
-API. Bare/null legacy locators and unknown relation values are refusals.
-No codec operation changes an assessment or makes a scientific judgment.
-
-Proposed errors use existing ContractError exit 2: `LEDGER_LOCATOR_INVALID`
-for malformed wire/domain value/schema/ratio/canonical spelling;
-`LEDGER_EVIDENCE_INVALID` for outer evidence shape/relation/source mismatch;
-`PROJECTION_LIMIT_EXCEEDED` for resource bounds. Argument/preflight, shape,
-then relationships is the validation order. Scalar-safe instance pointers
-identify errors; hostile values must not leak recursion/encoding/int-format
-exceptions. A field inside the locator retains the locator error code even
-when called through the evidence API.
-Decoder/parser/value failures from shared helpers are translated into these
-codec error codes; resource refusals alone retain PROJECTION_LIMIT_EXCEEDED.
+That bounded codec release does not freeze this document's canonical inventory,
+artifact closure, history, source application profile or generation design. The
+previous duplicate draft wire text is superseded by the standalone contract;
+future edits here cannot silently alter its frozen semantics. Public transport
+proof is not validation of genuine coordinates, complete artifacts or approval.
 
 ## Whole-snapshot input boundary to freeze
 
@@ -138,17 +54,53 @@ Documents are parsed only from those bytes; a caller cannot supply a different
 parsed document next to an honest hash. Raw byte hashes remain distinct from
 semantic runtime comparison hashes.
 
-Kinds include source/claim ledger, paper/repo record, assessment event/head,
+Kinds include source/claim ledger, paper/repo record, assessment event,
 taxonomy, immutable run/code/alignment manifests and referenced artifact bytes.
 The exact path/cardinality/closure table and limits are pending review. There
-must be exactly one of each fixed ledger and taxonomy, plus a persisted
-assessment-head registry covering exactly the owned claims (an empty registry
-for an empty corpus). Do not invent an active alignment version: repo-record
+must be exactly one of each fixed ledger and taxonomy. Do not invent an active
+alignment version: repo-record
 currently has no canonical selector; retain manifest-qualified versions.
-The candidate registry path is `wiki/meta/reviews/heads.json`, within the
-existing facade and managed review prefix. Do not add an unaudited
-`wiki/meta/registries/assessment-heads.json` outside the current managed-prefix
-contract. Event files remain `wiki/meta/reviews/<claim_id>/<event_id>.json`.
+Event files remain `wiki/meta/reviews/<claim_id>/<event_id>.json`.
+
+### Input namespaces and filename direction
+
+The proposed path key is a logical input address, not an instruction to read
+every key relative to a Vault. Reserve `taxonomy/v1.json` solely for kind
+`taxonomy`, supplied from the deployed project configuration/package. All
+Vault input kinds instead have `.raw/` or `wiki/meta/` paths under their released
+families. These domains are disjoint; do not install another live taxonomy
+under the Vault or treat taxonomy YAML as an independent machine authority.
+The later adapter must obtain the right provider's exact bytes; the pure API
+only verifies the supplied bytes/hash. Current packaging does not include
+taxonomy, so deployment/resource binding still needs its explicit implementation
+release and installed-wheel test. This draft does not silently add a resource.
+
+Source and claim ledger paths are the pinned upstream exact constants:
+`wiki/meta/ledgers/source-ledger.json` and
+`wiki/meta/ledgers/claim-ledger.json`. Paper/repo record files use the respective
+`wiki/meta/records/papers/` and `wiki/meta/records/repos/` families. Their
+canonical IDs are embedded fields, not filename identities. A final input
+profile may admit an opaque portable JSON basename while requiring exactly
+one document per embedded ID; it need not create a new hash-based paper ID
+or accept a duplicate record under another name. Generated page naming and
+rename/publication behavior must be explicit in the later compiler contract.
+
+Assessment events already have an exact content-bound filename and remain
+the exception to opaque record names: directory claim_id and basename event_id
+must agree with validated event fields. Immutable code/alignment/run artifacts
+still need exact path families and association rules. A document placed under
+replaceable `records/` is not immutable just because its schema says manifest;
+its publication constraints must be established before release.
+
+Revision 2 withdraws draft 1's proposed mutable `wiki/meta/reviews/heads.json`.
+Architect, Builder and Steward verified that the existing requirements call
+for a unique event-chain head, not a separate persisted assessment registry.
+The frozen facade makes all review files create-only; membership in its managed
+prefix never authorized replacing a head file. No facade exception or new
+registry is introduced. Derive each head from the complete validated event
+graph below. `assessment_heads` is a derived catalog relation, not an inventory
+kind or a new authority. Operation and human-gate registries remain separate
+and unchanged; do not borrow their schemas or publication permissions.
 
 Cross-object rules to freeze include all source/owner/ref FKs; canonical claim
 ID re-computation from owner subject and actual ledger text; no duplicate
@@ -156,6 +108,37 @@ ownership or supersedes cycle; taxonomy membership; full tagged locator/source
 bindings; current and historical manifest/artifact path/hash closure; active
 extraction binding. Raw source identity recomputation and source freshness
 remain pinned-upstream adapter checks, not a copied private implementation.
+
+### Manifest hashes are different kinds of evidence
+
+The inventory entry SHA always hashes exact complete file bytes. It is not a
+runtime comparison hash or a self-excluding identity hash. Keep these separate
+from all embedded hashes and preserve optional field presence without defaulting.
+
+| Existing run-manifest field | Snapshot treatment direction |
+| --- | --- |
+| input_hashes.source_sha256 | Must resolve to captured raw bytes for a supported extraction binding |
+| input_hashes.parser_config_sha256 | Must resolve to exact immutable config bytes in that binding |
+| input_hashes.model_manifest_sha256 | Must resolve to the small immutable model-manifest bytes; not a claim that model weight files were fetched or authenticated |
+| output_hashes.document_json_sha256 | Must resolve to exact immutable document bytes before that run can support an active extraction or PDF locator |
+| input_hashes.ingest_plan_sha256, input_hashes.prepared_sha256 | Retain existing canonical-object hashes as provenance; do not import staging documents as business-fact inputs |
+| output_hashes.draft_sha256, output_hashes.receipt_sha256 | Retain existing canonical-object hashes as provenance; do not derive facts from drafts or claim receipt-chain authentication |
+| pipeline_fingerprint | Recompute the existing bound engine/version/core/config/model identity when required material is present; it is neither raw run-file SHA nor projection generation |
+
+Current run-manifest schema permits empty input/output hash maps and optional
+pipeline_fingerprint. A successful-extraction application profile must explicitly
+require all needed bindings; the base schema alone cannot prove them. Failed or
+unbound historical run policy, precise config/model/document path association,
+and deterministic selection remain open. Do not pick a run by timestamp or use
+the first file with a matching digest. All canonical timestamps stay material.
+
+An inspected code manifest has three distinct digests: its complete file SHA,
+proposal_sha256 for proposal material, and manifest_sha256 excluding its own
+field. Its capture/source/payload association must use the frozen supplied-byte
+code checks. Multiple logical repository/commit/path origins may share raw
+bytes; never collapse them to one origin keyed only by source_id. An inspection
+approval hash or nullable capture operation_id is preserved provenance, not
+permission or proof of a successfully authenticated capture.
 
 ## Historical assessment validation direction
 
@@ -165,8 +148,13 @@ events before a legitimate invalidation must retain their historical value.
 Reuse the existing event schema and ID algorithm, then validate the whole
 graph separately, without changing the old per-proposal API silently.
 
-For each claim require one genesis, one connected acyclic nonforking chain,
-no dangling/cross-claim predecessor and exactly one declared terminal head.
+For each owned claim, including retired claims, require one genesis, one
+connected acyclic nonforking chain, no dangling/cross-claim predecessor and
+exactly one terminal head. Traversal from genesis must visit every supplied
+event for that claim; a unique visible terminal alone does not exclude a
+disconnected cycle. Reject events for unknown claims and claims without events.
+Derive the terminal from the graph, never directory order, event-ID sorting,
+timestamps, a caller-selected head or the ledger's asserted assessment.
 All events bind the unchanged canonical ledger text. Parent to_assessment
 equals child from_assessment. A human transition preserves the parent's
 evidence fingerprint and changes assessment; system invalidation changes
@@ -182,7 +170,10 @@ human same-state transitions. It does not rewrite such immutable legacy events
 or claim they fit this supported corpus; any compatibility/migration policy
 needs separate review. Existing per-event/prospective API behavior is unchanged.
 
-The snapshot can prove chain state, not that invalidation and human review
+The snapshot can prove the supplied chain state, not complete Vault enumeration
+or that a missing tail plus an older matching ledger is not a rollback. VPKB-001
+must authenticate event membership/current bytes through receipt and managed
+content auditing. The snapshot also cannot prove that invalidation and human review
 were published in separate approved transactions. Core replacement review
 co-publication and receipt-backed timing remain VPKB-001 prospective/integrity
 checks. The snapshot must not label this limitation full workflow acceptance.

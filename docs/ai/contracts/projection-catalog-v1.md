@@ -39,7 +39,7 @@ the eventual machine-checkable column manifest.
 | paper_sources | Ordered paper-to-existing-source FKs |
 | claims | Existing ledger text/risk/confidence/notes/location/supersedes and claim ID; owner identity must recompute correctly |
 | claim_evidence | Original ordered evidence, source FK, wire relation, complete tagged locator; domain relation follows the explicit wire codec |
-| assessment_events, assessment_heads | Immutable complete events, same-claim predecessor links, one terminal head FK per claim; current assessment/date derives from this head |
+| assessment_events, assessment_heads | Immutable complete events, same-claim predecessor links, one terminal head FK per claim derived from the complete validated chain; no persisted head registry input; current assessment/date derives from this head |
 | taxonomy_axes, taxonomy_terms, aliases | Supplied canonical labels, aliases and ordinals; term PK includes axis; do not invent a term-parent field absent from current taxonomy |
 | paper_taxonomy | Ordered FK pairs to the supplied taxonomy; do not silently deduplicate currently allowed repeated refs |
 | artifacts, run_manifests | Canonical immutable paths/hashes and complete parser/version/config/model/output bindings, including historical versions |
@@ -125,7 +125,7 @@ upstream chunks or BM25 index.
 The final generation manifest must bind all of the following explicitly:
 
 - The complete validated canonical path/kind/raw-SHA inventory, including
-  authoritative timestamps, all review history/heads, source assessment
+  authoritative timestamps, all review history from which unique heads derive, source assessment
   material, retired refs and immutable versions. There are no volatile input
   exclusions. Raw-byte reformatting may conservatively invalidate generation.
 - Exact schema and taxonomy source digests and their versions. A label or
@@ -167,8 +167,8 @@ pure contract.
 
 ## Required decisions before release
 
-Complete the input kind/path/closure and byte-budget table; freeze the head
-registry and all ledger/taxonomy application profiles; resolve immutable
+Complete the input kind/path/closure and byte-budget table; freeze the complete
+event-graph/head derivation and all ledger/taxonomy application profiles; resolve immutable
 manifest locations and association rules; then publish complete SQL and its
 exact ordered column/PK/FK manifest. Obtain both independent reviews, including
 installed-SQLite FK probes and ordering/null/duplicate/export vectors. No

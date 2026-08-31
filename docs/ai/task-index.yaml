@@ -6,7 +6,7 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 5f4c186566c15ab5ee8df10c587e4709d6223f32
+  continued_head: 208c206801214bb8f6e2f58f995ad7755ce87332
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
@@ -319,35 +319,68 @@ packets:
     parent: VPKB-000
     title: SQLite and projection stability shared contracts
     status: in_progress
-    phase: runtime_delivery_and_remaining_contract_review
+    phase: locator_delivery_and_remaining_contract_review
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
     packet_document: docs/ai/packets/VPKB-000-projection-contracts.md
     base_commit: 5f4c186566c15ab5ee8df10c587e4709d6223f32
     depends_on: [VPKB-000-transaction-facade]
-    contract_status: partially-frozen-runtime-only
+    contract_status: partially-frozen-runtime-and-locator
     runtime_contract:
       path: docs/ai/contracts/projection-runtime-v1.md
       revision: 1
       sha256: e72531c11bb7cfdee2c5d73bc51006edaa6d7226f091c7008ea03d77a52411dc
       status: frozen
-    implementation_status: runtime-complete-pending-ci
+    locator_contract:
+      path: docs/ai/contracts/ledger-locator-v1.md
+      revision: 1
+      sha256: 493fc3d135141512c7956f3729726ae72febbb1a34cc8cd5669add96af16e191
+      status: frozen
+      slice_base_commit: 208c206801214bb8f6e2f58f995ad7755ce87332
+      implementation_status: complete-local-verification-pending-ci
+      verification:
+        status: passed-locally-pending-ci
+        evidence_directory: artifacts/verification/VPKB-000-projection-contracts/ledger-locator/
+        source_count: 288
+        source_snapshot_sha256: b689ce10e8325ee430b9a893bf5da54a9f6a2f69b59d2e4dedbb76dca7e30fed
+        result: Python 3.12.14 and 3.13.13 each passed 1464 tests, no failures/errors/skips.
+        wheel: Fresh offline build/install and isolated 18-schema smoke passed, including 10 independent positive and 21 negative locator vectors.
+        wheel_sha256: b3aeded7505f67e6eb7c205c38afdb2d843be1fe9c386e9f8e4a5666cf8bd4ed
+        merge_authorized: false
+    implementation_status: runtime-accepted-locator-pending-ci
     note: >-
       Runtime numeric comparison and pinned emitter profiles passed independent
-      review and full local verification. The first full attempt failed one
+      review, full local verification and exact candidate CI. The first full
+      attempt failed one
       historical global BM25 substring guard in each Python version; failure
       evidence is preserved, and its narrow test-policy correction was separately
-      reviewed and rerun. Canonical-input/locator, exact DDL/row
-      export and generation remain under design review; the whole packet is not
-      frozen or accepted. Retrieval join/config/gold and production index writers
+      reviewed and rerun. The standalone ledger locator codec is now frozen
+      and released after two independent specification reviews. Complete
+      canonical input/history, exact DDL/row export and generation remain under
+      design review; the whole packet is not frozen or accepted. Assessment
+      heads derive from the complete validated immutable event graph, with no
+      new mutable registry or facade exception. Retrieval join/config/gold and
+      production index writers
       remain outside this packet. Historical facade CI does not validate new work.
     verification:
-      status: runtime-passed-locally-pending-ci
+      status: runtime-passed-locally-and-ci
       scope: runtime-slice-only-not-complete-projection-packet
       evidence_directory: artifacts/verification/VPKB-000-projection-contracts/
       source_count: 283
       source_snapshot_sha256: f655b80ae32c6ea1c78b65f5e5f68c3b1e5cbdfe455a1e9fda6e5750cb22a2a8
+      accepted_head: 208c206801214bb8f6e2f58f995ad7755ce87332
+      remote_ci:
+        evidence: artifacts/verification/VPKB-000-projection-contracts/runtime-ci-observation.json
+        acceptance: artifacts/verification/VPKB-000-projection-contracts/runtime-architect-acceptance.json
+        run_id: 33431642237
+        attempt: 1
+        conclusion: success
+        tested_ref: refs/remotes/pull/94/merge
+        tested_checkout_sha: 1776de9b413d21471ccf2717910d10dbadb39ba6
+        jobs: [99618144096, 99618144182, 99618144355, 99618144439]
+        result: Each Linux/macOS and Python 3.12/3.13 job passed all 1357 tests.
+        python_versions: [3.12.14, 3.13.15]
       results:
         - Python 3.12.14 and 3.13.13 each passed all 1357 tests with no failures/errors/skips.
         - Fresh offline wheel build/install and isolated smoke passed with 18 schemas.

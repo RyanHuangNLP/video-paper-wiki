@@ -80,30 +80,39 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 2026-09-01核对结果：
 
 - PR：[#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94)，open/draft → `integration`，未合并。
-- 本地和PR head：`5f4c186566c15ab5ee8df10c587e4709d6223f32`。
+- 本地和PR head：`208c206801214bb8f6e2f58f995ad7755ce87332`。
 - PR base：`08709894adfb20ec07e976783f0ba436d975b74f`。
-- [CI run 33426054898](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33426054898) 四项成功，各1239项通过。
-  实际checkout为合并预览`8eba91629628058614ec7cd8a88dab501c567be7`，
-  不是裸head；精确环境与job记录在transaction-facade的`ci-observation.json`。
+- [CI run 33431642237](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33431642237) 四项成功，各1357项通过。
+  实际checkout为合并预览`1776de9b413d21471ccf2717910d10dbadb39ba6`，
+  不是裸head；父提交已独立核对，精确环境与job记录在projection-contracts的`runtime-ci-observation.json`。
 - 保留已有未跟踪文件；目录/overlays仍冻结67。阶段仍是VPKB-000。
 
 capture/code-evidence和transaction-facade子包已分别完成本地与CI验收。
-facade在上述head通过 Python 3.12/3.13 各1239项及独立安装包验收，
+facade在前序`5f4c186566c15ab5ee8df10c587e4709d6223f32`通过 Python 3.12/3.13 各1239项及独立安装包验收，
 274个输入摘要为`437fb3bb0cc0c8baa26e93cb374b1814519771c3e0cd3df161e6ab24a466fa8e`。
 首次安全扫描误报的两次失败保留在独立证据中，没有改写成通过。
 独立接受记录已绑定实际提交和四项CI日志，历史待验收观察没有改写。
 
 当前工作包是 [VPKB-000-projection-contracts](packets/VPKB-000-projection-contracts.md)。
-Builder按冻结的运行时比较契约实现数值编码、chunk/BM25 profile和公开CLI fixture；
+运行时比较契约的数值编码、chunk/BM25 profile和公开CLI fixture已验收。
+Builder现在按单独冻结的ledger-locator契约实现纯编解码及测试；
 Architect继续制定canonical输入、SQLite和generation契约；Steward独立核对兼容性与证据。
 准确阶段、规范摘要和验收状态以`task-index.yaml`为准。完整projection包尚未冻结或验收，
-也没有完成001生产适配；上面的facade CI不代表新代码通过。合并和人工gate仍未授权。
+也没有完成001生产适配；已接受运行时的CI不代表后续codec实现通过。合并和人工gate仍未授权。
 
 运行时比较候选现已通过 Python 3.12/3.13 各1357项，以及18-schema独立安装包验收。
 283个固定输入摘要为`f655b80ae32c6ea1c78b65f5e5f68c3b1e5cbdfe455a1e9fda6e5750cb22a2a8`。
 首轮各1322通过/1失败的旧BM25词串守卫冲突记录单独保留；只修正测试范围规则，
-没有通过改名隐藏BM25或放开生产检索入口。新候选尚待提交后的CI核对。
-canonical输入、locator、SQLite和generation仍有未冻结契约，不因运行时子项通过而关闭整个包。
+没有通过改名隐藏BM25或放开生产检索入口。运行时新提交的四项CI已独立核对并接受；
+CI的Python3.13为3.13.15，与本地3.13.13分别记录，不将二者混用。
+ledger-locator revision1已独立冻结；完整canonical输入/history、SQLite和generation
+仍有未冻结契约，不因运行时子项通过而关闭整个包。审核head由完整事件链派生，
+不新增可变registry或修改已有facade create-only规则。
+
+locator候选只新增4个授权文件，已通过两版Python各1464项和新的独立安装包验收。
+288个源码输入摘要为`b689ce10e8325ee430b9a893bf5da54a9f6a2f69b59d2e4dedbb76dca7e30fed`；
+独立10组正向/21组反向wire向量及三种关系映射通过。候选仍需新的提交与CI，
+不能继承上面运行时提交的接受结论。完整input/SQLite/generation仍未冻结。
 
 短期保持同一PR中的单写者推进，并以`packet_base_sha..candidate_head_sha`单独审查每包增量，
 同时检查与其余代码的兼容性。PR94的完整历史diff不是下一包新增代码。

@@ -1,8 +1,9 @@
 # VPKB-000-projection-contracts — architecture review
 
-Parent VPKB-000. Status: in progress. Runtime comparison revision 1 is frozen;
-canonical inputs/locator, SQLite and generation are still under architecture
-review. Only the bounded runtime implementation below is released.
+Parent VPKB-000. Status: in progress. Runtime comparison and ledger locator
+revision 1 are separately frozen. Complete canonical inputs/history, SQLite
+and generation remain under architecture review. Only the two bounded slices
+specified below are released.
 Predecessor: VPKB-000-transaction-facade, accepted at
 `5f4c186566c15ab5ee8df10c587e4709d6223f32`; this is the packet baseline.
 CI run 33426054898 attempt 1 tested merge preview
@@ -42,7 +43,7 @@ existing error behavior, upstream files, package dependencies or security
 boundaries. Public pinned CLI tests may use disposable temporary Vaults with
 synthetic prefixes; no production builder, admin install or real Vault use.
 No Git mutations by Builder. Steward owns independent verification and later
-serialized Git only on an explicit candidate instruction; no commit/push yet.
+serialized Git only on an explicit candidate instruction.
 Architect owns normative contracts and task/team/packet metadata. Report a
 contract gap before changing frozen behavior; unaffected work can continue.
 
@@ -72,15 +73,84 @@ checks plus prior identity/locator/facade smoke checks. Only three test-policy
 files changed after the first full attempt; all eight runtime implementation
 and fixture files retained their independently reviewed hashes. The test-only
 scope helper's limitations are explicit; CLI/runtime/network protections remain.
-New-commit CI and Architect's exact-commit decision are still pending. This is
-local acceptance of the runtime slice, not of the full projection packet.
+At that local observation, new-commit CI and Architect's exact-commit decision
+were pending. The later runtime acceptance below does not rewrite that evidence
+or accept the full projection packet.
+
+Architect subsequently accepted the runtime slice at
+`208c206801214bb8f6e2f58f995ad7755ce87332`, parent equal to the packet baseline.
+All 283 source and 72 delivery inputs (343 unique paths) matched their reviewed
+Git blobs. CI run 33431642237 attempt 1 passed all four jobs, each 1357 tests:
+99618144096, 99618144182, 99618144355, 99618144439. Actual checkout was
+`1776de9b413d21471ccf2717910d10dbadb39ba6`, whose parents were independently
+verified as integration `08709894adfb20ec07e976783f0ba436d975b74f` and that head.
+CI Python versions were 3.12.14 and 3.13.15; local versions remain 3.12.14 and
+3.13.13. Exact observation, parent check and later decision are separate
+`runtime-ci-observation.json`, `runtime-merge-parents.json` and
+`runtime-architect-acceptance.json` files in this packet's evidence directory.
+PR94 remains open/draft; merge and human gates are unchanged.
+
+## Ledger locator implementation release
+
+The [ledger locator wire contract](../contracts/ledger-locator-v1.md), revision 1,
+is the sole normative codec specification. Builder and Steward reviewed its
+exact wire/numeric/limit/error semantics against common.v1, identity/JCS,
+runtime preflight and the pinned public-CLI r2 transport proof. This releases
+four pure supplied-data APIs, not the whole input snapshot or a new ledger.
+Slice baseline is `208c206801214bb8f6e2f58f995ad7755ce87332`.
+
+Builder owns only:
+
+- `src/video_paper_wiki/ledger_locator.py`;
+- `tests/test_ledger_locator.py`;
+- `tests/test_ledger_locator_upstream.py`;
+- `tests/fixtures/ledger-locator/**`.
+
+No new root schema registration is needed for the internal wire envelope.
+Do not change existing common/identity/JCS/runtime/facade behavior, dependencies,
+upstream sources or test guards. Reuse existing project helpers where appropriate;
+report an actual contract gap before expanding ownership. Tests may use the
+existing pinned disposable public-CLI fixture helper, including its narrowly
+isolated stable_source_id subprocess; production codec must not import upstream.
+No real Vault, admin, models, network-producing command or Git mutation by Builder.
+Root owns contracts/task/packet docs; Steward owns independent vectors/review
+and later serialized evidence/Git delivery on an exact candidate instruction.
+
+Required evidence includes the full frozen contract's wire/hash vectors,
+representability and resource refusals, mutation/isolation checks, old identity
+goldens and public transport replay. Builder returns exact changed-file hashes,
+targeted results and remaining issues, then stops writing for independent review.
+Architect runs full supported-Python and installed-wheel acceptance; new source
+requires its own commit/CI rather than inheriting the accepted runtime run.
+
+The four-file implementation candidate now passed full local verification on
+288 fixed source inputs, SHA-256
+`b689ce10e8325ee430b9a893bf5da54a9f6a2f69b59d2e4dedbb76dca7e30fed`.
+Python 3.12.14 and 3.13.13 each passed 1464 tests, no failures/errors/skips.
+Fresh offline wheel build/install and isolated smoke passed with 18 schemas,
+all prior smoke checks and the Steward's independently prepared 10 positive
+locator wire/hash vectors, 21 negative wires and all three relation mappings.
+Wheel SHA-256:
+`b3aeded7505f67e6eb7c205c38afdb2d843be1fe9c386e9f8e4a5666cf8bd4ed`.
+All source hashes remained equal before/after both suites and wheel checks.
+Candidate commit/CI and the separate exact-commit decision are still pending;
+these local observations belong to `ledger-locator/` evidence, not runtime CI.
+
+The implementation review clarified the existing error boundary without changing
+the frozen contract: encode-evidence locator-field preflight failures retain
+locator errors/flat pointers; root container/key or relation failures are outer
+evidence errors. Decode-evidence outer value/type errors precede decoding;
+inner wire errors retain locator codes/envelope pointers. Resource refusals
+always retain PROJECTION_LIMIT_EXCEEDED. Regression tests cover both layers.
 
 Remaining architecture drafts, not implementation releases:
 [canonical input/locator](../contracts/projection-input-v1.md) and
 [catalog/export/generation](../contracts/projection-catalog-v1.md). Both agents
 reviewed the complete locator wire section; the whole input and catalog
-contracts still need the exact inventory/path/closure/DDL decisions. Public
-locator transport feasibility is not complete coordinate or inventory proof.
+contracts still need the exact inventory/path/closure/DDL decisions. Draft 2
+withdraws the mutable assessment-head registry: validate the complete immutable
+event graph and derive its unique terminal, without changing facade create-only
+rules. The standalone locator release does not validate coordinates or inventory.
 
 This is the remaining shared projection contract work, not an alternate path
 around facade acceptance. The complete VPKB-000 milestone also needs dependency
