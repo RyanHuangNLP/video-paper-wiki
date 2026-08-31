@@ -232,6 +232,28 @@ def test_project_not_a_table_is_invalid(tmp_path: Path, monkeypatch) -> None:
     assert exc.value.code == CODE_WORKSPACE_ROOT_INVALID
 
 
+def test_dir_swap_during_link_is_unsafe(checkout: Path, tmp_path: Path, monkeypatch) -> None:
+    review_dir = checkout / ".work" / "b1" / "review"
+    review_dir.mkdir(parents=True)
+    external = tmp_path / "outside-review"
+    external.mkdir()
+    real_link = os.link
+
+    def racing_link(src, dst, *args, **kwargs):
+        if review_dir.exists() and not review_dir.is_symlink():
+            stolen = tmp_path / "stolen-review"
+            review_dir.rename(stolen)
+            review_dir.symlink_to(external)
+        return real_link(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(os, "link", racing_link)
+    with pytest.raises(StagingError) as exc:
+        stage_bytes(batch_id="b1", relative=("review", "paper.md"), data=b"payload")
+    assert exc.value.code == CODE_WORK_PATH_UNSAFE
+    assert not (external / "paper.md").exists()
+    assert not (tmp_path / "stolen-review" / "paper.md").exists()
+
+
 def test_already_staged_when_install_sees_same_bytes(checkout: Path, monkeypatch) -> None:
     first = stage_bytes(
         batch_id="b1",

@@ -277,7 +277,6 @@ def _require_fd_inside_work(fd: int, work_fd: int, path: Path) -> None:
             fd_n = os.path.normpath(raw)
             if fd_n != work_n and not _is_strict_child(fd_n, work_n):
                 _raise_unsafe(path, "directory slot is unsafe")
-            return
     work_st = os.fstat(work_fd)
     if (st.st_dev, st.st_ino) == (work_st.st_dev, work_st.st_ino):
         return
@@ -435,6 +434,13 @@ def _link_at(*, src_name: str, dst_name: str, src_dir_fd: int, dst_dir_fd: int) 
         os.link(src_name, dst_name, src_dir_fd=src_dir_fd, dst_dir_fd=dst_dir_fd)
 
 
+def _unlink_at(parent_fd: int, name: str) -> None:
+    try:
+        os.unlink(name, dir_fd=parent_fd)
+    except OSError:
+        pass
+
+
 def _atomic_install(
     work_fd: int,
     parent_fd: int,
@@ -442,63 +448,75 @@ def _atomic_install(
     data: bytes,
     *,
     target: Path,
-    work_root: Path,
 ) -> bool:
     """Install *data* as *filename* in *parent_fd*.
+
+    Temp is a sibling under *parent_fd* (not the `.work` root). Re-check that
+    *parent_fd* is still a real directory inside `.work` immediately before and
+    after the link. If the post-link check fails, unlink dest via *parent_fd*
+    and raise WORK_PATH_UNSAFE.
 
     Returns True when the target already held the same bytes, False when this
     call created the file.
     """
-    tmp_fd, tmp_name = _mkstemp_at(work_fd, work_root)
+    tmp_fd: int | None = None
+    tmp_name: str | None = None
+    linked = False
     try:
-        offset = 0
-        while offset < len(data):
-            offset += os.write(tmp_fd, data[offset:])
-        os.fsync(tmp_fd)
-    except (NotADirectoryError, FileExistsError, OSError) as exc:
-        _close_fd(tmp_fd)
+        _require_fd_inside_work(parent_fd, work_fd, target)
+        tmp_fd, tmp_name = _mkstemp_at(parent_fd, target)
         try:
-            os.unlink(tmp_name, dir_fd=work_fd)
-        except OSError:
-            pass
-        _map_oserror(target, exc)
-    else:
+            offset = 0
+            while offset < len(data):
+                offset += os.write(tmp_fd, data[offset:])
+            os.fsync(tmp_fd)
+        except (NotADirectoryError, FileExistsError, OSError) as exc:
+            _map_oserror(target, exc)
         _close_fd(tmp_fd)
-    try:
-        _link_at(
-            src_name=tmp_name,
-            dst_name=filename,
-            src_dir_fd=work_fd,
-            dst_dir_fd=parent_fd,
-        )
-    except FileExistsError:
-        existing = _stat_at(parent_fd, filename, target)
-        if existing is None:
+        tmp_fd = None
+        _require_fd_inside_work(parent_fd, work_fd, target)
+        try:
+            _link_at(
+                src_name=tmp_name,
+                dst_name=filename,
+                src_dir_fd=parent_fd,
+                dst_dir_fd=parent_fd,
+            )
+            linked = True
+        except FileExistsError:
+            existing = _stat_at(parent_fd, filename, target)
+            if existing is None:
+                raise StagingError(
+                    CODE_STAGING_CONFLICT,
+                    "target exists with different bytes",
+                    {"path": target.as_posix()},
+                )
+            if stat.S_ISLNK(existing.st_mode) or not stat.S_ISREG(existing.st_mode):
+                _raise_unsafe(target, "target is not a regular file")
+            current = _read_regular_file_at(parent_fd, filename, target)
+            if current == data:
+                _require_fd_inside_work(parent_fd, work_fd, target)
+                return True
             raise StagingError(
                 CODE_STAGING_CONFLICT,
                 "target exists with different bytes",
                 {"path": target.as_posix()},
             )
-        if stat.S_ISLNK(existing.st_mode) or not stat.S_ISREG(existing.st_mode):
-            _raise_unsafe(target, "target is not a regular file")
-        current = _read_regular_file_at(parent_fd, filename, target)
-        if current == data:
-            return True
-        raise StagingError(
-            CODE_STAGING_CONFLICT,
-            "target exists with different bytes",
-            {"path": target.as_posix()},
-        )
-    except (NotADirectoryError, OSError) as exc:
-        _map_oserror(target, exc)
-    finally:
+        except (NotADirectoryError, OSError) as exc:
+            _map_oserror(target, exc)
         try:
-            os.unlink(tmp_name, dir_fd=work_fd)
-        except OSError:
-            pass
-    _fsync_fd(parent_fd)
-    _fsync_fd(work_fd)
-    return False
+            _require_fd_inside_work(parent_fd, work_fd, target)
+        except StagingError:
+            if linked:
+                _unlink_at(parent_fd, filename)
+            raise
+        _fsync_fd(parent_fd)
+        _fsync_fd(work_fd)
+        return False
+    finally:
+        _close_fd(tmp_fd)
+        if tmp_name is not None:
+            _unlink_at(parent_fd, tmp_name)
 
 
 def _existing_same_bytes(parent_fd: int, filename: str, data: bytes, path: Path) -> bool:
@@ -608,6 +626,7 @@ def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> 
             work_root,
         )
         if _existing_same_bytes(parent_fd, parts[-1], data, target):
+            _require_fd_inside_work(parent_fd, work_fd, target)
             return StageResult(path=target, already_staged=True)
         already = _atomic_install(
             work_fd,
@@ -615,7 +634,6 @@ def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> 
             parts[-1],
             data,
             target=target,
-            work_root=work_root,
         )
         return StageResult(path=target, already_staged=already)
     except StagingError:

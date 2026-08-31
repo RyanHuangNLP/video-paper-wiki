@@ -439,17 +439,60 @@ def test_intermediate_dir_swap_during_link_does_not_escape(
     code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
     captured = capsys.readouterr()
     assert "Traceback" not in captured.out
+    assert "Traceback" not in captured.err
     lines = [line for line in captured.out.splitlines() if line.strip()]
     assert len(lines) == 1, captured.out
     payload = json.loads(lines[0])
     Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+    assert code == 2
+    assert payload["ok"] is False
+    assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
     assert (external / "secret.bin").read_bytes() == b"SENTINEL-BYTES"
     assert not (external / "paper.md").exists()
+    assert not (tmp_path / "stolen-review" / "paper.md").exists()
     assert _snapshot(external) == before
-    if payload.get("ok") is False:
-        assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
-        assert code == 2
     assert network_attempts == []
+
+
+@pytest.mark.parametrize("slot", ["batch", "intermediate"])
+@pytest.mark.parametrize("kind", ["fifo", "socket"])
+def test_batch_or_intermediate_fifo_or_socket_is_unsafe_json(
+    slot, kind, tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+    before = _snapshot(external)
+    if slot == "batch":
+        (checkout / ".work").mkdir()
+        target = checkout / ".work" / "b1"
+    else:
+        (checkout / ".work" / "b1").mkdir(parents=True)
+        target = checkout / ".work" / "b1" / "review"
+    server = None
+    if kind == "fifo":
+        os.mkfifo(target)
+    else:
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(str(target))
+        server.listen(1)
+    try:
+        draft = _clone_mav_draft(checkout)
+        code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+        captured = capsys.readouterr()
+        assert "Traceback" not in captured.out
+        assert "Traceback" not in captured.err
+        lines = [line for line in captured.out.splitlines() if line.strip()]
+        assert len(lines) == 1, captured.out
+        payload = json.loads(lines[0])
+        Draft202012Validator(json.loads(ENVELOPE.read_text(encoding="utf-8"))).validate(payload)
+        assert code == 2
+        assert payload["ok"] is False
+        assert payload["error"]["code"] == "WORK_PATH_UNSAFE"
+        assert _snapshot(external) == before
+        assert (external / "secret.bin").read_bytes() == b"SENTINEL-BYTES"
+        assert network_attempts == []
+    finally:
+        if server is not None:
+            server.close()
 
 
 def test_batch_file_slot_is_unsafe_json_envelope(
