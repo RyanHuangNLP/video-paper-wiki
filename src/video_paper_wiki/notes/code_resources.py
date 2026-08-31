@@ -64,7 +64,9 @@ def load_code_urls() -> dict[str, list[str]] | None:
 
 
 def code_urls_for(paper_id: str) -> list[str]:
-    wanted = str(paper_id).strip()
+    from video_paper_wiki.identity import catalog_seed_key
+
+    wanted = catalog_seed_key(paper_id) if str(paper_id).strip() else ""
     if not wanted:
         return []
     mapping = load_code_urls()

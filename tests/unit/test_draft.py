@@ -5,11 +5,10 @@ import json
 from pathlib import Path
 
 import pytest
-from jsonschema import Draft202012Validator
-
 from tests.support import make_checkout, plant_blob, work_draft
 from video_paper_wiki.cli import main
 from video_paper_wiki.commands import draft
+from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 from video_paper_wiki.parse.draft_document import EVIDENCE_STATUS_TEXT, claims_from_body, claims_from_parse_fields
 from video_paper_wiki.parse.pypdf_local import parse_pdf_to_draft_fields as parse_pypdf_fields
@@ -46,8 +45,12 @@ def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def _schema_validator() -> Draft202012Validator:
-    return Draft202012Validator(json.loads(DRAFT_SCHEMA.read_text(encoding="utf-8")))
+def _schema_validator():
+    class _Validator:
+        def validate(self, document: dict) -> None:
+            validate_document(document, expected_schema="video-paper-wiki.paper-analysis-draft.v1")
+
+    return _Validator()
 
 
 def test_draft_export_no_args_is_usage(tmp_path, monkeypatch, capsys, network_attempts) -> None:
@@ -138,17 +141,19 @@ def test_export_success_mocked_parser_writes_schema_valid_draft(
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
     assert payload["command"] == "draft.export"
-    paper_id = digest[:12]
+    paper_id = f"sha256:{digest}"
     written = work_draft(tmp_path, "b1")
     assert payload["data"]["path"] == written.as_posix()
     assert payload["data"]["paper_id"] == paper_id
     assert payload["data"]["sha256"] == digest
+    assert payload["data"]["preview_only"] is True
     assert written.is_file()
     document = json.loads(written.read_text(encoding="utf-8"))
     _schema_validator().validate(document)
     assert document["title"] == "Stub Paper"
     assert document["taxonomy"] == []
     assert document["claims"] == []
+    assert document["paper_id"] == paper_id
     assert [section["id"] for section in document["sections"]] == SECTION_IDS
     assert network_attempts == []
 
@@ -234,7 +239,9 @@ def test_export_blob_present_without_models_no_network(tmp_path, monkeypatch, ca
     document = json.loads(written.read_text(encoding="utf-8"))
     _schema_validator().validate(document)
     assert document["title"]
-    assert document["claims"]
+    assert document["claims"] == []
+    assert payload["data"]["preview_only"] is True
+    assert document["paper_id"] == f"sha256:{digest}"
     assert [section["id"] for section in document["sections"]] == SECTION_IDS
     assert network_attempts == []
 
@@ -272,7 +279,9 @@ def test_put_export_validate_pipeline_tiny_pdf(tmp_path, monkeypatch, capsys, ne
     draft_path = Path(export_payload["data"]["path"])
     document = json.loads(draft_path.read_text(encoding="utf-8"))
     _schema_validator().validate(document)
-    _assert_complete_claim(document, sha256)
+    assert document["claims"] == []
+    assert document["paper_id"] == f"sha256:{sha256}"
+    assert export_payload["data"]["preview_only"] is True
 
     validate_code = main(["draft", "validate", "--path", str(draft_path)])
     assert validate_code == 0
@@ -294,6 +303,26 @@ def test_export_paper_id_writes_stable_draft_path(
     digest = plant_blob(blob_root, TINY_PDF.read_bytes())
     paper_id = "arxiv-2311.15127"
     code = main(["draft", "export", "--sha256", digest, "--paper-id", paper_id, "--batch-id", "b1"])
+    assert code == 2
+    payload = _stdout_json(capsys)
+    assert payload["ok"] is False
+    assert payload["command"] == "draft.export"
+    assert payload["error"]["code"] == "INVALID_PAPER_ID"
+    assert not (tmp_path / ".work").exists()
+    assert network_attempts == []
+
+
+def test_export_canonical_arxiv_paper_id_reuses_catalog(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    monkeypatch.setenv("DOCLING_ARTIFACTS_PATH", str(tmp_path / "no-models"))
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    paper_id = "arxiv:2311.15127"
+    code = main(["draft", "export", "--sha256", digest, "--paper-id", paper_id, "--batch-id", "b1"])
     assert code == 0
     payload = _stdout_json(capsys)
     assert payload["ok"] is True
@@ -301,11 +330,31 @@ def test_export_paper_id_writes_stable_draft_path(
     written = work_draft(tmp_path, "b1")
     assert payload["data"]["path"] == written.as_posix()
     assert payload["data"]["paper_id"] == paper_id
-    assert payload["data"]["sha256"] == digest
-    assert written.is_file()
+    assert payload["data"]["preview_only"] is True
     document = json.loads(written.read_text(encoding="utf-8"))
     _schema_validator().validate(document)
     assert document["paper_id"] == paper_id
+    assert document["claims"] == []
+    assert document["title"] == "Stable Video Diffusion"
+    assert network_attempts == []
+
+
+def test_export_explicit_sha256_must_match_blob(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = tmp_path / "blobs"
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    digest = plant_blob(blob_root, TINY_PDF.read_bytes())
+    other = "b" * 64
+    code = main(
+        ["draft", "export", "--sha256", digest, "--paper-id", f"sha256:{other}", "--batch-id", "b1"]
+    )
+    assert code == 75
+    payload = _stdout_json(capsys)
+    assert payload["error"]["code"] == "IDENTITY_CONFLICT"
+    assert not (tmp_path / ".work").exists()
     assert network_attempts == []
 
 
@@ -488,15 +537,10 @@ def test_tiny_pdf_exports_required_claims(tmp_path, monkeypatch, capsys, network
     payload = _stdout_json(capsys)
     document = json.loads(Path(payload["data"]["path"]).read_text(encoding="utf-8"))
     _schema_validator().validate(document)
-    by_section = _claims_by_section(document)
-    assert "one_sentence_conclusion" in by_section
-    assert "evidence_status" in by_section
-    assert by_section["evidence_status"]["claim_text"] == EVIDENCE_STATUS_TEXT
-    assert by_section["one_sentence_conclusion"]["core"] is True
-    for section, claim in by_section.items():
-        if section != "one_sentence_conclusion":
-            assert claim["core"] is False
-        _assert_locator(claim, digest)
+    assert document["claims"] == []
+    assert payload["data"]["preview_only"] is True
+    assert document["paper_id"] == f"sha256:{digest}"
+    assert not any("#/page/" in json.dumps(document) for _ in [0])
     assert network_attempts == []
 
 
@@ -515,18 +559,9 @@ def test_sectioned_pdf_fills_abstract_and_method(
     document = json.loads(draft_path.read_text(encoding="utf-8"))
     _schema_validator().validate(document)
     assert document["title"] == "Sectioned VPKB Paper"
-    by_section = _claims_by_section(document)
-    conclusion = by_section["one_sentence_conclusion"]["claim_text"]
-    assert conclusion == "This abstract sentence is the conclusion claim."
-    assert conclusion != document["title"]
-    assert "diffusion transformer" in by_section["method"]["claim_text"]
-    assert by_section["evidence_status"]["claim_text"] == EVIDENCE_STATUS_TEXT
-    assert by_section["method"]["locators"][0]["page"] == 2
-    assert by_section["one_sentence_conclusion"]["core"] is True
-    for section, claim in by_section.items():
-        if section != "one_sentence_conclusion":
-            assert claim["core"] is False
-        _assert_locator(claim, digest)
+    assert document["claims"] == []
+    assert payload["data"]["preview_only"] is True
+    assert "#/page/" not in json.dumps(document)
     assert network_attempts == []
 
 

@@ -63,12 +63,61 @@ def read_seed_text(filename: str) -> str | None:
     return _repo_text(_REPO_SEED / filename)
 
 
-def read_schema_text(filename: str) -> str | None:
-    """Package resources first, then repo schemas/."""
+def _schema_text_without_cwd(filename: str) -> str | None:
+    """Load a schema from package resources or the repo tree next to this module.
+
+    The production registry must not depend on the process working directory.
+    """
+
     text = _package_text(_SCHEMA_DIR, filename)
     if text is not None:
         return text
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent / _REPO_SCHEMAS / filename
+        if candidate.is_file():
+            from video_paper_wiki.notes.encoding import read_utf8
+
+            try:
+                return read_utf8(candidate)
+            except OSError:
+                return None
+    return None
+
+
+def read_schema_text(filename: str) -> str | None:
+    """Package resources first, then repo schemas/."""
+    text = _schema_text_without_cwd(filename)
+    if text is not None:
+        return text
     return _repo_text(_REPO_SCHEMAS / filename)
+
+
+def load_schema_json(filename: str) -> dict[str, Any] | None:
+    text = _schema_text_without_cwd(filename)
+    if text is None:
+        return None
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def schema_resource_names() -> tuple[str, ...]:
+    names: list[str] = []
+    try:
+        traversable = resources.files(_PACKAGE).joinpath(_SCHEMA_DIR)
+        if traversable.is_dir():
+            names.extend(sorted(item.name for item in traversable.iterdir() if item.name.endswith(".schema.json")))
+    except (ModuleNotFoundError, AttributeError, TypeError, ValueError, OSError):
+        names = []
+    if names:
+        return tuple(names)
+    for parent in Path(__file__).resolve().parents:
+        directory = parent / _REPO_SCHEMAS
+        if directory.is_dir():
+            return tuple(sorted(path.name for path in directory.glob("*.schema.json")))
+    return ()
 
 
 def load_seed_json(filename: str) -> Any | None:

@@ -16,7 +16,9 @@ def catalog_paper_ids() -> set[str]:
 
 def apply_frozen_evidence(text: str, paper_id: str) -> str:
     """Replace ## 证据状态 body with provisional. Other sections stay."""
-    wanted = str(paper_id).strip()
+    from video_paper_wiki.identity import catalog_seed_key
+
+    wanted = catalog_seed_key(paper_id) if str(paper_id).strip() else ""
     if not wanted or wanted not in catalog_paper_ids():
         return text
     return replace_h2_body(text, _HEADING, ["", _SENTENCE, ""])

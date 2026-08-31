@@ -22,6 +22,7 @@ from video_paper_wiki.notes.markdown import _yaml_scalar, render_paper_sections
 from video_paper_wiki.notes.methods import apply_frozen_method
 from video_paper_wiki.notes.questions import apply_frozen_question
 from video_paper_wiki.notes.training import apply_frozen_training
+from video_paper_wiki.identity import catalog_seed_key
 from video_paper_wiki.parse.title import catalog_arxiv_id_for_paper_id, catalog_title_for_paper_id
 
 _ARXIV_PREFIX = "arxiv-"
@@ -36,10 +37,15 @@ def year_from_arxiv_id(arxiv_id: str) -> int | None:
 
 
 def resolve_arxiv_id(paper_id: str) -> str:
-    catalog = catalog_arxiv_id_for_paper_id(paper_id)
+    seed_key = catalog_seed_key(paper_id) if str(paper_id).strip() else ""
+    catalog = catalog_arxiv_id_for_paper_id(seed_key or paper_id)
     if catalog is not None:
         return catalog
     wanted = str(paper_id).strip()
+    if wanted.startswith("arxiv:"):
+        rest = wanted[len("arxiv:") :]
+        if rest:
+            return rest
     if wanted.startswith(_ARXIV_PREFIX):
         rest = wanted[len(_ARXIV_PREFIX) :]
         if rest:
@@ -48,7 +54,7 @@ def resolve_arxiv_id(paper_id: str) -> str:
 
 
 def topic_ids_for_paper(paper_id: str) -> list[str]:
-    return [topic["id"] for topic in topics_containing(paper_id)]
+    return [topic["id"] for topic in topics_containing(catalog_seed_key(paper_id))]
 
 
 def _yaml_flow_list(values: list[str]) -> str:
@@ -58,7 +64,8 @@ def _yaml_flow_list(values: list[str]) -> str:
 
 
 def render_paper_copy_frontmatter(paper_id: str, draft_title: str) -> str:
-    catalog_title = catalog_title_for_paper_id(paper_id)
+    seed_key = catalog_seed_key(paper_id)
+    catalog_title = catalog_title_for_paper_id(seed_key)
     title = catalog_title if catalog_title is not None else draft_title
     arxiv_id = resolve_arxiv_id(paper_id)
     year = year_from_arxiv_id(arxiv_id)
@@ -70,10 +77,10 @@ def render_paper_copy_frontmatter(paper_id: str, draft_title: str) -> str:
     ]
     if year is not None:
         lines.append(f"year: {year}")
-    lines.append(f"topics: {_yaml_flow_list(topic_ids_for_paper(paper_id))}")
-    related_ids = [sibling for sibling, _title in related_catalog_papers(paper_id)]
+    lines.append(f"topics: {_yaml_flow_list(topic_ids_for_paper(seed_key))}")
+    related_ids = [sibling for sibling, _title in related_catalog_papers(seed_key)]
     lines.append(f"related: {_yaml_flow_list(related_ids)}")
-    lines.append(f"backlinks: {_yaml_flow_list(backlink_catalog_ids(paper_id))}")
+    lines.append(f"backlinks: {_yaml_flow_list(backlink_catalog_ids(seed_key))}")
     lines.append("---")
     lines.append("")
     return "\n".join(lines)

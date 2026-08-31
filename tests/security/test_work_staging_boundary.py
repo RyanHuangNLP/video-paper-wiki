@@ -26,7 +26,7 @@ TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 ENVELOPE = ROOT / "schemas" / "video-paper-wiki.cli-envelope.v1.schema.json"
 SRC = ROOT / "src" / "video_paper_wiki"
-MAV = "arxiv-2209.14792"
+MAV = "arxiv:2209.14792"
 
 
 def _snapshot(path: Path) -> dict[str, object]:

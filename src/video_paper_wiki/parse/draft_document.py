@@ -148,19 +148,26 @@ _BACKFILL_SECTIONS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 
-def paper_id_from_sha256(sha256: str) -> str:
-    return sha256.strip().lower()[:12]
-
-
 class InvalidPaperId(ValueError):
-    """Raised when an explicit paper_id is empty or not a safe path segment."""
+    """Raised when an explicit paper_id is not a canonical paper ID."""
 
     def __init__(self, paper_id: str) -> None:
-        super().__init__("paper_id is empty or not a safe path segment")
+        super().__init__("paper_id is not a canonical paper ID")
         self.paper_id = paper_id
 
 
-def validate_paper_id(paper_id: str) -> str:
+def paper_id_from_sha256(sha256: str) -> str:
+    from video_paper_wiki.identity import IdentityError, paper_id_from_pdf_sha256
+
+    try:
+        return paper_id_from_pdf_sha256(sha256)
+    except IdentityError as exc:
+        raise InvalidPaperId(str(sha256)) from exc
+
+
+def validate_paper_id_token(paper_id: str) -> str:
+    """Path-safe token used by review overlay lookup. Canonical IDs and catalog slugs both pass."""
+
     raw = str(paper_id)
     value = raw.strip()
     if not value or "/" in value or "\\" in value or ".." in value:
@@ -168,10 +175,37 @@ def validate_paper_id(paper_id: str) -> str:
     return value
 
 
+def validate_paper_id(paper_id: str) -> str:
+    from video_paper_wiki.identity import is_canonical_paper_id
+
+    raw = str(paper_id)
+    value = raw.strip()
+    if not value or not is_canonical_paper_id(value):
+        raise InvalidPaperId(raw)
+    return value
+
+
 def resolve_paper_id(explicit: str | None, sha256: str) -> str:
+    from video_paper_wiki.identity import IdentityError, establish_canonical_paper_id, is_canonical_paper_id
+
+    digest = str(sha256).strip().lower()
     if explicit is None:
-        return paper_id_from_sha256(sha256)
-    return validate_paper_id(explicit)
+        return paper_id_from_sha256(digest)
+    paper_id = validate_paper_id(explicit)
+    if paper_id.startswith("sha256:") and paper_id != f"sha256:{digest}":
+        raise IdentityError(
+            "IDENTITY_CONFLICT",
+            "explicit sha256 paper ID does not match blob digest",
+            {"paper_id": paper_id, "pdf_sha256": digest},
+            exit_code=75,
+        )
+    if is_canonical_paper_id(paper_id):
+        established, _aliases = establish_canonical_paper_id(
+            existing_paper_id=paper_id,
+            pdf_sha256=digest,
+        )
+        return established
+    return paper_id
 
 
 def empty_sections() -> list[dict[str, str]]:
@@ -514,7 +548,7 @@ def _make_claim(
         "locators": [
             {
                 "kind": "pdf",
-                "source_id": paper_id_from_sha256(digest),
+                "source_id": digest[:12],
                 "page": page_no,
                 "ref": f"#/page/{page_no}",
                 "artifact_path": artifact_path,

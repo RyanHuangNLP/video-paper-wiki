@@ -129,4 +129,10 @@ def parse_pdf_to_draft_fields(pdf_path: Path) -> dict[str, str]:
             raise ParserUnavailable("parser models are not fetched") from exc
         raise
 
-    return {"title": _title_from_result(result), "title_zh": ""}
+    return {
+        "title": _title_from_result(result),
+        "title_zh": "",
+        "parser": "docling",
+        "preview_only": True,
+        "claims": [],
+    }

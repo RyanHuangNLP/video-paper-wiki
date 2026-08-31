@@ -27,17 +27,28 @@ def _catalog_payload() -> dict | None:
     return payload
 
 
+def _catalog_keys(paper_id: str) -> set[str]:
+    wanted = str(paper_id).strip()
+    if not wanted:
+        return set()
+    keys = {wanted}
+    from video_paper_wiki.identity import catalog_seed_key
+
+    keys.add(catalog_seed_key(wanted))
+    return {key for key in keys if key}
+
+
 def _catalog_entry(paper_id: str) -> dict | None:
     payload = _catalog_payload()
     if payload is None:
         return None
-    wanted = str(paper_id).strip()
+    wanted = _catalog_keys(paper_id)
     if not wanted:
         return None
     for item in payload["papers"]:
         if not isinstance(item, dict):
             continue
-        if str(item.get("paper_id", "")).strip() != wanted:
+        if str(item.get("paper_id", "")).strip() not in wanted:
             continue
         return item
     return None

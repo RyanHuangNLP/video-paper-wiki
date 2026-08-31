@@ -16,8 +16,10 @@ from video_paper_wiki.resources import read_schema_text, read_seed_text
 ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 
-MAV = "arxiv-2209.14792"
-EXPANDED = "arxiv-2406.18522"
+from video_paper_wiki.identity import claim_id
+
+MAV = "arxiv:2209.14792"
+EXPANDED = "arxiv:2406.18522"
 MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
 REMNANT = "This truncated PDF remnant should not stay on the paper copy."
 CUSTOM = "User-authored extra section must survive a re-export."
@@ -66,6 +68,7 @@ def test_expanded_catalog_paper_clears_remnants_without_inventing(
         "ChronoMagic-Bench",
         [
             {
+                "claim_id": claim_id(f"paper:{EXPANDED}", REMNANT),
                 "claim_text": REMNANT,
                 "section": "research_question",
                 "core": False,

@@ -26,7 +26,9 @@ HEADING_ZH = [
 CLAIM_TEXT = "The model uses a diffusion transformer."
 CLAIM_SHA = "a" * 64
 TEXT_SHA = "b" * 64
-MAV = "arxiv-2209.14792"
+from video_paper_wiki.identity import claim_id
+
+MAV = "arxiv:2209.14792"
 MAV_QUESTION = "没有成对视频-文本数据时，怎样做文生视频？"
 
 
@@ -34,12 +36,13 @@ def _stdout_json(capsys) -> dict:
     return json.loads(capsys.readouterr().out.strip())
 
 
-def _claim_draft(tmp_path: Path, paper_id: str = "fixture-claims") -> Path:
+def _claim_draft(tmp_path: Path, paper_id: str = "sha256:" + "0" * 64) -> Path:
     document = json.loads(MINIMAL.read_text(encoding="utf-8"))
     document["paper_id"] = paper_id
     document["title"] = "Make-A-Video" if paper_id == MAV else "Claims"
     document["claims"] = [
         {
+            "claim_id": claim_id(f"paper:{paper_id}", CLAIM_TEXT),
             "claim_text": CLAIM_TEXT,
             "section": "method",
             "core": True,
@@ -50,7 +53,7 @@ def _claim_draft(tmp_path: Path, paper_id: str = "fixture-claims") -> Path:
                     "source_id": "src-paper",
                     "page": 3,
                     "ref": "#/texts/7",
-                    "artifact_path": "sources/src-paper/paper.pdf",
+                    "artifact_path": ".raw/derived/" + CLAIM_SHA + "/docling/fp/document.json",
                     "artifact_sha256": CLAIM_SHA,
                     "text_sha256": TEXT_SHA,
                 }
@@ -82,7 +85,7 @@ def test_export_minimal_fixture_missing_frozen_seed(
     assert payload["ok"] is False
     assert payload["command"] == "review.export"
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
-    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
+    assert payload["error"]["details"]["paper_id"] == json.loads(MINIMAL.read_text(encoding="utf-8"))["paper_id"]
     assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []
 
@@ -174,7 +177,7 @@ def test_export_catalog_paper_writes_work_review(
     assert written.is_file()
     text = written.read_text(encoding="utf-8")
     assert text.startswith("---\n")
-    assert f"paper_id: {MAV}" in text
+    assert f"paper_id: {MAV}" in text or f'paper_id: "{MAV}"' in text
     assert "title: Make-A-Video" in text
     for heading in HEADING_ZH:
         assert f"## {heading}" in text

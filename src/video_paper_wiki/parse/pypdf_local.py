@@ -50,4 +50,6 @@ def parse_pdf_to_draft_fields(pdf_path: Path) -> dict[str, Any]:
         "page": page_no,
         "pages": pages,
         "parser": "pypdf",
+        "preview_only": True,
+        "claims": [],
     }

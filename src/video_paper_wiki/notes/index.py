@@ -29,7 +29,10 @@ def _link_label(title: str, paper_id: str) -> str:
 
 def paper_index_year(paper_id: str) -> int | None:
     """Year for an index row: resolve_arxiv_id then year_from_arxiv_id."""
-    return year_from_arxiv_id(resolve_arxiv_id(paper_id))
+    from video_paper_wiki.identity import catalog_seed_key
+
+    key = catalog_seed_key(paper_id) if str(paper_id).strip() else paper_id
+    return year_from_arxiv_id(resolve_arxiv_id(key))
 
 
 def _sort_key(paper_id: str) -> tuple[int, int, str]:

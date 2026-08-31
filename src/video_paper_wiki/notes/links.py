@@ -13,7 +13,9 @@ _RELATED_HEADING = "## 相关论文"
 
 def topics_containing(paper_id: str) -> list[dict[str, Any]]:
     """Topics that list paper_id, in engine-mvp-topics.json order."""
-    wanted = str(paper_id).strip()
+    from video_paper_wiki.identity import catalog_seed_key
+
+    wanted = catalog_seed_key(paper_id) if str(paper_id).strip() else ""
     if not wanted:
         return []
     topics = load_topics()
@@ -76,7 +78,10 @@ def paper_note_link_suffix(paper_id: str) -> str:
     lines.append("")
     lines.append(_RELATED_HEADING)
     lines.append("")
-    for sibling_id, title in related_catalog_papers(paper_id):
+    from video_paper_wiki.identity import catalog_seed_key
+
+    seed_key = catalog_seed_key(paper_id) if str(paper_id).strip() else paper_id
+    for sibling_id, title in related_catalog_papers(seed_key):
         line = f"[{title}](./{sibling_id}.md)"
         year = paper_index_year(sibling_id)
         if year is not None:

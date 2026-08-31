@@ -245,7 +245,7 @@ def test_export_minimal_fixture_copy_frontmatter(
     payload = _stdout_json(capsys)
     assert payload["ok"] is False
     assert payload["error"]["code"] == "FROZEN_SEED_MISSING"
-    assert payload["error"]["details"]["paper_id"] == "fixture-minimal"
+    assert payload["error"]["details"]["paper_id"] == json.loads(MINIMAL.read_text(encoding="utf-8"))["paper_id"]
     assert not (dest / "papers").exists()
     assert not work_review(tmp_path, "b1").exists()
     assert network_attempts == []

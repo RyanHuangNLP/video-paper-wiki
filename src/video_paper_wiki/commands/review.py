@@ -6,14 +6,17 @@ import json
 from pathlib import Path
 from typing import Any
 
-from jsonschema import ValidationError
+from copy import deepcopy
 
-from video_paper_wiki.commands.draft import _validate_document
+from video_paper_wiki.commands.draft import _contract_error, _validate_document
+from video_paper_wiki.contracts import ContractError
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
+from video_paper_wiki.identity import IdentityError, catalog_seed_key, claim_id, is_canonical_paper_id
 from video_paper_wiki.notes import paper_note_link_suffix, render_paper_copy_markdown
 from video_paper_wiki.notes.encoding import InvalidEncoding, read_utf8
 from video_paper_wiki.notes.frozen import FrozenSeedMissing
-from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
+from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id_token
+from video_paper_wiki.parse.title import catalog_paper_ids
 from video_paper_wiki.staging import StagingError, stage_bytes
 
 COMMAND = "review.export"
@@ -59,9 +62,14 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
             "draft document must be an object",
             {"path": path.as_posix()},
         )
+    if "paper_id" not in document:
+        return None, _draft_invalid(
+            "draft document must include paper_id",
+            {"path": path.as_posix()},
+        )
     if "paper_id" in document:
         try:
-            validate_paper_id(str(document.get("paper_id", "")))
+            validate_paper_id_token(str(document.get("paper_id", "")))
         except InvalidPaperId:
             return None, emit_error(
                 COMMAND,
@@ -69,12 +77,29 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
                 "paper_id is empty or not a safe path segment",
                 {"paper_id": str(document.get("paper_id", ""))},
             )
-    try:
-        _validate_document(document)
-    except ValidationError as exc:
-        return None, _draft_invalid(exc.message, {"path": path.as_posix()})
-    except FileNotFoundError as exc:
-        return None, _draft_invalid(str(exc), {"path": path.as_posix()})
+    paper_id = str(document.get("paper_id", "")).strip()
+    seed_key = catalog_seed_key(paper_id) if paper_id else ""
+    if is_canonical_paper_id(paper_id) or seed_key in catalog_paper_ids():
+        to_check = deepcopy(document)
+        if paper_id.startswith("arxiv-") and not is_canonical_paper_id(paper_id):
+            candidate = "arxiv:" + paper_id[len("arxiv-") :]
+            if is_canonical_paper_id(candidate):
+                to_check["paper_id"] = candidate
+        claims = to_check.get("claims")
+        if isinstance(claims, list):
+            subject = f"paper:{to_check.get('paper_id', '')}"
+            for claim in claims:
+                if not isinstance(claim, dict):
+                    continue
+                text = claim.get("claim_text")
+                if "claim_id" not in claim and isinstance(text, str) and text:
+                    claim["claim_id"] = claim_id(subject, text)
+        try:
+            _validate_document(to_check)
+        except ContractError as exc:
+            return None, _contract_error(COMMAND, exc)
+        except IdentityError as exc:
+            return None, _contract_error(COMMAND, exc)
     return document, None
 
 
@@ -91,7 +116,7 @@ def export(_args: object | None = None) -> int:
         return err
     assert document is not None
     try:
-        paper_id = validate_paper_id(str(document["paper_id"]))
+        paper_id = validate_paper_id_token(str(document["paper_id"]))
     except InvalidPaperId:
         return emit_error(
             COMMAND,

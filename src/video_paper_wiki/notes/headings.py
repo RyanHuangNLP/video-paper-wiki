@@ -56,7 +56,9 @@ def apply_h2_sentence(
     text: str, paper_id: str, heading: str, mapping: dict[str, str] | None
 ) -> str:
     """Overlay one frozen sentence when *paper_id* is in *mapping*. Else unchanged."""
-    wanted = str(paper_id).strip()
+    from video_paper_wiki.identity import catalog_seed_key
+
+    wanted = catalog_seed_key(paper_id) if str(paper_id).strip() else ""
     if not wanted or not mapping:
         return text
     sentence = mapping.get(wanted)

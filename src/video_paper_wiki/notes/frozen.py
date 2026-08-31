@@ -34,10 +34,13 @@ def require_managed_seed(paper_id: str) -> None:
     (empty-then-overlay-if-present). Fail-closed is for ids outside the catalog,
     and for a required overlay JSON that is missing or unreadable.
     """
-    wanted = str(paper_id).strip()
+    from video_paper_wiki.identity import catalog_seed_key
+
+    original = str(paper_id).strip()
+    wanted = catalog_seed_key(original) if original else original
     catalog = catalog_paper_ids()
     if not wanted or wanted not in catalog:
-        raise FrozenSeedMissing(wanted, _CATALOG_SOURCE)
+        raise FrozenSeedMissing(original, _CATALOG_SOURCE)
     overlays = (
         ("engine-mvp-conclusions.json", load_conclusions),
         ("engine-mvp-questions.json", load_questions),

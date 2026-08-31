@@ -2,31 +2,60 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.paper-analysis-draft.v1.schema.json",
   "title": "video-paper-wiki.paper-analysis-draft.v1",
-  "type": "object", "additionalProperties": false,
+  "type": "object",
+  "additionalProperties": false,
   "required": ["schema", "paper_id", "title", "title_zh", "sections", "taxonomy", "claims"],
   "properties": {
-    "schema": {"const": "video-paper-wiki.paper-analysis-draft.v1"}, "paper_id": {"type": "string", "minLength": 1, "pattern": "^(?![\\s\\S]*\\.\\.)(?=[\\s\\S]*\\S)[^/\\\\]+$"}, "title": {"type": "string"}, "title_zh": {"type": "string"},
-    "sections": {"type": "array", "minItems": 10, "maxItems": 10, "uniqueItems": true, "items": {"$ref": "#/$defs/section"}},
-    "taxonomy": {"type": "array", "items": {"$ref": "#/$defs/taxonomy_ref"}}, "claims": {"type": "array", "items": {"$ref": "#/$defs/claim"}}
+    "schema": {"const": "video-paper-wiki.paper-analysis-draft.v1"},
+    "paper_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"},
+    "title": {"type": "string"},
+    "title_zh": {"type": "string"},
+    "sections": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/section"}
+    },
+    "taxonomy": {
+      "type": "array",
+      "items": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/taxonomy_ref"}
+    },
+    "claims": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/claim"}
+    }
   },
   "$defs": {
-    "section_id": {"enum": ["one_sentence_conclusion", "research_question", "method", "representation_architecture", "training_data", "experiments_results", "limitations", "code_resources", "evidence_status", "related"]},
-    "axis": {"enum": ["task/conditioning", "formulation/objective", "representation/tokenizer", "backbone", "spatial-temporal-modeling", "data/captioning/filtering", "training/parallelism/optimization", "inference/distillation/acceleration", "control", "evaluation/dataset/benchmark"]},
-    "section": {"oneOf": [
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "one_sentence_conclusion"}, "heading_zh": {"const": "一句话结论"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "research_question"}, "heading_zh": {"const": "研究问题"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "method"}, "heading_zh": {"const": "方法"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "representation_architecture"}, "heading_zh": {"const": "表示与架构"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "training_data"}, "heading_zh": {"const": "训练与数据"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "experiments_results"}, "heading_zh": {"const": "实验与结果"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "limitations"}, "heading_zh": {"const": "局限"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "code_resources"}, "heading_zh": {"const": "代码与资源"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "evidence_status"}, "heading_zh": {"const": "证据状态"}}},
-      {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "related"}, "heading_zh": {"const": "关联"}}}
-    ]},
-    "taxonomy_ref": {"type": "object", "additionalProperties": false, "required": ["axis", "slug"], "properties": {"axis": {"$ref": "#/$defs/axis"}, "slug": {"type": "string", "minLength": 1}}},
-    "claim": {"type": "object", "additionalProperties": false, "required": ["claim_text", "section", "core", "locators", "assessment"], "properties": {"claim_text": {"type": "string", "minLength": 1}, "section": {"$ref": "#/$defs/section_id"}, "core": {"type": "boolean"}, "locators": {"type": "array", "items": {"$ref": "#/$defs/pdf_locator"}}, "assessment": {"const": "provisional"}}},
-    "pdf_locator": {"type": "object", "additionalProperties": false, "required": ["kind", "source_id", "page", "ref", "artifact_path", "artifact_sha256", "text_sha256"], "properties": {"kind": {"const": "pdf"}, "source_id": {"type": "string"}, "page": {"type": "integer", "minimum": 1}, "ref": {"type": "string"}, "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}}, "charspan": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}}, "artifact_path": {"type": "string"}, "artifact_sha256": {"$ref": "#/$defs/sha256"}, "text_sha256": {"$ref": "#/$defs/sha256"}}},
-    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+    "section": {
+      "oneOf": [
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "one_sentence_conclusion"}, "heading_zh": {"const": "一句话结论"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "research_question"}, "heading_zh": {"const": "研究问题"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "method"}, "heading_zh": {"const": "方法"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "representation_architecture"}, "heading_zh": {"const": "表示与架构"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "training_data"}, "heading_zh": {"const": "训练与数据"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "experiments_results"}, "heading_zh": {"const": "实验与结果"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "limitations"}, "heading_zh": {"const": "局限"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "code_resources"}, "heading_zh": {"const": "代码与资源"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "evidence_status"}, "heading_zh": {"const": "证据状态"}}},
+        {"type": "object", "additionalProperties": false, "required": ["id", "heading_zh"], "properties": {"id": {"const": "related"}, "heading_zh": {"const": "关联"}}}
+      ]
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "claim_text", "section", "core", "locators", "assessment"],
+      "properties": {
+        "claim_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"},
+        "claim_text": {"type": "string", "minLength": 1},
+        "section": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/section_id"},
+        "core": {"type": "boolean"},
+        "locators": {
+          "type": "array",
+          "items": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/pdf_locator"}
+        },
+        "assessment": {"const": "provisional"}
+      }
+    }
   }
 }
