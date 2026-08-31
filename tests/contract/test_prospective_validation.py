@@ -12,6 +12,7 @@ from video_paper_wiki.contracts import (
     CROSS_OBJECT_IDENTITY_MISMATCH,
     EVIDENCE_FINGERPRINT_MISMATCH,
     IDENTITY_CONFLICT,
+    PIPELINE_FINGERPRINT_MISMATCH,
     PRIMARY_OWNER_INVALID,
     RECEIPT_INTENT_MISMATCH,
     ContractError,
@@ -38,6 +39,11 @@ CASES = {
     "evidence-fingerprint-mismatch.json": EVIDENCE_FINGERPRINT_MISMATCH,
     "empty-evidence-fingerprint.json": EVIDENCE_FINGERPRINT_MISMATCH,
     "receipt-intent-mismatch.json": RECEIPT_INTENT_MISMATCH,
+    "prepared-artifact-hash-mismatch.json": PIPELINE_FINGERPRINT_MISMATCH,
+    "run-manifest-hash-mismatch.json": CROSS_OBJECT_IDENTITY_MISMATCH,
+    "locator-document-hash-mismatch.json": EVIDENCE_FINGERPRINT_MISMATCH,
+    "claim-id-null-evidence.json": CLAIM_ID_COLLISION,
+    "local-blob-arxiv-skipped-for-sha.json": IDENTITY_CONFLICT,
 }
 
 

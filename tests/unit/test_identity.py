@@ -15,6 +15,7 @@ from video_paper_wiki.identity import (
     is_canonical_paper_id,
     is_stable_subject_id,
     nfkc_collapse,
+    normalize_doi,
     paper_id_from_pdf_sha256,
     paper_page_slug,
     repo_id,
@@ -114,6 +115,55 @@ def test_uppercase_doi_canonicalizes_and_is_not_kept() -> None:
     paper_id, aliases = establish_canonical_paper_id(existing_paper_id="doi:10.1234/Foo")
     assert paper_id == "doi:10.1234/foo"
     assert "doi:10.1234/Foo" not in (paper_id, *aliases)
+
+
+def test_non_ascii_uppercase_doi_is_not_kept_as_canonical() -> None:
+    dotted_i = "doi:10.1234/foo\u0130"
+    assert not is_canonical_paper_id(dotted_i)
+    paper_id, aliases = establish_canonical_paper_id(existing_paper_id=dotted_i)
+    assert paper_id == normalize_doi(dotted_i)
+    assert paper_id != dotted_i
+    assert dotted_i not in (paper_id, *aliases)
+    assert is_canonical_paper_id(paper_id)
+    assert normalize_doi(paper_id) == paper_id
+
+    kelvin = "doi:10.1234/foo\u212a"
+    assert not is_canonical_paper_id(kelvin)
+    folded, kelvin_aliases = establish_canonical_paper_id(existing_paper_id=kelvin)
+    assert folded == normalize_doi(kelvin)
+    assert folded != kelvin
+    assert kelvin not in (folded, *kelvin_aliases)
+    assert is_canonical_paper_id(folded)
+
+    ligature = "doi:10.1234/foo\ufb01"
+    assert not is_canonical_paper_id(ligature)
+    collapsed, ligature_aliases = establish_canonical_paper_id(existing_paper_id=ligature)
+    assert collapsed == normalize_doi(ligature)
+    assert collapsed != ligature
+    assert ligature not in (collapsed, *ligature_aliases)
+    assert is_canonical_paper_id(collapsed)
+
+
+def test_existing_sha_cannot_skip_present_arxiv() -> None:
+    digest = "a" * 64
+    with pytest.raises(IdentityError) as exc:
+        establish_canonical_paper_id(
+            existing_paper_id=f"sha256:{digest}",
+            arxiv_ids=["2311.15127"],
+            pdf_sha256=digest,
+        )
+    assert exc.value.code == IDENTITY_CONFLICT
+    assert exc.value.exit_code == 75
+
+
+def test_existing_arxiv_conflicts_with_different_arxiv_candidate() -> None:
+    with pytest.raises(IdentityError) as exc:
+        establish_canonical_paper_id(
+            existing_paper_id="arxiv:2311.15127",
+            arxiv_ids=["2209.14792"],
+        )
+    assert exc.value.code == IDENTITY_CONFLICT
+    assert exc.value.exit_code == 75
 
 
 def test_existing_sha256_id_conflicts_without_bindings() -> None:

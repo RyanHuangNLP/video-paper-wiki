@@ -473,17 +473,42 @@ def _check_plan_object(document: Mapping[str, Any], schema_name: str) -> None:
                     "plan subject does not match arXiv input",
                     {"stable_subject_id": subject, "expected": expected},
                 )
-        if kind == "local-blob" and subject.startswith("paper:sha256:"):
-            try:
-                expected = identity.paper_subject_id(identity.normalize_pdf_sha256(str(source.get("local_sha256", ""))))
-            except IdentityError as exc:
-                raise _from_identity(exc) from exc
-            if subject != expected:
-                raise ContractError(
-                    CROSS_OBJECT_IDENTITY_MISMATCH,
-                    "plan subject does not match local blob SHA-256",
-                    {"stable_subject_id": subject, "expected": expected},
-                )
+        if kind == "local-blob":
+            arxiv_raw = source.get("arxiv_id")
+            if isinstance(arxiv_raw, str) and arxiv_raw.strip():
+                try:
+                    canonical_arxiv = identity.normalize_arxiv_id(arxiv_raw)
+                    arxiv_subject = identity.paper_subject_id(canonical_arxiv)
+                except IdentityError as exc:
+                    raise _from_identity(exc) from exc
+                if subject.startswith("paper:arxiv:") and subject != arxiv_subject:
+                    raise ContractError(
+                        CROSS_OBJECT_IDENTITY_MISMATCH,
+                        "plan subject does not match local blob arXiv input",
+                        {"stable_subject_id": subject, "expected": arxiv_subject},
+                    )
+                if subject.startswith("paper:") and not subject.startswith("paper:arxiv:"):
+                    raise ContractError(
+                        IDENTITY_CONFLICT,
+                        "arXiv identifier is present but canonical subject is lower-priority",
+                        {
+                            "stable_subject_id": subject,
+                            "arxiv_id": canonical_arxiv,
+                            "expected": arxiv_subject,
+                        },
+                        exit_code=75,
+                    )
+            if subject.startswith("paper:sha256:"):
+                try:
+                    expected = identity.paper_subject_id(identity.normalize_pdf_sha256(str(source.get("local_sha256", ""))))
+                except IdentityError as exc:
+                    raise _from_identity(exc) from exc
+                if subject != expected:
+                    raise ContractError(
+                        CROSS_OBJECT_IDENTITY_MISMATCH,
+                        "plan subject does not match local blob SHA-256",
+                        {"stable_subject_id": subject, "expected": expected},
+                    )
         if kind == "github-repo" and subject.startswith("repo:"):
             try:
                 expected = identity.repo_subject_id(str(source.get("repository", "")))
@@ -618,8 +643,7 @@ def _check_draft_object(document: Mapping[str, Any]) -> None:
                 "claim is missing claim_text",
                 {"claim_id": stated, "index": index},
             )
-        previous = seen.get(stated)
-        if previous is not None:
+        if stated in seen:
             raise _claim_missing(
                 CLAIM_ID_COLLISION,
                 "same claim_id with different ref attributes",
@@ -677,6 +701,21 @@ def _check_prepared_object(document: Mapping[str, Any]) -> None:
                 str(artifact["path"]),
                 schema_name="video-paper-wiki.prepared.v1",
                 pointer=f"/artifacts/{index}/path",
+            )
+    for kind, field in (
+        ("parser_config", "parser_config_sha256"),
+        ("model_manifest", "model_manifest_sha256"),
+    ):
+        artifact = _artifact_by_kind(document, kind)
+        if artifact is None:
+            continue
+        stated = document.get(field)
+        digest = artifact.get("sha256")
+        if stated != digest:
+            raise ContractError(
+                PIPELINE_FINGERPRINT_MISMATCH,
+                f"{field} does not match {kind} artifact",
+                {"stated": stated, "artifact": digest, "kind": kind},
             )
 
 
@@ -773,6 +812,39 @@ def _require_mapping(bundle: Mapping[str, Any], key: str) -> Mapping[str, Any] |
 
 def _mismatch(message: str, details: dict[str, Any]) -> ContractError:
     return ContractError(CROSS_OBJECT_IDENTITY_MISMATCH, message, details)
+
+
+def _pdf_artifact_hashes(node: object, acc: list[str]) -> None:
+    if isinstance(node, Mapping):
+        if node.get("kind") == "pdf" and isinstance(node.get("artifact_sha256"), str):
+            acc.append(str(node["artifact_sha256"]))
+        for value in node.values():
+            _pdf_artifact_hashes(value, acc)
+    elif isinstance(node, list):
+        for item in node:
+            _pdf_artifact_hashes(item, acc)
+
+
+def _collect_arxiv_candidates(*documents: Mapping[str, Any] | None) -> list[str]:
+    found: list[str] = []
+    for document in documents:
+        if not isinstance(document, Mapping):
+            continue
+        source = document.get("input")
+        if isinstance(source, Mapping) and isinstance(source.get("arxiv_id"), str) and source["arxiv_id"].strip():
+            found.append(str(source["arxiv_id"]))
+        if isinstance(document.get("arxiv_id"), str) and str(document["arxiv_id"]).strip():
+            found.append(str(document["arxiv_id"]))
+        meta = document.get("metadata_candidates")
+        if isinstance(meta, Mapping) and isinstance(meta.get("arxiv_id"), str) and meta["arxiv_id"].strip():
+            found.append(str(meta["arxiv_id"]))
+        subject = document.get("stable_subject_id")
+        if isinstance(subject, str) and subject.startswith("paper:arxiv:"):
+            found.append(subject[len("paper:") :])
+        paper_id = document.get("paper_id")
+        if isinstance(paper_id, str) and paper_id.startswith("arxiv:"):
+            found.append(paper_id)
+    return found
 
 
 def _artifact_by_kind(prepared: Mapping[str, Any], kind: str) -> Mapping[str, Any] | None:
@@ -875,8 +947,7 @@ def _assert_unique_claim_refs(
                 keyword="required",
             )
         refs = item.get(ref_key)
-        previous = seen.get(stated)
-        if previous is not None:
+        if stated in seen:
             raise ContractError(
                 CLAIM_ID_COLLISION,
                 "same claim_id with different ref attributes",
@@ -1111,6 +1182,23 @@ def _validate_plan_prepared_draft_record(
                     "prepared": prepared.get("model_manifest_sha256"),
                 },
             )
+        parser_config = _artifact_by_kind(prepared, "parser_config")
+        if parser_config is not None and parser.get("config_sha256") != parser_config.get("sha256"):
+            raise ContractError(
+                PIPELINE_FINGERPRINT_MISMATCH,
+                "plan parser config hash does not match prepared parser_config artifact",
+                {"plan": parser.get("config_sha256"), "artifact": parser_config.get("sha256")},
+            )
+        model_manifest = _artifact_by_kind(prepared, "model_manifest")
+        if model_manifest is not None and parser.get("model_manifest_sha256") != model_manifest.get("sha256"):
+            raise ContractError(
+                PIPELINE_FINGERPRINT_MISMATCH,
+                "plan model manifest hash does not match prepared model_manifest artifact",
+                {
+                    "plan": parser.get("model_manifest_sha256"),
+                    "artifact": model_manifest.get("sha256"),
+                },
+            )
         source = plan.get("input") if isinstance(plan.get("input"), Mapping) else {}
         local_sha = source.get("local_sha256")
         if isinstance(local_sha, str) and local_sha != prepared.get("pdf_sha256"):
@@ -1148,6 +1236,19 @@ def _validate_plan_prepared_draft_record(
             )
     if prepared is not None:
         pdf_sha = prepared.get("pdf_sha256")
+    arxiv_candidates = _collect_arxiv_candidates(plan, prepared, record)
+    if isinstance(paper_id, str) and paper_id.strip():
+        source = plan.get("input") if plan is not None and isinstance(plan.get("input"), Mapping) else {}
+        local_sha = source.get("local_sha256") if isinstance(source, Mapping) else None
+        digest = pdf_sha if isinstance(pdf_sha, str) else local_sha if isinstance(local_sha, str) else None
+        try:
+            identity.establish_canonical_paper_id(
+                arxiv_ids=arxiv_candidates,
+                pdf_sha256=digest if isinstance(digest, str) else None,
+                existing_paper_id=paper_id,
+            )
+        except IdentityError as exc:
+            raise _from_identity(exc) from exc
     if isinstance(paper_id, str) and isinstance(pdf_sha, str):
         bound = existing_paper_bindings.get(paper_id)
         if bound is not None and bound != pdf_sha:
@@ -1184,6 +1285,17 @@ def _validate_plan_prepared_draft_record(
                         "document_json_sha256": document_json.get("sha256"),
                     },
                 )
+            locator_hashes: list[str] = []
+            for key in ("draft", "alignment", "claims"):
+                _pdf_artifact_hashes(bundle.get(key), locator_hashes)
+            expected_doc_hash = document_json.get("sha256")
+            for stated_hash in locator_hashes:
+                if stated_hash != expected_doc_hash:
+                    raise ContractError(
+                        EVIDENCE_FINGERPRINT_MISMATCH,
+                        "locator/evidence document hash does not match prepared document_json",
+                        {"stated": stated_hash, "document_json_sha256": expected_doc_hash},
+                    )
         page_count = prepared.get("page_count")
         refs = []
         if draft is not None and isinstance(draft.get("claims"), list):
@@ -1272,6 +1384,82 @@ def _validate_plan_prepared_draft_record(
                                         "canonical_commit": repo.get("canonical_commit"),
                                     },
                                 )
+    _validate_run_manifest_hashes(bundle)
+
+
+def _validate_run_manifest_hashes(bundle: Mapping[str, Any]) -> None:
+    manifest = bundle.get("run_manifest")
+    if not isinstance(manifest, Mapping):
+        return
+    plan = bundle.get("plan") if isinstance(bundle.get("plan"), Mapping) else None
+    prepared = bundle.get("prepared") if isinstance(bundle.get("prepared"), Mapping) else None
+    draft = bundle.get("draft") if isinstance(bundle.get("draft"), Mapping) else None
+    receipt = bundle.get("receipt") if isinstance(bundle.get("receipt"), Mapping) else None
+    input_hashes = manifest.get("input_hashes") if isinstance(manifest.get("input_hashes"), Mapping) else {}
+    output_hashes = manifest.get("output_hashes") if isinstance(manifest.get("output_hashes"), Mapping) else {}
+
+    def _check(stated: object, expected: object, message: str) -> None:
+        if not isinstance(stated, str):
+            return
+        if stated != expected:
+            raise _mismatch(message, {"stated": stated, "expected": expected})
+
+    try:
+        if plan is not None:
+            _check(
+                input_hashes.get("ingest_plan_sha256"),
+                identity.canonical_object_sha256(plan),
+                "run manifest ingest_plan_sha256 does not match plan",
+            )
+        if prepared is not None:
+            _check(
+                input_hashes.get("prepared_sha256"),
+                identity.canonical_object_sha256(prepared),
+                "run manifest prepared_sha256 does not match prepared",
+            )
+            _check(
+                input_hashes.get("source_sha256"),
+                prepared.get("pdf_sha256"),
+                "run manifest source_sha256 does not match prepared pdf_sha256",
+            )
+            _check(
+                input_hashes.get("parser_config_sha256"),
+                prepared.get("parser_config_sha256"),
+                "run manifest parser_config_sha256 does not match prepared",
+            )
+            _check(
+                input_hashes.get("model_manifest_sha256"),
+                prepared.get("model_manifest_sha256"),
+                "run manifest model_manifest_sha256 does not match prepared",
+            )
+            document_json = _artifact_by_kind(prepared, "document_json")
+            if document_json is not None:
+                _check(
+                    output_hashes.get("document_json_sha256"),
+                    document_json.get("sha256"),
+                    "run manifest document_json_sha256 does not match prepared document_json",
+                )
+        elif plan is not None:
+            source = plan.get("input") if isinstance(plan.get("input"), Mapping) else {}
+            _check(
+                input_hashes.get("source_sha256"),
+                source.get("local_sha256") if isinstance(source, Mapping) else None,
+                "run manifest source_sha256 does not match plan local blob SHA-256",
+            )
+        if draft is not None:
+            _check(
+                output_hashes.get("draft_sha256"),
+                identity.canonical_object_sha256(draft),
+                "run manifest draft_sha256 does not match draft",
+            )
+        if receipt is not None:
+            _check(
+                output_hashes.get("receipt_sha256"),
+                identity.canonical_object_sha256(receipt),
+                "run manifest receipt_sha256 does not match receipt",
+            )
+    except IdentityError as exc:
+        raise _from_identity(exc) from exc
 
 
 def _validate_owners(bundle: Mapping[str, Any], claim_entries: Sequence[Mapping[str, Any]]) -> None:

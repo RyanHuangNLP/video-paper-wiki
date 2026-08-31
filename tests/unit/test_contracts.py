@@ -9,6 +9,9 @@ from tests.contract.paths import INVALID, VALID, load_json
 from video_paper_wiki.contracts import (
     CLAIM_ID_COLLISION,
     CROSS_OBJECT_IDENTITY_MISMATCH,
+    IDENTITY_CONFLICT,
+    INVALID_PAPER_ID,
+    PIPELINE_FINGERPRINT_MISMATCH,
     PLAN_HASH_MISMATCH,
     SCHEMA_INVALID,
     ContractError,
@@ -44,6 +47,10 @@ EXPECTED = {
     "pdf_url_host_mismatch.json": SCHEMA_INVALID,
     "local_blob_garbage_arxiv_id.json": SCHEMA_INVALID,
     "local_blob_empty_arxiv_id.json": SCHEMA_INVALID,
+    "local_blob_arxiv_id_mismatch.json": CROSS_OBJECT_IDENTITY_MISMATCH,
+    "local_blob_arxiv_skipped_for_sha.json": IDENTITY_CONFLICT,
+    "doi_non_ascii_uppercase.json": INVALID_PAPER_ID,
+    "prepared_artifact_hash_mismatch.json": PIPELINE_FINGERPRINT_MISMATCH,
     "duplicate_claim_id_different_refs.json": CLAIM_ID_COLLISION,
 }
 

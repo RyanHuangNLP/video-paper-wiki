@@ -33,6 +33,7 @@ _DOI_CANON = re.compile(r"^doi:10\.[0-9]{4,9}/[^\sA-Z]+$")
 _ARXIV_STRIPPED = re.compile(
     r"^(?:[0-9]{4}\.[0-9]{4,5}|[a-z-]+(?:\.[a-z]{2})?/[0-9]{7})$"
 )
+_PAPER_ID_PRIORITY = ("arxiv", "doi", "openalex", "sha256")
 _OPENALEX_CANON = re.compile(r"^openalex:W[0-9]+$")
 _SHA_CANON = re.compile(r"^sha256:[0-9a-f]{64}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -100,14 +101,34 @@ def nfkc_collapse(text: str) -> str:
     return re.sub(r"\s+", " ", unicodedata.normalize("NFKC", text)).strip()
 
 
+def _nfkc_casefold(value: str) -> str:
+    return unicodedata.normalize("NFKC", value).casefold()
+
+
+def _paper_id_scheme(paper_id: str) -> str:
+    return str(paper_id).split(":", 1)[0]
+
+
+def _paper_id_priority(paper_id: str) -> int:
+    scheme = _paper_id_scheme(paper_id)
+    try:
+        return _PAPER_ID_PRIORITY.index(scheme)
+    except ValueError:
+        return len(_PAPER_ID_PRIORITY)
+
+
 def is_canonical_paper_id(value: str) -> bool:
     raw = str(value)
-    return bool(
-        _ARXIV_CANON.fullmatch(raw)
-        or _DOI_CANON.fullmatch(raw)
-        or _OPENALEX_CANON.fullmatch(raw)
-        or _SHA_CANON.fullmatch(raw)
-    )
+    if _ARXIV_CANON.fullmatch(raw) or _OPENALEX_CANON.fullmatch(raw) or _SHA_CANON.fullmatch(raw):
+        return True
+    if not _DOI_CANON.fullmatch(raw):
+        return False
+    try:
+        normalized = normalize_doi(raw)
+    except IdentityError:
+        return False
+    # Canonical DOI is a fixed point of normalize_doi() and of NFKC+casefold.
+    return normalized == raw and _nfkc_casefold(raw) == raw
 
 
 def is_repo_id(value: str) -> bool:
@@ -214,9 +235,8 @@ def normalize_doi(candidate: str) -> str:
     for prefix in _DOI_PREFIXES:
         if lowered.startswith(prefix):
             raw = raw[len(prefix) :]
-            lowered = raw.lower()
             break
-    body = lowered.strip()
+    body = _nfkc_casefold(raw.strip())
     if not _DOI_BODY.fullmatch(body):
         raise _invalid_paper(candidate, reason="malformed doi identifier")
     return f"doi:{body}"
@@ -328,6 +348,19 @@ def establish_canonical_paper_id(
                         "PDF SHA-256 is already bound to a different paper ID",
                         {"paper_id": existing, "bound_paper_id": other_id, "pdf_sha256": other_sha},
                     )
+        existing_rank = _paper_id_priority(existing)
+        for candidate in discovered:
+            candidate_rank = _paper_id_priority(candidate)
+            if candidate_rank < existing_rank:
+                raise _conflict(
+                    "cannot skip a present higher-priority identifier",
+                    {"paper_id": existing, "higher_priority_id": candidate},
+                )
+            if candidate_rank == existing_rank and candidate != existing:
+                raise _conflict(
+                    "conflicting identifiers at the same priority",
+                    {"paper_id": existing, "other_id": candidate},
+                )
         aliases = tuple(item for item in discovered if item != existing)
         return existing, aliases
 
@@ -527,3 +560,10 @@ def plan_approval_hash(plan: Mapping[str, Any]) -> str:
 
 def sha256_hex(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def canonical_object_sha256(document: Mapping[str, Any]) -> str:
+    try:
+        return hashlib.sha256(canonicalize(dict(document))).hexdigest()
+    except CanonicalJsonError as exc:
+        raise IdentityError(CANONICAL_JSON_INVALID, exc.message, exc.details) from exc
