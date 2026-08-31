@@ -29,7 +29,9 @@ CLAIM_NAMESPACE = "video-paper-wiki.claim.v1"
 _ARXIV_NEW = re.compile(r"^([0-9]{4}\.[0-9]{4,5})(?:v[0-9]+)?$")
 _ARXIV_OLD = re.compile(r"^([a-z-]+(?:\.[A-Z]{2})?/[0-9]{7})(?:v[0-9]+)?$", re.I)
 _ARXIV_CANON = re.compile(r"^arxiv:(?:[0-9]{4}\.[0-9]{4,5}|[a-z-]+(?:\.[a-z]{2})?/[0-9]{7})$")
-_DOI_CANON = re.compile(r"^doi:10\.[0-9]{4,9}/[^\sA-Z]+$")
+# Printable ASCII except space and A-Z: no Lu of any script can match.
+_DOI_ASCII_SUFFIX = r"[\x21-\x40\x5b-\x7e]+"
+_DOI_CANON = re.compile(rf"^doi:10\.[0-9]{{4,9}}/{_DOI_ASCII_SUFFIX}$")
 _ARXIV_STRIPPED = re.compile(
     r"^(?:[0-9]{4}\.[0-9]{4,5}|[a-z-]+(?:\.[a-z]{2})?/[0-9]{7})$"
 )
@@ -38,7 +40,7 @@ _OPENALEX_CANON = re.compile(r"^openalex:W[0-9]+$")
 _SHA_CANON = re.compile(r"^sha256:[0-9a-f]{64}$")
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
 _OPENALEX_BODY = re.compile(r"^W[0-9]+$")
-_DOI_BODY = re.compile(r"^10\.[0-9]{4,9}/\S+$")
+_DOI_BODY = re.compile(rf"^10\.[0-9]{{4,9}}/{_DOI_ASCII_SUFFIX}$")
 _REPO_PAIR = re.compile(r"^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$")
 _REPO_ID = re.compile(r"^github:[a-z0-9._-]+/[a-z0-9._-]+$")
 _PAPER_SUBJECT = re.compile(r"^paper:.+$")
@@ -117,18 +119,30 @@ def _paper_id_priority(paper_id: str) -> int:
         return len(_PAPER_ID_PRIORITY)
 
 
+def _has_unicode_uppercase(value: str) -> bool:
+    return any(unicodedata.category(char) == "Lu" for char in value)
+
+
+def _doi_is_lowercase_ascii(value: str) -> bool:
+    return bool(value.isascii() and value == _nfkc_casefold(value) and not _has_unicode_uppercase(value))
+
+
+def _doi_is_sealed_canonical(value: str) -> bool:
+    return bool(_DOI_CANON.fullmatch(value) and _doi_is_lowercase_ascii(value))
+
+
 def is_canonical_paper_id(value: str) -> bool:
     raw = str(value)
     if _ARXIV_CANON.fullmatch(raw) or _OPENALEX_CANON.fullmatch(raw) or _SHA_CANON.fullmatch(raw):
         return True
-    if not _DOI_CANON.fullmatch(raw):
+    if not _doi_is_sealed_canonical(raw):
         return False
     try:
         normalized = normalize_doi(raw)
     except IdentityError:
         return False
-    # Canonical DOI is a fixed point of normalize_doi() and of NFKC+casefold.
-    return normalized == raw and _nfkc_casefold(raw) == raw
+    # Canonical DOI is lowercase ASCII and a fixed point of normalize_doi()/NFKC+casefold.
+    return normalized == raw
 
 
 def is_repo_id(value: str) -> bool:
@@ -237,9 +251,10 @@ def normalize_doi(candidate: str) -> str:
             raw = raw[len(prefix) :]
             break
     body = _nfkc_casefold(raw.strip())
-    if not _DOI_BODY.fullmatch(body):
+    canonical = f"doi:{body}"
+    if not _DOI_BODY.fullmatch(body) or not _doi_is_sealed_canonical(canonical):
         raise _invalid_paper(candidate, reason="malformed doi identifier")
-    return f"doi:{body}"
+    return canonical
 
 
 def normalize_openalex_id(candidate: str) -> str:
@@ -567,3 +582,28 @@ def canonical_object_sha256(document: Mapping[str, Any]) -> str:
         return hashlib.sha256(canonicalize(dict(document))).hexdigest()
     except CanonicalJsonError as exc:
         raise IdentityError(CANONICAL_JSON_INVALID, exc.message, exc.details) from exc
+
+
+def bound_pipeline_object(
+    *,
+    engine: str,
+    engine_version: str,
+    core_version: str,
+    config_sha256: str,
+    model_manifest_sha256: str,
+) -> dict[str, str]:
+    """Identity material for pipeline_fingerprint. Matches ingest-plan parser fields."""
+
+    return {
+        "config_sha256": str(config_sha256),
+        "core_version": str(core_version),
+        "engine": str(engine),
+        "engine_version": str(engine_version),
+        "model_manifest_sha256": str(model_manifest_sha256),
+    }
+
+
+def pipeline_fingerprint(pipeline: Mapping[str, Any]) -> str:
+    """SHA-256 of RFC8785-JCS(bound pipeline object)."""
+
+    return canonical_object_sha256(pipeline)

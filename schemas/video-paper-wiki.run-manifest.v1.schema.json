@@ -42,6 +42,10 @@
     },
     "started_at": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"},
     "ended_at": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"},
-    "error_code": {"type": ["string", "null"]}
+    "error_code": {"type": ["string", "null"]},
+    "pipeline_fingerprint": {
+      "$comment": "If present, SHA-256 of RFC8785-JCS of the bound pipeline object.",
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    }
   }
 }

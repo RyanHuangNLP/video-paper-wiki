@@ -49,8 +49,13 @@ EXPECTED = {
     "local_blob_empty_arxiv_id.json": SCHEMA_INVALID,
     "local_blob_arxiv_id_mismatch.json": CROSS_OBJECT_IDENTITY_MISMATCH,
     "local_blob_arxiv_skipped_for_sha.json": IDENTITY_CONFLICT,
-    "doi_non_ascii_uppercase.json": INVALID_PAPER_ID,
+    "doi_non_ascii_uppercase.json": SCHEMA_INVALID,
+    "doi_cherokee_uppercase.json": SCHEMA_INVALID,
+    "repo_paper_ids_unicode_uppercase.json": SCHEMA_INVALID,
     "prepared_artifact_hash_mismatch.json": PIPELINE_FINGERPRINT_MISMATCH,
+    "prepared_pipeline_fingerprint_mismatch.json": PIPELINE_FINGERPRINT_MISMATCH,
+    "plan_pipeline_fingerprint_mismatch.json": PIPELINE_FINGERPRINT_MISMATCH,
+    "run_manifest_pipeline_fingerprint_mismatch.json": PIPELINE_FINGERPRINT_MISMATCH,
     "duplicate_claim_id_different_refs.json": CLAIM_ID_COLLISION,
 }
 

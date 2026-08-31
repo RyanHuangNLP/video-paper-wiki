@@ -534,6 +534,10 @@ def _check_plan_object(document: Mapping[str, Any], schema_name: str) -> None:
                 "approval_hash does not match the plan JCS digest",
                 {"stated": stated, "expected": expected},
             )
+    parser = document.get("parser")
+    if isinstance(document.get("pipeline_fingerprint"), str):
+        pipeline = _bound_pipeline_from_parser(parser) if isinstance(parser, Mapping) else None
+        _assert_pipeline_fingerprint(document.get("pipeline_fingerprint"), pipeline)
 
 
 def _check_receipt_object(document: Mapping[str, Any]) -> None:
@@ -618,7 +622,12 @@ def _check_draft_object(document: Mapping[str, Any]) -> None:
     subject = identity.paper_subject_id(paper_id)
     claims = document.get("claims")
     if not isinstance(claims, list):
-        return
+        raise _schema_error(
+            "claims must be an array",
+            schema="video-paper-wiki.paper-analysis-draft.v1",
+            instance_pointer="/claims",
+            keyword="type",
+        )
     seen: dict[str, Mapping[str, Any]] = {}
     for index, claim in enumerate(claims):
         if not isinstance(claim, Mapping):
@@ -692,6 +701,9 @@ def _check_paper_record_object(document: Mapping[str, Any]) -> None:
 
 
 def _check_prepared_object(document: Mapping[str, Any]) -> None:
+    fingerprint = document.get("pipeline_fingerprint")
+    if fingerprint is not None:
+        _assert_pipeline_fingerprint(fingerprint, _bound_pipeline_from_prepared(document))
     artifacts = document.get("artifacts")
     if not isinstance(artifacts, list):
         return
@@ -719,6 +731,14 @@ def _check_prepared_object(document: Mapping[str, Any]) -> None:
             )
 
 
+def _check_run_manifest_object(document: Mapping[str, Any]) -> None:
+    fingerprint = document.get("pipeline_fingerprint")
+    if not isinstance(fingerprint, str):
+        return
+    pipeline = _bound_pipeline_from_run_manifest(document)
+    _assert_pipeline_fingerprint(fingerprint, pipeline)
+
+
 def _check_repo_record_object(document: Mapping[str, Any]) -> None:
     repo = document.get("repo_id")
     canonical = document.get("canonical_repository")
@@ -733,6 +753,15 @@ def _check_repo_record_object(document: Mapping[str, Any]) -> None:
                 "repo_id does not match casefold canonical repository",
                 {"repo_id": repo, "expected": expected},
             )
+    paper_ids = document.get("paper_ids")
+    if isinstance(paper_ids, list):
+        for index, item in enumerate(paper_ids):
+            if not isinstance(item, str) or not identity.is_canonical_paper_id(item):
+                raise ContractError(
+                    INVALID_PAPER_ID,
+                    "paper_id is not a canonical paper ID",
+                    {"paper_id": item, "index": index},
+                )
 
 
 def _check_alignment_object(document: Mapping[str, Any]) -> None:
@@ -762,6 +791,8 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
         _check_repo_record_object(document)
     elif schema_name == "video-paper-wiki.paper-code-alignment.v1":
         _check_alignment_object(document)
+    elif schema_name == "video-paper-wiki.run-manifest.v1":
+        _check_run_manifest_object(document)
 
 
 def validate_document(document: object, expected_schema: str | None = None) -> dict[str, Any]:
@@ -855,6 +886,70 @@ def _artifact_by_kind(prepared: Mapping[str, Any], kind: str) -> Mapping[str, An
     if len(matches) != 1:
         return None
     return matches[0]
+
+
+def _bound_pipeline_from_parser(parser: Mapping[str, Any]) -> dict[str, str]:
+    return identity.bound_pipeline_object(
+        engine=str(parser.get("engine", "")),
+        engine_version=str(parser.get("engine_version", "")),
+        core_version=str(parser.get("core_version", "")),
+        config_sha256=str(parser.get("config_sha256", "")),
+        model_manifest_sha256=str(parser.get("model_manifest_sha256", "")),
+    )
+
+
+def _bound_pipeline_from_prepared(prepared: Mapping[str, Any]) -> dict[str, str]:
+    return identity.bound_pipeline_object(
+        engine="docling",
+        engine_version=str(prepared.get("docling_version", "")),
+        core_version=str(prepared.get("docling_core_version", "")),
+        config_sha256=str(prepared.get("parser_config_sha256", "")),
+        model_manifest_sha256=str(prepared.get("model_manifest_sha256", "")),
+    )
+
+
+def _bound_pipeline_from_run_manifest(manifest: Mapping[str, Any]) -> dict[str, str] | None:
+    versions = manifest.get("tool_versions")
+    hashes = manifest.get("input_hashes")
+    if not isinstance(versions, Mapping) or not isinstance(hashes, Mapping):
+        return None
+    engine_version = versions.get("docling")
+    core_version = versions.get("docling_core")
+    config_sha256 = hashes.get("parser_config_sha256")
+    model_manifest_sha256 = hashes.get("model_manifest_sha256")
+    if not all(
+        isinstance(value, str) and value
+        for value in (engine_version, core_version, config_sha256, model_manifest_sha256)
+    ):
+        return None
+    return identity.bound_pipeline_object(
+        engine="docling",
+        engine_version=str(engine_version),
+        core_version=str(core_version),
+        config_sha256=str(config_sha256),
+        model_manifest_sha256=str(model_manifest_sha256),
+    )
+
+
+def _assert_pipeline_fingerprint(stated: object, pipeline: Mapping[str, Any] | None) -> None:
+    if not isinstance(stated, str):
+        return
+    if pipeline is None:
+        raise ContractError(
+            PIPELINE_FINGERPRINT_MISMATCH,
+            "pipeline_fingerprint is present but cannot be bound to a pipeline object",
+            {"stated": stated},
+        )
+    try:
+        expected = identity.pipeline_fingerprint(pipeline)
+    except IdentityError as exc:
+        raise _from_identity(exc) from exc
+    if stated != expected:
+        raise ContractError(
+            PIPELINE_FINGERPRINT_MISMATCH,
+            "pipeline_fingerprint does not match the bound pipeline object",
+            {"stated": stated, "expected": expected},
+        )
 
 
 def _line_range_ok(locator: Mapping[str, Any]) -> bool:
@@ -1199,6 +1294,11 @@ def _validate_plan_prepared_draft_record(
                     "artifact": model_manifest.get("sha256"),
                 },
             )
+        expected_pipeline = _bound_pipeline_from_parser(parser) if isinstance(parser, Mapping) else _bound_pipeline_from_prepared(prepared)
+        if isinstance(plan.get("pipeline_fingerprint"), str):
+            _assert_pipeline_fingerprint(plan.get("pipeline_fingerprint"), expected_pipeline)
+        if isinstance(prepared.get("pipeline_fingerprint"), str):
+            _assert_pipeline_fingerprint(prepared.get("pipeline_fingerprint"), expected_pipeline)
         source = plan.get("input") if isinstance(plan.get("input"), Mapping) else {}
         local_sha = source.get("local_sha256")
         if isinstance(local_sha, str) and local_sha != prepared.get("pdf_sha256"):
@@ -1266,9 +1366,9 @@ def _validate_plan_prepared_draft_record(
                     {"paper_id": paper_id, "bound_paper_id": other_id, "pdf_sha256": pdf_sha},
                     exit_code=75,
                 )
-    if record is not None and prepared is not None:
+    if prepared is not None:
         document_json = _artifact_by_kind(prepared, "document_json")
-        if document_json is not None:
+        if record is not None and document_json is not None:
             if record.get("active_extraction_path") != document_json.get("path"):
                 raise _mismatch(
                     "active extraction path does not match prepared document_json",
@@ -1285,6 +1385,7 @@ def _validate_plan_prepared_draft_record(
                         "document_json_sha256": document_json.get("sha256"),
                     },
                 )
+        if document_json is not None and (draft is not None or bundle.get("claims") is not None or alignment is not None):
             locator_hashes: list[str] = []
             for key in ("draft", "alignment", "claims"):
                 _pdf_artifact_hashes(bundle.get(key), locator_hashes)
@@ -1296,25 +1397,26 @@ def _validate_plan_prepared_draft_record(
                         "locator/evidence document hash does not match prepared document_json",
                         {"stated": stated_hash, "document_json_sha256": expected_doc_hash},
                     )
-        page_count = prepared.get("page_count")
-        refs = []
-        if draft is not None and isinstance(draft.get("claims"), list):
-            refs.extend(draft["claims"])
-        for claim in refs:
-            if not isinstance(claim, Mapping):
-                continue
-            locators = claim.get("locators")
-            if not isinstance(locators, list):
-                continue
-            for locator in locators:
-                if not isinstance(locator, Mapping) or locator.get("kind") != "pdf":
+        if record is not None:
+            page_count = prepared.get("page_count")
+            refs = []
+            if draft is not None and isinstance(draft.get("claims"), list):
+                refs.extend(draft["claims"])
+            for claim in refs:
+                if not isinstance(claim, Mapping):
                     continue
-                page = locator.get("page")
-                if isinstance(page, int) and isinstance(page_count, int) and page > page_count:
-                    raise _mismatch(
-                        "PDF locator page exceeds prepared page_count",
-                        {"page": page, "page_count": page_count},
-                    )
+                locators = claim.get("locators")
+                if not isinstance(locators, list):
+                    continue
+                for locator in locators:
+                    if not isinstance(locator, Mapping) or locator.get("kind") != "pdf":
+                        continue
+                    page = locator.get("page")
+                    if isinstance(page, int) and isinstance(page_count, int) and page > page_count:
+                        raise _mismatch(
+                            "PDF locator page exceeds prepared page_count",
+                            {"page": page, "page_count": page_count},
+                        )
     if alignment is not None:
         if isinstance(paper_id, str) and alignment.get("paper_id") != paper_id:
             raise _mismatch(
@@ -1397,6 +1499,16 @@ def _validate_run_manifest_hashes(bundle: Mapping[str, Any]) -> None:
     receipt = bundle.get("receipt") if isinstance(bundle.get("receipt"), Mapping) else None
     input_hashes = manifest.get("input_hashes") if isinstance(manifest.get("input_hashes"), Mapping) else {}
     output_hashes = manifest.get("output_hashes") if isinstance(manifest.get("output_hashes"), Mapping) else {}
+    fingerprint = manifest.get("pipeline_fingerprint")
+    if isinstance(fingerprint, str):
+        pipeline = None
+        if prepared is not None:
+            pipeline = _bound_pipeline_from_prepared(prepared)
+        elif plan is not None and isinstance(plan.get("parser"), Mapping):
+            pipeline = _bound_pipeline_from_parser(plan["parser"])
+        else:
+            pipeline = _bound_pipeline_from_run_manifest(manifest)
+        _assert_pipeline_fingerprint(fingerprint, pipeline)
 
     def _check(stated: object, expected: object, message: str) -> None:
         if not isinstance(stated, str):
@@ -1531,8 +1643,14 @@ def validate_prospective(
                 keyword="type",
             )
         validate_document(dict(document), expected_schema=schema_name)
-    top_claims = bundle.get("claims")
-    if isinstance(top_claims, list):
+    if "claims" in bundle:
+        top_claims = bundle["claims"]
+        if not isinstance(top_claims, list):
+            raise ContractError(
+                SCHEMA_INVALID,
+                "bundle.claims must be an array",
+                {"key": "claims"},
+            )
         _assert_unique_claim_refs(top_claims, ref_key="evidence", pointer_prefix="/claims")
     claim_entries = _claim_entries(bundle)
     _validate_claim_entries(claim_entries, existing_claim_bindings=claim_bindings)

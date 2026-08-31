@@ -8,6 +8,7 @@ from video_paper_wiki.identity import (
     IDENTITY_CONFLICT,
     INVALID_PAPER_ID,
     IdentityError,
+    bound_pipeline_object,
     claim_id,
     establish_canonical_paper_id,
     event_id,
@@ -18,6 +19,7 @@ from video_paper_wiki.identity import (
     normalize_doi,
     paper_id_from_pdf_sha256,
     paper_page_slug,
+    pipeline_fingerprint,
     repo_id,
 )
 
@@ -120,12 +122,9 @@ def test_uppercase_doi_canonicalizes_and_is_not_kept() -> None:
 def test_non_ascii_uppercase_doi_is_not_kept_as_canonical() -> None:
     dotted_i = "doi:10.1234/foo\u0130"
     assert not is_canonical_paper_id(dotted_i)
-    paper_id, aliases = establish_canonical_paper_id(existing_paper_id=dotted_i)
-    assert paper_id == normalize_doi(dotted_i)
-    assert paper_id != dotted_i
-    assert dotted_i not in (paper_id, *aliases)
-    assert is_canonical_paper_id(paper_id)
-    assert normalize_doi(paper_id) == paper_id
+    with pytest.raises(IdentityError) as exc:
+        establish_canonical_paper_id(existing_paper_id=dotted_i)
+    assert exc.value.code == INVALID_PAPER_ID
 
     kelvin = "doi:10.1234/foo\u212a"
     assert not is_canonical_paper_id(kelvin)
@@ -142,6 +141,39 @@ def test_non_ascii_uppercase_doi_is_not_kept_as_canonical() -> None:
     assert collapsed != ligature
     assert ligature not in (collapsed, *ligature_aliases)
     assert is_canonical_paper_id(collapsed)
+
+
+def test_cherokee_uppercase_doi_is_rejected() -> None:
+    cherokee = "doi:10.1234/foo\u13a0"
+    assert not is_canonical_paper_id(cherokee)
+    with pytest.raises(IdentityError) as exc:
+        normalize_doi(cherokee)
+    assert exc.value.code == INVALID_PAPER_ID
+    with pytest.raises(IdentityError) as establish_exc:
+        establish_canonical_paper_id(existing_paper_id=cherokee)
+    assert establish_exc.value.code == INVALID_PAPER_ID
+    assert is_canonical_paper_id("doi:10.1234/foo")
+
+
+def test_pipeline_fingerprint_is_jcs_sha256_of_bound_parser() -> None:
+    parser = {
+        "engine": "docling",
+        "engine_version": "2.117.0",
+        "core_version": "2.92.0",
+        "config_sha256": "b" * 64,
+        "model_manifest_sha256": "c" * 64,
+    }
+    bound = bound_pipeline_object(
+        engine="docling",
+        engine_version="2.117.0",
+        core_version="2.92.0",
+        config_sha256="b" * 64,
+        model_manifest_sha256="c" * 64,
+    )
+    digest = pipeline_fingerprint(bound)
+    assert digest == pipeline_fingerprint(parser)
+    assert len(digest) == 64
+    assert digest != pipeline_fingerprint({**parser, "engine_version": "0.0.0"})
 
 
 def test_existing_sha_cannot_skip_present_arxiv() -> None:
