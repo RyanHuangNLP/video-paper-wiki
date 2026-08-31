@@ -6,12 +6,14 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
+  continued_head: 65c279f3dac280f1046c08536f59887b0dc613c7
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
-  delivery_status: not-recorded
+  delivery_status: draft-open
   delivery_note: >-
-    draft → integration is the requested continuation path. This index does not
-    assert that PR #94, its follow-up, or either branch has been merged.
+    On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
+    integration. It has not been merged. reference_head preserves the original
+    handoff baseline; continued_head records the subsequent verified revision.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -26,6 +28,52 @@ resume_context:
     note: >-
       Consult the existing plan for requirements; do not edit or stage it as
       part of this packet. Historical plan status is not implementation evidence.
+
+collaboration:
+  guide: docs/ai/codex-team.md
+  instructions: AGENTS.md
+  configured_on: "2026-09-01"
+  primary:
+    role: Architect
+    model: gpt-5.6-sol
+    reasoning_effort: ultra
+  children:
+    - role: Builder
+      model: gpt-5.6-sol
+      reasoning_effort: medium
+    - role: Repo Steward
+      model: gpt-5.6-sol
+      reasoning_effort: medium
+  max_active_children: 2
+  dispatch: explicit-model-and-effort
+  grok_build: disabled-for-this-workflow
+  runtime_note: >-
+    Primary model/effort were verified from the current local turn context.
+    The two new child calls explicitly requested sol/medium. These files do
+    not hot-switch sessions, create separate tasks, or schedule background work.
+  ownership: one-writer-per-path-and-serialized-git
+  merge_authority: explicit-Architect-instruction-for-current-PR-head-and-base
+  human_gate_authority: user
+
+repository_observation:
+  observed_on: "2026-09-01"
+  pr: 94
+  head_sha: 65c279f3dac280f1046c08536f59887b0dc613c7
+  base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33414220542"
+  ci_run_id: 33414220542
+  conclusion: success
+  jobs_succeeded: 4
+  tested_checkout_observation:
+    job_id: 99560901309
+    job: ubuntu-24.04 / Python 3.13
+    ref: refs/pull/94/merge
+    sha: c532fe4bd12415ed3d04a24936f5fca75700471f
+    tests_passed: 667
+  note: >-
+    This is a separate repository snapshot, not a rewrite of historical local
+    test evidence or an Architect merge authorization. Recheck head, base,
+    tested checkout, run attempt, and all required jobs for every new candidate.
 
 human_gates:
   HUMAN-GATE-BASELINE-001:
@@ -48,7 +96,7 @@ work_packages:
     title: Engineering foundation and shared engine contracts
     status: in_progress
     depends_on: []
-    active_packet: VPKB-000-pr94
+    active_packet: VPKB-000-capture-contracts
     observed_at_reference_head:
       - Python packaging, uv.lock, and separate agent/operator entry-point packages.
       - Agent-safe command tree, JSON envelope, JCS, identity, and taxonomy code.
@@ -162,6 +210,60 @@ packets:
       Revert only this packet's reviewed changes or commits. Preserve all
       pre-existing user files, catalog content, and unrelated working-tree edits;
       do not use a blanket reset or clean operation.
+
+  - id: VPKB-000-capture-contracts
+    parent: VPKB-000
+    title: Capture inspection and code evidence pure contracts
+    status: in_progress
+    phase: local_acceptance_complete_ci_pending
+    owner: Architect
+    implementer: Builder
+    repository_owner: Repo Steward
+    packet_document: docs/ai/packets/VPKB-000-capture-contracts.md
+    base_commit: 65c279f3dac280f1046c08536f59887b0dc613c7
+    depends_on: [VPKB-000-pr94]
+    contract_status: frozen
+    contract_path: docs/ai/contracts/capture-contracts-v1.md
+    contract_sha256: d54e1c36608ca0d57c0ea467f208a9645259ff2c879f23958a58c2280ed9e23d
+    implementation_status: complete
+    implementation_prerequisites:
+      - Architect supplies the exact versioned field and invariant specification.
+      - Hash dependencies, reuse semantics, snapshots, and line canonicalization are frozen.
+      - Allowed paths, fixtures, errors, and source-ID boundary are explicit.
+    verification:
+      status: passed-locally-ci-pending
+      evidence_directory: artifacts/verification/VPKB-000-capture-contracts/
+      results:
+        - Python 3.12.14 on macOS arm64; 899 passed, zero failures/errors/skips.
+        - Python 3.13.13 on macOS arm64; 899 passed, zero failures/errors/skips.
+        - Independent Steward suite 45 passed; two Architect boundary findings fixed and rechecked.
+        - Installed wheel outside source checkout loads 14 schemas and passes hash/locator checks.
+        - Independent exhaustive comparison passes 1365 texts and 8116 valid line ranges.
+      source_snapshot_sha256: 4fb11baa15eb303b9fc223b4b49ff93a05d93b53b080ce4f825d5b874eb18752
+      remote_ci: pending-new-candidate
+    note: >-
+      Architect released frozen revision 2 after independent Builder and Steward
+      review. Engineering decisions belong to Architect; human gates remain with
+      the user. Preserve CLI stubs and VPKB-001 runtime boundaries in this packet.
+
+  - id: VPKB-000-transaction-facade
+    parent: VPKB-000
+    title: Non-persistent transaction facade contracts
+    status: not_started
+    phase: architecture_preparation
+    owner: Architect
+    implementer: Builder
+    repository_owner: Repo Steward
+    packet_document: docs/ai/packets/VPKB-000-transaction-facade.md
+    depends_on: [VPKB-000-capture-contracts]
+    contract_status: design-pending
+    implementation_status: not_started
+    source_review_status: downloaded-pinned-files-and-read-only
+    verification: {status: not-run, results: []}
+    note: >-
+      A planning note records exact-commit source reading and questions for the
+      next freeze. It is not an implementation release, verified submodule,
+      upstream behavior fixture, or permission to run transactions on a Vault.
 
 milestones:
   engine-data-chain: {status: not-recorded, evidence: []}

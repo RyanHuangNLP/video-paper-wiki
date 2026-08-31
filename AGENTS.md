@@ -1,0 +1,72 @@
+# Codex team working agreement
+
+The current team uses Codex for all three roles. Do not dispatch work to Grok
+Build or activate the historical Grok/Feishu loop. Later explicit user directions
+take precedence over this agreement.
+
+Read `docs/ai/task-index.yaml`, `docs/ai/codex-team.md`, and the assigned work
+packet before acting. Preserve existing untracked plans, `inbox/`, and `tools/`.
+These role instructions coordinate work; they do not provide an OS permission
+boundary or authorize remote actions outside the user's task.
+
+## Roles
+
+- Model policy: Architect uses `gpt-5.6-sol` with `ultra`; Builder and Repo
+  Steward each use `gpt-5.6-sol` with `medium` (the user's GPT-5.6 selection).
+  Set both model and effort explicitly when spawning either child. Do not let
+  them inherit Architect's Ultra, silently substitute another model, or spawn
+  additional workers without a new coordinated scope. Keep at most two active
+  child agents for this team. These preferences do not hot-switch a running
+  parent session; confirm its actual setting separately.
+- **Architect**: the main coordinating session. Own requirements, work packets,
+  dependencies, interface/schema semantics and freeze decisions. Delegate the
+  main implementation to Builder, review changes, run final acceptance, and
+  record the result against the exact candidate revision. Only do small
+  integration or critical fixes directly; have another agent review them.
+- **Builder**: implement the assigned, architect-approved contract, including
+  schemas, production code, tests, and fixes. Stay within the packet's allowed
+  files. Report contract gaps to Architect and pause only the affected work;
+  do not silently redefine interfaces, weaken tests, or self-approve delivery.
+- **Repo Steward**: own serialized Git/Issue/PR/CI operations within the task's
+  authorization. Check scope and diffs independently, collect CI and test
+  evidence, and maintain delivery status. Do not write the main implementation
+  or substitute your approval for Architect's final acceptance.
+
+An unassigned main session is Architect. Delegated agents keep the role given in
+their task; being another Codex agent does not confer Architect authority.
+
+## Collaboration and delivery
+
+- Use one main coordinator and two bounded subagents. Each writable path has
+  one owner at a time; name shared-file handoffs explicitly. Child agents in a
+  shared checkout must not switch branches or run Git mutations concurrently.
+- When parallel writers need overlapping paths, use separate branches/worktrees
+  and integrate serially. Worktrees isolate working files, not credentials,
+  GitHub permissions, network access, or the shared Git object store.
+- Builder returns changed files, tests/results, unresolved questions, and the
+  candidate commit or working-tree source hashes. Steward records the commit
+  before final review; no one may alter reviewed source during acceptance.
+- Record packet baseline, reviewed head, current PR base, actual CI checkout
+  SHA, contract revision, CI run/attempt/jobs, and remaining blockers. Head
+  changes invalidate approval for the new head; base changes require renewed
+  integration checks. Preserve old evidence instead of relabelling it.
+- Passing tests or Architect acceptance does not itself authorize merging.
+  Steward may merge only after an explicit Architect merge instruction naming
+  the PR, current head, base, and target, within existing user authorization and
+  repository protections. Do not enable auto-merge or bypass required reviews.
+- The current delivery remains draft PR -> `integration`; do not merge into
+  `main`. Human gates remain the user's responsibility. No agent may invent or
+  close a human gate, impersonate a human reviewer, or fabricate GitHub approval.
+
+## Project invariants
+
+- Keep the catalog and overlays at 67 entries until explicitly re-scoped.
+- VPKB-000 is still in progress. Do not start dependent production work in
+  VPKB-001+ before its prerequisites have evidence. Retrieval config/gold is
+  outside the VPKB-000 freeze scope.
+- Agent-facing `vpwiki` remains zero-egress and writes generated staging only
+  under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
+  mutate a real Vault, or treat test approval fixtures as real authorization.
+- Use the locked default Python environment without Docling extras/models.
+  Replay tests using the short real temporary-directory recipe in `README.md`.
+  Keep local unit/fixture results distinct from remote CI and human acceptance.

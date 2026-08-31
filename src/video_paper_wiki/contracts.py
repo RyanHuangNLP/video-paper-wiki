@@ -43,6 +43,8 @@ MAX_BYTES = 64 * 1024 * 1024
 MAX_REQUESTS = 4
 
 _SCHEMA_TITLES = {
+    "video-paper-wiki.capture-inspection.v1",
+    "video-paper-wiki.code-evidence-manifest.v1",
     "video-paper-wiki.ingest-plan.v1",
     "video-paper-wiki.prepared.v1",
     "video-paper-wiki.paper-analysis-draft.v1",
@@ -775,7 +777,15 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 
 
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
-    if schema_name == "video-paper-wiki.ingest-plan.v1":
+    if schema_name == "video-paper-wiki.capture-inspection.v1":
+        from video_paper_wiki.capture_contracts import _check_capture_inspection
+
+        _check_capture_inspection(document)
+    elif schema_name == "video-paper-wiki.code-evidence-manifest.v1":
+        from video_paper_wiki.code_evidence_contracts import _check_code_evidence_manifest
+
+        _check_code_evidence_manifest(document)
+    elif schema_name == "video-paper-wiki.ingest-plan.v1":
         _check_plan_object(document, schema_name)
     elif schema_name == "video-paper-wiki.prepared.v1":
         _check_prepared_object(document)
@@ -825,6 +835,15 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             instance_pointer="/schema",
             keyword="const",
             extra={"stated": document.get("schema")},
+        )
+    if schema_name in {
+        "video-paper-wiki.capture-inspection.v1",
+        "video-paper-wiki.code-evidence-manifest.v1",
+    } and any(not isinstance(key, str) for key in document):
+        raise _schema_error(
+            "document keys must be strings",
+            schema=schema_name,
+            keyword="type",
         )
     schema = schema_by_title(schema_name)
     validator = _validator_for(schema)

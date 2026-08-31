@@ -9,14 +9,22 @@ project's acceptance gates. Replace every placeholder before starting work.
 - Packet ID: `<packet-id>`
 - Parent work package: `<VPKB-000…005>`
 - Owner: `<owner>`
+- Architect / Builder / Repo Steward: `<assigned role owners>`
+- Models: Architect `gpt-5.6-sol / ultra`; both children `gpt-5.6-sol / medium`.
 - Status: `<not_started | in_progress | complete>`
+- Phase / implementation status: `<design, implementation, review; not_started or active>`
 - Base commit: `<full SHA>`
 - PR / branch / requested delivery path: `<references>`
 - Input documents and hashes, when required: `<paths and SHA-256>`
 - Verification directory: `artifacts/verification/<packet-id>/`
+- Contract path / version / SHA-256: `<exact frozen artifact or explicitly pending>`
+- Contract status: `<design-pending | frozen>`
 
 Bind review and test results to the actual source revision. A PR reference or
 requested `draft → integration` path does not prove a merge occurred.
+Use [the team agreement](codex-team.md) for responsibilities, single-writer
+ownership, and explicit child model/effort settings. A design task is not
+permission to implement an unfrozen contract.
 
 ## Objective and scope
 
@@ -75,6 +83,19 @@ exit codes, and relevant output. Separate offline fixture checks from real
 network, model, Vault, and human checks. Use `not-run`, `failed`, or `passed` only
 according to actual execution; an absent result is never a pass. Static handoff
 documents do not require implementation-mirroring tests.
+
+- Reviewed head SHA: `<full SHA>`
+- Current PR base SHA: `<full SHA>`
+- Actual tested checkout SHA / ref: `<full SHA and ref; distinguish PR merge preview>`
+- CI run ID / attempt / required job IDs and conclusions: `<observed results>`
+- Lockfile SHA-256 and local/CI interpreter versions: `<observed values>`
+- Architect verdict / unresolved blockers: `<not-reviewed, changes-required, accepted>`
+- Separate merge instruction: `<absent unless Architect explicitly authorized this candidate>`
+
+New head revisions invalidate acceptance for the new candidate. A changed base
+requires renewed integration checks. Preserve prior evidence with its original
+revision; never relabel it as a new run. Acceptance cannot close a human gate or
+override repository protections.
 
 ## Result and remaining work
 
