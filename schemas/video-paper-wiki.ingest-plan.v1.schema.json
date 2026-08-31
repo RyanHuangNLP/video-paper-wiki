@@ -2,27 +2,128 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.ingest-plan.v1.schema.json",
   "title": "video-paper-wiki.ingest-plan.v1",
+  "$comment": "approval_hash is SHA-256 of RFC8785-JCS(plan without approval_hash). It is a plan integrity digest, not proof of human approval.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "plan_kind", "batch_id", "input", "limits", "network_targets", "parser", "approval_hash"],
+  "required": ["schema", "plan_kind", "batch_id", "stable_subject_id", "input", "limits", "network_targets", "parser", "approval_hash"],
   "properties": {
     "schema": {"const": "video-paper-wiki.ingest-plan.v1"},
     "plan_kind": {"enum": ["paper-source", "code-evidence"]},
-    "batch_id": {"type": "string", "minLength": 1},
-    "input": {"oneOf": [
-      {"type": "object", "additionalProperties": false, "required": ["kind", "local_sha256"], "properties": {"kind": {"const": "local-blob"}, "local_sha256": {"$ref": "#/$defs/sha256"}, "arxiv_id": {"type": "string"}, "pdf_url": {"type": "string"}, "repository": {"$ref": "#/$defs/repository"}, "commit": {"$ref": "#/$defs/commit"}}},
-      {"type": "object", "additionalProperties": false, "required": ["kind", "arxiv_id"], "properties": {"kind": {"const": "arxiv"}, "local_sha256": {"$ref": "#/$defs/sha256"}, "arxiv_id": {"type": "string", "minLength": 1}, "pdf_url": {"type": "string"}, "repository": {"$ref": "#/$defs/repository"}, "commit": {"$ref": "#/$defs/commit"}}},
-      {"type": "object", "additionalProperties": false, "required": ["kind", "repository", "commit"], "properties": {"kind": {"const": "github-repo"}, "local_sha256": {"$ref": "#/$defs/sha256"}, "arxiv_id": {"type": "string"}, "pdf_url": {"type": "string"}, "repository": {"$ref": "#/$defs/repository"}, "commit": {"$ref": "#/$defs/commit"}}}
-    ]},
-    "limits": {"type": "object", "additionalProperties": false, "required": ["max_bytes", "max_requests"], "properties": {"max_pages": {"type": "integer", "minimum": 1}, "max_bytes": {"type": "integer", "minimum": 1}, "max_requests": {"type": "integer", "minimum": 1}}},
-    "network_targets": {"type": "array", "items": {"type": "object", "additionalProperties": false, "required": ["url", "host", "method", "redirect_hosts", "max_bytes"], "properties": {"url": {"type": "string"}, "host": {"type": "string", "minLength": 1}, "method": {"enum": ["GET", "HEAD"]}, "redirect_hosts": {"type": "array", "items": {"type": "string", "minLength": 1}}, "max_bytes": {"type": "integer", "minimum": 1}}}},
-    "parser": {"type": "object", "additionalProperties": false, "required": ["engine", "engine_version", "config_sha256", "model_manifest_sha256"], "properties": {"engine": {"const": "docling"}, "engine_version": {"type": "string", "minLength": 1}, "config_sha256": {"$ref": "#/$defs/sha256"}, "model_manifest_sha256": {"$ref": "#/$defs/sha256"}}},
-    "approval_hash": {"$ref": "#/$defs/sha256"}
+    "batch_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"},
+    "stable_subject_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/stable_subject_id"},
+    "input": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "local_sha256"],
+          "properties": {
+            "kind": {"const": "local-blob"},
+            "local_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+            "arxiv_id": {
+              "type": "string",
+              "pattern": "^(?:[0-9]{4}\\.[0-9]{4,5}|[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7})$"
+            },
+            "pdf_url": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "arxiv_id"],
+          "properties": {
+            "kind": {"const": "arxiv"},
+            "arxiv_id": {
+              "type": "string",
+              "pattern": "^(?:[0-9]{4}\\.[0-9]{4,5}|[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7})$"
+            },
+            "pdf_url": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"},
+            "local_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "repository", "commit"],
+          "properties": {
+            "kind": {"const": "github-repo"},
+            "repository": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"},
+            "commit": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"}
+          }
+        }
+      ]
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_bytes", "max_requests"],
+      "properties": {
+        "max_pages": {"type": "integer", "minimum": 1, "maximum": 300},
+        "max_bytes": {"type": "integer", "minimum": 1},
+        "max_requests": {"type": "integer", "minimum": 1}
+      }
+    },
+    "network_targets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url", "host", "method", "redirect_hosts", "max_bytes"],
+        "properties": {
+          "url": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"},
+          "host": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/exact_host"},
+          "method": {"enum": ["GET", "HEAD"]},
+          "redirect_hosts": {
+            "type": "array",
+            "items": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/exact_host"}
+          },
+          "max_bytes": {"type": "integer", "minimum": 1}
+        }
+      }
+    },
+    "parser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "engine_version", "core_version", "config_sha256", "model_manifest_sha256"],
+      "properties": {
+        "engine": {"const": "docling"},
+        "engine_version": {"const": "2.117.0"},
+        "core_version": {"const": "2.92.0"},
+        "config_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "model_manifest_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+      }
+    },
+    "approval_hash": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
   },
-  "allOf": [{"if": {"required": ["plan_kind"], "patternProperties": {"^plan_kind$": {"const": "paper-source"}}}, "then": {"patternProperties": {"^limits$": {"required": ["max_pages"]}}}}],
-  "$defs": {
-    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
-    "repository": {"type": "string", "pattern": "^[^/]+/[^/]+$"}
-  }
+  "allOf": [
+    {
+      "if": {"required": ["plan_kind"], "patternProperties": {"^plan_kind$": {"const": "paper-source"}}},
+      "then": {
+        "patternProperties": {
+          "^limits$": {
+            "required": ["max_pages", "max_bytes", "max_requests"],
+            "properties": {
+              "max_pages": {"type": "integer", "minimum": 1, "maximum": 300},
+              "max_bytes": {"type": "integer", "minimum": 1, "maximum": 67108864},
+              "max_requests": {"type": "integer", "minimum": 1, "maximum": 4}
+            },
+            "additionalProperties": false
+          },
+          "^input$": {
+            "not": {"required": ["kind"], "patternProperties": {"^kind$": {"const": "github-repo"}}}
+          },
+          "^stable_subject_id$": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/paper_subject_id"}
+        }
+      }
+    },
+    {
+      "if": {"required": ["plan_kind"], "patternProperties": {"^plan_kind$": {"const": "code-evidence"}}},
+      "then": {
+        "patternProperties": {
+          "^input$": {"required": ["kind"], "patternProperties": {"^kind$": {"const": "github-repo"}}},
+          "^stable_subject_id$": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_subject_id"}
+        }
+      }
+    }
+  ]
 }
