@@ -47,9 +47,13 @@ def test_forbidden_subcommands_absent() -> None:
         ["apply"],
         ["index", "build"],
         ["parser-model"],
+        ["ingest", "put"],
+        ["ingest", "run"],
+        ["vault"],
+        ["wiki"],
     ):
         code = main(argv)
-        assert code != 0
+        assert code == 2
 
 
 def test_command_tree_registered() -> None:
@@ -64,7 +68,7 @@ def test_agent_source_has_no_network_client_imports() -> None:
         "http.client",
         "aiohttp",
     )
-    for path in (ROOT / "src" / "video_paper_wiki").glob("*.py"):
+    for path in (ROOT / "src" / "video_paper_wiki").rglob("*.py"):
         text = path.read_text()
         for name in forbidden:
             assert name not in text, f"{path} contains {name}"
