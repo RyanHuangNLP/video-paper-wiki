@@ -31,12 +31,33 @@ only those verified source bytes, so ignored checkout bytecode is never an
 import input. The authority schema records per-inspection transport and facade
 evidence without host paths.
 
-This freeze contains no production adapter module. Once the exact freeze commit
-passes fresh four-job merge-ref CI, Architect writes a separate exact-head
-acceptance. That post-CI record will be persisted with the next implementation
-delivery. Until then Builder production work remains blocked.
+The exact architecture freeze was committed as
+`be7ecf303af2879459036ed8e6831291f168fac4`. Its four-job merge-ref CI and
+separate exact-head Architect acceptance are persisted here as
+`vpkb-001-architecture-freeze-ci-observation.json`,
+`vpkb-001-architecture-freeze-merge-parents.json` and
+`vpkb-001-architecture-freeze-architect-acceptance.json`.
 
-Later implementation evidence belongs under `implementation/` and must keep
-local, wheel, independent review and remote CI observations distinct. No record
-here authorizes apply/recover/admin, a real Vault, network/models, PR readiness,
-merge, auto-merge or a human gate.
+The bounded production adapter implementation now belongs under
+`implementation/`:
+
+- `builder-candidate.json` preserves the rejected R1 implementation evidence;
+- `steward-review-r1.json` preserves the independent eight-blocker review;
+- `builder-candidate-r2.json` binds the corrected seven-file source snapshot;
+- `steward-review-r2.json` records independent B1-B8 replay and
+  `GO_FOR_ARCHITECT_ACCEPTANCE`;
+- `architect-local-acceptance.json` records Python 3.12/3.13 full suites and the
+  isolated installed-wheel check;
+- `delivery-candidate.json` is the final self-excluding exact-path manifest for
+  the implementation commit.
+
+Local implementation acceptance applies only to seven-file snapshot
+`2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f`.
+An exact commit, fresh Linux/macOS x Python 3.12/3.13 merge-ref CI and a separate
+post-CI exact-head Architect acceptance are still required.
+
+Local, wheel, independent review and remote CI observations remain distinct.
+Passing this first bounded subrelease will not complete the later
+`integrity-runtime` slice or all of VPKB-001. No record here authorizes
+apply/recover/admin, a real Vault, network/models, PR readiness, merge,
+auto-merge or a human gate.

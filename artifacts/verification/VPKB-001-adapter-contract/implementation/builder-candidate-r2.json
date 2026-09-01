@@ -1,0 +1,159 @@
+{
+  "authenticated_upstream_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+  "baseline": {
+    "head": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "tree": "757f33cfcfc561e919b0b5d2702e40834cb53204"
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/contracts.py": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+    "src/video_paper_wiki/upstream_adapter.py": "febf3e08274892f50d3a8e01bcc06c72362000db6f279f37a9f3d41db5c7c199",
+    "tests/contract/test_upstream_authority.py": "8d51287f233563265ae84a6cd040a3700571143f885885ce5beb958f9dff21d4",
+    "tests/fixtures/upstream-authority/source-id-vectors.json": "adf41eb1599df42a95324c3f8c732e5a61c255a623d482e4450833a5f8f8bb93",
+    "tests/security/test_upstream_adapter_boundary.py": "262c0f22ac935cd58fe5731b5074adb74e6951df3f07c103f899791ca0017a47",
+    "tests/unit/test_upstream_adapter.py": "26b5d8d214c7d4b0dd7798518710d9cc460b505989ee4011c9bc2dc8ce818d89",
+    "tests/upstream/test_vpkb001_transaction_inspect.py": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817"
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "includes_raw_bytes_directly": false,
+    "sha256": "2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f"
+  },
+  "correction_authority": {
+    "path": "/private/tmp/vpkb-001-implementation-steward-review.json",
+    "sha256": "5b4fb1012912cb6e000144fca3d7df858721b5e8456cc87139233123e9a76790"
+  },
+  "corrections": [
+    {
+      "id": "B1",
+      "proof": "phase-2 staging name/layout/batch validation precedes profile, pin, and allocation",
+      "result": "fixed"
+    },
+    {
+      "id": "B2",
+      "proof": "authority reconstructs exact compact bundle and binds digest plus size",
+      "result": "fixed"
+    },
+    {
+      "id": "B3",
+      "proof": "NUL and all surrogate path code points map to sanitized ADAPTER_PATH_INVALID",
+      "result": "fixed"
+    },
+    {
+      "id": "B4",
+      "proof": "allocation root, execution, and scratch are exact no-follow mode-0700 directories before and after child",
+      "result": "fixed"
+    },
+    {
+      "id": "B5",
+      "proof": "every Git call disables fsmonitor, optional locks, replace objects, global/system config, and lazy fetch; marker regression passes",
+      "result": "fixed"
+    },
+    {
+      "id": "B6",
+      "proof": "partial construction cleanup is mandatory and cleanup failure overrides with sanitized contract mismatch",
+      "result": "fixed"
+    },
+    {
+      "id": "B7",
+      "proof": "all post-success attach and constructed-authority ContractError values map to sanitized contract mismatch",
+      "result": "fixed"
+    },
+    {
+      "id": "B8",
+      "proof": "transport fingerprint binds work, batch, stage, content directory identities/modes plus leaves",
+      "result": "fixed"
+    }
+  ],
+  "frozen_expected": {
+    "contract": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+    "packet": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+    "profile": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+    "schema": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+    "source_snapshot": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34"
+  },
+  "frozen_inputs": {
+    "architect_acceptance": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-architect-acceptance.json",
+      "sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827"
+    },
+    "contract": {
+      "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md",
+      "sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792"
+    },
+    "packet": {
+      "path": "docs/ai/packets/VPKB-001-adapter-contract.md",
+      "sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9"
+    },
+    "profile": {
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1"
+    },
+    "schema": {
+      "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+      "sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a"
+    }
+  },
+  "git_observation": {
+    "index_paths": [],
+    "note": "Existing user/untracked content is preserved and outside this candidate."
+  },
+  "limitations": [
+    "original_size_bytes is preserved but is not independently attested by upstream inspect",
+    "this candidate does not authorize apply/recover/admin, ledger merge/audit, mapper, real Vault, models, or network",
+    "local Builder environment provides Python 3.13.13 only; Python 3.12, installed-wheel smoke, independent review, and fresh four-job CI remain acceptance work"
+  ],
+  "rejected_candidate_evidence": {
+    "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/builder-candidate.json",
+    "sha256": "6956a0ca43f2be06dc5b4a23bfe64487780e019193f10d79253452606bc2f635"
+  },
+  "revision": 2,
+  "schema": "video-paper-wiki.vpkb-001-adapter-implementation-candidate.v1",
+  "status": "builder_candidate_local_only",
+  "supersedes_rejected_snapshot": "44db08d313bae3d8aa4668bc9c760cd7130fb8d74cf5664237756b329f10bcff",
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -q -p no:cacheprovider --basetemp=<PRIVATE_TMP>/focused-base --junitxml=<PRIVATE_TMP>/focused.xml tests/unit/test_upstream_adapter.py tests/contract/test_upstream_authority.py tests/upstream/test_vpkb001_transaction_inspect.py tests/security/test_upstream_adapter_boundary.py",
+      "duration_seconds": 4.89,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "/private/tmp/vpa-builder-r2/focused.xml",
+      "junit_sha256": "97431151e42dcce62d3b552a449f4ac5a8bd149c533d48621ae1d772ccc11339",
+      "log": "/private/tmp/vpa-builder-r2/focused.log",
+      "log_sha256": "10396077902662843047980a422139533dae9385eb243bef847a59c5193d2c2e",
+      "name": "focused_and_adversarial",
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 86
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -q -p no:cacheprovider --basetemp=<PRIVATE_TMP> tests/security tests/contract/test_schemas.py tests/contract/test_additional_properties.py tests/unit/test_transaction_contracts.py tests/contract/test_transaction_independent.py",
+      "duration_seconds": 9.26,
+      "environment_note": "AF_UNIX tests ran under the already-authorized execution outside the managed sandbox.",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "name": "expanded_security_contract",
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 472
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -q -p no:cacheprovider --basetemp=<PRIVATE_TMP>/full-base --junitxml=<PRIVATE_TMP>/full.xml",
+      "duration_seconds": 67.79,
+      "environment_note": "AF_UNIX tests ran under the already-authorized execution outside the managed sandbox; all test data used a short real /private/tmp base.",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": "/private/tmp/vpa-builder-r2/full.xml",
+      "junit_sha256": "3765f44af2b7fbce4623049df09a85c8b752f319aac8273a7c31522744f7cb6e",
+      "log": "/private/tmp/vpa-builder-r2/full.log",
+      "log_sha256": "b1606f3a1bc5a523a58b42a381d6d88ef03193205dcc133fef7b43fdf414728a",
+      "name": "full_locked_local",
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 1747
+    }
+  ],
+  "unresolved_contract_blockers": []
+}

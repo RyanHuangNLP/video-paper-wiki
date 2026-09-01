@@ -797,6 +797,10 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
         from video_paper_wiki.code_evidence_contracts import _check_code_evidence_manifest
 
         _check_code_evidence_manifest(document)
+    elif schema_name == "video-paper-wiki.upstream-authority.v1":
+        from video_paper_wiki.upstream_adapter import _check_upstream_authority
+
+        _check_upstream_authority(document)
     elif schema_name == "video-paper-wiki.ingest-plan.v1":
         _check_plan_object(document, schema_name)
     elif schema_name == "video-paper-wiki.prepared.v1":
@@ -865,7 +869,11 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             schema=schema_name,
             keyword="type",
         )
-    if schema_name in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
+    if schema_name in {
+        "video-paper-wiki.transaction-facade.v1",
+        "video-paper-wiki.operation-head.v1",
+        "video-paper-wiki.upstream-authority.v1",
+    }:
         from video_paper_wiki.transaction_contracts import _json_preflight
 
         _json_preflight(document)
@@ -874,7 +882,11 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
     try:
         errors = list(validator.iter_errors(document))
     except (ValueError, RecursionError) as exc:
-        if schema_name not in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
+        if schema_name not in {
+            "video-paper-wiki.transaction-facade.v1",
+            "video-paper-wiki.operation-head.v1",
+            "video-paper-wiki.upstream-authority.v1",
+        }:
             raise
         raise _schema_error(
             "document cannot be schema-validated",

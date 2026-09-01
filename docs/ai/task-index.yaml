@@ -138,17 +138,18 @@ work_packages:
     title: Vault and upstream transaction adaptation
     status: in_progress
     depends_on: [VPKB-000]
-    prerequisite_status: satisfied-for-architecture-and-contract-freeze
+    prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: architecture_contract_freeze
-    implementation_status: not_started
+    phase: adapter_contract_implementation_delivery
+    implementation_status: first_subrelease-local-accepted-pending-commit-ci
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
-      work packages or runtime lifecycle states. The first bounded subrelease
-      freezes pinned read-only transaction inspection and isolated file source-ID
-      verification. Production starts only after fresh exact-head freeze CI and
-      Architect acceptance. Complete both slices before VPKB-002.
+      work packages or runtime lifecycle states. The first bounded subrelease's
+      architecture freeze is accepted at be7ecf303af2879459036ed8e6831291f168fac4.
+      Its exact R2 implementation has passed Builder, independent Repo Steward,
+      dual-Python and installed-wheel local acceptance; exact commit, fresh CI and
+      post-CI Architect acceptance remain. Complete both slices before VPKB-002.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
@@ -570,7 +571,7 @@ packets:
     parent: VPKB-001
     title: Pinned upstream adapter contract and runtime compatibility
     status: in_progress
-    phase: architecture_contract_freeze
+    phase: implementation_delivery
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -581,7 +582,10 @@ packets:
       path: docs/ai/contracts/vpkb-001-adapter-contract-v1.md
       revision: 1
       sha256: 823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792
-      status: freeze-candidate-reviewed-pending-commit-ci
+      status: frozen-accepted-at-be7ecf303af2879459036ed8e6831291f168fac4
+      accepted_head: be7ecf303af2879459036ed8e6831291f168fac4
+      acceptance: artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-architect-acceptance.json
+      acceptance_sha256: 83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827
     first_subrelease:
       id: pinned-read-only-transaction-inspect-adapter-v1
       schema: video-paper-wiki.upstream-authority.v1
@@ -594,10 +598,23 @@ packets:
       upstream_tree: b00665e266988fe99138e761dbbf4da04b2ddb5a
       upstream_version: 2.1.1
       upstream_source_snapshot_sha256: 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34
-      implementation_status: not_started
+      implementation_status: architect-local-accepted-pending-commit-ci
       implementation_gate: >-
-        Requires an exact architecture-freeze commit, fresh four-job merge-ref
-        CI and separate Architect acceptance before Builder writes production code.
+        Architecture freeze prerequisite is complete. Exact implementation snapshot
+        2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f
+        passed independent review and local Architect acceptance. It still requires
+        an exact commit, fresh four-job merge-ref CI and post-CI exact-head acceptance.
+      implementation_evidence:
+        builder_r2: artifacts/verification/VPKB-001-adapter-contract/implementation/builder-candidate-r2.json
+        builder_r2_sha256: d0ec923d72b86ec1d1c0b49d64941751caf5182d5c41ebe9deea29795358531e
+        steward_r2: artifacts/verification/VPKB-001-adapter-contract/implementation/steward-review-r2.json
+        steward_r2_sha256: 0540117c58f7509b752a5ca80f3a36570f4fc5352426b443f702636afdd0299e
+        steward_verdict: GO_FOR_ARCHITECT_ACCEPTANCE
+        architect_local: artifacts/verification/VPKB-001-adapter-contract/implementation/architect-local-acceptance.json
+        architect_local_sha256: 9d435f169ad1072c87e3be533821e90be076c21f9295fb16e5f3f0fe5646aced
+        local_python_312: 1747-passed
+        local_python_313: 1747-passed
+        installed_wheel: passed
       scope:
         - Authenticate the explicit pinned clean upstream checkout and static profile.
         - Copy exactly 21 verified source files to a fresh private execution tree.
@@ -614,8 +631,9 @@ packets:
         no catalog rows. A later mapper/compiler must introduce a new profile
         revision binding adapter/schema/profile bytes and consumed authority.
     verification:
-      status: architecture-candidate-reviewed-pending-commit-ci
+      status: implementation-local-accepted-pending-commit-ci
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
+      delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       fresh_ci_required: true
       architect_acceptance_required: true
       merge_authorized: false

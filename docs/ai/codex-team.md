@@ -82,21 +82,25 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 - PR [#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94) 仍是
   open/draft → `integration`，未合并；base 为
   `08709894adfb20ec07e976783f0ba436d975b74f`。
-- VPKB-000 在精确 head
-  `acd3821b15e62bce13fa07b82c1665d501f27f67` 完成。Tests run
-  `33456016766` 的 Linux/macOS × Python 3.12/3.13 四项各 1658 通过；
-  实际 checkout 是合并预览
-  `1db75993d8a9843f73a532c9838361462ce05561`。独立 Architect 决定及
-  CI/merge-parent 记录保存在 `artifacts/verification/VPKB-000-projection-contracts/`。
-- 这份完成结论允许开始 VPKB-001 架构与契约冻结，不自动允许生产代码、PR
-  ready/review、merge、auto-merge 或人工 gate。
+- VPKB-000 已在精确 head
+  `acd3821b15e62bce13fa07b82c1665d501f27f67` 完成。VPKB-001 首个子版本的
+  架构冻结随后在精确 head `be7ecf303af2879459036ed8e6831291f168fac4`
+  通过 Architect 验收；Tests run `33461002166` 的 Linux/macOS × Python
+  3.12/3.13 四项各 1661 通过，实际 checkout 是合并预览
+  `bd26ab57e9f200181fed7b3175256fdbe39dbfad`。
+- Builder 的 R2 实现固定为七文件 snapshot
+  `2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f`。
+  Repo Steward 独立重放 B1–B8 共 27 个攻击向量，结论为
+  `GO_FOR_ARCHITECT_ACCEPTANCE`；主控的 Python 3.12/3.13 全量测试各
+  1747 通过，离线 installed-wheel 隔离验证也通过。当前仍是工作树候选，等待
+  精确提交、新四项 CI 和 post-CI exact-head Architect 验收。
 - 目录与 overlays 继续冻结为 67；保留所有既有未跟踪计划、`inbox/`、`tools/`
   和 `.DS_Store`。
 
-当前 packet 是
+当前 packet 仍是
 [VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)，规范为
 [vpkb-001-adapter-contract-v1](contracts/vpkb-001-adapter-contract-v1.md)。
-首个有界子版本只冻结固定上游的只读 `transaction inspect`、确定性
+首个有界子版本实现固定上游的只读 `transaction inspect`、确定性
 `bundle.json + content/<sha256>` 传输、`upstream-authority.v1` 和隔离的 file
 `stable_source_id` 调用。两个 Python 子进程都只从临时私有执行树加载 profile 验证过的
 21 个源码文件，不直接从含 ignored `.pyc` 的 live checkout 导入；继承环境会被只指向
@@ -104,11 +108,12 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 apply/recover/admin、真实 Vault、ledger merge、
 receipt/audit、mapper/compiler、Docling、BM25/index 或 retrieval。
 
-架构冻结候选先由两个 medium 子agent独立审查，再由 Repo Steward 精确路径提交并收集
-新的四项 CI。Architect 只有在核对新 head、base、merge preview、job 日志和提交 blob 后
-才可签发 freeze acceptance。Builder 随后依据另行下发的精确 allowed paths 编写主要实现；
-冻结 schema/profile/规范、现有 facade/capture 契约、vendor pin 和 generation revision 1
-不得由 Builder 顺手修改。
+架构冻结已经完成。实现 R1 的独立审查报告保留八个阻断项；Builder 的 R2 修复和
+Repo Steward 的最终 GO 报告保存在 `artifacts/verification/VPKB-001-adapter-contract/implementation/`。
+接下来由 Repo Steward 只暂存 delivery manifest 列出的精确路径并提交、推送；Architect
+随后核对新 head、base、merge preview、四个 job 日志和提交 blob，再签发单独的
+implementation exact-head acceptance。冻结 schema/profile/规范、现有 facade/capture
+契约、vendor pin 和 generation revision 1 在该过程中保持不变。
 
 `base-catalog-v1` generation revision 1 在此子版本保持不变，因为 inspect adapter
 不生成 catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation
@@ -116,10 +121,10 @@ profile revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-
 `adapter-contract` → `integrity-runtime` 顺序完成，首个子版本通过不代表整个 slice 或
 VPKB-001 完成。
 
-保持同一 PR 中的单业务写者：Architect 写冻结设计，Builder 在放行后写主实现，Steward
-串行处理 Git/CI。每次审查以 `packet_base_sha..candidate_head_sha` 为本包增量，同时检查
-跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动覆盖以
-`integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。
+保持同一 PR 中的单业务写者：Builder 已停止写入 R2，Architect 只维护验收状态和证据，
+Steward 串行处理 Git/CI。每次审查以 `packet_base_sha..candidate_head_sha` 为本包增量，
+同时检查跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动
+覆盖以 `integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。
 
 ## 工具与持续运行的实际边界
 
