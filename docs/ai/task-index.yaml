@@ -6,7 +6,7 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 3e2bebb1d50928a7af95e07b4868bdbe8113cd0b
+  continued_head: 951131d7b9cfd59a56abce430b5d5ceb3fe331c1
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
@@ -319,14 +319,14 @@ packets:
     parent: VPKB-000
     title: SQLite and projection stability shared contracts
     status: in_progress
-    phase: assessment_history_delivery_and_remaining_contract_review
+    phase: base_foundation_implementation
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
     packet_document: docs/ai/packets/VPKB-000-projection-contracts.md
     base_commit: 5f4c186566c15ab5ee8df10c587e4709d6223f32
     depends_on: [VPKB-000-transaction-facade]
-    contract_status: partially-frozen-runtime-locator-and-history
+    contract_status: frozen
     runtime_contract:
       path: docs/ai/contracts/projection-runtime-v1.md
       revision: 1
@@ -366,13 +366,13 @@ packets:
       sha256: ff7e7830d9931c52c447a2a95818dca091cb6d5bc97184d1be1103072ecf44cb
       status: frozen
       slice_base_commit: 3e2bebb1d50928a7af95e07b4868bdbe8113cd0b
-      implementation_status: complete-local-verification-pending-ci
+      implementation_status: complete
       allowed_paths:
         - src/video_paper_wiki/assessment_history.py
         - tests/test_assessment_history.py
         - tests/fixtures/assessment-history/**
       verification:
-        status: passed-locally-pending-ci
+        status: passed-locally-and-ci
         evidence_directory: artifacts/verification/VPKB-000-projection-contracts/assessment-history/
         source_count: 292
         source_snapshot_sha256: 3564cd9e769825c6190fc4c03d93655bd2deed2b022ef752762c51244b7f41ae
@@ -380,8 +380,99 @@ packets:
         independent: 85 checks and 184 focused tests passed; 29 positive and 38 negative precomputed vectors retained unchanged.
         wheel: Fresh offline build/install and isolated 18-schema smoke passed with all previous checks and independent history vectors.
         wheel_sha256: 23d40bf7676eeb631e1b8cb0fe4e7fc8c268ccfba529a2e625a2618f43d8fa15
+        accepted_head: 951131d7b9cfd59a56abce430b5d5ceb3fe331c1
+        remote_ci:
+          evidence: artifacts/verification/VPKB-000-projection-contracts/assessment-history/ci-observation.json
+          acceptance: artifacts/verification/VPKB-000-projection-contracts/assessment-history/architect-acceptance.json
+          run_id: 33437880575
+          attempt: 1
+          conclusion: success
+          tested_ref: refs/remotes/pull/94/merge
+          tested_checkout_sha: bdf80bd6145c5351ee34f459eede1bb121a28441
+          jobs: [99638647086, 99638647197, 99638647270, 99638647376]
+          result: Each Linux/macOS and Python 3.12/3.13 job passed all 1596 tests.
+          python_versions: [3.12.14, 3.13.15]
         merge_authorized: false
-    implementation_status: runtime-and-locator-accepted-history-pending-ci
+    base_foundation_contract:
+      revision: 1
+      status: frozen
+      slice_base_commit: 951131d7b9cfd59a56abce430b5d5ceb3fe331c1
+      input_contract:
+        path: docs/ai/contracts/projection-input-v1.md
+        sha256: 79a500abca2406f060b9363b4675bd07b9fedbbccf78e2aac058763de13892c8
+      catalog_generation_contract:
+        path: docs/ai/contracts/projection-catalog-v1.md
+        sha256: c0628175053da604267005a643020f03de9018b93132fd378b9ac57e8e8366bc
+      machine_resources:
+        ddl_sha256: 3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c
+        column_manifest_sha256: 439024fa2eed6695725c8fdfbe8d03e982e776160f5548f6201d99caaa0ee50c
+        generation_profile_sha256: 7b4e95e7b1ad89e492bab98486de359fe125854215fd2de5e7aaab3f4b8e333a
+        projection_input_schema_sha256: e2788477088eb8e5110c8c2d8e2c160c4c33cb26258da68c72897ddfcaa4169c
+        projection_generation_schema_sha256: 38e962a184b9048932103c0b710f98f41e2ed2686c4079628870e8fe98a4c255
+        catalog_rows_schema_sha256: 085e76c2b0f4b1f0cf546aa2ebbc44c548456adb2e180c93c5e3b190231373b6
+        structure: 34-strict-tables-230-columns-25-semantic-checks
+        generation_sets: 13-implementation-25-resources-8-upstream
+      freeze_evidence: artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-freeze.json
+      review_result: Builder and Repo Steward independently returned GO with zero architecture blockers.
+      implementation_status: local-candidate-accepted-pending-commit-ci
+      implementation_gate: >-
+        Correction-1 resolved the five bound blockers and the narrow
+        conditional-overlay test misclassification at an exact independently
+        reviewed snapshot. Final delivery still requires a serialized candidate
+        commit, fresh four-job merge-ref CI and exact-commit Architect acceptance.
+      correction_1:
+        work_package: /private/tmp/vpkb-base-foundation-correction-1-work-package.md
+        work_package_sha256: d5b363f2cc4c2dfa5f13ff272b505ee40f2a522b1e48da6ba9f02c40319b0b96
+        original_candidate_manifest_sha256: afe88f3437898ca3eb4641d18e367be20717fca45386c53abb64542560aa57ce
+        original_candidate_snapshot_sha256: b28a1e3d441c6d089477bdce9efabbafbacaceae278969d208132bd5cc4625f8
+        independent_review: /private/tmp/vpkb-base-foundation-steward-review-final-amended.json
+        independent_review_sha256: 3accab5273b006556a9fe3404a244639ad28d037a1fb037111ad6d842e0791b0
+        verdict: corrected-and-independently-passed
+        note: >-
+          Frozen contracts and machine resources remain unchanged. The claim-evidence
+          permutation hypothesis was independently disproved and is not correction
+          scope. The projection-generation runtime oneOf branches are conditional
+          overlays under an already closed parent, so only the generic test is
+          narrowed; the schema is not revised.
+      verification:
+        status: passed-locally-pending-commit-ci
+        candidate_manifest: artifacts/verification/VPKB-000-projection-contracts/base-foundation/vpkb-base-foundation-builder-candidate-correction-1.json
+        candidate_manifest_sha256: 6e6e17a6aee81d8e3cb58e476f089c735b70f0861703d924da955f11ceca6c0e
+        source_file_count: 20
+        source_snapshot_sha256: 4cb20593b27df1d09859e54fd3fcbde84fccbe1ce440bd9a370a964bd326a287
+        independent_review: artifacts/verification/VPKB-000-projection-contracts/base-foundation/vpkb-base-foundation-steward-review-correction-1-final.json
+        independent_review_sha256: 3afe960fb96e0dc597db44970b09eec603a46b7f7ff67a180412913a1f53c371
+        independent_result: 148 oracle checks and 621 focused tests passed; all five blocker groups replayed successfully.
+        local_result: Python 3.12.14 and 3.13.13 each passed 1658 tests with zero failures, errors or skips.
+        wheel_evidence: artifacts/verification/VPKB-000-projection-contracts/base-foundation/installed-wheel-correction-1.json
+        wheel_sha256: 71ff3b1bba686c261921c070826a24ce655e4b7d722164e4a79286288eb2e876
+        wheel_result: Isolated offline install passed with 21 schemas and all 25 required resources byte-equal to the checkout.
+        architect_local_acceptance: artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-local-acceptance-correction-1.json
+        architect_local_acceptance_sha256: b3a9a2db0e070e19b7efdb3d3ca3737f08879f596ea26705795b2b799f6686d2
+        remote_ci: pending-new-candidate-commit
+        merge_authorized: false
+      allowed_paths:
+        - src/video_paper_wiki/projection_input.py
+        - src/video_paper_wiki/projection_generation.py
+        - src/video_paper_wiki/projection_catalog.py
+        - src/video_paper_wiki/contracts.py
+        - src/video_paper_wiki/identity.py
+        - src/video_paper_wiki/resources.py
+        - pyproject.toml
+        - tests/contract/test_schemas.py
+        - tests/contract/test_additional_properties.py
+        - tests/contract/test_dependency_manifest.py
+        - tests/test_projection_input.py
+        - tests/test_projection_generation.py
+        - tests/test_projection_catalog.py
+        - tests/unit/test_identity.py
+        - tests/fixtures/projection-input/**
+        - tests/fixtures/projection-generation/**
+        - tests/fixtures/projection-catalog/**
+        - tests/security/_projection_scope_policy.py
+        - tests/security/test_projection_scope_policy.py
+        - tests/unit/test_search.py
+    implementation_status: runtime-locator-history-accepted-base-foundation-local-passed-pending-ci
     note: >-
       Runtime numeric comparison and pinned emitter profiles passed independent
       review, full local verification and exact candidate CI. The first full
@@ -392,14 +483,17 @@ packets:
       and accepted at its own commit after full local/wheel and four-job CI.
       Standalone complete assessment-history revision 1 is now separately frozen
       and implemented after two independent specification reviews. It passed
-      complete local/wheel and independent checks; its new commit/CI remain
-      pending. Complete canonical input,
-      exact DDL/row export and generation remain under design review;
-      the whole packet is not frozen or accepted. Assessment
+      complete local/wheel and independent checks, followed by independently
+      verified new four-job CI and acceptance at 951131d. Base inventory,
+      exact DDL/row export and generation revision 1 are now independently
+      reviewed and frozen for pure foundation implementation; the implementation
+      and whole packet are not yet accepted. Assessment
       heads derive from the complete validated immutable event graph, with no
       new mutable registry or facade exception. Retrieval join/config/gold and
-      production index writers
-      remain outside this packet. Historical facade CI does not validate new work.
+      production index writers remain outside this packet. Base rows prove
+      structural consistency, not faithful compilation from declared byte hashes;
+      actual bytes-to-rows mapping and semantic Docling evidence checks remain
+      mandatory in VPKB-001/002 according to the original plan. Historical facade CI does not validate new work.
     verification:
       status: runtime-passed-locally-and-ci
       scope: runtime-slice-only-not-complete-projection-packet

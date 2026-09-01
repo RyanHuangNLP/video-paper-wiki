@@ -1,9 +1,9 @@
 # VPKB-000-projection-contracts — architecture review
 
-Parent VPKB-000. Status: in progress. Runtime comparison and ledger locator
-revision 1 are separately frozen. Complete canonical inputs/history, SQLite
-and generation remain under architecture review. Only the two bounded slices
-specified below are released.
+Parent VPKB-000. Status: in progress. Runtime comparison, ledger locator and
+complete assessment history revision 1 are separately frozen and accepted.
+Base canonical inventory, SQLite/row export and generation remain under
+architecture review. Only the three bounded slices specified below are released.
 Predecessor: VPKB-000-transaction-facade, accepted at
 `5f4c186566c15ab5ee8df10c587e4709d6223f32`; this is the packet baseline.
 CI run 33426054898 attempt 1 tested merge preview
@@ -143,11 +143,11 @@ evidence errors. Decode-evidence outer value/type errors precede decoding;
 inner wire errors retain locator codes/envelope pointers. Resource refusals
 always retain PROJECTION_LIMIT_EXCEEDED. Regression tests cover both layers.
 
-Remaining architecture drafts, not implementation releases:
+At that point the remaining architecture drafts, not implementation releases, were
 [canonical input/locator](../contracts/projection-input-v1.md) and
 [catalog/export/generation](../contracts/projection-catalog-v1.md). Both agents
-reviewed the complete locator wire section; the whole input and catalog
-contracts still need the exact inventory/path/closure/DDL decisions. Draft 2
+had reviewed the complete locator wire section; the whole input and catalog
+contracts still needed exact inventory/path/closure/DDL decisions. Draft 2
 withdraws the mutable assessment-head registry: validate the complete immutable
 event graph and derive its unique terminal, without changing facade create-only
 rules. The standalone locator release does not validate coordinates or inventory.
@@ -158,7 +158,7 @@ and licensed-source evidence; neither a successful facade nor this planning
 note closes it. No retrieval-config/gold, candidate depths, exact evidence join,
 runtime index writer, real Vault, parser models or human gate belongs here.
 
-## Requirements that must become exact before implementation
+## Requirements used for the later base freeze
 
 - catalog.sqlite base DDL, every PK/FK, deterministic ordering and a versioned
   canonical row export. Compare logical rows, not physical SQLite file bytes.
@@ -275,3 +275,161 @@ transition edges and an 801-event chain; Builder also tests a 1201-event chain.
 There are still 18 schemas. Only three authorized implementation/test files were
 added, with all prior 288 source inputs unchanged. New commit/CI and separate
 Architect exact-commit acceptance are pending; locator CI is not inherited.
+
+## Assessment-history delivery acceptance and next base-contract scope
+
+Architect accepted history revision1 at `951131d7b9cfd59a56abce430b5d5ceb3fe331c1`,
+parent `3e2bebb1d50928a7af95e07b4868bdbe8113cd0b`. Exact 55-file delivery and
+292 source inputs (343 unique Git blobs) match the reviewed candidate. New CI
+run 33437880575 attempt1 passed 1596 tests in each of the four matrix jobs;
+actual checkout `bdf80bd6145c5351ee34f459eede1bb121a28441` has independently
+verified parents integration `08709894adfb20ec07e976783f0ba436d975b74f` and that
+candidate. Separate history acceptance/CI/parent records preserve older pending
+observations and distinguish local Python3.13.13 from CI3.13.15.
+
+The original plan §4.3/§10 makes base DDL/keys/order, row export and generation
+VPKB-000 obligations, while real bytes-to-rows compilation and semantic Docling
+locator checks remain VPKB-001/002 obligations. Both medium agents independently
+reviewed this separation. Base artifact rows expose exact typed path/kind/hash/
+size and resolved links; they need not project every Docling/config/model field
+into SQL. Other existing canonical record/ledger/manifest fields remain fully
+typed. A consistent row set plus an honest input hash does not prove that those
+rows came from those bytes; later production code must implement and verify
+that mapping and cannot accept a caller flag in its place.
+
+The temporary DDL/column-manifest prototype authority ended at the architecture
+freeze below. Architect owns the frozen inventory, run-role, ledger/taxonomy,
+row-export and generation decisions; Builder must implement them without changing
+the machine resources, and Steward reviews implementation independently. VPKB-000
+remains open. No real Vault, parser/model execution, merge or human-gate change is
+authorized.
+
+## Base foundation architecture freeze and implementation release
+
+Builder and Repo Steward independently reviewed exact revision-2 candidate hashes
+and both returned GO with zero architecture blockers. Architect changed only the two
+contract status headers/headings and froze revision 1 on 2026-09-01:
+
+- [projection-input-v1](../contracts/projection-input-v1.md), SHA-256
+  `79a500abca2406f060b9363b4675bd07b9fedbbccf78e2aac058763de13892c8`;
+- [projection-catalog-v1](../contracts/projection-catalog-v1.md), SHA-256
+  `c0628175053da604267005a643020f03de9018b93132fd378b9ac57e8e8366bc`.
+
+The six machine resources remained byte-identical across the status transition:
+
+- DDL `3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c`;
+- column manifest `439024fa2eed6695725c8fdfbe8d03e982e776160f5548f6201d99caaa0ee50c`;
+- generation profile `7b4e95e7b1ad89e492bab98486de359fe125854215fd2de5e7aaab3f4b8e333a`;
+- projection-input schema `e2788477088eb8e5110c8c2d8e2c160c4c33cb26258da68c72897ddfcaa4169c`;
+- projection-generation schema `38e962a184b9048932103c0b710f98f41e2ed2686c4079628870e8fe98a4c255`;
+- catalog-rows schema `085e76c2b0f4b1f0cf546aa2ebbc44c548456adb2e180c93c5e3b190231373b6`.
+
+The freeze evidence is under `base-foundation/` in this packet's verification
+directory. Both supported local Python lines passed the 21-schema, 38 positive/190
+strict-terminal negative, 34-table/230-column/25-semantic-check and catalog-67
+architecture replay. Independent SQLite DDL evidence passed 752 probes. SQLite is
+only writer/DDL evidence: canonical row acceptance is pure Python, and no SQLite
+library version or failure participates in generation or row API results.
+
+The old `tests/contract/test_schemas.py` still hardcodes 18 and therefore currently
+reports 30 passes and one failure against the frozen 21 schemas. Both reviewers
+confirmed that this leaves no normative decision open, so it did not block the
+architecture freeze. It is an absolute implementation gate: Builder must change the
+count to 21 and add new-title, offline-reference and strict-terminal regressions, and
+no final worktree/wheel/CI result may waive or relabel that failure.
+
+Builder is the sole production/test writer for this implementation release. Owned
+paths are:
+
+- new pure modules `src/video_paper_wiki/projection_input.py`,
+  `projection_generation.py` and `projection_catalog.py`;
+- `src/video_paper_wiki/contracts.py`, only adding the three frozen schema titles to
+  the existing `_SCHEMA_TITLES` registry whitelist; `_validator_for`, format
+  checking, error/URL behavior and existing dispatch stay unchanged;
+- `src/video_paper_wiki/identity.py`, only the frozen exact `repo_page_slug` addition;
+- `src/video_paper_wiki/resources.py`, only fixed package/repo loading for the frozen
+  taxonomy/catalog resources, with no installed-build CWD qualification;
+- `pyproject.toml`, only wheel inclusion of exact taxonomy/catalog resources;
+- `tests/contract/test_schemas.py`, `tests/contract/test_dependency_manifest.py`, new
+  `tests/test_projection_{input,generation,catalog}.py` and corresponding declared
+  fixture directories; the correction release may also narrowly update
+  `tests/contract/test_additional_properties.py` for the three runtime conditional
+  overlays while retaining the broad closure guard;
+- `tests/unit/test_identity.py`, only focused `repo_page_slug` coverage without
+  changing existing identity expectations;
+- only if the frozen `bm25_profile` field triggers the existing historical scope
+  guard, a narrow test-only change to `tests/security/_projection_scope_policy.py`,
+  `tests/security/test_projection_scope_policy.py` and `tests/unit/test_search.py`.
+  It may admit the pure material field/profile in these three released modules but
+  must retain all engine/tokenizer/build/query/I/O/upstream restrictions.
+
+The DDL, column manifest, generation profile, three schemas and both normative
+contracts are Architect-owned frozen inputs and are read-only for Builder. Builder
+must report a real inconsistency instead of changing them, altering architecture or
+expanding scope. No existing identity/JCS/runtime/locator/history/facade behavior,
+dependency lock, CLI, vendor source, real filesystem/Vault, SQLite writer, mapper,
+renderer, Docling/model execution or Git mutation belongs to this release.
+
+Implementation acceptance requires adversarial public-API tests for every frozen
+phase/error/limit/type/order/isolation boundary and all 25 semantic checks; unchanged
+old goldens; complete Python 3.12.14/3.13.13 suites with equal before/after source
+maps; a fresh offline wheel containing all 21 schemas, taxonomy and three catalog
+resources; independent Steward vectors/review; then a serialized candidate commit,
+fresh four-job PR merge-ref CI and a separate Architect exact-commit decision. This
+release does not implement or accept VPKB-001 byte-to-row authority, a writer or a
+human gate.
+
+## Base foundation correction 1
+
+Builder's first stable 18-file candidate was bound by manifest SHA-256
+`afe88f3437898ca3eb4641d18e367be20717fca45386c53abb64542560aa57ce`
+and source snapshot SHA-256
+`b28a1e3d441c6d089477bdce9efabbafbacaceae278969d208132bd5cc4625f8`.
+Independent Steward review returned `CHANGES_REQUIRED`. Its amended machine report
+SHA-256 is
+`3accab5273b006556a9fe3404a244639ad28d037a1fb037111ad6d842e0791b0`
+and supersedes the earlier report.
+
+Architect authorized correction work package
+`/private/tmp/vpkb-base-foundation-correction-1-work-package.md`, SHA-256
+`d5b363f2cc4c2dfa5f13ff272b505ee40f2a522b1e48da6ba9f02c40319b0b96`.
+It binds five blocker groups: separation of a complete code-manifest file SHA from
+its self-excluding manifest hash; row-semantic locator-limit error mapping; installed
+resource and registry-schema isolation; exact collection/cell/presence/key phase and
+manifest traversal order; and catalog-wrapper preflight classification for invalid
+generation subtrees. It also directs a path-exact correction to the generic
+additional-properties test because the three runtime `oneOf` nodes are conditional
+overlays under an already closed parent. The frozen contracts, three schemas and
+three catalog machine resources do not change.
+
+The same independent review disproved a suspected claim-evidence row-order defect:
+both two-occurrence permutations accepted and produced identical canonical bytes.
+That path is excluded from correction scope. Builder again becomes the sole writer
+only for the exact correction paths; Steward remains read-only until a new complete
+candidate snapshot is declared.
+
+Builder's correction-1 stable manifest has SHA-256
+`6e6e17a6aee81d8e3cb58e476f089c735b70f0861703d924da955f11ceca6c0e`;
+its 20-file snapshot is
+`4cb20593b27df1d09859e54fd3fcbde84fccbe1ce440bd9a370a964bd326a287`.
+Relative to the first candidate, exactly the six correction-authorized paths changed.
+Steward independently recomputed the candidate and returned implementation-level GO:
+the unmodified contract-valid suite passed 148 checks with zero failures, comprising
+30 vectors and all 25 semantic IDs exactly once, and all five blocker counterexamples
+now pass. Report SHA-256 is
+`3afe960fb96e0dc597db44970b09eec603a46b7f7ff67a180412913a1f53c371`.
+
+Architect passed the complete 1658-test suite under both CPython 3.12.14 and 3.13.13,
+with zero failures, errors or skips. A fresh offline wheel has SHA-256
+`71ff3b1bba686c261921c070826a24ce655e4b7d722164e4a79286288eb2e876`.
+From outside the source checkout, its isolated install loaded all three new public APIs,
+exactly 21 schemas and the exact 25 required resources byte-equal to the checkout; the
+independent complete catalog encoded to
+`bf9194056f58ff6b9160f752138c3071c8eef8a1de36b2e26492f1a282b43d02`.
+Catalog count remains 67, the candidate snapshot remained byte-identical after all
+checks, `git diff --check` passes and the index is empty.
+
+This is local candidate acceptance pending a serialized commit and fresh four-job PR
+merge-ref CI. It does not make PR94 ready, authorize merge or close VPKB-000, and it
+does not accept a production mapper/writer, real Vault/parser/model work or any human
+gate.

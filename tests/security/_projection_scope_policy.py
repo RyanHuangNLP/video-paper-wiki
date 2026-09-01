@@ -10,14 +10,16 @@ from __future__ import annotations
 import ast
 import re
 
-_APPROVED = frozenset({"projection_runtime.py", "contracts.py"})
+_APPROVED = frozenset({"projection_runtime.py", "contracts.py", "projection_generation.py"})
 _GOLD = ("retrieval-gold", "retrieval_gold")
 _PROFILE_LITERALS = frozenset({
     "bm25", "claude-obsidian.bm25.v2",
+    "bm25_profile",
     "video-paper-wiki.upstream-bm25-profile.v1",
     "runtime kind must be chunk or bm25",
 })
 _RUNTIME_NAMES = frozenset({"_bm25_fields", "_bm25_content"})
+_GENERATION_NAMES = frozenset({"bm25_profile"})
 _FORBIDDEN_IMPORTS = (
     "claude_obsidian", "rank_bm25", "bm25", "subprocess", "socket", "sqlite3",
     "os", "pathlib", "shutil", "argparse", "click", "typer", "importlib",
@@ -76,6 +78,7 @@ def assert_projection_source_scope(relative_path: str, source: str | None = None
         if isinstance(node, (ast.Name, ast.Attribute)):
             name = node.id if isinstance(node, ast.Name) else node.attr
             if "bm25" in name.lower():
-                assert relative_path == "projection_runtime.py" and name in _RUNTIME_NAMES, (relative_path, name)
+                assert ((relative_path == "projection_runtime.py" and name in _RUNTIME_NAMES)
+                        or (relative_path == "projection_generation.py" and name in _GENERATION_NAMES)), (relative_path, name)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) and "bm25" in node.name.lower():
             assert relative_path == "projection_runtime.py" and node.name in _RUNTIME_NAMES, (relative_path, node.name)

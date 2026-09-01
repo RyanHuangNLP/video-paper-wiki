@@ -72,10 +72,10 @@ eight exited 0 and the wire relation `uncertain` produced one expected exit-2
 controls passed; project `uncertain` is transported explicitly as upstream
 `context`. No extra upstream property or second ledger was introduced.
 
-The locator input contract is **not frozen or released** by these experiments.
-The whole-snapshot input, history, SQLite and generation contracts require their
-own review and release. No full record, receipt/head, prospective workflow,
-real Vault, admin install, model or scientific/human acceptance is asserted.
+These experiments alone did **not** freeze or release the locator/input contract.
+The later sections record the separate locator, history and base-foundation reviews
+and releases. This historical experiment still asserts no full record, receipt/head,
+prospective workflow, real Vault, admin install, model or scientific/human acceptance.
 
 Normalized files replace the absolute repository root with `<REPOSITORY>` and
 `/private/tmp` with `<TEMP_ROOT>`, remove per-line trailing ASCII spaces/tabs,
@@ -187,3 +187,24 @@ formulas remain unchanged; cycle graph controls are explicitly synthetic. Actor
 labels do not authenticate humans, and complete supplied chains do not prove
 Vault inventory/receipt integrity. This candidate still needs its own commit/CI
 and exact-commit acceptance; the previous locator result is historical only.
+
+
+Later history-only acceptance is recorded in `assessment-history/ci-observation.json`,
+`assessment-history/merge-parents.json` and `assessment-history/architect-acceptance.json`.
+Head `951131d7b9cfd59a56abce430b5d5ceb3fe331c1` passed run33437880575 attempt1:
+four jobs each1596; actual merge `bdf80bd6145c5351ee34f459eede1bb121a28441`.
+Architect independently checked raw-log hashes/excerpts, job/Python metadata,
+343 source/delivery Git blobs, and GitHub REST merge parents. This later decision
+leaves the original local pending evidence unchanged and does not accept future
+base inventory/SQLite/generation work, production adapters, merge or human gates.
+
+`base-foundation/` records the subsequent architecture freeze and its separate local
+implementation evidence for canonical projection input, base row export/generation,
+the 34-table/230-column DDL and 25 semantic checks. The historical 18-versus-21 schema
+test failure remains in the freeze record; the correction-1 implementation resolves
+it without changing any frozen resource. Its exact 20-file snapshot passed the real
+independent 148-check oracle, all five blocker replays, and 621 focused tests. Architect
+then passed 1658 tests on each supported local Python line and a fresh isolated wheel
+with 21 schemas and 25 exact required resources. Catalog count remains 67. The local
+candidate still needs its own commit and fresh merge-ref CI; merge, VPKB-001
+mapper/writer work and every human gate remain unauthorized.

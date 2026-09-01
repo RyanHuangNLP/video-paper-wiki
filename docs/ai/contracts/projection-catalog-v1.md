@@ -1,240 +1,310 @@
-# Catalog rows and generation — architecture draft 1
+# Base catalog rows and generation material — revision 1
 
-Status: NOT FROZEN; no SQLite implementation release. Part of the complete
-VPKB-000-projection-contracts packet. Runtime revision 1 is separately frozen;
-canonical input/locator design is in projection-input-v1.md. This document
-records Architect decisions and remaining exact DDL work, not a finished
-database schema or evidence that VPKB-000 is complete.
+Status: FROZEN by Architect, 2026-09-01, paired with projection input revision 1.
+The reviewed structural resource is 34 SQLite STRICT tables and 230 columns. This
+revision authorizes only pure foundation implementation and tests. It does not release
+a filesystem mapper, SQLite writer, renderer, atomic compiler/index build, query CLI,
+publication transaction or human gate.
 
-## Projection and storage boundaries
+## Derived-state boundary
 
-`catalog.sqlite` is disposable derived state. Its business rows come from the
-validated canonical inventory, never Markdown, a chunk, a model response or a
-prior database row. A missing canonical field is not an invitation to infer a
-value. No writer, renderer, Vault enumeration, file replacement or query CLI
-is released by this draft. The future atomic builder belongs to VPKB-001 and
-the end-to-end canonical compiler to VPKB-002.
+`catalog.sqlite`, Markdown, chunks and BM25 are disposable outputs. Catalog business
+rows are a typed relational representation of the complete canonical input profile;
+they never come from a prior database, generated page, search result or model guess.
+A missing field stays absent/null according to its source profile and is never filled
+from another representation.
 
-Freeze one base DDL and a table/column/type/key manifest together. Do not
-substitute a generic untyped JSON store for the primary/foreign-key contract.
-The base excludes chunk-to-evidence joins, query/gold eligibility, candidate
-depth, rankings, score normalization, evaluator policy and retrieval config.
-Those later tables must be explicitly versioned extensions, not unannounced
-additions to the base row-export contract.
+VPKB-000 validates supplied rows and binds them to a declared generation material.
+This proves closed structural consistency only. It cannot prove that arbitrary rows
+were mapped from the inventory bytes or that supplied implementation/resource/
+dependency/upstream hashes and versions name code actually loaded. VPKB-001 must
+authenticate the corpus, collect software material and perform the deterministic
+byte-to-row mapping. VPKB-001/002 retain all
+real ledger, producer, PDF/code evidence, publication and atomic replacement duties.
 
-## Required relational coverage
+The base intentionally excludes chunk/evidence joins, retrieval candidate depth,
+rankings, score normalization, query/gold eligibility, evaluator policy and search
+configuration. Those require versioned extensions; they are not nullable columns or
+undocumented tables in base-catalog-v1.
 
-The exact columns/SQL are still under review. The following facts and links
-must all be represented before DDL release; this list cannot substitute for
-the eventual machine-checkable column manifest.
+## Frozen machine resources
 
-| Table family | Required facts and key relationships |
+The checkout resources are:
+
+- `catalog/base-catalog-v1.sql`: SQLite >= 3.37 STRICT DDL, SHA-256
+  `3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c`;
+- `catalog/base-catalog-v1.columns.json`: exact table/column/type/nullability,
+  complete PK/UQ/FK/CHECK/presence/ordinal mapping and 25 required semantic checks;
+- `catalog/base-catalog-v1.generation-profile.json`: closed implementation/resource/
+  upstream names, validation dependency sets, constants, source mappings and runtime
+  tuples, with names but no expected file hashes;
+- schemas `video-paper-wiki.projection-input.v1`,
+  `video-paper-wiki.projection-generation.v1` and
+  `video-paper-wiki.catalog-rows.v1`.
+
+DDL has no REAL, JSON, BLOB, custom SQL function, default, trigger or business payload.
+All text uses BINARY collation. Source booleans are converted to INTEGER 0/1 only by a
+later authenticated mapper after source validation; row callers cannot pass bool as an
+integer cell. The canonical row APIs never open SQLite and never inherit its affinity,
+version or diagnostic behavior. Deferred FKs and `PRAGMA foreign_keys=ON`, committed
+constraints and `PRAGMA foreign_key_check` apply only to independent DDL acceptance
+probes and the later SQLite writer. SQL remains an implementation defense rather than
+the authority for application semantics.
+
+The column manifest is authoritative for the 34 table names, exact column order,
+SQLite types, nullability, complete keys, source mapping, presence pairs and ordinal
+groups. A change to any of those or a semantic check requires a new reviewed catalog
+profile/resource revision. The manifest contains the DDL hash but never its own hash.
+
+## Relational coverage
+
+The base represents all of these facts without a generic JSON column:
+
+| Family | Required representation |
 | --- | --- |
-| canonical_inputs | Unique canonical path, kind and exact file SHA; no generated index/page inputs |
-| papers | Canonical paper ID, complete page metadata and dates, input path, active extraction path/hash |
-| paper_authors, paper_aliases, paper_code_urls | Original ordered values; authors may repeat; optional code_urls absence differs from present empty |
-| repos, repo_papers | Canonical repo ID, original repository spelling/full commit, officiality/license/archive metadata, ordered FK paper IDs |
-| subjects and claim_refs | Paper/repo owner FK, canonical stable subject, globally unique claim owner, owner ordinal, section/capability, lifecycle; core is paper-only |
-| sources, source_pages | Existing source-ledger record fields, source supersedes FK, ordered page references; no new source-ID algorithm |
-| paper_sources | Ordered paper-to-existing-source FKs |
-| claims | Existing ledger text/risk/confidence/notes/location/supersedes and claim ID; owner identity must recompute correctly |
-| claim_evidence | Original ordered evidence, source FK, wire relation, complete tagged locator; domain relation follows the explicit wire codec |
-| assessment_events, assessment_heads | Immutable complete events, same-claim predecessor links, one terminal head FK per claim derived from the complete validated chain; no persisted head registry input; current assessment/date derives from this head |
-| taxonomy_axes, taxonomy_terms, aliases | Supplied canonical labels, aliases and ordinals; term PK includes axis; do not invent a term-parent field absent from current taxonomy |
-| paper_taxonomy | Ordered FK pairs to the supplied taxonomy; do not silently deduplicate currently allowed repeated refs |
-| artifacts, run_manifests | Canonical immutable paths/hashes and complete parser/version/config/model/output bindings, including historical versions |
-| code_origins, code_manifests | Logical repo/full-commit/path/source binding and capture/line metadata; one raw byte source may have several logical origins |
-| alignment_manifests, alignment_capabilities | Manifest-qualified paper/repo/commit, officiality/license/archive facts, the original ordered officiality.evidence PDF locators, and all five capabilities, code locators, absence scope/search patterns and checkpoint_kind |
+| canonical_inputs, artifacts | Every path/kind/raw-SHA/size; typed root or one of four opaque artifact rows |
+| papers and ordered children | All paper metadata, authors/aliases/code URLs/source IDs/taxonomy, optional-array presence and active extraction |
+| repos and repo_papers | Canonical/original repository, full commit, officiality/license/archive and ordered paper links |
+| subjects, claim_refs, claims | Exactly one paper/repo owner per claim, section/core or capability shape, lifecycle and complete claim fields |
+| sources, source_pages, source_artifacts | Closed ledger fields/presence, ordered page links, supersedes and exact file/captured iff binding |
+| claim_evidence | Original order/duplicates, wire relation/source and complete canonical tagged locator |
+| assessment_events, assessment_heads | Every immutable event and the unique derived head from frozen complete history |
+| taxonomy tables | Root policy, exact axes/terms/labels/status and ordered duplicate-preserving aliases |
+| run_manifests, run_artifact_bindings | Every run field/presence and exact source/config/model/document roles |
+| code_origins, code_manifests | Every logical repo/commit/path/source origin and inspected capture/hash/line metadata |
+| alignment tables | Every immutable version, officiality evidence, five capabilities, locators, absence scope/patterns and checkpoint kind |
 
-Do not infer capability `unverified` merely because no alignment manifest is
-supplied. Missing alignment data and a supplied manifest explicitly stating
-unverified are different. Repo-record currently has no active-alignment
-selector: retain versions by immutable path/hash and refuse to select a
-"latest" one from wall clock, directory order or lexicographic hash. Defining
-a canonical selector, if needed for a current Code Page, must precede that
-production compiler in VPKB-001/002.
+Optional nullable values use explicit presence bits when omission differs from null.
+Optional arrays use a parent presence bit where absence differs from present empty.
+Ordered children retain zero-based ordinals and every duplicate admitted by the source
+schema. SQL NULL never stands for false, zero, empty string and omission at once.
 
-Optional non-nullable scalar fields use SQL NULL for absence. A field allowing
-both absence and explicit null needs an explicit presence bit as well, or an
-equivalent closed tagged representation defined in the column manifest. For
-optional arrays, retain an explicit presence bit plus ordinal children. Do not
-conflate absent, null, false, zero, empty string or empty array. Required
-booleans use integer 0/1 after validated conversion; arbitrary truthiness is
-not a conversion rule. Preserve every array order and duplicate allowed by
-its canonical schema, even when the value is not currently queried.
+All 25 non-SQL semantic checks in the manifest are mandatory. They include exact
+Python scalar types; inventory and typed-root coverage; artifact metadata equality;
+closed reconstruction; roots/presence/ordinals; one-owner identity; supersedes graph;
+file-source binding; managed page addresses; active extraction; complete assessment
+history; taxonomy; canonical locator and owner membership; inspected code origins;
+run roles/qualification; alignment coverage; row ordering; and generation binding.
+They may call the accepted existing schema/identity/locator/history validators, but
+must not weaken, normalize or replace their authority.
 
-Full locator strings carry fractional bbox values without SQLite REAL or a
-change to identity JCS. Any additional derived locator columns must be
-recomputed from that exact validated string, never become a second source.
-Code origins are not deduplicated by raw source ID alone. Historical PDF
-artifacts and run manifests remain addressable after active extraction moves.
+For `claim_evidence`, locator closure reconstructs the outer evidence wrapper, uses
+`decode_ledger_evidence`, and requires outer source/relation equality with the decoded
+locator. Alignment officiality/capability rows contain direct locators and have no
+outer relation; they validate decoded source/kind and owner membership without
+inventing a relation. Code-manifest rows prove reconstructed closed objects,
+proposal/self identities and declared source/artifact path/hash associations. They do
+not inspect captured payload bytes or prove newline, normalization, line or snippet
+truth; those byte-to-row checks remain VPKB-001 mapper work.
 
-Manifest hash closure must be specified field by field. In particular a
-run-manifest also contains ingest-plan/prepared/draft/receipt provenance hashes;
-preserve those hashes, but do not require importing pending drafts or staging
-documents as canonical business-fact inputs. Its document/config/model hashes
-need separately defined immutable artifact bindings. A hash-only provenance
-field is not proof the referenced bytes exist; the final mapping must name
-which facts require a resolved artifact FK and which retain a supplied digest.
+## Public row APIs
 
-## Field-coverage decisions from the current sources
+Module `video_paper_wiki.projection_catalog` exports:
 
-The complete column manifest still needs review; these additions prevent the
-initial family list from losing source fields before DDL is written.
+- `canonical_catalog_rows(*, generation_material: object, tables: object) -> bytes`
+- `catalog_rows_sha256(*, generation_material: object, tables: object) -> str`
 
-Both source and claim ledgers have a required canonical `generated_at`. Include
-an explicit ledger-metadata relation keyed by ledger kind, with its input path
-and original timestamp. Storing just row entries and the inventory SHA does not
-expose that canonical field for a lossless logical export. Do not substitute
-index-build time or remove the field as volatile.
+`tables` must be an exact built-in list. Every item is an exact dict with exactly
+`name,columns,rows`; columns is the exact manifest-order list and rows is an exact list
+of positional exact built-in scalar lists. Input table and row order may vary. No
+mapping-shaped row, iterator, tuple, custom Mapping/Sequence or implicit missing cell
+is accepted. Functions retain no caller objects and never mutate them.
 
-Source optional nullable content hash, three dates, independence key and supersedes
-need value/presence pairs if the final input profile admits omission. Claims
-similarly need a declared policy for location.anchor, reviewed_at, notes and
-supersedes. The separately frozen history binding requires explicit reviewed_at;
-if whole-input admission enforces that field's presence, its catalog value alone
-can represent null/string and no redundant presence bit is necessary. A tighter
-admission rule must be explicit; it cannot be a hidden SQL default. Required
-nullable repo/alignment license.spdx_id likewise needs a value, not an invented
-absence state. Optional archived bool has three possible states (absent/false/true),
-so nullable INTEGER with strict 0/1 checking suffices there.
+The public validation order is exact:
 
-Taxonomy must preserve its root version and complete policy: unknown_terms,
-silent_create, statement_en and statement_zh. Axes have slug, bilingual labels,
-ordered aliases and ordered terms. Current terms have slug, label_zh, ordered
-aliases and canonical status; they have no label_en or parent field. Use distinct
-axis-alias and term-alias children with ordinals. A term's identity is (axis,slug),
-not its position or translated label. Repeated aliases, if allowed by final input
-admission, cannot be silently deduplicated for storage; this base release does
-not implement an alias resolver or choose a first ambiguous match.
+1. Run frozen runtime preflight over one virtual root containing both arguments.
+2. Load and hash-check the immutable DDL, column manifest and generation profile and
+   require all embedded paths/hashes/counts to agree.
+3. Validate generation material in its complete phase order below.
+4. Validate the table collection, exact table/column set, cell types and row lengths.
+5. In manifest table order, input row ordinal and manifest column order, validate
+   nullability, integer range, enum/CHECK and presence constraints.
+6. In that same stable traversal discipline, validate PK, UQ, FK and ordinal closure.
+7. Execute the 25 manifest semantic checks in their listed order; each check uses
+   manifest table order, input row ordinal and manifest field/key order internally.
+8. Sort, construct and integer-only-JCS encode the canonical export.
 
-Assessment events retain every field in the existing schema, including actor,
-transition, exact reason/decided_by, timestamp spelling, predecessor, raw-text SHA
-and fingerprint. Derived head rows need only claim_id and head_event_id; the
-frozen `derive_assessment_heads` API supplies the mapping. A catalog join can
-recover head state/date from the original complete event rows. Do not add a
-second chronology selector or infer a head from maximum timestamp/event_id.
+An earlier phase wins when several phases fail. These traversal orders choose a stable
+diagnostic inside a phase. The API does not execute SQLite. It accepts cells only as
+exact built-in `str`, signed 64-bit `int` or `None` where the column permits; rejects
+bool, float including 1.0, subclasses, coercible strings, surrogate text and unbounded
+integers; and requires every table exactly once, including empty tables. A duplicate
+is an error, never an upsert.
 
-The immutable run's root run_id, started_at, ended_at and explicit nullable
-error_code remain facts. Its required vpwiki/python versions and optional
-Docling/core/upstream versions, all optional named input/output hash fields and
-optional pipeline fingerprint each need exact presence preservation. A successful
-extraction-specific closure may require a subset, but historical rows must not
-synthesize hashes/version strings for an absent value. No manifest hash is
-implicitly a file SHA or a foreign key merely because its name ends in sha256.
+The generation inventory and canonical_inputs rows must be exactly equal as sets of
+`path,kind,sha256,size_bytes`; input order remains the inventory contract's order.
+This equality does not prove that other rows came from those bytes. The taxonomy input
+SHA must equal the generation resource SHA for
+`video_paper_wiki/taxonomy/v1.json`. The supplied DDL, column-manifest and generation-
+profile resource hashes must equal the immutable packaged bytes used by this API, and
+the manifest's embedded DDL hash must agree. Other supplied implementation/resource/
+dependency/upstream hashes and versions remain declarations until the authenticated
+collector.
 
-Code manifest rows must preserve the original repository spelling, full commit
-and origin path, complete input-file SHA, payload raw SHA/size, newline and line
-metadata, normalized SHA, proposal SHA, and inspected capture/source/approval/
-operation/manifest fields. An inspected manifest's operation_id is required but
-nullable. Proposal-only staging artifacts are not silently promoted to canonical
-inspected manifests. Multiple logical origins sharing one raw source remain
-separate rows; uniqueness applies to declared immutable origin/version keys.
+Canonical output is an exact object with exactly:
 
-Alignment rows preserve each immutable manifest's input path/hash and complete
-paper/repository/commit, officiality evidence order, license and archived status.
-Capability children preserve their original array ordinal separately from unique
-name. Each keeps state, ordered full code locators, optional absence_scope with
-commit/tree_prefix/ordered search_patterns, and optional checkpoint_kind. In the
-current schema absence_scope is absent or an object, not explicit null; a query
-must not invent null compatibility because a nested contains branch is broader.
-Its tree_prefix and search_patterns are strings under the base schema; later
-code verification may impose additional semantics, but SQL must not secretly
-rewrite them or drop an empty value allowed by the admitted profile.
+```text
+schema = video-paper-wiki.catalog-rows.v1
+ddl_sha256
+generation_sha256
+tables
+```
 
-## Canonical row export decisions
+Each table has exactly `name,columns,rows`. Table order is ASCII name order from the
+manifest. Rows sort by the complete declared PK in PK-column order: INTEGER compares
+numerically; TEXT compares its exact UTF-8 bytes under BINARY semantics. PK components
+are never mixed types or null. This differs from JCS object-key UTF-16 order. Columns
+stay in exact manifest order and positional row arrays preserve that order.
 
-The proposed export root is a closed `video-paper-wiki.catalog-rows.v1`
-object with required schema, ddl_sha256, generation_sha256 and tables.
-The table inventory and ordered columns must exactly equal the released base
-manifest, including every empty table. A table has exactly name, columns and
-rows. Rows are positional arrays with exactly one value per declared column.
-No sqlite_master internals, page numbers, rowid, VACUUM output, journal state,
-physical database bytes or build timestamps enter this export.
+Return existing integer-only JCS bytes for the complete output with no trailing LF.
+`catalog_rows_sha256` is lowercase SHA-256 of exactly those bytes. No rowid,
+sqlite_master value, insertion order, page/VACUUM/journal state, physical SQLite bytes,
+build timestamp or output self-hash enters the export. This release adds no implicit
+API for validating previously serialized row-export bytes.
 
-Values are exact built-in scalar strings, signed 64-bit integers or null as
-allowed by the column declaration. Do not accept float or bool in an integer
-cell, silently apply SQLite affinity, stringify a number, normalize text, or
-replace a missing column with null. An artifact contributes its declared raw
-SHA, not an embedded unbounded BLOB. Any non-scalar data column must have its
-own exact canonical encoding in the final column manifest.
+Errors use `ContractError`, exit code 2. Runtime resource preflight preserves
+`PROJECTION_LIMIT_EXCEEDED`; invalid generation uses
+`PROJECTION_GENERATION_INVALID`; packaged DDL/manifest/profile disagreement uses
+`CATALOG_RESOURCE_MISMATCH`; all table/cell/key/FK/semantic refusals use
+`CATALOG_ROWS_INVALID`. Details contain safe fixed metadata/pointers and never echo
+untrusted values. SQLite execution/writer failures are outside these public row APIs.
 
-Before sorting or hashing, validate complete table/column shape, types,
-nullability, PK uniqueness, declared unique keys, FK closure, enum constraints
-and contiguous zero-based child ordinals. A duplicate is an error rather than
-an upsert. Every PK component is non-null. FK checks run independently of
-SQLite connection defaults; the later connection must also enable foreign
-keys. Database constraints do not replace complete input/row validation.
+## Generation material
 
-Table order is the ASCII table-name order in the frozen manifest. Within each
-table sort by the complete PK in declared PK-column order: integers compare
-numerically, strings compare their exact UTF-8 bytes, matching SQLite BINARY.
-No locale, case folding, Unicode normalization or undefined NULL order is used.
-PK tuple element types are fixed by the table, never mixed. This row order is
-distinct from JCS's UTF-16 object-key order; arrays preserve the row order.
+Module `video_paper_wiki.projection_generation` exports:
 
-Canonical export bytes are existing integer-only JCS of that complete valid
-root, without a newline. SHA-256 is over those bytes. SQL insertion order and
-physical file bytes may differ while canonical export remains equal. A
-non-equivalent canonical field, ordinal, FK, presence bit, version or generation
-change must be retained or refused, never dropped to manufacture stability.
+- `projection_generation_sha256(material: object) -> str`
+- `projection_is_stale(*, current: object, stored: object) -> bool`
 
-## Generation fingerprint decisions
+Material is an exact built-in dict with exactly these keys:
 
-Generation describes canonical input and the implementation/version material
-used to derive a projection. It must not depend on the projection output's own
-hash; that would create a cycle. Bind output hashes to a generation in a
-separate future build-result record, without adding fields to the pinned
-upstream chunks or BM25 index.
+```text
+schema, profile, inventory, implementation, resources, dependencies, upstream, runtime
+```
 
-The final generation manifest must bind all of the following explicitly:
+`schema` is `video-paper-wiki.projection-generation.v1`; `profile` is
+`base-catalog-v1`; inventory is a complete valid projection-input.v1 declaration.
+`implementation` has exactly `package_version,files`; `resources` has exactly files;
+`dependencies` has exactly `profile,distributions`; `upstream` has exactly
+`commit,version,files`; runtime has exactly the six fields below. Every file item has
+exactly `path,sha256`, with 64 lowercase hex. Every distribution item has exactly
+`name,version`, both exact scalar strings. Arrays must equal the profile-owned exact
+names, versions and strict ASCII order, with no missing/extra/reordered entry. A caller
+cannot choose files, dependencies or supply a `valid` flag.
 
-- The complete validated canonical path/kind/raw-SHA inventory, including
-  authoritative timestamps, all review history from which unique heads derive, source assessment
-  material, retired refs and immutable versions. There are no volatile input
-  exclusions. Raw-byte reformatting may conservatively invalidate generation.
-- Exact schema and taxonomy source digests and their versions. A label or
-  policy change is material, not just an ID-set change.
-- The input/locator, DDL/row-export, deterministic compiler and runtime
-  comparison contract versions and source digests. A new implementation cannot
-  retain an old fingerprint merely because the package version was not bumped.
-- The declared relevant vpwiki implementation source inventory and package
-  version, with an exact frozen inventory rather than an arbitrary caller map.
-- The fixed claude-obsidian commit and relevant script source digests, plus
-  exact Python implementation/version and `unicodedata.unidata_version`.
-  Python 3.12 and 3.13 use different Unicode data; agreement on a CJK fixture
-  does not prove all normalization/tokenization behavior identical.
-- The explicitly supported synthetic-prefix mode and fixed emitted chunk/BM25
-  profile versions; recorded non-synthetic objects may be compared by the
-  runtime API, but do not qualify as a deterministic no-LLM build.
+The machine profile fixes:
 
-Exclude wall-clock build time, hostname, absolute Vault/temp paths, run IDs
-invented only for the index build, mtime, physical SQLite version/page layout,
-and the generated Markdown/chunk/BM25/database bytes themselves. Canonical run
-manifest IDs and timestamps are input facts and remain included; this
-exclusion is not a blanket rule for every field named run_id or timestamp.
+- 13 implementation files under logical installed paths `video_paper_wiki/...`,
+  including the three projection modules; source checkout maps them under
+  `src/video_paper_wiki/`. All must exist before a build qualifies; no placeholder or
+  fabricated compiler digest is permitted.
+- 25 package resources: all 21 registry schemas, taxonomy JSON, DDL, column manifest
+  and the generation profile itself. Checkout mappings are exact `schemas/`,
+  `taxonomy/` and `catalog/`; installed qualification has no CWD fallback.
+- validation profile `vpwiki-jsonschema-date-utc-v1` and the exact runtime-selected
+  distribution set below. The serialized schema closes the shape; application
+  validation enforces the conditional exact set and order from the machine profile.
+- 8 upstream files relative to the clean pinned submodule: six reviewed
+  `claude_obsidian` modules and the public contextual-prefix/BM25 scripts.
+- package version `0.1.0`; upstream commit
+  `9f8c1199047eac2c3828496279fbb7ba9540b90b`, version `2.1.1`.
 
-The proposed fingerprint is lowercase SHA-256 of integer-only JCS of a closed
-versioned generation material object, no LF. The exact field/filename manifest
-and public API still require review before release. A pure digest function
-cannot attest that a supplied software digest describes code actually loaded
-by a process; VPKB-001 must collect and authenticate the current material.
+Runtime has exact `python_implementation,python_version,unicode_version,prefix_mode,
+chunk_profile,bm25_profile`. Implementation is `CPython`; prefix is `synthetic`;
+profiles are `claude-obsidian.chunk.v1` and `claude-obsidian.bm25.v2`. Only these
+exact version pairs are admitted, never their cross-product:
 
-Stale comparison must validate both manifests and compare complete versioned
-fingerprints. A missing stored generation is stale. Malformed current input,
-an invalid stored manifest, a missing referenced canonical file or unknown
-version is a typed refusal, not a synthesized empty digest or `fresh=true`.
-Changing a human assessment/head, evidence relation, taxonomy or retired ref
-makes the old generation stale even if a rendered sentence happens to match.
-Atomic replacement, retained old index on failure and actual runtime-to-
-generation binding are later builder responsibilities, not assertions of this
-pure contract.
+| Python | Unicode data |
+| --- | --- |
+| 3.12.14 | 15.0.0 |
+| 3.13.13 | 15.1.0 |
+| 3.13.15 | 15.1.0 |
 
-## Required decisions before release
+Use `platform.python_implementation()`, `platform.python_version()` and
+`unicodedata.unidata_version`; do not use build-prose `sys.version`, major/minor ranges
+or `>=3.12`. A patch or Unicode update requires reviewed profile expansion/revision.
 
-Complete the input kind/path/closure and byte-budget table; freeze the complete
-event-graph/head derivation and all ledger/taxonomy application profiles; resolve immutable
-manifest locations and association rules; then publish complete SQL and its
-exact ordered column/PK/FK manifest. Obtain both independent reviews, including
-installed-SQLite FK probes and ordering/null/duplicate/export vectors. No
-implementation may fill these open points through undocumented assumptions.
+The five distributions common to all admitted runtimes, in exact order, are
+`attrs==26.1.0`, `jsonschema==4.26.0`,
+`jsonschema-specifications==2025.9.1`, `referencing==0.37.0` and
+`rpds-py==2026.6.3`. CPython 3.12.14 additionally requires
+`typing-extensions==4.16.0` as the sixth item; both CPython 3.13 tuples require exactly
+the five common items. These are behavior-relevant selected dependencies, not an
+enumeration of every installed distribution.
+
+The validation profile makes format behavior independent of optional package
+discovery. JSON Schema `date` uses exact ASCII `YYYY-MM-DD` plus real Gregorian date
+validation. Every project `date-time`/UTC field is checked by the explicit project
+grammar and a real Gregorian clock check: year 0001–9999, hour 00–23, minute/second
+00–59, optional one-to-nine decimal fractional digits where the source schema admits
+them, literal `Z`, and no leap second. Canonical projection code must not construct an
+unrestricted auto-discovered `FormatChecker`; an incidentally installed
+`rfc3339-validator` cannot change success. Changing this profile or a relevant exact
+distribution version requires review and changes generation.
+
+`projection_generation_sha256` uses this exact phase order:
+
+1. Run frozen runtime tree/resource preflight over the caller value.
+2. Load and integrity-check the immutable packaged generation profile and schema
+   resources; a resource failure is `CATALOG_RESOURCE_MISMATCH`.
+3. Validate exact root/nested shape and exact built-in scalar types.
+4. Validate schema/profile constants, runtime tuple, format profile, conditional exact
+   dependency set, and implementation/resource/upstream names/order/counts.
+5. Validate the embedded inventory, remapping its ordinary contract refusals to
+   `PROJECTION_GENERATION_INVALID` under `/inventory` while preserving
+   `PROJECTION_LIMIT_EXCEEDED`.
+6. Validate cross-material relations, including taxonomy input/resource SHA equality.
+7. Integer-only-JCS encode the entire material and return lowercase SHA-256, with no LF.
+
+An earlier phase wins; within a phase, object fields follow the profile-declared order
+and arrays follow their input order. A post-preflight canonicalization failure is an
+internal invariant failure, never a stale/fresh fallback. The function does not read
+the declared source files or attest their hashes. Raw formatting changes remain
+conservatively material. The profile resource lists its own name but no expected hash,
+so neither it nor the material contains a self-hash equation.
+
+`projection_is_stale` validates `current` first. Exact `stored is None` then returns
+true. Otherwise it validates stored and compares complete generation fingerprints.
+Malformed current or stored material is a typed refusal, never silently stale/fresh.
+No filesystem state is read behind the caller and no mutable object is retained.
+
+Generation excludes expected output hashes, Markdown/chunk/BM25/SQLite bytes and
+SQLite library versions, the whole `uv.lock`, unrelated installed distributions,
+tests, fixtures, seed catalog, taxonomy YAML, contract/status/packet/team/CI Markdown,
+receipts/staging, absolute paths, CWD, hostname, mtime and build clock. The whole lock
+contains development, optional Docling and platform state that cannot make this pure
+base result stale. Canonical ledger/run timestamps remain material through raw
+inventory hashes. The column manifest and generation profile contain
+names/relationships but never their own expected digests. Future mapper/compiler
+modules or file-set changes require a new profile revision, not a wildcard.
+
+## Collection, packaging and later authority
+
+Wheel packaging must include all 21 schemas plus exact taxonomy and catalog resources.
+Production resource loading is installed-package relative and rejects missing files;
+source-checkout fallback is for deterministic development only and never qualifies an
+installed build through CWD discovery.
+
+A later authenticated collector must enumerate exactly the profile names, raw-hash
+complete installed implementation/resources and the clean pinned upstream files,
+verify the runtime-selected required distributions with `importlib.metadata`, and
+verify package/upstream/runtime identities. It rejects aliases and missing, extra or
+misordered profile file names. An unrelated installed distribution is ignored because
+the explicit format profile prevents optional-provider discovery from altering
+behavior. Caller-declared dependency values alone are not attestation. The collector
+does not prove canonical input completeness or byte-to-row mapping.
+`validate_projection_bytes` proves supplied input-byte equality. The VPKB-001 mapper
+and receipt audit separately prove authoritative membership and derivation. A future
+build-result record may bind generation to output hashes without adding an output hash
+to generation itself.
+
+The accepted DDL probe evidence covers exact tables/columns/keys/FKs, all event
+transition combinations, subject XOR, alignment combinations and source presence
+pairs. Final implementation acceptance must add adversarial pure API fixtures,
+including a deliberately honest inventory paired with forged but internally consistent
+rows to demonstrate the guarantee limit; exact Python coercion cases; packaged wheel
+resource enumeration; both supported local Python lines; and fresh PR merge-ref CI.
+Independent DDL/writer probes cover SQLite STRICT coercion, foreign-key enable/commit/
+check behavior and the minimum 3.37 feature level, but those results never enter the
+canonical row API or generation fingerprint. No green result closes VPKB-001/002 or a
+user gate.

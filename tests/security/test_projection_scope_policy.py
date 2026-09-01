@@ -9,6 +9,7 @@ from tests.security._projection_scope_policy import assert_projection_source_sco
     ("contracts.py", 'from video_paper_wiki.projection_runtime import validate_runtime_record\nTITLE = "video-paper-wiki.upstream-bm25-profile.v1"\ndef validate(doc):\n    return validate_runtime_record("bm25", doc)\n'),
     ("commands/search.py", 'def grep(text):\n    return "word" in text\n'),
     ("projection_runtime.py", 'def pointer(text):\n    return text.replace("/", "~1")\n'),
+    ("projection_generation.py", 'def validate(runtime, profile):\n    return runtime["bm25_profile"] == profile["bm25_profile"]\n'),
 ])
 def test_scope_allows_only_released_pure_profile_examples(path, source):
     assert_projection_source_scope(path, source)
@@ -45,6 +46,9 @@ def test_scope_allows_only_released_pure_profile_examples(path, source):
     ("projection_runtime.py", 'parser.add_parser("index")'),
     ("projection_runtime.py", 'COMMAND = "bm25-index.py build"'),
     ("contracts.py", 'def _bm25_content(doc):\n    return doc'),
+    ("projection_generation.py", 'def bm25_engine(doc):\n    return doc'),
+    ("projection_generation.py", 'import claude_obsidian'),
+    ("projection_generation.py", 'def validate(doc):\n    return backend.query(doc)'),
 ])
 def test_scope_refuses_unreleased_gold_engine_and_execution(path, source):
     with pytest.raises(AssertionError):

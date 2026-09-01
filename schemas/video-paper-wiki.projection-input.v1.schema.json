@@ -1,0 +1,388 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.projection-input.v1.schema.json",
+  "title": "video-paper-wiki.projection-input.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "entries"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.projection-input.v1"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:wiki/meta/ledgers/source-ledger\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "source-ledger"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:wiki/meta/ledgers/claim-ledger\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "claim-ledger"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:taxonomy/v1\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "taxonomy"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:wiki/meta/records/papers/[A-Za-z0-9][A-Za-z0-9._-]*\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "paper-record"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:wiki/meta/records/repos/[A-Za-z0-9][A-Za-z0-9._-]*\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "repo-record"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:wiki/meta/reviews/clm-[0-9a-f]{20}/ase-[0-9a-f]{20}\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "assessment-event"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/captured/[0-9a-f]{64}\\.[A-Za-z0-9][A-Za-z0-9._-]*)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "captured-artifact"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/derived/[0-9a-f]{64}/docling/[0-9a-f]{64}/document\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "docling-document"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/derived/[0-9a-f]{64}/docling/[0-9a-f]{64}/parser-config\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "parser-config"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/derived/[0-9a-f]{64}/docling/[0-9a-f]{64}/model-manifest\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "model-manifest"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/derived/[0-9a-f]{64}/runs/[A-Za-z0-9][A-Za-z0-9._-]*\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "run-manifest"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/derived/code-manifests/[0-9a-f]{64}\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "code-evidence-manifest"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "kind",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?:\\.raw/derived/alignment-manifests/[0-9a-f]{64}\\.json)$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "alignment-manifest"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -12,6 +12,10 @@ _SEED_DIR = "seed"
 _SCHEMA_DIR = "schemas"
 _REPO_SEED = Path("docs") / "seed"
 _REPO_SCHEMAS = Path("schemas")
+_TAXONOMY_DIR = "taxonomy"
+_CATALOG_DIR = "catalog"
+_REPO_TAXONOMY = Path("taxonomy")
+_REPO_CATALOG = Path("catalog")
 
 
 def _package_text(*parts: str) -> str | None:
@@ -55,6 +59,17 @@ def _repo_text(relative: Path) -> str | None:
         return None
 
 
+def _source_checkout_root() -> Path | None:
+    """Return the repo root only for the exact src/package/module layout."""
+
+    module = Path(__file__).resolve()
+    package = module.parent
+    if (module.name != "resources.py" or package.name != _PACKAGE
+            or package.parent.name != "src"):
+        return None
+    return package.parent.parent
+
+
 def read_seed_text(filename: str) -> str | None:
     """Package resources first, then repo docs/seed."""
     text = _package_text(_SEED_DIR, filename)
@@ -72,15 +87,15 @@ def _schema_text_without_cwd(filename: str) -> str | None:
     text = _package_text(_SCHEMA_DIR, filename)
     if text is not None:
         return text
-    for parent in Path(__file__).resolve().parents:
-        candidate = parent / _REPO_SCHEMAS / filename
-        if candidate.is_file():
-            from video_paper_wiki.notes.encoding import read_utf8
+    root = _source_checkout_root()
+    candidate = root / _REPO_SCHEMAS / filename if root is not None else None
+    if candidate is not None and candidate.is_file():
+        from video_paper_wiki.notes.encoding import read_utf8
 
-            try:
-                return read_utf8(candidate)
-            except OSError:
-                return None
+        try:
+            return read_utf8(candidate)
+        except OSError:
+            return None
     return None
 
 
@@ -103,6 +118,33 @@ def load_schema_json(filename: str) -> dict[str, Any] | None:
     return payload if isinstance(payload, dict) else None
 
 
+def read_projection_resource_bytes(kind: str, filename: str) -> bytes | None:
+    """Read one fixed projection resource, package-first without a CWD fallback."""
+
+    choices = {
+        "schema": (_SCHEMA_DIR, _REPO_SCHEMAS),
+        "taxonomy": (_TAXONOMY_DIR, _REPO_TAXONOMY),
+        "catalog": (_CATALOG_DIR, _REPO_CATALOG),
+    }
+    if kind not in choices or type(filename) is not str or "/" in filename or "\\" in filename:
+        return None
+    package_dir, repo_dir = choices[kind]
+    try:
+        traversable = resources.files(_PACKAGE).joinpath(package_dir, filename)
+        if traversable.is_file():
+            return traversable.read_bytes()
+    except (ModuleNotFoundError, AttributeError, TypeError, ValueError, OSError):
+        pass
+    root = _source_checkout_root()
+    candidate = root / repo_dir / filename if root is not None else None
+    if candidate is not None and candidate.is_file():
+        try:
+            return candidate.read_bytes()
+        except OSError:
+            return None
+    return None
+
+
 def schema_resource_names() -> tuple[str, ...]:
     names: list[str] = []
     try:
@@ -113,10 +155,10 @@ def schema_resource_names() -> tuple[str, ...]:
         names = []
     if names:
         return tuple(names)
-    for parent in Path(__file__).resolve().parents:
-        directory = parent / _REPO_SCHEMAS
-        if directory.is_dir():
-            return tuple(sorted(path.name for path in directory.glob("*.schema.json")))
+    root = _source_checkout_root()
+    directory = root / _REPO_SCHEMAS if root is not None else None
+    if directory is not None and directory.is_dir():
+        return tuple(sorted(path.name for path in directory.glob("*.schema.json")))
     return ()
 
 

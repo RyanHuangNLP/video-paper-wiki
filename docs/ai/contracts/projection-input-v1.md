@@ -1,312 +1,301 @@
-# Canonical projection inputs — review draft 2
+# Canonical projection inventory and application profile — revision 1
 
-Status: NOT FROZEN. Architect design for VPKB-000-projection-contracts at
-`208c206801214bb8f6e2f58f995ad7755ce87332`; no implementation release. The
-runtime comparison contract is separately frozen. This document must be read
-with the forthcoming SQLite/export/generation specification. It does not
-authorize a filesystem adapter, second ledger or production compiler.
+Status: FROZEN by Architect, 2026-09-01. The 34-table DDL and
+generation contract are reviewed with this document. Runtime, locator and complete
+assessment-history revision 1 remain unchanged. This revision authorizes only pure
+foundation implementation and tests; it does not authorize Vault enumeration,
+publication, a production compiler/index build, a real Docling/model run or any
+human-gate transition.
 
-## Authority and supported scope
+## Authority and guarantee boundary
 
-The supplied canonical input bytes are the only business-fact source. Source
-and claim records remain in the two existing upstream ledgers. Page records
-own metadata and ordered claim references, assessment events own decisions,
-and immutable manifests/artifacts retain provenance. Markdown, frontmatter,
-chunk text, BM25, SQLite, index build time and pending drafts are not substitute
-facts. SQLite may contain rebuildable copies of these values, never become an
-editable authority or fill in a missing value from generated prose.
+VPKB-000 freezes a complete declared file inventory, the application profile needed
+to represent its facts, and the relations required of supplied catalog rows.
+`validate_projection_inventory` proves only that a declaration has the closed shape
+below. `validate_projection_bytes` additionally proves that one supplied in-memory
+byte map exactly matches every declared size and raw SHA-256. Neither function proves
+that the declaration enumerates an authoritative Vault, that typed rows were derived
+from those bytes, that a receipt published them, or that a PDF/code locator is true.
 
-The v1 profile is a closed project corpus: every supplied claim has exactly one
-paper/repo owner, including retired claims. It does not silently discard
-unowned legacy claims to make an existing Vault fit. Supporting migration or
-a separately selected legacy scope requires an explicit later contract.
-Source records may be shared across owners and logical code origins.
+VPKB-001 must authenticate corpus membership and map the same verified bytes to rows.
+VPKB-001/002 must also validate public upstream ledgers at an explicit audit date,
+recompute authentic source IDs, verify producer/config/model identities, and prove
+Docling text/page/ref/span/bbox or inspected code evidence. No caller boolean, parsed
+object map, detached hash or internally consistent row set may replace those steps.
 
-A pure validator proves consistency of the supplied inventory, not that a
-caller enumerated every file in a Vault, obtained permission, ran upstream
-validation, read without symlink/race, or authenticated a receipt. Those are
-VPKB-001 responsibilities. No `valid: true` or opaque caller assertion can be
-treated as a substitute for bytes, a foreign-key target or a canonical event.
+Canonical business fields come only from source/claim ledgers, paper/repo records,
+complete assessment events, taxonomy and immutable run/code/alignment manifests.
+Markdown, frontmatter, chunks, BM25, old SQLite rows, staging, receipts and model
+responses are not alternate field sources. Opaque captured/document/config/model
+bytes receive only path/kind/raw-SHA/size rows in the base catalog; their internal
+parser-specific values do not become a generic JSON store.
 
-## Structured locator wire profile
+## Public pure APIs and errors
 
-The sole normative codec specification is now the separately frozen
-[ledger locator wire contract revision 1](ledger-locator-v1.md), SHA-256
-`493fc3d135141512c7956f3729726ae72febbb1a34cc8cd5669add96af16e191`.
-Its four pure APIs are in `video_paper_wiki.ledger_locator`. It uses the existing
-upstream evidence locator string, preserves full common PDF/code locator fields
-through integer-only canonical wire, and maps project uncertain to wire context.
-No second ledger, source-ID implementation or upstream property is introduced.
+Module `video_paper_wiki.projection_input` exports:
 
-That bounded codec release does not freeze this document's canonical inventory,
-artifact closure, history, source application profile or generation design. The
-previous duplicate draft wire text is superseded by the standalone contract;
-future edits here cannot silently alter its frozen semantics. Public transport
-proof is not validation of genuine coordinates, complete artifacts or approval.
+- `validate_projection_inventory(value: object) -> None`
+- `validate_projection_bytes(value: object, *, bytes_map: object) -> None`
 
-## Whole-snapshot input boundary to freeze
+Both retain no reference to caller data, perform no filesystem/package/network I/O,
+and return `None` on success. They use `ContractError`, exit code 2. Validation runs
+the frozen runtime tree preflight first. Resource failures preserve
+`PROJECTION_LIMIT_EXCEEDED`; unsupported Python values, cycles or surrogate text at
+preflight use `SCHEMA_INVALID`. Closed shape, path/kind/cardinality/order/collision or
+hash spelling failures use `PROJECTION_INPUT_INVALID`. A byte-map type/key-set/value,
+declared-size/actual-size or raw-hash mismatch uses `PROJECTION_INPUT_MISMATCH`.
 
-The proposed root is `video-paper-wiki.projection-input.v1` with exactly
-`schema,entries`. Each entry has exactly `path,kind,sha256`, in canonical path
-order, unique and collision-safe. A separate exact built-in `bytes_map` has
-exactly the same keys and supplies immutable bytes matching every entry SHA.
-Documents are parsed only from those bytes; a caller cannot supply a different
-parsed document next to an honest hash. Raw byte hashes remain distinct from
-semantic runtime comparison hashes.
+Diagnostics contain safe fixed fields and JSON pointers only. They never echo an
+untrusted path/key/value, call its `repr`/`str`, or identify a later item as verified.
+Preflight and a complete byte-map type/key/length/aggregate scan precede all payload
+hashing. Apart from those phases, simultaneous failures have no cross-rule priority.
 
-Kinds include source/claim ledger, paper/repo record, assessment event,
-taxonomy, immutable run/code/alignment manifests and referenced artifact bytes.
-The exact path/cardinality/closure table and limits are pending review. There
-must be exactly one of each fixed ledger and taxonomy. Do not invent an active
-alignment version: repo-record
-currently has no canonical selector; retain manifest-qualified versions.
-Event files remain `wiki/meta/reviews/<claim_id>/<event_id>.json`.
+## Closed inventory
 
-### Input namespaces and filename direction
+The root is an exact built-in dict with exactly `schema,entries`; `schema` is
+`video-paper-wiki.projection-input.v1`. `entries` is an exact built-in list. Every
+entry is an exact built-in dict with exactly `path,kind,sha256,size_bytes`:
 
-The proposed path key is a logical input address, not an instruction to read
-every key relative to a Vault. Reserve `taxonomy/v1.json` solely for kind
-`taxonomy`, supplied from the deployed project configuration/package. All
-Vault input kinds instead have `.raw/` or `wiki/meta/` paths under their released
-families. These domains are disjoint; do not install another live taxonomy
-under the Vault or treat taxonomy YAML as an independent machine authority.
-The later adapter must obtain the right provider's exact bytes; the pure API
-only verifies the supplied bytes/hash. Current packaging does not include
-taxonomy, so deployment/resource binding still needs its explicit implementation
-release and installed-wheel test. This draft does not silently add a resource.
+- `path` is a Unicode-scalar string and entries are strictly increasing by its UTF-8
+  bytes. Paths are unique and obey frozen transaction lexical/NFC/portable component
+  and casefold-collision rules. No normalization or order repair occurs.
+- `kind` is one of the exact 13 strings below and must match the path branch.
+- `sha256` is exactly 64 lowercase hexadecimal characters.
+- `size_bytes` is exact built-in `int`, never bool, in `0..67,108,864`.
 
-Source and claim ledger paths are the pinned upstream exact constants:
-`wiki/meta/ledgers/source-ledger.json` and
-`wiki/meta/ledgers/claim-ledger.json`. Paper/repo record files use the respective
-`wiki/meta/records/papers/` and `wiki/meta/records/repos/` families. Their
-canonical IDs are embedded fields, not filename identities. A final input
-profile may admit an opaque portable JSON basename while requiring exactly
-one document per embedded ID; it need not create a new hash-based paper ID
-or accept a duplicate record under another name. Generated page naming and
-rename/publication behavior must be explicit in the later compiler contract.
+Declared aggregate size is at most 8,589,934,592 bytes. The full byte API requires an
+exact built-in dict whose keys equal the complete declared path set and whose values
+are exact built-in bytes. The same per-file and aggregate bounds apply to actual
+bytes, counting every declared path even when two values reference one bytes object.
+No partial byte map, lazy resolver, filesystem path, memoryview or parsed-document map
+is accepted. Raw SHA is over the complete byte sequence.
 
-Assessment events already have an exact content-bound filename and remain
-the exception to opaque record names: directory claim_id and basename event_id
-must agree with validated event fields. Immutable code/alignment/run artifacts
-still need exact path families and association rules. A document placed under
-replaceable `records/` is not immutable just because its schema says manifest;
-its publication constraints must be established before release.
+The companion JSON Schema closes serialized shape and path branches. Exact Python
+types, ordering, portable aliases, aggregate budgets and cross-file rules remain
+mandatory application checks because JSON Schema alone cannot express them.
 
-Revision 2 withdraws draft 1's proposed mutable `wiki/meta/reviews/heads.json`.
-Architect, Builder and Steward verified that the existing requirements call
-for a unique event-chain head, not a separate persisted assessment registry.
-The frozen facade makes all review files create-only; membership in its managed
-prefix never authorized replacing a head file. No facade exception or new
-registry is introduced. Derive each head from the complete validated event
-graph below. `assessment_heads` is a derived catalog relation, not an inventory
-kind or a new authority. Operation and human-gate registries remain separate
-and unchanged; do not borrow their schemas or publication permissions.
+| Kind | Exact logical path | Cardinality and local binding |
+| --- | --- | --- |
+| source-ledger | `wiki/meta/ledgers/source-ledger.json` | Exactly one |
+| claim-ledger | `wiki/meta/ledgers/claim-ledger.json` | Exactly one |
+| taxonomy | `taxonomy/v1.json` | Exactly one project provider |
+| paper-record | `wiki/meta/records/papers/<name>.json` | Zero or more; unique embedded canonical paper ID |
+| repo-record | `wiki/meta/records/repos/<name>.json` | Zero or more; unique embedded canonical repo ID |
+| assessment-event | `wiki/meta/reviews/<clm-20hex>/<ase-20hex>.json` | Path IDs equal validated embedded IDs; complete history for every claim |
+| captured-artifact | `.raw/captured/<64hex>.<extension>` | Filename digest equals entry SHA; digest unique within this kind |
+| docling-document | `.raw/derived/<S>/docling/<P>/document.json` | `S` is source raw SHA and `P` is the unchanged pipeline fingerprint |
+| parser-config | `.raw/derived/<S>/docling/<P>/parser-config.json` | Exact sibling role |
+| model-manifest | `.raw/derived/<S>/docling/<P>/model-manifest.json` | Exact sibling role |
+| run-manifest | `.raw/derived/<S>/runs/<run-id>.json` | Embedded run ID equals filename; key is source-qualified path |
+| code-evidence-manifest | `.raw/derived/code-manifests/<64hex>.json` | Filename digest equals complete file SHA; inspected state only |
+| alignment-manifest | `.raw/derived/alignment-manifests/<64hex>.json` | Filename digest equals complete file SHA; retain every version |
 
-Cross-object rules to freeze include all source/owner/ref FKs; canonical claim
-ID re-computation from owner subject and actual ledger text; no duplicate
-ownership or supersedes cycle; taxonomy membership; full tagged locator/source
-bindings; current and historical manifest/artifact path/hash closure; active
-extraction binding. Raw source identity recomputation and source freshness
-remain pinned-upstream adapter checks, not a copied private implementation.
+`name`, `extension` and `run-id` are complete portable destination components with the
+shown suffix handled outside the variable. No aliases, alternate casing or extra
+subdirectories are admitted. Full-file hashes in filenames are not self-excluding
+manifest fields. This is an explicit new closed profile: legacy locations, partial
+run bindings, null-hash file sources and unknown extensions cause whole-input refusal
+and are never moved, repaired, enriched or silently omitted.
 
-### Manifest hashes are different kinds of evidence
+No Markdown, `.vault-meta`, notes, staging, gate/operation registry, receipt, mutable
+assessment-head registry, generated chunk/BM25 output or SQLite file is an input.
+Every retained canonical historical version/event admitted by this profile is listed;
+the later managed-prefix receipt audit must detect hidden omissions or rollback.
 
-The inventory entry SHA always hashes exact complete file bytes. It is not a
-runtime comparison hash or a self-excluding identity hash. Keep these separate
-from all embedded hashes and preserve optional field presence without defaulting.
+## Exact ledger profile
 
-| Existing run-manifest field | Snapshot treatment direction |
-| --- | --- |
-| input_hashes.source_sha256 | Must resolve to captured raw bytes for a supported extraction binding |
-| input_hashes.parser_config_sha256 | Must resolve to exact immutable config bytes in that binding |
-| input_hashes.model_manifest_sha256 | Must resolve to the small immutable model-manifest bytes; not a claim that model weight files were fetched or authenticated |
-| output_hashes.document_json_sha256 | Must resolve to exact immutable document bytes before that run can support an active extraction or PDF locator |
-| input_hashes.ingest_plan_sha256, input_hashes.prepared_sha256 | Retain existing canonical-object hashes as provenance; do not import staging documents as business-fact inputs |
-| output_hashes.draft_sha256, output_hashes.receipt_sha256 | Retain existing canonical-object hashes as provenance; do not derive facts from drafts or claim receipt-chain authentication |
-| pipeline_fingerprint | Recompute the existing bound engine/version/core/config/model identity when required material is present; it is neither raw run-file SHA nor projection generation |
+Fixed objects reject unknown fields. Dynamic source/claim map keys are IDs, not
+extensions. `DATE` is a real Gregorian `YYYY-MM-DD`, years 0001–9999. `LEDGER_UTC` is
+a real whole-second `YYYY-MM-DDTHH:MM:SSZ`, with no fraction, offset or leap second.
+`SRC` is local fullmatch `src-[0-9a-f]{20}` and `CLM` is
+`clm-[0-9a-f]{20}`. This narrower SRC grammar applies only to complete ledgers; it
+does not change the broader common, locator or history APIs. Authentic source-ID
+recomputation remains the isolated pinned public adapter.
 
-Current run-manifest schema permits empty input/output hash maps and optional
-pipeline_fingerprint. A successful-extraction application profile must explicitly
-require all needed bindings; the base schema alone cannot prove them. Failed or
-unbound historical run policy, precise config/model/document path association,
-and deterministic selection remain open. Do not pick a run by timestamp or use
-the first file with a matching digest. All canonical timestamps stay material.
+The source-ledger root has exactly `schema,generated_at,sources`, with schema
+`claude-obsidian.source-ledger.v1`, LEDGER_UTC retained verbatim and an exact built-in
+source map that may be empty. Each source has required `origin,content_kind,title,
+authority,review_status,pages` and exactly six optional-nullable fields:
+`content_sha256,ingested_at,retrieved_at,refresh_due,independence_key,supersedes`.
+Presence is material: omitted, explicit null and a value remain distinct in rows.
 
-An inspected code manifest has three distinct digests: its complete file SHA,
-proposal_sha256 for proposal material, and manifest_sha256 excluding its own
-field. Its capture/source/payload association must use the frozen supplied-byte
-code checks. Multiple logical repository/commit/path origins may share raw
-bytes; never collapse them to one origin keyed only by source_id. An inspection
-approval hash or nullable capture operation_id is preserved provenance, not
-permission or proof of a successfully authenticated capture.
+`origin` has exactly `kind,locator`; kind is `file|url|manual`. `content_kind` is one
+of `document|webpage|dataset|image|audio|video|code|conversation|synthetic|other`;
+authority is `official|primary|secondary|community|synthetic|unknown`; review status
+is `unreviewed|active|superseded|rejected`. Title and a nonnull independence key must
+be nonblank under Python `strip()` while their exact original spelling is retained.
+Pages are scalar strings with order and duplicates preserved; empty is valid.
 
-## Immutable extraction layout and acyclic publication proposal
+Every file source in every review state must have the `content_sha256` key present and
+nonnull. Its locator is the exact supplied captured-artifact path, its digest equals
+that artifact's entry SHA, and it has exactly one `source_artifacts` row. URL/manual
+sources have zero such rows; their content hash remains optional-nullable. Several
+logical source IDs may bind the one captured artifact. A file source accepted by the
+broad pinned validator with an absent/null hash is deliberately rejected because
+adding a hash would change stable source identity and all references.
 
-This section records the next Architect proposal, NOT a frozen release. The
-independent path/source review confirmed that broad existing schemas permit the
-layout but do not already enforce it. Old prepared fixtures with a literal `fp`
-directory are not proof of the new directory-to-fingerprint relationship.
+At this pure layer a URL/manual locator promise is only exact built-in nonempty
+Unicode-scalar text with original spelling and common budgets. It is not described as
+a valid or safe URL. Absolute HTTPS/host/port, fragment, credential/sensitive-query,
+canonical URL and authentic source identity remain the pinned public adapter. File
+paths additionally obey the captured-path branch. No private URL canonicalizer is
+copied into this foundation API.
 
-Use the existing planned source/pipeline organization, with exact names to review:
-`.raw/derived/<raw-pdf-sha256>/docling/<pipeline-fingerprint>/document.json`,
-`parser-config.json` and `model-manifest.json`; put timestamped run records in
-`.raw/derived/<raw-pdf-sha256>/runs/<run-id>.json`. Run IDs are filenames, not a
-selection order. Every qualifying run's source/config/model/document hashes and
-pipeline fingerprint must resolve within that source/pipeline binding. Preserve
-all runs and extraction versions; paper.active_extraction selects a document,
-not a latest run. Multiple qualifying runs for identical bound bytes do not
-collapse run facts. Exact immutable path reuse requires identical bytes; different
-document bytes for one source/pipeline must be refused as nondeterministic, never
-overwritten. These are new application constraints, leaving old schema/identity
-and prospective API admission unchanged.
+Static source checks include `(content_kind == synthetic) == (authority ==
+synthetic)`; nonnull `ingested_at` requires nonnull content hash; `observed` is
+nonnull `retrieved_at` else `ingested_at`; active requires observed and refresh_due;
+and when both exist `refresh_due >= observed`. Supersedes resolves inside the complete
+source map and the full graph is acyclic. Future-date, freshness, high-risk support
+and independence-group checks require the later pinned adapter with explicit audit
+date and are not approximated here.
 
-Keep the already-frozen five-field pipeline identity. Bind the vpwiki canonicalizer
-and document schema versions, exact serializer settings and relevant implementation
-identity inside the versioned canonical parser-config bytes; their raw SHA already
-participates in the existing pipeline tuple. The complete config/model manifest
-schemas and byte serialization still need release. Do not add undocumented keys
-to the old identity tuple or assert that package version 0.1.0 alone identifies a
-canonicalizer implementation. Actual software/resource collection and model-weight
-verification remain future adapter responsibilities.
+The claim-ledger root has exactly `schema,generated_at,claims`, schema
+`claude-obsidian.claim-ledger.v1`, retained LEDGER_UTC and a map that may be empty.
+Each claim has required `text,risk,assessment,confidence,location,reviewed_at,evidence`
+and optional-nullable `notes,supersedes`. `reviewed_at` is required but may be null;
+missing never becomes null. `location` has required path and optional-nullable anchor.
+Text is nonblank under `strip()`, preserved raw, and at most 65,536 UTF-8 bytes.
 
-A canonical successful-extraction run profile should contain only its forward
-source/config/model/document bindings, required pinned parser versions, pipeline
-fingerprint, timestamps and error_code=null. An explicit narrow input/output-key
-profile can omit the optional staging/provenance hashes; this is preferable to
-inventing zero hashes or rehashing an already immutable run. In particular:
+Risk is `normal|high`, assessment is
+`accepted|provisional|contested|unsupported|deprecated`, and confidence is
+`high|medium|low|unknown`. Evidence is an ordered exact list, duplicates retained;
+every closed item has `source_id,relation,locator`, with source FK, wire relation
+`supports|contradicts|context`, and a required canonical tagged locator no longer than
+65,536 UTF-8 bytes. Reconstruct the exact outer evidence object and use frozen
+`decode_ledger_evidence`; decoding maps wire `context` to domain `uncertain`, verifies
+outer source/relation against the decoded locator source/domain relation, and rejects
+noncanonical wire rather than repairing it. An accepted claim has a nonnull review
+date; a contested claim has at least one
+contradicting evidence occurrence or nonblank notes. Claim supersedes resolves in the
+complete map and is acyclic.
 
-- A prepared object may list the run_record's complete-file SHA. That same run
-  cannot also require the SHA of that prepared object: doing so creates a hash
-  cycle. Construct the extraction run before the prepared wrapper and omit
-  run.input_hashes.prepared_sha256 in this profile.
-- A publication receipt hashes the full run file among business writes. The run
-  cannot contain the hash of that same publication receipt. Omit its
-  output_hashes.receipt_sha256; the separate receipt/audit chain binds publication.
-- A draft that depends on that prepared object must not feed a draft hash back
-  into the already referenced extraction run. A later immutable provenance
-  record may refer to already existing artifacts only after its own acyclic
-  publication profile is defined; this draft does not authorize that extra type.
+Every claim, including retired claims, is referenced exactly once by one paper or repo
+record. Recompute its stable subject and unchanged claim ID from that actual owner and
+raw text. Complete assessment events and frozen history revision 1 derive the unique
+head and require the ledger assessment/reviewed_at projection; no mutable head input,
+timestamp maximum, event-order guess or second evidence list is allowed.
 
-The existing base run schema remains broader. Whether canonical historical
-failure/provenance runs receive a separate input kind/profile, or are explicitly
-outside the first closed corpus, must be decided before inventory freeze; never
-silently drop them or claim all schema-valid runs satisfy this extraction profile.
-No run under create-only `.raw/derived/**` may be retroactively edited to attach an
-apply result; frozen facade publication there remains ingest-only.
+## Managed page addresses and owner binding
 
-Code and alignment manifests also need immutable derived families, qualified by
-their full stored-file SHA to avoid collapsing distinct origins or versions.
-That filename digest must not be confused with a code manifest's self-excluding
-manifest_sha256/proposal_sha256, raw payload hash, normalized whole-text hash or
-snippet hash. A parent publication receipt can hash the completed manifest file;
-feeding that file's self hash back into its capture approval graph is a different,
-forbidden dependency. Exact families and current-alignment selection remain open.
-The existing single-current prospective slots must not be used to reject all
-historical extraction/commit versions in this complete inventory.
+The complete generated page-address set is derived without reading Markdown:
 
-## Ledger application-profile design notes
+- paper: `wiki/papers/{paper_page_slug(paper_id)}.md`, using existing identity code;
+- repo: `wiki/code/{repo_page_slug(repo_id)}.md`;
+- concept: `wiki/concepts/{axis}/{term_slug}.md`, retaining slash-separated axis
+  components from the exact taxonomy axis.
 
-The pinned `claude_obsidian/ledgers.py` validates more than field shapes and
-permits some omitted optional values and additional fields. Do not call a new
-closed project profile an equivalent replacement for its public validator.
-Root has read source revision 9f8c119, including generated timestamps, source
-identity/date/freshness checks and claim risk/contradiction/anchor checks. A pure
-snapshot profile must explicitly separate the following concerns:
+The new pure `identity.repo_page_slug(repo_id)` first requires an exact canonical repo
+ID and returns `github-` plus lowercase SHA-256 of the exact repo-ID UTF-8 bytes. It
+does not trim/casefold an invalid input or accept original `owner/repo` spelling.
 
-- Preserve both ledgers' `generated_at` as canonical input, even for empty
-  ledgers; it is not a runtime volatile timestamp. Pinned ledger generation uses
-  whole-second UTC, whereas project assessment events allow 1..9 fractional
-  digits. These grammars must not be conflated.
-- Source rows contain origin kind/locator, content_kind, title, authority,
-  review_status and ordered pages. Existing optional nullable values include
-  content_sha256, ingested_at, retrieved_at, refresh_due, independence_key and
-  supersedes. A final profile must explicitly require or preserve presence for
-  each; `record.get` in upstream is not permission for the catalog to collapse
-  absence and null. Unknown extension fields must be preserved under an exact
-  released encoding or refused, never silently dropped.
-- Claim rows contain text, risk, assessment, confidence, location and evidence.
-  Existing location.anchor, reviewed_at, notes and supersedes may be omitted
-  or nullable under the upstream implementation. The new history binding
-  deliberately requires reviewed_at explicitly; whole-input admission must
-  state whether this closes the ledger profile to explicit presence rather
-  than inventing null. Generated page/anchor existence is a later comparison
-  against compiler output, not an invitation to read Markdown as canonical facts.
-- Source supersedes and claim supersedes need complete FKs and acyclic graphs;
-  source identity recomputation still belongs to the pinned public adapter.
-  Retention does not follow solely from current claim references: all declared
-  historical immutable artifacts and events must remain in the full inventory.
-- Source freshness, future-dated source observations and accepted high-risk
-  independent-support requirements involve an audit date and upstream policy.
-  A clock-free catalog digest does not certify them. Do not inject today's date
-  into generation, silently re-implement source grouping, or infer scientific
-  claim assessment from this structural validator. The later public validation
-  result must name its explicit audit context separately from the timeless
-  canonical row export.
+Every `source.pages` occurrence must be an exact member of this derived set. Order,
+duplicates and empty arrays remain valid. A claim location is exactly its one primary
+owner page: the paper address for a paper claim or repo address for a repo claim.
+Concept pages are not claim owners. Actual rendered-page existence, content equality
+and anchor resolution remain later compiler/audit duties.
 
-The closed corpus's raw-file policy remains a decision to freeze: file-origin
-sources need supplied bytes even when unreviewed/superseded/rejected, while
-URL/manual metadata may not have captured bytes. A PDF/code locator can qualify
-only through an explicit source/artifact binding; an HTTPS URL, source title,
-manual origin or matching file basename cannot prove captured PDF/code content.
-Do not narrow all legacy source origins implicitly merely to make current
-fixtures pass, or claim this draft establishes migration compatibility.
+## Taxonomy v1 profile
 
-## Historical assessment validation direction
+`taxonomy/v1.json` is the sole machine provider; YAML is a human copy. Root, policy,
+axis and term objects are closed. Version is exact `v1`. Policy is exactly:
 
-The pure complete-event-graph behavior is now separately frozen in
-[assessment-history revision 1](assessment-history-v1.md), SHA-256
-`ff7e7830d9931c52c447a2a95818dca091cb6d5bc97184d1be1103072ecf44cb`.
-Its transient claim bindings do not replace the inventory/owner/byte adapter
-still required here. The following historical design direction is subordinate
-to that frozen API; the complete input contract remains NOT FROZEN.
+- `unknown_terms = "review_queue"`
+- `silent_create = false` as exact bool
+- `statement_en = "Unknown terms MUST enter a review queue and MUST NOT be silently created as canonical terms."`
+- `statement_zh = "未知术语必须进入 review queue，不得静默创建新的 canonical term。"`
 
-Whole-snapshot history cannot reuse the current prospective helper unchanged:
-it compares every event fingerprint with the current evidence. Historical
-events before a legitimate invalidation must retain their historical value.
-Reuse the existing event schema and ID algorithm, then validate the whole
-graph separately, without changing the old per-proposal API silently.
+Axes occur exactly once in this exact order:
 
-For each owned claim, including retired claims, require one genesis, one
-connected acyclic nonforking chain, no dangling/cross-claim predecessor and
-exactly one terminal head. Traversal from genesis must visit every supplied
-event for that claim; a unique visible terminal alone does not exclude a
-disconnected cycle. Reject events for unknown claims and claims without events.
-Derive the terminal from the graph, never directory order, event-ID sorting,
-timestamps, a caller-selected head or the ledger's asserted assessment.
-All events bind the unchanged canonical ledger text. Parent to_assessment
-equals child from_assessment. A human transition preserves the parent's
-evidence fingerprint and changes assessment; system invalidation changes
-fingerprint and moves to provisional, including provisional->provisional.
-Only the head fingerprint equals current decoded ledger evidence. Ledger
-assessment is head.to_assessment; reviewed_at is the human head's canonical
-UTC date, or null for system genesis/invalidation. No wall-clock inference.
+1. `task/conditioning`
+2. `formulation/objective`
+3. `representation/tokenizer`
+4. `backbone`
+5. `spatial-temporal-modeling`
+6. `data/captioning/filtering`
+7. `training/parallelism/optimization`
+8. `inference/distillation/acceleration`
+9. `control`
+10. `evaluation/dataset/benchmark`
 
-The no-op refusal follows the active development plan's section 5.4 rule 3;
-the existing per-event schema is intentionally broader and cannot alone
-establish whole-chain validity. This closed snapshot profile refuses historical
-human same-state transitions. It does not rewrite such immutable legacy events
-or claim they fit this supported corpus; any compatibility/migration policy
-needs separate review. Existing per-event/prospective API behavior is unchanged.
+Each axis has exactly `slug,label_zh,label_en,aliases,terms`; each term has exactly
+`slug,label_zh,aliases,status`. Every axis has at least one term. Term slug fullmatches
+`[a-z0-9]+(?:[-_][a-z0-9]+)*`, is unique within its axis and may repeat across axes;
+status is exact `canonical`. Labels and alias items are Unicode-scalar strings whose
+UTF-8 byte length is greater than zero; they are not trimmed or normalized. Alias
+arrays may be empty and may contain duplicates, shared values or a slug/label value;
+all ordinals remain material. Labels may repeat. No parent, term English label,
+redirect or alias resolver is inferred. Term count is not fixed at two. Paper taxonomy
+references resolve exact `(axis,slug)`; unknown terms are refused without creating a
+queue artifact as a side effect.
 
-The snapshot can prove the supplied chain state, not complete Vault enumeration
-or that a missing tail plus an older matching ledger is not a rollback. VPKB-001
-must authenticate event membership/current bytes through receipt and managed
-content auditing. The snapshot also cannot prove that invalidation and human review
-were published in separate approved transactions. Core replacement review
-co-publication and receipt-backed timing remain VPKB-001 prospective/integrity
-checks. The snapshot must not label this limitation full workflow acceptance.
+## Run and artifact closure
 
-## Review/acceptance still required
+Every run path supplies source context `S` and has exactly one source artifact binding
+to the unique captured artifact with raw SHA `S`; at least one file source binds that
+captured path. A present `input_hashes.source_sha256` equals `S`. The source role exists
+even when that optional field is absent and means context association, not producer
+authentication. Pre-capture diagnostics remain staging and cannot become canonical
+runs under this profile.
 
-- Independently review the codec, final inventory/DDL/generation linkage and
-  unsupported legacy boundary before implementation release.
-- Use real pinned public CLI controls for supports/context success and wire
-  uncertain refusal; prove exact tagged string preservation without extensions.
-  Keep fixture extraction metadata distinct from real coordinate verification.
-- Preserve all current identity goldens; add complete wire bytes/hash vectors,
-  canonical-reencoding adversaries, fractional/optional-field round trips,
-  duplicate/cycle/resource failures and unknown-relation rejection.
-- Snapshot fixtures must include historical invalidation followed by review,
-  missing/replaced raw bytes, absent/unknown/duplicate inputs, ref/owner/hash
-  failures, complete ordering/duplicate semantics and no Markdown-derived facts.
-- No acceptance of this draft, parent packet, VPKB-000 or human gate is implied.
+Pipeline fingerprint `P` absent permits no parser-config, model-manifest or document
+hash and no corresponding role. Other original provenance/version fields remain.
+`P` present requires the unchanged complete five-field bound Docling identity with
+pinned Docling/core versions, parser-config/model hashes and recomputed P. Each present
+named parser/model/document hash has exactly its prescribed `.raw/derived/S/docling/P/`
+sibling artifact and role; each declared parser/model artifact is referenced by at
+least one matching role. Partial config/model/document hashes without P are rejected
+even when the older run API accepted them. No existing run schema/API is changed.
+
+Every docling document has both sibling config/model artifacts and at least one matching
+run whose error_code is null, pinned versions and source/config/model/document hashes
+are all present and equal. Multiple qualifying runs stay distinct; choose no first,
+latest or lexicographically smallest row. Failed/unbound admitted runs retain every
+original field. ingest-plan/prepared/draft/receipt hashes remain raw provenance inside
+the run-manifest input hash; they are neither dereferenced inputs nor artifact roles.
+
+A paper active extraction names an admitted qualifying document. At least one source
+role for that document's S context resolves to a file source with content_kind document,
+exact captured-S binding and exact membership in that paper's source_ids. Matching by
+SHA alone is forbidden; other logical sources sharing S need not belong to the paper.
+
+## Locator and manifest membership
+
+Claim evidence uses the outer ledger evidence wrapper described above. Alignment
+officiality and capability arrays instead contain direct PDF/code locator objects;
+they have no outer relation wrapper. Direct alignment rows canonically decode and
+re-encode the locator, require the row source and kind to equal the decoded locator,
+and apply owner membership without inventing `supports`, `context` or `uncertain`.
+
+Every PDF locator names an admitted qualifying docling document and its source binds
+the document's S captured context. For a paper-owned claim the source is in that paper's
+source_ids; for a repo-owned claim it is in at least one paper linked by the repo record;
+alignment officiality PDF evidence belongs to the alignment's paper. Actual PDF node,
+selected text, page/ref, ratios, charspan and bbox truth remains mandatory later.
+
+Every code locator resolves one inspected code-evidence manifest with exact source,
+original repository identity, full commit and origin path. For a repo-owned claim it
+matches that repo; for a paper-owned claim the resolved repo links that paper; alignment
+capability locators match the alignment repo and commit. Base row validation
+reconstructs the closed code manifest; validates its proposal/self hashes, declared
+source identity, payload SHA/size/newline/line metadata and stored capture association;
+and requires `capture.source_id` to resolve a file source with `content_kind=code`
+whose `source_artifact` path/hash exactly equal `stored_path`/payload SHA. These are
+declared row relationships. Row validation does not inspect the captured payload, and
+`validate_projection_bytes` proves only that each supplied inventory byte value matches
+its own declaration. Actual payload SHA/size/newline/normalization/line/snippet truth
+and proof that manifest rows came from those bytes remain VPKB-001 mapper duties.
+Proposal-only manifests stay staging.
+
+Repo records retain every historical paper link and claim ref; alignment manifests
+retain every immutable version. Missing alignment remains missing and never creates
+five inferred unverified capabilities. Each supplied alignment has all five unique
+capability names in original ordinals 0..4; official requires PDF evidence;
+present/partial requires code locators; absence scope/pattern/checkpoint presence is
+preserved exactly wherever the existing schema admits it.
+
+The column manifest enumerates the remaining one-to-one typed roots, ordered children,
+FKs, presence pairs, acyclicity, full history and cross-row reconstruction rules. Base
+row validity never certifies genuine Docling formula/soft-hyphen/enrichment/
+multi-provenance behavior. VPKB-001/002 must freeze and test selected-text,
+normalization, span, provenance and bbox semantics; no clamping, orig fallback or
+first-provenance guess is authorized.

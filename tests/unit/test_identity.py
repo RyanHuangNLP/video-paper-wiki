@@ -21,6 +21,7 @@ from video_paper_wiki.identity import (
     paper_page_slug,
     pipeline_fingerprint,
     repo_id,
+    repo_page_slug,
 )
 
 
@@ -212,6 +213,22 @@ def test_repo_id_casefold_excludes_commit() -> None:
     assert repo_id("Stability-AI/generative-models") == "github:stability-ai/generative-models"
     assert is_stable_subject_id("repo:github:stability-ai/generative-models")
     assert not is_stable_subject_id("repo:github:Stability-AI/generative-models")
+    canonical = "github:stability-ai/generative-models"
+    assert repo_page_slug(canonical) == "github-" + __import__("hashlib").sha256(canonical.encode()).hexdigest()
+    with pytest.raises(IdentityError):
+        repo_page_slug("github:Stability-AI/generative-models")
+
+
+def test_repo_page_slug_hostile_value_has_safe_diagnostic() -> None:
+    class Hostile:
+        def __str__(self):
+            raise AssertionError("must not stringify")
+        def __repr__(self):
+            raise AssertionError("must not repr")
+    hostile=Hostile()
+    with pytest.raises(IdentityError) as exc: repo_page_slug(hostile)  # type: ignore[arg-type]
+    assert exc.value.details == {"field":"repo_id"}
+    assert all(value is not hostile for value in exc.value.details.values())
 
 
 def test_claim_id_nfkc_whitespace_and_locator_stability() -> None:

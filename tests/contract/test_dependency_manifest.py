@@ -25,6 +25,8 @@ def test_docling_is_optional_not_default() -> None:
     wheel = data["tool"]["hatch"]["build"]["targets"]["wheel"]
     assert wheel["force-include"]["docs/seed"] == "video_paper_wiki/seed"
     assert wheel["force-include"]["schemas"] == "video_paper_wiki/schemas"
+    assert wheel["force-include"]["taxonomy/v1.json"] == "video_paper_wiki/taxonomy/v1.json"
+    assert wheel["force-include"]["catalog"] == "video_paper_wiki/catalog"
 
 
 def test_uv_lock_pins_docling_version() -> None:

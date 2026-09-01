@@ -43,6 +43,9 @@ MAX_BYTES = 64 * 1024 * 1024
 MAX_REQUESTS = 4
 
 _SCHEMA_TITLES = {
+    "video-paper-wiki.projection-input.v1",
+    "video-paper-wiki.projection-generation.v1",
+    "video-paper-wiki.catalog-rows.v1",
     "video-paper-wiki.upstream-chunk-profile.v1",
     "video-paper-wiki.upstream-bm25-profile.v1",
     "video-paper-wiki.transaction-facade.v1",

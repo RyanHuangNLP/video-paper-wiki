@@ -175,6 +175,18 @@ def paper_page_slug(paper_id: str) -> str:
     return f"{scheme}-{rest.replace('/', '-')}"
 
 
+def repo_page_slug(repo_id: str) -> str:
+    """Return the portable managed-page slug for an exact canonical repo ID."""
+
+    if type(repo_id) is not str or not _REPO_ID.fullmatch(repo_id):
+        raise IdentityError(
+            SCHEMA_INVALID,
+            "repo_id is not a canonical repository ID",
+            {"field": "repo_id"},
+        )
+    return "github-" + hashlib.sha256(repo_id.encode("utf-8")).hexdigest()
+
+
 def catalog_seed_key(paper_id: str) -> str:
     """Map a canonical paper ID to the paused-catalog-67 page slug used in seed files."""
 
