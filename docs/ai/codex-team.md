@@ -151,9 +151,26 @@ focused、24 项对抗、四个 pinned 操作向量、Python 3.12/3.13 各 1895 
 wheel 验收；本地 R3 决定
 `PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` 绑定 SHA-256
 `a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`。
-当前仍没有实现 commit 或精确实现 head，下一步仅允许最终精确路径交付审计。此阶段仍
-不允许从 capture authority/code manifest 自动生成业务 proposal，不执行
-upstream/apply/recover/admin，不处理 operation result、ledger/integrity、
+该精确 R3 实现已提交为
+`fb2cbcb565195a232f22d02c0474ac1b1b34f7d3`、tree
+`4a28ee53f71a0f2971f23b87e1f4c06d3bdf5b79`。新的四项 merge-ref Tests run
+`33491834331` 各通过 1895 项，merge preview 为
+`12bc7925140352fad516405b7eafaa8923d106e7`，随后取得
+`ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_IMPLEMENTATION_AT_EXACT_HEAD`。
+三份 post-CI 记录由下一架构交付原字节携带。
+
+第四个有界子版本为 `staged-pdf-capture-inspect-v1`，baseline 为 `fb2cbcb`。
+Architect 已冻结 canonical prepared request、完整 parsed desensitized
+approval-ref、一次 retained prepare/inspect batch lineage、完整 Vault sibling
+snapshot、create/reuse closed authority 以及三处共用的 compact bundle encoder。
+Builder 与 Repo Steward 已分别对 contract SHA-256
+`8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f`
+和工作包 SHA-256
+`298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`
+返回 GO。Python 3.12/3.13 已各通过 1901 项全量，checkout 外 wheel 已验证 26 个
+schema 与新增资源精确字节。当前只允许完成精确交付、fresh CI 与单独 exact-head
+验收；通过前不授权 Builder 写主实现。此阶段仍不执行
+upstream apply/recover/admin，不处理 staged code、operation result、ledger/integrity、
 vendor/dependency/workflow 或真实 Vault。
 
 `base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成

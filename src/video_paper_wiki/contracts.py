@@ -52,6 +52,8 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.upstream-authority.v1",
     "video-paper-wiki.upstream-capture-authority.v1",
     "video-paper-wiki.transaction-staging.v1",
+    "video-paper-wiki.staged-pdf-capture-request.v1",
+    "video-paper-wiki.staged-pdf-capture-authority.v1",
     "video-paper-wiki.operation-head.v1",
     "video-paper-wiki.capture-inspection.v1",
     "video-paper-wiki.code-evidence-manifest.v1",

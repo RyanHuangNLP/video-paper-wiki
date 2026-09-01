@@ -117,10 +117,29 @@ their task; being another Codex agent does not confer Architect authority.
   local R3 decision `PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI`
   is bound to acceptance SHA-256
   `a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`.
-  No implementation commit or exact implementation head exists yet; final
-  exact-path delivery review, fresh CI and exact-head acceptance remain.
-  Proposal mapping, operation results, integrity runtime and retrieval remain
-  outside this subrelease.
+  The exact R3 implementation was delivered at head
+  `fb2cbcb565195a232f22d02c0474ac1b1b34f7d3`, tree
+  `4a28ee53f71a0f2971f23b87e1f4c06d3bdf5b79`. Fresh Tests run
+  `33491834331` checked merge preview
+  `12bc7925140352fad516405b7eafaa8923d106e7`; all four jobs passed 1895
+  tests. Architect then issued
+  `ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_IMPLEMENTATION_AT_EXACT_HEAD`.
+  Its three post-CI records are immutable successor-carried inputs. The next
+  bounded architecture is `staged-pdf-capture-inspect-v1` at baseline `fb2cbcb`.
+  It freezes a canonical prepared request carrying the parsed desensitized
+  approval-ref, one retained prepare/inspect batch lineage, complete staged
+  Vault sibling snapshots, create/reuse authority branches and one shared
+  compact bundle encoder. Builder and Repo Steward independently returned GO
+  for contract SHA-256
+  `8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f`
+  and architecture work-package SHA-256
+  `298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`.
+  Python 3.12/3.13 each passed 1901 tests, and the isolated wheel exposes all
+  26 schemas with byte-exact new resources. Implementation is not authorized
+  until this architecture passes exact delivery, fresh CI and separate
+  exact-head acceptance. Staged code capture,
+  operation results, integrity runtime and retrieval remain outside this
+  subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.

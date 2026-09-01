@@ -2,8 +2,8 @@
 
 - Parent: VPKB-001.
 - Ordered slice: `adapter-contract` before `integrity-runtime`.
-- Current subrelease: `deterministic-transaction-inspect-staging-v1`.
-- Current architecture baseline: `57c2519425dbccd6bb48a0f82e77699e17afcfb6`.
+- Current subrelease: `staged-pdf-capture-inspect-v1`.
+- Current architecture baseline: `fb2cbcb565195a232f22d02c0474ac1b1b34f7d3`.
 - Original packet baseline: `acd3821b15e62bce13fa07b82c1665d501f27f67`.
 - Architect: Codex / `gpt-5.6-sol` / `ultra`.
 - Builder and Repo Steward: Codex subagents / `gpt-5.6-sol` / `medium`.
@@ -189,9 +189,10 @@ wheel with 24 schemas. Architect local decision
 `PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` is bound
 to `architect-local-acceptance.json`, SHA-256
 `98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b`.
-This authorizes only the exact-path delivery audit. No implementation commit or
-exact implementation head exists yet; normal push, fresh four-job merge-ref CI
-and a separate exact-head Architect decision remain required.
+At that R2 gate this authorized only the exact-path delivery audit; no
+implementation commit or exact implementation head existed yet, and normal
+push, fresh four-job merge-ref CI plus a separate exact-head Architect decision
+still remained required.
 
 That temporary-index audit found `CACHED_DIFF_BLANK_EOF_001` before any real
 index mutation: `tests/contract/test_transaction_staging.py` ended with two LF
@@ -217,8 +218,8 @@ byte-identical outside-checkout installed wheel. Local decision
 `PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` is bound
 to `architect-local-acceptance-r3.json`, SHA-256
 `a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`.
-This permits only the final exact-path delivery audit; commit, push, fresh CI
-and exact-head acceptance remain separate gates.
+That local decision permitted only the final exact-path delivery audit; commit,
+push, fresh CI and exact-head acceptance remained separate gates.
 
 This architecture does not authorize a mapper from manual capture or code
 evidence into a facade proposal. It starts no process and adds no CLI. It does
@@ -227,12 +228,53 @@ audit managed state, change dependencies/vendor/workflows, touch a real Vault,
 or begin the ordered `integrity-runtime` slice. `base-catalog-v1` stays revision
 1 because the staging result emits no catalog rows.
 
-The R2 semantic checks and rejected delivery remain historical evidence. R3 is
-now locally accepted and independently reviewed, but still requires a new
-cached-diff delivery audit, fresh Linux/macOS × Python 3.12/3.13 CI and a
-separate Architect decision at the exact implementation head. Passing does not
-complete adapter-contract/VPKB-001 or authorize PR state changes, merge, or a
-human gate.
+The R2 semantic checks and rejected delivery remain historical evidence. The
+R3 implementation was committed at exact head
+`fb2cbcb565195a232f22d02c0474ac1b1b34f7d3`, tree
+`4a28ee53f71a0f2971f23b87e1f4c06d3bdf5b79`. Fresh run `33491834331`
+tested merge preview `12bc7925140352fad516405b7eafaa8923d106e7`;
+all four Linux/macOS × Python 3.12/3.13 jobs passed 1895 tests. Separate
+Architect decision
+`ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_IMPLEMENTATION_AT_EXACT_HEAD`
+accepts only this bounded implementation. Its three post-CI records have exact
+SHA-256 values
+`794d1fe6a5889c2bbbb5b873dc09e4e043b15de152dd6666a231662895a7644d`,
+`7b73ede5922cfe3c5604f17dfbab81407b14480f8523afc7a34af9f3b7c51908`,
+and `269deabc8f4dda1681b8c51300685b4d5fa37a4051a61c77a5017dc4e0c78087`
+and are carried unchanged by the successor architecture.
+
+## Fourth subrelease architecture candidate
+
+The next contract is
+`docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md`, SHA-256
+`8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f`.
+It introduces the closed
+`video-paper-wiki.staged-pdf-capture-request.v1` and
+`video-paper-wiki.staged-pdf-capture-authority.v1` schemas. Architecture work
+package SHA-256
+`298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`
+keeps the implementation with Builder and exact delivery/CI with Repo Steward.
+
+Paper prepare will persist one canonical no-target request containing the
+parsed desensitized approval-ref and exact plan/PDF descriptors. It must publish
+the blob first and request last in one retained batch/prepared session. The
+agent-safe `capture inspect --prepared` path then retains the same batch lineage
+while revalidating request, canonical plan and PDF bytes. A complete no-follow
+Vault sibling snapshot chooses reuse or create. Reuse keeps the requested
+operation ID in the wrapper but creates no facade, staging, process, network
+attempt or write. Create builds one capture-create facade, uses one shared public
+compact encoder, the accepted deterministic staging boundary and the accepted
+pinned read-only transaction inspector. It never applies or mutates the Vault.
+
+Builder and Repo Steward independently returned GO after earlier review rounds
+closed approval provenance, multi-file lineage, reuse operation binding,
+object-only/runtime validation ownership, PDF bounds, encoder error mapping and
+the accepted digest-before-limit order. Python 3.12/3.13 each passed 1901 tests,
+and the checkout-external wheel exposes 26 schemas with both new resources
+byte-equal. Exact-path delivery, fresh four-job CI and separate exact-head
+Architect acceptance are still required. Until then implementation is not authorized.
+Passing this subrelease will not complete staged code capture, operation-result
+handling, the rest of adapter-contract, VPKB-001, PR merge, or any human gate.
 
 ## Exclusions and rollback
 

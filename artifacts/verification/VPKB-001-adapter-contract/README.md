@@ -146,8 +146,9 @@ Active revision 3, SHA-256
 authorizes only deletion of that one final LF plus R3 evidence. The corrected
 test must have SHA-256
 `a24970e839051c43719996ab519b9e1405f1938aa201238d8681fd31c01dc797`;
-all other source/test bytes remain fixed. Exact R3 review, delivery, fresh
-four-job CI and a separate exact-head Architect acceptance remain pending.
+all other source/test bytes remain fixed. At that gate exact R3 review,
+delivery, fresh four-job CI and a separate exact-head Architect acceptance
+remained pending.
 Builder froze the precomputed R3 snapshot; independent
 `steward-review-r3.json` records `GO` at SHA-256
 `6c174fa4bfc16c22f4708716937ae2561e67e11defc6b3ddc1a357e838d6d641`.
@@ -156,10 +157,33 @@ and both 1895-test full suites; the rebuilt installed wheel stayed byte-equal to
 R2. `architect-local-acceptance-r3.json` records
 `PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI`, SHA-256
 `a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`.
-Only final R3 exact-path delivery audit is now allowed before Git delivery.
+That local decision permitted only the final R3 exact-path delivery audit before
+Git delivery.
+
+The corrected R3 implementation was committed at exact head
+`fb2cbcb565195a232f22d02c0474ac1b1b34f7d3`, tree
+`4a28ee53f71a0f2971f23b87e1f4c06d3bdf5b79`. Fresh run `33491834331`
+tested merge preview `12bc7925140352fad516405b7eafaa8923d106e7`; all four jobs passed
+1895 tests. Separate decision
+`ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_IMPLEMENTATION_AT_EXACT_HEAD`
+is recorded by the three successor-carried post-CI files in its implementation
+directory.
+
+The `staged-pdf-capture-inspect/` subdirectory contains the fourth bounded
+subrelease's architecture candidate. Its contract SHA-256 is
+`8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f`;
+its architecture work-package SHA-256 is
+`298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`.
+The two closed schemas describe one canonical prepared request with its parsed
+desensitized approval-ref and one create/reuse authority. Independent Builder
+and Repo Steward reviews returned GO after all retained-lineage, Vault snapshot,
+hash graph, encoder compatibility and branch-binding blockers were closed. The
+Architect local verification passed Python 3.12/3.13 with 1901 tests each and
+an isolated 26-schema wheel. The freeze authorizes exact architecture delivery
+only; Builder implementation remains blocked until fresh architecture CI and
+separate exact-head acceptance.
 
 Local, wheel, independent review and remote CI observations remain distinct.
-Accepting either completed subrelease or the staging architecture will not complete the later
-`integrity-runtime` slice or all of VPKB-001. No record here authorizes
-apply/recover/admin, a real Vault, network/models, PR readiness, merge,
-auto-merge or a human gate.
+Accepting any bounded subrelease will not complete the later `integrity-runtime`
+slice or all of VPKB-001. No record here authorizes apply/recover/admin, a real
+Vault, network/models, PR readiness, merge, auto-merge or a human gate.
