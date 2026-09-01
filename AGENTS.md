@@ -72,11 +72,23 @@ their task; being another Codex agent does not confer Architect authority.
   for one blank line at EOF; that 22-path attempt and its empty-index rollback
   are preserved. The corrected seven-file R3 snapshot
   `c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`
-  has passed independent R3 review, local Python 3.12/3.13 full suites and an
-  isolated installed-wheel check. It remains a local candidate until an exact
-  implementation commit receives fresh four-job CI and a separate post-CI
-  Architect acceptance. Staged/code routes, operation results, integrity
-  runtime and retrieval remain outside this subrelease.
+  was committed at exact head `57c2519425dbccd6bb48a0f82e77699e17afcfb6`,
+  tree `c77a7c6ccc8bae3292611c2b24c33255f248710c`, passed four-job Tests run
+  `33477484577` at merge preview `058ae19131cc418edc42dd8d311354503a0e515b`
+  with 1835 tests per job, and received separate post-CI Architect acceptance.
+  Its three post-CI records remain successor-carried evidence. The current
+  Architect-owned work is the bounded `deterministic-transaction-inspect-staging-v1`
+  architecture at baseline `57c2519`. Independent R1 reviews rejected repeated
+  single-file staging calls because directory replacement between calls could
+  split one transport across lineages. Revision 2 preserves those reports and
+  freezes one retained-descriptor multi-file session with named identity and
+  complete-set checks; the public `stage_bytes` behavior remains unchanged.
+  Builder and Repo Steward independently returned R2 GO. Local Python 3.12 and
+  3.13 each passed all 1838 tests and the isolated wheel contains all 24 schemas.
+  Builder implementation remains blocked until this exact 21-path architecture
+  delivery is committed, passes fresh four-job CI, and receives separate
+  exact-head Architect acceptance. Proposal mapping, operation results,
+  integrity runtime and retrieval remain outside this subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.

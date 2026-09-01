@@ -2,8 +2,9 @@
 
 This directory begins with the accepted architecture/contract freeze for the
 first bounded VPKB-001 subrelease: pinned read-only transaction inspection and
-isolated captured-file source-ID verification. It now also contains the
-successor architecture work for a single manual-PDF capture dry-run boundary.
+isolated captured-file source-ID verification. It also contains the accepted
+manual-PDF capture dry-run subrelease and the successor architecture work for
+deterministic transaction-inspect staging.
 
 Baseline `acd3821b15e62bce13fa07b82c1665d501f27f67` is the separately accepted
 whole-VPKB-000 closure head. Its post-CI records are persisted alongside this
@@ -81,11 +82,38 @@ passed 342 focused checks and 1835 complete tests on both local Python 3.12 and
 3.13, four real-child identity-replacement attacks, real pinned create/noop
 controls, independent Repo Steward R3 review and an isolated offline
 installed-wheel smoke. The final self-excluding manifest covers 28 exact paths.
-It remains local-only until the exact implementation commit receives fresh
-four-job CI and a separate post-CI Architect acceptance.
+It was committed at `57c2519425dbccd6bb48a0f82e77699e17afcfb6`; fresh run
+`33477484577` tested merge preview
+`058ae19131cc418edc42dd8d311354503a0e515b`, with 1835 tests passing in
+each of four jobs, and a separate Architect accepted the exact head. The three
+implementation post-CI records are carried unchanged by the next architecture
+delivery.
+
+The `transaction-inspect-staging/` subdirectory contains the third bounded
+subrelease's architecture evidence. Its contract is
+`docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md`, and its closed
+portable result schema is `video-paper-wiki.transaction-staging.v1`. This slice
+generates only `.work/<batch>/transaction-inspect/{content/**,bundle.json}`
+from a previously validated facade proposal and exact caller-supplied bytes.
+R1 Builder and Repo Steward reviews rejected repeated single-file `stage_bytes`
+calls because batch/transport replacement between calls could split one logical
+transport across directory lineages. Revision 2 preserves those blocker reports
+and freezes one retained-descriptor multi-file staging session with named
+device/inode rechecks and complete-set verification. It keeps the existing
+single-file API unchanged and still uses the accepted read-only transaction
+inspect adapter; it does not create business proposals, invoke upstream code,
+mutate a Vault, or authorize apply.
+
+The preserved R1 reviews record `CHANGES_REQUIRED`; the exact R2 Builder and
+Repo Steward reviews both record GO. Architect verification then passed 44
+focused schema checks and all 1838 tests on both Python 3.12 and 3.13. The
+isolated installed wheel contains 24 schemas and the staging schema bytes match
+the checkout. These results permit only the exact 21-path architecture delivery;
+implementation remains blocked pending fresh four-job CI and separate exact-head
+Architect acceptance.
 
 Local, wheel, independent review and remote CI observations remain distinct.
-Accepting this second bounded subrelease will not complete the later
+Accepting either completed subrelease or the staging architecture will not complete the later
 `integrity-runtime` slice or all of VPKB-001. No record here authorizes
 apply/recover/admin, a real Vault, network/models, PR readiness, merge,
 auto-merge or a human gate.

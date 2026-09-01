@@ -99,26 +99,34 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
   唯一一字节修正后的 R3 七文件快照
   `c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`
   已获 Repo Steward 独立 R3 GO，并在 Python 3.12/3.13 各通过 342 项 focused
-  和 1835 项全量测试及离线 wheel 验收。它仍是本地候选，新 head 必须另跑 CI。
+  和 1835 项全量测试及离线 wheel 验收。它已提交为精确 head
+  `57c2519425dbccd6bb48a0f82e77699e17afcfb6`、tree
+  `c77a7c6ccc8bae3292611c2b24c33255f248710c`。Tests run `33477484577`
+  的四项各 1835 通过，实际 checkout 合并预览
+  `058ae19131cc418edc42dd8d311354503a0e515b`，随后 Architect 签发
+  `ACCEPTED_VPKB_001_MANUAL_PDF_CAPTURE_DRY_RUN_IMPLEMENTATION_AT_EXACT_HEAD`。
 - 目录与 overlays 继续冻结为 67；保留所有既有未跟踪计划、`inbox/`、`tools/`
   和 `.DS_Store`。
 
 当前 packet 仍是
-[VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)。当前第二个有界
-子版本规范为
-[vpkb-001-manual-pdf-capture-dry-run-v1](contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md)。
-它只允许上游公开 `capture apply` 的默认 dry-run，不传 `--apply`，一次观察一个
-`inbox/**/*.pdf`，把 create/noop 输出投影为
-`video-paper-wiki.upstream-capture-authority.v1` 和既有 manual PDF capture inspection。
-它使用独立 command profile；即使复用相同 21 文件 snapshot，也不扩宽已经接受的
-transaction-inspect profile。
+[VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)。第二个有界
+子版本已经完成，三份 post-CI 记录由当前架构交付原字节携带。第三个有界子版本规范为
+[vpkb-001-transaction-inspect-staging-v1](contracts/vpkb-001-transaction-inspect-staging-v1.md)。
+它把已经验证的 transaction proposal 与调用者提供的三组精确 bytes map，确定地写入
+当前 checkout 的 `.work/<batch>/transaction-inspect/{content/**,bundle.json}`，供既有
+只读 pinned inspect adapter 消费。第一轮独立评审发现，多次单文件 `stage_bytes` 调用之间
+替换 batch/transport 目录会把同一 transport 分裂到不同目录 lineage；R1 因而拒绝并保留。
+修订 2 改为一次多文件 session：从首个 content 到最终完整集合复核持续持有 checkout、
+`.work`、batch、transport 和 content 描述符，并在每次安装前后通过命名重开核对
+device/inode。内容先写、bundle 最后写，相同字节精确幂等，不同字节拒绝；既有公开
+`stage_bytes` 行为不变。
 
-当前进入精确实现交付：只提交 revision-2 工作包允许的两个生产文件、五个测试/辅助文件、
-保存的 R1/R2/R3 与 preflight 证据、架构 post-CI 记录和状态/验收文件，共 28 个精确路径。
-实现只调用公开 `capture apply` 的默认
-dry-run，并在私有执行树内完成只读观察；不授权真正 apply。提交后仍需新的四项
-merge-ref CI 和单独的精确 head Architect 验收。此阶段不允许 staged/code route、
-operation result、ledger/integrity、vendor/dependency/workflow 或真实 Vault 变更。
+Builder 和 Repo Steward 已对第三个子版本的精确修订 2 候选分别返回 GO。主控本地在
+Python 3.12/3.13 各完成 1838 项全量测试，隔离安装的 wheel 含 24 个 schema，新增 schema
+字节与 checkout 相同。当前进入精确 21 路径架构交付；架构 head 在新的四项 merge-ref
+CI 和单独的精确 head Architect 验收前不得授权实现。此阶段不允许从 capture
+authority/code manifest 自动生成业务 proposal，不执行 upstream/apply/recover/admin，
+不处理 operation result、ledger/integrity、vendor/dependency/workflow 或真实 Vault。
 
 `base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成
 catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation profile
@@ -126,8 +134,8 @@ revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-001 仍�
 `adapter-contract` → `integrity-runtime` 顺序完成；首个子版本通过不代表整个 slice 或
 VPKB-001 完成。
 
-保持同一 PR 中的单业务写者：Builder 的实现字节已经冻结，Architect 只写状态与验收，
-Steward 独立核验后串行处理 Git/CI。每次审查以
+保持同一 PR 中的单写者：架构阶段由 Architect 写冻结文件，实施阶段再显式把生产/测试
+路径交给 Builder；Steward 始终只独立核验并串行处理 Git/CI。每次审查以
 `packet_base_sha..candidate_head_sha` 为本包增量，
 同时检查跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动
 覆盖以 `integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。

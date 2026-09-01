@@ -6,7 +6,7 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 3ab19eda4f417b96d89a0a50b2ce2c05233a8478
+  continued_head: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
@@ -14,9 +14,10 @@ resume_context:
     On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
     integration. It has not been merged. reference_head preserves the original
     handoff baseline; continued_head is the accepted manual-PDF capture dry-run
-    architecture. Its implementation is locally accepted at a frozen seven-file
-    snapshot and remains pending an exact commit, fresh CI and a separate
-    exact-head Architect acceptance.
+    implementation. It passed fresh four-job run 33477484577 and separate
+    exact-head Architect acceptance. The current successor work is revision 2
+    of the deterministic transaction-inspect staging architecture; implementation
+    remains blocked until that architecture is committed, tested and accepted.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -61,18 +62,18 @@ collaboration:
 repository_observation:
   observed_on: "2026-09-01"
   pr: 94
-  head_sha: 3ab19eda4f417b96d89a0a50b2ce2c05233a8478
+  head_sha: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
   base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
-  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33469912314"
-  ci_run_id: 33469912314
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33477484577"
+  ci_run_id: 33477484577
   conclusion: success
   jobs_succeeded: 4
   tested_checkout_observation:
-    job_id: 99737390321
+    job_id: 99759695142
     job: ubuntu-24.04 / Python 3.13
     ref: refs/remotes/pull/94/merge
-    sha: ea86e96fbbbcaf6fbda360679c6e6d209a6151b7
-    tests_passed: 1750
+    sha: 058ae19131cc418edc42dd8d311354503a0e515b
+    tests_passed: 1835
   note: >-
     This is a separate repository snapshot, not a rewrite of historical local
     test evidence or an Architect merge authorization. Recheck head, base,
@@ -140,8 +141,8 @@ work_packages:
     depends_on: [VPKB-000]
     prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: manual_pdf_capture_dry_run_implementation_delivery
-    implementation_status: second-subrelease-local-accepted-pending-commit-ci
+    phase: transaction_inspect_staging_architecture_delivery
+    implementation_status: second-subrelease-accepted-third-architecture-local-accepted-pending-commit-ci
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
@@ -150,9 +151,12 @@ work_packages:
       run 33465872376 and merge preview dd6954f1c2368d83cd6d5f1d5057ed4d20acb327.
       The manual-PDF capture dry-run architecture is accepted at exact head
       3ab19eda4f417b96d89a0a50b2ce2c05233a8478 and run 33469912314. Its
-      seven-file implementation is locally accepted pending an exact commit,
-      fresh merge-ref CI and separate post-CI acceptance. Complete both slices
-      before VPKB-002.
+      implementation is accepted at exact head
+      57c2519425dbccd6bb48a0f82e77699e17afcfb6, run 33477484577 and merge
+      preview 058ae19131cc418edc42dd8d311354503a0e515b. The current bounded work
+      freezes deterministic transaction-inspect staging; operation results and
+      integrity-runtime remain later ordered work. Complete both slices before
+      VPKB-002.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
@@ -574,7 +578,7 @@ packets:
     parent: VPKB-001
     title: Pinned upstream adapter contract and runtime compatibility
     status: in_progress
-    phase: second_subrelease_implementation_delivery
+    phase: third_subrelease_architecture_delivery
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -646,7 +650,7 @@ packets:
         revision binding adapter/schema/profile bytes and consumed authority.
     second_subrelease:
       id: pinned-manual-pdf-capture-dry-run-v1
-      status: implementation-local-accepted-pending-exact-commit-ci
+      status: architect-accepted-at-exact-head
       architecture_baseline: 17c13f6317416f47d2610240aaf905598131e5bc
       accepted_architecture_head: 3ab19eda4f417b96d89a0a50b2ce2c05233a8478
       accepted_architecture_tree: 9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca
@@ -732,11 +736,91 @@ packets:
         focused_each_python: 342-passed
         installed_wheel: passed
         delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json
+        delivery_candidate_sha256: ede0ae12667029aad34af2892a5d65e2140feb4983c689104d0599618bae7542
+        delivery_full_28_path_snapshot_sha256: b9014ec6bff5e811fdf9444441d215a0ed0bf7c4a4a1efef5f537763804249c1
+        accepted_head: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
+        accepted_tree: c77a7c6ccc8bae3292611c2b24c33255f248710c
+        ci_run_id: 33477484577
+        tested_merge_sha: 058ae19131cc418edc42dd8d311354503a0e515b
+        ci_observation: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/ci-observation.json
+        ci_observation_sha256: 35e7ef971ebb7d0b504705f650a8842d8800a7793a7ba72874d800c49ce7e5e6
+        merge_parents: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/merge-parents.json
+        merge_parents_sha256: 021c76c8f2bcad6e31e443335e766be9dbdf789ca0fb3b674397fd360d1ffc97
+        architect_acceptance: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-acceptance.json
+        architect_acceptance_sha256: 752a94704d167b3f6619267e87059e6e7dffd44ddc980b9ed5b9a74dfc301c0e
+        architect_decision: ACCEPTED_VPKB_001_MANUAL_PDF_CAPTURE_DRY_RUN_IMPLEMENTATION_AT_EXACT_HEAD
       generation_decision: >-
         Base generation revision 1 remains unchanged because this authority emits
         no catalog rows. Any mapper/compiler remains a later versioned release.
+    third_subrelease:
+      id: deterministic-transaction-inspect-staging-v1
+      status: architecture-r2-frozen-pending-exact-commit-and-ci
+      architecture_baseline: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
+      contract_path: docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md
+      candidate_contract_sha256: 4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea
+      schema: video-paper-wiki.transaction-staging.v1
+      schema_path: schemas/video-paper-wiki.transaction-staging.v1.schema.json
+      candidate_schema_sha256: 1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78
+      valid_fixture: tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json
+      valid_fixture_sha256: 97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5
+      invalid_fixture: tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json
+      invalid_fixture_sha256: 069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73
+      architecture_work_package: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json
+      architecture_work_package_revision: 2
+      architecture_work_package_sha256: 34daa89c2a30ac04fe1082ca8faa38f1a1089da43b03254917f2a4f6cae5414f
+      historical_r1_reviews:
+        builder: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/builder-spec-review-r1.json
+        builder_sha256: 9ff4dc799ebe3b0dc7a5baf495869efd3457fb175193d97a51eadcb8926d9260
+        steward: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/steward-spec-review-r1.json
+        steward_sha256: 3669b3447f2eb211d64b605fa4d8d85e350ed76413759ea3dfa963b6e20c3173
+        verdict: CHANGES_REQUIRED
+        resolution: >-
+          Revision 2 replaces repeated single-file staging calls with one
+          retained-lineage multi-file session and narrows the production-code
+          architecture exception to title-only schema registration.
+      independent_r2_reviews:
+        builder: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/builder-spec-review-r2.json
+        builder_sha256: 914b56b7482ed6daa304f5320353ebaf53fef571629ab1289b41a5ef1bc78977
+        builder_verdict: GO
+        steward: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/steward-spec-review-r2.json
+        steward_sha256: d24e7734ad3fcf2fa6c8ab28c4ae828a81bd057e10d4329011730f969834b98f
+        steward_verdict: GO
+      local_architecture_verification:
+        focused_schema: 44-passed
+        python_3_12: 1838-passed
+        python_3_12_junit_sha256: 2ae909bb6fd9769eb728591b0e781a67759426af75f617f48627826cfacf33b1
+        python_3_13: 1838-passed
+        python_3_13_junit_sha256: 6929f58b3c8c2252dc052fe7fb94ba082bdfa8feb6d1334d250e5c764d9d0f79
+        installed_wheel_schema_count: 24
+        installed_wheel_sha256: 2273d44a308428dd1679704b99afe3d778cea0c387792657da02cb32dbc1c54b
+        installed_wheel_schema_sha256: 1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78
+        result: passed
+      architect_freeze: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architect-freeze.json
+      architect_freeze_sha256: dbf1c325482b2a787f1cd15158fc879df784d4233024cbe08718583767cfbee4
+      architect_freeze_decision: GO_FOR_ARCHITECTURE_FREEZE_COMMIT_AND_FRESH_CI
+      scope:
+        - Validate one transaction proposal and exact write/original/read byte maps.
+        - Generate the accepted compact transaction bundle byte domain.
+        - Stage unique digest content first and bundle last under the fixed .work layout.
+        - Retain and recheck one checkout/work/batch/transport/content identity lineage.
+        - Verify the complete exact final file set in that lineage before success.
+        - Return a closed path-portable transaction-staging result with exact reuse state.
+      out_of_scope:
+        - Deriving facade proposals from capture authority, code evidence or prepared data.
+        - Upstream execution, transaction apply/recover, operation results or admin CLI.
+        - Ledger merge, managed-prefix audit, integrity-runtime, BM25/index or retrieval.
+        - Dependencies, vendor, workflow, real Vault, PR state, merge or human-gate changes.
+      implementation_authorized: false
+      architecture_requirements:
+        independent_reviews: [Builder, Repo-Steward]
+        fresh_ci_required: true
+        post_ci_architect_acceptance_required: true
+      generation_decision: >-
+        Base generation revision 1 remains unchanged because staging emits no
+        catalog rows. Proposal mapping and the first authority consumer require
+        a later separately frozen generation revision.
     verification:
-      status: first-subrelease-accepted-second-implementation-local-accepted
+      status: first-and-second-subreleases-accepted-third-architecture-local-accepted-pending-exact-commit-ci
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
       first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       second_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json

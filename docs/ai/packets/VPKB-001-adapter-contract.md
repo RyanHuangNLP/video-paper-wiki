@@ -2,8 +2,8 @@
 
 - Parent: VPKB-001.
 - Ordered slice: `adapter-contract` before `integrity-runtime`.
-- Current subrelease: `pinned-manual-pdf-capture-dry-run-v1`.
-- Current implementation baseline: `3ab19eda4f417b96d89a0a50b2ce2c05233a8478`.
+- Current subrelease: `deterministic-transaction-inspect-staging-v1`.
+- Current architecture baseline: `57c2519425dbccd6bb48a0f82e77699e17afcfb6`.
 - Original packet baseline: `acd3821b15e62bce13fa07b82c1665d501f27f67`.
 - Architect: Codex / `gpt-5.6-sol` / `ultra`.
 - Builder and Repo Steward: Codex subagents / `gpt-5.6-sol` / `medium`.
@@ -41,9 +41,9 @@ profile, fixtures and implementation are historical immutable inputs. Their
 acceptance completes only the first bounded subrelease; `adapter-contract` and
 VPKB-001 remain in progress.
 
-## Current subrelease and sequencing
+## Accepted second subrelease and sequencing
 
-The next normative contract is
+The second normative contract is
 `docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md`. Its machine
 boundary is `video-paper-wiki.upstream-capture-authority.v1` plus the independent
 static profile `claude-obsidian-capture-apply-dry-run-9f8c119-v1`.
@@ -63,12 +63,12 @@ verification. It does not include staged PDF/code routes, code proposal binding,
 operation results, ledger merge, managed-prefix audit, mapper/compiler,
 integrity runtime, network/models, BM25/index, retrieval, or publication.
 
-After this subrelease, adapter-contract still owes staged PDF/code behavior,
+After that subrelease, adapter-contract still owes staged PDF/code behavior,
 operation-result handling, full-ledger/managed-prefix fixtures, and remaining
 limits/pinned BM25 compatibility. The ordered `integrity-runtime` slice remains
 blocked until every adapter-contract subrelease is accepted.
 
-## Accepted architecture and current implementation delivery
+## Accepted second-subrelease implementation
 
 The 24-path architecture freeze is accepted at exact head
 `3ab19eda4f417b96d89a0a50b2ce2c05233a8478`, tree
@@ -93,13 +93,27 @@ Repo Steward proved the exact byte relation, replayed the three private-director
 and matching-sibling identity replacements and returned
 `GO_FOR_ARCHITECT_R3_ACCEPTANCE`.
 
-Architect acceptance replayed 342 focused tests and the complete 1835-test suite
+Architect local acceptance replayed 342 focused tests and the complete 1835-test suite
 on Python 3.12.14 and 3.13.13, real pinned create/noop controls, the four identity
 replacement attacks and an offline installed-wheel smoke from outside the
-checkout. The candidate is locally accepted. Repo Steward must now verify the
-self-excluding delivery manifest, stage exactly the 28 named paths, commit and
-push without changing PR state. The implementation head then requires fresh
-four-job merge-ref CI and a separate post-CI exact-head Architect acceptance.
+checkout. Repo Steward then verified the self-excluding delivery manifest and
+committed exactly 28 named paths as
+`57c2519425dbccd6bb48a0f82e77699e17afcfb6`, tree
+`c77a7c6ccc8bae3292611c2b24c33255f248710c`, without changing PR state.
+Fresh run `33477484577` tested merge preview
+`058ae19131cc418edc42dd8d311354503a0e515b`; all four Linux/macOS × Python
+3.12/3.13 jobs passed 1835 tests. The separate Architect decision is
+`ACCEPTED_VPKB_001_MANUAL_PDF_CAPTURE_DRY_RUN_IMPLEMENTATION_AT_EXACT_HEAD`.
+
+The three resulting post-CI records are intentionally absent from the tested
+head and carried byte-for-byte by the current architecture delivery:
+
+- `manual-pdf-capture-dry-run/implementation/ci-observation.json`, SHA-256
+  `35e7ef971ebb7d0b504705f650a8842d8800a7793a7ba72874d800c49ce7e5e6`;
+- `manual-pdf-capture-dry-run/implementation/merge-parents.json`, SHA-256
+  `021c76c8f2bcad6e31e443335e766be9dbdf789ca0fb3b674397fd360d1ffc97`;
+- `manual-pdf-capture-dry-run/implementation/architect-acceptance.json`, SHA-256
+  `752a94704d167b3f6619267e87059e6e7dffd44ddc980b9ed5b9a74dfc301c0e`.
 
 No production file outside the two named adapter/contract modules changed. Old
 v1 bytes, the new frozen contract/schema/profile/fixtures, CLI/entry-point,
@@ -108,52 +122,65 @@ index, retrieval, catalog rows, seed, overlays, taxonomy and generation profile
 remain unchanged. `base-catalog-v1` stays revision 1 because no catalog rows are
 emitted.
 
-## Builder implementation work package
+## Third subrelease architecture work package
 
-The accepted architecture head, contract/profile/schema hashes, PR base and
-exact write scope are frozen in the revision-2 implementation work package;
-revision 1 is preserved byte-for-byte as preflight history.
-Builder was the only main-code writer and used only:
+The next bounded contract is
+`docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md`; its machine
+result is `video-paper-wiki.transaction-staging.v1`. This subrelease stages an
+already valid transaction proposal and all three exact caller-supplied byte maps
+into the only accepted layout:
 
-- `src/video_paper_wiki/upstream_adapter.py`;
-- title-scoped semantic dispatch in `src/video_paper_wiki/contracts.py`;
-- focused unit, contract, upstream and security test files named by the exact
-  implementation work package;
-- packet-specific fixtures and implementation evidence under the current
-  subrelease directory.
+```text
+.work/<batch-id>/transaction-inspect/content/<sha256>
+.work/<batch-id>/transaction-inspect/bundle.json
+```
 
-The new schema/profile/valid-invalid fixtures/normative contract, accepted v1
-contract/schema/profile/fixtures and its public APIs/constants/profile selection/
-error order/behavior/goldens, generation revision, task index, team handoff,
-existing facade/capture helpers, vendor gitlink, dependencies, CLI and catalog
-are Architect-owned frozen inputs. `src/video_paper_wiki/upstream_adapter.py` is
-an expressly shared Builder path: branch-isolated additions for the new capture
-API are allowed, while every accepted v1 semantic and regression must remain
-unchanged. Builder reports a contract gap rather than changing a frozen input.
-Architect may issue a narrow integration correction only with another
-independent review.
+R1 Builder and Repo Steward reviews rejected a sequence of independent
+`stage_bytes` calls: replacing the batch or transport directory between calls
+could split content and bundle across two directory lineages while the wrapper
+still returned success. Those blocker reports are preserved. Revision 2 keeps
+the existing public `stage_bytes` behavior unchanged and authorizes one narrow
+internal multi-file session in `staging.py`. It retains the checkout, `.work`,
+batch, `transaction-inspect`, and `content` descriptors; reopens every named
+edge around each installation; and verifies the complete exact file set in the
+same lineage before success. Unique content is installed in digest order,
+followed by the exact compact bundle as the final file. Existing identical bytes
+are reused; conflicting, incomplete, replaced, or unsafe paths fail closed. The
+portable result contains no absolute host path.
 
-Implementation acceptance must demonstrate real pinned create/noop dry-runs in
-disposable Vaults; exact argv with no `--apply`; complete source/config/sibling
-pre/post snapshots; closed stdout projection and plan binding; hostile path,
-race, limit, environment, ignored-bytecode and child failure cases; deep-copy
-validation; zero network attempts; and zero Vault byte/type/mode changes on
-every path.
+Architect owns the architecture-only contract, schema, fixtures, work package,
+status files and freeze evidence. Builder and Repo Steward independently
+returned R2 GO against the same exact contract/work-package hashes. Python 3.12
+and 3.13 each passed all 1838 tests under the required host AF_UNIX environment;
+an isolated installed wheel exposes all 24 schemas with exact new-schema bytes.
+Production implementation remains blocked until the exact 21-path
+architecture-only delivery receives fresh four-job merge-ref CI and a separate
+exact-head Architect acceptance. This architecture commit's only production
+delta is title registration in `contracts.py`; it changes no adapter behavior.
+A later implementation package may authorize only the new staging module, the
+additive retained-lineage helper in `staging.py`, narrowly required semantic
+dispatch, and focused unit/contract/security/upstream tests.
 
-Run focused tests, then the complete locked suite on local Python 3.12/3.13.
-Build/install a fresh offline wheel and prove new schema/profile/adapter bytes
-equal the checkout and missing upstream fails closed without download. Repo
-Steward independently reviews the exact diff/source snapshot and records fresh
-four-job CI. Architect replays critical checks and accepts or returns blockers
-against the exact head. Passing does not complete adapter-contract/VPKB-001 or
-authorize apply/admin, PR state changes, merge, or a human gate.
+This architecture does not authorize a mapper from manual capture or code
+evidence into a facade proposal. It starts no process and adds no CLI. It does
+not execute transaction apply/recover, attach runtime results, merge ledgers,
+audit managed state, change dependencies/vendor/workflows, touch a real Vault,
+or begin the ordered `integrity-runtime` slice. `base-catalog-v1` stays revision
+1 because the staging result emits no catalog rows.
+
+Architecture and later implementation acceptance each require complete locked
+Python 3.12/3.13 regression tests, an installed-wheel resource check,
+independent Repo Steward review, fresh Linux/macOS × Python 3.12/3.13 CI and a
+separate Architect decision at the exact head. Passing does not complete
+adapter-contract/VPKB-001 or authorize PR state changes, merge, or a human gate.
 
 ## Exclusions and rollback
 
 Do not edit or stage `.DS_Store`, the five existing untracked planning documents,
-`inbox/`, `tools/`, seed/overlays, `.work/**`, a real Vault, credentials,
-approval material, `vendor/claude-obsidian/**`, `uv.lock`, workflows, frozen
-VPKB-000 or accepted v1 files, or human-gate evidence.
+`inbox/`, `tools/`, seed/overlays, generated `.work/**`, a real Vault,
+credentials, approval material, `vendor/claude-obsidian/**`, `uv.lock`,
+workflows, frozen VPKB-000 or either accepted adapter subrelease, or human-gate
+evidence.
 
 Rollback only the exact architecture or implementation commit under review.
 Never use blanket reset/clean and never delete preserved user content.

@@ -28,7 +28,7 @@ def _first_nested_object(document: dict) -> dict | None:
 
 
 def test_all_schemas_are_draft_2020_12_and_well_formed(schema_paths: list[Path]) -> None:
-    assert len(schema_paths) == 23
+    assert len(schema_paths) == 24
     for path in schema_paths:
         schema = load_json(path)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
@@ -150,6 +150,7 @@ def test_projection_schema_patterns_reject_all_terminal_line_separators() -> Non
 @pytest.mark.parametrize("schema_name", [
     "video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1",
     "video-paper-wiki.upstream-authority.v1", "video-paper-wiki.upstream-capture-authority.v1",
+    "video-paper-wiki.transaction-staging.v1",
     "video-paper-wiki.capture-inspection.v1", "video-paper-wiki.code-evidence-manifest.v1",
     "video-paper-wiki.ingest-plan.v1", "video-paper-wiki.prepared.v1",
     "video-paper-wiki.paper-analysis-draft.v1", "video-paper-wiki.paper-code-alignment.v1",
@@ -172,6 +173,7 @@ def test_domain_valid_fixture_and_closed_top_level(schema_name: str) -> None:
 @pytest.mark.parametrize("schema_name", [
     "video-paper-wiki.transaction-facade.v1",
     "video-paper-wiki.upstream-authority.v1", "video-paper-wiki.upstream-capture-authority.v1",
+    "video-paper-wiki.transaction-staging.v1",
     "video-paper-wiki.capture-inspection.v1", "video-paper-wiki.code-evidence-manifest.v1",
     "video-paper-wiki.ingest-plan.v1", "video-paper-wiki.prepared.v1",
     "video-paper-wiki.paper-analysis-draft.v1", "video-paper-wiki.paper-code-alignment.v1",
