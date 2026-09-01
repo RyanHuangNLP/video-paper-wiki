@@ -168,8 +168,37 @@ Builder 与 Repo Steward 已分别对 contract SHA-256
 和工作包 SHA-256
 `298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`
 返回 GO。Python 3.12/3.13 已各通过 1901 项全量，checkout 外 wheel 已验证 26 个
-schema 与新增资源精确字节。当前只允许完成精确交付、fresh CI 与单独 exact-head
-验收；通过前不授权 Builder 写主实现。此阶段仍不执行
+schema 与新增资源精确字节。架构已精确交付为 `4168e151c332cdcf89227bf086d4a6bc5308e649`，
+fresh run `33497663181` 的四项各通过 1901 tests，merge preview 为
+`f48d3cc3323958270f2e249d8e6a71f853df2150`，随后取得
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD`。
+Builder 的 R2 候选 `20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437`
+虽在 Python 3.12/3.13 各通过 1938 项，仍被 Architect 的 missing fixed-slot
+同字节换 inode 探针拒绝。R3 candidate
+`920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8`
+已关闭该窗口，并在两套 Python 各通过 1940 项；独立五案例审查随后复现 `_inputs`
+的 request-before-plan 错误顺序与异常路径 named-edge 重开缺口，因此它仍不是完整可交付候选。
+R4 candidate `77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652`
+修复该目标缺口，冻结 17 路径 snapshot
+`ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02`，
+并在两套 Python 各通过 1948 项。独立审查随后复现两个 all-exits lineage blocker：
+named transport/content 持久替换后的 staging conflict 未被 `WORK_PATH_UNSAFE` 覆盖，以及
+captured snapshot 首次/重复扫描退出时未最终重开 named edges。当前 revision-5 实现工作包
+SHA-256 `71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
+（19,409 bytes）只允许修改 `staging.py`、`captured_snapshot.py`、
+`test_work_staging_boundary.py`、`test_staged_pdf_capture_boundary.py` 并生成
+`builder-candidate-r5.json`。最终 R5 candidate
+`e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
+绑定 18 路径 snapshot
+`c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`；
+Builder 与 Architect 均在两套 Python 各通过 1962 项。Repo Steward review
+`5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
+返回 `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`，Architect local acceptance
+`19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
+通过；离线安装 wheel
+`a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`
+含 26 个 schema 且关键源码精确匹配。精确路径交付、新 commit、fresh CI 与 exact-head
+验收仍未完成。R1/R2/R3/R4 工作包和被拒的 R2/R3/R4 candidate 原字节保留。此阶段仍不执行
 upstream apply/recover/admin，不处理 staged code、operation result、ledger/integrity、
 vendor/dependency/workflow 或真实 Vault。
 

@@ -268,3 +268,17 @@ def test_duplicate_payload_is_one_physical_file_but_two_ordered_bundle_writes(
     refs = [item["content_file"] for item in bundle["writes"]]
     expected_ref = "content/" + first["sha256"]
     assert refs.count(expected_ref) == 2
+
+
+@pytest.mark.parametrize("value", [[], {}, ["capture"]])
+def test_public_encoder_unhashable_operation_type_is_typed(value: object) -> None:
+    material = {
+        "operation_id": "typed-error",
+        "operation_type": value,
+        "writes": [{"path": ".raw/captured/" + "a" * 64 + ".pdf", "mode": "create", "sha256": "a" * 64}],
+        "expected_hashes": {".raw/captured/" + "a" * 64 + ".pdf": None},
+        "read_preconditions": {},
+    }
+    with pytest.raises(ContractError) as caught:
+        staging.encode_transaction_inspect_bundle(material)
+    assert caught.value.code == "SCHEMA_INVALID"

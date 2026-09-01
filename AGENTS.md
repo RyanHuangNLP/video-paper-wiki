@@ -135,9 +135,48 @@ their task; being another Codex agent does not confer Architect authority.
   and architecture work-package SHA-256
   `298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`.
   Python 3.12/3.13 each passed 1901 tests, and the isolated wheel exposes all
-  26 schemas with byte-exact new resources. Implementation is not authorized
-  until this architecture passes exact delivery, fresh CI and separate
-  exact-head acceptance. Staged code capture,
+  26 schemas with byte-exact new resources. The architecture was delivered at
+  exact head `4168e151c332cdcf89227bf086d4a6bc5308e649`, tree
+  `78d43e20f8937a96c6cc86357729c72d295658cb`; fresh run `33497663181`
+  passed four jobs with 1901 tests each at merge preview `f48d3cc3323958270f2e249d8e6a71f853df2150`.
+  Architect issued
+  `ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD`.
+  Builder's R2 candidate SHA-256
+  `20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437`
+  passed 1938 tests on both Python 3.12/3.13 but Architect rejected its
+  missing-fixed-slot identity window. R3 candidate SHA-256
+  `920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8`
+  closed that window and passed 1940 tests on both Python 3.12/3.13, but an
+  independent review then reproduced request-before-plan failure-order and
+  exception-path named-lineage gaps in `_inputs`. R4 candidate SHA-256
+  `77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652`
+  closed those gaps, froze snapshot
+  `ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02`,
+  and passed 1948 tests on both Python 3.12/3.13. Independent review then
+  found two remaining all-exits lineage failures: staging conflicts could
+  escape after persistent named transport/content replacement, and initial or
+  repeated captured-snapshot scans could escape without a final named-edge
+  check. Active revision-5 work-package SHA-256
+  `71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
+  (19,409 bytes) permits only `staging.py`, `captured_snapshot.py`,
+  `test_work_staging_boundary.py`, `test_staged_pdf_capture_boundary.py`, and
+  R5 candidate evidence. Final R5 candidate SHA-256
+  `e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
+  binds 18-path snapshot
+  `c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`.
+  Builder and Architect each passed 1962 tests on both Python 3.12/3.13;
+  installed wheel SHA-256
+  `a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`
+  exposes 26 schemas and exact candidate source bytes. Repo Steward review
+  SHA-256
+  `5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
+  returned `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`; Architect local acceptance
+  SHA-256
+  `19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
+  passed. Exact-path delivery, a new commit, fresh merge-ref CI and separate
+  exact-head acceptance remain required. R1/R2/R3/R4 work packages and
+  R2/R3/R4 candidates remain byte-for-byte history.
+  Staged code capture,
   operation results, integrity runtime and retrieval remain outside this
   subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only

@@ -5,15 +5,21 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import re
 from collections.abc import Mapping
 from typing import Any, NoReturn
 
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.staging import (
+    _RetainedBatchSession,
     _stage_transaction_inspect_files,
+    _stage_transaction_inspect_files_in_session,
     validate_batch_id,
 )
 from video_paper_wiki.transaction_contracts import (
+    _collisions,
+    _json_preflight,
+    _path,
     validate_transaction,
     verify_transaction_bytes,
 )
@@ -49,17 +55,93 @@ def _bundle_value(proposal: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-def _compact_bundle_bytes(proposal: Mapping[str, Any]) -> bytes:
+def encode_transaction_inspect_bundle(material: object) -> bytes:
+    """Validate and encode the portable upstream transaction bundle."""
+    _json_preflight(material)
+    if type(material) is not dict or set(material) != {
+        "operation_id", "operation_type", "writes", "expected_hashes",
+        "read_preconditions",
+    }:
+        _fail("SCHEMA_INVALID", "", "bundle material must have the exact fields")
+    operation_id = material["operation_id"]
+    operation_type = material["operation_type"]
+    writes = material["writes"]
+    expected = material["expected_hashes"]
+    reads = material["read_preconditions"]
+    if type(operation_id) is not str or re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}", operation_id,
+    ) is None:
+        _fail("SCHEMA_INVALID", "/operation_id", "invalid bounded operation ID")
+    if type(operation_type) is not str or operation_type not in {"capture", "ingest", "generic"}:
+        _fail("SCHEMA_INVALID", "/operation_type", "invalid operation type")
+    if type(writes) is not list or not writes or len(writes) > 1024:
+        _fail("SCHEMA_INVALID", "/writes", "writes must be a bounded nonempty list")
+    if type(expected) is not dict or type(reads) is not dict:
+        _fail("SCHEMA_INVALID", "", "precondition maps must be objects")
+    paths: list[tuple[str, str]] = []
+    output_writes: list[dict[str, object]] = []
+    for index, item in enumerate(writes):
+        pointer = f"/writes/{index}"
+        if type(item) is not dict or set(item) != {"path", "mode", "sha256"}:
+            _fail("SCHEMA_INVALID", pointer, "write descriptor must have exact fields")
+        path, mode, digest = item["path"], item["mode"], item["sha256"]
+        if type(path) is not str or type(mode) is not str or type(digest) is not str:
+            _fail("SCHEMA_INVALID", pointer, "write descriptor scalars must be strings")
+        if mode not in {"create", "replace"}:
+            _fail("SCHEMA_INVALID", pointer + "/mode", "invalid write mode")
+        if re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+            _fail("SCHEMA_INVALID", pointer + "/sha256", "invalid content digest")
+        _path(path, pointer + "/path", new=True)
+        paths.append((path, pointer + "/path"))
+        output_writes.append({
+            "path": path, "mode": mode,
+            "content_file": "content/" + digest, "sha256": digest,
+        })
+    _collisions(paths)
+    write_keys = {item["path"] for item in writes}
+    if set(expected) != write_keys:
+        _fail("TRANSACTION_PRECONDITION_MISMATCH", "/expected_hashes", "expected hashes must match writes")
+    for key, value in expected.items():
+        _path(key, "/expected_hashes", new=True)
+        if value is not None and (type(value) is not str or re.fullmatch(r"[0-9a-f]{64}", value) is None):
+            _fail("SCHEMA_INVALID", "/expected_hashes", "invalid expected hash")
+        mode = next(item["mode"] for item in writes if item["path"] == key)
+        if (mode == "create") != (value is None):
+            _fail("TRANSACTION_PRECONDITION_MISMATCH", "/expected_hashes", "write mode and expected hash differ")
+    read_entries: list[tuple[str, str]] = []
+    for key, value in reads.items():
+        _path(key, "/read_preconditions")
+        if value is not None and (type(value) is not str or re.fullmatch(r"[0-9a-f]{64}", value) is None):
+            _fail("SCHEMA_INVALID", "/read_preconditions", "invalid read hash")
+        read_entries.append((key, "/read_preconditions"))
+    _collisions(paths + read_entries)
+    value = {
+        "schema": "claude-obsidian.transaction.v1",
+        "operation_id": operation_id,
+        "operation_type": operation_type,
+        "writes": output_writes,
+        "expected_hashes": expected,
+        "read_preconditions": reads,
+        "address_requests": [],
+        "source_manifest_updates": {},
+    }
     try:
-        return json.dumps(
-            _bundle_value(proposal),
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=False,
-            allow_nan=False,
-        ).encode("utf-8")
+        return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
     except (TypeError, ValueError, UnicodeError, RecursionError):
-        _fail(CODE_STAGING_MISMATCH, "/input_bundle_sha256", "bundle cannot be encoded")
+        _fail(CODE_STAGING_MISMATCH, "", "bundle cannot be encoded")
+
+
+def _compact_bundle_bytes(proposal: Mapping[str, Any]) -> bytes:
+    return encode_transaction_inspect_bundle({
+        "operation_id": proposal["operation_id"],
+        "operation_type": proposal["operation_type"],
+        "writes": [
+            {"path": item["path"], "mode": item["mode"], "sha256": item["sha256"]}
+            for item in proposal["writes"]
+        ],
+        "expected_hashes": proposal["expected_hashes"],
+        "read_preconditions": proposal["read_preconditions"],
+    })
 
 
 def _check_transaction_staging(document: Mapping[str, Any]) -> None:
@@ -95,6 +177,21 @@ def stage_transaction_inspect_transport(
     batch_id: object,
 ) -> dict[str, object]:
     """Validate and stage one facade proposal under the fixed local layout."""
+    return _stage_transaction_inspect_transport(
+        proposal, write_bytes=write_bytes, original_bytes=original_bytes,
+        read_bytes=read_bytes, batch_id=batch_id, session=None,
+    )
+
+
+def _stage_transaction_inspect_transport(
+    proposal: object,
+    *,
+    write_bytes: object,
+    original_bytes: object,
+    read_bytes: object,
+    batch_id: object,
+    session: _RetainedBatchSession | None,
+) -> dict[str, object]:
     transaction = validate_transaction(proposal)
     if transaction["phase"] != "proposal":
         _fail(
@@ -166,11 +263,16 @@ def stage_transaction_inspect_transport(
     reused_variant["already_staged"] = True
     validate_transaction_staging(reused_variant)
 
-    staged = _stage_transaction_inspect_files(
-        batch_id=batch,
-        content=ordered,
-        bundle=bundle,
-    )
+    if session is None:
+        staged = _stage_transaction_inspect_files(
+            batch_id=batch, content=ordered, bundle=bundle,
+        )
+    else:
+        if session.batch != batch:
+            _fail(CODE_STAGING_MISMATCH, "/batch_id", "retained batch differs")
+        staged = _stage_transaction_inspect_files_in_session(
+            session, content=ordered, bundle=bundle,
+        )
     result = copy.deepcopy(base)
     result["already_staged"] = (
         all(staged.content_already_staged) and staged.bundle_already_staged

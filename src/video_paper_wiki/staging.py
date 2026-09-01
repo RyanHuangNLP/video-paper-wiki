@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import errno
+import hashlib
 import os
 import re
 import stat
 import tomllib
+from contextlib import contextmanager
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping, NamedTuple, NoReturn
+from typing import Callable, Mapping, NamedTuple, NoReturn
 
 BATCH_ID_RE = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?$")
 BATCH_ID_MAX = 128
@@ -42,6 +45,95 @@ class StageResult(NamedTuple):
 class _TransactionInspectStageResult(NamedTuple):
     content_already_staged: tuple[bool, ...]
     bundle_already_staged: bool
+
+
+class _PreparedPairResult(NamedTuple):
+    blob_path: Path
+    request_path: Path
+    blob_already_staged: bool
+    request_already_staged: bool
+    request_sha256: str
+
+
+@dataclass
+class _RetainedBatchSession:
+    checkout: Path
+    batch: str
+    checkout_fd: int
+    work_fd: int
+    batch_fd: int
+    identities: tuple[os.stat_result, os.stat_result, os.stat_result]
+
+    @property
+    def work_root(self) -> Path:
+        return self.checkout / WORK_DIRNAME
+
+    @property
+    def batch_path(self) -> Path:
+        return self.work_root / self.batch
+
+    def verify(self) -> None:
+        for fd, expected, path in (
+            (self.checkout_fd, self.identities[0], self.checkout),
+            (self.work_fd, self.identities[1], self.work_root),
+            (self.batch_fd, self.identities[2], self.batch_path),
+        ):
+            _require_same_directory(fd, expected, path)
+        _require_fd_inside_work(self.batch_fd, self.work_fd, self.batch_path)
+        _require_work_still_in_checkout(self.work_fd, self.checkout_fd, self.work_root)
+        opened: list[int] = []
+        try:
+            checkout_fd = _open_dir_path(self.checkout)
+            opened.append(checkout_fd)
+            _require_same_directory(checkout_fd, self.identities[0], self.checkout)
+            work_fd = _open_dir_at(checkout_fd, WORK_DIRNAME, self.work_root)
+            opened.append(work_fd)
+            _require_same_directory(work_fd, self.identities[1], self.work_root)
+            batch_fd = _open_dir_at(work_fd, self.batch, self.batch_path)
+            opened.append(batch_fd)
+            _require_same_directory(batch_fd, self.identities[2], self.batch_path)
+        finally:
+            for fd in reversed(opened):
+                _close_fd(fd)
+
+
+@contextmanager
+def _open_batch_session(batch_id: object, *, create: bool) -> object:
+    """Retain checkout/.work/batch identities for a compound staging operation."""
+    batch = validate_batch_id(batch_id)
+    checkout = resolve_checkout_root()
+    work_root = checkout / WORK_DIRNAME
+    batch_path = work_root / batch
+    checkout_fd: int | None = None
+    owned: list[int] = []
+    try:
+        checkout_fd = _open_dir_path(checkout)
+        opener = _ensure_dir_at if create else _open_dir_at
+        if create:
+            work_fd = opener(checkout_fd, WORK_DIRNAME, work_root, work_fd=None)
+        else:
+            work_fd = opener(checkout_fd, WORK_DIRNAME, work_root)
+        owned.append(work_fd)
+        _require_work_still_in_checkout(work_fd, checkout_fd, work_root)
+        if create:
+            batch_fd = opener(work_fd, batch, batch_path, work_fd=work_fd)
+        else:
+            batch_fd = opener(work_fd, batch, batch_path)
+        owned.append(batch_fd)
+        identities = tuple(os.fstat(fd) for fd in (checkout_fd, work_fd, batch_fd))
+        session = _RetainedBatchSession(checkout, batch, checkout_fd, work_fd, batch_fd, identities)  # type: ignore[arg-type]
+        session.verify()
+        try:
+            yield session
+        except BaseException:
+            session.verify()
+            raise
+        else:
+            session.verify()
+    finally:
+        for fd in reversed(owned):
+            _close_fd(fd)
+        _close_fd(checkout_fd)
 
 
 def validate_batch_id(raw: object) -> str:
@@ -477,6 +569,93 @@ def _read_regular_file_at(parent_fd: int, name: str, path: Path) -> bytes:
         _close_fd(fd)
 
 
+def _read_regular_file_at_identity(
+    parent_fd: int, name: str, path: Path,
+) -> tuple[bytes, os.stat_result]:
+    """Read a regular file and bind the bytes to its unchanged named edge."""
+    try:
+        fd = os.open(name, _file_read_flags(), dir_fd=parent_fd)
+    except OSError as exc:
+        _map_oserror(path, exc)
+    try:
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode):
+            _raise_unsafe(path, "target is not a regular file")
+        chunks: list[bytes] = []
+        while True:
+            chunk = os.read(fd, 1024 * 1024)
+            if not chunk:
+                break
+            chunks.append(chunk)
+        after = os.fstat(fd)
+        identity = (before.st_dev, before.st_ino, before.st_mode, before.st_size, before.st_mtime_ns)
+        if identity != (
+            after.st_dev, after.st_ino, after.st_mode, after.st_size, after.st_mtime_ns,
+        ):
+            _raise_unsafe(path, "target changed while read")
+        named = _stat_at(parent_fd, name, path)
+        if named is None or identity != (
+            named.st_dev, named.st_ino, named.st_mode, named.st_size, named.st_mtime_ns,
+        ):
+            _raise_unsafe(path, "target identity changed after read")
+        return b"".join(chunks), after
+    except StagingError:
+        raise
+    except OSError as exc:
+        _map_oserror(path, exc)
+    finally:
+        _close_fd(fd)
+
+
+def _read_regular_file_at_bounded(
+    parent_fd: int, name: str, path: Path, *, max_bytes: int,
+) -> bytes:
+    """Read a regular file without allocating beyond the caller's hard cap."""
+    data, _identity = _read_regular_file_at_bounded_identity(
+        parent_fd, name, path, max_bytes=max_bytes,
+    )
+    return data
+
+
+def _read_regular_file_at_bounded_identity(
+    parent_fd: int, name: str, path: Path, *, max_bytes: int,
+) -> tuple[bytes, os.stat_result]:
+    """Read bounded bytes and bind the opened file to its named edge."""
+    try:
+        fd = os.open(name, _file_read_flags(), dir_fd=parent_fd)
+    except OSError as exc:
+        _map_oserror(path, exc)
+    try:
+        before = os.fstat(fd)
+        if not stat.S_ISREG(before.st_mode):
+            _raise_unsafe(path, "target is not a regular file")
+        if before.st_size > max_bytes:
+            raise StagingError(CODE_WORK_PATH_UNSAFE, "staged file exceeds byte limit", {"path": path.as_posix()})
+        chunks: list[bytes] = []
+        total = 0
+        while True:
+            chunk = os.read(fd, min(1024 * 1024, max_bytes + 1 - total))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+            if total > max_bytes:
+                raise StagingError(CODE_WORK_PATH_UNSAFE, "staged file exceeds byte limit", {"path": path.as_posix()})
+        after = os.fstat(fd)
+        if (before.st_dev, before.st_ino, before.st_mode, before.st_size, before.st_mtime_ns) != (after.st_dev, after.st_ino, after.st_mode, after.st_size, after.st_mtime_ns):
+            _raise_unsafe(path, "staged file changed while read")
+        named = _stat_at(parent_fd, name, path)
+        if named is None or (named.st_dev, named.st_ino, named.st_mode, named.st_size, named.st_mtime_ns) != (after.st_dev, after.st_ino, after.st_mode, after.st_size, after.st_mtime_ns):
+            _raise_unsafe(path, "staged file identity changed after read")
+        return b"".join(chunks), after
+    except StagingError:
+        raise
+    except OSError as exc:
+        _map_oserror(path, exc)
+    finally:
+        _close_fd(fd)
+
+
 def _mkstemp_at(dir_fd: int, path: Path) -> tuple[int, str]:
     flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
     if hasattr(os, "O_NOFOLLOW"):
@@ -523,7 +702,8 @@ def _atomic_install(
     *,
     target: Path,
     checkout_fd: int,
-) -> bool:
+    return_identity: bool = False,
+) -> bool | tuple[bool, os.stat_result]:
     """Install *data* as *filename* in *parent_fd*.
 
     Temp is a sibling under *parent_fd* (not the `.work` root). Re-check that
@@ -533,10 +713,13 @@ def _atomic_install(
     WORK_PATH_UNSAFE.
 
     Returns True when the target already held the same bytes, False when this
-    call created the file.
+    call created the file.  Private retained-lineage callers may request the
+    exact regular-file identity installed or reused; the default return value
+    remains the historical boolean for every existing caller.
     """
     tmp_fd: int | None = None
     tmp_name: str | None = None
+    tmp_identity: os.stat_result | None = None
     linked = False
     try:
         _require_staging_fds(
@@ -551,6 +734,9 @@ def _atomic_install(
             while offset < len(data):
                 offset += os.write(tmp_fd, data[offset:])
             os.fsync(tmp_fd)
+            tmp_identity = os.fstat(tmp_fd)
+            if not stat.S_ISREG(tmp_identity.st_mode):
+                _raise_unsafe(target, "temporary target is not a regular file")
         except (NotADirectoryError, FileExistsError, OSError) as exc:
             _map_oserror(target, exc)
         _close_fd(tmp_fd)
@@ -579,7 +765,12 @@ def _atomic_install(
                 )
             if stat.S_ISLNK(existing.st_mode) or not stat.S_ISREG(existing.st_mode):
                 _raise_unsafe(target, "target is not a regular file")
-            current = _read_regular_file_at(parent_fd, filename, target)
+            if return_identity:
+                current, existing = _read_regular_file_at_identity(
+                    parent_fd, filename, target,
+                )
+            else:
+                current = _read_regular_file_at(parent_fd, filename, target)
             if current == data:
                 _require_staging_fds(
                     parent_fd=parent_fd,
@@ -587,7 +778,7 @@ def _atomic_install(
                     checkout_fd=checkout_fd,
                     path=target,
                 )
-                return True
+                return (True, existing) if return_identity else True
             raise StagingError(
                 CODE_STAGING_CONFLICT,
                 "target exists with different bytes",
@@ -608,7 +799,9 @@ def _atomic_install(
             raise
         _fsync_fd(parent_fd)
         _fsync_fd(work_fd)
-        return False
+        if tmp_identity is None:
+            _raise_unsafe(target, "installed file identity is unavailable")
+        return (False, tmp_identity) if return_identity else False
     finally:
         _close_fd(tmp_fd)
         if tmp_name is not None:
@@ -816,6 +1009,7 @@ def _stage_transaction_inspect_files(
 
     checkout_fd: int | None = None
     retained: list[int] = []
+    verify_on_error: Callable[[], None] | None = None
     try:
         checkout_fd = _open_dir_path(checkout)
         work_fd = _ensure_dir_at(
@@ -862,6 +1056,7 @@ def _stage_transaction_inspect_files(
                 identities=identities,
             )
 
+        verify_on_error = verify
         verify()
         reused: list[bool] = []
         for digest, data in content:
@@ -916,14 +1111,253 @@ def _stage_transaction_inspect_files(
         )
         verify()
         return _TransactionInspectStageResult(tuple(reused), bundle_reused)
-    except StagingError:
+    except BaseException as exc:
+        if verify_on_error is not None:
+            verify_on_error()
+        if isinstance(exc, StagingError):
+            raise
+        if isinstance(exc, (NotADirectoryError, FileExistsError, OSError)):
+            _map_oserror(bundle_path, exc)
         raise
-    except (NotADirectoryError, FileExistsError, OSError) as exc:
-        _map_oserror(bundle_path, exc)
     finally:
         for fd in reversed(retained):
             _close_fd(fd)
         _close_fd(checkout_fd)
+
+
+def _stage_transaction_inspect_files_in_session(
+    session: _RetainedBatchSession,
+    *,
+    content: tuple[tuple[str, bytes], ...],
+    bundle: bytes,
+) -> _TransactionInspectStageResult:
+    """Stage transport below an already retained batch lineage."""
+    if type(content) is not tuple or not content or type(bundle) is not bytes:
+        raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid transaction staging request")
+    previous = ""
+    for digest, data in content:
+        if re.fullmatch(r"[0-9a-f]{64}", digest) is None or digest <= previous or type(data) is not bytes:
+            raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid transaction staging request")
+        previous = digest
+    transport_path = session.batch_path / "transaction-inspect"
+    content_path = transport_path / "content"
+    bundle_path = transport_path / "bundle.json"
+    retained: list[int] = []
+    verify_on_error: Callable[[], None] | None = None
+    try:
+        session.verify()
+        transport_fd = _ensure_dir_at(
+            session.batch_fd, "transaction-inspect", transport_path, work_fd=session.work_fd,
+        )
+        retained.append(transport_fd)
+        content_fd = _ensure_dir_at(
+            transport_fd, "content", content_path, work_fd=session.work_fd,
+        )
+        retained.append(content_fd)
+        identities = (os.fstat(transport_fd), os.fstat(content_fd))
+
+        def verify() -> None:
+            session.verify()
+            _require_same_directory(transport_fd, identities[0], transport_path)
+            _require_same_directory(content_fd, identities[1], content_path)
+            _require_fd_inside_work(transport_fd, session.work_fd, transport_path)
+            _require_fd_inside_work(content_fd, session.work_fd, content_path)
+            named_transport = _open_dir_at(session.batch_fd, "transaction-inspect", transport_path)
+            try:
+                _require_same_directory(named_transport, identities[0], transport_path)
+                named_content = _open_dir_at(named_transport, "content", content_path)
+                try:
+                    _require_same_directory(named_content, identities[1], content_path)
+                finally:
+                    _close_fd(named_content)
+            finally:
+                _close_fd(named_transport)
+
+        verify_on_error = verify
+        reused: list[bool] = []
+        verify()
+        for digest, data in content:
+            target = content_path / digest
+            if _existing_same_bytes(content_fd, digest, data, target):
+                value = True
+            else:
+                value = _atomic_install(
+                    session.work_fd, content_fd, digest, data,
+                    target=target, checkout_fd=session.checkout_fd,
+                )
+            reused.append(value)
+            verify()
+        _require_safe_transaction_inspect_entries(
+            transport_fd=transport_fd, content_fd=content_fd,
+            transport_path=transport_path, content_path=content_path,
+            bundle_required=False,
+        )
+        for digest, data in content:
+            _require_exact_staged_file(content_fd, digest, data, content_path / digest)
+        verify()
+        if _existing_same_bytes(transport_fd, "bundle.json", bundle, bundle_path):
+            bundle_reused = True
+        else:
+            bundle_reused = _atomic_install(
+                session.work_fd, transport_fd, "bundle.json", bundle,
+                target=bundle_path, checkout_fd=session.checkout_fd,
+            )
+        verify()
+        _require_safe_transaction_inspect_entries(
+            transport_fd=transport_fd, content_fd=content_fd,
+            transport_path=transport_path, content_path=content_path,
+            bundle_required=True,
+        )
+        for digest, data in content:
+            _require_exact_staged_file(content_fd, digest, data, content_path / digest)
+        _require_exact_staged_file(transport_fd, "bundle.json", bundle, bundle_path)
+        verify()
+        return _TransactionInspectStageResult(tuple(reused), bundle_reused)
+    except BaseException:
+        if verify_on_error is not None:
+            verify_on_error()
+        raise
+    finally:
+        for fd in reversed(retained):
+            _close_fd(fd)
+
+
+def _stage_prepared_pdf_capture(
+    *, batch_id: object, plan_bytes: bytes, plan_identity: os.stat_result,
+    blob_name: str, blob: bytes, request_factory: Callable[[], bytes],
+) -> _PreparedPairResult:
+    """Publish the paper blob/request pair below one retained batch lineage."""
+    batch = validate_batch_id(batch_id)
+    _validate_segment(blob_name)
+    if re.fullmatch(r"[0-9a-f]{64}\.blob", blob_name) is None:
+        raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid prepared blob name")
+    if not all(type(value) is bytes for value in (plan_bytes, blob)) or not callable(request_factory):
+        raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid prepared bytes")
+    with _open_batch_session(batch, create=True) as session:
+        assert isinstance(session, _RetainedBatchSession)
+        plan_path = session.batch_path / "plan"
+        prepared_path = session.batch_path / "prepared"
+        plan_file = plan_path / "ingest-plan.v1.json"
+        blob_path = prepared_path / blob_name
+        request_path = prepared_path / "staged-pdf-capture-request.v1.json"
+        plan_fd = _open_dir_at(session.batch_fd, "plan", plan_path)
+        prepared_fd: int | None = None
+        try:
+            plan_file_stat = _stat_at(plan_fd, "ingest-plan.v1.json", plan_file)
+            if plan_file_stat is None or (
+                plan_file_stat.st_dev, plan_file_stat.st_ino, plan_file_stat.st_mode,
+                plan_file_stat.st_size, plan_file_stat.st_mtime_ns,
+            ) != (
+                plan_identity.st_dev, plan_identity.st_ino, plan_identity.st_mode,
+                plan_identity.st_size, plan_identity.st_mtime_ns,
+            ):
+                _raise_unsafe(plan_file, "plan file identity changed before request construction")
+            _require_exact_staged_file(plan_fd, "ingest-plan.v1.json", plan_bytes, plan_file)
+            prepared_fd = _ensure_dir_at(
+                session.batch_fd, "prepared", prepared_path, work_fd=session.work_fd,
+            )
+            identities = (os.fstat(plan_fd), os.fstat(prepared_fd))
+            blob_file_stat = _stat_at(prepared_fd, blob_name, blob_path)
+            request_file_stat = _stat_at(
+                prepared_fd, "staged-pdf-capture-request.v1.json", request_path,
+            )
+            initial_blob_stat = blob_file_stat
+            initial_request_stat = request_file_stat
+
+            def same_file(actual: os.stat_result | None, expected: os.stat_result | None) -> bool:
+                if actual is None or expected is None:
+                    return actual is expected
+                return (actual.st_dev, actual.st_ino, actual.st_mode, actual.st_size, actual.st_mtime_ns) == (expected.st_dev, expected.st_ino, expected.st_mode, expected.st_size, expected.st_mtime_ns)
+
+            def verify() -> None:
+                session.verify()
+                _require_same_directory(plan_fd, identities[0], plan_path)
+                _require_same_directory(prepared_fd, identities[1], prepared_path)
+                named_plan = _open_dir_at(session.batch_fd, "plan", plan_path)
+                named_prepared = _open_dir_at(session.batch_fd, "prepared", prepared_path)
+                try:
+                    _require_same_directory(named_plan, identities[0], plan_path)
+                    _require_same_directory(named_prepared, identities[1], prepared_path)
+                    _require_exact_staged_file(named_plan, "ingest-plan.v1.json", plan_bytes, plan_file)
+                    if not same_file(_stat_at(named_plan, "ingest-plan.v1.json", plan_file), plan_file_stat):
+                        _raise_unsafe(plan_file, "plan file identity changed")
+                    if not same_file(_stat_at(named_prepared, blob_name, blob_path), blob_file_stat):
+                        _raise_unsafe(blob_path, "prepared blob identity changed")
+                    if not same_file(_stat_at(named_prepared, "staged-pdf-capture-request.v1.json", request_path), request_file_stat):
+                        _raise_unsafe(request_path, "prepared request identity changed")
+                finally:
+                    _close_fd(named_prepared)
+                    _close_fd(named_plan)
+
+            try:
+                verify()
+                request = request_factory()
+                if type(request) is not bytes:
+                    raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid prepared request bytes")
+                verify()
+                if initial_blob_stat is None:
+                    blob_install = _atomic_install(
+                        session.work_fd, prepared_fd, blob_name, blob,
+                        target=blob_path, checkout_fd=session.checkout_fd,
+                        return_identity=True,
+                    )
+                    assert isinstance(blob_install, tuple)
+                    blob_reused, installed_blob_stat = blob_install
+                    if blob_reused:
+                        _raise_unsafe(blob_path, "prepared blob appeared during installation")
+                    named_blob_stat = _stat_at(prepared_fd, blob_name, blob_path)
+                    if not same_file(named_blob_stat, installed_blob_stat):
+                        _raise_unsafe(blob_path, "prepared blob installation changed")
+                    blob_file_stat = installed_blob_stat
+                else:
+                    blob_reused = _existing_same_bytes(prepared_fd, blob_name, blob, blob_path)
+                    if not blob_reused or not same_file(
+                        _stat_at(prepared_fd, blob_name, blob_path), initial_blob_stat,
+                    ):
+                        _raise_unsafe(blob_path, "prepared blob identity changed")
+                verify()
+                _require_exact_staged_file(prepared_fd, blob_name, blob, blob_path)
+                if initial_request_stat is None:
+                    request_install = _atomic_install(
+                        session.work_fd, prepared_fd, "staged-pdf-capture-request.v1.json", request,
+                        target=request_path, checkout_fd=session.checkout_fd,
+                        return_identity=True,
+                    )
+                    assert isinstance(request_install, tuple)
+                    request_reused, installed_request_stat = request_install
+                    if request_reused:
+                        _raise_unsafe(request_path, "prepared request appeared during installation")
+                    named_request_stat = _stat_at(
+                        prepared_fd, "staged-pdf-capture-request.v1.json", request_path,
+                    )
+                    if not same_file(named_request_stat, installed_request_stat):
+                        _raise_unsafe(request_path, "prepared request installation changed")
+                    request_file_stat = installed_request_stat
+                else:
+                    request_reused = _existing_same_bytes(
+                        prepared_fd, "staged-pdf-capture-request.v1.json", request, request_path,
+                    )
+                    if not request_reused or not same_file(
+                        _stat_at(prepared_fd, "staged-pdf-capture-request.v1.json", request_path),
+                        initial_request_stat,
+                    ):
+                        _raise_unsafe(request_path, "prepared request identity changed")
+                verify()
+                _require_exact_staged_file(prepared_fd, blob_name, blob, blob_path)
+                _require_exact_staged_file(
+                    prepared_fd, "staged-pdf-capture-request.v1.json", request, request_path,
+                )
+                verify()
+            except BaseException:
+                verify()
+                raise
+            return _PreparedPairResult(
+                blob_path, request_path, blob_reused, request_reused,
+                hashlib.sha256(request).hexdigest(),
+            )
+        finally:
+            _close_fd(prepared_fd)
+            _close_fd(plan_fd)
 
 
 def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> StageResult:

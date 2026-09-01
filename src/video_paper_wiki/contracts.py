@@ -813,6 +813,14 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
         from video_paper_wiki.transaction_staging import _check_transaction_staging
 
         _check_transaction_staging(document)
+    elif schema_name == "video-paper-wiki.staged-pdf-capture-request.v1":
+        from video_paper_wiki.staged_capture import _check_request
+
+        _check_request(document)
+    elif schema_name == "video-paper-wiki.staged-pdf-capture-authority.v1":
+        from video_paper_wiki.staged_capture import _check_authority
+
+        _check_authority(document)
     elif schema_name == "video-paper-wiki.ingest-plan.v1":
         _check_plan_object(document, schema_name)
     elif schema_name == "video-paper-wiki.prepared.v1":
@@ -887,6 +895,8 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
         "video-paper-wiki.upstream-authority.v1",
         "video-paper-wiki.upstream-capture-authority.v1",
         "video-paper-wiki.transaction-staging.v1",
+        "video-paper-wiki.staged-pdf-capture-request.v1",
+        "video-paper-wiki.staged-pdf-capture-authority.v1",
     }:
         from video_paper_wiki.transaction_contracts import _json_preflight
 

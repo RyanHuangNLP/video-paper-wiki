@@ -40,7 +40,7 @@ def _request(family: str, digest: str) -> dict:
 
 
 @pytest.mark.parametrize("family", ["ingest", "code-map"])
-def test_plan_and_prepare_accept_json_whitespace(
+def test_plan_and_prepare_json_whitespace_boundary(
     checkout, family, monkeypatch, capsys, network_attempts
 ) -> None:
     blob_root = checkout / "blobs"
@@ -59,10 +59,38 @@ def test_plan_and_prepare_accept_json_whitespace(
     ref = make_approval_ref(plan, input_sha256=digest)
     ref_path.write_bytes(b"\t\r\n " + canonicalize(ref) + b"\n\t")
     plan_path.write_bytes(b"\n\t " + canonicalize(plan) + b"\r\n")
+    before = _snapshot(checkout)
+    if family == "ingest":
+        assert main([family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 2
+        result = _payload(capsys)
+        assert result["error"]["code"] == "WORK_PATH_UNSAFE"
+        assert _snapshot(checkout) == before
+        assert not (plan_path.parent.parent / "prepared").exists()
+        assert network_attempts == []
+        return
     assert main([family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 0
     result = _payload(capsys)
     assert Path(result["data"]["staged_path"]).read_bytes() == data
     assert result["data"]["approval_ref_bound"] is True
+    assert network_attempts == []
+
+
+def test_ingest_prepare_accepts_approval_ref_whitespace_with_canonical_plan(
+    checkout, monkeypatch, capsys, network_attempts
+) -> None:
+    blob_root = checkout / "blobs"
+    monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+    data = pdf_bytes()
+    digest = plant_blob(blob_root, data)
+    plan = complete_ingest_plan(paper_source_request(local_sha256=digest))
+    plan_path = work_plan(checkout, plan["batch_id"])
+    plan_path.parent.mkdir(parents=True)
+    plan_path.write_bytes(canonicalize(plan))
+    ref_path = checkout / "ref.json"
+    ref_path.write_bytes(b" \n\t" + canonicalize(make_approval_ref(plan)) + b"\r\n ")
+    assert main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 0
+    result = _payload(capsys)
+    assert Path(result["data"]["staged_path"]).read_bytes() == data
     assert network_attempts == []
 
 

@@ -272,7 +272,52 @@ object-only/runtime validation ownership, PDF bounds, encoder error mapping and
 the accepted digest-before-limit order. Python 3.12/3.13 each passed 1901 tests,
 and the checkout-external wheel exposes 26 schemas with both new resources
 byte-equal. Exact-path delivery, fresh four-job CI and separate exact-head
-Architect acceptance are still required. Until then implementation is not authorized.
+Architect architecture acceptance was then completed at exact head
+`4168e151c332cdcf89227bf086d4a6bc5308e649`, tree
+`78d43e20f8937a96c6cc86357729c72d295658cb`. Fresh run `33497663181`
+tested merge preview `f48d3cc3323958270f2e249d8e6a71f853df2150`; all four jobs passed
+1901 tests. Decision
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD`
+authorizes issuance of separate Builder implementation work packages. R2
+candidate `20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437`
+passed 1938 tests on both locked Python lines, but Architect rejected it after a
+hostile probe replaced an initially missing fixed slot with the same bytes and a
+new inode before the caller adopted its baseline. R3 candidate
+`920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8`
+closed that window, bound 17-path snapshot
+`2902553f60693cb6596b53d8d9096cf1c20f9b2f5ff7a6f9ae340136254a5878`,
+and passed 1940 tests on both locked Python lines. An independent five-case
+review then rejected it as a complete release candidate: `_inputs` opened plan
+before request semantics and did not reopen named prepared/plan edges on its
+partial exception path. Revision 4 SHA-256
+`e98e2fb4bd3efe914ab77f1882e5ce4a7887d6327b0cfba99c78fcf7cc7bb6cc`
+(17,357 bytes) authorized that correction. R4 candidate
+`77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652`
+closed the target gap, bound 17-path snapshot
+`ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02`,
+and passed 1948 tests on both locked Python lines. Independent review then
+rejected it as a complete release candidate after reproducing staging conflict
+exits after persistent named transport/content replacement and initial/repeat
+captured-snapshot scan exits without a final named-edge check. Active revision
+5 SHA-256 is
+`71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
+(19,409 bytes). It changes no contract, schema, public surface or failure order
+and permits only `staging.py`, `captured_snapshot.py`,
+`test_work_staging_boundary.py`, `test_staged_pdf_capture_boundary.py`, and R5
+candidate evidence. R1/R2/R3/R4 work packages and the rejected R2/R3/R4
+candidates remain byte-exact history. Final R5 candidate
+`e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
+binds 18-path snapshot
+`c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`.
+Builder and Architect each passed 1962 complete tests on both locked Python
+lines. Repo Steward review
+`5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
+returned `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`, and Architect local acceptance
+`19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
+records the original hostile-probe replays plus offline installed wheel
+`a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`
+with 26 schemas. Exact-path delivery, fresh merge-ref CI and separate exact-head
+acceptance remain pending.
 Passing this subrelease will not complete staged code capture, operation-result
 handling, the rest of adapter-contract, VPKB-001, PR merge, or any human gate.
 

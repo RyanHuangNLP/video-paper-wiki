@@ -82,9 +82,23 @@ def test_prepare_paper_success_same_fd_snapshot(
     staged = Path(data_out["staged_path"])
     assert staged == work_prepared(tmp_path, "p1", digest)
     assert staged.read_bytes() == data
+    request_path = Path(data_out["request_path"])
+    assert request_path.name == "staged-pdf-capture-request.v1.json"
+    request_bytes = request_path.read_bytes()
+    assert data_out["request_sha256"] == __import__("hashlib").sha256(request_bytes).hexdigest()
+    request = json.loads(request_bytes)
+    assert request["approval_ref"]["input_sha256"] == digest
+    assert request["payload"]["file"] == f"prepared/{digest}.blob"
+    assert canonicalize(request) == request_bytes
     assert main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 0
     again = _payload(capsys)
     assert again["data"]["already_staged"] is True
+    staged.unlink()
+    assert main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 0
+    repaired = _payload(capsys)
+    assert repaired["data"]["already_staged"] is False
+    assert staged.read_bytes() == data
+    assert request_path.read_bytes() == request_bytes
     assert network_attempts == []
 
 
@@ -113,6 +127,157 @@ def test_code_map_prepare_opaque_no_unzip_or_pypdf(
     assert "zipfile" not in prepare_src
     assert "subprocess" not in prepare_src
     assert network_attempts == []
+
+
+def test_paper_prepare_request_conflict_leaves_exact_blob(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    plan_path,ref_path,_=_bind_plan(tmp_path,paper_source_request(batch_id='pair-conflict',local_sha256=digest))
+    request=tmp_path/'.work/pair-conflict/prepared/staged-pdf-capture-request.v1.json'
+    request.parent.mkdir(parents=True); request.write_bytes(b'conflict')
+    assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==75
+    assert _payload(capsys)['error']['code']=='STAGING_CONFLICT'
+    assert work_prepared(tmp_path,'pair-conflict',digest).read_bytes()==data
+    assert request.read_bytes()==b'conflict'; assert network_attempts==[]
+
+
+def test_arxiv_plan_without_local_sha_uses_external_ref_digest(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    request=paper_source_request(batch_id='arxiv-prepared',local_sha256=digest)
+    request['input']={'kind':'arxiv','arxiv_id':'2311.15127','pdf_url':'https://arxiv.org/pdf/2311.15127'}
+    plan_path,ref_path,_=_bind_plan(tmp_path,request,input_sha256=digest)
+    assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==0
+    value=_payload(capsys)['data']; prepared=json.loads(Path(value['request_path']).read_text())
+    assert prepared['plan']['input_kind']=='arxiv'
+    assert prepared['payload']['sha256']==digest
+    assert network_attempts==[]
+
+
+def test_paper_pair_refuses_plan_same_bytes_inode_replacement_between_installs(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    plan_path,ref_path,_=_bind_plan(tmp_path,paper_source_request(batch_id='pair-race',local_sha256=digest))
+    from video_paper_wiki import staging as staging_module
+    real=staging_module._atomic_install
+    def replace(*args,**kwargs):
+        value=real(*args,**kwargs)
+        target = kwargs.get('target')
+        if isinstance(target, Path) and target.name == f'{digest}.blob':
+            raw=plan_path.read_bytes(); plan_path.unlink(); plan_path.write_bytes(raw)
+        return value
+    monkeypatch.setattr(staging_module,'_atomic_install',replace)
+    assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==2
+    assert _payload(capsys)['error']['code']=='WORK_PATH_UNSAFE'
+    assert work_prepared(tmp_path,'pair-race',digest).read_bytes()==data
+    assert network_attempts==[]
+
+
+def test_paper_pair_refuses_plan_replacement_before_request_construction(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    plan_path,ref_path,_=_bind_plan(tmp_path,paper_source_request(batch_id='factory-race',local_sha256=digest))
+    from video_paper_wiki.commands import prepare as prepare_module
+    real=prepare_module._stage_prepared_pdf_capture
+    def replace(**kwargs):
+        raw=plan_path.read_bytes(); plan_path.unlink(); plan_path.write_bytes(raw)
+        return real(**kwargs)
+    monkeypatch.setattr(prepare_module,'_stage_prepared_pdf_capture',replace)
+    assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==2
+    assert _payload(capsys)['error']['code']=='WORK_PATH_UNSAFE'
+    assert not (tmp_path/'.work/factory-race/prepared').exists()
+    assert network_attempts==[]
+
+
+def test_missing_blob_repair_refuses_existing_request_inode_replacement(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    plan_path,ref_path,_=_bind_plan(tmp_path,paper_source_request(batch_id='repair-race',local_sha256=digest))
+    argv=['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)]
+    assert main(argv)==0; first=_payload(capsys)['data']
+    blob=Path(first['staged_path']); request=Path(first['request_path']); blob.unlink()
+    from video_paper_wiki import staging as staging_module
+    real=staging_module._atomic_install
+    def replace(*args,**kwargs):
+        value=real(*args,**kwargs); target=kwargs.get('target')
+        if isinstance(target,Path) and target.name==f'{digest}.blob':
+            raw=request.read_bytes(); request.unlink(); request.write_bytes(raw)
+        return value
+    monkeypatch.setattr(staging_module,'_atomic_install',replace)
+    assert main(argv)==2
+    assert _payload(capsys)['error']['code']=='WORK_PATH_UNSAFE'
+    assert blob.read_bytes()==data and network_attempts==[]
+
+
+def test_missing_blob_install_refuses_same_bytes_inode_replacement(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    plan_path,ref_path,_=_bind_plan(
+        tmp_path, paper_source_request(batch_id='missing-blob-window',local_sha256=digest),
+    )
+    from video_paper_wiki import staging as staging_module
+    real=staging_module._atomic_install
+    identities=[]
+    def replace(*args,**kwargs):
+        value=real(*args,**kwargs); target=kwargs.get('target')
+        if isinstance(target,Path) and target.name==f'{digest}.blob':
+            before=target.stat().st_ino
+            raw=target.read_bytes(); target.unlink(); target.write_bytes(raw)
+            identities.extend((before,target.stat().st_ino))
+        return value
+    monkeypatch.setattr(staging_module,'_atomic_install',replace)
+    assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==2
+    assert _payload(capsys)['error']['code']=='WORK_PATH_UNSAFE'
+    prepared=tmp_path/'.work/missing-blob-window/prepared'
+    assert identities[0] != identities[1]
+    assert not (prepared/'staged-pdf-capture-request.v1.json').exists()
+    assert network_attempts==[]
+
+
+def test_missing_request_install_refuses_same_bytes_inode_replacement(
+    tmp_path, monkeypatch, capsys, network_attempts
+) -> None:
+    make_checkout(tmp_path); monkeypatch.chdir(tmp_path)
+    blob_root=tmp_path/'blobs'; monkeypatch.setenv('VPWIKI_BLOB_ROOT',str(blob_root))
+    data=TINY_PDF.read_bytes(); digest=plant_blob(blob_root,data)
+    plan_path,ref_path,_=_bind_plan(
+        tmp_path, paper_source_request(batch_id='missing-request-window',local_sha256=digest),
+    )
+    from video_paper_wiki import staging as staging_module
+    real=staging_module._atomic_install
+    identities=[]
+    def replace(*args,**kwargs):
+        value=real(*args,**kwargs); target=kwargs.get('target')
+        if isinstance(target,Path) and target.name=='staged-pdf-capture-request.v1.json':
+            before=target.stat().st_ino
+            raw=target.read_bytes(); target.unlink(); target.write_bytes(raw)
+            identities.extend((before,target.stat().st_ino))
+        return value
+    monkeypatch.setattr(staging_module,'_atomic_install',replace)
+    assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==2
+    assert _payload(capsys)['error']['code']=='WORK_PATH_UNSAFE'
+    prepared=tmp_path/'.work/missing-request-window/prepared'
+    assert identities[0] != identities[1]
+    assert (prepared/f'{digest}.blob').read_bytes()==data
+    assert network_attempts==[]
 
 
 @pytest.mark.parametrize("family", ["ingest", "code-map"])

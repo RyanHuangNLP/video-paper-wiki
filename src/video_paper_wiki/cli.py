@@ -6,6 +6,7 @@ import argparse
 import shutil
 import sys
 
+from video_paper_wiki.commands import capture as capture_commands
 from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import plan as plan_commands
 from video_paper_wiki.commands import prepare as prepare_commands
@@ -130,7 +131,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     capture = _add_parser(sub, "capture")
     capture_sub = capture.add_subparsers(dest="capture_cmd", required=True)
-    _add_parser(capture_sub, "inspect").set_defaults(handler=_cmd_not_implemented("capture.inspect"))
+    capture_inspect = _add_parser(capture_sub, "inspect")
+    capture_inspect.add_argument("--prepared", required=True)
+    capture_inspect.add_argument("--operation-id", dest="operation_id", required=True)
+    capture_inspect.add_argument("--upstream-root", dest="upstream_root", required=True)
+    capture_inspect.add_argument("--vault-root", dest="vault_root", required=True)
+    capture_inspect.set_defaults(handler=capture_commands.run)
 
     draft = _add_parser(sub, "draft")
     draft_sub = draft.add_subparsers(dest="draft_cmd", required=True)

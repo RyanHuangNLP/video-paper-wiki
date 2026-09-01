@@ -1,30 +1,39 @@
 # Handoff metadata, not a runtime lifecycle database or a contract-freeze verdict.
 version: 1
 project: video-paper-wiki
-recorded_on: "2026-09-01"
+recorded_on: "2026-09-02"
 
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: fb2cbcb565195a232f22d02c0474ac1b1b34f7d3
+  continued_head: 4168e151c332cdcf89227bf086d4a6bc5308e649
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
   delivery_note: >-
     On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
     integration. It has not been merged. reference_head preserves the original
-    handoff baseline; continued_head is the accepted deterministic
-    transaction-inspect staging implementation. Exact head fb2cbcb, tree
-    4a28ee5 passed fresh four-job run 33491834331 at merge preview 12bc792 and
-    received separate exact-head Architect acceptance. Its three immutable
-    post-CI records are carried by the staged-PDF successor architecture.
-    Contract SHA-256 8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f
-    and architecture work-package SHA-256
-    298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421
-    have independent Builder and Repo Steward GO. Python 3.12/3.13 each passed
-    1901 tests and the isolated wheel passed with 26 schemas. Exact delivery,
-    fresh CI and exact-head acceptance remain; main implementation is not yet
-    authorized.
+    handoff baseline; continued_head is the accepted staged-PDF capture-inspect
+    architecture. Exact head 4168e151, tree 78d43e20 passed fresh four-job run
+    33497663181 at merge preview f48d3cc3 with 1901 tests per job and received
+    separate exact-head Architect acceptance. Its three immutable post-CI
+    records are carried by the implementation successor. The R2 candidate
+    20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437
+    passed both locked Python lines but was rejected for a missing fixed-slot
+    identity window. R3 candidate
+    920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8
+    closed it and passed 1940 tests on both locked Python lines, then an
+    independent review found request-before-plan ordering and caught-error
+    named-lineage gaps. R4 candidate
+    77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652
+    closed that target and passed 1948 tests on both locked Python lines, but
+    independent review found staging and captured-snapshot all-exits lineage
+    gaps. Revision-5 candidate
+    e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f
+    closes both and binds 18-path snapshot c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d.
+    Builder and Architect each passed 1962 tests on both locked Python lines;
+    independent review and Architect local acceptance passed. Exact delivery,
+    fresh CI and separate exact-head acceptance remain.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -69,18 +78,18 @@ collaboration:
 repository_observation:
   observed_on: "2026-09-01"
   pr: 94
-  head_sha: fb2cbcb565195a232f22d02c0474ac1b1b34f7d3
+  head_sha: 4168e151c332cdcf89227bf086d4a6bc5308e649
   base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
-  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33491834331"
-  ci_run_id: 33491834331
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33497663181"
+  ci_run_id: 33497663181
   conclusion: success
   jobs_succeeded: 4
   tested_checkout_observation:
-    job_id: 99804861617
+    job_id: 99823466000
     job: ubuntu-24.04 / Python 3.12
     ref: refs/remotes/pull/94/merge
-    sha: 12bc7925140352fad516405b7eafaa8923d106e7
-    tests_passed: 1895
+    sha: f48d3cc3323958270f2e249d8e6a71f853df2150
+    tests_passed: 1901
   note: >-
     This is a separate repository snapshot, not a rewrite of historical local
     test evidence or an Architect merge authorization. Recheck head, base,
@@ -148,8 +157,8 @@ work_packages:
     depends_on: [VPKB-000]
     prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: staged_pdf_capture_inspect_architecture
-    implementation_status: third-subrelease-accepted-fourth-architecture-candidate
+    phase: staged_pdf_capture_inspect_implementation
+    implementation_status: fourth-architecture-accepted-implementation-r3-correction-active
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
@@ -167,10 +176,11 @@ work_packages:
       is accepted at exact head fb2cbcb565195a232f22d02c0474ac1b1b34f7d3,
       run 33491834331 and merge preview
       12bc7925140352fad516405b7eafaa8923d106e7. The staged-PDF capture-inspect
-      successor architecture now has independent exact-byte GO, dual-Python
-      full-suite and isolated-wheel acceptance; exact delivery, fresh CI and
-      exact-head acceptance remain. Operation results and integrity-runtime
-      remain later ordered work.
+      successor architecture is accepted at exact head
+      4168e151c332cdcf89227bf086d4a6bc5308e649, run 33497663181 and merge
+      preview f48d3cc3323958270f2e249d8e6a71f853df2150. Its bounded implementation
+      R3 correction is active under the frozen work package. Operation results and
+      integrity-runtime remain later ordered work.
       Complete both slices before VPKB-002.
 
   - id: VPKB-002
@@ -593,7 +603,7 @@ packets:
     parent: VPKB-001
     title: Pinned upstream adapter contract and runtime compatibility
     status: in_progress
-    phase: fourth_subrelease_architecture
+    phase: fourth_subrelease_implementation
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -954,7 +964,7 @@ packets:
         a later separately frozen generation revision.
     fourth_subrelease:
       id: staged-pdf-capture-inspect-v1
-      status: architecture-local-accepted-pending-exact-delivery-ci
+      status: architecture-accepted-implementation-r5-local-accepted
       architecture_baseline: fb2cbcb565195a232f22d02c0474ac1b1b34f7d3
       contract_path: docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md
       candidate_contract_sha256: 8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f
@@ -977,7 +987,12 @@ packets:
       architect_freeze: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architect-freeze.json
       architect_freeze_sha256: e52386d840681d1193dfaaa85ef46ba15142e341f466294d0041eded4673c499
       architect_freeze_decision: GO_FOR_EXACT_ARCHITECTURE_DELIVERY_AND_FRESH_CI
-      implementation_authorized: false
+      accepted_architecture_head: 4168e151c332cdcf89227bf086d4a6bc5308e649
+      accepted_architecture_parent: fb2cbcb565195a232f22d02c0474ac1b1b34f7d3
+      accepted_architecture_tree: 78d43e20f8937a96c6cc86357729c72d295658cb
+      accepted_architecture_path_count: 22
+      accepted_architecture_snapshot_sha256: 519c67b78f151d3446de6745855fd4d730557e5a4f76abcb8f9f84e485ebf8dc
+      implementation_authorized: true
       local_architecture_verification:
         schema_and_additional_properties: 51-passed
         python_3_12: 1901-passed
@@ -986,9 +1001,77 @@ packets:
         python_3_13_junit_sha256: 3ac7611f5bef4418468a7a1c66a857d380bac43210c6efc1ed5e72562ef91900
         installed_wheel_schema_count: 26
         installed_wheel_sha256: dc973c8e106c22ddf33471bd692ac34120648f1578c44796908393b786e480f3
-      architecture_delivery: pending
-      architecture_ci: pending-fresh-four-job-run
-      architecture_architect_acceptance: pending-exact-head-post-ci
+      architecture_delivery:
+        status: passed
+        manifest_sha256: 1000a3786d24ec6adb98afea2cf218ae3111a8992be271f4ece9b76bdccd83ee
+        full_22_path_snapshot_sha256: 519c67b78f151d3446de6745855fd4d730557e5a4f76abcb8f9f84e485ebf8dc
+      architecture_ci:
+        status: passed
+        run_id: 33497663181
+        run_attempt: 1
+        tested_merge_sha: f48d3cc3323958270f2e249d8e6a71f853df2150
+        ordered_parents:
+          - 08709894adfb20ec07e976783f0ba436d975b74f
+          - 4168e151c332cdcf89227bf086d4a6bc5308e649
+        jobs: [99823465639, 99823465854, 99823465926, 99823466000]
+        tests_per_job: 1901
+      architecture_post_ci_records:
+        ci_observation: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-ci-observation.json
+        ci_observation_sha256: b1413e978123804f8d071fa1f078c665bbad4a73c7c8ba9afa9afd32b3254ea3
+        merge_parents: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-merge-parents.json
+        merge_parents_sha256: 1c8b5c7c59169542993c154640e3f635346318ed056c26784187846f06d0cbbb
+        architect_acceptance: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-architect-acceptance.json
+        architect_acceptance_sha256: 3e18f60f70b759e03ead8cb14fa2882afc15036e4bd52062b940c64557ad5432
+      architecture_architect_acceptance: ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD
+      implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json
+      implementation_work_package_revision: 5
+      implementation_work_package_sha256: 71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5
+      historical_implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r1.json
+      historical_implementation_work_package_revision: 1
+      historical_implementation_work_package_sha256: ddb0ecb1aab3da105fe6eb5f7606036d8605111973e42fd41540e7ff110e013e
+      historical_implementation_work_package_r2: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r2.json
+      historical_implementation_work_package_r2_revision: 2
+      historical_implementation_work_package_r2_sha256: 6b6453efd41547cba9cded18301887b7390f5cb8bfd7a2edfb54bc173c7255e1
+      rejected_implementation_candidate_r2: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate.json
+      rejected_implementation_candidate_r2_sha256: 20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437
+      rejected_implementation_snapshot_r2_sha256: eb228e6d5a0d76117d3f769deaba393f2c52190336218d22a1f76bd1f8b8a373
+      historical_implementation_work_package_r3: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r3.json
+      historical_implementation_work_package_r3_revision: 3
+      historical_implementation_work_package_r3_sha256: a91f7d95f77114e32769e24151601ece823585b23bc94603057032d89eda025d
+      rejected_implementation_candidate_r3: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r3.json
+      rejected_implementation_candidate_r3_sha256: 920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8
+      rejected_implementation_snapshot_r3_sha256: 2902553f60693cb6596b53d8d9096cf1c20f9b2f5ff7a6f9ae340136254a5878
+      historical_implementation_work_package_r4: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r4.json
+      historical_implementation_work_package_r4_revision: 4
+      historical_implementation_work_package_r4_sha256: e98e2fb4bd3efe914ab77f1882e5ce4a7887d6327b0cfba99c78fcf7cc7bb6cc
+      rejected_implementation_candidate_r4: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r4.json
+      rejected_implementation_candidate_r4_sha256: 77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652
+      rejected_implementation_snapshot_r4_sha256: ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02
+      implementation_candidate: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r5.json
+      implementation_candidate_sha256: e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f
+      implementation_candidate_snapshot_sha256: c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d
+      implementation_candidate_tests:
+        targeted: 109-passed
+        focused: 289-passed
+        builder_python_3_13: 1962-passed
+        builder_python_3_12: 1962-passed
+        architect_python_3_13: 1962-passed
+        architect_python_3_12: 1962-passed
+      independent_implementation_review: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/steward-review.json
+      independent_implementation_review_sha256: 5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3
+      independent_implementation_review_verdict: GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE
+      architect_local_acceptance: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/architect-local-acceptance.json
+      architect_local_acceptance_sha256: 19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e
+      architect_local_acceptance_decision: PASSED_LOCAL_R5_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_DELIVERY_AND_FRESH_CI
+      local_wheel_sha256: a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7
+      local_wheel_schema_count: 26
+      implementation_scope_resolution: >-
+        Revision 5 preserves the accepted contract, schema, public surface and
+        failure order. It authorizes only staging.py, captured_snapshot.py,
+        test_work_staging_boundary.py and test_staged_pdf_capture_boundary.py
+        to recheck named staging lineage on every conflict/error exit and named
+        captured-snapshot lineage around initial and repeated scan exits;
+        persistent drift must override downstream conflict or limit errors.
       scope:
         - Persist one canonical staged PDF request with exact approval-ref, plan and payload bindings.
         - Publish prepared blob first and request last in one retained batch lineage.
@@ -1007,7 +1090,7 @@ packets:
         read-only authority emit no catalog rows. Any later authority consumer
         requires a separately frozen generation revision.
     verification:
-      status: first-through-third-subreleases-accepted-fourth-architecture-candidate
+      status: first-through-third-subreleases-and-fourth-architecture-accepted-fourth-implementation-local-accepted
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
       first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       second_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json

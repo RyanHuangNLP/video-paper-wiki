@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,43 @@ def work_plan(root: Path, batch_id: str) -> Path:
 
 def work_prepared(root: Path, batch_id: str, sha256: str) -> Path:
     return root / ".work" / batch_id / "prepared" / f"{sha256}.blob"
+
+
+def staged_pdf_capture_input(root: Path, *, batch_id: str = "staged-pdf") -> tuple[Path, bytes, dict[str, Any]]:
+    """Build one canonical prepared request in a disposable checkout."""
+    from video_paper_wiki.approval import approval_ref_sha256, jcs_sha256
+    from video_paper_wiki.jcs import canonicalize
+    from video_paper_wiki.staged_capture import validate_staged_pdf_capture_request
+    from video_paper_wiki.staging import _stage_prepared_pdf_capture, stage_bytes
+
+    data = pdf_bytes()
+    digest = hashlib.sha256(data).hexdigest()
+    plan = complete_ingest_plan(paper_source_request(batch_id=batch_id, local_sha256=digest))
+    plan_bytes = canonicalize(plan)
+    stage_bytes(batch_id=batch_id, relative=("plan", "ingest-plan.v1.json"), data=plan_bytes)
+    ref = make_approval_ref(plan)
+    request = validate_staged_pdf_capture_request({
+        "schema": "video-paper-wiki.staged-pdf-capture-request.v1",
+        "batch_id": batch_id,
+        "plan": {
+            "file": "plan/ingest-plan.v1.json", "sha256": hashlib.sha256(plan_bytes).hexdigest(),
+            "size_bytes": len(plan_bytes), "approval_hash": plan["approval_hash"],
+            "plan_kind": "paper-source", "stable_subject_id": plan["stable_subject_id"],
+            "input_kind": plan["input"]["kind"], "limits_sha256": jcs_sha256(plan["limits"]),
+            "network_targets_sha256": jcs_sha256(plan["network_targets"]),
+            "pipeline_fingerprint": plan["pipeline_fingerprint"],
+        },
+        "approval_ref": ref, "approval_ref_sha256": approval_ref_sha256(ref),
+        "payload": {"file": f"prepared/{digest}.blob", "sha256": digest,
+                    "size_bytes": len(data), "media_type": "application/pdf", "page_count": 1},
+    })
+    result = _stage_prepared_pdf_capture(
+        batch_id=batch_id, plan_bytes=plan_bytes,
+        plan_identity=os.lstat(work_plan(root, batch_id)),
+        blob_name=f"{digest}.blob", blob=data,
+        request_factory=lambda: canonicalize(request),
+    )
+    return result.request_path, data, request
 
 
 def write_json(path: Path, obj: object) -> Path:

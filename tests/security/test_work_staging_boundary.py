@@ -29,6 +29,7 @@ from video_paper_wiki.cli import main
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.resources import _package_text, _repo_file
 from video_paper_wiki.staging import (
+    CODE_STAGING_CONFLICT,
     CODE_WORK_PATH_ESCAPE,
     CODE_WORK_PATH_UNSAFE,
     StagingError,
@@ -42,6 +43,75 @@ MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 ENVELOPE = ROOT / "schemas" / "video-paper-wiki.cli-envelope.v1.schema.json"
 SRC = ROOT / "src" / "video_paper_wiki"
 MAV = "arxiv:2209.14792"
+
+
+def _run_transaction_stage(
+    kind: str, batch: str, content: tuple[tuple[str, bytes], ...], bundle: bytes,
+):
+    if kind == "standalone":
+        return staging_module._stage_transaction_inspect_files(
+            batch_id=batch, content=content, bundle=bundle,
+        )
+    with staging_module._open_batch_session(batch, create=True) as session:
+        return staging_module._stage_transaction_inspect_files_in_session(
+            session, content=content, bundle=bundle,
+        )
+
+
+@pytest.mark.parametrize("kind", ["standalone", "retained"])
+def test_transaction_exception_exit_overrides_content_conflict_with_lineage_drift(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch, kind: str,
+) -> None:
+    data = b"expected"; digest = hashlib.sha256(data).hexdigest(); batch = f"content-{kind}"
+    content_dir = checkout / f".work/{batch}/transaction-inspect/content"
+    content_dir.mkdir(parents=True); (content_dir / digest).write_bytes(b"different")
+    real = staging_module._existing_same_bytes; attacked = False
+    def replace(*args, **kwargs):
+        nonlocal attacked
+        if not attacked and args[1] == digest:
+            attacked = True; content_dir.rename(content_dir.with_name("content-old")); content_dir.mkdir()
+            (content_dir / digest).write_bytes(b"different")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(staging_module, "_existing_same_bytes", replace)
+    with pytest.raises(StagingError) as caught:
+        _run_transaction_stage(kind, batch, ((digest, data),), b"bundle")
+    assert attacked and caught.value.code == CODE_WORK_PATH_UNSAFE
+
+
+@pytest.mark.parametrize("kind", ["standalone", "retained"])
+def test_transaction_exception_exit_overrides_bundle_conflict_with_lineage_drift(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch, kind: str,
+) -> None:
+    data = b"expected"; digest = hashlib.sha256(data).hexdigest(); batch = f"bundle-{kind}"
+    transport = checkout / f".work/{batch}/transaction-inspect"; content_dir = transport / "content"
+    content_dir.mkdir(parents=True); (content_dir / digest).write_bytes(data)
+    (transport / "bundle.json").write_bytes(b"different")
+    real = staging_module._existing_same_bytes; attacked = False
+    def replace(*args, **kwargs):
+        nonlocal attacked
+        if not attacked and args[1] == "bundle.json":
+            attacked = True; transport.rename(transport.with_name("transaction-inspect-old"))
+            (transport / "content").mkdir(parents=True); (transport / "bundle.json").write_bytes(b"different")
+        return real(*args, **kwargs)
+    monkeypatch.setattr(staging_module, "_existing_same_bytes", replace)
+    with pytest.raises(StagingError) as caught:
+        _run_transaction_stage(kind, batch, ((digest, data),), b"bundle")
+    assert attacked and caught.value.code == CODE_WORK_PATH_UNSAFE
+
+
+@pytest.mark.parametrize("kind", ["standalone", "retained"])
+@pytest.mark.parametrize("slot", ["content", "bundle"])
+def test_transaction_unchanged_conflict_keeps_staging_conflict(
+    checkout: Path, kind: str, slot: str,
+) -> None:
+    data = b"expected"; digest = hashlib.sha256(data).hexdigest(); batch = f"plain-{kind}-{slot}"
+    transport = checkout / f".work/{batch}/transaction-inspect"; content_dir = transport / "content"
+    content_dir.mkdir(parents=True)
+    (content_dir / digest).write_bytes(b"different" if slot == "content" else data)
+    if slot == "bundle": (transport / "bundle.json").write_bytes(b"different")
+    with pytest.raises(StagingError) as caught:
+        _run_transaction_stage(kind, batch, ((digest, data),), b"bundle")
+    assert caught.value.code == CODE_STAGING_CONFLICT
 
 
 @pytest.mark.parametrize("slot", ["checkout", "work", "batch", "transport", "content"])
@@ -157,7 +227,7 @@ def test_transaction_session_rechecks_named_lineage_before_first_install(
         staging_module._stage_transaction_inspect_files(
             batch_id="before-first", content=((digest, data),), bundle=b"bundle",
         )
-    assert calls == 2
+    assert calls == 3  # pre-op failure is followed by the required exception-exit recheck
     assert caught.value.code == CODE_WORK_PATH_UNSAFE
     assert not (
         checkout / ".work/before-first/transaction-inspect/bundle.json"

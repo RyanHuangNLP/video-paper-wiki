@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import hashlib
 from io import BytesIO
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ from video_paper_wiki.approval import (
     APPROVAL_REF_INVALID,
     ApprovalError,
     bind_approval_ref,
+    jcs_sha256,
     parse_approval_ref,
     require_pipeline_fingerprint,
 )
@@ -25,6 +27,7 @@ from video_paper_wiki.contracts import (
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.identity import IdentityError
 from video_paper_wiki.jcs import CanonicalJsonError
+from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.secure_io import (
     APPROVAL_REF_NOT_FOUND,
     PLAN_NOT_FOUND,
@@ -36,6 +39,7 @@ from video_paper_wiki.secure_io import (
 from video_paper_wiki.staging import (
     StagingError,
     resolve_checkout_root,
+    _stage_prepared_pdf_capture,
     stage_bytes,
     validate_batch_id,
 )
@@ -132,6 +136,25 @@ def _load_prescribed_plan(checkout: Path, raw: str) -> dict[str, Any]:
     return document
 
 
+def _load_paper_plan_with_identity(checkout: Path, raw: str) -> tuple[dict[str, Any], os.stat_result]:
+    target = checkout / ".work" / _prescribed_batch(checkout, raw) / "plan" / PLAN_FILENAME
+    try:
+        before = os.lstat(target)
+    except OSError:
+        # Preserve the accepted missing/unsafe classification from the secure loader.
+        _load_prescribed_plan(checkout, raw)
+        raise SecureIOError(SOURCE_CHANGED, "plan changed while read", {"path": target.as_posix()}) from None
+    document = _load_prescribed_plan(checkout, raw)
+    try:
+        after = os.lstat(target)
+    except OSError:
+        raise SecureIOError(SOURCE_CHANGED, "plan changed while read", {"path": target.as_posix()}) from None
+    stamp = lambda value: (value.st_dev, value.st_ino, value.st_mode, value.st_size, value.st_mtime_ns)
+    if stamp(before) != stamp(after):
+        raise SecureIOError(SOURCE_CHANGED, "plan changed while read", {"path": target.as_posix()})
+    return document, after
+
+
 def _pdf_page_count(data: bytes) -> int:
     try:
         from pypdf import PdfReader
@@ -183,7 +206,11 @@ def run(args: object | None = None) -> int:
     expected_kind = FAMILY_KIND[family]
     try:
         checkout = resolve_checkout_root()
-        plan = _load_prescribed_plan(checkout, str(plan_raw))
+        if expected_kind == "paper-source":
+            plan, plan_identity = _load_paper_plan_with_identity(checkout, str(plan_raw))
+        else:
+            plan = _load_prescribed_plan(checkout, str(plan_raw))
+            plan_identity = None
         if plan.get("plan_kind") != expected_kind:
             raise PrepareError(
                 PLAN_KIND_MISMATCH,
@@ -224,13 +251,54 @@ def run(args: object | None = None) -> int:
             page_count, media_type = _validate_paper_blob(data, max_pages=max_pages)
             payload["page_count"] = page_count
             payload["media_type"] = media_type
-        staged = stage_bytes(
-            batch_id=plan["batch_id"],
-            relative=("prepared", f"{digest}.blob"),
-            data=data,
-        )
-        payload["staged_path"] = staged.path.as_posix()
-        payload["already_staged"] = staged.already_staged
+            plan_bytes = canonicalize(plan)
+            def request_factory() -> bytes:
+                from video_paper_wiki.staged_capture import validate_staged_pdf_capture_request
+
+                request = validate_staged_pdf_capture_request({
+                    "schema": "video-paper-wiki.staged-pdf-capture-request.v1",
+                    "batch_id": plan["batch_id"],
+                    "plan": {
+                        "file": "plan/ingest-plan.v1.json",
+                        "sha256": hashlib.sha256(plan_bytes).hexdigest(),
+                        "size_bytes": len(plan_bytes),
+                        "approval_hash": plan["approval_hash"],
+                        "plan_kind": "paper-source",
+                        "stable_subject_id": plan["stable_subject_id"],
+                        "input_kind": plan["input"]["kind"],
+                        "limits_sha256": jcs_sha256(plan["limits"]),
+                        "network_targets_sha256": jcs_sha256(plan["network_targets"]),
+                        "pipeline_fingerprint": plan["pipeline_fingerprint"],
+                    },
+                    "approval_ref": parsed_ref,
+                    "approval_ref_sha256": ref_digest,
+                    "payload": {
+                        "file": f"prepared/{digest}.blob",
+                        "sha256": digest,
+                        "size_bytes": len(data),
+                        "media_type": media_type,
+                        "page_count": page_count,
+                    },
+                })
+                return canonicalize(request)
+
+            staged_pair = _stage_prepared_pdf_capture(
+                batch_id=plan["batch_id"], plan_bytes=plan_bytes,
+                plan_identity=plan_identity, blob_name=f"{digest}.blob",
+                blob=data, request_factory=request_factory,
+            )
+            payload["staged_path"] = staged_pair.blob_path.as_posix()
+            payload["request_path"] = staged_pair.request_path.as_posix()
+            payload["request_sha256"] = staged_pair.request_sha256
+            payload["already_staged"] = (
+                staged_pair.blob_already_staged and staged_pair.request_already_staged
+            )
+        else:
+            staged = stage_bytes(
+                batch_id=plan["batch_id"], relative=("prepared", f"{digest}.blob"), data=data,
+            )
+            payload["staged_path"] = staged.path.as_posix()
+            payload["already_staged"] = staged.already_staged
     except (
         SecureIOError,
         StagingError,

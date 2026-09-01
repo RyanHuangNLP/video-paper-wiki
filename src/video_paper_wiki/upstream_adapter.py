@@ -569,12 +569,20 @@ def _bundle_value(proposal: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _compact_bundle_bytes(proposal: Mapping[str, Any], *, code: str) -> bytes:
+    from video_paper_wiki.transaction_staging import encode_transaction_inspect_bundle
+
     try:
-        return json.dumps(
-            _bundle_value(proposal), sort_keys=True, separators=(",", ":"),
-            ensure_ascii=False, allow_nan=False,
-        ).encode("utf-8")
-    except (TypeError, ValueError, UnicodeError, RecursionError):
+        return encode_transaction_inspect_bundle({
+            "operation_id": proposal["operation_id"],
+            "operation_type": proposal["operation_type"],
+            "writes": [
+                {"path": item["path"], "mode": item["mode"], "sha256": item["sha256"]}
+                for item in proposal["writes"]
+            ],
+            "expected_hashes": proposal["expected_hashes"],
+            "read_preconditions": proposal["read_preconditions"],
+        })
+    except (ContractError, KeyError, TypeError, ValueError, UnicodeError, RecursionError):
         _fail(code, "bundle cannot be encoded canonically")
 
 
@@ -820,9 +828,13 @@ def verify_pinned_source_id(
 
 
 def _check_upstream_authority(document: Mapping[str, Any]) -> None:
-    """Object-only cross-field checks called by the central registry."""
-
     _raw_profile, _value = _profile()
+    _check_upstream_authority_fields(document)
+
+
+def _check_upstream_authority_fields(document: Mapping[str, Any]) -> None:
+    """Pure authority correlations for already shape-validated data."""
+
     transaction = validate_transaction(document["transaction"])
     if transaction["phase"] != "inspected" or transaction["runtime_result"] is not None:
         _fail("UPSTREAM_CONTRACT_MISMATCH", "authority transaction phase differs")
