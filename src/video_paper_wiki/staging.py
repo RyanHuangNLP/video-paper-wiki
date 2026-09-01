@@ -39,6 +39,11 @@ class StageResult(NamedTuple):
     already_staged: bool
 
 
+class _TransactionInspectStageResult(NamedTuple):
+    content_already_staged: tuple[bool, ...]
+    bundle_already_staged: bool
+
+
 def validate_batch_id(raw: object) -> str:
     if not isinstance(raw, str) or not raw or len(raw) > BATCH_ID_MAX:
         raise StagingError(
@@ -656,6 +661,269 @@ def _rewalk_parent(
         for fd in reversed(owned):
             _close_fd(fd)
         _map_oserror(work_root if not paths else paths[-1], exc)
+
+
+def _require_same_directory(
+    fd: int,
+    expected: os.stat_result,
+    path: Path,
+) -> None:
+    current = _require_live_dir_fd(fd, path)
+    if not _same_inode(current, expected):
+        _raise_unsafe(path, "directory identity changed")
+
+
+def _verify_transaction_inspect_session(
+    *,
+    checkout: Path,
+    checkout_fd: int,
+    work_fd: int,
+    batch_fd: int,
+    transport_fd: int,
+    content_fd: int,
+    batch: str,
+    work_root: Path,
+    batch_path: Path,
+    transport_path: Path,
+    content_path: Path,
+    identities: tuple[os.stat_result, ...],
+) -> None:
+    """Re-prove one retained transaction-inspect directory lineage."""
+    retained = (
+        (checkout_fd, identities[0], checkout),
+        (work_fd, identities[1], work_root),
+        (batch_fd, identities[2], batch_path),
+        (transport_fd, identities[3], transport_path),
+        (content_fd, identities[4], content_path),
+    )
+    for fd, expected, path in retained:
+        _require_same_directory(fd, expected, path)
+    for fd, path in (
+        (batch_fd, batch_path),
+        (transport_fd, transport_path),
+        (content_fd, content_path),
+    ):
+        _require_fd_inside_work(fd, work_fd, path)
+    _require_work_still_in_checkout(work_fd, checkout_fd, work_root)
+
+    compared: list[int] = []
+    try:
+        named_checkout = _open_dir_path(checkout)
+        compared.append(named_checkout)
+        _require_same_directory(named_checkout, identities[0], checkout)
+        named_work = _open_dir_at(named_checkout, WORK_DIRNAME, work_root)
+        compared.append(named_work)
+        _require_same_directory(named_work, identities[1], work_root)
+        named_batch = _open_dir_at(named_work, batch, batch_path)
+        compared.append(named_batch)
+        _require_same_directory(named_batch, identities[2], batch_path)
+        named_transport = _open_dir_at(
+            named_batch, "transaction-inspect", transport_path,
+        )
+        compared.append(named_transport)
+        _require_same_directory(named_transport, identities[3], transport_path)
+        named_content = _open_dir_at(named_transport, "content", content_path)
+        compared.append(named_content)
+        _require_same_directory(named_content, identities[4], content_path)
+    finally:
+        for fd in reversed(compared):
+            _close_fd(fd)
+
+
+def _require_exact_staged_file(
+    parent_fd: int,
+    filename: str,
+    expected: bytes,
+    path: Path,
+) -> None:
+    if _read_regular_file_at(parent_fd, filename, path) != expected:
+        _raise_unsafe(path, "staged file bytes changed")
+
+
+def _require_safe_transaction_inspect_entries(
+    *,
+    transport_fd: int,
+    content_fd: int,
+    transport_path: Path,
+    content_path: Path,
+    bundle_required: bool,
+) -> None:
+    """Close directory shapes while allowing safe digest-addressed orphans."""
+    try:
+        transport_names = set(os.listdir(transport_fd))
+    except OSError as exc:
+        _map_oserror(transport_path, exc)
+    required = {"content", "bundle.json"} if bundle_required else {"content"}
+    allowed = {"content", "bundle.json"}
+    if not required <= transport_names or not transport_names <= allowed:
+        _raise_unsafe(transport_path, "transaction staging directory has unsafe entries")
+    for name in transport_names:
+        info = _stat_at(transport_fd, name, transport_path / name)
+        if info is None:
+            _raise_unsafe(transport_path / name, "transaction staging entry changed")
+        if name == "content":
+            if not stat.S_ISDIR(info.st_mode):
+                _raise_unsafe(content_path, "content slot is not a directory")
+        elif not stat.S_ISREG(info.st_mode):
+            _raise_unsafe(transport_path / name, "bundle slot is not a regular file")
+
+    try:
+        content_names = os.listdir(content_fd)
+    except OSError as exc:
+        _map_oserror(content_path, exc)
+    for name in content_names:
+        target = content_path / name
+        if re.fullmatch(r"[0-9a-f]{64}", name) is None:
+            _raise_unsafe(target, "content directory has an unsafe entry")
+        info = _stat_at(content_fd, name, target)
+        if info is None or not stat.S_ISREG(info.st_mode):
+            _raise_unsafe(target, "content entry is not a regular file")
+
+
+def _stage_transaction_inspect_files(
+    *,
+    batch_id: object,
+    content: tuple[tuple[str, bytes], ...],
+    bundle: bytes,
+) -> _TransactionInspectStageResult:
+    """Stage one fixed transaction-inspect transport in one retained session."""
+    batch = validate_batch_id(batch_id)
+    if type(content) is not tuple or not content:
+        raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid content request")
+    previous = ""
+    for item in content:
+        if (
+            type(item) is not tuple
+            or len(item) != 2
+            or type(item[0]) is not str
+            or re.fullmatch(r"[0-9a-f]{64}", item[0]) is None
+            or item[0] <= previous
+            or type(item[1]) is not bytes
+        ):
+            raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid content request")
+        previous = item[0]
+    if type(bundle) is not bytes:
+        raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid bundle request")
+
+    checkout = resolve_checkout_root()
+    work_root = checkout / WORK_DIRNAME
+    batch_path = work_root / batch
+    transport_path = batch_path / "transaction-inspect"
+    content_path = transport_path / "content"
+    bundle_path = transport_path / "bundle.json"
+    for target in (batch_path, transport_path, content_path, bundle_path):
+        _assert_inside_work(target, work_root)
+
+    checkout_fd: int | None = None
+    retained: list[int] = []
+    try:
+        checkout_fd = _open_dir_path(checkout)
+        work_fd = _ensure_dir_at(
+            checkout_fd, WORK_DIRNAME, work_root, work_fd=None,
+        )
+        retained.append(work_fd)
+        _require_work_still_in_checkout(work_fd, checkout_fd, work_root)
+        batch_fd = _ensure_dir_at(
+            work_fd, batch, batch_path, work_fd=work_fd,
+        )
+        retained.append(batch_fd)
+        transport_fd = _ensure_dir_at(
+            batch_fd, "transaction-inspect", transport_path, work_fd=work_fd,
+        )
+        retained.append(transport_fd)
+        content_fd = _ensure_dir_at(
+            transport_fd, "content", content_path, work_fd=work_fd,
+        )
+        retained.append(content_fd)
+        identities = tuple(
+            _require_live_dir_fd(fd, path)
+            for fd, path in (
+                (checkout_fd, checkout),
+                (work_fd, work_root),
+                (batch_fd, batch_path),
+                (transport_fd, transport_path),
+                (content_fd, content_path),
+            )
+        )
+
+        def verify() -> None:
+            _verify_transaction_inspect_session(
+                checkout=checkout,
+                checkout_fd=checkout_fd,
+                work_fd=work_fd,
+                batch_fd=batch_fd,
+                transport_fd=transport_fd,
+                content_fd=content_fd,
+                batch=batch,
+                work_root=work_root,
+                batch_path=batch_path,
+                transport_path=transport_path,
+                content_path=content_path,
+                identities=identities,
+            )
+
+        verify()
+        reused: list[bool] = []
+        for digest, data in content:
+            target = content_path / digest
+            verify()
+            if _existing_same_bytes(content_fd, digest, data, target):
+                was_reused = True
+            else:
+                was_reused = _atomic_install(
+                    work_fd, content_fd, digest, data,
+                    target=target, checkout_fd=checkout_fd,
+                )
+            verify()
+            reused.append(was_reused)
+
+        verify()
+        _require_safe_transaction_inspect_entries(
+            transport_fd=transport_fd,
+            content_fd=content_fd,
+            transport_path=transport_path,
+            content_path=content_path,
+            bundle_required=False,
+        )
+        for digest, data in content:
+            _require_exact_staged_file(
+                content_fd, digest, data, content_path / digest,
+            )
+        verify()
+        if _existing_same_bytes(
+            transport_fd, "bundle.json", bundle, bundle_path,
+        ):
+            bundle_reused = True
+        else:
+            bundle_reused = _atomic_install(
+                work_fd, transport_fd, "bundle.json", bundle,
+                target=bundle_path, checkout_fd=checkout_fd,
+            )
+        verify()
+        _require_safe_transaction_inspect_entries(
+            transport_fd=transport_fd,
+            content_fd=content_fd,
+            transport_path=transport_path,
+            content_path=content_path,
+            bundle_required=True,
+        )
+        for digest, data in content:
+            _require_exact_staged_file(
+                content_fd, digest, data, content_path / digest,
+            )
+        _require_exact_staged_file(
+            transport_fd, "bundle.json", bundle, bundle_path,
+        )
+        verify()
+        return _TransactionInspectStageResult(tuple(reused), bundle_reused)
+    except StagingError:
+        raise
+    except (NotADirectoryError, FileExistsError, OSError) as exc:
+        _map_oserror(bundle_path, exc)
+    finally:
+        for fd in reversed(retained):
+            _close_fd(fd)
+        _close_fd(checkout_fd)
 
 
 def stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> StageResult:

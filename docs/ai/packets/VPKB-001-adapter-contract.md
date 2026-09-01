@@ -122,7 +122,7 @@ index, retrieval, catalog rows, seed, overlays, taxonomy and generation profile
 remain unchanged. `base-catalog-v1` stays revision 1 because no catalog rows are
 emitted.
 
-## Third subrelease architecture work package
+## Third subrelease implementation
 
 The next bounded contract is
 `docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md`; its machine
@@ -145,21 +145,80 @@ batch, `transaction-inspect`, and `content` descriptors; reopens every named
 edge around each installation; and verifies the complete exact file set in the
 same lineage before success. Unique content is installed in digest order,
 followed by the exact compact bundle as the final file. Existing identical bytes
-are reused; conflicting, incomplete, replaced, or unsafe paths fail closed. The
-portable result contains no absolute host path.
+are reused and an incomplete exact layout is repaired; conflicting, replaced,
+or unsafe paths fail closed. The portable result contains no absolute host path.
 
 Architect owns the architecture-only contract, schema, fixtures, work package,
 status files and freeze evidence. Builder and Repo Steward independently
-returned R2 GO against the same exact contract/work-package hashes. Python 3.12
-and 3.13 each passed all 1838 tests under the required host AF_UNIX environment;
-an isolated installed wheel exposes all 24 schemas with exact new-schema bytes.
-Production implementation remains blocked until the exact 21-path
-architecture-only delivery receives fresh four-job merge-ref CI and a separate
-exact-head Architect acceptance. This architecture commit's only production
-delta is title registration in `contracts.py`; it changes no adapter behavior.
-A later implementation package may authorize only the new staging module, the
-additive retained-lineage helper in `staging.py`, narrowly required semantic
-dispatch, and focused unit/contract/security/upstream tests.
+returned R2 GO against the same exact contract/work-package hashes. The exact
+21-path architecture delivery is accepted at head
+`62f3063fb612024179125bc7d842abdd3de0a4ee`, tree
+`37dfbba09e9f73656af4bb5510f7586bb5d4223e`. Fresh run `33481415882`
+tested merge preview `910e272879b728aef8d1da1db2ba88d70feba5b0`; all four
+Linux/macOS × Python 3.12/3.13 jobs passed 1838 tests. The separate Architect
+decision is
+`ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_ARCHITECTURE_AT_EXACT_HEAD`.
+
+Implementation R1 froze ten source/test paths at snapshot
+`dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d`.
+Its 428 focused checks and both 1888-test local Python suites passed, but Repo
+Steward found `COMPLETE_SET_UNSAFE_ORPHAN_001`: the helper returned success with
+FIFO, symlink, directory or non-digest content extras and with a transport-root
+extra. The R1 work package, Builder candidate and `CHANGES_REQUIRED` review are
+immutable history.
+
+Revision-2 implementation work package
+`transaction-inspect-staging/implementation/implementation-work-package.json`,
+SHA-256 `c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633`,
+authorizes only this correction and R2 evidence. The transport root may contain
+only `content` and optional/present `bundle.json`; unrelated content entries may
+remain only as lowercase-64hex named no-follow regular files. Their bytes are
+not read or rehashed. The three architecture post-CI records remain immutable
+historical inputs. Builder cannot change the public `stage_bytes` API,
+contract/schema, status files, dependencies or Git state.
+
+Builder froze the corrected ten-path source/test snapshot
+`75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2`.
+Independent Repo Steward review SHA-256
+`1523f8ac0b3cfe93c013abce39332df60616d6d5d578f13ff89307459f08d80e`
+records `GO` after 435 focused checks, 24 retained-lineage/complete-set checks
+and eight direct probes. Architect independently replayed 435 focused checks,
+24 adversarial checks, the four real pinned disposable-Vault operation vectors,
+1895 tests under each locked Python version, and an outside-checkout installed
+wheel with 24 schemas. Architect local decision
+`PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` is bound
+to `architect-local-acceptance.json`, SHA-256
+`98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b`.
+This authorizes only the exact-path delivery audit. No implementation commit or
+exact implementation head exists yet; normal push, fresh four-job merge-ref CI
+and a separate exact-head Architect decision remain required.
+
+That temporary-index audit found `CACHED_DIFF_BLANK_EOF_001` before any real
+index mutation: `tests/contract/test_transaction_staging.py` ended with two LF
+bytes and cached diff-check rejected the new blank line at EOF. The complete R2
+work package, candidate/review, local acceptance, delivery manifest and
+`CHANGES_REQUIRED` delivery review are preserved byte-for-byte. Revision-3 work
+package SHA-256
+`1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67`
+authorizes only removal of the final one-byte LF and new R3 evidence. The exact
+corrected file is 2848 bytes with SHA-256
+`a24970e839051c43719996ab519b9e1405f1938aa201238d8681fd31c01dc797`;
+the precomputed corrected ten-path snapshot is
+`e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76`.
+No production, contract, schema, fixture or other test byte may change.
+
+Builder froze that exact R3 snapshot in `builder-candidate-r3.json`, SHA-256
+`431a469fd36d4a663b09e47262a890c1f9be7c3c97baab9948cfeb855bba6258`.
+Independent `steward-review-r3.json` records `GO`, SHA-256
+`6c174fa4bfc16c22f4708716937ae2561e67e11defc6b3ddc1a357e838d6d641`.
+Architect then replayed 435 focused checks, 24 adversarial checks, all four real
+pinned operation vectors, 1895 tests on each locked Python version and the
+byte-identical outside-checkout installed wheel. Local decision
+`PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` is bound
+to `architect-local-acceptance-r3.json`, SHA-256
+`a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`.
+This permits only the final exact-path delivery audit; commit, push, fresh CI
+and exact-head acceptance remain separate gates.
 
 This architecture does not authorize a mapper from manual capture or code
 evidence into a facade proposal. It starts no process and adds no CLI. It does
@@ -168,11 +227,12 @@ audit managed state, change dependencies/vendor/workflows, touch a real Vault,
 or begin the ordered `integrity-runtime` slice. `base-catalog-v1` stays revision
 1 because the staging result emits no catalog rows.
 
-Architecture and later implementation acceptance each require complete locked
-Python 3.12/3.13 regression tests, an installed-wheel resource check,
-independent Repo Steward review, fresh Linux/macOS × Python 3.12/3.13 CI and a
-separate Architect decision at the exact head. Passing does not complete
-adapter-contract/VPKB-001 or authorize PR state changes, merge, or a human gate.
+The R2 semantic checks and rejected delivery remain historical evidence. R3 is
+now locally accepted and independently reviewed, but still requires a new
+cached-diff delivery audit, fresh Linux/macOS × Python 3.12/3.13 CI and a
+separate Architect decision at the exact implementation head. Passing does not
+complete adapter-contract/VPKB-001 or authorize PR state changes, merge, or a
+human gate.
 
 ## Exclusions and rollback
 

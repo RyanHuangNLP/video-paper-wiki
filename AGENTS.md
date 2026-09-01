@@ -76,19 +76,51 @@ their task; being another Codex agent does not confer Architect authority.
   tree `c77a7c6ccc8bae3292611c2b24c33255f248710c`, passed four-job Tests run
   `33477484577` at merge preview `058ae19131cc418edc42dd8d311354503a0e515b`
   with 1835 tests per job, and received separate post-CI Architect acceptance.
-  Its three post-CI records remain successor-carried evidence. The current
-  Architect-owned work is the bounded `deterministic-transaction-inspect-staging-v1`
-  architecture at baseline `57c2519`. Independent R1 reviews rejected repeated
+  Its three post-CI records were carried by the successor architecture delivery.
+  The bounded `deterministic-transaction-inspect-staging-v1` architecture began
+  at baseline `57c2519`. Independent R1 reviews rejected repeated
   single-file staging calls because directory replacement between calls could
   split one transport across lineages. Revision 2 preserves those reports and
   freezes one retained-descriptor multi-file session with named identity and
   complete-set checks; the public `stage_bytes` behavior remains unchanged.
-  Builder and Repo Steward independently returned R2 GO. Local Python 3.12 and
-  3.13 each passed all 1838 tests and the isolated wheel contains all 24 schemas.
-  Builder implementation remains blocked until this exact 21-path architecture
-  delivery is committed, passes fresh four-job CI, and receives separate
-  exact-head Architect acceptance. Proposal mapping, operation results,
-  integrity runtime and retrieval remain outside this subrelease.
+  Builder and Repo Steward independently returned R2 GO. The exact 21-path
+  architecture was committed at head `62f3063fb612024179125bc7d842abdd3de0a4ee`,
+  tree `37dfbba09e9f73656af4bb5510f7586bb5d4223e`; Tests run `33481415882`
+  checked merge preview `910e272879b728aef8d1da1db2ba88d70feba5b0`, with 1838
+  tests in each of four jobs. Architect then issued
+  `ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_ARCHITECTURE_AT_EXACT_HEAD`.
+  Implementation R1 passed 1888 tests on both local Python versions, but Repo
+  Steward rejected it because its complete-set check accepted unsafe or
+  non-layout orphan entries. The R1 work package, candidate and review remain
+  immutable history. Revision-2 work package SHA-256
+  `c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633`
+  authorized Builder alone to close that one blocker and re-freeze the same ten
+  production/test paths. The corrected snapshot
+  `75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2`
+  passed independent Repo Steward review, 435 focused checks, 24 lineage and
+  complete-set adversarial checks, four real pinned operation vectors, both
+  1895-test local Python suites and the installed-wheel check. Architect local
+  decision `PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI`
+  is bound to acceptance record SHA-256
+  `98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b`.
+  Its exact temporary-index delivery audit was nevertheless rejected by
+  `git diff --cached --check`: one new test ended in two LF bytes. The R2 work
+  package, candidate/review, local acceptance, manifest and delivery rejection
+  remain immutable. Revision-3 work package SHA-256
+  `1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67`
+  authorizes only removal of that final one-byte LF and new R3 evidence; the
+  expected corrected ten-path snapshot is
+  `e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76`.
+  Builder froze that exact snapshot; Repo Steward independently returned `GO`,
+  and Architect replayed 435 focused, 24 adversarial, four pinned-vector and
+  both 1895-test full suites plus the byte-identical installed wheel. Architect
+  local R3 decision `PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI`
+  is bound to acceptance SHA-256
+  `a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`.
+  No implementation commit or exact implementation head exists yet; final
+  exact-path delivery review, fresh CI and exact-head acceptance remain.
+  Proposal mapping, operation results, integrity runtime and retrieval remain
+  outside this subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.

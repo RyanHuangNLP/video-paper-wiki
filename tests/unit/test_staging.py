@@ -296,3 +296,90 @@ def test_already_staged_when_install_sees_same_bytes(checkout: Path, monkeypatch
     )
     assert second.already_staged is True
     assert (checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json").read_bytes() == b"abc"
+
+
+def test_transaction_session_allows_unrelated_safe_orphan_content(checkout: Path) -> None:
+    import hashlib
+
+    one, two = b"one", b"two"
+    digest_one = hashlib.sha256(one).hexdigest()
+    digest_two = hashlib.sha256(two).hexdigest()
+    content_dir = checkout / ".work/b1/transaction-inspect/content"
+    content_dir.mkdir(parents=True)
+    content_dir.joinpath("f" * 64).write_bytes(b"safe orphan")
+    request = tuple(sorted(((digest_one, one), (digest_two, two))))
+    first = staging_mod._stage_transaction_inspect_files(
+        batch_id="b1", content=request, bundle=b"{}",
+    )
+    second = staging_mod._stage_transaction_inspect_files(
+        batch_id="b1", content=request, bundle=b"{}",
+    )
+    assert first.content_already_staged == (False, False)
+    assert first.bundle_already_staged is False
+    assert second.content_already_staged == (True, True)
+    assert second.bundle_already_staged is True
+    assert content_dir.joinpath("f" * 64).read_bytes() == b"safe orphan"
+
+
+def test_transaction_session_content_conflict_does_not_create_bundle(checkout: Path) -> None:
+    import hashlib
+
+    data = b"expected"
+    digest = hashlib.sha256(data).hexdigest()
+    directory = checkout / ".work/conflict/transaction-inspect/content"
+    directory.mkdir(parents=True)
+    directory.joinpath(digest).write_bytes(b"different")
+    with pytest.raises(StagingError) as caught:
+        staging_mod._stage_transaction_inspect_files(
+            batch_id="conflict", content=((digest, data),), bundle=b"{}",
+        )
+    assert caught.value.code == CODE_STAGING_CONFLICT
+    assert not (directory.parent / "bundle.json").exists()
+
+
+def test_transaction_session_mid_content_failure_keeps_bundle_absent(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import hashlib
+
+    request = tuple(sorted(
+        (hashlib.sha256(data).hexdigest(), data)
+        for data in (b"one", b"two", b"three")
+    ))
+    real_install = staging_mod._atomic_install
+    calls: list[str] = []
+
+    def fail_second(*args, **kwargs):
+        calls.append(args[2])
+        if len(calls) == 2:
+            raise StagingError(CODE_WORK_PATH_UNSAFE, "injected")
+        return real_install(*args, **kwargs)
+
+    monkeypatch.setattr(staging_mod, "_atomic_install", fail_second)
+    with pytest.raises(StagingError) as caught:
+        staging_mod._stage_transaction_inspect_files(
+            batch_id="partial", content=request, bundle=b"bundle",
+        )
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert calls == [request[0][0], request[1][0]]
+    assert not (
+        checkout / ".work/partial/transaction-inspect/bundle.json"
+    ).exists()
+
+
+def test_transaction_session_bundle_conflict_keeps_exact_content(checkout: Path) -> None:
+    import hashlib
+
+    data = b"content"
+    digest = hashlib.sha256(data).hexdigest()
+    transport = checkout / ".work/bundle-conflict/transaction-inspect"
+    transport.mkdir(parents=True)
+    transport.joinpath("bundle.json").write_bytes(b"old")
+    with pytest.raises(StagingError) as caught:
+        staging_mod._stage_transaction_inspect_files(
+            batch_id="bundle-conflict", content=((digest, data),), bundle=b"new",
+        )
+    assert caught.value.code == CODE_STAGING_CONFLICT
+    assert transport.joinpath("content", digest).read_bytes() == data
+    assert transport.joinpath("bundle.json").read_bytes() == b"old"

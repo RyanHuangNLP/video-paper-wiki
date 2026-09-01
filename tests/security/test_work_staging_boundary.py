@@ -11,6 +11,7 @@ from pathlib import Path
 import pytest
 from jsonschema import Draft202012Validator
 
+from video_paper_wiki import staging as staging_module
 from tests.security._source_policy import assert_no_network_imports
 from tests.support import (
     make_approval_ref,
@@ -41,6 +42,255 @@ MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 ENVELOPE = ROOT / "schemas" / "video-paper-wiki.cli-envelope.v1.schema.json"
 SRC = ROOT / "src" / "video_paper_wiki"
 MAV = "arxiv:2209.14792"
+
+
+@pytest.mark.parametrize("slot", ["checkout", "work", "batch", "transport", "content"])
+def test_transaction_session_refuses_named_lineage_replacement_after_content(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    slot: str,
+) -> None:
+    first, second = b"first", b"second"
+    request = tuple(sorted((
+        (hashlib.sha256(first).hexdigest(), first),
+        (hashlib.sha256(second).hexdigest(), second),
+    )))
+    real_install = staging_module._atomic_install
+    attacked = False
+
+    def replace_after_install(*args, **kwargs):
+        nonlocal attacked
+        result = real_install(*args, **kwargs)
+        if attacked:
+            return result
+        attacked = True
+        paths = {
+            "checkout": checkout,
+            "work": checkout / ".work",
+            "batch": checkout / ".work/race",
+            "transport": checkout / ".work/race/transaction-inspect",
+            "content": checkout / ".work/race/transaction-inspect/content",
+        }
+        target = paths[slot]
+        displaced = target.with_name(target.name + "-displaced")
+        target.rename(displaced)
+        if slot == "checkout":
+            target.mkdir()
+            (target / ".git").mkdir()
+            (target / "pyproject.toml").write_bytes(
+                (displaced / "pyproject.toml").read_bytes()
+            )
+        (checkout / ".work/race/transaction-inspect/content").mkdir(
+            parents=True, exist_ok=True,
+        )
+        return result
+
+    monkeypatch.setattr(staging_module, "_atomic_install", replace_after_install)
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="race", content=request, bundle=b"{}",
+        )
+    assert attacked
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert not (checkout / ".work/race/transaction-inspect/bundle.json").exists()
+
+
+@pytest.mark.parametrize("timing", ["after-final-content", "after-bundle"])
+def test_transaction_session_rechecks_lineage_at_publication_boundaries(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    timing: str,
+) -> None:
+    data = b"only-content"
+    digest = hashlib.sha256(data).hexdigest()
+    real_install = staging_module._atomic_install
+    attacked = False
+
+    def replace_batch(*args, **kwargs):
+        nonlocal attacked
+        result = real_install(*args, **kwargs)
+        filename = args[2]
+        should_attack = (
+            timing == "after-final-content" and filename == digest
+        ) or (timing == "after-bundle" and filename == "bundle.json")
+        if should_attack and not attacked:
+            attacked = True
+            batch = checkout / ".work/boundary"
+            batch.rename(checkout / ".work/boundary-displaced")
+            (batch / "transaction-inspect/content").mkdir(parents=True)
+        return result
+
+    monkeypatch.setattr(staging_module, "_atomic_install", replace_batch)
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="boundary", content=((digest, data),), bundle=b"bundle",
+        )
+    assert attacked
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert not (
+        checkout / ".work/boundary/transaction-inspect/bundle.json"
+    ).exists()
+
+
+def test_transaction_session_rechecks_named_lineage_before_first_install(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data = b"content"
+    digest = hashlib.sha256(data).hexdigest()
+    real_verify = staging_module._verify_transaction_inspect_session
+    calls = 0
+
+    def replace_before_first(**kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            batch = checkout / ".work/before-first"
+            batch.rename(checkout / ".work/before-first-displaced")
+            (batch / "transaction-inspect/content").mkdir(parents=True)
+        return real_verify(**kwargs)
+
+    monkeypatch.setattr(
+        staging_module, "_verify_transaction_inspect_session", replace_before_first,
+    )
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="before-first", content=((digest, data),), bundle=b"bundle",
+        )
+    assert calls == 2
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert not (
+        checkout / ".work/before-first/transaction-inspect/bundle.json"
+    ).exists()
+
+
+def test_transaction_session_refuses_deleted_open_content_directory(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data = b"content"
+    digest = hashlib.sha256(data).hexdigest()
+    real_install = staging_module._atomic_install
+
+    def delete_after_content(*args, **kwargs):
+        result = real_install(*args, **kwargs)
+        if args[2] == digest:
+            content = checkout / ".work/deleted/transaction-inspect/content"
+            displaced = content.with_name("content-displaced")
+            content.rename(displaced)
+            displaced.joinpath(digest).unlink()
+            displaced.rmdir()
+            content.mkdir()
+        return result
+
+    monkeypatch.setattr(staging_module, "_atomic_install", delete_after_content)
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="deleted", content=((digest, data),), bundle=b"bundle",
+        )
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+
+
+def test_transaction_session_final_set_rejects_content_tamper_after_bundle(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data = b"content"
+    digest = hashlib.sha256(data).hexdigest()
+    real_install = staging_module._atomic_install
+
+    def tamper_after_bundle(*args, **kwargs):
+        result = real_install(*args, **kwargs)
+        if args[2] == "bundle.json":
+            (checkout / ".work/final-set/transaction-inspect/content" / digest).write_bytes(
+                b"tampered"
+            )
+        return result
+
+    monkeypatch.setattr(staging_module, "_atomic_install", tamper_after_bundle)
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="final-set", content=((digest, data),), bundle=b"bundle",
+        )
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+
+
+@pytest.mark.parametrize(
+    "orphan_kind",
+    ["fifo", "symlink", "directory", "non-digest-regular", "transport-extra"],
+)
+def test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle(
+    checkout: Path,
+    tmp_path: Path,
+    orphan_kind: str,
+) -> None:
+    data = b"expected"
+    digest = hashlib.sha256(data).hexdigest()
+    transport = checkout / ".work/orphans/transaction-inspect"
+    content = transport / "content"
+    content.mkdir(parents=True)
+    orphan_digest = "f" * 64
+    if orphan_kind == "fifo":
+        os.mkfifo(content / orphan_digest)
+    elif orphan_kind == "symlink":
+        external = tmp_path / "external"
+        external.write_bytes(b"outside")
+        content.joinpath(orphan_digest).symlink_to(external)
+    elif orphan_kind == "directory":
+        content.joinpath(orphan_digest).mkdir()
+    elif orphan_kind == "non-digest-regular":
+        content.joinpath("orphan.bin").write_bytes(b"orphan")
+    else:
+        transport.joinpath("extra.json").write_bytes(b"{}")
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="orphans", content=((digest, data),), bundle=b"bundle",
+        )
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert not transport.joinpath("bundle.json").exists()
+
+
+def test_unsafe_orphan_does_not_delete_preexisting_exact_bundle(checkout: Path) -> None:
+    data = b"expected"
+    digest = hashlib.sha256(data).hexdigest()
+    transport = checkout / ".work/orphan-existing/transaction-inspect"
+    content = transport / "content"
+    content.mkdir(parents=True)
+    content.joinpath("not-a-digest").write_bytes(b"unsafe")
+    transport.joinpath("bundle.json").write_bytes(b"bundle")
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="orphan-existing", content=((digest, data),), bundle=b"bundle",
+        )
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert transport.joinpath("bundle.json").read_bytes() == b"bundle"
+
+
+def test_transaction_session_final_enumeration_rejects_new_extra_entry(
+    checkout: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    data = b"expected"
+    digest = hashlib.sha256(data).hexdigest()
+    real_install = staging_module._atomic_install
+
+    def add_extra_after_bundle(*args, **kwargs):
+        result = real_install(*args, **kwargs)
+        if args[2] == "bundle.json":
+            (checkout / ".work/final-extra/transaction-inspect/extra.json").write_bytes(
+                b"{}"
+            )
+        return result
+
+    monkeypatch.setattr(staging_module, "_atomic_install", add_extra_after_bundle)
+    with pytest.raises(StagingError) as caught:
+        staging_module._stage_transaction_inspect_files(
+            batch_id="final-extra", content=((digest, data),), bundle=b"bundle",
+        )
+    assert caught.value.code == CODE_WORK_PATH_UNSAFE
+    assert (
+        checkout / ".work/final-extra/transaction-inspect/bundle.json"
+    ).read_bytes() == b"bundle"
 
 
 def _snapshot(path: Path) -> dict[str, object]:

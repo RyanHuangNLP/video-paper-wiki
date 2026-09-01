@@ -105,12 +105,58 @@ inspect adapter; it does not create business proposals, invoke upstream code,
 mutate a Vault, or authorize apply.
 
 The preserved R1 reviews record `CHANGES_REQUIRED`; the exact R2 Builder and
-Repo Steward reviews both record GO. Architect verification then passed 44
-focused schema checks and all 1838 tests on both Python 3.12 and 3.13. The
-isolated installed wheel contains 24 schemas and the staging schema bytes match
-the checkout. These results permit only the exact 21-path architecture delivery;
-implementation remains blocked pending fresh four-job CI and separate exact-head
-Architect acceptance.
+Repo Steward reviews both record GO. The exact 21-path architecture delivery is
+accepted at head `62f3063fb612024179125bc7d842abdd3de0a4ee`, tree
+`37dfbba09e9f73656af4bb5510f7586bb5d4223e`. Fresh run `33481415882`
+tested merge preview `910e272879b728aef8d1da1db2ba88d70feba5b0`; all four
+Linux/macOS × Python 3.12/3.13 jobs passed 1838 tests. The three post-CI records
+remain byte-fixed successor-carried evidence.
+
+Implementation R1 froze ten source/test paths at snapshot
+`dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d`
+and passed 428 focused plus 1888 complete tests on both local Python versions.
+Repo Steward nevertheless returned `CHANGES_REQUIRED`: the complete-set check
+accepted FIFO, symlink, directory and non-digest content extras plus a transport
+root extra. The R1 work package, Builder candidate and Steward review are kept
+byte-for-byte.
+
+Revision-2 work package
+`transaction-inspect-staging/implementation/implementation-work-package.json`,
+SHA-256 `c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633`,
+authorizes only that correction and new R2 evidence. Builder still owns exactly
+three production and seven test paths; public `stage_bytes` stays unchanged.
+Builder froze the corrected ten-path snapshot
+`75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2` in
+`builder-candidate-r2.json`. Independent `steward-review-r2.json` records `GO`
+after 435 focused and 24 adversarial checks plus eight direct probes, including
+proof that an unrelated safe digest orphan is not read. Architect then replayed
+435 focused checks, 24 lineage/complete-set checks, all four real pinned
+operation vectors, 1895 tests on each locked Python version and an installed
+wheel containing 24 schemas. The local decision
+`PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` is in
+`architect-local-acceptance.json`, SHA-256
+`98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b`.
+The exact temporary-index delivery review then found one nonsemantic blocker:
+`tests/contract/test_transaction_staging.py` ended with two LF bytes, so cached
+diff-check returned `new blank line at EOF`. The R2 work package is archived as
+`implementation-work-package-r2.json`; its candidate/review, local acceptance,
+manifest and `CHANGES_REQUIRED` delivery review remain byte-for-byte history.
+Active revision 3, SHA-256
+`1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67`,
+authorizes only deletion of that one final LF plus R3 evidence. The corrected
+test must have SHA-256
+`a24970e839051c43719996ab519b9e1405f1938aa201238d8681fd31c01dc797`;
+all other source/test bytes remain fixed. Exact R3 review, delivery, fresh
+four-job CI and a separate exact-head Architect acceptance remain pending.
+Builder froze the precomputed R3 snapshot; independent
+`steward-review-r3.json` records `GO` at SHA-256
+`6c174fa4bfc16c22f4708716937ae2561e67e11defc6b3ddc1a357e838d6d641`.
+Architect independently passed 435 focused, 24 adversarial, four pinned-vector
+and both 1895-test full suites; the rebuilt installed wheel stayed byte-equal to
+R2. `architect-local-acceptance-r3.json` records
+`PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI`, SHA-256
+`a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`.
+Only final R3 exact-path delivery audit is now allowed before Git delivery.
 
 Local, wheel, independent review and remote CI observations remain distinct.
 Accepting either completed subrelease or the staging architecture will not complete the later

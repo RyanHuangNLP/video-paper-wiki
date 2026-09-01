@@ -6,18 +6,27 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
+  continued_head: 62f3063fb612024179125bc7d842abdd3de0a4ee
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
   delivery_note: >-
     On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
     integration. It has not been merged. reference_head preserves the original
-    handoff baseline; continued_head is the accepted manual-PDF capture dry-run
-    implementation. It passed fresh four-job run 33477484577 and separate
-    exact-head Architect acceptance. The current successor work is revision 2
-    of the deterministic transaction-inspect staging architecture; implementation
-    remains blocked until that architecture is committed, tested and accepted.
+    handoff baseline; continued_head is the accepted deterministic
+    transaction-inspect staging architecture. It passed fresh four-job run
+    33481415882 and separate exact-head Architect acceptance. Implementation R1
+    was independently rejected for unsafe/unbounded-layout orphan acceptance.
+    Revision-2 implementation work package SHA-256
+    c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633
+    authorized only that bounded correction and R2 evidence. Corrected snapshot
+    75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2
+    received independent GO and Architect local acceptance, but its exact
+    temporary-index delivery failed cached diff-check on one blank line at EOF.
+    Revision-3 work package 1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67
+    authorized only that one-byte correction and R3 evidence. The exact R3
+    snapshot now has independent GO and Architect local acceptance; final exact
+    delivery, fresh implementation CI and exact-head acceptance remain pending.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -62,18 +71,18 @@ collaboration:
 repository_observation:
   observed_on: "2026-09-01"
   pr: 94
-  head_sha: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
+  head_sha: 62f3063fb612024179125bc7d842abdd3de0a4ee
   base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
-  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33477484577"
-  ci_run_id: 33477484577
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33481415882"
+  ci_run_id: 33481415882
   conclusion: success
   jobs_succeeded: 4
   tested_checkout_observation:
-    job_id: 99759695142
-    job: ubuntu-24.04 / Python 3.13
+    job_id: 99771664300
+    job: ubuntu-24.04 / Python 3.12
     ref: refs/remotes/pull/94/merge
-    sha: 058ae19131cc418edc42dd8d311354503a0e515b
-    tests_passed: 1835
+    sha: 910e272879b728aef8d1da1db2ba88d70feba5b0
+    tests_passed: 1838
   note: >-
     This is a separate repository snapshot, not a rewrite of historical local
     test evidence or an Architect merge authorization. Recheck head, base,
@@ -141,8 +150,8 @@ work_packages:
     depends_on: [VPKB-000]
     prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: transaction_inspect_staging_architecture_delivery
-    implementation_status: second-subrelease-accepted-third-architecture-local-accepted-pending-commit-ci
+    phase: transaction_inspect_staging_implementation
+    implementation_status: third-architecture-accepted-implementation-r2-active-after-r1-rejection
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
@@ -153,10 +162,14 @@ work_packages:
       3ab19eda4f417b96d89a0a50b2ce2c05233a8478 and run 33469912314. Its
       implementation is accepted at exact head
       57c2519425dbccd6bb48a0f82e77699e17afcfb6, run 33477484577 and merge
-      preview 058ae19131cc418edc42dd8d311354503a0e515b. The current bounded work
-      freezes deterministic transaction-inspect staging; operation results and
-      integrity-runtime remain later ordered work. Complete both slices before
-      VPKB-002.
+      preview 058ae19131cc418edc42dd8d311354503a0e515b. The deterministic
+      transaction-inspect staging architecture is accepted at exact head
+      62f3063fb612024179125bc7d842abdd3de0a4ee, run 33481415882 and merge
+      preview 910e272879b728aef8d1da1db2ba88d70feba5b0. Its bounded implementation
+      R2 passed local semantic acceptance but exact delivery rejected one blank
+      line at EOF; R3 is locally accepted pending final exact delivery and fresh
+      CI. Operation results and integrity-runtime remain later ordered work.
+      Complete both slices before VPKB-002.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
@@ -578,7 +591,7 @@ packets:
     parent: VPKB-001
     title: Pinned upstream adapter contract and runtime compatibility
     status: in_progress
-    phase: third_subrelease_architecture_delivery
+    phase: third_subrelease_implementation
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -754,8 +767,29 @@ packets:
         no catalog rows. Any mapper/compiler remains a later versioned release.
     third_subrelease:
       id: deterministic-transaction-inspect-staging-v1
-      status: architecture-r2-frozen-pending-exact-commit-and-ci
+      status: architecture-accepted-implementation-r3-local-accepted-pending-exact-delivery
       architecture_baseline: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
+      accepted_architecture_head: 62f3063fb612024179125bc7d842abdd3de0a4ee
+      accepted_architecture_tree: 37dfbba09e9f73656af4bb5510f7586bb5d4223e
+      accepted_architecture_parent: 57c2519425dbccd6bb48a0f82e77699e17afcfb6
+      accepted_architecture_path_count: 21
+      accepted_architecture_snapshot_sha256: 4298a7795b4a2517df86848b182b7faec4fd45a678768ee23440bf50a19c1ff7
+      architecture_ci_run_id: 33481415882
+      architecture_ci_attempt: 1
+      architecture_tested_merge_sha: 910e272879b728aef8d1da1db2ba88d70feba5b0
+      architecture_tested_ordered_parents:
+        - 08709894adfb20ec07e976783f0ba436d975b74f
+        - 62f3063fb612024179125bc7d842abdd3de0a4ee
+      architecture_acceptance: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-freeze-architect-acceptance.json
+      architecture_acceptance_sha256: 333db38ead0900706f692a09bcc065fc0b3be25c26bd402d56931456a62a0f5b
+      architecture_decision: ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_ARCHITECTURE_AT_EXACT_HEAD
+      architecture_post_ci_records:
+        ci_observation: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-freeze-ci-observation.json
+        ci_observation_sha256: 8fa0ad8f7c32ca22b1857ba26b1ba19872af9349f07484f2c2ee61a26e9e57aa
+        merge_parents: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-freeze-merge-parents.json
+        merge_parents_sha256: a04cd348498a76ffbb880f8d1581292e3a0e4541505baeb78f4162440d77a0a0
+        architect_acceptance: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-freeze-architect-acceptance.json
+        architect_acceptance_sha256: 333db38ead0900706f692a09bcc065fc0b3be25c26bd402d56931456a62a0f5b
       contract_path: docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md
       candidate_contract_sha256: 4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea
       schema: video-paper-wiki.transaction-staging.v1
@@ -810,7 +844,78 @@ packets:
         - Upstream execution, transaction apply/recover, operation results or admin CLI.
         - Ledger merge, managed-prefix audit, integrity-runtime, BM25/index or retrieval.
         - Dependencies, vendor, workflow, real Vault, PR state, merge or human-gate changes.
-      implementation_authorized: false
+      implementation_authorized: true
+      historical_implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package-r1.json
+      historical_implementation_work_package_revision: 1
+      historical_implementation_work_package_sha256: 13a739ac8ad38bdf5935df202c52fa9d980d1f81899cbbfffdcfd453a00e023a
+      historical_r2_implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package-r2.json
+      historical_r2_implementation_work_package_revision: 2
+      historical_r2_implementation_work_package_sha256: c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633
+      implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package.json
+      implementation_work_package_revision: 3
+      implementation_work_package_sha256: 1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67
+      rejected_r1_candidate: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/builder-candidate.json
+      rejected_r1_candidate_sha256: d180b6143115c8f96a6b3fa52e8429d5fbb4e479eaf8a7050b7048f0ac90def3
+      rejected_r1_source_snapshot_sha256: dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d
+      rejected_r1_steward_review: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-review.json
+      rejected_r1_steward_review_sha256: 175374326431284916b62479ee05239a68883caea63df2da68539a3f9c0b559b
+      rejected_r1_steward_verdict: CHANGES_REQUIRED
+      rejected_r1_blocker: COMPLETE_SET_UNSAFE_ORPHAN_001
+      rejected_r2_delivery:
+        builder_candidate: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/builder-candidate-r2.json
+        builder_candidate_sha256: 82792c4d6bb72dcf4fdd24ce48dad6ad404f15060d4d975189d8cfc2fa894303
+        source_snapshot_sha256: 75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2
+        candidate_review: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-review-r2.json
+        candidate_review_sha256: 1523f8ac0b3cfe93c013abce39332df60616d6d5d578f13ff89307459f08d80e
+        candidate_review_verdict: GO
+        local_acceptance: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/architect-local-acceptance.json
+        local_acceptance_sha256: 98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b
+        local_decision: PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI
+        delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/delivery-candidate.json
+        delivery_candidate_sha256: a921c72590ece7ed64cfbaf84e81677394b163791d068bf3260cf79d6e447e29
+        delivery_review: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-delivery-review.json
+        delivery_review_sha256: 4e02aafb7eaa3832996619fe25eba4d051076f88d0ed40336032e96df24264e6
+        delivery_review_verdict: CHANGES_REQUIRED
+        blocker: CACHED_DIFF_BLANK_EOF_001
+      historical_r2_local_implementation_verification:
+        focused: 435-passed
+        retained_lineage_complete_set: 24-passed
+        real_pinned_operation_vectors: 4-passed
+        python_3_12: 1895-passed
+        python_3_12_junit_sha256: 722cc9d3de4d08f726d4a34b0c1054b0ea38544ba0c09a70e18daf0c216e2ccc
+        python_3_13: 1895-passed
+        python_3_13_junit_sha256: 0e3449669a9837f4c471359c123e2d4d2d74e180b4c56c1603e38a2c48d93000
+        installed_wheel_schema_count: 24
+        installed_wheel_sha256: 3d5c9e077fe26fc7ddc2f63f1c7dbd68d967c17703864b0630756ba23e67056f
+        installed_wheel_schema_sha256: 1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78
+        result: passed
+      implementation_candidate: local-r3-accepted-pending-exact-delivery
+      authorized_r3_test_path: tests/contract/test_transaction_staging.py
+      authorized_r3_test_sha256: a24970e839051c43719996ab519b9e1405f1938aa201238d8681fd31c01dc797
+      authorized_r3_source_snapshot_sha256: e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76
+      r3_builder_candidate: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/builder-candidate-r3.json
+      r3_builder_candidate_sha256: 431a469fd36d4a663b09e47262a890c1f9be7c3c97baab9948cfeb855bba6258
+      r3_steward_review: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-review-r3.json
+      r3_steward_review_sha256: 6c174fa4bfc16c22f4708716937ae2561e67e11defc6b3ddc1a357e838d6d641
+      r3_steward_verdict: GO
+      r3_architect_local_acceptance: artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/architect-local-acceptance-r3.json
+      r3_architect_local_acceptance_sha256: a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8
+      r3_architect_local_decision: PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI
+      local_r3_implementation_verification:
+        focused: 435-passed
+        retained_lineage_complete_set: 24-passed
+        real_pinned_operation_vectors: 4-passed
+        python_3_12: 1895-passed
+        python_3_12_junit_sha256: e94a9af03ed390de98b0f57fb8b41bb36e895a2bcece0ffda430020ddb2e72c7
+        python_3_13: 1895-passed
+        python_3_13_junit_sha256: 9aa52c10ff056913da3856100f2b55046351f249439725059aa5443859a95b05
+        installed_wheel_schema_count: 24
+        installed_wheel_sha256: 3d5c9e077fe26fc7ddc2f63f1c7dbd68d967c17703864b0630756ba23e67056f
+        installed_wheel_schema_sha256: 1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78
+        temporary_index_cached_diff_check: passed
+        result: passed
+      implementation_ci: pending-fresh-four-job-run
+      implementation_architect_acceptance: pending-exact-head-post-ci
       architecture_requirements:
         independent_reviews: [Builder, Repo-Steward]
         fresh_ci_required: true
@@ -820,7 +925,7 @@ packets:
         catalog rows. Proposal mapping and the first authority consumer require
         a later separately frozen generation revision.
     verification:
-      status: first-and-second-subreleases-accepted-third-architecture-local-accepted-pending-exact-commit-ci
+      status: first-and-second-subreleases-and-third-architecture-accepted-third-implementation-r3-local-accepted-pending-delivery
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
       first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       second_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json

@@ -123,10 +123,38 @@ device/inode。内容先写、bundle 最后写，相同字节精确幂等，不�
 
 Builder 和 Repo Steward 已对第三个子版本的精确修订 2 候选分别返回 GO。主控本地在
 Python 3.12/3.13 各完成 1838 项全量测试，隔离安装的 wheel 含 24 个 schema，新增 schema
-字节与 checkout 相同。当前进入精确 21 路径架构交付；架构 head 在新的四项 merge-ref
-CI 和单独的精确 head Architect 验收前不得授权实现。此阶段不允许从 capture
-authority/code manifest 自动生成业务 proposal，不执行 upstream/apply/recover/admin，
-不处理 operation result、ledger/integrity、vendor/dependency/workflow 或真实 Vault。
+字节与 checkout 相同。精确 21 路径架构已经提交为 head
+`62f3063fb612024179125bc7d842abdd3de0a4ee`、tree
+`37dfbba09e9f73656af4bb5510f7586bb5d4223e`；新的四项 merge-ref Tests run
+`33481415882` 各通过 1838 项，测试 merge preview 为
+`910e272879b728aef8d1da1db2ba88d70feba5b0`，随后取得单独的精确 head
+Architect 验收。实现 R1 在两个本地 Python 版本各通过 1888 项，但 Repo Steward 发现
+complete-set 会忽略 FIFO、symlink、目录、非 digest content extra 和 transport root extra，
+因此返回 `CHANGES_REQUIRED`。R1 工作包、候选和 review 原字节保留。当前 revision-2
+工作包 SHA-256
+`c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633`
+只授权 Builder 在同十个生产/测试路径关闭这一项并重新冻结。Builder 已冻结修正版快照
+`75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2`；Repo Steward
+独立通过 435 项 focused、24 项 lineage/complete-set 和八个自建探针后给出 `GO`。主控又
+独立通过 Python 3.12/3.13 各 1895 项全量、435 项 focused、24 项对抗、四个真实 pinned
+操作向量和 checkout 外 wheel 验收。主控本地决定
+`PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` 绑定证据
+SHA-256 `98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b`。
+随后精确临时 index 审计发现一项非语义阻塞：`tests/contract/test_transaction_staging.py`
+以两个 LF 结束，cached diff-check 报 `new blank line at EOF`，因此 R2 不得提交。R2 工作包、
+候选/review、本地验收、manifest 和交付拒绝全部保留。活动 R3 工作包 SHA-256
+`1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67`
+只授权删除最后一个 LF 并生成 R3 证据；目标十路径快照预先锁定为
+`e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76`。
+Builder 已冻结该精确快照，Repo Steward 独立 R3 审查为 `GO`。主控重新通过 435 项
+focused、24 项对抗、四个 pinned 操作向量、Python 3.12/3.13 各 1895 项全量及字节不变的
+wheel 验收；本地 R3 决定
+`PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` 绑定 SHA-256
+`a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`。
+当前仍没有实现 commit 或精确实现 head，下一步仅允许最终精确路径交付审计。此阶段仍
+不允许从 capture authority/code manifest 自动生成业务 proposal，不执行
+upstream/apply/recover/admin，不处理 operation result、ledger/integrity、
+vendor/dependency/workflow 或真实 Vault。
 
 `base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成
 catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation profile
