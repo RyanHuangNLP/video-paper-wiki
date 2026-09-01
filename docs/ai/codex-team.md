@@ -83,46 +83,43 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
   open/draft → `integration`，未合并；base 为
   `08709894adfb20ec07e976783f0ba436d975b74f`。
 - VPKB-000 已在精确 head
-  `acd3821b15e62bce13fa07b82c1665d501f27f67` 完成。VPKB-001 首个子版本的
-  架构冻结随后在精确 head `be7ecf303af2879459036ed8e6831291f168fac4`
-  通过 Architect 验收；Tests run `33461002166` 的 Linux/macOS × Python
-  3.12/3.13 四项各 1661 通过，实际 checkout 是合并预览
-  `bd26ab57e9f200181fed7b3175256fdbe39dbfad`。
-- Builder 的 R2 实现固定为七文件 snapshot
-  `2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f`。
-  Repo Steward 独立重放 B1–B8 共 27 个攻击向量，结论为
-  `GO_FOR_ARCHITECT_ACCEPTANCE`；主控的 Python 3.12/3.13 全量测试各
-  1747 通过，离线 installed-wheel 隔离验证也通过。当前仍是工作树候选，等待
-  精确提交、新四项 CI 和 post-CI exact-head Architect 验收。
+  `acd3821b15e62bce13fa07b82c1665d501f27f67` 完成。VPKB-001 首个
+  `pinned-read-only-transaction-inspect-adapter-v1` 已在精确 head
+  `17c13f6317416f47d2610240aaf905598131e5bc` 完成。Tests run
+  `33465872376` 的 Linux/macOS × Python 3.12/3.13 四项各 1747 通过，实际
+  checkout 是合并预览 `dd6954f1c2368d83cd6d5f1d5057ed4d20acb327`，随后
+  Architect 签发 `ACCEPTED_VPKB_001_PINNED_READ_ONLY_ADAPTER_V1_AT_EXACT_HEAD`。
+- 上述实现的 `ci-observation.json`、`merge-parents.json`、
+  `architect-acceptance.json` 三份 post-CI 记录仍保持原字节，交由当前后继
+  架构提交持久化。旧 run 只证明 `17c13f`，不能继承给新 head。
 - 目录与 overlays 继续冻结为 67；保留所有既有未跟踪计划、`inbox/`、`tools/`
   和 `.DS_Store`。
 
 当前 packet 仍是
-[VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)，规范为
-[vpkb-001-adapter-contract-v1](contracts/vpkb-001-adapter-contract-v1.md)。
-首个有界子版本实现固定上游的只读 `transaction inspect`、确定性
-`bundle.json + content/<sha256>` 传输、`upstream-authority.v1` 和隔离的 file
-`stable_source_id` 调用。两个 Python 子进程都只从临时私有执行树加载 profile 验证过的
-21 个源码文件，不直接从含 ignored `.pyc` 的 live checkout 导入；继承环境会被只指向
-独立私有 scratch 的 `HOME/TEMP/TMP/TMPDIR` 精确替换。它不包含
-apply/recover/admin、真实 Vault、ledger merge、
-receipt/audit、mapper/compiler、Docling、BM25/index 或 retrieval。
+[VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)。当前第二个有界
+子版本规范为
+[vpkb-001-manual-pdf-capture-dry-run-v1](contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md)。
+它只允许上游公开 `capture apply` 的默认 dry-run，不传 `--apply`，一次观察一个
+`inbox/**/*.pdf`，把 create/noop 输出投影为
+`video-paper-wiki.upstream-capture-authority.v1` 和既有 manual PDF capture inspection。
+它使用独立 command profile；即使复用相同 21 文件 snapshot，也不扩宽已经接受的
+transaction-inspect profile。
 
-架构冻结已经完成。实现 R1 的独立审查报告保留八个阻断项；Builder 的 R2 修复和
-Repo Steward 的最终 GO 报告保存在 `artifacts/verification/VPKB-001-adapter-contract/implementation/`。
-接下来由 Repo Steward 只暂存 delivery manifest 列出的精确路径并提交、推送；Architect
-随后核对新 head、base、merge preview、四个 job 日志和提交 blob，再签发单独的
-implementation exact-head acceptance。冻结 schema/profile/规范、现有 facade/capture
-契约、vendor pin 和 generation revision 1 在该过程中保持不变。
+当前只做架构冻结：新契约、schema、profile、valid/invalid fixture、title-only registry、
+状态和精确证据。生产 adapter 继续阻塞，直到该架构 head 经新四项 merge-ref CI 和单独
+Architect 验收，再由 Builder 接收精确 allowed paths。此阶段不允许 capture apply、
+staged/code route、operation result、ledger/integrity、vendor/dependency/workflow 或真实 Vault
+变更。
 
-`base-catalog-v1` generation revision 1 在此子版本保持不变，因为 inspect adapter
-不生成 catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation
-profile revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-001 仍按
-`adapter-contract` → `integrity-runtime` 顺序完成，首个子版本通过不代表整个 slice 或
+`base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成
+catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation profile
+revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-001 仍按
+`adapter-contract` → `integrity-runtime` 顺序完成；首个子版本通过不代表整个 slice 或
 VPKB-001 完成。
 
-保持同一 PR 中的单业务写者：Builder 已停止写入 R2，Architect 只维护验收状态和证据，
-Steward 串行处理 Git/CI。每次审查以 `packet_base_sha..candidate_head_sha` 为本包增量，
+保持同一 PR 中的单业务写者：当前 Architect 写架构，Builder/Steward 只读独立审查；
+实现放行后才切换 Builder 为主代码写者，Steward 串行处理 Git/CI。每次审查以
+`packet_base_sha..candidate_head_sha` 为本包增量，
 同时检查跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动
 覆盖以 `integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。
 

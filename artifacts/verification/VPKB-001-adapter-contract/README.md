@@ -1,8 +1,9 @@
 # VPKB-001 adapter-contract verification
 
-This directory begins with the architecture/contract freeze for the first
-bounded VPKB-001 subrelease: pinned read-only transaction inspection and
-isolated captured-file source-ID verification.
+This directory begins with the accepted architecture/contract freeze for the
+first bounded VPKB-001 subrelease: pinned read-only transaction inspection and
+isolated captured-file source-ID verification. It now also contains the
+successor architecture work for a single manual-PDF capture dry-run boundary.
 
 Baseline `acd3821b15e62bce13fa07b82c1665d501f27f67` is the separately accepted
 whole-VPKB-000 closure head. Its post-CI records are persisted alongside this
@@ -51,10 +52,27 @@ The bounded production adapter implementation now belongs under
 - `delivery-candidate.json` is the final self-excluding exact-path manifest for
   the implementation commit.
 
-Local implementation acceptance applies only to seven-file snapshot
-`2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f`.
-An exact commit, fresh Linux/macOS x Python 3.12/3.13 merge-ref CI and a separate
-post-CI exact-head Architect acceptance are still required.
+The seven-file implementation snapshot
+`2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f` is
+accepted at exact head `17c13f6317416f47d2610240aaf905598131e5bc`, fresh run
+`33465872376`, merge preview `dd6954f1c2368d83cd6d5f1d5057ed4d20acb327`
+and a separate post-CI Architect decision. Its three post-CI records are carried
+unchanged by the next architecture delivery.
+
+The `manual-pdf-capture-dry-run/` subdirectory is reserved for the second
+bounded subrelease's architecture reviews, freeze manifest, CI observation and
+later implementation evidence. It contains the revision-3 architecture work
+package; preserved R1 blocker reports; preserved R2 GO reports; final
+exact-state Builder and Repo Steward reviews; the Architect freeze; and the
+self-excluding freeze manifest. Its contract is
+`docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md`; its schema and
+profile are `video-paper-wiki.upstream-capture-authority.v1` and
+`claude-obsidian-capture-apply-dry-run-9f8c119-v1`. The current exact candidate
+passed 1750 tests on local Python 3.12 and 3.13, an isolated installed-wheel
+smoke, and real pinned create/noop dry-run probes in disposable private Vaults.
+Production remains blocked until the architecture is committed, that exact
+head receives fresh four-job CI, and a separate Architect acceptance is
+persisted.
 
 Local, wheel, independent review and remote CI observations remain distinct.
 Passing this first bounded subrelease will not complete the later

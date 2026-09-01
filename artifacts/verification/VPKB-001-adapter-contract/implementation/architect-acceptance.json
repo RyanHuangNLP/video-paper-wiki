@@ -1,0 +1,118 @@
+{
+  "accepted_head": "17c13f6317416f47d2610240aaf905598131e5bc",
+  "accepted_parent": "be7ecf303af2879459036ed8e6831291f168fac4",
+  "accepted_tested_merge_sha": "dd6954f1c2368d83cd6d5f1d5057ed4d20acb327",
+  "accepted_tree": "bdd5444a45651484b3b51294e5cb34a5d70ae300",
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "architect_independent_recheck": {
+    "commit_blobs": "all 19 delivery paths are byte-equal to the committed self-excluding manifest; full snapshot 70da4dd5e8c3feec5692eae5bb78b8b9c575772bfa7bff98c2fc9b82950b6ceb",
+    "job_logs": "all four raw log hashes and checkout/Python/pytest evidence lines match the Repo Steward observation",
+    "local_suites": "CPython 3.12.14 and 3.13.13 each 1747 passed; isolated installed wheel imports exact adapter/contracts bytes and exact frozen schema/profile resources",
+    "merge_ref": "fresh git ls-remote resolves refs/pull/94/merge to dd6954f1c2368d83cd6d5f1d5057ed4d20acb327",
+    "merge_object": "fresh GitHub Git commit API gives ordered base/head parents, tree bdd5444a45651484b3b51294e5cb34a5d70ae300 and verified signature",
+    "pr": "fresh gh pr view gives OPEN, draft, integration base, exact head/base, CLEAN/MERGEABLE and four SUCCESS checks",
+    "run": "fresh gh run view gives exact head, pull_request event, attempt 1, completed success and four expected successful jobs"
+  },
+  "candidate": {
+    "delivery_manifest": "artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json",
+    "delivery_manifest_sha256": "175a16f6ce8447c12818e716015bc46b367ab54117dc5442a9abbcfe0a9636e5",
+    "delivery_path_count": 19,
+    "delivery_snapshot_sha256": "70da4dd5e8c3feec5692eae5bb78b8b9c575772bfa7bff98c2fc9b82950b6ceb",
+    "source_file_count": 7,
+    "source_snapshot_sha256": "2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f"
+  },
+  "decided_at_utc": "2026-09-01T03:29:59.531564+00:00",
+  "decision": "ACCEPTED_VPKB_001_PINNED_READ_ONLY_ADAPTER_V1_AT_EXACT_HEAD",
+  "fresh_ci": {
+    "attempt": 1,
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "ci_observation": "artifacts/verification/VPKB-001-adapter-contract/implementation/ci-observation.json",
+    "ci_observation_sha256": "6d60cdd9678fa9ea49807af7c7ff56d298bfafa90d3568e6a752e920def73dc6",
+    "conclusion": "success",
+    "event": "pull_request",
+    "jobs": [
+      {
+        "id": 99725492905,
+        "name": "macos-15 / Python 3.13",
+        "passed": 1747,
+        "python": "3.13.15"
+      },
+      {
+        "id": 99725493035,
+        "name": "ubuntu-24.04 / Python 3.12",
+        "passed": 1747,
+        "python": "3.12.14"
+      },
+      {
+        "id": 99725493176,
+        "name": "ubuntu-24.04 / Python 3.13",
+        "passed": 1747,
+        "python": "3.13.15"
+      },
+      {
+        "id": 99725493293,
+        "name": "macos-15 / Python 3.12",
+        "passed": 1747,
+        "python": "3.12.14"
+      }
+    ],
+    "merge_parents": "artifacts/verification/VPKB-001-adapter-contract/implementation/merge-parents.json",
+    "merge_parents_sha256": "20788ae4b7315fa87ee8df1c2ba812e92d211bf8cd1f9c76f67e3957d163cfc3",
+    "merge_sha": "dd6954f1c2368d83cd6d5f1d5057ed4d20acb327",
+    "merge_tree": "bdd5444a45651484b3b51294e5cb34a5d70ae300",
+    "ordered_merge_parents": [
+      "08709894adfb20ec07e976783f0ba436d975b74f",
+      "17c13f6317416f47d2610240aaf905598131e5bc"
+    ],
+    "run_id": 33465872376
+  },
+  "frozen_authority": {
+    "architecture_acceptance_sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827",
+    "contract_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+    "packet_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+    "profile_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+    "schema_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+    "upstream_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34"
+  },
+  "human_gate_changed": false,
+  "independent_review": {
+    "prior_blocker_vectors": "27 passed, 0 failed",
+    "security_and_schema": "472 passed, 0 failed",
+    "steward_r2_sha256": "0540117c58f7509b752a5ca80f3a36570f4fc5352426b443f702636afdd0299e",
+    "verdict": "GO_FOR_ARCHITECT_ACCEPTANCE"
+  },
+  "local_acceptance": {
+    "architect_local_sha256": "9d435f169ad1072c87e3be533821e90be076c21f9295fb16e5f3f0fe5646aced",
+    "python_3_12": "1747 passed",
+    "python_3_13": "1747 passed",
+    "wheel_sha256": "eb3f1dae1a793df68808c18781a70210ee175fdd50c89e4a72ed86ea16dbfeb1",
+    "wheel_status": "passed outside the checkout with 22 packaged schemas and byte-equal adapter/contracts/schema/profile"
+  },
+  "merge_authorized": false,
+  "nonblocking_limitations": [
+    "original_size_bytes is preserved but is not independently attested by upstream transaction inspect",
+    "Git authentication applies its output cap after subprocess collection; the frozen contract does not define a streaming Git-output budget"
+  ],
+  "persistence_note": "This acceptance and its two post-CI inputs are intentionally not part of the already-tested implementation commit. A successor delivery must carry all three unchanged before citing them; any later head requires fresh CI and acceptance.",
+  "pr_state_unchanged": true,
+  "schema": "video-paper-wiki.vpkb-001-adapter-implementation-architect-acceptance.v1",
+  "still_not_authorized": [
+    "apply/recover/admin/capture execution",
+    "real Vault mutation",
+    "network/models",
+    "ledger merge, receipt audit or integrity-runtime",
+    "mapper/compiler, generation revision, index or retrieval",
+    "PR ready/review/merge/auto-merge",
+    "human gate change"
+  ],
+  "successor_status": {
+    "adapter_contract_complete": false,
+    "first_bounded_subrelease_complete": true,
+    "next_action": "Architect may define the next bounded VPKB-001 adapter-contract work package while preserving this exact acceptance evidence.",
+    "vpkb_001_complete": false
+  }
+}

@@ -6,17 +6,17 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: acd3821b15e62bce13fa07b82c1665d501f27f67
+  continued_head: 17c13f6317416f47d2610240aaf905598131e5bc
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
   delivery_note: >-
     On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
     integration. It has not been merged. reference_head preserves the original
-    handoff baseline; continued_head is the accepted whole-VPKB-000 closure
-    delivery. The next candidate is VPKB-001 architecture/contract freeze only;
-    production remains blocked until that successor receives fresh CI and a
-    separate exact-head Architect acceptance.
+    handoff baseline; continued_head is the accepted first bounded VPKB-001
+    adapter implementation. The next candidate is the manual-PDF capture dry-run
+    architecture/contract freeze only; its production remains blocked until that
+    successor receives fresh CI and a separate exact-head Architect acceptance.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -61,18 +61,18 @@ collaboration:
 repository_observation:
   observed_on: "2026-09-01"
   pr: 94
-  head_sha: acd3821b15e62bce13fa07b82c1665d501f27f67
+  head_sha: 17c13f6317416f47d2610240aaf905598131e5bc
   base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
-  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33456016766"
-  ci_run_id: 33456016766
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33465872376"
+  ci_run_id: 33465872376
   conclusion: success
   jobs_succeeded: 4
   tested_checkout_observation:
-    job_id: 99696018716
+    job_id: 99725493176
     job: ubuntu-24.04 / Python 3.13
     ref: refs/remotes/pull/94/merge
-    sha: 1db75993d8a9843f73a532c9838361462ce05561
-    tests_passed: 1658
+    sha: dd6954f1c2368d83cd6d5f1d5057ed4d20acb327
+    tests_passed: 1747
   note: >-
     This is a separate repository snapshot, not a rewrite of historical local
     test evidence or an Architect merge authorization. Recheck head, base,
@@ -140,16 +140,16 @@ work_packages:
     depends_on: [VPKB-000]
     prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: adapter_contract_implementation_delivery
-    implementation_status: first_subrelease-local-accepted-pending-commit-ci
+    phase: manual_pdf_capture_dry_run_architecture_freeze
+    implementation_status: first-subrelease-accepted-next-freeze-in-progress
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
-      work packages or runtime lifecycle states. The first bounded subrelease's
-      architecture freeze is accepted at be7ecf303af2879459036ed8e6831291f168fac4.
-      Its exact R2 implementation has passed Builder, independent Repo Steward,
-      dual-Python and installed-wheel local acceptance; exact commit, fresh CI and
-      post-CI Architect acceptance remain. Complete both slices before VPKB-002.
+      work packages or runtime lifecycle states. The first bounded subrelease is
+      accepted at exact implementation head 17c13f6317416f47d2610240aaf905598131e5bc,
+      run 33465872376 and merge preview dd6954f1c2368d83cd6d5f1d5057ed4d20acb327.
+      The next bounded manual-PDF capture dry-run contract is being frozen;
+      production is not yet authorized. Complete both slices before VPKB-002.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
@@ -571,14 +571,14 @@ packets:
     parent: VPKB-001
     title: Pinned upstream adapter contract and runtime compatibility
     status: in_progress
-    phase: implementation_delivery
+    phase: second_subrelease_architecture_freeze
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
     packet_document: docs/ai/packets/VPKB-001-adapter-contract.md
     base_commit: acd3821b15e62bce13fa07b82c1665d501f27f67
     depends_on: [VPKB-000-projection-contracts]
-    contract:
+    first_contract:
       path: docs/ai/contracts/vpkb-001-adapter-contract-v1.md
       revision: 1
       sha256: 823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792
@@ -598,12 +598,13 @@ packets:
       upstream_tree: b00665e266988fe99138e761dbbf4da04b2ddb5a
       upstream_version: 2.1.1
       upstream_source_snapshot_sha256: 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34
-      implementation_status: architect-local-accepted-pending-commit-ci
+      implementation_status: architect-accepted-at-exact-head
       implementation_gate: >-
-        Architecture freeze prerequisite is complete. Exact implementation snapshot
+        Exact implementation snapshot
         2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f
-        passed independent review and local Architect acceptance. It still requires
-        an exact commit, fresh four-job merge-ref CI and post-CI exact-head acceptance.
+        was committed at 17c13f6317416f47d2610240aaf905598131e5bc, passed fresh
+        four-job merge-ref CI run 33465872376 and received post-CI exact-head
+        Architect acceptance. This closes only the first bounded subrelease.
       implementation_evidence:
         builder_r2: artifacts/verification/VPKB-001-adapter-contract/implementation/builder-candidate-r2.json
         builder_r2_sha256: d0ec923d72b86ec1d1c0b49d64941751caf5182d5c41ebe9deea29795358531e
@@ -615,6 +616,16 @@ packets:
         local_python_312: 1747-passed
         local_python_313: 1747-passed
         installed_wheel: passed
+        accepted_head: 17c13f6317416f47d2610240aaf905598131e5bc
+        accepted_tree: bdd5444a45651484b3b51294e5cb34a5d70ae300
+        ci_run_id: 33465872376
+        tested_merge_sha: dd6954f1c2368d83cd6d5f1d5057ed4d20acb327
+        ci_observation: artifacts/verification/VPKB-001-adapter-contract/implementation/ci-observation.json
+        ci_observation_sha256: 6d60cdd9678fa9ea49807af7c7ff56d298bfafa90d3568e6a752e920def73dc6
+        merge_parents: artifacts/verification/VPKB-001-adapter-contract/implementation/merge-parents.json
+        merge_parents_sha256: 20788ae4b7315fa87ee8df1c2ba812e92d211bf8cd1f9c76f67e3957d163cfc3
+        architect_acceptance: artifacts/verification/VPKB-001-adapter-contract/implementation/architect-acceptance.json
+        architect_acceptance_sha256: 56a6732afcce17e79bf5bbeb5ae609b39367638e45c2fd1119d86a11d329f8e6
       scope:
         - Authenticate the explicit pinned clean upstream checkout and static profile.
         - Copy exactly 21 verified source files to a fresh private execution tree.
@@ -630,10 +641,60 @@ packets:
         Base generation revision 1 remains unchanged because this adapter emits
         no catalog rows. A later mapper/compiler must introduce a new profile
         revision binding adapter/schema/profile bytes and consumed authority.
+    second_subrelease:
+      id: pinned-manual-pdf-capture-dry-run-v1
+      status: local-validated-architecture-candidate-pending-exact-commit-ci
+      architecture_baseline: 17c13f6317416f47d2610240aaf905598131e5bc
+      architecture_work_package: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-work-package.json
+      architecture_work_package_revision: 3
+      contract_path: docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md
+      candidate_contract_sha256: 6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b
+      schema: video-paper-wiki.upstream-capture-authority.v1
+      schema_path: schemas/video-paper-wiki.upstream-capture-authority.v1.schema.json
+      candidate_schema_sha256: 7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23
+      profile: claude-obsidian-capture-apply-dry-run-9f8c119-v1
+      profile_path: catalog/claude-obsidian-capture-apply-dry-run-9f8c119-v1.profile.json
+      candidate_profile_sha256: fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6
+      upstream_commit: 9f8c1199047eac2c3828496279fbb7ba9540b90b
+      upstream_tree: b00665e266988fe99138e761dbbf4da04b2ddb5a
+      upstream_version: 2.1.1
+      upstream_source_snapshot_sha256: 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34
+      scope:
+        - Observe one explicit manual-inbox PDF through public capture apply dry-run.
+        - Prohibit --apply and persist only a closed portable stdout projection.
+        - Bind create approval or reuse noop to the frozen capture inspection.
+        - Reuse the authenticated private 21-file source execution boundary.
+      out_of_scope:
+        - Capture execution, custom config, discovery, queues, external adapters or network.
+        - Staged PDF/code routes, deterministic facade staging or operation-result handling.
+        - Ledger merge, integrity-runtime, mapper/compiler, generation revision, BM25/index or retrieval.
+      implementation_authorized: false
+      architecture_requirements:
+        independent_reviews: [Builder, Repo-Steward]
+        fresh_ci_required: true
+        post_ci_architect_acceptance_required: true
+      architecture_evidence:
+        preserved_builder_r1: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/builder-spec-review-r1.json
+        preserved_builder_r1_sha256: 9c63ab1ce517982c15c6982e0112c45988457532cc0d1568d0d0a4ec8dcae243
+        preserved_steward_r1: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/steward-spec-review-r1.json
+        preserved_steward_r1_sha256: 28744117b234e349d320dfd471d232fef6e1c9cd053e941d3c10264ce28921a7
+        builder_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/builder-spec-review-r2.json
+        builder_r2_sha256: 5529a191a1c1403f832da441302a00bbf342c74709f42a1623aef2a7b162951a
+        builder_r2_verdict: GO
+        steward_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/steward-spec-review-r2.json
+        steward_r2_sha256: 1ba6e4d00f49aaa1553b53cc0e5f6d90e76120a8b01a7e2d6f273b7834664e67
+        steward_r2_verdict: GO
+        local_python_312: 1750-passed
+        local_python_313: 1750-passed
+        installed_wheel: passed
+        real_pinned_private_create_noop_probe: passed
+      generation_decision: >-
+        Base generation revision 1 remains unchanged because this authority emits
+        no catalog rows. Any mapper/compiler remains a later versioned release.
     verification:
-      status: implementation-local-accepted-pending-commit-ci
+      status: first-subrelease-accepted-second-architecture-local-validated
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
-      delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
+      first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       fresh_ci_required: true
       architect_acceptance_required: true
       merge_authorized: false

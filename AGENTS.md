@@ -63,11 +63,14 @@ their task; being another Codex agent does not confer Architect authority.
 - Keep the catalog and overlays at 67 entries until explicitly re-scoped.
 - VPKB-000 is complete at exact head
   `acd3821b15e62bce13fa07b82c1665d501f27f67`, bound to Tests run
-  `33456016766` and its separate Architect acceptance. VPKB-001 architecture
-  and contract freeze may proceed. Production implementation remains blocked
-  until an exact frozen packet has fresh CI, a separate Architect acceptance,
-  and an explicit Builder path assignment. Retrieval config/gold is outside
-  this first VPKB-001 adapter subrelease.
+  `33456016766`. VPKB-001's first pinned transaction-inspect adapter is accepted
+  at exact head `17c13f6317416f47d2610240aaf905598131e5bc`, bound to Tests run
+  `33465872376` and its separate Architect acceptance. The current work is the
+  architecture freeze for the next bounded manual-PDF capture dry-run adapter.
+  Its production implementation remains blocked until its exact freeze head has
+  fresh CI, separate Architect acceptance, and an explicit Builder assignment.
+  Staged/code routes, operation results, integrity runtime and retrieval remain
+  outside this subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.
