@@ -77,61 +77,49 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 
 ## 当前接续点与下一包
 
-2026-09-01核对结果：
+2026-09-01 当前可验证状态：
 
-- PR：[#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94)，open/draft → `integration`，未合并。
-- 本地和PR head：`58ddf533f7c30b66a0f80443d5108f1970365ab2`。
-- PR base：`08709894adfb20ec07e976783f0ba436d975b74f`。
-- [CI run 33453091285](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33453091285) 四项成功，各1658项通过。
-  实际checkout为合并预览`1ad9f4063693468454bed9b2207aad54740da2fb`，
-  不是裸head；父提交已独立核对，精确环境与job记录在projection-contracts的`base-foundation/ci-observation.json`。
-- 保留已有未跟踪文件；目录/overlays仍冻结67。阶段仍是VPKB-000。
+- PR [#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94) 仍是
+  open/draft → `integration`，未合并；base 为
+  `08709894adfb20ec07e976783f0ba436d975b74f`。
+- VPKB-000 在精确 head
+  `acd3821b15e62bce13fa07b82c1665d501f27f67` 完成。Tests run
+  `33456016766` 的 Linux/macOS × Python 3.12/3.13 四项各 1658 通过；
+  实际 checkout 是合并预览
+  `1db75993d8a9843f73a532c9838361462ce05561`。独立 Architect 决定及
+  CI/merge-parent 记录保存在 `artifacts/verification/VPKB-000-projection-contracts/`。
+- 这份完成结论允许开始 VPKB-001 架构与契约冻结，不自动允许生产代码、PR
+  ready/review、merge、auto-merge 或人工 gate。
+- 目录与 overlays 继续冻结为 67；保留所有既有未跟踪计划、`inbox/`、`tools/`
+  和 `.DS_Store`。
 
-capture/code-evidence和transaction-facade子包已分别完成本地与CI验收。
-facade在前序`5f4c186566c15ab5ee8df10c587e4709d6223f32`通过 Python 3.12/3.13 各1239项及独立安装包验收，
-274个输入摘要为`437fb3bb0cc0c8baa26e93cb374b1814519771c3e0cd3df161e6ab24a466fa8e`。
-首次安全扫描误报的两次失败保留在独立证据中，没有改写成通过。
-独立接受记录已绑定实际提交和四项CI日志，历史待验收观察没有改写。
+当前 packet 是
+[VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)，规范为
+[vpkb-001-adapter-contract-v1](contracts/vpkb-001-adapter-contract-v1.md)。
+首个有界子版本只冻结固定上游的只读 `transaction inspect`、确定性
+`bundle.json + content/<sha256>` 传输、`upstream-authority.v1` 和隔离的 file
+`stable_source_id` 调用。两个 Python 子进程都只从临时私有执行树加载 profile 验证过的
+21 个源码文件，不直接从含 ignored `.pyc` 的 live checkout 导入；继承环境会被只指向
+独立私有 scratch 的 `HOME/TEMP/TMP/TMPDIR` 精确替换。它不包含
+apply/recover/admin、真实 Vault、ledger merge、
+receipt/audit、mapper/compiler、Docling、BM25/index 或 retrieval。
 
-当前工作包是 [VPKB-000-projection-contracts](packets/VPKB-000-projection-contracts.md)。
-运行时比较契约的数值编码、chunk/BM25 profile和公开CLI fixture已验收。
-ledger-locator纯编解码也已完成本地、安装包与独立CI验收。
-完整assessment-history纯校验已完成本地、安装包及新CI验收。
-基础输入、34表/230列DDL、25项语义检查、行导出和generation revision1已由两个medium
-代理独立复核并由Architect冻结。Builder的correction-1纯API候选完成本地交付，Steward
-在精确20文件快照上独立返回GO；Architect完成两版Python各1658项及fresh wheel验收。
-该候选随后以58ddf533提交，四项新CI各1658通过，实际merge父提交和59个commit blobs均
-已独立核对，并有单独Architect接受记录。准确阶段、规范摘要和验收状态以
-`task-index.yaml`为准。它仍未完成001生产适配；合并和人工gate仍未授权。
+架构冻结候选先由两个 medium 子agent独立审查，再由 Repo Steward 精确路径提交并收集
+新的四项 CI。Architect 只有在核对新 head、base、merge preview、job 日志和提交 blob 后
+才可签发 freeze acceptance。Builder 随后依据另行下发的精确 allowed paths 编写主要实现；
+冻结 schema/profile/规范、现有 facade/capture 契约、vendor pin 和 generation revision 1
+不得由 Builder 顺手修改。
 
-运行时比较候选现已通过 Python 3.12/3.13 各1357项，以及18-schema独立安装包验收。
-283个固定输入摘要为`f655b80ae32c6ea1c78b65f5e5f68c3b1e5cbdfe455a1e9fda6e5750cb22a2a8`。
-首轮各1322通过/1失败的旧BM25词串守卫冲突记录单独保留；只修正测试范围规则，
-没有通过改名隐藏BM25或放开生产检索入口。运行时新提交的四项CI已独立核对并接受；
-CI的Python3.13为3.13.15，与本地3.13.13分别记录，不将二者混用。
-ledger-locator revision1已独立冻结；完整canonical输入、纯行校验、writer用SQLite DDL和
-generation revision1也已冻结，纯基础实现、安装包和精确提交CI均已接受。Steward的整包
-闭包矩阵判定技术缺口已覆盖，但这些post-CI记录形成新的元数据head，因此VPKB-000仍等待
-该successor的fresh CI和整包Architect判定。
-审核head由完整事件链派生，不新增可变registry或修改已有facade create-only规则。
+`base-catalog-v1` generation revision 1 在此子版本保持不变，因为 inspect adapter
+不生成 catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation
+profile revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-001 仍按
+`adapter-contract` → `integrity-runtime` 顺序完成，首个子版本通过不代表整个 slice 或
+VPKB-001 完成。
 
-locator候选只新增4个授权文件，已通过两版Python各1464项和新的独立安装包验收。
-288个源码输入摘要为`b689ce10e8325ee430b9a893bf5da54a9f6a2f69b59d2e4dedbb76dca7e30fed`；
-独立10组正向/21组反向wire向量及三种关系映射通过。其后的独立提交3e2bebb已通过新CI，
-四项各1464通过，365个源码与交付文件的Git blob均核对一致，并另有Architect接受记录。
-assessment-history revision1已在`951131d`完成单独实现和新CI验收，没有继承locator结论。
-base-foundation correction-1从该head开始，在`58ddf533`完成自己的提交、四项CI与精确接受。
-当前只交付闭包元数据；VPKB-000保持in_progress，VPKB-001保持not_started，直到这个新head
-通过fresh CI并获得整包接受。
-
-短期保持同一PR中的单写者推进，并以`packet_base_sha..candidate_head_sha`单独审查每包增量，
-同时检查与其余代码的兼容性。PR94的完整历史diff不是下一包新增代码。
-若随后改成每包独立PR，由Architect先明确分支/base策略：当前workflow只自动覆盖以
-`integration`或`main`为base的PR，直接把新PR的base设成repair分支不会触发这套CI。
-
-随后按依赖推进：capture/code-evidence契约 → 纯transaction facade → projection/SQLite契约，
-固定上游源码/fixture证据可在文件和依赖独立时并行补齐；000完整通过后才开始001运行时。
-不能靠继续扩目录或增加PR数量代替引擎验收。
+保持同一 PR 中的单业务写者：Architect 写冻结设计，Builder 在放行后写主实现，Steward
+串行处理 Git/CI。每次审查以 `packet_base_sha..candidate_head_sha` 为本包增量，同时检查
+跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动覆盖以
+`integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。
 
 ## 工具与持续运行的实际边界
 
@@ -144,15 +132,3 @@ base-foundation correction-1从该head开始，在`58ddf533`完成自己的提�
 [AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)。
 [GPT-5.6模型标识](https://developers.openai.com/api/docs/guides/latest-model)。
 这里的三角色职责、单写者与验收记录是本项目工作约定。
-
-assessment-history候选现已完成本地审查：仅新增3个实现/测试文件；两版Python各1596通过，
-新安装包通过18-schema及独立29正/38反历史向量。292输入摘要为
-`3564cd9e769825c6190fc4c03d93655bd2deed2b022ef752762c51244b7f41ae`，前后源码一致。
-Steward独立85检查和184项定向测试通过。该候选已提交到951131d，独立核验新CI四项各1596，
-343个源码/交付Git blobs与精确合并父提交均通过，另有Architect接受记录；仍不关闭整个000。
-
-按原计划§4.3/§10，000冻结基础DDL、结构行校验和generation，不以真实Docling解析或完整
-bytes→rows编译器提前实现为前提。两名子agent已独立审查该范围划分。行间一致性和诚实的输入
-hash并不能证明这些行来自那些bytes；001/002仍须实现和验收真实映射、locator内容/位置证明及发布。
-此范围决定只冻结本包记录的inventory、run关联、DDL和generation revision1；它不提前
-接受001/002的真实bytes→rows映射、writer、发布或人工gate。

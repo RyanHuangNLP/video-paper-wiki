@@ -6,16 +6,17 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 58ddf533f7c30b66a0f80443d5108f1970365ab2
+  continued_head: acd3821b15e62bce13fa07b82c1665d501f27f67
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
   delivery_note: >-
     On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
     integration. It has not been merged. reference_head preserves the original
-    handoff baseline; continued_head records the separately accepted base-foundation
-    implementation revision. The successor closure-metadata head still requires
-    fresh CI and a whole-VPKB-000 Architect decision.
+    handoff baseline; continued_head is the accepted whole-VPKB-000 closure
+    delivery. The next candidate is VPKB-001 architecture/contract freeze only;
+    production remains blocked until that successor receives fresh CI and a
+    separate exact-head Architect acceptance.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -60,17 +61,17 @@ collaboration:
 repository_observation:
   observed_on: "2026-09-01"
   pr: 94
-  head_sha: 58ddf533f7c30b66a0f80443d5108f1970365ab2
+  head_sha: acd3821b15e62bce13fa07b82c1665d501f27f67
   base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
-  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33453091285"
-  ci_run_id: 33453091285
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33456016766"
+  ci_run_id: 33456016766
   conclusion: success
   jobs_succeeded: 4
   tested_checkout_observation:
-    job_id: 99687111131
+    job_id: 99696018716
     job: ubuntu-24.04 / Python 3.13
     ref: refs/remotes/pull/94/merge
-    sha: 1ad9f4063693468454bed9b2207aad54740da2fb
+    sha: 1db75993d8a9843f73a532c9838361462ce05561
     tests_passed: 1658
   note: >-
     This is a separate repository snapshot, not a rewrite of historical local
@@ -96,7 +97,7 @@ human_gates:
 work_packages:
   - id: VPKB-000
     title: Engineering foundation and shared engine contracts
-    status: in_progress
+    status: complete
     depends_on: []
     active_packet: VPKB-000-projection-contracts
     observed_at_reference_head:
@@ -113,33 +114,41 @@ work_packages:
       - Dependency/license verification evidence, distinct from version pins.
       - Reproducible offline CI and recorded validation evidence.
       - Task index, work-packet template, and durable verification handoff.
-    completion_rule: >-
-      Close only after the complete VPKB-000 requirements have reviewable
-      evidence. Completing the active PR #94 follow-up packet alone does not
-      freeze all shared contracts or close VPKB-000.
+    completion_rule: satisfied
     closure_delivery:
-      status: technical-matrix-covered-pending-successor-ci-and-architect-acceptance
+      status: accepted-whole-packet
       accepted_implementation_head: 58ddf533f7c30b66a0f80443d5108f1970365ab2
+      accepted_closure_head: acd3821b15e62bce13fa07b82c1665d501f27f67
       work_package: artifacts/verification/VPKB-000-projection-contracts/vpkb-000-closure-delivery-work-package.md
       work_package_sha256: b6b47db3cc1485940fcf89a8fcc86e58244efd64be65f357bb98f904e6b52dd8
       audit: artifacts/verification/VPKB-000-projection-contracts/vpkb-000-closure-audit.json
       audit_sha256: 7401ee2dce9472f8359e901e3d0fd119c7d45361543924b06cc48fef96509c56
-      verdict: GO_FOR_CLOSURE_DELIVERY
+      acceptance: artifacts/verification/VPKB-000-projection-contracts/vpkb-000-architect-acceptance.json
+      acceptance_sha256: afe0609ee6c17b87cae6233a4cca8b4e64da01f5e3265c917c49855ba2e1c82b
+      ci_run_id: 33456016766
+      tested_merge_sha: 1db75993d8a9843f73a532c9838361462ce05561
+      verdict: ACCEPTED_WHOLE_VPKB_000_AT_EXACT_HEAD
       note: >-
-        The bounded technical requirements now have reviewable evidence. This
-        metadata delivery creates a new head; VPKB-000 remains in progress and
-        VPKB-001 remains blocked until fresh four-job CI and a separate whole-packet
-        Architect decision bind that exact successor head.
+        The bounded technical requirements, exact closure commit, fresh four-job
+        merge-ref CI and separate Architect decision are complete. This historical
+        acceptance permits VPKB-001 architecture/contract freeze; it does not
+        authorize VPKB-001 production, PR state changes, merge or a human gate.
 
   - id: VPKB-001
     title: Vault and upstream transaction adaptation
-    status: not_started
+    status: in_progress
     depends_on: [VPKB-000]
-    prerequisite_status: not-satisfied
+    prerequisite_status: satisfied-for-architecture-and-contract-freeze
+    active_packet: VPKB-001-adapter-contract
+    phase: architecture_contract_freeze
+    implementation_status: not_started
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
-      work packages or runtime lifecycle states. Complete both before VPKB-002.
+      work packages or runtime lifecycle states. The first bounded subrelease
+      freezes pinned read-only transaction inspection and isolated file source-ID
+      verification. Production starts only after fresh exact-head freeze CI and
+      Architect acceptance. Complete both slices before VPKB-002.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
@@ -333,8 +342,8 @@ packets:
   - id: VPKB-000-projection-contracts
     parent: VPKB-000
     title: SQLite and projection stability shared contracts
-    status: in_progress
-    phase: whole_packet_closure_delivery
+    status: complete
+    phase: architect_accepted
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -499,7 +508,7 @@ packets:
         - tests/security/_projection_scope_policy.py
         - tests/security/test_projection_scope_policy.py
         - tests/unit/test_search.py
-    implementation_status: runtime-locator-history-base-foundation-accepted-pending-whole-packet-closure-delivery
+    implementation_status: complete
     note: >-
       Runtime numeric comparison and pinned emitter profiles passed independent
       review, full local verification and exact candidate CI. The first full
@@ -514,9 +523,9 @@ packets:
       verified new four-job CI and acceptance at 951131d. Base inventory,
       exact DDL/row export and generation revision 1 are now independently
       reviewed, frozen and accepted for the pure base foundation at 58ddf533.
-      The whole projection packet remains in closure delivery because these
-      post-CI records create a successor metadata head that needs fresh CI and a
-      separate whole-VPKB-000 Architect decision. Assessment
+      The whole projection packet was accepted at exact successor head acd3821
+      after fresh run 33456016766 and a separate whole-VPKB-000 Architect
+      decision. Assessment
       heads derive from the complete validated immutable event graph, with no
       new mutable registry or facade exception. Retrieval join/config/gold and
       production index writers remain outside this packet. Base rows prove
@@ -547,6 +556,68 @@ packets:
         - Independent 14 numeric vectors and 1000 JSON occurrence-boundary cases passed.
         - Actual pinned public CLI twice rebuilt chunks/BM25; nine CJK terms, NFKC queries and overlap checks passed.
         - All 283 source hashes matched before and after both full suites and wheel verification.
+      merge_authorized: false
+    whole_packet_acceptance:
+      accepted_head: acd3821b15e62bce13fa07b82c1665d501f27f67
+      ci_run_id: 33456016766
+      tested_checkout_sha: 1db75993d8a9843f73a532c9838361462ce05561
+      evidence: artifacts/verification/VPKB-000-projection-contracts/vpkb-000-architect-acceptance.json
+      evidence_sha256: afe0609ee6c17b87cae6233a4cca8b4e64da01f5e3265c917c49855ba2e1c82b
+      decision: ACCEPTED_WHOLE_VPKB_000_AT_EXACT_HEAD
+      merge_authorized: false
+
+  - id: VPKB-001-adapter-contract
+    parent: VPKB-001
+    title: Pinned upstream adapter contract and runtime compatibility
+    status: in_progress
+    phase: architecture_contract_freeze
+    owner: Architect
+    implementer: Builder
+    repository_owner: Repo Steward
+    packet_document: docs/ai/packets/VPKB-001-adapter-contract.md
+    base_commit: acd3821b15e62bce13fa07b82c1665d501f27f67
+    depends_on: [VPKB-000-projection-contracts]
+    contract:
+      path: docs/ai/contracts/vpkb-001-adapter-contract-v1.md
+      revision: 1
+      sha256: 823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792
+      status: freeze-candidate-reviewed-pending-commit-ci
+    first_subrelease:
+      id: pinned-read-only-transaction-inspect-adapter-v1
+      schema: video-paper-wiki.upstream-authority.v1
+      schema_path: schemas/video-paper-wiki.upstream-authority.v1.schema.json
+      schema_sha256: 8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a
+      profile: claude-obsidian-transaction-inspect-9f8c119-v1
+      profile_path: catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json
+      profile_sha256: 776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1
+      upstream_commit: 9f8c1199047eac2c3828496279fbb7ba9540b90b
+      upstream_tree: b00665e266988fe99138e761dbbf4da04b2ddb5a
+      upstream_version: 2.1.1
+      upstream_source_snapshot_sha256: 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34
+      implementation_status: not_started
+      implementation_gate: >-
+        Requires an exact architecture-freeze commit, fresh four-job merge-ref
+        CI and separate Architect acceptance before Builder writes production code.
+      scope:
+        - Authenticate the explicit pinned clean upstream checkout and static profile.
+        - Copy exactly 21 verified source files to a fresh private execution tree.
+        - Replace the child environment with four keys pointing to private scratch.
+        - Inspect one deterministic staged bundle through public transaction inspect.
+        - Attach the genuine plan to the frozen transaction facade.
+        - Verify file stable_source_id through a fixed isolated child program.
+      out_of_scope:
+        - Apply, recover, capture execution, admin, network or real Vault mutation.
+        - Ledger merge, receipt/managed-prefix audit and integrity-runtime.
+        - Mapper/compiler, generation revision, Docling, BM25/index and retrieval.
+      generation_decision: >-
+        Base generation revision 1 remains unchanged because this adapter emits
+        no catalog rows. A later mapper/compiler must introduce a new profile
+        revision binding adapter/schema/profile bytes and consumed authority.
+    verification:
+      status: architecture-candidate-reviewed-pending-commit-ci
+      evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
+      fresh_ci_required: true
+      architect_acceptance_required: true
       merge_authorized: false
 
 milestones:

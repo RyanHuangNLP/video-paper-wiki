@@ -61,9 +61,13 @@ their task; being another Codex agent does not confer Architect authority.
 ## Project invariants
 
 - Keep the catalog and overlays at 67 entries until explicitly re-scoped.
-- VPKB-000 is still in progress. Do not start dependent production work in
-  VPKB-001+ before its prerequisites have evidence. Retrieval config/gold is
-  outside the VPKB-000 freeze scope.
+- VPKB-000 is complete at exact head
+  `acd3821b15e62bce13fa07b82c1665d501f27f67`, bound to Tests run
+  `33456016766` and its separate Architect acceptance. VPKB-001 architecture
+  and contract freeze may proceed. Production implementation remains blocked
+  until an exact frozen packet has fresh CI, a separate Architect acceptance,
+  and an explicit Builder path assignment. Retrieval config/gold is outside
+  this first VPKB-001 adapter subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.
