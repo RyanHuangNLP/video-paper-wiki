@@ -6,17 +6,17 @@ recorded_on: "2026-09-01"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 17c13f6317416f47d2610240aaf905598131e5bc
+  continued_head: 3ab19eda4f417b96d89a0a50b2ce2c05233a8478
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
   delivery_status: draft-open
   delivery_note: >-
     On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
     integration. It has not been merged. reference_head preserves the original
-    handoff baseline; continued_head is the accepted first bounded VPKB-001
-    adapter implementation. The next candidate is the manual-PDF capture dry-run
-    architecture/contract freeze only; its production remains blocked until that
-    successor receives fresh CI and a separate exact-head Architect acceptance.
+    handoff baseline; continued_head is the accepted manual-PDF capture dry-run
+    architecture. Its implementation is locally accepted at a frozen seven-file
+    snapshot and remains pending an exact commit, fresh CI and a separate
+    exact-head Architect acceptance.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -61,18 +61,18 @@ collaboration:
 repository_observation:
   observed_on: "2026-09-01"
   pr: 94
-  head_sha: 17c13f6317416f47d2610240aaf905598131e5bc
+  head_sha: 3ab19eda4f417b96d89a0a50b2ce2c05233a8478
   base_sha: 08709894adfb20ec07e976783f0ba436d975b74f
-  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33465872376"
-  ci_run_id: 33465872376
+  ci_run_url: "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33469912314"
+  ci_run_id: 33469912314
   conclusion: success
   jobs_succeeded: 4
   tested_checkout_observation:
-    job_id: 99725493176
+    job_id: 99737390321
     job: ubuntu-24.04 / Python 3.13
     ref: refs/remotes/pull/94/merge
-    sha: dd6954f1c2368d83cd6d5f1d5057ed4d20acb327
-    tests_passed: 1747
+    sha: ea86e96fbbbcaf6fbda360679c6e6d209a6151b7
+    tests_passed: 1750
   note: >-
     This is a separate repository snapshot, not a rewrite of historical local
     test evidence or an Architect merge authorization. Recheck head, base,
@@ -140,16 +140,19 @@ work_packages:
     depends_on: [VPKB-000]
     prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: manual_pdf_capture_dry_run_architecture_freeze
-    implementation_status: first-subrelease-accepted-next-freeze-in-progress
+    phase: manual_pdf_capture_dry_run_implementation_delivery
+    implementation_status: second-subrelease-local-accepted-pending-commit-ci
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
       work packages or runtime lifecycle states. The first bounded subrelease is
       accepted at exact implementation head 17c13f6317416f47d2610240aaf905598131e5bc,
       run 33465872376 and merge preview dd6954f1c2368d83cd6d5f1d5057ed4d20acb327.
-      The next bounded manual-PDF capture dry-run contract is being frozen;
-      production is not yet authorized. Complete both slices before VPKB-002.
+      The manual-PDF capture dry-run architecture is accepted at exact head
+      3ab19eda4f417b96d89a0a50b2ce2c05233a8478 and run 33469912314. Its
+      seven-file implementation is locally accepted pending an exact commit,
+      fresh merge-ref CI and separate post-CI acceptance. Complete both slices
+      before VPKB-002.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
@@ -571,7 +574,7 @@ packets:
     parent: VPKB-001
     title: Pinned upstream adapter contract and runtime compatibility
     status: in_progress
-    phase: second_subrelease_architecture_freeze
+    phase: second_subrelease_implementation_delivery
     owner: Architect
     implementer: Builder
     repository_owner: Repo Steward
@@ -643,8 +646,14 @@ packets:
         revision binding adapter/schema/profile bytes and consumed authority.
     second_subrelease:
       id: pinned-manual-pdf-capture-dry-run-v1
-      status: local-validated-architecture-candidate-pending-exact-commit-ci
+      status: implementation-local-accepted-pending-exact-commit-ci
       architecture_baseline: 17c13f6317416f47d2610240aaf905598131e5bc
+      accepted_architecture_head: 3ab19eda4f417b96d89a0a50b2ce2c05233a8478
+      accepted_architecture_tree: 9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca
+      architecture_ci_run_id: 33469912314
+      architecture_tested_merge_sha: ea86e96fbbbcaf6fbda360679c6e6d209a6151b7
+      architecture_acceptance: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-freeze-architect-acceptance.json
+      architecture_acceptance_sha256: e7261b9ec0bfaa5dd3378fb58aedcb09fe70066a798e4f063e6bbd1fa11bb25d
       architecture_work_package: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-work-package.json
       architecture_work_package_revision: 3
       contract_path: docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md
@@ -668,7 +677,12 @@ packets:
         - Capture execution, custom config, discovery, queues, external adapters or network.
         - Staged PDF/code routes, deterministic facade staging or operation-result handling.
         - Ledger merge, integrity-runtime, mapper/compiler, generation revision, BM25/index or retrieval.
-      implementation_authorized: false
+      implementation_authorized: true
+      implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json
+      implementation_work_package_revision: 2
+      implementation_work_package_sha256: bab6c7fcf0691d15dfb0056712404daa6e67c0046c1c75ca25a1459e9ad9c522
+      historical_implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package-r1.json
+      historical_implementation_work_package_sha256: 712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0
       architecture_requirements:
         independent_reviews: [Builder, Repo-Steward]
         fresh_ci_required: true
@@ -688,13 +702,44 @@ packets:
         local_python_313: 1750-passed
         installed_wheel: passed
         real_pinned_private_create_noop_probe: passed
+      implementation_evidence:
+        preserved_builder_r1: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate.json
+        preserved_builder_r1_sha256: 14070f9dc7985a52dde69ba5074553664bc4823d1ca509ebd9c8c4e51686f6a8
+        preserved_steward_r1: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-review-r1.json
+        preserved_steward_r1_sha256: 43a60a6ce499f86910a1bb95f70faf8be31084018bc556fc65cd724060d6eb5d
+        builder_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate-r2.json
+        builder_r2_sha256: 4b1fb44c43691c92b04f3a0443e18c06308aa27d211f8e810485a69d042939b5
+        steward_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-review-r2.json
+        steward_r2_sha256: 38d49fccb9e02f021cf3b24e200ead2472b163c4aad5aafdd35dff8bb238e081
+        steward_r2_verdict: GO_FOR_ARCHITECT_ACCEPTANCE
+        architect_local_preflight_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-local-acceptance-preflight-r2.json
+        architect_local_preflight_r2_sha256: fc5dcfb9ef2173feb5678eae3d514874a9e42a409e11cdd2664a6ba1c2d018af
+        delivery_candidate_preflight_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate-preflight-r2.json
+        delivery_candidate_preflight_r2_sha256: 8c5744df77f9b79a5cdd4d269311438a8e60349942b70f98e08991a243887dee
+        steward_delivery_r2: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-delivery-review-r2.json
+        steward_delivery_r2_sha256: 6dc1d437af63172a804f23cacb3e3c1c17948df91f77fd5c168894c01261a24a
+        steward_delivery_r2_verdict: CHANGES_REQUIRED_PRECOMMIT
+        builder_r3: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate-r3.json
+        builder_r3_sha256: adfddd0e0f7cf6dd6b6d851af4d43a6c8ccb086fccc62dc4177e06afb558368a
+        source_snapshot_sha256: c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d
+        steward_r3: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-review-r3.json
+        steward_r3_sha256: c27bc1ca7997cdb22f185853efa0ea45a2d3dc00309ca2d4b94f3e5a46eac576
+        steward_r3_verdict: GO_FOR_ARCHITECT_R3_ACCEPTANCE
+        architect_local: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-local-acceptance.json
+        architect_local_sha256: 2bbb6583eff59bad5767b1865447895cd04702b3db3c7829e609c034c4068bd0
+        local_python_312: 1835-passed
+        local_python_313: 1835-passed
+        focused_each_python: 342-passed
+        installed_wheel: passed
+        delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json
       generation_decision: >-
         Base generation revision 1 remains unchanged because this authority emits
         no catalog rows. Any mapper/compiler remains a later versioned release.
     verification:
-      status: first-subrelease-accepted-second-architecture-local-validated
+      status: first-subrelease-accepted-second-implementation-local-accepted
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
       first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
+      second_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json
       fresh_ci_required: true
       architect_acceptance_required: true
       merge_authorized: false

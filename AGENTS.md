@@ -65,12 +65,18 @@ their task; being another Codex agent does not confer Architect authority.
   `acd3821b15e62bce13fa07b82c1665d501f27f67`, bound to Tests run
   `33456016766`. VPKB-001's first pinned transaction-inspect adapter is accepted
   at exact head `17c13f6317416f47d2610240aaf905598131e5bc`, bound to Tests run
-  `33465872376` and its separate Architect acceptance. The current work is the
-  architecture freeze for the next bounded manual-PDF capture dry-run adapter.
-  Its production implementation remains blocked until its exact freeze head has
-  fresh CI, separate Architect acceptance, and an explicit Builder assignment.
-  Staged/code routes, operation results, integrity runtime and retrieval remain
-  outside this subrelease.
+  `33465872376` and its separate Architect acceptance. The manual-PDF capture
+  dry-run architecture is separately accepted at exact head
+  `3ab19eda4f417b96d89a0a50b2ce2c05233a8478`, bound to Tests run
+  `33469912314`. A cached diff-check rejected the first implementation delivery
+  for one blank line at EOF; that 22-path attempt and its empty-index rollback
+  are preserved. The corrected seven-file R3 snapshot
+  `c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`
+  has passed independent R3 review, local Python 3.12/3.13 full suites and an
+  isolated installed-wheel check. It remains a local candidate until an exact
+  implementation commit receives fresh four-job CI and a separate post-CI
+  Architect acceptance. Staged/code routes, operation results, integrity
+  runtime and retrieval remain outside this subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.

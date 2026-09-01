@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import datetime as _datetime
 import hashlib
 import json
 import os
@@ -17,6 +18,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
 
+from video_paper_wiki.capture_contracts import (
+    capture_approval_hash,
+    validate_capture_inspection,
+)
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.resources import read_projection_resource_bytes
 from video_paper_wiki.staging import StagingError, validate_batch_id
@@ -47,6 +52,39 @@ _PLAN_FIELDS = frozenset({
     "schema", "operation_id", "operation_type", "valid", "changed_paths",
     "hashes", "modes", "input_bundle_sha256", "expanded_bundle_sha256",
     "vault_identity", "approval_sha256",
+})
+
+CAPTURE_AUTHORITY_SCHEMA = "video-paper-wiki.upstream-capture-authority.v1"
+CAPTURE_PROFILE_NAME = "claude-obsidian-capture-apply-dry-run-9f8c119-v1"
+CAPTURE_PROFILE_FILE = f"{CAPTURE_PROFILE_NAME}.profile.json"
+CAPTURE_PROFILE_SHA256 = "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6"
+MAX_CAPTURE_ENTRIES = 4096
+_CAPTURE_SOURCE = re.compile(
+    r"inbox/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*\.pdf"
+)
+_OPERATION_ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
+_UTC_SECOND = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z")
+_RESERVED_STEMS = frozenset(
+    {"CON", "PRN", "AUX", "NUL"}
+    | {f"COM{number}" for number in range(1, 10)}
+    | {f"LPT{number}" for number in range(1, 10)}
+)
+_CAPTURE_TOP_CREATE = frozenset({
+    "schema", "status", "items", "operation", "approved_plan_sha256",
+    "generated_at", "approval_hint",
+})
+_CAPTURE_TOP_REUSE = frozenset({"schema", "status", "items", "operation"})
+_CAPTURE_ITEM_FIELDS = frozenset({
+    "schema", "adapter", "source_identity", "source", "stored_path",
+    "would_change", "skip_reason", "execute", "metadata",
+})
+_CAPTURE_METADATA_FIELDS = frozenset({
+    "name", "extension", "size_bytes", "sha256", "kind", "media_type",
+    "detected_by",
+})
+_CAPTURE_OPERATION_FIELDS = frozenset({
+    "schema", "operation_id", "operation_type", "expected_hashes", "writes",
+    "address_requests", "source_manifest_updates",
 })
 
 
@@ -430,12 +468,14 @@ class _ProcessResult:
     stderr: bytes
 
 
-def _run_bounded(argv: list[str], allocation: _Allocation) -> _ProcessResult:
+def _run_bounded(
+    argv: list[str], allocation: _Allocation, *, cwd: Path | None = None,
+) -> _ProcessResult:
     environment = {key: str(allocation.scratch) for key in ("HOME", "TEMP", "TMP", "TMPDIR")}
     try:
         process = subprocess.Popen(
             argv,
-            cwd=allocation.execution,
+            cwd=allocation.execution if cwd is None else cwd,
             env=environment,
             shell=False,
             stdin=subprocess.DEVNULL,
@@ -809,3 +849,640 @@ def validate_upstream_authority(document: object) -> dict[str, object]:
 
     _json_preflight(document)
     return copy.deepcopy(validate_document(document, AUTHORITY_SCHEMA))
+
+
+def _capture_profile() -> tuple[bytes, dict[str, Any]]:
+    raw = read_projection_resource_bytes("catalog", CAPTURE_PROFILE_FILE)
+    if raw is None or _sha(raw) != CAPTURE_PROFILE_SHA256:
+        _fail("UPSTREAM_PIN_MISMATCH", "packaged capture profile differs")
+    value = _strict_json(raw, code="UPSTREAM_PIN_MISMATCH", label="capture profile")
+    if not isinstance(value, dict):
+        _fail("UPSTREAM_PIN_MISMATCH", "capture profile is not an object")
+    files = value.get("verified_files")
+    if (
+        value.get("profile") != CAPTURE_PROFILE_NAME
+        or value.get("git_commit") != UPSTREAM_COMMIT
+        or value.get("git_tree") != UPSTREAM_TREE
+        or value.get("version") != UPSTREAM_VERSION
+        or value.get("source_snapshot_sha256") != SOURCE_SNAPSHOT_SHA256
+        or not isinstance(files, list)
+        or len(files) != 21
+    ):
+        _fail("UPSTREAM_PIN_MISMATCH", "capture profile fields differ")
+    return raw, value
+
+
+def _capture_arguments(
+    source_path: object, operation_id: object, generated_at: object,
+) -> tuple[str, str, str]:
+    if type(source_path) is not str or type(operation_id) is not str or type(generated_at) is not str:
+        _fail("ADAPTER_PATH_INVALID", "capture arguments must be strings")
+    try:
+        encoded = source_path.encode("utf-8")
+    except UnicodeError:
+        _fail("ADAPTER_PATH_INVALID", "source_path is not strict UTF-8")
+    if (
+        not 1 <= len(encoded) <= 1024
+        or _CAPTURE_SOURCE.fullmatch(source_path) is None
+        or any(component in {"", ".", ".."} for component in source_path.split("/"))
+    ):
+        _fail("ADAPTER_PATH_INVALID", "source_path does not match the manual PDF grammar")
+    filename = source_path.rsplit("/", 1)[-1]
+    if len(filename.encode("utf-8")) > 240 or filename.split(".", 1)[0].upper() in _RESERVED_STEMS:
+        _fail("ADAPTER_PATH_INVALID", "source_path filename is not portable")
+    if _OPERATION_ID.fullmatch(operation_id) is None:
+        _fail("ADAPTER_PATH_INVALID", "operation_id does not match its grammar")
+    if _UTC_SECOND.fullmatch(generated_at) is None:
+        _fail("ADAPTER_PATH_INVALID", "generated_at is not an exact UTC second")
+    try:
+        parsed = _datetime.datetime.strptime(generated_at, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        _fail("ADAPTER_PATH_INVALID", "generated_at is not a calendar UTC second")
+    if parsed.strftime("%Y-%m-%dT%H:%M:%SZ") != generated_at:
+        _fail("ADAPTER_PATH_INVALID", "generated_at is not a calendar UTC second")
+    return source_path, operation_id, generated_at
+
+
+def _capture_disjoint(upstream: Path, vault: Path) -> None:
+    if _contains(upstream, vault) or _contains(vault, upstream):
+        _fail("ADAPTER_PATH_INVALID", "upstream_root and vault_root must be disjoint")
+
+
+def _optional_dir(name: str, *, dir_fd: int, code: str) -> int | None:
+    try:
+        info = os.stat(name, dir_fd=dir_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        _fail(code, "cannot inspect an optional no-follow directory")
+    if not stat.S_ISDIR(info.st_mode) or stat.S_ISLNK(info.st_mode):
+        _fail(code, "optional Vault component is not a no-follow directory")
+    return _open_dir(name, dir_fd=dir_fd, code=code)
+
+
+def _capture_layout(vault: Path) -> None:
+    root_fd = _open_dir(vault, code="UPSTREAM_VAULT_INVALID")
+    owned = [root_fd]
+    try:
+        for name in (".obsidian", "wiki", ".raw", "inbox"):
+            owned.append(_open_dir(name, dir_fd=root_fd, code="UPSTREAM_VAULT_INVALID"))
+        meta_fd = _optional_dir(".vault-meta", dir_fd=root_fd, code="UPSTREAM_VAULT_INVALID")
+        if meta_fd is not None:
+            owned.append(meta_fd)
+            capture_fd = _optional_dir("capture", dir_fd=meta_fd, code="UPSTREAM_VAULT_INVALID")
+            if capture_fd is not None:
+                owned.append(capture_fd)
+                try:
+                    os.stat("config.json", dir_fd=capture_fd, follow_symlinks=False)
+                except FileNotFoundError:
+                    pass
+                except OSError:
+                    _fail("UPSTREAM_VAULT_INVALID", "cannot inspect capture config")
+                else:
+                    _fail("UPSTREAM_VAULT_INVALID", "capture config must be absent")
+    finally:
+        for descriptor in reversed(owned):
+            os.close(descriptor)
+
+
+def _capture_fingerprint(
+    label: str, info: os.stat_result,
+) -> tuple[str, int, int, int, int, int, int]:
+    return (
+        label, info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode),
+        stat.S_IMODE(info.st_mode), info.st_size, info.st_mtime_ns,
+    )
+
+
+@dataclass(frozen=True)
+class _CaptureSnapshot:
+    payload: bytes
+    digest: str
+    source_name: str
+    stored_path: str
+    siblings: tuple[tuple[str, str, str, int], ...]
+    fingerprints: tuple[tuple[str, int, int, int, int, int, int], ...]
+    captured_entry_count: int
+
+
+def _capture_source(
+    root_fd: int, source_path: str,
+) -> tuple[bytes, list[tuple[str, int, int, int, int, int, int]]]:
+    parts = source_path.split("/")
+    current = _open_dir(parts[0], dir_fd=root_fd, code="CAPTURE_SNAPSHOT_INVALID")
+    owned = [current]
+    fingerprints = [_capture_fingerprint("source-parent/inbox", os.fstat(current))]
+    try:
+        for index, component in enumerate(parts[1:-1], start=1):
+            current = _open_dir(component, dir_fd=current, code="CAPTURE_SNAPSHOT_INVALID")
+            owned.append(current)
+            fingerprints.append(_capture_fingerprint(
+                "source-parent/" + "/".join(parts[:index + 1]), os.fstat(current),
+            ))
+        descriptor = _open_file(parts[-1], dir_fd=current, code="CAPTURE_SNAPSHOT_INVALID")
+        try:
+            before = os.fstat(descriptor)
+            payload = _read_fd(
+                descriptor, MAX_CONTENT_BYTES,
+                limit_code="UPSTREAM_LIMIT_EXCEEDED",
+                mismatch_code="CAPTURE_SNAPSHOT_INVALID", label="capture source",
+            )
+            after = os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+    finally:
+        for descriptor in reversed(owned):
+            os.close(descriptor)
+    if _capture_fingerprint("source", before) != _capture_fingerprint("source", after):
+        _fail("CAPTURE_SNAPSHOT_INVALID", "capture source changed while reading")
+    if len(payload) < 5 or not payload.startswith(b"%PDF-"):
+        _fail("CAPTURE_SNAPSHOT_INVALID", "capture source is not a bounded PDF")
+    fingerprints.append(_capture_fingerprint("source", after))
+    return payload, fingerprints
+
+
+def _captured_snapshot(
+    raw_fd: int, digest: str,
+) -> tuple[
+    tuple[tuple[str, str, str, int], ...],
+    int,
+    list[tuple[str, int, int, int, int, int, int]],
+]:
+    try:
+        info = os.stat("captured", dir_fd=raw_fd, follow_symlinks=False)
+    except FileNotFoundError:
+        return (), 0, []
+    except OSError:
+        _fail("CAPTURE_SNAPSHOT_INVALID", "cannot inspect captured directory")
+    if not stat.S_ISDIR(info.st_mode) or stat.S_ISLNK(info.st_mode):
+        _fail("CAPTURE_SNAPSHOT_INVALID", "captured path is not a no-follow directory")
+    captured_fd = _open_dir("captured", dir_fd=raw_fd, code="CAPTURE_SNAPSHOT_INVALID")
+    try:
+        directory_info = os.fstat(captured_fd)
+        count = 0
+        matches: list[tuple[str, str, str, int]] = []
+        try:
+            entries = os.scandir(captured_fd)
+        except OSError:
+            _fail("CAPTURE_SNAPSHOT_INVALID", "cannot enumerate captured directory")
+        with entries:
+            for entry in entries:
+                count += 1
+                if count > MAX_CAPTURE_ENTRIES:
+                    _fail("UPSTREAM_LIMIT_EXCEEDED", "captured directory exceeds its entry limit")
+                name = entry.name
+                if not name.startswith(digest + "."):
+                    continue
+                relative = ".raw/captured/" + name
+                matched = _CAPTURED.fullmatch(relative)
+                if matched is None or matched.group(1) != digest:
+                    _fail("CAPTURE_SNAPSHOT_INVALID", "matching captured name is malformed")
+                if matches:
+                    _fail("CAPTURE_SNAPSHOT_INVALID", "multiple matching captured files exist")
+                descriptor = _open_file(name, dir_fd=captured_fd, code="CAPTURE_SNAPSHOT_INVALID")
+                try:
+                    before = os.fstat(descriptor)
+                    payload = _read_fd(
+                        descriptor, MAX_CONTENT_BYTES,
+                        limit_code="UPSTREAM_LIMIT_EXCEEDED",
+                        mismatch_code="CAPTURE_SNAPSHOT_INVALID", label="captured sibling",
+                    )
+                    after = os.fstat(descriptor)
+                finally:
+                    os.close(descriptor)
+                if (
+                    _capture_fingerprint("sibling", before) != _capture_fingerprint("sibling", after)
+                    or _sha(payload) != digest
+                ):
+                    _fail("CAPTURE_SNAPSHOT_INVALID", "captured sibling bytes changed or differ")
+                matches.append((relative, "regular", digest, stat.S_IMODE(after.st_mode)))
+        fingerprints = [_capture_fingerprint("captured", directory_info)]
+        if matches:
+            fingerprints.append(_capture_fingerprint("captured-sibling", after))
+        return tuple(matches), count, fingerprints
+    finally:
+        os.close(captured_fd)
+
+
+def _capture_snapshot(vault: Path, source_path: str) -> _CaptureSnapshot:
+    root_fd = _open_dir(vault, code="CAPTURE_SNAPSHOT_INVALID")
+    owned = [root_fd]
+    try:
+        fingerprints = [_capture_fingerprint("vault", os.fstat(root_fd))]
+        fixed: dict[str, int] = {}
+        for name in (".obsidian", "wiki", ".raw", "inbox"):
+            descriptor = _open_dir(name, dir_fd=root_fd, code="CAPTURE_SNAPSHOT_INVALID")
+            owned.append(descriptor)
+            fixed[name] = descriptor
+            fingerprints.append(_capture_fingerprint(name, os.fstat(descriptor)))
+        meta_fd = _optional_dir(".vault-meta", dir_fd=root_fd, code="CAPTURE_SNAPSHOT_INVALID")
+        if meta_fd is not None:
+            owned.append(meta_fd)
+            fingerprints.append(_capture_fingerprint(".vault-meta", os.fstat(meta_fd)))
+            capture_fd = _optional_dir("capture", dir_fd=meta_fd, code="CAPTURE_SNAPSHOT_INVALID")
+            if capture_fd is not None:
+                owned.append(capture_fd)
+                fingerprints.append(_capture_fingerprint(".vault-meta/capture", os.fstat(capture_fd)))
+                try:
+                    os.stat("config.json", dir_fd=capture_fd, follow_symlinks=False)
+                except FileNotFoundError:
+                    pass
+                except OSError:
+                    _fail("CAPTURE_SNAPSHOT_INVALID", "cannot inspect capture config")
+                else:
+                    _fail("CAPTURE_SNAPSHOT_INVALID", "capture config appeared")
+        payload, source_fingerprints = _capture_source(root_fd, source_path)
+        fingerprints.extend(source_fingerprints)
+        digest = _sha(payload)
+        siblings, entry_count, captured_fingerprints = _captured_snapshot(fixed[".raw"], digest)
+        fingerprints.extend(captured_fingerprints)
+    finally:
+        for descriptor in reversed(owned):
+            os.close(descriptor)
+    stored_path = siblings[0][0] if siblings else f".raw/captured/{digest}.pdf"
+    return _CaptureSnapshot(
+        payload, digest, source_path.rsplit("/", 1)[-1], stored_path, siblings,
+        tuple(fingerprints), entry_count,
+    )
+
+
+@dataclass(frozen=True)
+class _CaptureAllocationBaseline:
+    directories: tuple[tuple[str, int, int, int], ...]
+
+
+def _capture_allocation_baseline(
+    allocation: _Allocation, *, code: str,
+) -> _CaptureAllocationBaseline:
+    values: list[tuple[str, int, int, int]] = []
+    try:
+        for label, path in (
+            ("root", allocation.root),
+            ("execution", allocation.execution),
+            ("scratch", allocation.scratch),
+        ):
+            info = path.lstat()
+            mode = stat.S_IMODE(info.st_mode)
+            if not stat.S_ISDIR(info.st_mode) or stat.S_ISLNK(info.st_mode) or mode != 0o700:
+                _fail(code, "private capture directory shape or mode changed")
+            values.append((label, info.st_dev, info.st_ino, mode))
+    except ContractError:
+        raise
+    except OSError:
+        _fail(code, "cannot authenticate private capture directories")
+    return _CaptureAllocationBaseline(tuple(values))
+
+
+def _verify_capture_allocation(
+    allocation: _Allocation,
+    sources: Mapping[str, bytes],
+    baseline: _CaptureAllocationBaseline,
+    *,
+    code: str,
+) -> None:
+    if _capture_allocation_baseline(allocation, code=code) != baseline:
+        _fail(code, "private capture directory identity changed")
+    _verify_allocation(allocation, sources, code=code)
+    try:
+        if any(allocation.scratch.iterdir()):
+            _fail(code, "private scratch directory contains entries")
+    except ContractError:
+        raise
+    except OSError:
+        _fail(code, "cannot verify private scratch directory")
+
+
+def _capture_postcheck(
+    allocation: _Allocation,
+    sources: Mapping[str, bytes],
+    upstream: Path,
+    profile: Mapping[str, Any],
+    vault: Path,
+    source_path: str,
+    before: _CaptureSnapshot,
+    allocation_baseline: _CaptureAllocationBaseline,
+) -> None:
+    try:
+        _verify_capture_allocation(
+            allocation, sources, allocation_baseline, code="UPSTREAM_CONTRACT_MISMATCH",
+        )
+        _capture_profile()
+        if _authenticate(upstream, profile) != sources:
+            raise ValueError("source bytes changed")
+        if _capture_snapshot(vault, source_path) != before:
+            raise ValueError("Vault snapshot changed")
+    except Exception:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "authenticated capture inputs changed")
+
+
+def _capture_success(
+    result: _ProcessResult,
+    snapshot: _CaptureSnapshot,
+    source_path: str,
+    operation_id: str,
+    generated_at: str,
+    vault: Path,
+) -> dict[str, Any]:
+    _failure(result)
+    if result.stderr or not result.stdout:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture success transport differs")
+    value = _strict_json(
+        result.stdout, code="UPSTREAM_CONTRACT_MISMATCH", label="capture stdout",
+    )
+    if not isinstance(value, dict):
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture result is not an object")
+    reuse = bool(snapshot.siblings)
+    if set(value) != (_CAPTURE_TOP_REUSE if reuse else _CAPTURE_TOP_CREATE):
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture result fields differ")
+    if value.get("schema") != "claude-obsidian.capture-plan.v1":
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture result schema differs")
+    items = value.get("items")
+    operation = value.get("operation")
+    if (
+        type(items) is not list or len(items) != 1 or type(items[0]) is not dict
+        or set(items[0]) != _CAPTURE_ITEM_FIELDS or type(operation) is not dict
+        or set(operation) != _CAPTURE_OPERATION_FIELDS
+    ):
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture item or operation shape differs")
+    item = items[0]
+    metadata = item.get("metadata")
+    if type(metadata) is not dict or set(metadata) != _CAPTURE_METADATA_FIELDS:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture metadata shape differs")
+    expected_item = {
+        "schema": "claude-obsidian.filesystem-capture-plan.v1",
+        "adapter": "filesystem",
+        "source_identity": snapshot.digest,
+        "source": source_path,
+        "stored_path": snapshot.stored_path,
+        "would_change": not reuse,
+        "skip_reason": "content-unchanged" if reuse else None,
+        "execute": False,
+        "metadata": {
+            "name": snapshot.source_name,
+            "extension": ".pdf",
+            "size_bytes": len(snapshot.payload),
+            "sha256": snapshot.digest,
+            "kind": "pdf",
+            "media_type": "application/pdf",
+            "detected_by": "magic",
+        },
+    }
+    if item != expected_item:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture item differs")
+    if (
+        operation.get("schema") != "claude-obsidian.transaction.v1"
+        or operation.get("operation_id") != operation_id
+        or operation.get("operation_type") != "capture"
+        or operation.get("address_requests") != []
+        or operation.get("source_manifest_updates") != {}
+    ):
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture operation differs")
+    if reuse:
+        if (
+            value.get("status") != "noop"
+            or operation.get("expected_hashes") != {}
+            or operation.get("writes") != []
+        ):
+            _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture noop differs")
+        approval: str | None = None
+        observed_time: str | None = None
+        expected_path: str | None = None
+        portable_write: dict[str, Any] | None = None
+    else:
+        approval = value.get("approved_plan_sha256")
+        writes = operation.get("writes")
+        expected_hashes = operation.get("expected_hashes")
+        if (
+            value.get("status") != "dry-run"
+            or type(approval) is not str or _HASH.fullmatch(approval) is None
+            or value.get("generated_at") != generated_at
+            or value.get("approval_hint")
+            != "review the operation, then repeat the exact pinned command with "
+               f"--approved-plan-sha256 {approval} --apply"
+            or expected_hashes != {snapshot.stored_path: None}
+            or type(writes) is not list or len(writes) != 1
+            or type(writes[0]) is not dict
+            or set(writes[0]) != {"path", "mode", "content_file", "sha256"}
+            or writes[0] != {
+                "path": snapshot.stored_path,
+                "mode": "create",
+                "content_file": str(vault / source_path),
+                "sha256": snapshot.digest,
+            }
+        ):
+            _fail("UPSTREAM_CONTRACT_MISMATCH", "pinned capture dry-run differs")
+        observed_time = generated_at
+        expected_path = snapshot.stored_path
+        portable_write = {
+            "path": snapshot.stored_path, "mode": "create", "sha256": snapshot.digest,
+        }
+    return {
+        "status": value["status"],
+        "item": copy.deepcopy(item),
+        "operation": {
+            "schema": operation["schema"],
+            "operation_id": operation["operation_id"],
+            "operation_type": operation["operation_type"],
+            "expected_path": expected_path,
+            "write": portable_write,
+        },
+        "approved_plan_sha256": approval,
+        "generated_at": observed_time,
+    }
+
+
+def _capture_inspection(
+    snapshot: _CaptureSnapshot,
+    source_path: str,
+    operation_id: str,
+    approval: str | None,
+) -> dict[str, Any]:
+    inspection: dict[str, Any] = {
+        "schema": "video-paper-wiki.capture-inspection.v1",
+        "route": "manual-inbox",
+        "media_type": "application/pdf",
+        "payload": {"sha256": snapshot.digest, "size_bytes": len(snapshot.payload)},
+        "source_path": source_path,
+        "proposal_sha256": None,
+        "stored_path": snapshot.stored_path,
+        "source_identity": snapshot.digest,
+        "siblings": [
+            {"path": path, "kind": kind, "sha256": digest, "mode": mode}
+            for path, kind, digest, mode in snapshot.siblings
+        ],
+        "would_change": not snapshot.siblings,
+        "operation_id": operation_id if not snapshot.siblings else None,
+        "upstream_plan_sha256": approval if not snapshot.siblings else None,
+        "approval_hash": "0" * 64,
+    }
+    inspection["approval_hash"] = capture_approval_hash(inspection)
+    return inspection
+
+
+def _capture_authority(
+    source_path: str,
+    operation_id: str,
+    generated_at: str,
+    snapshot: _CaptureSnapshot,
+    stdout: bytes,
+    observation: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "schema": CAPTURE_AUTHORITY_SCHEMA,
+        "profile": CAPTURE_PROFILE_NAME,
+        "upstream": {
+            "distribution": "claude-obsidian",
+            "version": UPSTREAM_VERSION,
+            "commit": UPSTREAM_COMMIT,
+            "tree": UPSTREAM_TREE,
+            "tracked_and_untracked_clean": True,
+            "profile_sha256": CAPTURE_PROFILE_SHA256,
+            "source_snapshot_sha256": SOURCE_SNAPSHOT_SHA256,
+        },
+        "request": {
+            "route": "manual-inbox",
+            "source_path": source_path,
+            "operation_id": operation_id,
+            "generated_at": generated_at,
+            "budget": {
+                "max_items": 1,
+                "max_total_bytes": MAX_CONTENT_BYTES,
+                "max_file_bytes": MAX_CONTENT_BYTES,
+                "max_captured_directory_entries": MAX_CAPTURE_ENTRIES,
+            },
+        },
+        "transport": {"stdout_sha256": _sha(stdout), "stdout_size_bytes": len(stdout)},
+        "observation": observation,
+        "inspection": _capture_inspection(
+            snapshot, source_path, operation_id, observation["approved_plan_sha256"],
+        ),
+    }
+
+
+def _check_upstream_capture_authority(document: Mapping[str, Any]) -> None:
+    """Cross-field checks for an admitted capture authority object."""
+
+    request = document["request"]
+    observation = document["observation"]
+    item = observation["item"]
+    operation = observation["operation"]
+    inspection = document["inspection"]
+    try:
+        validate_capture_inspection(inspection)
+    except ContractError:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "capture authority inspection differs")
+    digest = inspection["payload"]["sha256"]
+    size = inspection["payload"]["size_bytes"]
+    create_target = f".raw/captured/{digest}.pdf"
+    target = inspection["stored_path"]
+    common = (
+        request["route"] == "manual-inbox"
+        and item["source"] == request["source_path"] == inspection["source_path"]
+        and item["source_identity"] == inspection["source_identity"] == digest
+        and item["stored_path"] == inspection["stored_path"] == target
+        and item["metadata"]["name"] == request["source_path"].rsplit("/", 1)[-1]
+        and item["metadata"]["sha256"] == digest
+        and item["metadata"]["size_bytes"] == size
+        and item["would_change"] == inspection["would_change"]
+        and operation["operation_id"] == request["operation_id"]
+        and capture_approval_hash(inspection) == inspection["approval_hash"]
+    )
+    if not common:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "capture authority correlations differ")
+    if observation["status"] == "dry-run":
+        valid = (
+            target == create_target
+            and item["stored_path"] == create_target
+            and inspection["siblings"] == []
+            and item["would_change"] is True and item["skip_reason"] is None
+            and operation["expected_path"] == target
+            and operation["write"] == {"path": target, "mode": "create", "sha256": digest}
+            and observation["approved_plan_sha256"] == inspection["upstream_plan_sha256"]
+            and observation["approved_plan_sha256"] is not None
+            and observation["generated_at"] == request["generated_at"]
+            and inspection["operation_id"] == request["operation_id"]
+        )
+    else:
+        sibling = inspection["siblings"][0] if len(inspection["siblings"]) == 1 else None
+        valid = (
+            sibling is not None and target == sibling["path"]
+            and sibling["kind"] == "regular" and sibling["sha256"] == digest
+            and item["would_change"] is False and item["skip_reason"] == "content-unchanged"
+            and operation["expected_path"] is None and operation["write"] is None
+            and observation["approved_plan_sha256"] is None
+            and observation["generated_at"] is None
+            and inspection["operation_id"] is None
+            and inspection["upstream_plan_sha256"] is None
+        )
+    if not valid:
+        _fail("UPSTREAM_CONTRACT_MISMATCH", "capture authority branch differs")
+
+
+def validate_upstream_capture_authority(document: object) -> dict[str, object]:
+    """Validate capture authority data and return a deep independent copy."""
+
+    _json_preflight(document)
+    return copy.deepcopy(validate_document(document, CAPTURE_AUTHORITY_SCHEMA))
+
+
+def inspect_pinned_manual_pdf_capture(
+    *,
+    source_path: str,
+    operation_id: str,
+    generated_at: str,
+    upstream_root: Path | str,
+    vault_root: Path | str,
+) -> dict[str, object]:
+    """Inspect one explicit manual PDF capture through the pinned public CLI."""
+
+    source_path, operation_id, generated_at = _capture_arguments(
+        source_path, operation_id, generated_at,
+    )
+    upstream = _directory_argument(upstream_root, "upstream_root")
+    vault = _directory_argument(vault_root, "vault_root")
+    _capture_disjoint(upstream, vault)
+    _capture_layout(vault)
+    _raw_profile, profile = _capture_profile()
+    sources = _authenticate(upstream, profile)
+    allocation = _make_allocation(sources, (upstream, vault))
+    try:
+        allocation_baseline = _capture_allocation_baseline(
+            allocation, code="UPSTREAM_PIN_MISMATCH",
+        )
+        _verify_capture_allocation(
+            allocation, sources, allocation_baseline, code="UPSTREAM_PIN_MISMATCH",
+        )
+        snapshot = _capture_snapshot(vault, source_path)
+        argv = [
+            sys.executable, "-I", "-B", "-X", "utf8",
+            str(allocation.execution / "scripts" / "claude-obsidian.py"),
+            "capture", "apply", "--vault", str(vault), "--inbox", "inbox",
+            "--max-items", "1", "--max-total-bytes", str(MAX_CONTENT_BYTES),
+            "--max-file-bytes", str(MAX_CONTENT_BYTES),
+            "--operation-id", operation_id, "--generated-at", generated_at,
+            source_path,
+        ]
+        try:
+            result = _run_bounded(argv, allocation, cwd=allocation.scratch)
+        except ContractError:
+            _capture_postcheck(
+                allocation, sources, upstream, profile, vault, source_path, snapshot,
+                allocation_baseline,
+            )
+            raise
+        _capture_postcheck(
+            allocation, sources, upstream, profile, vault, source_path, snapshot,
+            allocation_baseline,
+        )
+        observation = _capture_success(
+            result, snapshot, source_path, operation_id, generated_at, vault,
+        )
+        authority = _capture_authority(
+            source_path, operation_id, generated_at, snapshot, result.stdout, observation,
+        )
+        try:
+            return validate_upstream_capture_authority(authority)
+        except ContractError:
+            _fail("UPSTREAM_CONTRACT_MISMATCH", "constructed capture authority differs")
+    finally:
+        _cleanup(allocation)

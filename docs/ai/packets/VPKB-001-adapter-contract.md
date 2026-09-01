@@ -3,7 +3,7 @@
 - Parent: VPKB-001.
 - Ordered slice: `adapter-contract` before `integrity-runtime`.
 - Current subrelease: `pinned-manual-pdf-capture-dry-run-v1`.
-- Current architecture baseline: `17c13f6317416f47d2610240aaf905598131e5bc`.
+- Current implementation baseline: `3ab19eda4f417b96d89a0a50b2ce2c05233a8478`.
 - Original packet baseline: `acd3821b15e62bce13fa07b82c1665d501f27f67`.
 - Architect: Codex / `gpt-5.6-sol` / `ultra`.
 - Builder and Repo Steward: Codex subagents / `gpt-5.6-sol` / `medium`.
@@ -68,42 +68,52 @@ operation-result handling, full-ledger/managed-prefix fixtures, and remaining
 limits/pinned BM25 compatibility. The ordered `integrity-runtime` slice remains
 blocked until every adapter-contract subrelease is accepted.
 
-## Current architecture-freeze release
+## Accepted architecture and current implementation delivery
 
-This architecture candidate may contain only:
+The 24-path architecture freeze is accepted at exact head
+`3ab19eda4f417b96d89a0a50b2ce2c05233a8478`, tree
+`9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca`. Fresh run `33469912314`
+tested merge preview `ea86e96fbbbcaf6fbda360679c6e6d209a6151b7`; all four Linux/macOS ×
+Python 3.12/3.13 jobs passed 1750 tests. The separate decision is
+`ACCEPTED_VPKB_001_MANUAL_PDF_CAPTURE_DRY_RUN_ARCHITECTURE_AT_EXACT_HEAD`.
+Its three post-CI records are byte-fixed inputs carried by this implementation
+delivery.
 
-- the three byte-fixed first-subrelease post-CI records named above;
-- status-only updates to `AGENTS.md`, this packet, task index, team handoff and
-  the verification README;
-- the new normative contract, closed authority schema, one valid/one invalid
-  fixture and independent static command profile;
-- title-only schema-registry admission and minimum schema count/closed-object
-  enumeration edits;
-- current-subrelease architecture evidence and independent Builder/Steward
-  specification reviews.
+The revision-1 implementation work package fixed a 22-path delivery. Builder's
+R1 candidate and Repo Steward's `CHANGES_REQUIRED` report remain preserved. R2
+fixed the semantic blockers and independently passed, but its exact staged
+delivery was rejected because cached diff-check found one blank line at EOF.
+The R2 work package, local acceptance, manifest, Steward rejection and clean
+index rollback remain immutable history.
 
-It contains no production adapter behavior, old v1 contract/schema/profile/
-fixture byte edit, CLI/entry-point,
-dependency, lock, workflow, vendor, Vault, facade, capture helper, mapper,
-writer, audit, index, retrieval, catalog-row, seed, overlay, taxonomy or
-generation-profile change. `base-catalog-v1` stays revision 1 because no catalog
-rows are emitted. A future mapper/compiler must create a new generation profile
-revision and bind every consumed authority digest.
+Revision 2 authorizes only removal of that final one-byte LF plus new R3
+evidence. The corrected R3 binds the same seven production/test files at snapshot
+`c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`.
+Repo Steward proved the exact byte relation, replayed the three private-directory
+and matching-sibling identity replacements and returned
+`GO_FOR_ARCHITECT_R3_ACCEPTANCE`.
 
-After independent Builder and Repo Steward reviews return GO, Architect runs
-focused schema/profile and real-pinned-CLI probes plus full local Python
-3.12/3.13 and installed-wheel validation. Repo Steward then checks the exact
-self-excluding manifest, stages only named paths, commits normally to the
-existing PR branch and pushes without changing PR state. The new head requires
-fresh Linux/macOS × Python 3.12/3.13 merge-ref CI and a separate Architect
-architecture-freeze acceptance. Run `33465872376` is historical evidence for
-`17c13f`; it cannot validate the successor head.
+Architect acceptance replayed 342 focused tests and the complete 1835-test suite
+on Python 3.12.14 and 3.13.13, real pinned create/noop controls, the four identity
+replacement attacks and an offline installed-wheel smoke from outside the
+checkout. The candidate is locally accepted. Repo Steward must now verify the
+self-excluding delivery manifest, stage exactly the 28 named paths, commit and
+push without changing PR state. The implementation head then requires fresh
+four-job merge-ref CI and a separate post-CI exact-head Architect acceptance.
 
-## Future Builder implementation work package
+No production file outside the two named adapter/contract modules changed. Old
+v1 bytes, the new frozen contract/schema/profile/fixtures, CLI/entry-point,
+dependencies, lock, workflow, vendor, real Vault, facade, mapper, writer, audit,
+index, retrieval, catalog rows, seed, overlays, taxonomy and generation profile
+remain unchanged. `base-catalog-v1` stays revision 1 because no catalog rows are
+emitted.
 
-Production work remains blocked until Architect names the accepted freeze head,
-contract/profile/schema SHA-256 values, current PR base, and exact allowed paths.
-Once released, Builder is the only main-code writer and may use only:
+## Builder implementation work package
+
+The accepted architecture head, contract/profile/schema hashes, PR base and
+exact write scope are frozen in the revision-2 implementation work package;
+revision 1 is preserved byte-for-byte as preflight history.
+Builder was the only main-code writer and used only:
 
 - `src/video_paper_wiki/upstream_adapter.py`;
 - title-scoped semantic dispatch in `src/video_paper_wiki/contracts.py`;

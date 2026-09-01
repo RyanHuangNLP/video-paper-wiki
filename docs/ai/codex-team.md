@@ -89,9 +89,17 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
   `33465872376` 的 Linux/macOS × Python 3.12/3.13 四项各 1747 通过，实际
   checkout 是合并预览 `dd6954f1c2368d83cd6d5f1d5057ed4d20acb327`，随后
   Architect 签发 `ACCEPTED_VPKB_001_PINNED_READ_ONLY_ADAPTER_V1_AT_EXACT_HEAD`。
-- 上述实现的 `ci-observation.json`、`merge-parents.json`、
-  `architect-acceptance.json` 三份 post-CI 记录仍保持原字节，交由当前后继
-  架构提交持久化。旧 run 只证明 `17c13f`，不能继承给新 head。
+- 第二个有界子版本的架构已在精确 head
+  `3ab19eda4f417b96d89a0a50b2ce2c05233a8478` 接受。Tests run
+  `33469912314` 的四项各 1750 通过，合并预览为
+  `ea86e96fbbbcaf6fbda360679c6e6d209a6151b7`。三份架构 post-CI 记录
+  保持原字节，交由当前实现提交持久化；该 run 只证明架构 head。
+- Builder 的 R1 因四类身份替换与覆盖不足被拒绝；R2 修正语义后获独立 GO，
+  但最终暂存审计因 helper 末尾空白行而拒绝，22 路径尝试、回滚和旧证据均已保留。
+  唯一一字节修正后的 R3 七文件快照
+  `c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`
+  已获 Repo Steward 独立 R3 GO，并在 Python 3.12/3.13 各通过 342 项 focused
+  和 1835 项全量测试及离线 wheel 验收。它仍是本地候选，新 head 必须另跑 CI。
 - 目录与 overlays 继续冻结为 67；保留所有既有未跟踪计划、`inbox/`、`tools/`
   和 `.DS_Store`。
 
@@ -105,11 +113,12 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 它使用独立 command profile；即使复用相同 21 文件 snapshot，也不扩宽已经接受的
 transaction-inspect profile。
 
-当前只做架构冻结：新契约、schema、profile、valid/invalid fixture、title-only registry、
-状态和精确证据。生产 adapter 继续阻塞，直到该架构 head 经新四项 merge-ref CI 和单独
-Architect 验收，再由 Builder 接收精确 allowed paths。此阶段不允许 capture apply、
-staged/code route、operation result、ledger/integrity、vendor/dependency/workflow 或真实 Vault
-变更。
+当前进入精确实现交付：只提交 revision-2 工作包允许的两个生产文件、五个测试/辅助文件、
+保存的 R1/R2/R3 与 preflight 证据、架构 post-CI 记录和状态/验收文件，共 28 个精确路径。
+实现只调用公开 `capture apply` 的默认
+dry-run，并在私有执行树内完成只读观察；不授权真正 apply。提交后仍需新的四项
+merge-ref CI 和单独的精确 head Architect 验收。此阶段不允许 staged/code route、
+operation result、ledger/integrity、vendor/dependency/workflow 或真实 Vault 变更。
 
 `base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成
 catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation profile
@@ -117,8 +126,8 @@ revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-001 仍�
 `adapter-contract` → `integrity-runtime` 顺序完成；首个子版本通过不代表整个 slice 或
 VPKB-001 完成。
 
-保持同一 PR 中的单业务写者：当前 Architect 写架构，Builder/Steward 只读独立审查；
-实现放行后才切换 Builder 为主代码写者，Steward 串行处理 Git/CI。每次审查以
+保持同一 PR 中的单业务写者：Builder 的实现字节已经冻结，Architect 只写状态与验收，
+Steward 独立核验后串行处理 Git/CI。每次审查以
 `packet_base_sha..candidate_head_sha` 为本包增量，
 同时检查跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动
 覆盖以 `integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。

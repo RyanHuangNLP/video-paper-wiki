@@ -59,23 +59,33 @@ accepted at exact head `17c13f6317416f47d2610240aaf905598131e5bc`, fresh run
 and a separate post-CI Architect decision. Its three post-CI records are carried
 unchanged by the next architecture delivery.
 
-The `manual-pdf-capture-dry-run/` subdirectory is reserved for the second
-bounded subrelease's architecture reviews, freeze manifest, CI observation and
-later implementation evidence. It contains the revision-3 architecture work
-package; preserved R1 blocker reports; preserved R2 GO reports; final
-exact-state Builder and Repo Steward reviews; the Architect freeze; and the
-self-excluding freeze manifest. Its contract is
+The `manual-pdf-capture-dry-run/` subdirectory contains the second bounded
+subrelease's architecture and implementation evidence. Its revision-3
+architecture work package, preserved blocker/GO reviews, freeze manifest and
+post-CI records bind the accepted architecture head
+`3ab19eda4f417b96d89a0a50b2ce2c05233a8478`, merge preview
+`ea86e96fbbbcaf6fbda360679c6e6d209a6151b7` and run `33469912314`. Its
+contract is
 `docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md`; its schema and
 profile are `video-paper-wiki.upstream-capture-authority.v1` and
-`claude-obsidian-capture-apply-dry-run-9f8c119-v1`. The current exact candidate
-passed 1750 tests on local Python 3.12 and 3.13, an isolated installed-wheel
-smoke, and real pinned create/noop dry-run probes in disposable private Vaults.
-Production remains blocked until the architecture is committed, that exact
-head receives fresh four-job CI, and a separate Architect acceptance is
-persisted.
+`claude-obsidian-capture-apply-dry-run-9f8c119-v1`.
+
+Its `implementation/` directory preserves the rejected R1 candidate/review and
+the R2 candidate/review. The first exact 22-path R2 delivery was also rejected
+when cached diff-check found one blank line at EOF; its revision-1 work package,
+local acceptance, manifest, Steward rejection and empty-index rollback are kept
+as history. Revision 2 authorizes only that one-byte normalization plus new R3
+reviews. The corrected seven-file source snapshot
+`c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`
+passed 342 focused checks and 1835 complete tests on both local Python 3.12 and
+3.13, four real-child identity-replacement attacks, real pinned create/noop
+controls, independent Repo Steward R3 review and an isolated offline
+installed-wheel smoke. The final self-excluding manifest covers 28 exact paths.
+It remains local-only until the exact implementation commit receives fresh
+four-job CI and a separate post-CI Architect acceptance.
 
 Local, wheel, independent review and remote CI observations remain distinct.
-Passing this first bounded subrelease will not complete the later
+Accepting this second bounded subrelease will not complete the later
 `integrity-runtime` slice or all of VPKB-001. No record here authorizes
 apply/recover/admin, a real Vault, network/models, PR readiness, merge,
 auto-merge or a human gate.

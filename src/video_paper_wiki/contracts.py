@@ -802,6 +802,10 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
         from video_paper_wiki.upstream_adapter import _check_upstream_authority
 
         _check_upstream_authority(document)
+    elif schema_name == "video-paper-wiki.upstream-capture-authority.v1":
+        from video_paper_wiki.upstream_adapter import _check_upstream_capture_authority
+
+        _check_upstream_capture_authority(document)
     elif schema_name == "video-paper-wiki.ingest-plan.v1":
         _check_plan_object(document, schema_name)
     elif schema_name == "video-paper-wiki.prepared.v1":
@@ -874,6 +878,7 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
         "video-paper-wiki.transaction-facade.v1",
         "video-paper-wiki.operation-head.v1",
         "video-paper-wiki.upstream-authority.v1",
+        "video-paper-wiki.upstream-capture-authority.v1",
     }:
         from video_paper_wiki.transaction_contracts import _json_preflight
 
@@ -887,6 +892,7 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             "video-paper-wiki.transaction-facade.v1",
             "video-paper-wiki.operation-head.v1",
             "video-paper-wiki.upstream-authority.v1",
+            "video-paper-wiki.upstream-capture-authority.v1",
         }:
             raise
         raise _schema_error(
