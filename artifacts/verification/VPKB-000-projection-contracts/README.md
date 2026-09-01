@@ -4,7 +4,9 @@ This directory records independent focused review, earlier locator feasibility
 investigations, the failed first full-suite attempt and successful corrected
 local verification. Those historical records are not candidate-CI acceptance;
 the later runtime-only CI and Architect decision are separate files described
-below. VPKB-000, the complete projection packet, VPKB-001 and human gates remain open.
+below. Base-foundation is now separately accepted at its exact implementation head;
+VPKB-000, the complete projection packet, VPKB-001 and human gates remain open until
+the closure metadata successor receives fresh CI and a whole-packet decision.
 
 `independent-results.json` records the exact eight reviewed runtime file hashes,
 frozen runtime revision 1 hash, commands, process exit and normalization digests.
@@ -198,13 +200,20 @@ Architect independently checked raw-log hashes/excerpts, job/Python metadata,
 leaves the original local pending evidence unchanged and does not accept future
 base inventory/SQLite/generation work, production adapters, merge or human gates.
 
-`base-foundation/` records the subsequent architecture freeze and its separate local
-implementation evidence for canonical projection input, base row export/generation,
-the 34-table/230-column DDL and 25 semantic checks. The historical 18-versus-21 schema
-test failure remains in the freeze record; the correction-1 implementation resolves
-it without changing any frozen resource. Its exact 20-file snapshot passed the real
-independent 148-check oracle, all five blocker replays, and 621 focused tests. Architect
-then passed 1658 tests on each supported local Python line and a fresh isolated wheel
-with 21 schemas and 25 exact required resources. Catalog count remains 67. The local
-candidate still needs its own commit and fresh merge-ref CI; merge, VPKB-001
-mapper/writer work and every human gate remain unauthorized.
+`base-foundation/` records the subsequent architecture freeze and its separate
+implementation/delivery evidence for canonical projection input, base row
+export/generation, the 34-table/230-column DDL and 25 semantic checks. The historical
+18-versus-21 schema failure remains in the freeze record; correction-1 resolves it
+without changing a frozen resource. Its exact 20-file snapshot passed the real
+independent 148-check oracle, all five blocker replays, 621 focused tests, both
+1658-test local suites and a fresh isolated wheel with 21 schemas and 25 exact
+resources. Candidate `58ddf533f7c30b66a0f80443d5108f1970365ab2` then passed fresh
+four-job CI at merge preview `1ad9f4063693468454bed9b2207aad54740da2fb` and received a
+separate exact-head Architect acceptance. Catalog count remains 67.
+
+`vpkb-000-closure-audit.json` is Repo Steward's independent completion matrix.
+It finds the reference-head technical gaps covered within their stated limits and
+returns `GO_FOR_CLOSURE_DELIVERY`, while explicitly finding that whole-VPKB-000
+acceptance and a durable successor-head handoff are still missing. The accompanying
+closure candidate only prepares that delivery. It does not mark VPKB-000 complete,
+start VPKB-001, authorize merge or alter a human gate.

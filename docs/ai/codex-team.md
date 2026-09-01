@@ -80,11 +80,11 @@ Head改变后旧结论只属于旧提交；base改变后要重新检查集成结
 2026-09-01核对结果：
 
 - PR：[#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94)，open/draft → `integration`，未合并。
-- 本地和PR head：`951131d7b9cfd59a56abce430b5d5ceb3fe331c1`。
+- 本地和PR head：`58ddf533f7c30b66a0f80443d5108f1970365ab2`。
 - PR base：`08709894adfb20ec07e976783f0ba436d975b74f`。
-- [CI run 33437880575](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33437880575) 四项成功，各1596项通过。
-  实际checkout为合并预览`bdf80bd6145c5351ee34f459eede1bb121a28441`，
-  不是裸head；父提交已独立核对，精确环境与job记录在projection-contracts的`assessment-history/ci-observation.json`。
+- [CI run 33453091285](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33453091285) 四项成功，各1658项通过。
+  实际checkout为合并预览`1ad9f4063693468454bed9b2207aad54740da2fb`，
+  不是裸head；父提交已独立核对，精确环境与job记录在projection-contracts的`base-foundation/ci-observation.json`。
 - 保留已有未跟踪文件；目录/overlays仍冻结67。阶段仍是VPKB-000。
 
 capture/code-evidence和transaction-facade子包已分别完成本地与CI验收。
@@ -98,10 +98,11 @@ facade在前序`5f4c186566c15ab5ee8df10c587e4709d6223f32`通过 Python 3.12/3.13
 ledger-locator纯编解码也已完成本地、安装包与独立CI验收。
 完整assessment-history纯校验已完成本地、安装包及新CI验收。
 基础输入、34表/230列DDL、25项语义检查、行导出和generation revision1已由两个medium
-代理独立复核并由Architect冻结。Builder的correction-1纯API候选已完成本地交付，Steward
-在精确20文件快照上独立返回GO；Architect也完成两版Python各1658项及fresh wheel验收。
-准确阶段、规范摘要和验收状态以`task-index.yaml`为准。该候选尚无新提交和新CI，也没有
-完成001生产适配；冻结规范和旧CI都不能替代本候选CI。合并和人工gate仍未授权。
+代理独立复核并由Architect冻结。Builder的correction-1纯API候选完成本地交付，Steward
+在精确20文件快照上独立返回GO；Architect完成两版Python各1658项及fresh wheel验收。
+该候选随后以58ddf533提交，四项新CI各1658通过，实际merge父提交和59个commit blobs均
+已独立核对，并有单独Architect接受记录。准确阶段、规范摘要和验收状态以
+`task-index.yaml`为准。它仍未完成001生产适配；合并和人工gate仍未授权。
 
 运行时比较候选现已通过 Python 3.12/3.13 各1357项，以及18-schema独立安装包验收。
 283个固定输入摘要为`f655b80ae32c6ea1c78b65f5e5f68c3b1e5cbdfe455a1e9fda6e5750cb22a2a8`。
@@ -109,8 +110,9 @@ ledger-locator纯编解码也已完成本地、安装包与独立CI验收。
 没有通过改名隐藏BM25或放开生产检索入口。运行时新提交的四项CI已独立核对并接受；
 CI的Python3.13为3.13.15，与本地3.13.13分别记录，不将二者混用。
 ledger-locator revision1已独立冻结；完整canonical输入、纯行校验、writer用SQLite DDL和
-generation revision1也已冻结，纯基础实现和安装包已完成本地验收，但新提交/CI仍待完成，
-不能因此关闭整个包。
+generation revision1也已冻结，纯基础实现、安装包和精确提交CI均已接受。Steward的整包
+闭包矩阵判定技术缺口已覆盖，但这些post-CI记录形成新的元数据head，因此VPKB-000仍等待
+该successor的fresh CI和整包Architect判定。
 审核head由完整事件链派生，不新增可变registry或修改已有facade create-only规则。
 
 locator候选只新增4个授权文件，已通过两版Python各1464项和新的独立安装包验收。
@@ -118,8 +120,9 @@ locator候选只新增4个授权文件，已通过两版Python各1464项和新�
 独立10组正向/21组反向wire向量及三种关系映射通过。其后的独立提交3e2bebb已通过新CI，
 四项各1464通过，365个源码与交付文件的Git blob均核对一致，并另有Architect接受记录。
 assessment-history revision1已在`951131d`完成单独实现和新CI验收，没有继承locator结论。
-新的base-foundation correction-1从该head开始，已修复21-schema测试并完成本地完整验收；
-接下来只按精确候选提交、推送并核验自己的新CI。
+base-foundation correction-1从该head开始，在`58ddf533`完成自己的提交、四项CI与精确接受。
+当前只交付闭包元数据；VPKB-000保持in_progress，VPKB-001保持not_started，直到这个新head
+通过fresh CI并获得整包接受。
 
 短期保持同一PR中的单写者推进，并以`packet_base_sha..candidate_head_sha`单独审查每包增量，
 同时检查与其余代码的兼容性。PR94的完整历史diff不是下一包新增代码。

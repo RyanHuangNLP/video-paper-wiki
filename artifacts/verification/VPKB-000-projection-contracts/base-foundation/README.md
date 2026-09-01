@@ -30,8 +30,10 @@ required title, offline-reference and strict-terminal regressions.
 This freeze authorizes only pure supplied-data foundation implementation and tests.
 It does not authorize a Vault/filesystem collector, authenticated byte-to-row mapper,
 SQLite writer, renderer, search build, real parser/model run, publication, merge or
-human-gate transition. VPKB-000 remains in progress until implementation, local/wheel
-verification, exact candidate delivery and fresh merge-ref CI are separately accepted.
+human-gate transition. At freeze time VPKB-000 remained in progress pending
+implementation, local/wheel verification, exact candidate delivery and fresh
+merge-ref CI; the later sections record those separate results and the remaining
+whole-packet closure delivery.
 
 ## Correction-1 local implementation acceptance
 
@@ -64,6 +66,25 @@ accepted the independent complete catalog at SHA-256
 `architect-local-acceptance-correction-1.json` binds the commands, JUnit hashes,
 wheel evidence and limitations.
 
-This is local candidate acceptance only. A candidate commit and fresh four-job PR
-merge-ref CI are still required. PR readiness, merge, VPKB-001 byte-to-row mapping,
-writers, real Vault/parser/model work and all human gates remain unauthorized.
+## Exact delivery acceptance
+
+Correction-1 was committed as
+`58ddf533f7c30b66a0f80443d5108f1970365ab2`, parent
+`951131d7b9cfd59a56abce430b5d5ceb3fe331c1`, with exactly 59 authorized delivery
+paths. Architect independently recomputed every commit blob and all 20 reviewed
+source files. GitHub Actions Tests run `33453091285`, attempt 1, passed all four
+Linux/macOS and Python 3.12/3.13 jobs with 1658 tests each. Every job checked out
+merge preview `1ad9f4063693468454bed9b2207aad54740da2fb`; its parents are integration
+`08709894adfb20ec07e976783f0ba436d975b74f` followed by the exact candidate.
+
+`ci-observation.json`, `merge-parents.json` and `architect-acceptance.json` bind
+that exact head, the raw evidence hashes, local/wheel evidence and the separate
+Architect decision. The fresh query also observed a Railway App suite queued with
+zero check runs; the decision covers the completed four-job GitHub Actions Tests
+workflow and makes no claim about that external suite.
+
+This accepts only base-foundation revision 1. These post-CI records were created
+after the accepted implementation commit, so committing them creates a successor
+metadata head that needs its own fresh CI. PR readiness, merge, whole-VPKB-000
+closure, VPKB-001 byte-to-row mapping, writers, real Vault/parser/model work and all
+human gates remain unauthorized until their separate requirements are met.

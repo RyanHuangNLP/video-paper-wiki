@@ -1,9 +1,11 @@
 # VPKB-000-projection-contracts — architecture review
 
-Parent VPKB-000. Status: in progress. Runtime comparison, ledger locator and
-complete assessment history revision 1 are separately frozen and accepted.
-Base canonical inventory, SQLite/row export and generation remain under
-architecture review. Only the three bounded slices specified below are released.
+Parent VPKB-000. Status: in progress. Runtime comparison, ledger locator,
+complete assessment history revision 1 and base canonical inventory/SQLite row
+export/generation revision 1 are separately frozen and accepted at their exact
+delivery heads within the limits recorded below. The complete packet remains in
+closure delivery until its metadata successor passes fresh CI and receives a
+separate whole-VPKB-000 Architect decision.
 Predecessor: VPKB-000-transaction-facade, accepted at
 `5f4c186566c15ab5ee8df10c587e4709d6223f32`; this is the packet baseline.
 CI run 33426054898 attempt 1 tested merge preview
@@ -429,7 +431,34 @@ independent complete catalog encoded to
 Catalog count remains 67, the candidate snapshot remained byte-identical after all
 checks, `git diff --check` passes and the index is empty.
 
-This is local candidate acceptance pending a serialized commit and fresh four-job PR
-merge-ref CI. It does not make PR94 ready, authorize merge or close VPKB-000, and it
-does not accept a production mapper/writer, real Vault/parser/model work or any human
-gate.
+## Base foundation delivery acceptance and whole-packet closure handoff
+
+Correction-1 was serialized at
+`58ddf533f7c30b66a0f80443d5108f1970365ab2`, parent
+`951131d7b9cfd59a56abce430b5d5ceb3fe331c1`, with tree
+`7253752ceb28426e2949f30e22073c81e4e45730` and exactly 59 authorized paths.
+Every commit blob and all 20 reviewed implementation/test files independently match
+the accepted candidate; the 20-file snapshot remains
+`4cb20593b27df1d09859e54fd3fcbde84fccbe1ce440bd9a370a964bd326a287`.
+
+Fresh GitHub Actions Tests run `33453091285`, attempt 1, passed all four matrix
+jobs, each with 1658 tests. Their actual checkout was
+`1ad9f4063693468454bed9b2207aad54740da2fb`, whose ordered parents are integration
+`08709894adfb20ec07e976783f0ba436d975b74f` and the exact candidate. The separate
+records under `base-foundation/` bind raw logs/API observations, merge parents and
+Architect acceptance. PR94 remains open/draft to `integration`; no ready, review,
+merge, auto-merge or human-gate action occurred.
+
+Repo Steward then audited every `remaining_at_reference_head` item against the
+accepted capture, facade, runtime, locator, history and base-foundation slices,
+pinned public chunk/BM25/CJK evidence, dependency/source/license observations,
+offline CI and durable handoff. The machine result is
+`vpkb-000-closure-audit.json`, verdict `GO_FOR_CLOSURE_DELIVERY`. It preserves the
+bounded license/provenance and pure-base limitations and does not infer runtime
+mapper/writer/parser or retrieval acceptance.
+
+The post-CI records and this closure handoff form a new metadata candidate. Therefore
+the projection packet and parent VPKB-000 remain in progress until that successor
+head passes fresh four-job merge-ref CI and receives a separate whole-packet Architect
+decision. VPKB-001 remains not started with an unsatisfied prerequisite. This handoff
+does not make PR94 ready, authorize merge, or change a human gate.
