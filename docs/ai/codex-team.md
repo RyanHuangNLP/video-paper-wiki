@@ -183,23 +183,30 @@ R4 candidate `77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652`
 `ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02`，
 并在两套 Python 各通过 1948 项。独立审查随后复现两个 all-exits lineage blocker：
 named transport/content 持久替换后的 staging conflict 未被 `WORK_PATH_UNSAFE` 覆盖，以及
-captured snapshot 首次/重复扫描退出时未最终重开 named edges。当前 revision-5 实现工作包
-SHA-256 `71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
-（19,409 bytes）只允许修改 `staging.py`、`captured_snapshot.py`、
-`test_work_staging_boundary.py`、`test_staged_pdf_capture_boundary.py` 并生成
-`builder-candidate-r5.json`。最终 R5 candidate
-`e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
-绑定 18 路径 snapshot
-`c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`；
-Builder 与 Architect 均在两套 Python 各通过 1962 项。Repo Steward review
-`5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
-返回 `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`，Architect local acceptance
-`19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
-通过；离线安装 wheel
-`a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`
-含 26 个 schema 且关键源码精确匹配。精确路径交付、新 commit、fresh CI 与 exact-head
-验收仍未完成。R1/R2/R3/R4 工作包和被拒的 R2/R3/R4 candidate 原字节保留。此阶段仍不执行
-upstream apply/recover/admin，不处理 staged code、operation result、ledger/integrity、
+captured snapshot 首次/重复扫描退出时未最终重开 named edges。Revision-5 工作包
+`71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
+产出 candidate `e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
+和 snapshot `c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`，
+本地两套 Python 与安装 wheel 均通过。精确 39 路径交付成为 head
+`39d279fa8b357d63ef282cbc9dee35a93773e4d4`、tree
+`e740f43de6c39922cfe3f799c6574183d406d2a6`。Fresh run `33554650002` 在 merge
+preview `49e987c4228406fde3b33ab7cf73966b31c73f59` 上运行：macOS 两项各 1962
+passed，Ubuntu 两项均先正确取得 `WORK_PATH_UNSAFE`，随后仅因 unlink/recreate
+必须改变 inode 的非便携夹具断言各失败两项。失败记录
+`a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34`
+保留，R5 未取得 exact-head acceptance。Revision-6 工作包
+`8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842`
+（12,933 bytes）只允许修改 `tests/unit/test_prepare.py` 和生成 R6 evidence。
+R6 candidate `e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa`
+绑定 snapshot `da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c`，
+在原 target 存活时预建不同 `(dev, ino)` 的同字节替身再原子安装；生产字节与
+安全断言不变。Builder 与 Architect 在两套 Python 各通过 1962 项；Repo Steward
+review `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
+和 Architect local acceptance
+`2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
+均通过。精确 successor 交付、fresh CI 与 exact-head 验收仍未完成。R1-R5
+工作包及被拒/失败证据原字节保留。此阶段仍不执行 upstream
+apply/recover/admin，不处理 staged code、operation result、ledger/integrity、
 vendor/dependency/workflow 或真实 Vault。
 
 `base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成

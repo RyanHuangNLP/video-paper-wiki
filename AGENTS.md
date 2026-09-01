@@ -156,29 +156,38 @@ their task; being another Codex agent does not confer Architect authority.
   found two remaining all-exits lineage failures: staging conflicts could
   escape after persistent named transport/content replacement, and initial or
   repeated captured-snapshot scans could escape without a final named-edge
-  check. Active revision-5 work-package SHA-256
+  check. Revision-5 work-package SHA-256
   `71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
-  (19,409 bytes) permits only `staging.py`, `captured_snapshot.py`,
-  `test_work_staging_boundary.py`, `test_staged_pdf_capture_boundary.py`, and
-  R5 candidate evidence. Final R5 candidate SHA-256
-  `e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
-  binds 18-path snapshot
-  `c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`.
-  Builder and Architect each passed 1962 tests on both Python 3.12/3.13;
-  installed wheel SHA-256
-  `a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`
-  exposes 26 schemas and exact candidate source bytes. Repo Steward review
-  SHA-256
-  `5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
-  returned `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`; Architect local acceptance
-  SHA-256
-  `19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
-  passed. Exact-path delivery, a new commit, fresh merge-ref CI and separate
-  exact-head acceptance remain required. R1/R2/R3/R4 work packages and
-  R2/R3/R4 candidates remain byte-for-byte history.
-  Staged code capture,
-  operation results, integrity runtime and retrieval remain outside this
-  subrelease.
+  produced candidate
+  `e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`,
+  18-path snapshot
+  `c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`,
+  dual-Python 1962-test local passes and the verified 26-schema wheel. It was
+  delivered at exact head `39d279fa8b357d63ef282cbc9dee35a93773e4d4`, tree
+  `e740f43de6c39922cfe3f799c6574183d406d2a6`. Fresh run `33554650002`
+  tested merge preview `49e987c4228406fde3b33ab7cf73966b31c73f59`: both macOS jobs
+  passed 1962 tests, while both Ubuntu jobs passed the required
+  `WORK_PATH_UNSAFE` assertions and then failed only because the fixture assumed
+  unlink/recreate must change `st_ino`. Failure observation SHA-256
+  `a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34`
+  is immutable; no R5 exact-head acceptance was issued. Active revision-6
+  work-package SHA-256
+  `8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842`
+  (12,933 bytes) archives R5 byte-for-byte and permits only
+  `tests/unit/test_prepare.py` plus R6 candidate evidence. R6 candidate
+  `e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa`
+  binds snapshot
+  `da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c`;
+  it creates the distinct replacement while the original inode is still live,
+  then atomically installs it without weakening the refusal assertions. Builder
+  and Architect each passed 1962 tests on Python 3.12/3.13. Repo Steward review
+  `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
+  returned `GO_FOR_ARCHITECT_R6_LOCAL_ACCEPTANCE`; Architect local acceptance
+  `2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
+  passed. Exact successor delivery, fresh merge-ref CI and separate exact-head
+  acceptance remain required. R1-R5 work packages and all rejected/failed
+  evidence remain byte-for-byte history. Staged code capture, operation results,
+  integrity runtime and retrieval remain outside this subrelease.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.

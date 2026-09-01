@@ -298,28 +298,38 @@ closed the target gap, bound 17-path snapshot
 and passed 1948 tests on both locked Python lines. Independent review then
 rejected it as a complete release candidate after reproducing staging conflict
 exits after persistent named transport/content replacement and initial/repeat
-captured-snapshot scan exits without a final named-edge check. Active revision
-5 SHA-256 is
+captured-snapshot scan exits without a final named-edge check. Revision 5
+work-package SHA-256
 `71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
-(19,409 bytes). It changes no contract, schema, public surface or failure order
-and permits only `staging.py`, `captured_snapshot.py`,
-`test_work_staging_boundary.py`, `test_staged_pdf_capture_boundary.py`, and R5
-candidate evidence. R1/R2/R3/R4 work packages and the rejected R2/R3/R4
-candidates remain byte-exact history. Final R5 candidate
+produced candidate
 `e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
-binds 18-path snapshot
+and 18-path snapshot
 `c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`.
-Builder and Architect each passed 1962 complete tests on both locked Python
-lines. Repo Steward review
-`5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
-returned `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`, and Architect local acceptance
-`19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
-records the original hostile-probe replays plus offline installed wheel
-`a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`
-with 26 schemas. Exact-path delivery, fresh merge-ref CI and separate exact-head
-acceptance remain pending.
-Passing this subrelease will not complete staged code capture, operation-result
-handling, the rest of adapter-contract, VPKB-001, PR merge, or any human gate.
+Its local dual-Python suites and installed 26-schema wheel passed. The exact
+39-path delivery was committed at head
+`39d279fa8b357d63ef282cbc9dee35a93773e4d4`, tree
+`e740f43de6c39922cfe3f799c6574183d406d2a6`. Fresh run `33554650002`
+tested merge preview `49e987c4228406fde3b33ab7cf73966b31c73f59`. Both macOS jobs
+passed 1962 tests; both Ubuntu jobs passed the required `WORK_PATH_UNSAFE`
+assertions but then failed two auxiliary assertions because the runner reused
+the inode immediately after unlink. Failure observation
+`a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34`
+blocks R5 exact-head acceptance. Revision 6 work-package
+`8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842`
+(12,933 bytes) freezes production and permits only the portable replacement
+fixture in `tests/unit/test_prepare.py` plus R6 candidate evidence. Candidate
+`e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa`
+binds 18-path snapshot
+`da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c`.
+Builder and Architect each passed 1962 tests on both locked Python lines;
+independent review
+`736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
+and Architect local acceptance
+`2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
+passed. Exact successor delivery, fresh merge-ref CI and separate exact-head
+acceptance remain pending. Passing this subrelease will not complete staged code
+capture, operation-result handling, the rest of adapter-contract, VPKB-001, PR
+merge, or any human gate.
 
 ## Exclusions and rollback
 

@@ -6,34 +6,28 @@ recorded_on: "2026-09-02"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 4168e151c332cdcf89227bf086d4a6bc5308e649
+  continued_head: 39d279fa8b357d63ef282cbc9dee35a93773e4d4
+  accepted_architecture_head: 4168e151c332cdcf89227bf086d4a6bc5308e649
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
-  delivery_status: draft-open
+  delivery_status: draft-open-r6-local-accepted
   delivery_note: >-
-    On 2026-09-01 PR #94 was observed open/draft at continued_head, targeting
-    integration. It has not been merged. reference_head preserves the original
-    handoff baseline; continued_head is the accepted staged-PDF capture-inspect
-    architecture. Exact head 4168e151, tree 78d43e20 passed fresh four-job run
-    33497663181 at merge preview f48d3cc3 with 1901 tests per job and received
-    separate exact-head Architect acceptance. Its three immutable post-CI
-    records are carried by the implementation successor. The R2 candidate
-    20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437
-    passed both locked Python lines but was rejected for a missing fixed-slot
-    identity window. R3 candidate
-    920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8
-    closed it and passed 1940 tests on both locked Python lines, then an
-    independent review found request-before-plan ordering and caught-error
-    named-lineage gaps. R4 candidate
-    77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652
-    closed that target and passed 1948 tests on both locked Python lines, but
-    independent review found staging and captured-snapshot all-exits lineage
-    gaps. Revision-5 candidate
+    On 2026-09-02 PR #94 remains open/draft at continued_head, targeting
+    integration. It has not been merged. The accepted architecture remains
+    exact head 4168e151 with successful run 33497663181. R5 candidate
     e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f
-    closes both and binds 18-path snapshot c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d.
-    Builder and Architect each passed 1962 tests on both locked Python lines;
-    independent review and Architect local acceptance passed. Exact delivery,
-    fresh CI and separate exact-head acceptance remain.
+    was delivered at head 39d279fa8b357d63ef282cbc9dee35a93773e4d4.
+    Fresh run 33554650002 tested merge preview 49e987c4228406fde3b33ab7cf73966b31c73f59:
+    both macOS jobs passed 1962 tests, while both Ubuntu jobs passed the
+    WORK_PATH_UNSAFE checks and then failed only because the fixture assumed
+    unlink/recreate must change st_ino. R5 exact-head acceptance was not issued.
+    Revision-6 candidate
+    e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa
+    replaces that non-portable fixture without changing production and binds
+    snapshot da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c.
+    Builder, Repo Steward and Architect local verification passed; both locked
+    Python lines passed 1962 tests. Exact R6 successor delivery, fresh CI and
+    separate exact-head acceptance remain.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -964,7 +958,7 @@ packets:
         a later separately frozen generation revision.
     fourth_subrelease:
       id: staged-pdf-capture-inspect-v1
-      status: architecture-accepted-implementation-r5-local-accepted
+      status: architecture-accepted-r5-ci-failed-r6-local-accepted
       architecture_baseline: fb2cbcb565195a232f22d02c0474ac1b1b34f7d3
       contract_path: docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md
       candidate_contract_sha256: 8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f
@@ -1024,54 +1018,64 @@ packets:
         architect_acceptance_sha256: 3e18f60f70b759e03ead8cb14fa2882afc15036e4bd52062b940c64557ad5432
       architecture_architect_acceptance: ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD
       implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json
-      implementation_work_package_revision: 5
-      implementation_work_package_sha256: 71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5
+      implementation_work_package_revision: 6
+      implementation_work_package_sha256: 8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842
       historical_implementation_work_package: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r1.json
       historical_implementation_work_package_revision: 1
       historical_implementation_work_package_sha256: ddb0ecb1aab3da105fe6eb5f7606036d8605111973e42fd41540e7ff110e013e
       historical_implementation_work_package_r2: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r2.json
-      historical_implementation_work_package_r2_revision: 2
       historical_implementation_work_package_r2_sha256: 6b6453efd41547cba9cded18301887b7390f5cb8bfd7a2edfb54bc173c7255e1
+      historical_implementation_work_package_r3: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r3.json
+      historical_implementation_work_package_r3_sha256: a91f7d95f77114e32769e24151601ece823585b23bc94603057032d89eda025d
+      historical_implementation_work_package_r4: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r4.json
+      historical_implementation_work_package_r4_sha256: e98e2fb4bd3efe914ab77f1882e5ce4a7887d6327b0cfba99c78fcf7cc7bb6cc
+      historical_implementation_work_package_r5: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r5.json
+      historical_implementation_work_package_r5_sha256: 71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5
       rejected_implementation_candidate_r2: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate.json
       rejected_implementation_candidate_r2_sha256: 20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437
-      rejected_implementation_snapshot_r2_sha256: eb228e6d5a0d76117d3f769deaba393f2c52190336218d22a1f76bd1f8b8a373
-      historical_implementation_work_package_r3: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r3.json
-      historical_implementation_work_package_r3_revision: 3
-      historical_implementation_work_package_r3_sha256: a91f7d95f77114e32769e24151601ece823585b23bc94603057032d89eda025d
       rejected_implementation_candidate_r3: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r3.json
       rejected_implementation_candidate_r3_sha256: 920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8
-      rejected_implementation_snapshot_r3_sha256: 2902553f60693cb6596b53d8d9096cf1c20f9b2f5ff7a6f9ae340136254a5878
-      historical_implementation_work_package_r4: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r4.json
-      historical_implementation_work_package_r4_revision: 4
-      historical_implementation_work_package_r4_sha256: e98e2fb4bd3efe914ab77f1882e5ce4a7887d6327b0cfba99c78fcf7cc7bb6cc
       rejected_implementation_candidate_r4: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r4.json
       rejected_implementation_candidate_r4_sha256: 77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652
-      rejected_implementation_snapshot_r4_sha256: ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02
-      implementation_candidate: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r5.json
-      implementation_candidate_sha256: e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f
-      implementation_candidate_snapshot_sha256: c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d
+      r5_candidate: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r5.json
+      r5_candidate_sha256: e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f
+      r5_candidate_snapshot_sha256: c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d
+      r5_delivery:
+        head: 39d279fa8b357d63ef282cbc9dee35a93773e4d4
+        tree: e740f43de6c39922cfe3f799c6574183d406d2a6
+        parent: 4168e151c332cdcf89227bf086d4a6bc5308e649
+        exact_path_count: 39
+        ci_run_id: 33554650002
+        ci_status: failed
+        tested_merge_sha: 49e987c4228406fde3b33ab7cf73966b31c73f59
+        ci_failure_observation: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/ci-failure-observation-r5.json
+        ci_failure_observation_sha256: a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34
+        exact_head_accepted: false
+      implementation_candidate: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r6.json
+      implementation_candidate_sha256: e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa
+      implementation_candidate_snapshot_sha256: da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c
       implementation_candidate_tests:
-        targeted: 109-passed
+        targeted: 2-passed
+        prepare_module: 53-passed
         focused: 289-passed
         builder_python_3_13: 1962-passed
         builder_python_3_12: 1962-passed
         architect_python_3_13: 1962-passed
         architect_python_3_12: 1962-passed
-      independent_implementation_review: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/steward-review.json
-      independent_implementation_review_sha256: 5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3
-      independent_implementation_review_verdict: GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE
-      architect_local_acceptance: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/architect-local-acceptance.json
-      architect_local_acceptance_sha256: 19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e
-      architect_local_acceptance_decision: PASSED_LOCAL_R5_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_DELIVERY_AND_FRESH_CI
-      local_wheel_sha256: a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7
-      local_wheel_schema_count: 26
+      independent_implementation_review: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/steward-review-r6.json
+      independent_implementation_review_sha256: 736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a
+      independent_implementation_review_verdict: GO_FOR_ARCHITECT_R6_LOCAL_ACCEPTANCE
+      architect_local_acceptance: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/architect-local-acceptance-r6.json
+      architect_local_acceptance_sha256: 2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed
+      architect_local_acceptance_decision: PASSED_LOCAL_R6_PORTABLE_TEST_FIXTURE_CANDIDATE_PENDING_EXACT_DELIVERY_AND_FRESH_CI
+      r5_local_wheel_sha256: a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7
+      r5_local_wheel_schema_count: 26
       implementation_scope_resolution: >-
-        Revision 5 preserves the accepted contract, schema, public surface and
-        failure order. It authorizes only staging.py, captured_snapshot.py,
-        test_work_staging_boundary.py and test_staged_pdf_capture_boundary.py
-        to recheck named staging lineage on every conflict/error exit and named
-        captured-snapshot lineage around initial and repeated scan exits;
-        persistent drift must override downstream conflict or limit errors.
+        Revision 6 preserves every R5 production byte, accepted contract,
+        schema, public surface and failure order. It changes only the two
+        adversarial prepare fixtures so a distinct replacement inode exists
+        while the original inode remains live, eliminating the Linux inode
+        reuse assumption without weakening WORK_PATH_UNSAFE or publication checks.
       scope:
         - Persist one canonical staged PDF request with exact approval-ref, plan and payload bindings.
         - Publish prepared blob first and request last in one retained batch lineage.
@@ -1090,7 +1094,7 @@ packets:
         read-only authority emit no catalog rows. Any later authority consumer
         requires a separately frozen generation revision.
     verification:
-      status: first-through-third-subreleases-and-fourth-architecture-accepted-fourth-implementation-local-accepted
+      status: first-through-third-subreleases-and-fourth-architecture-accepted-r5-ci-failed-r6-local-accepted
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
       first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       second_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json

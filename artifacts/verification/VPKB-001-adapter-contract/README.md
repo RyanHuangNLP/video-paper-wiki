@@ -203,26 +203,36 @@ and passed 74 targeted, 275 focused and 1948 complete tests on each locked
 Python line. Its target fix passed, but independent review rejected the complete
 candidate after reproducing two all-exits lineage gaps: staging conflicts after
 persistent named transport/content replacement and captured-snapshot initial or
-repeat scan exits without a final named-edge check. Active revision 5 work
+repeat scan exits without a final named-edge check. Revision 5 work
 package `71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
-(19,409 bytes) permits only `src/video_paper_wiki/staging.py`,
-`src/video_paper_wiki/captured_snapshot.py`,
-`tests/security/test_work_staging_boundary.py`,
-`tests/security/test_staged_pdf_capture_boundary.py`, and
-`builder-candidate-r5.json`. R1/R2/R3/R4 work packages and the rejected
-R2/R3/R4 candidates are immutable history. Final R5 candidate
-`e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
-binds 18-path snapshot
-`c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`.
-Its targeted/focused counts are 109/289, and Builder plus Architect each passed
-1962 complete tests on both locked Python lines. Independent review
-`5b2c67359bec26cd768ff3771f8779d7ef8ac43fc3c8babec6728a1abddd08a3`
-returned `GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE`; Architect local acceptance
-`19a5057aeea51da6305d1f911410c159f5476e5fda45c772998fb095dec51f5e`
-also records an offline installed 26-schema wheel
+produced candidate
+`e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`,
+18-path snapshot
+`c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`,
+dual-Python 1962-test local passes and installed wheel
 `a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7`.
-Exact-path delivery, fresh implementation CI and separate exact-head acceptance
-remain pending.
+The exact 39-path delivery became head
+`39d279fa8b357d63ef282cbc9dee35a93773e4d4`, tree
+`e740f43de6c39922cfe3f799c6574183d406d2a6`. Fresh run `33554650002`
+tested merge preview `49e987c4228406fde3b33ab7cf73966b31c73f59`; macOS 3.12/3.13
+passed 1962 tests, but Ubuntu 3.12/3.13 each reported 1960 passed and two
+failures after the required `WORK_PATH_UNSAFE` checks succeeded. The sole failed
+assertion assumed unlink/recreate must allocate a new inode. Immutable failure
+record `a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34`
+therefore blocks R5 exact-head acceptance. Revision 6 work package
+`8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842`
+(12,933 bytes) authorizes only `tests/unit/test_prepare.py` and
+`builder-candidate-r6.json`. Candidate
+`e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa`
+binds snapshot
+`da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c`;
+all nine production files remain exact R5 bytes. Builder and Architect each
+passed the full 1962-test suite on both locked Python lines. Independent review
+`736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
+and Architect local acceptance
+`2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
+passed. Exact R6 successor delivery, fresh implementation CI and separate
+exact-head acceptance remain pending.
 
 Local, wheel, independent review and remote CI observations remain distinct.
 Accepting any bounded subrelease will not complete the later `integrity-runtime`

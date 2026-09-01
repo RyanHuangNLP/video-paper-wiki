@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import socket
+import stat
 from pathlib import Path
 
 import pytest
@@ -33,6 +34,49 @@ def _payload(capsys) -> dict:
     lines = [line for line in captured.out.splitlines() if line.strip()]
     assert len(lines) == 1, captured.out
     return json.loads(lines[0])
+
+
+def _replace_same_bytes_with_distinct_inode(target: Path) -> tuple[tuple[int, int], tuple[int, int]]:
+    """Atomically replace *target* after proving the sibling inode is distinct."""
+    raw = target.read_bytes()
+    before = target.stat(follow_symlinks=False)
+    replacement = target.with_name(target.name + ".identity-replacement")
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+    fd: int | None = None
+    try:
+        fd = os.open(replacement, flags, stat.S_IMODE(before.st_mode))
+        offset = 0
+        while offset < len(raw):
+            offset += os.write(fd, raw[offset:])
+        os.fsync(fd)
+        os.fchmod(fd, stat.S_IMODE(before.st_mode))
+        os.close(fd)
+        fd = None
+        os.utime(
+            replacement,
+            ns=(before.st_atime_ns, before.st_mtime_ns),
+            follow_symlinks=False,
+        )
+        replacement_stat = replacement.stat(follow_symlinks=False)
+        before_identity = (before.st_dev, before.st_ino)
+        replacement_identity = (replacement_stat.st_dev, replacement_stat.st_ino)
+        assert replacement_identity != before_identity
+        assert stat.S_IMODE(replacement_stat.st_mode) == stat.S_IMODE(before.st_mode)
+        assert replacement_stat.st_size == before.st_size == len(raw)
+        assert replacement_stat.st_mtime_ns == before.st_mtime_ns
+        os.replace(replacement, target)
+        named = target.stat(follow_symlinks=False)
+        assert (named.st_dev, named.st_ino) == replacement_identity
+        assert target.read_bytes() == raw
+        return before_identity, replacement_identity
+    finally:
+        if fd is not None:
+            os.close(fd)
+        try:
+            replacement.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def _bind_plan(
@@ -239,9 +283,7 @@ def test_missing_blob_install_refuses_same_bytes_inode_replacement(
     def replace(*args,**kwargs):
         value=real(*args,**kwargs); target=kwargs.get('target')
         if isinstance(target,Path) and target.name==f'{digest}.blob':
-            before=target.stat().st_ino
-            raw=target.read_bytes(); target.unlink(); target.write_bytes(raw)
-            identities.extend((before,target.stat().st_ino))
+            identities.extend(_replace_same_bytes_with_distinct_inode(target))
         return value
     monkeypatch.setattr(staging_module,'_atomic_install',replace)
     assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==2
@@ -267,9 +309,7 @@ def test_missing_request_install_refuses_same_bytes_inode_replacement(
     def replace(*args,**kwargs):
         value=real(*args,**kwargs); target=kwargs.get('target')
         if isinstance(target,Path) and target.name=='staged-pdf-capture-request.v1.json':
-            before=target.stat().st_ino
-            raw=target.read_bytes(); target.unlink(); target.write_bytes(raw)
-            identities.extend((before,target.stat().st_ino))
+            identities.extend(_replace_same_bytes_with_distinct_inode(target))
         return value
     monkeypatch.setattr(staging_module,'_atomic_install',replace)
     assert main(['ingest','prepare','--plan',str(plan_path),'--approval-ref',str(ref_path)])==2
