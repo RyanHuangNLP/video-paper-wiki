@@ -124,7 +124,7 @@ def test_code_map_prepare_same_contract(
     monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(tmp_path / "blobs"))
     plan_path, plan = _stage_plan(code_evidence_request(batch_id="cm0"))
     ref_path = write_json(tmp_path / "ref.json", make_approval_ref(plan, input_sha256="e" * 64))
-    code = main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    code = main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path), "--source-path", "src/model.py"])
     assert code == 2
     payload = _stdout_json(capsys)
     assert payload["command"] == "code-map.prepare"
@@ -142,7 +142,7 @@ def test_code_map_prepare_success(
     digest = plant_blob(blob_root, b"code-map")
     plan_path, plan = _stage_plan(code_evidence_request(batch_id="cm1"))
     ref_path = write_json(tmp_path / "ref.json", make_approval_ref(plan, input_sha256=digest))
-    code = main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    code = main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path), "--source-path", "src/model.py"])
     assert code == 0
     payload = _stdout_json(capsys)
     assert payload["ok"] is True

@@ -23,6 +23,7 @@ from tests.support import (
     work_plan,
     work_prepared,
     work_review,
+    plant_unix_socket,
     write_json,
 )
 from video_paper_wiki.cli import main
@@ -861,9 +862,7 @@ def test_batch_or_intermediate_fifo_or_socket_is_unsafe_json(
     if kind == "fifo":
         os.mkfifo(target)
     else:
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        server.bind(str(target))
-        server.listen(1)
+        server = plant_unix_socket(target)
     try:
         draft = _clone_mav_draft(checkout)
         code = main(["review", "export", "--draft", str(draft), "--batch-id", "b1"])
@@ -940,7 +939,7 @@ def test_project_not_table_is_workspace_invalid_json(
     (root / ".git").mkdir()
     (root / "pyproject.toml").write_text('project = "video-paper-wiki"\n', encoding="utf-8")
     monkeypatch.chdir(root)
-    code = main(["doctor"])
+    code = main(["seed", "render", "--batch-id", "invalid-project"])
     captured = capsys.readouterr()
     assert "Traceback" not in captured.out
     assert "AttributeError" not in captured.out
@@ -993,9 +992,7 @@ def test_corrupt_engine_mvp_json_rejected_via_cli(
 def test_unix_socket_sentinel_unchanged(tmp_path, monkeypatch, capsys, network_attempts) -> None:
     checkout, external = _prepare_checkout(tmp_path, monkeypatch)
     sock_path = external / "sentinel.sock"
-    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    server.bind(str(sock_path))
-    server.listen(1)
+    server = plant_unix_socket(sock_path)
     try:
         before = _snapshot(external)
         draft = _clone_mav_draft(checkout)

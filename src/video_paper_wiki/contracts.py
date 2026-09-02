@@ -54,6 +54,9 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.transaction-staging.v1",
     "video-paper-wiki.staged-pdf-capture-request.v1",
     "video-paper-wiki.staged-pdf-capture-authority.v1",
+    "video-paper-wiki.staged-code-capture-request.v1",
+    "video-paper-wiki.staged-code-capture-authority.v1",
+    "video-paper-wiki.operation-result-authority.v1",
     "video-paper-wiki.operation-head.v1",
     "video-paper-wiki.capture-inspection.v1",
     "video-paper-wiki.code-evidence-manifest.v1",
@@ -68,6 +71,29 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.operation-receipt.v1",
     "video-paper-wiki.run-manifest.v1",
     "video-paper-wiki.cli-envelope.v1",
+    "video-paper-wiki.compile-input.v1",
+    "video-paper-wiki.evidence-inventory.v1",
+    "video-paper-wiki.retrieval-config.v1",
+    "video-paper-wiki.retrieval-policy.v1",
+    "video-paper-wiki.retrieval-gold.v1",
+    "video-paper-wiki.backup-manifest.v1",
+    "video-paper-wiki.evidence-join-request.v1",
+    "video-paper-wiki.evidence-mapping-authority.v1",
+    "video-paper-wiki.integrity-audit-authority.v1",
+    "video-paper-wiki.knowledge-publication-request.v1",
+    "video-paper-wiki.publication-authority.v1",
+    "video-paper-wiki.review-decision.v1",
+    "video-paper-wiki.review-invalidation-request.v1",
+    "video-paper-wiki.review-transition-authority.v1",
+    "video-paper-wiki.docling-artifact-set.v1",
+    "video-paper-wiki.locator-migration-proposal.v1",
+    "video-paper-wiki.search-catalog-generation.v1",
+    "video-paper-wiki.search-catalog-export.v1",
+    "video-paper-wiki.catalog-report.v1",
+    "video-paper-wiki.gate-publication-request.v1",
+    "video-paper-wiki.gate-head-registry.v1",
+    "video-paper-wiki.gate-consumption.v1",
+    "video-paper-wiki.gate-publication-authority.v1",
 }
 
 
@@ -821,6 +847,27 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
         from video_paper_wiki.staged_capture import _check_authority
 
         _check_authority(document)
+    elif schema_name in {"video-paper-wiki.staged-code-capture-request.v1", "video-paper-wiki.staged-code-capture-authority.v1"}:
+        from video_paper_wiki.staged_code_capture import _check_authority, _check_request
+
+        (_check_request if schema_name.endswith("request.v1") else _check_authority)(document)
+    elif schema_name == "video-paper-wiki.knowledge-publication-request.v1":
+        from video_paper_wiki.publication import _check_request
+        _check_request(document)
+    elif schema_name == "video-paper-wiki.publication-authority.v1":
+        from video_paper_wiki.publication import _check_authority
+        _check_authority(document)
+    elif schema_name == "video-paper-wiki.operation-result-authority.v1":
+        from video_paper_wiki.operation_result import _check_result_authority
+
+        _check_result_authority(document)
+    elif schema_name in {"video-paper-wiki.gate-publication-request.v1", "video-paper-wiki.gate-head-registry.v1",
+                         "video-paper-wiki.gate-consumption.v1", "video-paper-wiki.gate-publication-authority.v1"}:
+        from video_paper_wiki.gate_decision import _check_authority, _check_consumption, _check_registry, _check_request
+        {"video-paper-wiki.gate-publication-request.v1":_check_request,
+         "video-paper-wiki.gate-head-registry.v1":_check_registry,
+         "video-paper-wiki.gate-consumption.v1":_check_consumption,
+         "video-paper-wiki.gate-publication-authority.v1":_check_authority}[schema_name](document)
     elif schema_name == "video-paper-wiki.ingest-plan.v1":
         _check_plan_object(document, schema_name)
     elif schema_name == "video-paper-wiki.prepared.v1":
@@ -1222,19 +1269,6 @@ def _validate_events(bundle: Mapping[str, Any], claim_entries: Sequence[Mapping[
         by_id[event_id] = event
         claim_id = str(event.get("claim_id", ""))
         by_claim.setdefault(claim_id, []).append(event)
-        fingerprint = event.get("evidence_fingerprint")
-        if isinstance(fingerprint, str) and claim_id in evidence_by_claim:
-            evidence = evidence_by_claim[claim_id]
-            try:
-                expected = identity.evidence_fingerprint(evidence)
-            except IdentityError as exc:
-                raise _from_identity(exc) from exc
-            if fingerprint != expected:
-                raise ContractError(
-                    EVIDENCE_FINGERPRINT_MISMATCH,
-                    "evidence_fingerprint does not match identity fields",
-                    {"claim_id": claim_id, "stated": fingerprint, "expected": expected},
-                )
         text = text_by_claim.get(claim_id)
         stated_text_hash = event.get("claim_text_sha256")
         if text is not None and isinstance(stated_text_hash, str):
@@ -1306,6 +1340,18 @@ def _validate_events(bundle: Mapping[str, Any], claim_entries: Sequence[Mapping[
                 "assessment chain must have exactly one head",
                 {"claim_id": claim_id, "heads": heads},
             )
+        # A materialized claim describes the current head.  Earlier events may
+        # intentionally retain older evidence fingerprints after a system
+        # invalidation, so only the unique terminal event binds current evidence.
+        if claim_id in evidence_by_claim:
+            evidence=evidence_by_claim[claim_id]
+            try:expected=identity.evidence_fingerprint(evidence)
+            except IdentityError as exc:raise _from_identity(exc) from exc
+            fingerprint=by_id[heads[0]].get("evidence_fingerprint")
+            if fingerprint != expected:
+                raise ContractError(EVIDENCE_FINGERPRINT_MISMATCH,
+                    "head evidence_fingerprint does not match identity fields",
+                    {"claim_id":claim_id,"stated":fingerprint,"expected":expected})
         seen: set[str] = set()
         cursor: str | None = heads[0]
         while cursor is not None:

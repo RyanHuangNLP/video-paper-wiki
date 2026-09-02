@@ -1225,10 +1225,12 @@ def _stage_transaction_inspect_files_in_session(
 def _stage_prepared_pdf_capture(
     *, batch_id: object, plan_bytes: bytes, plan_identity: os.stat_result,
     blob_name: str, blob: bytes, request_factory: Callable[[], bytes],
+    request_name: str = "staged-pdf-capture-request.v1.json",
 ) -> _PreparedPairResult:
     """Publish the paper blob/request pair below one retained batch lineage."""
     batch = validate_batch_id(batch_id)
     _validate_segment(blob_name)
+    _validate_segment(request_name)
     if re.fullmatch(r"[0-9a-f]{64}\.blob", blob_name) is None:
         raise StagingError(CODE_WORK_PATH_UNSAFE, "invalid prepared blob name")
     if not all(type(value) is bytes for value in (plan_bytes, blob)) or not callable(request_factory):
@@ -1239,7 +1241,7 @@ def _stage_prepared_pdf_capture(
         prepared_path = session.batch_path / "prepared"
         plan_file = plan_path / "ingest-plan.v1.json"
         blob_path = prepared_path / blob_name
-        request_path = prepared_path / "staged-pdf-capture-request.v1.json"
+        request_path = prepared_path / request_name
         plan_fd = _open_dir_at(session.batch_fd, "plan", plan_path)
         prepared_fd: int | None = None
         try:
@@ -1259,7 +1261,7 @@ def _stage_prepared_pdf_capture(
             identities = (os.fstat(plan_fd), os.fstat(prepared_fd))
             blob_file_stat = _stat_at(prepared_fd, blob_name, blob_path)
             request_file_stat = _stat_at(
-                prepared_fd, "staged-pdf-capture-request.v1.json", request_path,
+                prepared_fd, request_name, request_path,
             )
             initial_blob_stat = blob_file_stat
             initial_request_stat = request_file_stat
@@ -1283,7 +1285,7 @@ def _stage_prepared_pdf_capture(
                         _raise_unsafe(plan_file, "plan file identity changed")
                     if not same_file(_stat_at(named_prepared, blob_name, blob_path), blob_file_stat):
                         _raise_unsafe(blob_path, "prepared blob identity changed")
-                    if not same_file(_stat_at(named_prepared, "staged-pdf-capture-request.v1.json", request_path), request_file_stat):
+                    if not same_file(_stat_at(named_prepared, request_name, request_path), request_file_stat):
                         _raise_unsafe(request_path, "prepared request identity changed")
                 finally:
                     _close_fd(named_prepared)
@@ -1319,7 +1321,7 @@ def _stage_prepared_pdf_capture(
                 _require_exact_staged_file(prepared_fd, blob_name, blob, blob_path)
                 if initial_request_stat is None:
                     request_install = _atomic_install(
-                        session.work_fd, prepared_fd, "staged-pdf-capture-request.v1.json", request,
+                        session.work_fd, prepared_fd, request_name, request,
                         target=request_path, checkout_fd=session.checkout_fd,
                         return_identity=True,
                     )
@@ -1328,24 +1330,24 @@ def _stage_prepared_pdf_capture(
                     if request_reused:
                         _raise_unsafe(request_path, "prepared request appeared during installation")
                     named_request_stat = _stat_at(
-                        prepared_fd, "staged-pdf-capture-request.v1.json", request_path,
+                        prepared_fd, request_name, request_path,
                     )
                     if not same_file(named_request_stat, installed_request_stat):
                         _raise_unsafe(request_path, "prepared request installation changed")
                     request_file_stat = installed_request_stat
                 else:
                     request_reused = _existing_same_bytes(
-                        prepared_fd, "staged-pdf-capture-request.v1.json", request, request_path,
+                        prepared_fd, request_name, request, request_path,
                     )
                     if not request_reused or not same_file(
-                        _stat_at(prepared_fd, "staged-pdf-capture-request.v1.json", request_path),
+                        _stat_at(prepared_fd, request_name, request_path),
                         initial_request_stat,
                     ):
                         _raise_unsafe(request_path, "prepared request identity changed")
                 verify()
                 _require_exact_staged_file(prepared_fd, blob_name, blob, blob_path)
                 _require_exact_staged_file(
-                    prepared_fd, "staged-pdf-capture-request.v1.json", request, request_path,
+                    prepared_fd, request_name, request, request_path,
                 )
                 verify()
             except BaseException:

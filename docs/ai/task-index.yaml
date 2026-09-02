@@ -6,28 +6,21 @@ recorded_on: "2026-09-02"
 resume_context:
   pull_request: "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
   reference_head: be2599759db7ea80aff60baae0e7859824307527
-  continued_head: 39d279fa8b357d63ef282cbc9dee35a93773e4d4
+  continued_head: ed6c83865b51e8f512ab22d7c6c7113a15e26837
   accepted_architecture_head: 4168e151c332cdcf89227bf086d4a6bc5308e649
   observed_branch: repair/vpkb000-plan-approval-prepare-follow2
   requested_delivery_flow: [draft, integration]
-  delivery_status: draft-open-r6-local-accepted
+  delivery_status: draft-open-roadmap-closure-candidate-pending-fresh-ci
   delivery_note: >-
     On 2026-09-02 PR #94 remains open/draft at continued_head, targeting
-    integration. It has not been merged. The accepted architecture remains
-    exact head 4168e151 with successful run 33497663181. R5 candidate
-    e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f
-    was delivered at head 39d279fa8b357d63ef282cbc9dee35a93773e4d4.
-    Fresh run 33554650002 tested merge preview 49e987c4228406fde3b33ab7cf73966b31c73f59:
-    both macOS jobs passed 1962 tests, while both Ubuntu jobs passed the
-    WORK_PATH_UNSAFE checks and then failed only because the fixture assumed
-    unlink/recreate must change st_ino. R5 exact-head acceptance was not issued.
-    Revision-6 candidate
-    e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa
-    replaces that non-portable fixture without changing production and binds
-    snapshot da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c.
-    Builder, Repo Steward and Architect local verification passed; both locked
-    Python lines passed 1962 tests. Exact R6 successor delivery, fresh CI and
-    separate exact-head acceptance remain.
+    integration, and has not been merged. A successor working-tree candidate
+    implements every currently Codex-executable roadmap surface while keeping
+    real provenance, human review, visual acceptance, external backup anchoring,
+    readiness and merge open. The signed 74-case closure run passed 74/74; the
+    Python 3.12.14 and 3.13.13 suites each passed 2152/2152, and the independent
+    security suite passed 295/295. These are local candidate results. They do not
+    inherit run 33558215519, close an external gate, or replace the required fresh
+    CI and exact-head acceptance after the successor is committed and pushed.
   catalog:
     path: docs/seed/engine-mvp.json
     observed_paper_count: 67
@@ -104,6 +97,40 @@ human_gates:
       - Unique current head in wiki/meta/registries/gate-heads.json.
       - Matching baseline manifest SHA-256 and derived five-repository list.
       - Publication through the inspected and approved transaction path.
+  EXTERNAL-PROVENANCE-LICENSE-001:
+    status: not-recorded
+    evidence: []
+    blocks: [VPKB-002, VPKB-004, VPKB-005]
+    required_evidence:
+      - Real PDF and official-repository provenance supplied outside test fixtures.
+      - Human or externally authorized license judgment for retained source material.
+  HUMAN-CLAIM-ASSESSMENT-001:
+    status: not-recorded
+    evidence: []
+    blocks: [VPKB-003, VPKB-005]
+    required_evidence:
+      - Human review decisions for the real paper claims and current assessment heads.
+      - Publication receipts binding those decisions to the reviewed bytes.
+  HUMAN-OBSIDIAN-VISUAL-001:
+    status: not-recorded
+    evidence: []
+    blocks: [VPKB-003, VPKB-005]
+    required_evidence:
+      - Human visual acceptance in Obsidian against a real isolated Vault.
+  EXTERNAL-BACKUP-ANCHOR-001:
+    status: not-recorded
+    evidence: []
+    blocks: [VPKB-005]
+    required_evidence:
+      - External anchor for the raw-inclusive private archive manifest.
+      - Real isolated restore observation bound to the anchored manifest.
+  HUMAN-READINESS-MERGE-001:
+    status: not-recorded
+    evidence: []
+    blocks: [PR-94-MERGE]
+    required_evidence:
+      - User readiness decision after exact-head CI and Architect acceptance.
+      - Explicit merge instruction for the current PR head, base and target.
 
 work_packages:
   - id: VPKB-000
@@ -147,12 +174,12 @@ work_packages:
 
   - id: VPKB-001
     title: Vault and upstream transaction adaptation
-    status: in_progress
+    status: local-candidate-complete-pending-delivery-ci
     depends_on: [VPKB-000]
     prerequisite_status: satisfied-for-adapter-contract-implementation
     active_packet: VPKB-001-adapter-contract
-    phase: staged_pdf_capture_inspect_implementation
-    implementation_status: fourth-architecture-accepted-implementation-r3-correction-active
+    phase: adapter-and-integrity-runtime-implemented-locally
+    implementation_status: all-codex-executable-surfaces-in-closure-candidate
     ordered_verification_slices: [adapter-contract, integrity-runtime]
     note: >-
       The slices are verification order within this package, not additional
@@ -173,43 +200,59 @@ work_packages:
       successor architecture is accepted at exact head
       4168e151c332cdcf89227bf086d4a6bc5308e649, run 33497663181 and merge
       preview f48d3cc3323958270f2e249d8e6a71f853df2150. Its bounded implementation
-      R3 correction is active under the frozen work package. Operation results and
-      integrity-runtime remain later ordered work.
-      Complete both slices before VPKB-002.
+      is accepted at exact head ed6c83865b51e8f512ab22d7c6c7113a15e26837,
+      run 33558215519 and merge preview
+      6c4e8539f187ce8171a50f79086ef8eccda9f05c. The successor candidate adds
+      staged code capture, operation-result authority, receipt and managed-state
+      audit, publication, catalog generation/query, exact evidence joins,
+      retrieval evaluation, and raw-inclusive backup/restore verification. The
+      signed closure and dual-Python suites pass locally. Exact delivery, fresh
+      CI and exact-head acceptance remain; no real Vault or human gate is claimed.
 
   - id: VPKB-002
     title: Three-paper and one-repository engine data chain
-    status: not_started
+    status: executable-validation-complete-external-inputs-open
     depends_on: [VPKB-001]
-    prerequisite_status: not-satisfied
+    prerequisite_status: local-candidate-satisfied-pending-delivery-ci
     note: >-
-      Requires the complete VPKB-001 acceptance evidence. Data-chain success
-      alone does not establish engine-mvp or corpus-v1 completion.
+      The installed-wheel closure executes a deterministic three-paper and
+      one-repository chain through the public interfaces. It uses synthetic
+      fixtures and therefore does not replace real PDF/repository provenance,
+      human claim review, or exact-head CI.
 
   - id: VPKB-003
     title: Repository skills and engine MVP acceptance
-    status: not_started
+    status: executable-validation-complete-human-gates-open
     depends_on: [VPKB-002]
-    prerequisite_status: not-satisfied
+    prerequisite_status: engineering-candidate-satisfied
     note: >-
-      Requires skills, fresh-context safety checks, a repeated data chain,
-      and the required human visual acceptance before engine-mvp can close.
+      Four repository Skills, fresh-PATH checks, no-admin/no-egress/no-Vault-write
+      sentinels, stale reporting and the repeated installed data chain pass.
+      Human claim review and Obsidian visual acceptance remain open, so the
+      product milestone itself is not marked human-accepted.
 
   - id: VPKB-004
     title: Official code evidence mapping
-    status: not_started
+    status: implementation-ready-human-gate-blocked
     depends_on: [VPKB-003, HUMAN-GATE-BASELINE-001]
-    prerequisite_status: not-satisfied
-    note: Do not begin production mapping while the persisted human gate is unverified.
+    prerequisite_status: engineering-satisfied-human-gates-not-satisfied
+    note: >-
+      UTF-8 code staging, inspected manifests, exact evidence joins, locator
+      migration proposals and mapping authority are implemented and tested.
+      Production mapping must not run until the baseline and real
+      provenance/license gates are supplied.
 
   - id: VPKB-005
     title: Baseline corpus and retrieval acceptance
-    status: not_started
+    status: implementation-ready-external-gates-open
     depends_on: [VPKB-004, HUMAN-GATE-BASELINE-001]
-    prerequisite_status: not-satisfied
+    prerequisite_status: engineering-satisfied-external-gates-not-satisfied
     note: >-
-      Requires corpus quality, human core-claim review, retrieval thresholds,
-      raw-inclusive backup/restore evidence, and all required human gates.
+      Deterministic compilation/publication, SQLite catalog/query, retrieval
+      validation/evaluation, strict audit and raw-inclusive backup/restore are
+      implemented and exercised. Real corpus quality, human core-claim review,
+      retrieval judgments, external backup anchoring, visual acceptance and the
+      readiness decision remain outside Codex authority.
 
 packets:
   - id: VPKB-000-pr94
@@ -958,7 +1001,7 @@ packets:
         a later separately frozen generation revision.
     fourth_subrelease:
       id: staged-pdf-capture-inspect-v1
-      status: architecture-accepted-r5-ci-failed-r6-local-accepted
+      status: architecture-and-implementation-accepted
       architecture_baseline: fb2cbcb565195a232f22d02c0474ac1b1b34f7d3
       contract_path: docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md
       candidate_contract_sha256: 8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f
@@ -1068,6 +1111,34 @@ packets:
       architect_local_acceptance: artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/architect-local-acceptance-r6.json
       architect_local_acceptance_sha256: 2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed
       architect_local_acceptance_decision: PASSED_LOCAL_R6_PORTABLE_TEST_FIXTURE_CANDIDATE_PENDING_EXACT_DELIVERY_AND_FRESH_CI
+      implementation_delivery:
+        status: passed
+        head: ed6c83865b51e8f512ab22d7c6c7113a15e26837
+        tree: 3aea2d6cc12c7634b6e7c253a39f92771aedb591
+        parent: 39d279fa8b357d63ef282cbc9dee35a93773e4d4
+        path_count: 14
+        snapshot_sha256: 179f2a069f002a501ce93c5548a216aac2256ecaa17de13a40192e4b02ddf3b7
+        manifest_sha256: 59b41532e67353324e317ef9be7f22efb1d7be22a02c16a96a4e3aef0498c05e
+        steward_delivery_review_sha256: b623316f7e8a841e65da937b2d566ce2c4a99d4690de6561660799eeaba37069
+      implementation_ci:
+        status: passed
+        run_id: 33558215519
+        run_attempt: 1
+        tested_merge_sha: 6c4e8539f187ce8171a50f79086ef8eccda9f05c
+        ordered_parents:
+          - 08709894adfb20ec07e976783f0ba436d975b74f
+          - ed6c83865b51e8f512ab22d7c6c7113a15e26837
+        jobs: [100024144107, 100024144490, 100024144663, 100024144530]
+        tests_per_job: 1962
+      implementation_post_ci_records:
+        ci_observation_record: ci-observation.json
+        ci_observation_sha256: 8f9dbca1332ea5465584025e896d15f30425dc357ffb6f279e30329d0bec4a18
+        merge_parents_record: merge-parents.json
+        merge_parents_sha256: 695c6ad179d17f4feac1eb48e2e4138e0981184bf2e1fbc0dc569029cf059429
+        architect_acceptance_record: architect-acceptance.json
+        architect_acceptance_sha256: 461c7de89c6fdcd9a611901f7928a7e4168c9d066de4e34be91e49810717e0af
+        custody: local-untracked-protected-not-repository-evidence
+      implementation_architect_acceptance: ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_IMPLEMENTATION_AT_EXACT_HEAD
       r5_local_wheel_sha256: a422e8dbc6f96b543b6509cbb3695e592f78c5233975c196861e8f29c5abf7e7
       r5_local_wheel_schema_count: 26
       implementation_scope_resolution: >-
@@ -1094,12 +1165,15 @@ packets:
         read-only authority emit no catalog rows. Any later authority consumer
         requires a separately frozen generation revision.
     verification:
-      status: first-through-third-subreleases-and-fourth-architecture-accepted-r5-ci-failed-r6-local-accepted
+      status: first-through-fourth-subreleases-accepted
       evidence_directory: artifacts/verification/VPKB-001-adapter-contract/
       first_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/implementation/delivery-candidate.json
       second_delivery_candidate: artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json
-      fresh_ci_required: true
-      architect_acceptance_required: true
+      fresh_ci_required: false
+      architect_acceptance_required: false
+      next_head_requires_fresh_ci: true
+      prior_post_ci_records_repository_carried: false
+      prior_post_ci_records_custody: local-untracked-protected
       merge_authorized: false
 
 milestones:

@@ -326,10 +326,37 @@ independent review
 `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
 and Architect local acceptance
 `2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
-passed. Exact successor delivery, fresh merge-ref CI and separate exact-head
-acceptance remain pending. Passing this subrelease will not complete staged code
-capture, operation-result handling, the rest of adapter-contract, VPKB-001, PR
-merge, or any human gate.
+passed. The exact R6 successor was delivered at head
+`ed6c83865b51e8f512ab22d7c6c7113a15e26837`, tree
+`3aea2d6cc12c7634b6e7c253a39f92771aedb591`, with 14-path snapshot
+`179f2a069f002a501ce93c5548a216aac2256ecaa17de13a40192e4b02ddf3b7`.
+Fresh run `33558215519` checked merge preview
+`6c4e8539f187ce8171a50f79086ef8eccda9f05c`; all four Linux/macOS x
+Python 3.12/3.13 jobs passed 1962 tests. CI observation
+`8f9dbca1332ea5465584025e896d15f30425dc357ffb6f279e30329d0bec4a18`
+and merge-parent record
+`695c6ad179d17f4feac1eb48e2e4138e0981184bf2e1fbc0dc569029cf059429`
+bind that run and ordered parents. Architect acceptance
+`461c7de89c6fdcd9a611901f7928a7e4168c9d066de4e34be91e49810717e0af`
+records
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_IMPLEMENTATION_AT_EXACT_HEAD`.
+The post-CI records were generated after the tested commit and remain local
+untracked protected material. Their hashes identify historical external
+evidence; this successor neither stages them nor claims repository carriage.
+That exact-head acceptance did not itself complete staged code capture,
+operation-result handling, the rest of adapter-contract, VPKB-001, PR merge, or
+any human gate.
+
+## Roadmap closure successor candidate
+
+The current successor implements the remaining Codex-executable adapter,
+integrity, domain, publication, catalog, retrieval, backup/restore and Skills
+surfaces. A signed 74-case closure run passed 74/74; Python 3.12.14 and 3.13.13
+each passed 2152 tests, and the independent security suite passed 295 tests.
+These are local candidate results pending exact delivery and fresh four-job CI.
+Synthetic fixtures do not supply real provenance, license judgment, human claim
+review, Obsidian visual acceptance, external backup anchoring, readiness or
+merge authority.
 
 ## Exclusions and rollback
 

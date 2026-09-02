@@ -566,6 +566,15 @@ def evidence_fingerprint(evidence: Sequence[Mapping[str, Any]]) -> str:
         raise IdentityError(CANONICAL_JSON_INVALID, exc.message, exc.details) from exc
 
 
+def locator_fingerprint(locator: Mapping[str, Any]) -> str:
+    """Hash the canonical identity fields of one evidence locator."""
+
+    try:
+        return hashlib.sha256(canonicalize(_evidence_identity(locator))).hexdigest()
+    except CanonicalJsonError as exc:
+        raise IdentityError(CANONICAL_JSON_INVALID, exc.message, exc.details) from exc
+
+
 def receipt_intent_payload(receipt: Mapping[str, Any]) -> dict[str, Any]:
     return {field: receipt.get(field) for field in RECEIPT_INTENT_FIELDS}
 

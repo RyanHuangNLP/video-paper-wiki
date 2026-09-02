@@ -7,13 +7,16 @@ import shutil
 import sys
 
 from video_paper_wiki.commands import capture as capture_commands
+from video_paper_wiki.commands import domain as domain_commands
 from video_paper_wiki.commands import draft as draft_commands
 from video_paper_wiki.commands import plan as plan_commands
 from video_paper_wiki.commands import prepare as prepare_commands
 from video_paper_wiki.commands import review as review_commands
+from video_paper_wiki.commands import publication as publication_commands
+from video_paper_wiki.staged_code_capture import run_code_inspect_command
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.notes.encoding import InvalidEncoding
-from video_paper_wiki.staging import StagingError, resolve_checkout_root
+from video_paper_wiki.staging import StagingError
 
 
 class UsageError(Exception):
@@ -70,25 +73,8 @@ def _cmd_doctor(_args: argparse.Namespace) -> int:
     )
 
 
-def _cmd_not_implemented(command: str):
-    def _run(_args: argparse.Namespace) -> int:
-        return emit_error(
-            command,
-            "NOT_IMPLEMENTED",
-            f"{command} is not implemented in VPKB-000-02",
-        )
-
-    return _run
-
-
 def _cmd_query(args: argparse.Namespace) -> int:
-    if not args.json:
-        return emit_error("query", "USAGE", "query requires --json")
-    return emit_error(
-        "query",
-        "NOT_IMPLEMENTED",
-        "query is not implemented in VPKB-000-02",
-    )
+    return domain_commands.query(args)
 
 
 def _add_plan_flags(parser: argparse.ArgumentParser) -> None:
@@ -111,13 +97,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     init = _add_parser(sub, "init")
     init_sub = init.add_subparsers(dest="init_cmd", required=True)
-    _add_parser(init_sub, "plan").set_defaults(handler=_cmd_not_implemented("init.plan"))
-    _add_parser(init_sub, "inspect").set_defaults(handler=_cmd_not_implemented("init.inspect"))
+    _add_parser(init_sub, "plan").set_defaults(handler=domain_commands.init_plan)
+    init_inspect = _add_parser(init_sub, "inspect"); init_inspect.add_argument("--upstream-root", required=True); init_inspect.add_argument("--vault-root", required=True); init_inspect.set_defaults(handler=domain_commands.init_inspect)
 
     seed = _add_parser(sub, "seed")
     seed_sub = seed.add_subparsers(dest="seed_cmd", required=True)
-    _add_parser(seed_sub, "validate").set_defaults(handler=_cmd_not_implemented("seed.validate"))
-    _add_parser(seed_sub, "status").set_defaults(handler=_cmd_not_implemented("seed.status"))
+    for name, handler in (("validate", domain_commands.seed_validate), ("status", domain_commands.seed_status)):
+        command = _add_parser(seed_sub, name); command.add_argument("--catalog"); command.set_defaults(handler=handler)
+    seed_render = _add_parser(seed_sub, "render"); seed_render.add_argument("--batch-id", required=True); seed_render.set_defaults(handler=domain_commands.seed_render)
 
     ingest = _add_parser(sub, "ingest")
     ingest_sub = ingest.add_subparsers(dest="ingest_cmd", required=True)
@@ -127,7 +114,11 @@ def build_parser() -> argparse.ArgumentParser:
     ingest_prepare = _add_parser(ingest_sub, "prepare")
     ingest_prepare.set_defaults(_vpkb_family="ingest")
     _add_prepare_flags(ingest_prepare)
-    _add_parser(ingest_sub, "inspect").set_defaults(handler=_cmd_not_implemented("ingest.inspect"))
+    ingest_inspect = _add_parser(ingest_sub, "inspect"); ingest_inspect.add_argument("--path", required=True); ingest_inspect.add_argument("--schema"); ingest_inspect.set_defaults(handler=lambda a: domain_commands.inspect_document(a,"ingest.inspect"))
+    ingest_package = _add_parser(ingest_sub, "package")
+    for flag in ("request", "captured-pdf", "document-json", "parser-config", "model-manifest", "run-manifest", "batch-id", "vault-root"):
+        ingest_package.add_argument("--" + flag, dest=flag.replace("-", "_"), required=True)
+    ingest_package.set_defaults(handler=publication_commands.ingest_package)
 
     capture = _add_parser(sub, "capture")
     capture_sub = capture.add_subparsers(dest="capture_cmd", required=True)
@@ -155,7 +146,23 @@ def build_parser() -> argparse.ArgumentParser:
     review_export.add_argument("--draft", required=True)
     review_export.add_argument("--batch-id", required=True)
     review_export.set_defaults(handler=review_commands.export)
-    _add_parser(review_sub, "inspect").set_defaults(handler=_cmd_not_implemented("review.inspect"))
+    review_inspect = _add_parser(review_sub, "inspect"); review_inspect.add_argument("--path", required=True); review_inspect.add_argument("--schema"); review_inspect.set_defaults(handler=lambda a: domain_commands.inspect_document(a,"review.inspect"))
+    review_prepare = _add_parser(review_sub, "prepare")
+    for flag in ("decision", "state", "batch-id", "vault-root"): review_prepare.add_argument("--"+flag,dest=flag.replace("-","_"),required=True)
+    review_prepare.set_defaults(handler=publication_commands.review_prepare)
+    review_invalidate = _add_parser(review_sub, "invalidate")
+    for flag in ("change", "state", "batch-id", "vault-root"): review_invalidate.add_argument("--"+flag,dest=flag.replace("-","_"),required=True)
+    review_invalidate.set_defaults(handler=publication_commands.review_invalidate)
+
+    publication = _add_parser(sub, "publication")
+    publication_sub = publication.add_subparsers(dest="publication_cmd", required=True)
+    publication_prepare = _add_parser(publication_sub, "prepare")
+    publication_prepare.add_argument("--request", required=True);publication_prepare.add_argument("--batch-id",required=True)
+    publication_prepare.set_defaults(handler=publication_commands.prepare)
+    publication_inspect = _add_parser(publication_sub, "inspect")
+    for flag in ("prepared", "operation-id", "upstream-root", "vault-root"):
+        publication_inspect.add_argument("--"+flag,dest=flag.replace("-","_"),required=True)
+    publication_inspect.set_defaults(handler=publication_commands.inspect)
 
     code_map = _add_parser(sub, "code-map")
     code_map_sub = code_map.add_subparsers(dest="code_map_cmd", required=True)
@@ -165,18 +172,49 @@ def build_parser() -> argparse.ArgumentParser:
     code_map_prepare = _add_parser(code_map_sub, "prepare")
     code_map_prepare.set_defaults(_vpkb_family="code-map")
     _add_prepare_flags(code_map_prepare)
-    _add_parser(code_map_sub, "inspect").set_defaults(handler=_cmd_not_implemented("code-map.inspect"))
+    code_map_prepare.add_argument("--source-path", required=True)
+    code_inspect = _add_parser(code_map_sub, "inspect")
+    for flag in ("prepared", "operation-id", "upstream-root", "vault-root"):
+        code_inspect.add_argument("--"+flag, dest=flag.replace("-","_"), required=True)
+    code_inspect.set_defaults(handler=run_code_inspect_command)
 
     index = _add_parser(sub, "index")
     index_sub = index.add_subparsers(dest="index_cmd", required=True)
-    _add_parser(index_sub, "status").set_defaults(handler=_cmd_not_implemented("index.status"))
+    index_status = _add_parser(index_sub, "status"); index_status.add_argument("--vault-root", required=True); index_status.add_argument("--upstream-root", required=True); index_status.add_argument("--config",required=True); index_status.set_defaults(handler=domain_commands.index_status)
 
     query = _add_parser(sub, "query")
     query.add_argument("--json", action="store_true")
+    query.add_argument("--text", required=True)
+    query.add_argument("--vault-root", required=True); query.add_argument("--upstream-root", required=True)
+    query.add_argument("--config",required=True)
     query.set_defaults(handler=_cmd_query)
 
+    catalog = _add_parser(sub,"catalog");catalog_sub=catalog.add_subparsers(dest="catalog_cmd",required=True)
+    catalog_report=_add_parser(catalog_sub,"report");catalog_report.add_argument("--json",action="store_true",required=True);catalog_report.add_argument("--vault-root",required=True);catalog_report.add_argument("--upstream-root",required=True);catalog_report.add_argument("--config",required=True);catalog_report.add_argument("--kind",required=True,choices=("code-openness","paper-lifecycle","evidence-coverage"));catalog_report.add_argument("--paper-id");catalog_report.set_defaults(handler=domain_commands.catalog_report)
+
     audit = _add_parser(sub, "audit")
-    audit.set_defaults(handler=_cmd_not_implemented("audit"))
+    audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
+    audit.set_defaults(handler=domain_commands.audit)
+
+    compile_cmd = _add_parser(sub, "compile"); compile_sub=compile_cmd.add_subparsers(dest="compile_cmd",required=True)
+    compile_validate=_add_parser(compile_sub,"validate");compile_validate.add_argument("--path",required=True);compile_validate.set_defaults(handler=domain_commands.compile_validate)
+    compile_render=_add_parser(compile_sub,"render");compile_render.add_argument("--path",required=True);compile_render.add_argument("--batch-id",required=True);compile_render.set_defaults(handler=domain_commands.compile_render)
+    evidence=_add_parser(sub,"evidence"); evidence_sub=evidence.add_subparsers(dest="evidence_cmd",required=True)
+    evidence_join=_add_parser(evidence_sub,"join");evidence_join.add_argument("--path",required=True);evidence_join.add_argument("--vault-root",required=True);evidence_join.set_defaults(handler=domain_commands.evidence_join)
+    retrieval=_add_parser(sub,"retrieval");retrieval_sub=retrieval.add_subparsers(dest="retrieval_cmd",required=True)
+    rv=_add_parser(retrieval_sub,"validate")
+    for flag in ("config","gold","inventory"):rv.add_argument("--"+flag,required=True)
+    rv.set_defaults(handler=domain_commands.retrieval_validate)
+    reval=_add_parser(retrieval_sub,"evaluate")
+    for flag in ("gold","inventory","config","mapping","results"):reval.add_argument("--"+flag,required=True)
+    reval.set_defaults(handler=domain_commands.retrieval_evaluate)
+    backup=_add_parser(sub,"backup");backup_sub=backup.add_subparsers(dest="backup_cmd",required=True)
+    bm=_add_parser(backup_sub,"manifest");bm.add_argument("--vault-root",required=True);bm.add_argument("--expected-operation-head");bm.add_argument("--expected-claimed-raw");bm.set_defaults(handler=domain_commands.backup_build)
+    bv=_add_parser(backup_sub,"verify");bv.add_argument("--restore-root",required=True);bv.add_argument("--source-root",required=True);bv.add_argument("--manifest",required=True);bv.add_argument("--upstream-root",required=True);bv.add_argument("--config",required=True);bv.set_defaults(handler=domain_commands.backup_verify)
+
+    gate=_add_parser(sub,"gate");gate_sub=gate.add_subparsers(dest="gate_cmd",required=True)
+    gp=_add_parser(gate_sub,"prepare");gp.add_argument("--decision",required=True);gp.add_argument("--baseline-manifest",required=True);gp.add_argument("--batch-id",required=True);gp.set_defaults(handler=domain_commands.gate_prepare)
+    gi=_add_parser(gate_sub,"inspect");gi.add_argument("--prepared",required=True);gi.add_argument("--operation-id",required=True);gi.add_argument("--upstream-root",required=True);gi.add_argument("--vault-root",required=True);gi.set_defaults(handler=domain_commands.gate_inspect)
 
     return parser
 
@@ -197,11 +235,6 @@ def main(argv: list[str] | None = None) -> int:
     if getattr(ns, "command", None) == "query" and not getattr(ns, "json", False):
         sys.stderr.write("query requires --json\n")
         return emit_error("query", "USAGE", "query requires --json")
-    try:
-        resolve_checkout_root()
-    except StagingError as exc:
-        sys.stderr.write(f"{exc.message}\n")
-        return emit_staging_error(_command_from_argv(args), exc)
     try:
         return handler(ns)
     except StagingError as exc:

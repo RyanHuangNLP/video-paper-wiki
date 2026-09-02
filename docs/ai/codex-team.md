@@ -204,16 +204,28 @@ R6 candidate `e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa`
 review `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
 和 Architect local acceptance
 `2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
-均通过。精确 successor 交付、fresh CI 与 exact-head 验收仍未完成。R1-R5
-工作包及被拒/失败证据原字节保留。此阶段仍不执行 upstream
-apply/recover/admin，不处理 staged code、operation result、ledger/integrity、
-vendor/dependency/workflow 或真实 Vault。
+均通过。R6 已按 14 路径 snapshot
+`179f2a069f002a501ce93c5548a216aac2256ecaa17de13a40192e4b02ddf3b7`
+交付为 exact head `ed6c83865b51e8f512ab22d7c6c7113a15e26837`、tree
+`3aea2d6cc12c7634b6e7c253a39f92771aedb591`。Fresh run `33558215519`
+在 merge preview `6c4e8539f187ce8171a50f79086ef8eccda9f05c` 上四项各通过
+1962 tests。CI 与 merge-parent 记录 SHA-256 分别为
+`8f9dbca1332ea5465584025e896d15f30425dc357ffb6f279e30329d0bec4a18`、
+`695c6ad179d17f4feac1eb48e2e4138e0981184bf2e1fbc0dc569029cf059429`；
+Architect acceptance
+`461c7de89c6fdcd9a611901f7928a7e4168c9d066de4e34be91e49810717e0af`
+签发
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_IMPLEMENTATION_AT_EXACT_HEAD`。
+三份 post-CI 记录均在被测 commit 之后生成，现为本地未跟踪保护材料；后继只记录其
+历史 SHA，不暂存这些文件，也不声称仓库已经携带。R1-R5 工作包及被拒/失败证据保持
+历史状态。当前路线图闭环候选已实现 staged code、operation result、integrity audit、
+publication、catalog/query、retrieval 与 backup/restore 等可由 Codex 执行的工程表面；
+真实 Vault、来源与许可判断、人工 claim/视觉验收、外部备份锚、readiness 与 merge 仍开放。
 
-`base-catalog-v1` generation revision 1 继续保持不变，因为两个 adapter 子版本都不生成
-catalog rows。第一个实际消费 authority 的 mapper/compiler 必须另升 generation profile
-revision 并绑定 adapter、schema/profile 和 authority digest。VPKB-001 仍按
-`adapter-contract` → `integrity-runtime` 顺序完成；首个子版本通过不代表整个 slice 或
-VPKB-001 完成。
+历史 `base-catalog-v1` generation revision 1 保持不变；当前候选新增独立
+`search-catalog-v1` generation profile，并绑定 adapter、schema/profile、authority 与
+输入 digest。74 项闭环、Python 3.12/3.13 各 2152 项全量均已本地通过，仍须绑定新的
+exact head 和 fresh CI，且不能据此关闭任何外部或人工 gate。
 
 保持同一 PR 中的单写者：架构阶段由 Architect 写冻结文件，实施阶段再显式把生产/测试
 路径交给 Builder；Steward 始终只独立核验并串行处理 Git/CI。每次审查以

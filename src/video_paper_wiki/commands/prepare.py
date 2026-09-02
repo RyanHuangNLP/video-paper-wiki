@@ -35,12 +35,12 @@ from video_paper_wiki.secure_io import (
     SOURCE_CHANGED,
     SecureIOError,
     load_strict_json,
+    read_regular_file,
 )
 from video_paper_wiki.staging import (
     StagingError,
     resolve_checkout_root,
     _stage_prepared_pdf_capture,
-    stage_bytes,
     validate_batch_id,
 )
 
@@ -210,7 +210,15 @@ def run(args: object | None = None) -> int:
             plan, plan_identity = _load_paper_plan_with_identity(checkout, str(plan_raw))
         else:
             plan = _load_prescribed_plan(checkout, str(plan_raw))
-            plan_identity = None
+            code_plan_path = checkout / ".work" / plan["batch_id"] / "plan" / PLAN_FILENAME
+            plan_identity = os.lstat(code_plan_path)
+            code_plan_bytes = read_regular_file(
+                code_plan_path,
+                missing_code=PLAN_NOT_FOUND,
+                unsafe_code=PLAN_PATH_UNSAFE,
+                changed_code=SOURCE_CHANGED,
+                max_bytes=HARD_MAX_BYTES,
+            )
         if plan.get("plan_kind") != expected_kind:
             raise PrepareError(
                 PLAN_KIND_MISMATCH,
@@ -294,11 +302,56 @@ def run(args: object | None = None) -> int:
                 staged_pair.blob_already_staged and staged_pair.request_already_staged
             )
         else:
-            staged = stage_bytes(
-                batch_id=plan["batch_id"], relative=("prepared", f"{digest}.blob"), data=data,
+            from video_paper_wiki.code_evidence_contracts import (
+                code_proposal_hash, code_text_metadata, validate_code_evidence_manifest,
             )
-            payload["staged_path"] = staged.path.as_posix()
-            payload["already_staged"] = staged.already_staged
+            source_path = getattr(args, "source_path", None)
+            if type(source_path) is not str or not source_path:
+                raise PrepareError("USAGE", "code-map --source-path is required")
+            if source_path != plan["input"].get("source_path"):
+                raise PrepareError(PLAN_KIND_MISMATCH, "source path differs from approved code plan")
+            metadata = code_text_metadata(data)
+            proposal = {
+                "schema": "video-paper-wiki.code-evidence-manifest.v1",
+                "state": "proposal",
+                "origin": {
+                    "repository": plan["input"]["repository"],
+                    "commit": plan["input"]["commit"],
+                    "path": source_path,
+                },
+                "payload": {"sha256": digest, "size_bytes": len(data)},
+                "media_type": "text/plain", "encoding": "utf-8",
+                "line_canonicalization": "utf8-lf-v1", **metadata,
+                "proposal_sha256": "0" * 64,
+            }
+            proposal["proposal_sha256"] = code_proposal_hash(proposal)
+            proposal = validate_code_evidence_manifest(proposal, payload=data)
+            plan_bytes = code_plan_bytes
+            def request_factory() -> bytes:
+                request = validate_document({
+                    "schema": "video-paper-wiki.staged-code-capture-request.v1",
+                    "batch_id": plan["batch_id"],
+                    "plan_sha256": hashlib.sha256(plan_bytes).hexdigest(),
+                    "plan_size_bytes": len(plan_bytes),
+                    "approval_ref": parsed_ref,
+                    "approval_ref_sha256": ref_digest,
+                    "payload_file": f"prepared/{digest}.blob",
+                    "manifest": proposal,
+                })
+                return canonicalize(request)
+            staged_pair = _stage_prepared_pdf_capture(
+                batch_id=plan["batch_id"], plan_bytes=plan_bytes,
+                plan_identity=plan_identity, blob_name=f"{digest}.blob", blob=data,
+                request_factory=request_factory,
+                request_name="staged-code-capture-request.v1.json",
+            )
+            payload.update(
+                staged_path=staged_pair.blob_path.as_posix(),
+                request_path=staged_pair.request_path.as_posix(),
+                request_sha256=staged_pair.request_sha256,
+                proposal_sha256=proposal["proposal_sha256"],
+                already_staged=(staged_pair.blob_already_staged and staged_pair.request_already_staged),
+            )
     except (
         SecureIOError,
         StagingError,

@@ -231,10 +231,24 @@ passed the full 1962-test suite on both locked Python lines. Independent review
 `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
 and Architect local acceptance
 `2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
-passed. Exact R6 successor delivery, fresh implementation CI and separate
-exact-head acceptance remain pending.
+passed. The exact 14-path R6 successor was delivered at head
+`ed6c83865b51e8f512ab22d7c6c7113a15e26837`, tree
+`3aea2d6cc12c7634b6e7c253a39f92771aedb591`. Fresh run `33558215519`
+checked merge preview `6c4e8539f187ce8171a50f79086ef8eccda9f05c`; all four
+Linux/macOS x Python 3.12/3.13 jobs passed 1962 tests. CI observation
+`8f9dbca1332ea5465584025e896d15f30425dc357ffb6f279e30329d0bec4a18`,
+merge-parent record
+`695c6ad179d17f4feac1eb48e2e4138e0981184bf2e1fbc0dc569029cf059429`,
+and Architect acceptance
+`461c7de89c6fdcd9a611901f7928a7e4168c9d066de4e34be91e49810717e0af`
+record
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_IMPLEMENTATION_AT_EXACT_HEAD`.
+They were generated after the tested commit and remain local untracked protected
+material. Their hashes identify historical external evidence; this successor
+does not stage or claim to repository-carry those three files.
 
 Local, wheel, independent review and remote CI observations remain distinct.
-Accepting any bounded subrelease will not complete the later `integrity-runtime`
-slice or all of VPKB-001. No record here authorizes apply/recover/admin, a real
-Vault, network/models, PR readiness, merge, auto-merge or a human gate.
+The roadmap-closure successor now implements the remaining Codex-executable
+runtime surfaces and passes its local closure checks. No record here authorizes
+real-Vault apply/recover/admin, external provenance or license decisions, human
+review, PR readiness, merge, auto-merge or any human gate.

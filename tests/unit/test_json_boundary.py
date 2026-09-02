@@ -68,7 +68,9 @@ def test_plan_and_prepare_json_whitespace_boundary(
         assert not (plan_path.parent.parent / "prepared").exists()
         assert network_attempts == []
         return
-    assert main([family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 0
+    argv = [family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]
+    if family == "code-map": argv += ["--source-path", "src/model.py"]
+    assert main(argv) == 0
     result = _payload(capsys)
     assert Path(result["data"]["staged_path"]).read_bytes() == data
     assert result["data"]["approval_ref_bound"] is True
@@ -123,6 +125,7 @@ def test_invalid_json_returns_one_error_without_writes(
         argv = [family, "plan", "--request", str(request_path)]
     else:
         argv = [family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]
+        if family == "code-map": argv += ["--source-path", "src/model.py"]
     assert main(argv) == 2
     result = _payload(capsys)
     expected_code = {"request": "PLAN_REQUEST_INVALID", "plan": "SCHEMA_INVALID", "approval-ref": "APPROVAL_REF_INVALID"}[target]

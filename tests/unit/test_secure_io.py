@@ -9,6 +9,7 @@ import stat
 from pathlib import Path
 
 import pytest
+from tests.support import plant_unix_socket
 
 from video_paper_wiki.blob_store import BlobStore
 from video_paper_wiki.secure_io import (
@@ -68,9 +69,7 @@ def _to_fifo(path: Path) -> None:
 
 def _to_socket(path: Path, holders: list) -> None:
     path.unlink()
-    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    server.bind(str(path))
-    server.listen(1)
+    server = plant_unix_socket(path)
     holders.append(server)
 
 
@@ -202,9 +201,7 @@ def test_missing_symlink_dir_fifo_socket_device(tmp_path: Path) -> None:
     assert as_fifo.value.code == PLAN_PATH_UNSAFE
 
     sock_path = tmp_path / "sock.json"
-    server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    server.bind(str(sock_path))
-    server.listen(1)
+    server = plant_unix_socket(sock_path)
     try:
         with pytest.raises(SecureIOError) as as_sock:
             read_regular_file(sock_path, missing_code=PLAN_NOT_FOUND, unsafe_code=PLAN_PATH_UNSAFE)

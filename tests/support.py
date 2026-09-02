@@ -3,9 +3,28 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import socket
+import tempfile
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
+
+
+def plant_unix_socket(path: Path) -> socket.socket:
+    """Bind at a short same-device path, then move the socket entry to *path*."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir="/private/tmp"));short=short_root/"s"
+    if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
+        short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+    try:
+        server.bind(str(short));server.listen(1);os.rename(short,path)
+    except BaseException:
+        server.close()
+        try:short.unlink()
+        except OSError:pass
+        short_root.rmdir();raise
+    short_root.rmdir();return server
 
 PYPROJECT = '[project]\nname = "video-paper-wiki"\n'
 ROOT = Path(__file__).resolve().parents[1]
@@ -125,6 +144,7 @@ def code_evidence_request(
     batch_id: str = "batch-code-1",
     repository: str = "Vchitect/Latte",
     commit: str = "a" * 40,
+    source_path: str = "src/model.py",
     max_bytes: int = 50_000_000,
     **overrides: Any,
 ) -> dict[str, Any]:
@@ -139,6 +159,7 @@ def code_evidence_request(
             "kind": "github-repo",
             "repository": repository,
             "commit": commit,
+            "source_path": source_path,
         },
         "limits": {
             "max_bytes": max_bytes,

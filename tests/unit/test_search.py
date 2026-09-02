@@ -66,7 +66,7 @@ def test_command_modules_have_no_lowercase_vault() -> None:
         assert "vault" not in text, f"{path.name} contains lowercase vault"
 
 
-def test_no_retrieval_gold_or_unreleased_bm25_engine_added() -> None:
+def test_retrieval_contract_has_no_local_bm25_engine() -> None:
     src = ROOT / "src" / "video_paper_wiki"
     for path in src.rglob("*"):
         if not path.is_file():
@@ -75,7 +75,12 @@ def test_no_retrieval_gold_or_unreleased_bm25_engine_added() -> None:
             path.relative_to(src).as_posix(),
             path.read_text(encoding="utf-8") if path.suffix == ".py" else None,
         )
-    assert list((ROOT / "schemas").glob("*retrieval*")) == []
+    assert sorted(path.name for path in (ROOT / "schemas").glob("*retrieval*")) == [
+        "video-paper-wiki.retrieval-config.v1.schema.json",
+        "video-paper-wiki.retrieval-gold.v1.schema.json",
+        "video-paper-wiki.retrieval-policy.v1.schema.json",
+    ]
+    assert (ROOT / "schemas/video-paper-wiki.evidence-mapping-authority.v1.schema.json").is_file()
 
 
 def test_stat_empty_existing_dir(tmp_path, network_attempts) -> None:

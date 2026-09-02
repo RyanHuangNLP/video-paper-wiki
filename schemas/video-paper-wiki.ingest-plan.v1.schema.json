@@ -44,11 +44,12 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["kind", "repository", "commit"],
+          "required": ["kind", "repository", "commit", "source_path"],
           "properties": {
             "kind": {"const": "github-repo"},
             "repository": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"},
-            "commit": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"}
+            "commit": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"},
+            "source_path": {"type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(?:/|$))[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$(?![\\s\\S])"}
           }
         }
       ]

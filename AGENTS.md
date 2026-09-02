@@ -184,10 +184,28 @@ their task; being another Codex agent does not confer Architect authority.
   `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
   returned `GO_FOR_ARCHITECT_R6_LOCAL_ACCEPTANCE`; Architect local acceptance
   `2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
-  passed. Exact successor delivery, fresh merge-ref CI and separate exact-head
-  acceptance remain required. R1-R5 work packages and all rejected/failed
-  evidence remain byte-for-byte history. Staged code capture, operation results,
-  integrity runtime and retrieval remain outside this subrelease.
+  passed. R6 was delivered at exact head
+  `ed6c83865b51e8f512ab22d7c6c7113a15e26837`, tree
+  `3aea2d6cc12c7634b6e7c253a39f92771aedb591`, as the exact 14-path snapshot
+  `179f2a069f002a501ce93c5548a216aac2256ecaa17de13a40192e4b02ddf3b7`.
+  Fresh run `33558215519` checked merge preview
+  `6c4e8539f187ce8171a50f79086ef8eccda9f05c`; all four Linux/macOS x
+  Python 3.12/3.13 jobs passed 1962 tests. Post-CI records
+  `ci-observation.json` and `merge-parents.json` have SHA-256
+  `8f9dbca1332ea5465584025e896d15f30425dc357ffb6f279e30329d0bec4a18`
+  and `695c6ad179d17f4feac1eb48e2e4138e0981184bf2e1fbc0dc569029cf059429`.
+  Architect decision
+  `ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_IMPLEMENTATION_AT_EXACT_HEAD`
+  is bound by acceptance SHA-256
+  `461c7de89c6fdcd9a611901f7928a7e4168c9d066de4e34be91e49810717e0af`.
+  These three post-CI records were generated after the tested commit and remain
+  local untracked protected material; their hashes identify historical external
+  evidence, but this successor does not stage or claim to repository-carry them.
+  R1-R5 work packages and all rejected/failed evidence remain history. The
+  current roadmap-closure candidate adds staged code capture, operation results,
+  integrity audit, publication, catalog/query, retrieval and backup/restore.
+  Its signed 74-case run and both 2152-test Python suites pass locally; fresh
+  exact-head CI is still required, and all real-data and human gates stay open.
 - Agent-facing `vpwiki` remains zero-egress and writes generated staging only
   under the approved `.work/**` boundary. Do not install/run `vpwiki-admin`,
   mutate a real Vault, or treat test approval fixtures as real authorization.

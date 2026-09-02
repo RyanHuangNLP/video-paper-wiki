@@ -119,7 +119,13 @@ def _business(path: str, digest: str, pointer: str, *, operation: str | None = N
             _fail("TRANSACTION_PRECONDITION_MISMATCH", pointer, "captured filename digest differs")
         allowed = operation in {None, "capture"} and mode in {None, "create"}
     elif path.startswith(".raw/derived/") and len(path) > len(".raw/derived/"):
-        allowed = operation in {None, "ingest"} and mode in {None, "create"}
+        # Gate baseline manifests are immutable, content-addressed derived
+        # authority published before the wiki-only generic gate transaction.
+        gate_baseline=re.fullmatch(r"\.raw/derived/gates/([0-9a-f]{64})\.json",path)
+        if gate_baseline is not None:
+            allowed=(gate_baseline[1]==digest and operation in {None,"ingest"} and mode in {None,"create"})
+        else:
+            allowed = operation in {None, "ingest"} and mode in {None, "create"}
     elif any(path.startswith(prefix) and len(path) > len(prefix) for prefix in _PREFIXES) or path == "wiki/meta/registries/gate-heads.json":
         allowed = operation in {None, "ingest", "generic"}
         if path.startswith(("wiki/meta/reviews/", "wiki/meta/gates/")) and mode not in {None, "create"}:

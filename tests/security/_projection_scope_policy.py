@@ -11,11 +11,19 @@ import ast
 import re
 
 _APPROVED = frozenset({"projection_runtime.py", "contracts.py", "projection_generation.py"})
+_THIN_UPSTREAM = frozenset({"domain_cli.py", "upstream_runtime.py"})
+_DOMAIN_RETRIEVAL = frozenset({"retrieval.py", "evidence_join.py"})
+_CATALOG_COLLECTOR = frozenset({"catalog_collector.py"})
+_CATALOG_STORE = frozenset({"catalog_store.py"})
+_VOLATILE_INVENTORY = frozenset({"backup_manifest.py"})
+_THIN_ALLOWED_NAMES = frozenset({"bm25_query", "bm25_status"})
 _GOLD = ("retrieval-gold", "retrieval_gold")
 _PROFILE_LITERALS = frozenset({
     "bm25", "claude-obsidian.bm25.v2",
     "bm25_profile",
     "video-paper-wiki.upstream-bm25-profile.v1",
+    "video-paper-wiki.retrieval-config.v1",
+    "video-paper-wiki.retrieval-gold.v1",
     "runtime kind must be chunk or bm25",
 })
 _RUNTIME_NAMES = frozenset({"_bm25_fields", "_bm25_content"})
@@ -35,18 +43,75 @@ _IO_ACTIONS = frozenset({
 })
 
 
+def _assert_thin_upstream_bm25_adapter(relative_path: str, tree: ast.AST) -> None:
+    """Allow named upstream delegation, while refusing a local BM25 engine."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imports = [entry.name for entry in node.names]
+        elif isinstance(node, ast.ImportFrom):
+            imports = [node.module or ""] + [
+                f"{node.module}.{entry.name}" if node.module else entry.name
+                for entry in node.names
+            ]
+        else:
+            imports = []
+        for imported in imports:
+            assert not (
+                imported == "rank_bm25" or imported.startswith("rank_bm25.")
+            ), (relative_path, imported)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            name = node.name.lower()
+            if "bm25" in name:
+                assert name in _THIN_ALLOWED_NAMES, (relative_path, node.name)
+            assert name not in {
+                "build_index", "query_index", "tokenize", "tokenizer",
+                "retrieve", "retrieval", "rank", "ranking",
+            }, (relative_path, node.name)
+
+
 def assert_projection_source_scope(relative_path: str, source: str | None = None) -> None:
     """Check a path relative to src/video_paper_wiki and optional Python text."""
     lowered_path = relative_path.lower()
-    assert not any(marker in lowered_path for marker in _GOLD), relative_path
+    if relative_path not in _DOMAIN_RETRIEVAL and relative_path not in _CATALOG_COLLECTOR and relative_path not in _CATALOG_STORE:
+        assert not any(marker in lowered_path for marker in _GOLD), relative_path
     assert "bm25" not in lowered_path, relative_path
     if source is None:
         return
     lowered_source = source.lower()
-    assert not any(marker in lowered_source for marker in _GOLD), relative_path
-    if relative_path not in _APPROVED:
+    if relative_path not in _DOMAIN_RETRIEVAL and relative_path not in _CATALOG_COLLECTOR and relative_path not in _CATALOG_STORE and relative_path not in {"contracts.py", "domain_cli.py"}:
+        assert not any(marker in lowered_source for marker in _GOLD), relative_path
+    if relative_path in _DOMAIN_RETRIEVAL or relative_path in _CATALOG_COLLECTOR:
+        tree=ast.parse(source,filename=relative_path)
+        for node in ast.walk(tree):
+            if isinstance(node,(ast.Import,ast.ImportFrom)):
+                names=[x.name for x in node.names] if isinstance(node,ast.Import) else [node.module or ""]
+                assert not any(name==bad or name.startswith(bad+".") for name in names for bad in ("rank_bm25","claude_obsidian","subprocess","socket")),(relative_path,names)
+            if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+                assert node.name.lower() not in {"build_index","tokenize","tokenizer","query_index"},(relative_path,node.name)
+        return
+    if relative_path in _CATALOG_STORE:
+        tree=ast.parse(source,filename=relative_path)
+        for node in ast.walk(tree):
+            if isinstance(node,(ast.Import,ast.ImportFrom)):
+                names=[x.name for x in node.names] if isinstance(node,ast.Import) else [node.module or ""]
+                assert not any(name==bad or name.startswith(bad+".") for name in names for bad in ("rank_bm25","claude_obsidian","socket")),(relative_path,names)
+            if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+                assert node.name.lower() not in {"build_index","tokenize","tokenizer","query_index"},(relative_path,node.name)
+        return
+    if relative_path not in _APPROVED and relative_path not in _THIN_UPSTREAM and relative_path not in _VOLATILE_INVENTORY:
         assert "bm25" not in lowered_source, relative_path
     tree = ast.parse(source, filename=relative_path)
+    if relative_path in _VOLATILE_INVENTORY:
+        for node in ast.walk(tree):
+            if isinstance(node,ast.Constant) and isinstance(node.value,str) and "bm25" in node.value.lower():
+                assert node.value==".vault-meta/bm25",(relative_path,node.value)
+            if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef,ast.Name,ast.Attribute)):
+                name=getattr(node,"name",getattr(node,"id",getattr(node,"attr","")))
+                assert "bm25" not in name.lower(),(relative_path,name)
+        return
+    if relative_path in _THIN_UPSTREAM:
+        _assert_thin_upstream_bm25_adapter(relative_path, tree)
+        return
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             imports = [entry.name for entry in node.names]

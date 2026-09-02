@@ -17,6 +17,7 @@ from tests.support import (
     paper_source_request,
     pdf_bytes,
     plant_blob,
+    plant_unix_socket,
     work_plan,
     work_prepared,
     write_json,
@@ -161,12 +162,14 @@ def test_code_map_prepare_opaque_no_unzip_or_pypdf(
         raise AssertionError("pypdf must not run for code-evidence")
 
     monkeypatch.setattr("pypdf.PdfReader", boom)
-    assert main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 0
+    assert main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path), "--source-path", "src/model.py"]) == 0
     payload = _payload(capsys)
     assert payload["command"] == "code-map.prepare"
     assert payload["data"]["approval_ref_bound"] is True
     assert "page_count" not in payload["data"]
     assert Path(payload["data"]["staged_path"]).read_bytes() == b"opaque-code-bytes"
+    assert main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path), "--source-path", "src/other.py"]) == 2
+    assert _payload(capsys)["error"]["code"] == "PLAN_KIND_MISMATCH"
     prepare_src = (ROOT / "src" / "video_paper_wiki" / "commands" / "prepare.py").read_text()
     assert "zipfile" not in prepare_src
     assert "subprocess" not in prepare_src
@@ -383,7 +386,9 @@ def test_prepare_non_string_plan_schema_is_a_refusal(
     write_json(plan_path, plan)
     original_bytes = plan_path.read_bytes()
 
-    code = main([family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)])
+    argv = [family, "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]
+    if family == "code-map": argv += ["--source-path", "src/model.py"]
+    code = main(argv)
     payload = _payload(capsys)
     assert code == 2
     assert payload["ok"] is False
@@ -409,16 +414,7 @@ def _plant_special(path: Path, kind: str) -> socket.socket | None:
     elif kind == "fifo":
         os.mkfifo(path)
     elif kind == "socket":
-        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        try:
-            server.bind(str(path))
-        except OSError:
-            short = path.parent / "s"
-            if short.exists() or short.is_symlink():
-                short.unlink()
-            server.bind(str(short))
-            os.rename(short, path)
-        server.listen(1)
+        server = plant_unix_socket(path)
     elif kind == "device":
         os.symlink("/dev/null", path)
     return server
@@ -525,7 +521,7 @@ def test_blob_missing_and_family_mismatch(tmp_path, monkeypatch, capsys, network
     plan_path, ref_path, _plan = _bind_plan(tmp_path, request)
     assert main(["ingest", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 2
     assert _payload(capsys)["error"]["code"] == "BLOB_NOT_FOUND"
-    assert main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path)]) == 2
+    assert main(["code-map", "prepare", "--plan", str(plan_path), "--approval-ref", str(ref_path), "--source-path", "src/model.py"]) == 2
     assert _payload(capsys)["error"]["code"] == "PLAN_KIND_MISMATCH"
     assert network_attempts == []
 
