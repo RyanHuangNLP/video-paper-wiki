@@ -13,7 +13,12 @@ from typing import Any
 def plant_unix_socket(path: Path) -> socket.socket:
     """Bind at a short same-device path, then move the socket entry to *path*."""
     path.parent.mkdir(parents=True, exist_ok=True)
-    short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir="/private/tmp"));short=short_root/"s"
+    # Both supported CI platforms provide /tmp.  Its spelling stays below the
+    # AF_UNIX path limit even when the test runner's TMPDIR is deeply nested.
+    short_base=Path("/tmp")
+    if not short_base.is_dir():
+        raise RuntimeError("short socket temporary directory is unavailable")
+    short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir=short_base));short=short_root/"s"
     if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
         short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
     server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)

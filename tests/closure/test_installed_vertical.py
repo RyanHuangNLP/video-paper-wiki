@@ -9,6 +9,7 @@ import sys
 import pty
 import select
 import stat
+import sysconfig
 import time
 from pathlib import Path
 
@@ -85,8 +86,9 @@ def _material_hash()->str:
 @pytest.fixture(scope='session')
 def installed_cli(tmp_path_factory):
     # CI installs the locked environment before switching uv to offline mode.
-    # Reuse that job-local uv cache, while building and installing the product
-    # wheels into a fresh checkout-external environment with network disabled.
+    # Its build cache supplies the pinned wheel backend; runtime dependencies
+    # are exposed from that locked environment through the path-only bridge
+    # below.  Product installation itself explicitly bypasses uv's cache.
     uv_raw=shutil.which('uv')
     assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
     uv=Path(uv_raw).resolve()
@@ -101,18 +103,53 @@ def installed_cli(tmp_path_factory):
     wheels=base/'wheels';wheels.mkdir()
     uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
     # Do not inherit an operator workstation's local flat-index shortcut.  The
-    # locked CI setup has already populated uv's job cache; offline resolution
-    # must succeed from that cache or fail closed without attempting a network.
+    # offline build backend may use the locked setup's job cache; product
+    # installation below explicitly bypasses the cache.
     uv_env.pop('UV_FIND_LINKS',None)
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+            pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+        return result
     for project in (ROOT,ROOT/'operator'):
-        subprocess.run([str(uv),'build','--offline','--wheel','--out-dir',str(wheels),str(project)],
-            check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=uv_env)
-    subprocess.run([str(uv),'venv','--python',str(wheel_python),str(venv)],check=True,
-        stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=uv_env)
+        checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+    checked([uv,'venv','--python',wheel_python,venv])
     python=venv/'bin/python';artifacts=sorted(str(p) for p in wheels.glob('*.whl'))
     assert len(artifacts)==2
-    subprocess.run([str(uv),'pip','install','--offline','--python',str(python),*artifacts],
-        check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,env=uv_env)
+    # Install only the two products from the wheels built above.  Runtime
+    # dependencies come from the already-locked job environment through an
+    # explicit .pth bridge, so this step needs neither an index cache nor a
+    # machine-specific wheelhouse.
+    checked([uv,'pip','install','--offline','--no-cache','--no-deps','--python',python,*artifacts])
+    locked_libs=[]
+    for key in ('purelib','platlib'):
+        candidate=Path(sysconfig.get_paths()[key]).resolve()
+        if candidate not in locked_libs:locked_libs.append(candidate)
+    assert locked_libs and all(path.is_dir() for path in locked_libs)
+    child_purelib=Path(checked([python,'-I','-c','import sysconfig;print(sysconfig.get_path("purelib"))']).stdout.strip()).resolve()
+    assert child_purelib.is_dir() and child_purelib.is_relative_to(venv)
+    bridge_lines=[str(path) for path in locked_libs]
+    assert all('\r' not in line and '\n' not in line and not line.startswith('import ') for line in bridge_lines)
+    bridge=child_purelib/'vpwiki-locked-dependencies.pth'
+    bridge.write_text(''.join(line+'\n' for line in bridge_lines),encoding='utf-8')
+    assert bridge.read_text(encoding='utf-8').splitlines()==bridge_lines
+    origin_code=('import importlib, importlib.metadata, json; '
+        'names=("video_paper_wiki","video_paper_wiki_operator","jsonschema","pypdf"); '
+        'dists=("video-paper-wiki","video-paper-wiki-operator"); '
+        'print(json.dumps({"modules":{n:importlib.import_module(n).__file__ for n in names},'
+        '"distributions":{n:str(importlib.metadata.distribution(n)._path) for n in dists}},sort_keys=True))')
+    installed=json.loads(checked([python,'-I','-c',origin_code]).stdout)
+    origins=installed['modules']
+    for product in ('video_paper_wiki','video_paper_wiki_operator'):
+        origin=Path(origins[product]).resolve()
+        assert origin.is_relative_to(venv) and not origin.is_relative_to(ROOT)
+    for path in installed['distributions'].values():
+        assert Path(path).resolve().is_relative_to(venv)
+    for dependency in ('jsonschema','pypdf'):
+        origin=Path(origins[dependency]).resolve()
+        assert any(origin.is_relative_to(path) for path in locked_libs)
     return venv/'bin'
 
 
