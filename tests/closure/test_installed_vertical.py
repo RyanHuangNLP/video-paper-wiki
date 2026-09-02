@@ -214,7 +214,18 @@ def installed_vertical_session(installed_cli,tmp_path_factory):
     fixture=json.loads(raw.stdout);source=root/'source-vault';restore=root/'restore-vault'
     checkout=root/'checkout';checkout.mkdir();(checkout/'pyproject.toml').write_text('[project]\nname="video-paper-wiki"\nversion="0"\n')
     env=_env(installed_cli,root);env['VPWIKI_BLOB_ROOT']=str(root/'blobs');(root/'blobs').mkdir()
-    subprocess.run(['git','init','-q'],cwd=checkout,env=env,check=True);subprocess.run(['git','add','pyproject.toml'],cwd=checkout,env=env,check=True)
+    subprocess.run(['git','init','-q'],cwd=checkout,env=env,check=True)
+    # Git 2.55 may detach automatic maintenance after a commit.  Disable both
+    # maintenance entry points before the first write so the strict tree
+    # snapshots never race a transient .git/objects/maintenance.lock.
+    subprocess.run(['git','config','--local','maintenance.auto','false'],cwd=checkout,env=env,check=True)
+    subprocess.run(['git','config','--local','gc.auto','0'],cwd=checkout,env=env,check=True)
+    maintenance=subprocess.run(['git','config','--local','--bool','--get','maintenance.auto'],
+        cwd=checkout,env=env,check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    gc_auto=subprocess.run(['git','config','--local','--int','--get','gc.auto'],cwd=checkout,env=env,
+        check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    assert maintenance.stdout.strip()=='false' and gc_auto.stdout.strip()=='0'
+    subprocess.run(['git','add','pyproject.toml'],cwd=checkout,env=env,check=True)
     subprocess.run(['git','-c','user.name=fixture','-c','user.email=fixture@example.invalid','commit','-qm','fixture'],cwd=checkout,env=env,check=True)
     admin=installed_cli/'vpwiki-admin';vpwiki=installed_cli/'vpwiki';upstream=ROOT/'vendor/claude-obsidian'
     process_evidence=[];refusal_effects={};operator_audits={};audit_dir=root/'operator-audit';audit_dir.mkdir()
