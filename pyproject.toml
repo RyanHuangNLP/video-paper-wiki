@@ -14,6 +14,7 @@ dependencies = [
 
 [project.scripts]
 vpwiki = "video_paper_wiki.cli:main"
+vpwiki-research = "video_paper_wiki_research.cli:main"
 
 [project.optional-dependencies]
 docling = ["docling==2.117.0"]
@@ -25,7 +26,7 @@ dev = ["pytest>=8"]
 default-groups = ["dev"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/video_paper_wiki"]
+packages = ["src/video_paper_wiki", "src/video_paper_wiki_research"]
 
 [tool.hatch.build.targets.wheel.force-include]
 "docs/seed" = "video_paper_wiki/seed"

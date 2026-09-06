@@ -8,7 +8,8 @@ from typing import Any
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.identity import evidence_fingerprint, locator_fingerprint, paper_page_slug
 from video_paper_wiki.assessment_history import derive_assessment_heads
-from video_paper_wiki.jcs import canonicalize
+from video_paper_wiki.jcs import CanonicalJsonError, canonicalize
+from video_paper_wiki.ledger_locator import encode_ledger_locator
 from video_paper_wiki.projection_runtime import parse_projection_json,runtime_projection_sha256,validate_runtime_record
 from video_paper_wiki.secure_io import close_fd,dir_open_flags,open_dir_nofollow,read_child_regular,stamp
 
@@ -55,9 +56,38 @@ def validate_evidence_inventory(value:object)->dict[str,Any]:
         seen.add(expected)
     return inv
 
+def _locator_wire(locator: object) -> str:
+    if type(locator) is not dict:
+        _fail("locator is missing")
+    fields = {key: value for key, value in locator.items() if key != "relation"}
+    return encode_ledger_locator(fields)
+
+
+def _hashable_inventory(inv: Mapping[str, Any]) -> dict[str, Any]:
+    units = []
+    for unit in inv.get("units") or []:
+        item = {key: unit[key] for key in unit if key != "locator"}
+        item["locator"] = _locator_wire(unit.get("locator"))
+        units.append(item)
+    return {"schema": inv.get("schema"), "units": units}
+
+
+def _inventory_digest(inv: Mapping[str, Any]) -> str:
+    try:
+        return hashlib.sha256(canonicalize(inv)).hexdigest()
+    except CanonicalJsonError:
+        return hashlib.sha256(canonicalize(_hashable_inventory(inv))).hexdigest()
+
+
 def evidence_mapping_sha256(value:object)->str:
     if type(value) is not dict or set(value)!={"schema","profile","generation_sha256","inventory","chunks","mapping_sha256"}:_fail("mapping authority shape differs")
-    return hashlib.sha256(canonicalize({key:item for key,item in value.items() if key!="mapping_sha256"})).hexdigest()
+    payload={key:item for key,item in value.items() if key!="mapping_sha256"}
+    try:
+        return hashlib.sha256(canonicalize(payload)).hexdigest()
+    except CanonicalJsonError:
+        hashable=dict(payload)
+        hashable["inventory"]=_hashable_inventory(payload["inventory"])
+        return hashlib.sha256(canonicalize(hashable)).hexdigest()
 
 def validate_evidence_mapping_authority(value:object)->dict[str,Any]:
     mapping=validate_document(value,"video-paper-wiki.evidence-mapping-authority.v1")
@@ -102,7 +132,7 @@ def join_evidence(*, inventory: object, pages: Mapping[str,bytes], chunks: Mappi
         joined.append({"chunk_id":chunk_id,"path":expected_path,"body_hash":body_hash,"page_body_hash":page_hash,"paper_id":page_units[0]["paper_id"] if page_units else None,"evidence_unit_ids":sorted(set(selected)),
             "default_evidence_unit_ids":sorted({u["evidence_unit_id"] for u in page_units if u["default_eligible"] and u["evidence_unit_id"] in selected})})
     if mapped!={x["evidence_unit_id"] for x in inv["units"]}:_fail("evidence unit is not represented in chunks")
-    material={"inventory_sha256":hashlib.sha256(canonicalize(inv)).hexdigest(),"pages":{p:hashlib.sha256(b).hexdigest() for p,b in sorted(pages.items())},
+    material={"inventory_sha256":_inventory_digest(inv),"pages":{p:hashlib.sha256(b).hexdigest() for p,b in sorted(pages.items())},
         "chunks":{cid:runtime_projection_sha256("chunk",chunks[cid]) for cid in sorted(chunks)},"bm25_sha256":runtime_projection_sha256("bm25",bm25),"profile":"claude-obsidian.chunk-v1+bm25-v2"}
     result={"schema":"video-paper-wiki.evidence-mapping-authority.v1","inventory":inv,"chunks":joined,"profile":"claude-obsidian.chunk-v1+bm25-v2","generation_sha256":hashlib.sha256(canonicalize(material)).hexdigest(),"mapping_sha256":"0"*64}
     result["mapping_sha256"]=evidence_mapping_sha256(result)

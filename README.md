@@ -1,6 +1,35 @@
 # Video Paper Wiki
 
-Video Paper Wiki 是固定版 Claude Obsidian 之上的视频论文领域扩展。Claude Obsidian 负责 Vault 事务、capture、lint、chunk 与 BM25；本项目负责 67 篇确定性 seed、审批绑定的 PDF/代码 staging、中文 Paper/Code/Concept 编译、code-evidence manifest 和查询结果整形。
+Video Paper Wiki 是固定版 Claude Obsidian 之上的视频论文领域扩展。日常读论文、检索和当前会话问答走下面的轻量路径：原生 PDF 文本 → 分页 Markdown → 工作区内词法检索 → 当前模型回答/草稿 → 带 PDF 页码引用的 Markdown。Claude Obsidian 仍负责 Vault 事务、capture、lint、chunk 与 BM25；正式入库、67 篇 seed 和审批绑定的 PDF/代码 staging 见后文。
+
+## 轻量 PDF 阅读与问答（正常路径）
+
+工作区必须放在批准的 `.work/**` 下。只持久化 Markdown、小型来源记录和可重建文本索引，不把 PDF、图片或视频拷进知识目录，也不下载 OCR/版面/embedding 模型。
+
+不要依赖本机 PATH 上的旧 `vpwiki-research` console script。请用已安装包或指定源码树启动：
+
+```bash
+# 已安装环境（推荐）：清空 PYTHONPATH，在源码树外执行
+python -I -B -m video_paper_wiki_research --help
+
+# 源码树（开发机）：必须显式指向已验收的 integration/src
+export PYTHONPATH=/absolute/path/to/integration/src
+python -B -m video_paper_wiki_research --help
+```
+
+连续步骤（自己的 PDF、`.work` 工作区、当前会话 JSON、工作区外输出）见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。
+
+```bash
+python -m video_paper_wiki_research pdf add --pdf /absolute/path/paper.pdf --workspace .work/papers-ws --title "可选标题"
+python -m video_paper_wiki_research index build --workspace .work/papers-ws
+python -m video_paper_wiki_research qa export --question "What method does this paper propose?" --workspace .work/papers-ws > qa-context.json
+# 下一步由当前对话模型根据 qa-context.json 写出 qa-answer.json，再 import；export/import 不会自动调用模型
+python -m video_paper_wiki_research qa import --context qa-context.json --answer qa-answer.json --output /absolute/path/outside-ws/qa.md
+```
+
+`--workspace` 这条路径不需要再提供 Vault、retrieval config 或 Docling 参数。成功的轻量 export JSON 含 `workspace_root`。写出的 Markdown 里的来源链接相对**输出文件所在目录**，应能打开 workspace 内的 `source.md` 和 PDF **文件页码**对应的 `page-N` 锚点。旧的 `qa export --vault-root ... --upstream-root ... --config ...` 与 `writing export --paper-id ... --vault-root ...` 仍然可用。`qa import` / `writing import` 按 `context.schema` 选择轻量或旧路径。
+
+限制：只提取 PDF 里已经可以选中的文字。扫描页没有原生文本时会给出明确警告或拒绝空文档；图表、公式、多栏版面的阅读顺序仍需对照原 PDF。词法检索支持中文文本，但不等于跨语言语义匹配。轻量路径不会自动关闭 receipt / published / human-gate，也不代替正式 Vault 发布。
 
 ## 安装与固定上游
 
@@ -96,6 +125,36 @@ vpwiki backup verify --source-root /path/to/vault --restore-root /path/to/privat
 ```
 
 `vpwiki` 只在 `.work/**` 生成 staging，不 apply、不 recover、不构建索引。写操作直接使用固定上游公开 CLI；可选 `operator/` 包只是透明转发器，对每次副作用命令要求交互式逐次确认且没有 `--yes`。
+
+## 人工 PDF 暂存解析（未入库）
+
+用户提供本地 PDF 后，默认包装只做安全接收、parser profile 校验和有定位的 **provisional** 知识提案。这不是 canonical 入库，也不是真实 Docling/模型验收。
+
+```bash
+# 1. 校验并暂存 PDF 字节（写入 .work/blobs/<sha256> 与 intake 信封）
+vpwiki-research pdf intake --pdf /path/to/paper.pdf --session s1
+
+# 2. 可选：在另行准备的离线 Docling 环境生成 profile 与四份 staged 产物
+#    vpwiki-parser 不在默认 lock 中，agent CLI 从不导入或调用它。
+vpwiki-parser profile --artifacts-path /path/to/offline-models --session s1
+vpwiki-parser export --intake .work/research/s1/manual-pdf/intakes/<sha>.json \
+  --profile .work/research/s1/manual-pdf/profile/profile.json \
+  --artifacts-path /path/to/offline-models --session s1 --run-id run-1
+
+# 3. 从四份 staged 产物生成带 locator 的分析上下文（CLI 不调用模型）
+vpwiki-research pdf context --intake .work/research/s1/manual-pdf/intakes/<sha>.json \
+  --profile .work/research/s1/manual-pdf/profile/profile.json \
+  --run .work/research/s1/manual-pdf/runs/run-1 \
+  --upstream-root vendor/claude-obsidian --session s1
+
+# 4. 把当前会话模型返回的 unsealed JSON 封成 provisional 提案
+vpwiki-research pdf analyze --context .work/research/s1/manual-pdf/contexts/<sha>.json \
+  --proposal proposal.unsealed.json --upstream-root vendor/claude-obsidian --session s1
+```
+
+`pdf plan` 只生成既有 `ingest-plan.v1` 并返回 `awaiting_external_approval_ref`，**不会**创建 approval-ref。真实 capture 需要后续 genesis → capture inspect/apply → 源登记/receipt 工作流；不要对未初始化的 Vault 执行 capture 并假装随后可以 `ingest package`。夹具测试不是真实 PDF/Docling 验收。
+
+当前模型应只根据 `pdf context` 返回的 task prompt 生成 transport draft，且全部 claim 保持 `provisional`。
 
 ## 领域命令
 

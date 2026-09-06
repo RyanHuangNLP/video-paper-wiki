@@ -59,6 +59,26 @@ def test_receipt_audit_headless_classification(tmp_path: Path):
     assert caught.value.code == "OUT_OF_BAND_WRITE"
 
 
+def test_publication_decodes_finite_float_docling_document_only():
+    from video_paper_wiki.publication import _decode_publication_json
+    from video_paper_wiki.secure_io import parse_strict_json
+    derived = ".raw/derived/" + ("a" * 64) + "/docling/" + ("b" * 64) + "/document.json"
+    raw = b'{"bbox":{"l":0.5,"t":1.25,"r":10.0,"b":20.5},"page":1}\n'
+    parsed = _decode_publication_json(derived, raw)
+    assert parsed["bbox"]["l"] == 0.5 and parsed["page"] == 1
+    with pytest.raises(Exception) as caught:
+        parse_strict_json(raw, invalid_code="SCHEMA_INVALID")
+    assert caught.value.code == "SCHEMA_INVALID"
+    receipt = b'{"schema":"video-paper-wiki.operation-receipt.v1","sequence":1.0}'
+    with pytest.raises(Exception) as caught:
+        _decode_publication_json("wiki/meta/operations/000000000001-genesis.json", receipt)
+    assert caught.value.code == "SCHEMA_INVALID"
+    ledger = b'{"schema":"claude-obsidian.source-ledger.v1","sources":{"src-x":{"score":0.5}}}'
+    with pytest.raises(Exception) as caught:
+        _decode_publication_json("wiki/meta/ledgers/source-ledger.json", ledger)
+    assert caught.value.code == "SCHEMA_INVALID"
+
+
 def test_publication_request_is_content_addressed_and_request_last(tmp_path: Path, monkeypatch):
     (tmp_path / ".git").mkdir(); (tmp_path / "pyproject.toml").write_text('[project]\nname="video-paper-wiki"\n')
     monkeypatch.chdir(tmp_path)

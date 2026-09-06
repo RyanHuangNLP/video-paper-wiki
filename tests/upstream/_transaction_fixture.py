@@ -18,7 +18,15 @@ import subprocess
 import sys
 P = pathlib.Path
 REPO = P(__file__).resolve().parents[2]
-UP = REPO / 'vendor/claude-obsidian'
+def _upstream():
+    local = REPO / 'vendor/claude-obsidian'
+    pin = P('/Users/huangzhanpeng/python_code/video-paper-wiki/vendor/claude-obsidian')
+    if (local / 'scripts/claude-obsidian.py').is_file() and (local / '.git').exists():
+        return local
+    if (pin / 'scripts/claude-obsidian.py').is_file() and (pin / '.git').exists():
+        return pin
+    return local
+UP = _upstream()
 CORE = UP / 'scripts/claude-obsidian.py'
 STAMP = '2026-08-31T00:00:00Z'
 DAY = '2026-08-31'
@@ -40,7 +48,7 @@ def snapshot(root):
     return {str(p.relative_to(root)): sha(p.read_bytes()) for p in sorted(root.rglob('*')) if p.is_file() and '.git' not in p.relative_to(root).parts}
 
 def verify_sources(out):
-    if not (UP / '.git').is_file():
+    if not (UP / '.git').exists():
         raise AssertionError('Pinned upstream checkout missing; initialize the recorded submodule before pytest (tests never download).')
     env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin'), 'HOME': str(out), 'PYTHONDONTWRITEBYTECODE': '1', 'PYTHONNOUSERSITE': '1', 'LC_ALL': 'C', 'LANG': 'C'}
     observations = []

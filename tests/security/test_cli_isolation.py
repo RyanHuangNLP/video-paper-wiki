@@ -25,7 +25,8 @@ def test_root_package_has_no_admin_script() -> None:
     data = tomllib.loads((ROOT / "pyproject.toml").read_text())
     scripts = data["project"]["scripts"]
     assert "vpwiki-admin" not in scripts
-    assert scripts == {"vpwiki": "video_paper_wiki.cli:main"}
+    assert scripts["vpwiki"] == "video_paper_wiki.cli:main"
+    assert scripts["vpwiki-research"] == "video_paper_wiki_research.cli:main"
 
 
 def test_operator_is_not_workspace_member() -> None:

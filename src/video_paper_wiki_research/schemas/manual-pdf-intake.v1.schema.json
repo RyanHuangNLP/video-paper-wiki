@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.manual-pdf-intake.v1.schema.json",
+  "title": "video-paper-wiki-research.manual-pdf-intake.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "content_sha256", "data"],
+  "properties": {
+    "schema": {"const": "video-paper-wiki-research.manual-pdf-intake.v1"},
+    "id": {"type": "string", "pattern": "^mp1-intake-[0-9a-f]{64}$"},
+    "content_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_id",
+        "pdf_sha256",
+        "size_bytes",
+        "page_count",
+        "media_type",
+        "blob_path",
+        "original_name",
+        "provided_identity"
+      ],
+      "properties": {
+        "paper_id": {
+          "type": "string",
+          "pattern": "^(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/[\\x21-\\x40\\x5b-\\x7e]+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
+        },
+        "pdf_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1, "maximum": 67108864},
+        "page_count": {"type": "integer", "minimum": 1, "maximum": 300},
+        "media_type": {"const": "application/pdf"},
+        "blob_path": {"type": "string", "pattern": "^\\.work/blobs/[0-9a-f]{64}$"},
+        "original_name": {"type": "string", "minLength": 1, "maxLength": 255},
+        "provided_identity": {
+          "type": ["string", "null"],
+          "pattern": "^(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/[\\x21-\\x40\\x5b-\\x7e]+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
+        }
+      }
+    }
+  }
+}

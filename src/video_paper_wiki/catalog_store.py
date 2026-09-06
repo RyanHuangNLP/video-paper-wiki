@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from video_paper_wiki.contracts import ContractError, validate_document
-from video_paper_wiki.evidence_join import validate_evidence_mapping_authority
+from video_paper_wiki.evidence_join import _inventory_digest, validate_evidence_mapping_authority
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.projection_catalog import canonical_catalog_rows
 from video_paper_wiki.projection_generation import projection_generation_sha256
@@ -307,7 +307,7 @@ def prepare_catalog_material(value: object) -> dict[str, Any]:
         "compiled_pages":[{"path":x["page_path"],"compiler_role":x["compiler_role"],"sha256":x["page_sha256"]} for x in compiled_rows],
         "upstream_chunks":[{"path":x["chunk_path"],"raw_sha256":x["raw_sha256"],"size_bytes":next(y["size_bytes"] for y in input_rows if y["path"]==x["chunk_path"]),"runtime_sha256":x["runtime_sha256"]} for x in chunk_rows],
         "upstream_bm25":{"path":bm25["path"],"raw_sha256":_sha(bmraw),"size_bytes":len(bmraw),"runtime_sha256":bm_runtime},
-        "evidence_inventory_sha256":_sha(canonicalize(mapping["inventory"])),"extension_ddl_sha256":_sha(ddl),
+        "evidence_inventory_sha256":_inventory_digest(mapping["inventory"]),"extension_ddl_sha256":_sha(ddl),
         "extension_manifest_sha256":_sha(_resource("search-catalog-v1.columns.json")),"builder_files":material["builder_files"]}
     validate_document(generation,"video-paper-wiki.search-catalog-generation.v1")
     for key in ("indexed_pages","compiled_pages","upstream_chunks","builder_files"):
