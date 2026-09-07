@@ -52,6 +52,9 @@ _RUNTIME_DISTS = (
     "referencing",
     "rpds-py",
 )
+# Match referencing's conditional dependency in the locked default environment.
+if sys.version_info < (3, 13):
+    _RUNTIME_DISTS += ("typing-extensions",)
 
 
 def _sha256(path: Path) -> str:
