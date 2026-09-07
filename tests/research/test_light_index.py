@@ -11,8 +11,10 @@ from video_paper_wiki_research.light_index import (
     INDEX_FILENAME,
     INDEX_DIRNAME,
     INDEX_STALE,
+    LIGHT_SELECTION_INVALID,
     NO_RESULTS,
     OK,
+    _load_paper,
     build_index,
     search,
 )
@@ -461,3 +463,114 @@ def test_invalid_second_paper_does_not_rewrite_first_source_or_index(tmp_path: P
     assert meta_a.read_bytes() == original_a
     assert meta_b.read_bytes() == original_b
     assert index_path.read_bytes() == original_index
+
+
+def _load_stored_index(workspace: Path) -> dict:
+    path = workspace / INDEX_DIRNAME / INDEX_FILENAME
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_stored_index(workspace: Path, payload: dict) -> None:
+    path = workspace / INDEX_DIRNAME / INDEX_FILENAME
+    path.write_bytes(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode("utf-8") + b"\n")
+
+
+def test_forged_or_damaged_index_is_stale_without_keyerror(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    _write_paper(workspace, SHA_A, "Alpha paper", ["visible lexical content about diffusion"])
+    built = build_index(workspace)
+    assert built["ok"] is True
+    first_id = built["index_id"]
+    again = build_index(workspace)
+    assert again["index_id"] == first_id
+    stored = _load_stored_index(workspace)
+    stored["chunks"][0]["text"] = "fabricated lexical content about diffusion"
+    stored["chunks"][0]["text_sha256"] = _sha_text(stored["chunks"][0]["text"])
+    _write_stored_index(workspace, stored)
+    forged = search(workspace, "diffusion")
+    assert forged["ok"] is False
+    assert forged["status"] == INDEX_STALE
+    assert forged["evidence"] == []
+    stored = _load_stored_index(workspace)
+    stored["df"] = {"diffusion": 99}
+    _write_stored_index(workspace, stored)
+    df_forged = search(workspace, "diffusion")
+    assert df_forged["status"] == INDEX_STALE
+    stored = _load_stored_index(workspace)
+    stored["chunks"] = [1, {"chunk_id": "chk-bad"}]
+    _write_stored_index(workspace, stored)
+    damaged = search(workspace, "diffusion")
+    assert damaged["status"] == INDEX_STALE
+    assert damaged["evidence"] == []
+    stored["chunks"] = [{"tf": "bad"}]
+    _write_stored_index(workspace, stored)
+    typed = search(workspace, "diffusion")
+    assert typed["status"] == INDEX_STALE
+    assert typed["evidence"] == []
+
+
+def test_selection_filters_before_topk(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    _write_paper(workspace, SHA_A, "Alpha paper", ["sharedterm uniquealpha " * 20])
+    _write_paper(workspace, SHA_B, "Beta paper", ["sharedterm uniquebeta"])
+    build_index(workspace)
+    limited = search(workspace, "sharedterm", top_k=1, paper_ids=["sha256:" + SHA_B])
+    assert limited["ok"] is True
+    assert len(limited["evidence"]) == 1
+    assert limited["evidence"][0]["paper_id"] == "sha256:" + SHA_B
+    unfiltered = search(workspace, "sharedterm", top_k=1)
+    assert unfiltered["evidence"][0]["paper_id"] == "sha256:" + SHA_A
+    assert limited["evidence"][0]["paper_id"] != unfiltered["evidence"][0]["paper_id"]
+    empty = search(workspace, "sharedterm", paper_ids=[])
+    none = search(workspace, "sharedterm", paper_ids=None)
+    assert empty["ok"] is True and none["ok"] is True
+    assert {item["paper_id"] for item in empty["evidence"]} == {"sha256:" + SHA_A, "sha256:" + SHA_B}
+    blank = search(workspace, "sharedterm", paper_ids=[""])
+    mixed_blank = search(workspace, "sharedterm", paper_ids=["sha256:" + SHA_A, ""])
+    unknown = search(workspace, "sharedterm", paper_ids=["sha256:" + SHA_A, "sha256:" + "f" * 64])
+    for row in (blank, mixed_blank, unknown):
+        assert row["ok"] is False
+        assert row["status"] == LIGHT_SELECTION_INVALID
+        assert row["evidence"] == []
+
+
+def test_missing_or_null_index_hash_fields_are_stale(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    _write_paper(workspace, SHA_A, "Alpha paper", ["visible lexical content about diffusion"])
+    build_index(workspace)
+    stored = _load_stored_index(workspace)
+    del stored["papers"][0]["markdown_sha256"]
+    _write_stored_index(workspace, stored)
+    missing = search(workspace, "diffusion")
+    assert missing["ok"] is False
+    assert missing["status"] == INDEX_STALE
+    assert missing["evidence"] == []
+    stored = _load_stored_index(workspace)
+    stored["papers"][0]["markdown_sha256"] = None
+    stored["papers"][0]["source_json_sha256"] = 0
+    _write_stored_index(workspace, stored)
+    typed = search(workspace, "diffusion")
+    assert typed["status"] == INDEX_STALE
+    assert typed["evidence"] == []
+
+
+def test_invalid_utf8_markdown_is_source_invalid_not_raw_decode(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    _write_paper(workspace, SHA_A, "Alpha paper", ["visible lexical content about diffusion"])
+    build_index(workspace)
+    source = workspace / "papers" / SHA_A / "source.md"
+    source.write_bytes(b"\xff")
+    try:
+        _load_paper(workspace / "papers" / SHA_A)
+    except ResearchError as exc:
+        assert exc.code == "SOURCE_INVALID"
+    else:
+        raise AssertionError("invalid UTF-8 source.md must raise SOURCE_INVALID")
+    found = search(workspace, "diffusion")
+    assert found["ok"] is False
+    assert found["status"] == INDEX_STALE
+    assert found["evidence"] == []

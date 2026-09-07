@@ -4,9 +4,11 @@ Video Paper Wiki 是固定版 Claude Obsidian 之上的视频论文领域扩展�
 
 ## 轻量 PDF 阅读与问答（正常路径）
 
-工作区必须放在批准的 `.work/**` 下。只持久化 Markdown、小型来源记录和可重建文本索引，不把 PDF、图片或视频拷进知识目录，也不下载 OCR/版面/embedding 模型。
+普通使用从自然语言 Skill 开始：在当前对话打开 [`.agents/skills/video-paper-read/SKILL.md`](.agents/skills/video-paper-read/SKILL.md)，直接说“读这份本地 PDF / 用这几篇论文回答 / 写一段相关工作”。Skill 会调用本机 CLI、准备可恢复会话，并由**当前对话模型**根据返回的 evidence 写答案或短稿；不要手写内部 JSON。明确的 canonical Vault staging / 目录查询仍走 `video-paper-ingest` 与 `video-paper-query`，不要把真实 Vault 当成默认阅读工作区。
 
-不要依赖本机 PATH 上的旧 `vpwiki-research` console script。请用已安装包或指定源码树启动：
+工作区必须放在批准的 `.work/**` 下。只持久化 Markdown、小型来源记录、可重建文本索引和工作流会话，不把 PDF、图片或视频拷进知识目录，也不下载 OCR/版面/embedding 模型。
+
+不要依赖本机 PATH 上的旧 `vpwiki-research` console script。`vpwiki-research` 与 `python -m video_paper_wiki_research` 等价。请用已安装包或指定源码树启动：
 
 ```bash
 # 已安装环境（推荐）：清空 PYTHONPATH，在源码树外执行
@@ -17,19 +19,21 @@ export PYTHONPATH=/absolute/path/to/integration/src
 python -B -m video_paper_wiki_research --help
 ```
 
-连续步骤（自己的 PDF、`.work` 工作区、当前会话 JSON、工作区外输出）见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。
+连续步骤、选论文、状态/重启继续、改 source 后重新 prepare，以及 Bash/zsh 可复制命令见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。最小 CLI fallback（内部 JSON 仍由当前会话根据 prepare 结果生成）：
 
 ```bash
-python -m video_paper_wiki_research pdf add --pdf /absolute/path/paper.pdf --workspace .work/papers-ws --title "可选标题"
-python -m video_paper_wiki_research index build --workspace .work/papers-ws
-python -m video_paper_wiki_research qa export --question "What method does this paper propose?" --workspace .work/papers-ws > qa-context.json
-# 下一步由当前对话模型根据 qa-context.json 写出 qa-answer.json，再 import；export/import 不会自动调用模型
-python -m video_paper_wiki_research qa import --context qa-context.json --answer qa-answer.json --output /absolute/path/outside-ws/qa.md
+SESSION_ID=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+python -m video_paper_wiki_research workspace inspect --workspace .work/papers-ws
+python -m video_paper_wiki_research workflow prepare --workspace .work/papers-ws --kind qa --query "What method does this paper propose?" --pdf /absolute/path/paper.pdf
+python -m video_paper_wiki_research workflow status --workspace .work/papers-ws
+python -m video_paper_wiki_research workflow complete --workspace .work/papers-ws --session-id "$SESSION_ID" --document /absolute/path/qa-answer.json --output /absolute/path/outside-ws/qa.md
 ```
 
-`--workspace` 这条路径不需要再提供 Vault、retrieval config 或 Docling 参数。成功的轻量 export JSON 含 `workspace_root`。写出的 Markdown 里的来源链接相对**输出文件所在目录**，应能打开 workspace 内的 `source.md` 和 PDF **文件页码**对应的 `page-N` 锚点。旧的 `qa export --vault-root ... --upstream-root ... --config ...` 与 `writing export --paper-id ... --vault-root ...` 仍然可用。`qa import` / `writing import` 按 `context.schema` 选择轻量或旧路径。
+同一 PDF 可再 `prepare` / `pdf add`，已有 notes 和用户改过的 `source.md` 会保留。`--paper-id sha256:<64 hex>` 可重复出现，用来限定问答或写作只看这些论文；未知或格式错误的 ID 会被拒绝，不会悄悄退回全部论文。`workflow status` 只读；重启后用同一个 `session_id` 继续 `complete`。改过 source 后需要重新 `index build` 或再 `workflow prepare`，旧 context 会变成 `INDEX_STALE`。同一已完成会话再用相同 document/output 会复用原文件；换一份 document 或输出路径则是 `LIGHT_SESSION_CONFLICT`，旧 Markdown 保持不动。
 
-限制：只提取 PDF 里已经可以选中的文字。扫描页没有原生文本时会给出明确警告或拒绝空文档；图表、公式、多栏版面的阅读顺序仍需对照原 PDF。词法检索支持中文文本，但不等于跨语言语义匹配。轻量路径不会自动关闭 receipt / published / human-gate，也不代替正式 Vault 发布。
+高级用户仍可用 `qa export` / `writing export` 看原始 context，以及 `qa import` / `writing import` 直接安装 Markdown。`--workspace` 不必再提供 Vault、retrieval config 或 Docling 参数。成功的轻量 export JSON 含 `workspace_root`。写出的 Markdown 里的来源链接相对**输出文件所在目录**，应能打开 workspace 内的 `source.md` 和 PDF **文件页码**对应的 `page-N` 锚点。旧的 `qa export --vault-root ... --upstream-root ... --config ...` 与 `writing export --paper-id ... --vault-root ...` 仍然可用，且不能与 `--workspace` 混用。`qa import` / `writing import` 按 `context.schema` 选择轻量或旧路径。
+
+限制：只提取 PDF 里已经可以选中的文字。扫描页没有原生文本时会给出明确警告或拒绝空文档，不会改走 OCR。图表、公式、多栏版面的阅读顺序仍需对照原 PDF。词法检索支持中文文本，但不等于跨语言语义匹配。无命中是 `NO_RESULTS` / `INSUFFICIENT_EVIDENCE`，不要编造论文。轻量路径不会自动关闭 receipt / published / human-gate，也不代替正式 Vault 发布。当前模型试用不是人工事实验收。
 
 ## 安装与固定上游
 

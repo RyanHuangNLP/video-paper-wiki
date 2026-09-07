@@ -107,6 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
     qa_sub = qa.add_subparsers(dest="qa_cmd", required=True)
     qa_export = qa_sub.add_parser("export", allow_abbrev=False)
     qa_export.add_argument("--question", required=True)
+    qa_export.add_argument("--paper-id", dest="paper_ids", action="append", default=None)
     qa_export.add_argument("--workspace", default=None)
     qa_export.add_argument("--vault-root", dest="vault_root", default=None)
     qa_export.add_argument("--upstream-root", dest="upstream_root", default=None)
@@ -136,6 +137,33 @@ def build_parser() -> argparse.ArgumentParser:
     writing_import.add_argument("--output", default=None)
     writing_import.add_argument("--workspace", default=None)
     writing_import.set_defaults(handler=_cmd_writing_import)
+
+    workspace = sub.add_parser("workspace", allow_abbrev=False)
+    workspace_sub = workspace.add_subparsers(dest="workspace_cmd", required=True)
+    inspect = workspace_sub.add_parser("inspect", allow_abbrev=False)
+    inspect.add_argument("--workspace", required=True)
+    inspect.set_defaults(handler=_cmd_workspace_inspect)
+
+    workflow = sub.add_parser("workflow", allow_abbrev=False)
+    workflow_sub = workflow.add_subparsers(dest="workflow_cmd", required=True)
+    prepare = workflow_sub.add_parser("prepare", allow_abbrev=False)
+    prepare.add_argument("--workspace", required=True)
+    prepare.add_argument("--kind", required=True, choices=("qa", "writing"))
+    prepare.add_argument("--query", required=True)
+    prepare.add_argument("--requirements", default="")
+    prepare.add_argument("--paper-id", dest="paper_ids", action="append", default=None)
+    prepare.add_argument("--pdf", dest="pdf_paths", action="append", default=None)
+    prepare.set_defaults(handler=_cmd_workflow_prepare)
+    status = workflow_sub.add_parser("status", allow_abbrev=False)
+    status.add_argument("--workspace", required=True)
+    status.add_argument("--session-id", dest="session_id", default=None)
+    status.set_defaults(handler=_cmd_workflow_status)
+    complete = workflow_sub.add_parser("complete", allow_abbrev=False)
+    complete.add_argument("--workspace", required=True)
+    complete.add_argument("--session-id", dest="session_id", required=True)
+    complete.add_argument("--document", required=True)
+    complete.add_argument("--output", required=True)
+    complete.set_defaults(handler=_cmd_workflow_complete)
     return parser
 
 
@@ -173,7 +201,7 @@ def _load_light(module: str):
         ) from exc
 
 
-def _workspace_root(raw: str, *, create: bool) -> Path:
+def _workspace_root(raw: str, *, create: bool, allow_missing: bool = False) -> Path:
     given = Path(raw).expanduser()
     if ".work" not in given.parts:
         raise ResearchError(
@@ -190,13 +218,56 @@ def _workspace_root(raw: str, *, create: bool) -> Path:
             "workspace must be under .work/**",
             {"path": str(resolved)},
         )
-    if resolved.is_symlink() or not resolved.is_dir():
-        raise ResearchError(
-            "WORKSPACE_INVALID",
-            "workspace must be a regular directory under .work/**",
-            {"path": str(resolved)},
-        )
-    return resolved
+    if resolved.exists():
+        if resolved.is_symlink() or not resolved.is_dir():
+            raise ResearchError(
+                "WORKSPACE_INVALID",
+                "workspace must be a regular directory under .work/**",
+                {"path": str(resolved)},
+            )
+        return resolved
+    if allow_missing and not create:
+        return resolved
+    raise ResearchError(
+        "WORKSPACE_INVALID",
+        "workspace must be a regular directory under .work/**",
+        {"path": str(resolved)},
+    )
+
+
+def _try_light_attr(module: str, attr: str):
+    loaded = _load_light(module)
+    func = getattr(loaded, attr, None)
+    if callable(func):
+        return func
+    raise ResearchError(
+        "LIGHT_MODULE_UNAVAILABLE",
+        f"{module}.{attr} is not integrated yet",
+        {"module": module, "attribute": attr},
+    )
+
+
+def _optional_light_attr(module: str, attr: str):
+    try:
+        return _try_light_attr(module, attr)
+    except ResearchError as exc:
+        if exc.code == "LIGHT_MODULE_UNAVAILABLE":
+            return None
+        raise
+
+
+def _paper_ids_from_args(args: argparse.Namespace) -> list[str] | None:
+    raw = getattr(args, "paper_ids", None)
+    if raw is None:
+        return None
+    return list(raw)
+
+
+def _pdf_paths_from_args(args: argparse.Namespace) -> list[Path] | None:
+    raw = getattr(args, "pdf_paths", None)
+    if raw is None:
+        return None
+    return [Path(item).expanduser() for item in raw]
 
 
 def _old_export_values(args: argparse.Namespace) -> dict[str, str | None]:
@@ -440,14 +511,68 @@ def _cmd_index_build(args: argparse.Namespace) -> int:
     return _dump_handoff(light_index.build_index(workspace))
 
 
+def _export_light_context(
+    workspace: Path,
+    *,
+    kind: str,
+    query: str,
+    requirements: str = "",
+    paper_ids: list[str] | None,
+) -> dict[str, Any]:
+    export_context = _optional_light_attr("light_context", "export_context")
+    if export_context is not None:
+        return export_context(
+            workspace,
+            kind=kind,
+            query=query,
+            requirements=requirements,
+            paper_ids=paper_ids,
+        )
+    light_index = _load_light("light_index")
+    if kind == "qa":
+        light_qa = _load_light("light_qa")
+        retrieval = light_index.search(workspace, query, paper_ids=paper_ids)
+        return light_qa.export_qa_context(query, retrieval)
+    light_writing = _load_light("light_writing")
+    selected = list(paper_ids or [])
+    retrieval = light_index.search(workspace, query, paper_ids=paper_ids)
+    return light_writing.export_writing_context(query, requirements, selected, retrieval)
+
+
+def _import_light_document(
+    args: argparse.Namespace,
+    context: dict[str, Any],
+    document: dict[str, Any],
+) -> int:
+    workspace = _resolve_import_workspace(args, context)
+    output = Path(args.output) if args.output else Path(args.context).with_suffix(".md")
+    import_document = _optional_light_attr("light_context", "import_document")
+    if import_document is not None:
+        return _dump_handoff(
+            import_document(workspace, context, document, output=output, overwrite=True)
+        )
+    if context.get("kind") == "writing":
+        rendered = _load_light("light_writing").render_draft(context, document)
+    else:
+        rendered = _load_light("light_qa").render_answer(context, document)
+    return _finish_light_import(rendered, args, context)
+
+
 def _cmd_qa_export(args: argparse.Namespace) -> int:
     _reject_mixed_export(args)
     if args.workspace:
-        light_index = _load_light("light_index")
-        light_qa = _load_light("light_qa")
         workspace = _workspace_root(args.workspace, create=False)
-        retrieval = light_index.search(workspace, args.question)
-        return _dump_handoff(_with_workspace_root(light_qa.export_qa_context(args.question, retrieval), workspace))
+        return _dump_handoff(
+            _with_workspace_root(
+                _export_light_context(
+                    workspace,
+                    kind="qa",
+                    query=args.question,
+                    paper_ids=_paper_ids_from_args(args),
+                ),
+                workspace,
+            )
+        )
     from video_paper_wiki_research.qa import export_from_question
 
     return _dump_handoff(
@@ -463,9 +588,7 @@ def _cmd_qa_export(args: argparse.Namespace) -> int:
 def _cmd_qa_import(args: argparse.Namespace) -> int:
     context = _read_json(args.context)
     if _is_light_context(context):
-        light_qa = _load_light("light_qa")
-        answer = _read_json(args.answer)
-        return _finish_light_import(light_qa.render_answer(context, answer), args, context)
+        return _import_light_document(args, context, _read_json(args.answer))
     if args.workspace:
         raise UsageError("--workspace applies only to light-context import")
     from video_paper_wiki_research.qa import import_and_check
@@ -480,19 +603,23 @@ def _cmd_qa_import(args: argparse.Namespace) -> int:
 
 def _cmd_writing_export(args: argparse.Namespace) -> int:
     _reject_mixed_export(args)
-    paper_ids = list(args.paper_ids or [])
+    paper_ids = _paper_ids_from_args(args)
     if args.workspace:
-        light_index = _load_light("light_index")
-        light_writing = _load_light("light_writing")
         workspace = _workspace_root(args.workspace, create=False)
-        retrieval = light_index.search(workspace, args.topic, paper_ids=paper_ids or None)
         return _dump_handoff(
             _with_workspace_root(
-                light_writing.export_writing_context(args.topic, args.requirements, paper_ids, retrieval),
+                _export_light_context(
+                    workspace,
+                    kind="writing",
+                    query=args.topic,
+                    requirements=args.requirements,
+                    paper_ids=paper_ids,
+                ),
                 workspace,
             )
         )
-    if not paper_ids:
+    selected = list(paper_ids or [])
+    if not selected:
         raise UsageError("--paper-id is required without --workspace")
     from video_paper_wiki_research.writing import export_from_request
 
@@ -500,7 +627,7 @@ def _cmd_writing_export(args: argparse.Namespace) -> int:
         export_from_request(
             topic=args.topic,
             requirements=args.requirements,
-            paper_ids=paper_ids,
+            paper_ids=selected,
             vault_root=args.vault_root,
             upstream_root=args.upstream_root,
             retrieval_config=args.config,
@@ -511,9 +638,7 @@ def _cmd_writing_export(args: argparse.Namespace) -> int:
 def _cmd_writing_import(args: argparse.Namespace) -> int:
     context = _read_json(args.context)
     if _is_light_context(context):
-        light_writing = _load_light("light_writing")
-        draft = _read_json(args.draft)
-        return _finish_light_import(light_writing.render_draft(context, draft), args, context)
+        return _import_light_document(args, context, _read_json(args.draft))
     if args.workspace:
         raise UsageError("--workspace applies only to light-context import")
     from video_paper_wiki_research.writing import import_and_render
@@ -524,6 +649,47 @@ def _cmd_writing_import(args: argparse.Namespace) -> int:
         result = dict(result)
         result["path"] = str(_write_markdown(output, result["markdown"]))
     return _dump_handoff(result)
+
+
+def _cmd_workspace_inspect(args: argparse.Namespace) -> int:
+    workspace = _workspace_root(args.workspace, create=False, allow_missing=True)
+    inspect_workspace = _try_light_attr("light_workspace", "inspect_workspace")
+    return _dump_handoff(inspect_workspace(workspace))
+
+
+def _cmd_workflow_prepare(args: argparse.Namespace) -> int:
+    workspace = _workspace_root(args.workspace, create=False, allow_missing=True)
+    prepare_workflow = _try_light_attr("light_workflow", "prepare_workflow")
+    return _dump_handoff(
+        prepare_workflow(
+            workspace,
+            kind=args.kind,
+            query=args.query,
+            requirements=args.requirements,
+            paper_ids=_paper_ids_from_args(args),
+            pdf_paths=_pdf_paths_from_args(args),
+        )
+    )
+
+
+def _cmd_workflow_status(args: argparse.Namespace) -> int:
+    workspace = _workspace_root(args.workspace, create=False, allow_missing=True)
+    workflow_status = _try_light_attr("light_workflow", "workflow_status")
+    return _dump_handoff(workflow_status(workspace, session_id=args.session_id))
+
+
+def _cmd_workflow_complete(args: argparse.Namespace) -> int:
+    workspace = _workspace_root(args.workspace, create=False)
+    document = _read_json(args.document)
+    complete_workflow = _try_light_attr("light_workflow", "complete_workflow")
+    return _dump_handoff(
+        complete_workflow(
+            workspace,
+            args.session_id,
+            document,
+            output=Path(args.output).expanduser(),
+        )
+    )
 
 
 def main(argv: list[str] | None = None) -> int:

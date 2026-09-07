@@ -14,6 +14,7 @@ from video_paper_wiki_research.contracts import ResearchError
 OK = "OK"
 NO_RESULTS = "NO_RESULTS"
 INDEX_STALE = "INDEX_STALE"
+LIGHT_SELECTION_INVALID = "LIGHT_SELECTION_INVALID"
 INDEX_DIRNAME = ".light-index"
 INDEX_FILENAME = "index.v1.json"
 SCHEMA = "video-paper-wiki.light-index.v1"
@@ -23,7 +24,23 @@ CHUNK_SIZE = 2000
 BM25_K1 = 1.2
 BM25_B = 0.75
 _HEX64 = re.compile(r"^[0-9a-f]{64}$")
+PAPER_ID_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 _PAGE_ANCHOR = re.compile(r'<a id="page-(\d+)"></a>')
+_CHUNK_IDENTITY_FIELDS = (
+    "chunk_id",
+    "paper_id",
+    "title",
+    "source_sha256",
+    "page",
+    "markdown_path",
+    "markdown_sha256",
+    "text_start",
+    "text_end",
+    "text_sha256",
+    "text",
+    "tf",
+    "token_count",
+)
 _LATIN = re.compile(r"[a-z0-9]+(?:['-][a-z0-9]+)*")
 _CJK_RUN = re.compile(r"[\u4e00-\u9fff]+")
 _REEXTRACT = "page anchors are missing, duplicated, or out of order; re-extract the PDF"
@@ -94,12 +111,14 @@ def _paper_dirs(workspace_root: Path) -> list[Path]:
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    raw = path.read_bytes()
+    try:
+        raw = path.read_bytes()
+    except OSError:
+        _fail("SOURCE_INVALID", f"cannot read {path.name}", {"path": str(path)})
     try:
         value = json.loads(raw.decode("utf-8"))
-    except (UnicodeError, json.JSONDecodeError) as exc:
+    except (UnicodeError, json.JSONDecodeError):
         _fail("SOURCE_INVALID", f"cannot parse {path.name}", {"path": str(path)})
-        raise exc
     if type(value) is not dict:
         _fail("SOURCE_INVALID", f"{path.name} root must be an object", {"path": str(path)})
     return value
@@ -202,8 +221,14 @@ def _load_paper(directory: Path) -> dict[str, Any]:
     if meta_path.is_symlink() or md_path.is_symlink() or not meta_path.is_file() or not md_path.is_file():
         _fail("SOURCE_INVALID", "paper directory must contain regular source.json and source.md", {"path": str(directory)})
     meta = _read_json(meta_path)
-    markdown = md_path.read_text(encoding="utf-8")
-    markdown_bytes = markdown.encode("utf-8")
+    try:
+        markdown_bytes = md_path.read_bytes()
+    except OSError:
+        _fail("SOURCE_INVALID", "cannot read source.md", {"path": str(md_path)})
+    try:
+        markdown = markdown_bytes.decode("utf-8")
+    except UnicodeError:
+        _fail("SOURCE_INVALID", "source.md is not valid UTF-8", {"path": str(md_path)})
     markdown_sha = _sha256_bytes(markdown_bytes)
     paper_id = meta.get("paper_id")
     expected_id = "sha256:" + directory.name
@@ -344,11 +369,54 @@ def _document_frequency(chunks: Sequence[Mapping[str, Any]]) -> dict[str, int]:
     return df
 
 
-def _freshness_fingerprint(papers: Sequence[Mapping[str, Any]]) -> dict[str, str]:
-    return {
-        paper["paper_id"]: paper["markdown_sha256"] + ":" + paper["source_json_sha256"]
-        for paper in papers
-    }
+def _paper_freshness_token(item: Mapping[str, Any]) -> str | None:
+    paper_id = item.get("paper_id")
+    markdown_sha = item.get("markdown_sha256")
+    source_json_sha = item.get("source_json_sha256")
+    if type(paper_id) is not str or not paper_id:
+        return None
+    if type(markdown_sha) is not str or type(source_json_sha) is not str:
+        return None
+    if not markdown_sha or not source_json_sha:
+        return None
+    return markdown_sha + ":" + source_json_sha
+
+
+def _freshness_fingerprint(papers: Sequence[Mapping[str, Any]]) -> dict[str, str] | None:
+    rows: dict[str, str] = {}
+    for paper in papers:
+        if type(paper) is not dict:
+            return None
+        token = _paper_freshness_token(paper)
+        paper_id = paper.get("paper_id")
+        if token is None or type(paper_id) is not str or paper_id in rows:
+            return None
+        rows[paper_id] = token
+    return rows
+
+
+def _stored_freshness_fingerprint(stored: Mapping[str, Any]) -> dict[str, str] | None:
+    papers = stored.get("papers")
+    if type(papers) is not list:
+        return None
+    return _freshness_fingerprint(papers)
+
+
+def _normalize_paper_ids(paper_ids: object) -> tuple[list[str] | None, str | None]:
+    if paper_ids is None or paper_ids == []:
+        return [], None
+    if type(paper_ids) is not list:
+        return None, "paper_ids must be a list of sha256:<64 lowercase hex> ids"
+    selected: list[str] = []
+    seen: set[str] = set()
+    for item in paper_ids:
+        if type(item) is not str or not PAPER_ID_PATTERN.fullmatch(item):
+            return None, "each paper_id must be sha256:<64 lowercase hex>"
+        if item in seen:
+            continue
+        seen.add(item)
+        selected.append(item)
+    return selected, None
 
 
 def _refreshed_metadata_bytes(paper: dict[str, Any]) -> bytes:
@@ -480,22 +548,93 @@ def _index_papers_match_current(stored: Mapping[str, Any], current: Sequence[Map
             return False
         if item.get("page_count") != paper["page_count"]:
             return False
+        if item.get("title") != paper["title"]:
+            return False
+        if item.get("source_sha256") != paper["source_sha256"]:
+            return False
+        if item.get("markdown_path") != paper["markdown_path"]:
+            return False
         if not _page_intervals_match(item.get("pages"), paper["pages"]):
             return False
     return seen == set(current_by_id)
 
 
+def _derived_chunks(papers: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    chunks: list[dict[str, Any]] = []
+    for paper in papers:
+        chunks.extend(_chunk_records(paper))
+    chunks.sort(key=lambda item: (item["paper_id"], item["page"], item["text_start"], item["chunk_id"]))
+    return chunks
+
+
+def _index_chunks_match_derived(stored: Mapping[str, Any], current: Sequence[Mapping[str, Any]]) -> bool:
+    """Compare stored lexical records to chunks derived from live Markdown/metadata."""
+    try:
+        derived = _derived_chunks(current)
+        stored_chunks = stored.get("chunks")
+        if type(stored_chunks) is not list or len(stored_chunks) != len(derived):
+            return False
+        derived_by_id: dict[str, dict[str, Any]] = {}
+        for chunk in derived:
+            chunk_id = chunk["chunk_id"]
+            if chunk_id in derived_by_id:
+                return False
+            derived_by_id[chunk_id] = chunk
+        seen: set[str] = set()
+        for item in stored_chunks:
+            if type(item) is not dict:
+                return False
+            chunk_id = item.get("chunk_id")
+            if type(chunk_id) is not str or not chunk_id or chunk_id in seen:
+                return False
+            live = derived_by_id.get(chunk_id)
+            if live is None:
+                return False
+            seen.add(chunk_id)
+            for field in _CHUNK_IDENTITY_FIELDS:
+                if field == "tf":
+                    stored_tf = item.get("tf")
+                    if type(stored_tf) is not dict or stored_tf != live["tf"]:
+                        return False
+                    continue
+                if item.get(field) != live[field]:
+                    return False
+        if seen != set(derived_by_id):
+            return False
+        expected_df = _document_frequency(derived)
+        stored_df = stored.get("df")
+        if type(stored_df) is not dict or stored_df != expected_df:
+            return False
+        if stored.get("chunk_count") != len(derived):
+            return False
+        if stored.get("paper_count") != len(current):
+            return False
+    except (TypeError, ValueError, KeyError, AttributeError, IndexError):
+        return False
+    return True
+
+
 def _index_is_current(stored: Mapping[str, Any], current: Sequence[Mapping[str, Any]]) -> bool:
-    if stored.get("index_id") != _snapshot_id(current):
+    try:
+        if type(stored) is not dict:
+            return False
+        live_fp = _freshness_fingerprint(current)
+        stored_fp = _stored_freshness_fingerprint(stored)
+        if live_fp is None or stored_fp is None:
+            return False
+        if stored.get("index_id") != _snapshot_id(current):
+            return False
+        if stored_fp != live_fp:
+            return False
+        if not _index_papers_match_current(stored, current):
+            return False
+        return _index_chunks_match_derived(stored, current)
+    except (TypeError, ValueError, KeyError, AttributeError, IndexError):
         return False
-    stored_fp = {
-        item["paper_id"]: item["markdown_sha256"] + ":" + item["source_json_sha256"]
-        for item in stored.get("papers") or []
-        if type(item) is dict and type(item.get("paper_id")) is str
-    }
-    if stored_fp != _freshness_fingerprint(current):
-        return False
-    return _index_papers_match_current(stored, current)
+
+
+def _workspace_paper_ids(workspace_root: Path) -> set[str]:
+    return {"sha256:" + directory.name for directory in _paper_dirs(workspace_root)}
 
 
 def _idf(df: int, chunk_count: int) -> float:
@@ -551,11 +690,50 @@ def search(
         _fail("QUERY_INVALID", "query must be a string")
     if type(top_k) is not int or isinstance(top_k, bool) or top_k < 1:
         _fail("QUERY_INVALID", "top_k must be a positive integer")
-    allowed: set[str] | None = None
-    if paper_ids is not None:
-        if not isinstance(paper_ids, list) or any(type(item) is not str for item in paper_ids):
-            _fail("QUERY_INVALID", "paper_ids must be a list of strings")
-        allowed = {item for item in paper_ids if item}
+    selected, selection_error = _normalize_paper_ids(paper_ids)
+    if selection_error is not None or selected is None:
+        stored = _load_index(workspace_root)
+        return _result(
+            ok=False,
+            status=LIGHT_SELECTION_INVALID,
+            query=query,
+            index_id=None if stored is None else stored.get("index_id") if type(stored) is dict else None,
+            evidence=[],
+            message=selection_error or "paper_ids is invalid",
+        )
+    present = _workspace_paper_ids(workspace_root)
+    if selected and any(item not in present for item in selected):
+        stored = _load_index(workspace_root)
+        return _result(
+            ok=False,
+            status=LIGHT_SELECTION_INVALID,
+            query=query,
+            index_id=None if stored is None else stored.get("index_id") if type(stored) is dict else None,
+            evidence=[],
+            message="selected paper_id is not present in the current workspace",
+        )
+    allowed: set[str] | None = set(selected) if selected else None
+    try:
+        return _search_current(workspace_root, query, top_k=top_k, allowed=allowed)
+    except (KeyError, TypeError, ValueError, AttributeError, IndexError):
+        stored = _load_index(workspace_root)
+        return _result(
+            ok=False,
+            status=INDEX_STALE,
+            query=query,
+            index_id=None if stored is None else stored.get("index_id") if type(stored) is dict else None,
+            evidence=[],
+            message="workspace Markdown or paper set disagrees with the stored index",
+        )
+
+
+def _search_current(
+    workspace_root: Path,
+    query: str,
+    *,
+    top_k: int,
+    allowed: set[str] | None,
+) -> dict[str, Any]:
     stored = _load_index(workspace_root)
     current = _current_papers(workspace_root)
     if stored is None or current is None or not _index_is_current(stored, current):

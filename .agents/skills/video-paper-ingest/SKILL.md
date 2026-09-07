@@ -1,8 +1,10 @@
 ---
 name: video-paper-ingest
-description: Prepare and inspect a local PDF for Video Paper Wiki without mutating a Vault.
+description: Prepare and inspect a local PDF for Video Paper Wiki canonical staging, capture inspect, or publication inspect without mutating a Vault. Use video-paper-read instead for ordinary local reading, workspace Q&A, or a short cited draft.
 ---
-For a user-supplied local PDF, first run `vpwiki-research pdf intake --pdf <file.pdf> --session <id>`. This stages bytes under `.work/blobs/<sha256>` and an immutable intake envelope. Do not invent DOI/arXiv/license metadata. The result is staged input, not a capture receipt.
+Ordinary local-PDF reading, workspace Q&A, selected-paper comparison, and short related-work drafts belong to `video-paper-read`. Switch there only when the user asked for that lightweight path and did not request canonical staging, parser/Docling export, capture inspect, publication inspect, or Vault apply. Do not bounce between the two skills in a loop.
+
+For an explicit canonical ingest of a user-supplied local PDF, first run `vpwiki-research pdf intake --pdf <file.pdf> --session <id>`. This stages bytes under `.work/blobs/<sha256>` and an immutable intake envelope. Do not invent DOI/arXiv/license metadata. The result is staged input, not a capture receipt.
 
 Parser profile and Docling export are optional and external: show `vpwiki-parser profile --artifacts-path <models> --session <id>` and `vpwiki-parser export --intake <intake.json> --profile <profile.json> --artifacts-path <models> --session <id> --run-id <run>` for the user to run in a prepared offline environment. Never import or execute the parser producer from this skill, never download models, and never call `vpwiki-admin`.
 

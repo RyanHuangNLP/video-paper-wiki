@@ -2,19 +2,23 @@
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
 import importlib.metadata
 import json
+import os
 import re
+import secrets
 import unicodedata
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from pypdf import PdfReader
 from pypdf.errors import FileNotDecryptedError, PdfReadError, PdfStreamError
 
 from video_paper_wiki_research.contracts import MANUAL_PDF_INVALID, PARSER_NO_TEXT, ResearchError
+from video_paper_wiki_research.light_index import _load_paper, _locate_pages
 
 SCHEMA = "video-paper-wiki.light-paper.v1"
 ENGINE = "pypdf-native-text"
@@ -24,6 +28,25 @@ DISCLAIMER = (
     "按 PDF 文件页码保留原生文本。未运行 OCR、版面模型或表格重建；"
     "图中内容可能缺失，多栏、公式和表格的文字顺序需对照原 PDF。"
 )
+TRANSACTION_SCHEMA = "video-paper-wiki.light-pdf-transaction.v1"
+TRANSACTIONS_DIR = ".light-transactions"
+STAGING_DIRNAME = "staging"
+PAYLOAD_NAMES = ("source.md", "source.json")
+LIGHT_WORKSPACE_BUSY = "LIGHT_WORKSPACE_BUSY"
+LIGHT_PAPER_CONFLICT = "LIGHT_PAPER_CONFLICT"
+SOURCE_INVALID = "SOURCE_INVALID"
+WORKSPACE_INVALID = "WORKSPACE_INVALID"
+_HEX64 = re.compile(r"^[0-9a-f]{64}$")
+INJECT_POINTS = (
+    "after_lock",
+    "after_staging_create",
+    "after_md_write",
+    "after_json_write",
+    "before_publish",
+    "after_publish",
+)
+
+_inject_hooks: dict[str, Callable[[str], None]] = {}
 
 
 def _fail(code: str, message: str, details: dict[str, Any] | None = None) -> None:
@@ -115,6 +138,521 @@ def _build_markdown(title: str, source: Path, digest: str, bodies: list[str]) ->
     return markdown, pages, warnings
 
 
+def set_inject_hook(point: str | None, hook: Callable[[str], None] | None = None) -> None:
+    """Test-only seam. Production callers must not set this."""
+    _inject_hooks.clear()
+    if point is not None and hook is not None:
+        if point not in INJECT_POINTS:
+            raise ValueError(f"unknown inject point: {point}")
+        _inject_hooks[point] = hook
+
+
+def _run_inject(point: str) -> None:
+    hook = _inject_hooks.get(point)
+    if hook is not None:
+        hook(point)
+    env_point = os.environ.get("VPWIKI_LIGHT_PDF_INJECT")
+    if env_point != point:
+        return
+    ready = os.environ.get("VPWIKI_LIGHT_PDF_INJECT_READY")
+    wait = os.environ.get("VPWIKI_LIGHT_PDF_INJECT_WAIT")
+    action = os.environ.get("VPWIKI_LIGHT_PDF_INJECT_ACTION", "exit")
+    if ready:
+        ready_path = Path(ready)
+        with open(ready_path, "w", encoding="utf-8") as handle:
+            handle.write(point + "\n")
+            handle.flush()
+    if wait:
+        with open(wait, "r", encoding="utf-8") as handle:
+            handle.read()
+    if action == "continue":
+        return
+    if action == "raise":
+        raise RuntimeError(f"injected failure at {point}")
+    os._exit(77)
+
+
+def _closed(status: str, message: str, **extra: Any) -> dict[str, Any]:
+    payload: dict[str, Any] = {"ok": False, "status": status, "message": message}
+    payload.update(extra)
+    return payload
+
+
+def _success(
+    *,
+    paper_id: str,
+    metadata_path: Path,
+    markdown_path: Path,
+    page_count: int,
+    warnings: list[str],
+    disposition: str,
+    message: str,
+) -> dict[str, Any]:
+    return {
+        "ok": True,
+        "status": "OK",
+        "message": message,
+        "paper_id": paper_id,
+        "metadata_path": str(metadata_path.resolve()),
+        "markdown_path": str(markdown_path.resolve()),
+        "page_count": page_count,
+        "warnings": list(warnings),
+        "disposition": disposition,
+    }
+
+
+def _prepare_workspace(workspace_root: Path) -> Path:
+    root = Path(workspace_root)
+    if root.is_symlink() or (root.exists() and not root.is_dir()):
+        _fail(WORKSPACE_INVALID, "workspace_root must be a regular directory", {"path": str(root)})
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        _fail(WORKSPACE_INVALID, "workspace_root is not writable", {"path": str(root)})
+        raise AssertionError("unreachable") from exc
+    if root.is_symlink() or not root.is_dir():
+        _fail(WORKSPACE_INVALID, "workspace_root must be a regular directory", {"path": str(root)})
+    papers = root / "papers"
+    if os.path.lexists(papers) and (papers.is_symlink() or not papers.is_dir()):
+        _fail(WORKSPACE_INVALID, "papers/ must be a regular directory", {"path": str(papers)})
+    papers.mkdir(exist_ok=True)
+    return root.resolve()
+
+
+def _ensure_regular_dir(path: Path, *, create: bool, label: str) -> None:
+    if path.is_symlink():
+        _fail(WORKSPACE_INVALID, f"{label} must not be a symlink", {"path": str(path)})
+    if os.path.lexists(path) and not path.is_dir():
+        _fail(WORKSPACE_INVALID, f"{label} must be a regular directory", {"path": str(path)})
+    if not os.path.lexists(path):
+        if not create:
+            _fail(WORKSPACE_INVALID, f"{label} is missing", {"path": str(path)})
+        try:
+            path.mkdir(exist_ok=False)
+        except OSError as exc:
+            _fail(WORKSPACE_INVALID, f"{label} is not writable", {"path": str(path)})
+            raise AssertionError("unreachable") from exc
+    if path.is_symlink() or not path.is_dir():
+        _fail(WORKSPACE_INVALID, f"{label} must be a regular directory", {"path": str(path)})
+
+
+def _ensure_transaction_dir(workspace: Path) -> Path:
+    tx_dir = workspace / TRANSACTIONS_DIR
+    _ensure_regular_dir(tx_dir, create=True, label=".light-transactions")
+    return tx_dir
+
+
+class _AdvisoryLock:
+    def __init__(self, fd: int) -> None:
+        self.fd = fd
+
+    def release(self) -> None:
+        if self.fd is None:
+            return
+        try:
+            fcntl.flock(self.fd, fcntl.LOCK_UN)
+        finally:
+            os.close(self.fd)
+            self.fd = None  # type: ignore[assignment]
+
+
+def lock_path_for(workspace: Path, digest: str) -> Path:
+    return workspace / TRANSACTIONS_DIR / f"{digest}.lock"
+
+
+def _try_lock(workspace: Path, digest: str) -> _AdvisoryLock | None:
+    _ensure_transaction_dir(workspace)
+    path = lock_path_for(workspace, digest)
+    if path.is_symlink() or (os.path.lexists(path) and not path.is_file()):
+        _fail(WORKSPACE_INVALID, "lock path must be a regular file", {"path": str(path)})
+    flags = os.O_RDWR | os.O_CREAT | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        fd = os.open(path, flags, 0o644)
+    except OSError as exc:
+        _fail(WORKSPACE_INVALID, "lock path is not a writable regular file", {"path": str(path)})
+        raise AssertionError("unreachable") from exc
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        os.close(fd)
+        return None
+    except OSError:
+        os.close(fd)
+        return None
+    return _AdvisoryLock(fd)
+
+
+def lock_is_held(lock_path: Path) -> bool:
+    """True only when another process currently holds the advisory lock."""
+    if lock_path.is_symlink() or not lock_path.is_file():
+        return False
+    try:
+        fd = os.open(lock_path, os.O_RDWR)
+    except OSError:
+        return False
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        return True
+    except OSError:
+        return False
+    try:
+        fcntl.flock(fd, fcntl.LOCK_UN)
+    finally:
+        os.close(fd)
+    return False
+
+
+def _entry_kind(path: Path) -> str:
+    if path.is_symlink():
+        return "symlink"
+    if path.is_file():
+        return "file"
+    if path.is_dir():
+        return "dir"
+    return "other"
+
+
+def _list_names(directory: Path) -> list[str]:
+    try:
+        return sorted(item.name for item in directory.iterdir())
+    except OSError:
+        return []
+
+
+def _decode_pair(directory: Path) -> tuple[str, str] | None:
+    try:
+        markdown = (directory / "source.md").read_bytes().decode("utf-8")
+        raw_json = (directory / "source.json").read_bytes().decode("utf-8")
+    except (OSError, UnicodeError):
+        return None
+    return markdown, raw_json
+
+
+def _validate_payload(directory: Path, digest: str) -> dict[str, Any]:
+    """Validate a two-file payload against digest. Directory name may be a staging token."""
+    if _entry_kind(directory) != "dir":
+        return {"kind": "unsafe", "reason": "payload path is not a regular directory"}
+    names = _list_names(directory)
+    kinds = {name: _entry_kind(directory / name) for name in names}
+    if any(name not in PAYLOAD_NAMES for name in names) or any(kinds[name] != "file" for name in names):
+        return {"kind": "unknown", "reason": "owned payload set is not exactly two regular files", "names": names}
+    if any(name not in kinds for name in PAYLOAD_NAMES):
+        return {"kind": "partial", "reason": "owned payload is incomplete", "names": names}
+    decoded = _decode_pair(directory)
+    if decoded is None:
+        return {"kind": "invalid", "reason": "paper files are not valid UTF-8", "code": SOURCE_INVALID, "names": names}
+    markdown, raw_json = decoded
+    try:
+        meta = json.loads(raw_json)
+    except json.JSONDecodeError:
+        return {"kind": "invalid", "reason": "source.json is not valid JSON", "code": SOURCE_INVALID, "names": names}
+    if type(meta) is not dict:
+        return {"kind": "invalid", "reason": "source.json root must be an object", "code": SOURCE_INVALID, "names": names}
+    if meta.get("schema") != SCHEMA or meta.get("paper_id") != f"sha256:{digest}":
+        return {"kind": "identity", "reason": "source.json paper identity differs", "code": SOURCE_INVALID, "names": names}
+    source = meta.get("source") if type(meta.get("source")) is dict else {}
+    if source.get("sha256") != digest:
+        return {"kind": "identity", "reason": "source.json identity does not match the PDF digest", "code": SOURCE_INVALID, "names": names}
+    document = meta.get("document")
+    if type(document) is not dict or document.get("path") != f"papers/{digest}/source.md":
+        return {"kind": "invalid", "reason": "source.md digest or path differs from source.json", "code": SOURCE_INVALID, "names": names}
+    if type(meta.get("page_count")) is not int:
+        return {"kind": "invalid", "reason": "source.json pages are invalid", "code": SOURCE_INVALID, "names": names}
+    try:
+        _locate_pages(markdown, page_count=meta["page_count"])
+    except ResearchError as exc:
+        return {"kind": "invalid", "reason": exc.message, "code": exc.code or SOURCE_INVALID, "names": names}
+    return {"kind": "complete", "names": names, "metadata": meta}
+
+
+def classify_paper_dir(directory: Path, digest: str) -> dict[str, Any]:
+    """Classify papers/<digest> without deleting anything."""
+    if not os.path.lexists(directory):
+        return {"kind": "absent"}
+    kind = _entry_kind(directory)
+    if kind != "dir":
+        return {"kind": "unsafe", "reason": "paper path is not a regular directory"}
+    names = _list_names(directory)
+    seen: dict[str, str] = {}
+    extras: list[str] = []
+    for name in names:
+        child = directory / name
+        seen[name] = _entry_kind(child)
+        if name in PAYLOAD_NAMES:
+            continue
+        extras.append(name)
+    for required in PAYLOAD_NAMES:
+        if required not in seen:
+            return {"kind": "partial", "reason": f"missing {required}", "names": names}
+        if seen[required] != "file":
+            return {"kind": "unsafe", "reason": f"{required} is not a regular file", "names": names}
+    for name in extras:
+        if seen[name] != "file":
+            return {"kind": "unsafe", "reason": f"unexpected {seen[name]} {name}", "names": names}
+    decoded = _decode_pair(directory)
+    if decoded is None:
+        return {"kind": "invalid", "reason": "paper files are not valid UTF-8", "code": SOURCE_INVALID, "names": names}
+    try:
+        loaded = _load_paper(directory)
+    except ResearchError as exc:
+        return {"kind": "invalid", "reason": exc.message, "code": exc.code, "names": names}
+    except (UnicodeError, json.JSONDecodeError):
+        return {"kind": "invalid", "reason": "paper files are not valid UTF-8 JSON/Markdown", "code": SOURCE_INVALID, "names": names}
+    source = loaded["metadata"].get("source")
+    source_sha = source.get("sha256") if type(source) is dict else None
+    if type(source_sha) is not str or source_sha != digest or directory.name != digest:
+        return {
+            "kind": "identity",
+            "reason": "source.json identity does not match the PDF digest",
+            "names": names,
+            "loaded": loaded,
+        }
+    return {"kind": "complete", "names": names, "loaded": loaded, "extras": extras}
+
+
+def _marker_payload(digest: str, token: str) -> dict[str, Any]:
+    staging_rel = f"{TRANSACTIONS_DIR}/{STAGING_DIRNAME}/{digest}--{token}"
+    return {
+        "schema": TRANSACTION_SCHEMA,
+        "digest": digest,
+        "token": token,
+        "owned_relative_paths": [f"{staging_rel}/{name}" for name in PAYLOAD_NAMES],
+    }
+
+
+def _marker_path(workspace: Path, digest: str, token: str) -> Path:
+    return workspace / TRANSACTIONS_DIR / f"{digest}--{token}.owner.json"
+
+
+def _staging_dir(workspace: Path, digest: str, token: str) -> Path:
+    return workspace / TRANSACTIONS_DIR / STAGING_DIRNAME / f"{digest}--{token}"
+
+
+def _read_marker(path: Path) -> dict[str, Any] | None:
+    if path.is_symlink() or not path.is_file():
+        return None
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError):
+        return None
+    if type(value) is not dict or value.get("schema") != TRANSACTION_SCHEMA:
+        return None
+    digest = value.get("digest")
+    token = value.get("token")
+    owned = value.get("owned_relative_paths")
+    if type(digest) is not str or not _HEX64.fullmatch(digest):
+        return None
+    if type(token) is not str or not token:
+        return None
+    if type(owned) is not list or [item for item in owned if type(item) is not str] != []:
+        return None
+    expected = _marker_payload(digest, token)
+    if list(owned) != expected["owned_relative_paths"]:
+        return None
+    return expected
+
+
+def iter_markers(workspace: Path, digest: str | None = None) -> list[tuple[Path, dict[str, Any]]]:
+    tx_dir = workspace / TRANSACTIONS_DIR
+    if tx_dir.is_symlink() or not tx_dir.is_dir():
+        return []
+    found: list[tuple[Path, dict[str, Any]]] = []
+    for item in sorted(tx_dir.iterdir(), key=lambda path: path.name):
+        if not item.name.endswith(".owner.json"):
+            continue
+        marker = _read_marker(item)
+        if marker is None:
+            continue
+        if digest is not None and marker["digest"] != digest:
+            continue
+        found.append((item, marker))
+    return found
+
+
+def _unlink_if_regular(path: Path) -> bool:
+    if not os.path.lexists(path):
+        return True
+    if path.is_symlink() or not path.is_file():
+        return False
+    try:
+        path.unlink()
+    except OSError:
+        return False
+    return True
+
+
+def _remove_empty_dir(path: Path) -> None:
+    if path.is_symlink() or not path.is_dir():
+        return
+    try:
+        if _list_names(path):
+            return
+        path.rmdir()
+    except OSError:
+        return
+
+
+def _staging_status(workspace: Path, marker: dict[str, Any]) -> str:
+    staging = _staging_dir(workspace, marker["digest"], marker["token"])
+    if not os.path.lexists(staging):
+        return "missing"
+    if _entry_kind(staging) != "dir":
+        return "unknown"
+    names = _list_names(staging)
+    kinds = {name: _entry_kind(staging / name) for name in names}
+    extras = [name for name in names if name not in PAYLOAD_NAMES]
+    if extras or any(kinds[name] != "file" for name in names):
+        return "unknown"
+    present = [name for name in PAYLOAD_NAMES if name in kinds]
+    if len(present) == len(PAYLOAD_NAMES):
+        return "complete"
+    return "incomplete"
+
+
+def _cleanup_owned(workspace: Path, digest: str) -> None:
+    for marker_path, marker in iter_markers(workspace, digest):
+        status = _staging_status(workspace, marker)
+        if status == "unknown":
+            continue
+        staging = _staging_dir(workspace, digest, marker["token"])
+        if status in {"complete", "incomplete", "missing"}:
+            for relative in marker["owned_relative_paths"]:
+                if not _unlink_if_regular(workspace / relative):
+                    break
+            else:
+                _remove_empty_dir(staging)
+                parent = staging.parent
+                _remove_empty_dir(parent)
+                if marker_path.is_symlink() or not marker_path.is_file():
+                    continue
+                marker_path.unlink()
+
+
+def _warnings_from_meta(meta: dict[str, Any]) -> list[str]:
+    warnings = meta.get("warnings")
+    if type(warnings) is not list:
+        return []
+    return [item for item in warnings if type(item) is str]
+
+
+def _reuse_result(loaded: dict[str, Any], *, paper_dir: Path) -> dict[str, Any]:
+    meta = loaded["metadata"]
+    return _success(
+        paper_id=loaded["paper_id"],
+        metadata_path=paper_dir / "source.json",
+        markdown_path=paper_dir / "source.md",
+        page_count=int(loaded["page_count"]),
+        warnings=_warnings_from_meta(meta),
+        disposition="reused",
+        message="reused existing paper without rewriting notes",
+    )
+
+
+def _title_conflict(loaded: dict[str, Any], title: str | None) -> bool:
+    if not (isinstance(title, str) and title.strip()):
+        return False
+    existing = loaded["metadata"].get("title")
+    if type(existing) is not str:
+        return False
+    return title.strip() != existing
+
+
+def _write_marker(path: Path, marker: dict[str, Any]) -> None:
+    _ensure_regular_dir(path.parent, create=True, label=".light-transactions")
+    if path.is_symlink() or (os.path.lexists(path) and not path.is_file()):
+        _fail(WORKSPACE_INVALID, "transaction marker must be a regular file", {"path": str(path)})
+    encoded = json.dumps(marker, ensure_ascii=False, indent=2) + "\n"
+    path.write_text(encoded, encoding="utf-8")
+
+
+def _publish_new(
+    *,
+    workspace: Path,
+    digest: str,
+    markdown: str,
+    metadata: dict[str, Any],
+) -> dict[str, Any] | None:
+    token = secrets.token_hex(16)
+    marker = _marker_payload(digest, token)
+    marker_path = _marker_path(workspace, digest, token)
+    staging = _staging_dir(workspace, digest, token)
+    dest = workspace / "papers" / digest
+    tx_dir = _ensure_transaction_dir(workspace)
+    _ensure_regular_dir(tx_dir / STAGING_DIRNAME, create=True, label="transaction staging")
+    if staging.is_symlink() or os.path.lexists(staging):
+        _fail(WORKSPACE_INVALID, "staging path must be a new regular directory", {"path": str(staging)})
+    _write_marker(marker_path, marker)
+    staging.mkdir(exist_ok=False)
+    _run_inject("after_staging_create")
+    try:
+        (staging / "source.md").write_text(markdown, encoding="utf-8")
+        _run_inject("after_md_write")
+        (staging / "source.json").write_text(
+            json.dumps(metadata, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        _run_inject("after_json_write")
+        _run_inject("before_publish")
+        if os.path.lexists(dest):
+            return None
+        os.rename(staging, dest)
+        _run_inject("after_publish")
+        if marker_path.is_file() and not marker_path.is_symlink():
+            marker_path.unlink()
+        _remove_empty_dir(workspace / TRANSACTIONS_DIR / STAGING_DIRNAME)
+        return _success(
+            paper_id=metadata["paper_id"],
+            metadata_path=dest / "source.json",
+            markdown_path=dest / "source.md",
+            page_count=int(metadata["page_count"]),
+            warnings=_warnings_from_meta(metadata),
+            disposition="created",
+            message="published a complete paper directory",
+        )
+    except BaseException:
+        raise
+
+
+def _recover_owned(workspace: Path, digest: str) -> dict[str, Any] | None:
+    dest = workspace / "papers" / digest
+    for marker_path, marker in iter_markers(workspace, digest):
+        status = _staging_status(workspace, marker)
+        staging = _staging_dir(workspace, digest, marker["token"])
+        if status == "complete" and not os.path.lexists(dest):
+            payload = _validate_payload(staging, digest)
+            if payload["kind"] != "complete":
+                return _closed(
+                    SOURCE_INVALID,
+                    payload.get("reason") or "owned staging is not a valid paper pair",
+                    paper_id=f"sha256:{digest}",
+                )
+            os.rename(staging, dest)
+            if marker_path.is_file() and not marker_path.is_symlink():
+                marker_path.unlink()
+            _remove_empty_dir(workspace / TRANSACTIONS_DIR / STAGING_DIRNAME)
+            classified = classify_paper_dir(dest, digest)
+            if classified["kind"] != "complete":
+                return _closed(
+                    SOURCE_INVALID,
+                    "recovered directory is not a valid paper pair",
+                    paper_id=f"sha256:{digest}",
+                )
+            loaded = classified["loaded"]
+            return _success(
+                paper_id=loaded["paper_id"],
+                metadata_path=dest / "source.json",
+                markdown_path=dest / "source.md",
+                page_count=int(loaded["page_count"]),
+                warnings=_warnings_from_meta(loaded["metadata"]),
+                disposition="recovered",
+                message="recovered a complete owned staging directory",
+            )
+        if status in {"incomplete", "missing"}:
+            _cleanup_owned(workspace, digest)
+    return None
+
+
 def extract_pdf(pdf_path: Path, workspace_root: Path, *, title: str | None = None) -> dict[str, Any]:
     """Extract native PDF text into workspace/papers/<sha256>/{source.md,source.json}."""
 
@@ -127,39 +665,74 @@ def extract_pdf(pdf_path: Path, workspace_root: Path, *, title: str | None = Non
     if _sha256_bytes(source.read_bytes()) != digest:
         _fail(MANUAL_PDF_INVALID, "Source PDF changed during extraction", {"path": str(source)})
 
-    workspace = Path(workspace_root)
-    paper_dir = workspace / "papers" / digest
-    paper_dir.mkdir(parents=True, exist_ok=True)
-    markdown_path = paper_dir / "source.md"
-    metadata_path = paper_dir / "source.json"
-    markdown_path.write_text(markdown, encoding="utf-8")
-    markdown_sha = _sha256_bytes(markdown.encode("utf-8"))
-    rel_document = f"papers/{digest}/source.md"
-    metadata = {
-        "schema": SCHEMA,
-        "paper_id": f"sha256:{digest}",
-        "title": display_title,
-        "source": {
-            "path": str(source),
-            "sha256": digest,
-            "size_bytes": len(data),
-        },
-        "parser": {
-            "engine": ENGINE,
-            "version": importlib.metadata.version("pypdf"),
-        },
-        "page_count": len(bodies),
-        "document": {"path": rel_document, "sha256": markdown_sha},
-        "pages": page_records,
-        "warnings": warnings,
-    }
-    metadata_path.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    return {
-        "ok": True,
-        "status": "OK",
-        "paper_id": metadata["paper_id"],
-        "metadata_path": str(metadata_path.resolve()),
-        "markdown_path": str(markdown_path.resolve()),
-        "page_count": len(bodies),
-        "warnings": list(warnings),
-    }
+    workspace = _prepare_workspace(Path(workspace_root))
+    lock = _try_lock(workspace, digest)
+    if lock is None:
+        return _closed(
+            LIGHT_WORKSPACE_BUSY,
+            "another cooperating add currently owns this paper digest",
+            paper_id=f"sha256:{digest}",
+        )
+    try:
+        _run_inject("after_lock")
+        paper_dir = workspace / "papers" / digest
+        classified = classify_paper_dir(paper_dir, digest)
+        kind = classified["kind"]
+        if kind == "complete":
+            loaded = classified["loaded"]
+            if _title_conflict(loaded, title):
+                return _closed(
+                    LIGHT_PAPER_CONFLICT,
+                    "explicit title conflicts with the existing paper title",
+                    paper_id=loaded["paper_id"],
+                )
+            _cleanup_owned(workspace, digest)
+            return _reuse_result(loaded, paper_dir=paper_dir)
+        if kind != "absent":
+            return _closed(
+                SOURCE_INVALID,
+                classified.get("reason") or "existing paper directory cannot be reused or replaced",
+                paper_id=f"sha256:{digest}",
+            )
+        recovered = _recover_owned(workspace, digest)
+        if recovered is not None:
+            return recovered
+        markdown_sha = _sha256_bytes(markdown.encode("utf-8"))
+        metadata = {
+            "schema": SCHEMA,
+            "paper_id": f"sha256:{digest}",
+            "title": display_title,
+            "source": {
+                "path": str(source),
+                "sha256": digest,
+                "size_bytes": len(data),
+            },
+            "parser": {
+                "engine": ENGINE,
+                "version": importlib.metadata.version("pypdf"),
+            },
+            "page_count": len(bodies),
+            "document": {"path": f"papers/{digest}/source.md", "sha256": markdown_sha},
+            "pages": page_records,
+            "warnings": warnings,
+        }
+        published = _publish_new(workspace=workspace, digest=digest, markdown=markdown, metadata=metadata)
+        if published is not None:
+            return published
+        classified = classify_paper_dir(paper_dir, digest)
+        if classified["kind"] == "complete":
+            loaded = classified["loaded"]
+            if _title_conflict(loaded, title):
+                return _closed(
+                    LIGHT_PAPER_CONFLICT,
+                    "explicit title conflicts with the existing paper title",
+                    paper_id=loaded["paper_id"],
+                )
+            return _reuse_result(loaded, paper_dir=paper_dir)
+        return _closed(
+            SOURCE_INVALID,
+            "paper directory appeared during publish and is not a reusable pair",
+            paper_id=f"sha256:{digest}",
+        )
+    finally:
+        lock.release()
