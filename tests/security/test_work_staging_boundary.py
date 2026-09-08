@@ -37,9 +37,10 @@ from video_paper_wiki.staging import (
     _assert_inside_work,
     stage_bytes,
 )
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 ENVELOPE = ROOT / "schemas" / "video-paper-wiki.cli-envelope.v1.schema.json"
 SRC = ROOT / "src" / "video_paper_wiki"

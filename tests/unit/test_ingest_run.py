@@ -7,9 +7,10 @@ import pytest
 
 from tests.support import make_checkout
 from video_paper_wiki.cli import main
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 
 
 def _stdout_json(capsys) -> dict:

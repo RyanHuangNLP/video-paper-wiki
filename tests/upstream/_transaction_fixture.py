@@ -16,6 +16,7 @@ import platform
 import stat
 import subprocess
 import sys
+from tests.pdf_samples import sample_pdf_path
 P = pathlib.Path
 REPO = P(__file__).resolve().parents[2]
 def _upstream():
@@ -205,7 +206,7 @@ def positive(r, stable_source_id):
     from video_paper_wiki.identity import claim_id
     vault = r.out / 'v'
     init(r, vault, 'fixture-init')
-    raw = (REPO / 'tests/fixtures/pdfs/tiny.pdf').read_bytes() + b'\n% fixture-marker quasarnebula\n'
+    raw = sample_pdf_path("tiny").read_bytes() + b'\n% fixture-marker quasarnebula\n'
     digest = sha(raw)
     paper_id = 'sha256:' + digest
     paper_path = f'wiki/papers/sha256-{digest}.md'

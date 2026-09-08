@@ -14,9 +14,10 @@ from video_paper_wiki.notes.index import (
     sort_paper_ids,
     upsert_index_entry as upsert_direct,
 )
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 
 COGVIDEOX = "arxiv-2408.06072"
 TOWARDS = "arxiv-1812.01717"

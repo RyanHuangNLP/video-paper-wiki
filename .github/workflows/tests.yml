@@ -36,6 +36,19 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Reject tracked PDF files
+        run: |
+          git ls-files -z | python3 -c '
+          import os
+          import sys
+          pdfs = [path for path in sys.stdin.buffer.read().split(b"\0") if path.lower().endswith(b".pdf")]
+          if pdfs:
+              print("Tracked PDF files are forbidden:", file=sys.stderr)
+              for path in pdfs:
+                  print("  " + repr(os.fsdecode(path)), file=sys.stderr)
+              raise SystemExit(1)
+          '
+
       - name: Set up uv and select Python
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:

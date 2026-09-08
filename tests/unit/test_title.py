@@ -7,9 +7,10 @@ from pathlib import Path
 
 from video_paper_wiki.cli import main
 from video_paper_wiki.parse.title import collapse_letter_spacing, resolve_draft_title
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 SEED = ROOT / "docs" / "seed" / "engine-mvp.json"
 
 LETTER_SPACED = "MAKE -A-V IDEO : T EXT-TO-V IDEO GENERATION"

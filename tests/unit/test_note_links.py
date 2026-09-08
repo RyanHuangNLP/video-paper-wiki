@@ -11,9 +11,10 @@ from video_paper_wiki.notes.frozen import FrozenSeedMissing
 from video_paper_wiki.notes.links import paper_note_link_suffix as suffix_direct
 from video_paper_wiki.parse.draft_document import SECTION_SPECS
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
 
 

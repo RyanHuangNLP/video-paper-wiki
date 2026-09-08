@@ -13,6 +13,7 @@ from tests.upstream._transaction_fixture import (
 )
 from video_paper_wiki.identity import claim_id, evidence_fingerprint
 from video_paper_wiki.ledger_locator import decode_ledger_evidence, encode_ledger_evidence
+from tests.pdf_samples import sample_pdf_path
 
 
 def test_pinned_public_cli_preserves_tagged_locator_and_context(tmp_path):
@@ -22,7 +23,7 @@ def test_pinned_public_cli_preserves_tagged_locator_and_context(tmp_path):
     vault = out / "v"
     try:
         init(runner, vault, "locator-codec-init")
-        raw = (REPO / "tests/fixtures/pdfs/tiny.pdf").read_bytes()
+        raw = sample_pdf_path("tiny").read_bytes()
         (vault / "inbox/source.pdf").write_bytes(raw)
         args = ["capture", "apply", "--vault", vault, "--operation-id", "locator-codec-capture",
                 "--generated-at", STAMP, "inbox/source.pdf"]

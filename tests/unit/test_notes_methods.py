@@ -9,10 +9,11 @@ from video_paper_wiki.cli import main
 from video_paper_wiki.identity import claim_id
 from video_paper_wiki.notes.methods import apply_frozen_method
 from video_paper_wiki.notes.section import section_text
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 
 MAV = "arxiv-2209.14792"
 MAV_CANON = "arxiv:2209.14792"

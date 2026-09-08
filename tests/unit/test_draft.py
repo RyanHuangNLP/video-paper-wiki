@@ -12,11 +12,12 @@ from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.parse.docling_local import ParserUnavailable
 from video_paper_wiki.parse.draft_document import EVIDENCE_STATUS_TEXT, claims_from_body, claims_from_parse_fields
 from video_paper_wiki.parse.pypdf_local import parse_pdf_to_draft_fields as parse_pypdf_fields
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
 MINIMAL = ROOT / "tests" / "fixtures" / "drafts" / "minimal.json"
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
-SECTIONED_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "sectioned.pdf"
+TINY_PDF = sample_pdf_path("tiny")
+SECTIONED_PDF = sample_pdf_path("sectioned")
 DRAFT_SCHEMA = ROOT / "schemas" / "video-paper-wiki.paper-analysis-draft.v1.schema.json"
 SECTION_IDS = [
     "one_sentence_conclusion",

@@ -17,8 +17,9 @@ from tests.support import (
 from video_paper_wiki.cli import main
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.staging import stage_bytes
+from tests.pdf_samples import sample_pdf_path
 
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 
 
 def _stdout_json(capsys) -> dict:

@@ -9,9 +9,10 @@ from video_paper_wiki.cli import main
 from video_paper_wiki.notes import refresh_topic_pages, upsert_index_entry
 from video_paper_wiki.notes.frozen import FrozenSeedMissing
 from video_paper_wiki.parse.title import catalog_title_for_paper_id
+from tests.pdf_samples import sample_pdf_path
 
 ROOT = Path(__file__).resolve().parents[2]
-TINY_PDF = ROOT / "tests" / "fixtures" / "pdfs" / "tiny.pdf"
+TINY_PDF = sample_pdf_path("tiny")
 
 TOPIC_INDEX_LINKS = (
     "[视频扩散](wiki/video-diffusion.md)",
