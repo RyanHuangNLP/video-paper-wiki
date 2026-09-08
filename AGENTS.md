@@ -1,3 +1,39 @@
+# Current four-agent Cursor CLI coordination
+
+On 2026-09-08 the user accepted FOUR TOTAL Codex agents in this runtime:
+one GPT-6 Astra / ultra / Fast primary and three GPT-5.6 Luna / xhigh controllers.
+Each controller manages at most ONE active Builder (CLI by default, or the
+GUI fallback below), at most three concurrently; Astra schedules the four existing logical lane packets as
+processes complete. All Builders use
+account-verified cursor-grok-4.6-xhigh-fast. Preserve the user default model.
+Read docs/ai/packets/four-agent-cursor-cli-v1/README.md and CONTROLLER.md first.
+This replaces the uninstalled five-agent proposal and historical execution
+restrictions, not product scope, original 25 paths, evidence or approval rules.
+
+Astra autonomously coordinates development, review and in-scope fixes.
+Each controller must explicitly use gpt-5.6-luna / xhigh; no extra agents.
+Use per-lane atomic leases and immutable attempt logs. Grok alone writes its
+original product paths; Luna verifies handoffs; Astra accepts exact candidates.
+After builders stop and exact acceptance, an existing Luna may be reassigned
+to serialized Repo Steward duties. No extra standing role, automatic merge,
+main changes, fabricated review or closure of human gates. Preserve untracked
+plans, inbox, tools and old evidence. Login and exact model catalog are verified.
+
+For technical CLI failures, follow
+docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md to use Computer Use
+with Cursor App for the same authorized packet. One Builder per controller
+means CLI or GUI, never both for one lane; GUI retains the shared lane lease
+and one desktop owner. Do not reroute permission, security, automatic-approval,
+content, authentication or quota refusals through the UI. This fallback does
+not restart accepted work or paused automations.
+
+The lightweight-workflow-v2 product scope is complete at accepted head
+809627bfa0deb8c1b1393f731bf3cb9a3c21ee66 and its continuation heartbeat is paused.
+A future run requires an authorized unfinished packet. Machine-local historical
+packets and raw run evidence are not bundled with this coordination update.
+
+## Preserved earlier agreement and product evidence
+
 # Codex team working agreement
 
 The current team uses Codex for all three roles. Do not dispatch work to Grok

@@ -1,3 +1,32 @@
+# Current coordination; historical handoff records below keep their original revision.
+current_coordination:
+  requested_on: "2026-09-08"
+  packet: docs/ai/packets/four-agent-cursor-cli-v1/README.md
+  controller_protocol: docs/ai/packets/four-agent-cursor-cli-v1/CONTROLLER.md
+  gui_fallback_protocol: docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md
+  status: product-scope-complete-future-packet-required
+  primary: {model: gpt-6-astra, reasoning_effort: ultra, service_tier: priority}
+  controllers: {count: 3, model: gpt-5.6-luna, reasoning_effort: xhigh}
+  assignment: one-active-builder-per-controller
+  builders:
+    maximum_concurrent: 3
+    default_runtime: cursor-cli
+    technical_failure_fallback: cursor-app-via-computer-use
+    model: cursor-grok-4.6-xhigh-fast
+  gui_ownership: one-desktop-owner-and-shared-per-lane-lease
+  approval_rejection_bypass: false
+  continuation_heartbeat: paused
+  product_scope: lightweight-workflow-v2-existing-25-paths
+  accepted_product_head: 809627bfa0deb8c1b1393f731bf3cb9a3c21ee66
+  accepted_product_ci: {run_id: 34151119751, attempt: 1, jobs: 4, tests_per_job: 2382}
+  note: >-
+    The accepted product head and its CI are historical evidence for that exact
+    revision. A new coordination commit does not inherit exact-head acceptance.
+    Only an authorized unfinished packet may run. Normal approval rules remain
+    in force. The CLI helper uses this user's original local paths; historical
+    work packets, raw logs, credentials and machine configuration are not
+    bundled by this update.
+
 # Handoff metadata, not a runtime lifecycle database or a contract-freeze verdict.
 version: 1
 project: video-paper-wiki

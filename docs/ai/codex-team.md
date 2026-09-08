@@ -1,3 +1,21 @@
+# 当前：Astra + 三个 Luna 控制四路 Cursor CLI
+
+2026-09-08 用户接受四个总 Agent，以[当前工作包](packets/four-agent-cursor-cli-v1/README.md)
+和[控制器协议](packets/four-agent-cursor-cli-v1/CONTROLLER.md)为准。
+Astra / ultra / Fast 主控；三个 Luna / xhigh 每人管理一个 Builder（默认 CLI，或技术故障时使用 GUI），最多三路并行，自动衔接原四个工作包。
+CLI 使用账户已核验的 Grok 4.6 / xhigh / Fast，保留用户默认设置。
+Astra 自动派发、审查、返修和汇合集成；用户不用继续转交提示词。
+原四工作区、25 路径、历史证据、串行 Git/PR 和人工 gate 不变。
+
+CLI 技术故障可使用[Computer Use → Cursor App 备用入口](packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md)，
+沿用同一工作包和审批设置；明确的权限或安全审批拒绝不得通过界面重试绕过。
+一位控制器同时只有一个 Builder，GUI 使用同 lane lease 和独占桌面所有者。
+
+本轮产品已在 `809627bfa0deb8c1b1393f731bf3cb9a3c21ee66` 完成精确验收，自动接续已暂停。
+新的调度必须对应已授权且尚未完成的工作包；本次协调说明不重新启动历史任务。
+
+## 保留的历史团队约定与验收记录
+
 # 三个 Codex 角色如何继续开发
 
 本方案替代 Grok Build 主开发的分工，不启用历史 Grok/飞书协作循环。
