@@ -202,6 +202,7 @@ def _success(
 
 
 def _prepare_workspace(workspace_root: Path) -> Path:
+    """Validate/create only the workspace root. Papers and transactions wait for the lock."""
     root = Path(workspace_root)
     if root.is_symlink() or (root.exists() and not root.is_dir()):
         _fail(WORKSPACE_INVALID, "workspace_root must be a regular directory", {"path": str(root)})
@@ -212,11 +213,17 @@ def _prepare_workspace(workspace_root: Path) -> Path:
         raise AssertionError("unreachable") from exc
     if root.is_symlink() or not root.is_dir():
         _fail(WORKSPACE_INVALID, "workspace_root must be a regular directory", {"path": str(root)})
-    papers = root / "papers"
+    return root.resolve()
+
+
+def _ensure_papers_dir(workspace: Path) -> Path:
+    papers = workspace / "papers"
     if os.path.lexists(papers) and (papers.is_symlink() or not papers.is_dir()):
         _fail(WORKSPACE_INVALID, "papers/ must be a regular directory", {"path": str(papers)})
     papers.mkdir(exist_ok=True)
-    return root.resolve()
+    if papers.is_symlink() or not papers.is_dir():
+        _fail(WORKSPACE_INVALID, "papers/ must be a regular directory", {"path": str(papers)})
+    return papers
 
 
 def _ensure_regular_dir(path: Path, *, create: bool, label: str) -> None:
@@ -366,6 +373,36 @@ def _validate_payload(directory: Path, digest: str) -> dict[str, Any]:
     return {"kind": "complete", "names": names, "metadata": meta}
 
 
+def _inspect_regular_paper_tree(directory: Path) -> dict[str, Any] | None:
+    """Inspect descendants without following symlinks. None means only regular files/dirs."""
+    pending = [directory]
+    while pending:
+        current = pending.pop()
+        if current.is_symlink() or not current.is_dir():
+            return {"kind": "unsafe", "reason": "paper path is not a regular directory"}
+        try:
+            entries = list(os.scandir(current))
+        except OSError:
+            return {"kind": "unsafe", "reason": "paper tree could not be inspected"}
+        for entry in entries:
+            try:
+                rel = Path(entry.path).relative_to(directory).as_posix()
+                if entry.is_symlink():
+                    return {"kind": "unsafe", "reason": f"unexpected symlink {rel}"}
+                if entry.is_dir(follow_symlinks=False):
+                    pending.append(Path(entry.path))
+                    continue
+                if entry.is_file(follow_symlinks=False):
+                    st = entry.stat(follow_symlinks=False)
+                    if st.st_nlink != 1:
+                        return {"kind": "unsafe", "reason": f"unexpected hardlink {rel}"}
+                    continue
+            except OSError:
+                return {"kind": "unsafe", "reason": "paper tree could not be inspected"}
+            return {"kind": "unsafe", "reason": f"unexpected nonregular {rel}"}
+    return None
+
+
 def classify_paper_dir(directory: Path, digest: str) -> dict[str, Any]:
     """Classify papers/<digest> without deleting anything."""
     if not os.path.lexists(directory):
@@ -373,7 +410,10 @@ def classify_paper_dir(directory: Path, digest: str) -> dict[str, Any]:
     kind = _entry_kind(directory)
     if kind != "dir":
         return {"kind": "unsafe", "reason": "paper path is not a regular directory"}
-    names = _list_names(directory)
+    try:
+        names = sorted(item.name for item in directory.iterdir())
+    except OSError:
+        return {"kind": "unsafe", "reason": "paper directory could not be inspected"}
     seen: dict[str, str] = {}
     extras: list[str] = []
     for name in names:
@@ -387,9 +427,10 @@ def classify_paper_dir(directory: Path, digest: str) -> dict[str, Any]:
             return {"kind": "partial", "reason": f"missing {required}", "names": names}
         if seen[required] != "file":
             return {"kind": "unsafe", "reason": f"{required} is not a regular file", "names": names}
-    for name in extras:
-        if seen[name] != "file":
-            return {"kind": "unsafe", "reason": f"unexpected {seen[name]} {name}", "names": names}
+    tree_error = _inspect_regular_paper_tree(directory)
+    if tree_error is not None:
+        tree_error["names"] = names
+        return tree_error
     decoded = _decode_pair(directory)
     if decoded is None:
         return {"kind": "invalid", "reason": "paper files are not valid UTF-8", "code": SOURCE_INVALID, "names": names}
@@ -666,73 +707,165 @@ def extract_pdf(pdf_path: Path, workspace_root: Path, *, title: str | None = Non
         _fail(MANUAL_PDF_INVALID, "Source PDF changed during extraction", {"path": str(source)})
 
     workspace = _prepare_workspace(Path(workspace_root))
-    lock = _try_lock(workspace, digest)
-    if lock is None:
+    from video_paper_wiki_research.light_library_state import try_workspace_lock
+
+    workspace_lock = try_workspace_lock(workspace)
+    if workspace_lock is None:
         return _closed(
             LIGHT_WORKSPACE_BUSY,
-            "another cooperating add currently owns this paper digest",
+            "another cooperating operation currently owns this workspace",
             paper_id=f"sha256:{digest}",
         )
     try:
-        _run_inject("after_lock")
-        paper_dir = workspace / "papers" / digest
-        classified = classify_paper_dir(paper_dir, digest)
-        kind = classified["kind"]
-        if kind == "complete":
-            loaded = classified["loaded"]
-            if _title_conflict(loaded, title):
-                return _closed(
-                    LIGHT_PAPER_CONFLICT,
-                    "explicit title conflicts with the existing paper title",
-                    paper_id=loaded["paper_id"],
-                )
-            _cleanup_owned(workspace, digest)
-            return _reuse_result(loaded, paper_dir=paper_dir)
-        if kind != "absent":
+        _ensure_papers_dir(workspace)
+        lock = _try_lock(workspace, digest)
+        if lock is None:
             return _closed(
-                SOURCE_INVALID,
-                classified.get("reason") or "existing paper directory cannot be reused or replaced",
+                LIGHT_WORKSPACE_BUSY,
+                "another cooperating add currently owns this paper digest",
                 paper_id=f"sha256:{digest}",
             )
-        recovered = _recover_owned(workspace, digest)
-        if recovered is not None:
-            return recovered
-        markdown_sha = _sha256_bytes(markdown.encode("utf-8"))
-        metadata = {
-            "schema": SCHEMA,
-            "paper_id": f"sha256:{digest}",
-            "title": display_title,
-            "source": {
-                "path": str(source),
-                "sha256": digest,
-                "size_bytes": len(data),
-            },
-            "parser": {
-                "engine": ENGINE,
-                "version": importlib.metadata.version("pypdf"),
-            },
-            "page_count": len(bodies),
-            "document": {"path": f"papers/{digest}/source.md", "sha256": markdown_sha},
-            "pages": page_records,
-            "warnings": warnings,
-        }
-        published = _publish_new(workspace=workspace, digest=digest, markdown=markdown, metadata=metadata)
-        if published is not None:
-            return published
-        classified = classify_paper_dir(paper_dir, digest)
-        if classified["kind"] == "complete":
-            loaded = classified["loaded"]
-            if _title_conflict(loaded, title):
-                return _closed(
-                    LIGHT_PAPER_CONFLICT,
-                    "explicit title conflicts with the existing paper title",
-                    paper_id=loaded["paper_id"],
-                )
-            return _reuse_result(loaded, paper_dir=paper_dir)
+        try:
+            return _extract_locked(
+                workspace=workspace,
+                source=source,
+                data=data,
+                digest=digest,
+                display_title=display_title,
+                markdown=markdown,
+                page_records=page_records,
+                warnings=warnings,
+                title=title,
+                page_count=len(bodies),
+            )
+        finally:
+            lock.release()
+    finally:
+        workspace_lock.release()
+
+
+def _extract_locked(
+    *,
+    workspace: Path,
+    source: Path,
+    data: bytes,
+    digest: str,
+    display_title: str,
+    markdown: str,
+    page_records: list[dict[str, Any]],
+    warnings: list[str],
+    title: str | None,
+    page_count: int,
+) -> dict[str, Any]:
+    _run_inject("after_lock")
+    paper_dir = workspace / "papers" / digest
+    classified = classify_paper_dir(paper_dir, digest)
+    kind = classified["kind"]
+    if kind == "complete":
+        loaded = classified["loaded"]
+        if _title_conflict(loaded, title):
+            return _closed(
+                LIGHT_PAPER_CONFLICT,
+                "explicit title conflicts with the existing paper title",
+                paper_id=loaded["paper_id"],
+            )
+        _cleanup_owned(workspace, digest)
+        return _reuse_result(loaded, paper_dir=paper_dir)
+    if kind != "absent":
         return _closed(
             SOURCE_INVALID,
-            "paper directory appeared during publish and is not a reusable pair",
+            classified.get("reason") or "existing paper directory cannot be reused or replaced",
             paper_id=f"sha256:{digest}",
         )
-    finally:
-        lock.release()
+    recovered = _recover_owned(workspace, digest)
+    if recovered is not None:
+        return recovered
+    markdown_sha = _sha256_bytes(markdown.encode("utf-8"))
+    metadata = {
+        "schema": SCHEMA,
+        "paper_id": f"sha256:{digest}",
+        "title": display_title,
+        "source": {
+            "path": str(source),
+            "sha256": digest,
+            "size_bytes": len(data),
+        },
+        "parser": {
+            "engine": ENGINE,
+            "version": importlib.metadata.version("pypdf"),
+        },
+        "page_count": page_count,
+        "document": {"path": f"papers/{digest}/source.md", "sha256": markdown_sha},
+        "pages": page_records,
+        "warnings": warnings,
+    }
+    published = _publish_new(workspace=workspace, digest=digest, markdown=markdown, metadata=metadata)
+    if published is not None:
+        return published
+    classified = classify_paper_dir(paper_dir, digest)
+    if classified["kind"] == "complete":
+        loaded = classified["loaded"]
+        if _title_conflict(loaded, title):
+            return _closed(
+                LIGHT_PAPER_CONFLICT,
+                "explicit title conflicts with the existing paper title",
+                paper_id=loaded["paper_id"],
+            )
+        return _reuse_result(loaded, paper_dir=paper_dir)
+    return _closed(
+        SOURCE_INVALID,
+        "paper directory appeared during publish and is not a reusable pair",
+        paper_id=f"sha256:{digest}",
+    )
+
+
+def classify_transaction_tree(workspace: Path) -> dict[str, Any]:
+    """Classify `.light-transactions` for backup: exclude only unlocked locks and empty staging."""
+    tx_dir = workspace / TRANSACTIONS_DIR
+    if not os.path.lexists(tx_dir):
+        return {"kind": "absent", "exclude": [], "message": None}
+    if tx_dir.is_symlink() or not tx_dir.is_dir():
+        return {"kind": "unsafe", "exclude": [], "message": ".light-transactions is not a regular directory"}
+    exclude: list[str] = []
+    recognized_markers = {path.name: marker for path, marker in iter_markers(workspace)}
+    recognized_staging: set[str] = set()
+    for marker in recognized_markers.values():
+        recognized_staging.add(f"{marker['digest']}--{marker['token']}")
+        status = _staging_status(workspace, marker)
+        if status != "missing":
+            return {
+                "kind": "pending",
+                "exclude": [],
+                "message": "pending recognized PDF publication staging must be recovered first",
+            }
+        lock = lock_path_for(workspace, marker["digest"])
+        if lock_is_held(lock):
+            return {
+                "kind": "pending",
+                "exclude": [],
+                "message": f"active paper lock for digest {marker['digest']}",
+            }
+    for item in sorted(tx_dir.iterdir(), key=lambda path: path.name):
+        relative = f"{TRANSACTIONS_DIR}/{item.name}"
+        if item.name.endswith(".lock"):
+            digest = item.name[: -len(".lock")]
+            if item.is_symlink() or not item.is_file() or not _HEX64.fullmatch(digest):
+                return {"kind": "unknown", "exclude": [], "message": f"unrecognized lock entry {relative}"}
+            if lock_is_held(item):
+                return {"kind": "pending", "exclude": [], "message": f"active paper lock {relative}"}
+            exclude.append(relative)
+            continue
+        if item.name.endswith(".owner.json"):
+            if item.name not in recognized_markers:
+                return {"kind": "unknown", "exclude": [], "message": f"unrecognized transaction marker {relative}"}
+            return {"kind": "pending", "exclude": [], "message": f"pending transaction marker {relative}"}
+        if item.name == STAGING_DIRNAME:
+            if item.is_symlink() or not item.is_dir():
+                return {"kind": "unsafe", "exclude": [], "message": "transaction staging is not a regular directory"}
+            children = _list_names(item)
+            if children:
+                return {"kind": "pending", "exclude": [], "message": "nonempty PDF transaction staging must be recovered first"}
+            exclude.append(relative)
+            continue
+        return {"kind": "unknown", "exclude": [], "message": f"unexpected transaction entry {relative}"}
+    return {"kind": "clean", "exclude": exclude, "message": None}

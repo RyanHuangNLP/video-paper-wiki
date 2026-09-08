@@ -19,7 +19,7 @@ export PYTHONPATH=/absolute/path/to/integration/src
 python -B -m video_paper_wiki_research --help
 ```
 
-连续步骤、选论文、状态/重启继续、改 source 后重新 prepare，以及 Bash/zsh 可复制命令见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。最小 CLI fallback（内部 JSON 仍由当前会话根据 prepare 结果生成）：
+连续步骤、选论文、状态/重启继续、改 source 后重新 prepare，以及 Bash/zsh 可复制命令见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。整理带引用的知识笔记、比较选定论文、编辑/归档/恢复/替换论文，以及轻量工作区备份/恢复见 [轻量文库快速入门](docs/lightweight-library-quickstart.md)。把 export 的 stdout JSON 对象保存为 `--context`；知识/比较 JSON 与显式 `--include-output` 必须是 8 MiB 内的常规 UTF-8 文件。备份 ZIP 只收文件、不收空目录，也不拷原 PDF；恢复后重新 `index build` 并 prepare。最小 CLI fallback（内部 JSON 仍由当前会话根据 prepare 结果生成）：
 
 ```bash
 SESSION_ID=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef

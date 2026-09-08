@@ -51,3 +51,5 @@ Persisted session files are `request.json`, `context.json`, `manifest.json`, opt
 - **Interrupt.** A validated intent with missing or matching output stays `awaiting_model` and can retry the same document and output. A mismatching file is `needs_attention`.
 - **Explicit paper ids.** Only `sha256:` plus 64 lowercase hex. Unknown or malformed ids are `LIGHT_SELECTION_INVALID`; never silently search all papers.
 - **Explicit canonical / Vault request.** Stop and use `video-paper-ingest` or `video-paper-query`. Those skills keep their own gates. Do not treat a Vault path as the default lightweight workspace.
+
+Organize, compare, library maintenance, and lightweight backup are separate CLI groups. They do not add `workflow --kind` values. Read [library.md](library.md) for those commands, including saving export-object JSON and the 8 MiB regular-file policy. The qa/writing request/document JSON loader and recovery protocol above stay intact.

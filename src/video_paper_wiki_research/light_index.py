@@ -816,3 +816,37 @@ def _search_current(
         evidence=evidence,
         message="retrieved lexical evidence from the workspace index",
     )
+
+
+def classify_index_tree(workspace_root: Path) -> dict[str, Any]:
+    """Classify `.light-index` as absent, recognized rebuildable, or unknown extra content."""
+    if not isinstance(workspace_root, Path):
+        workspace_root = Path(workspace_root)
+    root = workspace_root / INDEX_DIRNAME
+    if not root.exists() and not root.is_symlink():
+        return {"kind": "absent", "exclude": [], "message": None}
+    if root.is_symlink() or not root.is_dir():
+        return {"kind": "unsafe", "exclude": [], "message": ".light-index is not a regular directory"}
+    names = sorted(item.name for item in root.iterdir())
+    extras = [name for name in names if name != INDEX_FILENAME]
+    if extras:
+        return {
+            "kind": "unknown",
+            "exclude": [],
+            "message": "`.light-index` contains unrecognized extra content",
+            "names": names,
+        }
+    if INDEX_FILENAME not in names:
+        return {"kind": "empty", "exclude": [INDEX_DIRNAME], "message": None}
+    path = root / INDEX_FILENAME
+    if path.is_symlink() or not path.is_file():
+        return {"kind": "unsafe", "exclude": [], "message": "index file is not a regular file"}
+    stored = _load_index(workspace_root)
+    if stored is None:
+        return {"kind": "unknown", "exclude": [], "message": "index file is not a recognized rebuildable light-index"}
+    return {
+        "kind": "recognized",
+        "exclude": [f"{INDEX_DIRNAME}/{INDEX_FILENAME}"],
+        "index_id": stored.get("index_id"),
+        "message": None,
+    }

@@ -1,3 +1,23 @@
+# Lightweight library increment — 2026-09-08
+
+The current increment adds cited structured knowledge, paper maintenance,
+lightweight backup/restore and basic multi-paper comparison. See
+[the release record](docs/ai/lightweight-library-release-2026-09-08.md) and its
+linked frozen contract and source validation record for this increment's scope.
+The earlier 25-path workflow completion below keeps its original revision.
+
+Astra coordinates and accepts exact candidates; the three existing Luna/xhigh
+controllers manage the pinned Cursor Grok Builders. Only an explicitly frozen,
+authorized unfinished packet may run. Keep serialized delivery to draft PR #95
+and its integration target. New source changes require fresh validation and CI;
+local source acceptance does not authorize merge or close any human gate.
+The continuation heartbeat stays paused. Preserve inbox, tools, local plans,
+raw input documents, original run evidence and all prior acceptance records.
+The contract's dispatch preconditions describe the completed development run;
+this delivery header itself does not restart it.
+
+## Preserved earlier coordination and product evidence
+
 # Current four-agent Cursor CLI coordination
 
 On 2026-09-08 the user accepted FOUR TOTAL Codex agents in this runtime:

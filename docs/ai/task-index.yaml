@@ -1,5 +1,23 @@
-# Current coordination; historical handoff records below keep their original revision.
+# Current library increment. Source validation and exact-head CI are separate records.
 current_coordination:
+  requested_on: "2026-09-08"
+  contract: docs/ai/packets/lightweight-library-v1/CONTRACT.md
+  release_record: docs/ai/lightweight-library-release-2026-09-08.md
+  source_validation_record: artifacts/verification/lightweight-library-v1/local-acceptance.json
+  status: locally-accepted-pending-fresh-ci
+  primary: {model: gpt-6-astra, reasoning_effort: ultra, service_tier: priority}
+  controllers: {count: 3, model: gpt-5.6-luna, reasoning_effort: xhigh}
+  builders: {maximum_concurrent: 3, runtime: cursor-cli, model: cursor-grok-4.6-xhigh-fast}
+  product_scope: lightweight-library-v1-knowledge-maintenance-backup-comparison
+  delivery: {pull_request: 95, draft: true, target: integration, merge_authorized: false}
+  continuation_heartbeat: paused
+  note: >-
+    The release record distinguishes frozen source validation from fresh
+    exact-head CI. Earlier product and CI records remain historical.
+    A new run requires an explicitly authorized unfinished work packet.
+
+# Current coordination; historical handoff records below keep their original revision.
+previous_coordination_workflow_v2:
   requested_on: "2026-09-08"
   packet: docs/ai/packets/four-agent-cursor-cli-v1/README.md
   controller_protocol: docs/ai/packets/four-agent-cursor-cli-v1/CONTROLLER.md

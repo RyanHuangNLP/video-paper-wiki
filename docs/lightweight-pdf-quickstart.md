@@ -2,7 +2,7 @@
 
 这份说明面向实际使用者：把一份本地、可选中文字的 PDF 做成可检索的 Markdown 工作区，再用**当前对话模型**写出带 PDF 文件页码引用的问答或草稿。它不是 OCR、不是模型服务、也不是正式 Vault 发布。
 
-普通用户先走自然语言 Skill：打开 `.agents/skills/video-paper-read/SKILL.md`，用当前会话说“读这篇 PDF / 用选定论文回答 / 写一段相关工作”。Skill 负责准备会话和内部 JSON。下面是同一路径的最小 CLI fallback；不要把内部 JSON 当成日常手写格式。
+普通用户先走自然语言 Skill：打开 `.agents/skills/video-paper-read/SKILL.md`，用当前会话说“读这篇 PDF / 用选定论文回答 / 写一段相关工作”。Skill 负责准备会话和内部 JSON。下面是同一路径的最小 CLI fallback；不要把内部 JSON 当成日常手写格式。知识整理、多篇比较、论文维护和轻量备份见 [轻量文库快速入门](lightweight-library-quickstart.md)；那边说明如何保存 export 对象、8 MiB 文件策略、只收文件的备份，以及恢复后重新 index/prepare。
 
 ## 1. 启动方式（不要用旧 console script）
 

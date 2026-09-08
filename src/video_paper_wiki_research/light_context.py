@@ -52,7 +52,9 @@ EVIDENCE_IDENTITY_FIELDS = (
     "text_sha256",
     "text",
 )
-_MANAGED_ROOTS = frozenset({INDEX_DIRNAME, "papers", ".light-transactions", ".light-workflow"})
+_MANAGED_ROOTS = frozenset(
+    {INDEX_DIRNAME, "papers", ".light-transactions", ".light-workflow", ".light-knowledge", ".light-library", "knowledge"}
+)
 _MD_SOURCE_LINK = re.compile(r"\]\((?:<)?(papers/[0-9a-f]{64}/source\.md#page-\d+)(?:>)?\)")
 _TICK_SOURCE_LINK = re.compile(r"`(papers/[0-9a-f]{64}/source\.md#page-\d+)`")
 _OUTPUT_TMP_SUFFIX = ".light-out.tmp"

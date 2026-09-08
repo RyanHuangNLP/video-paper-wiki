@@ -15,6 +15,7 @@ from video_paper_wiki_research.light_index import (
     _load_index,
     _paper_dirs,
 )
+from video_paper_wiki_research.light_library_state import library_diagnostics
 from video_paper_wiki_research.light_pdf import (
     SOURCE_INVALID,
     TRANSACTIONS_DIR,
@@ -170,6 +171,8 @@ def _next_actions(state: str, diagnostics: list[dict[str, str]], index_state: st
     if state == "needs_attention":
         if any(item["code"].startswith("TRANSACTION_") for item in diagnostics):
             actions.append("Inspect abandoned or unknown transactions; do not delete unrecognized files.")
+        if any(item["code"].startswith("LIBRARY_") for item in diagnostics):
+            actions.append("Call recover_library to finish or inspect the pending library operation.")
         if any(item["code"].startswith("PAPER_") or item["code"] == SOURCE_INVALID for item in diagnostics):
             actions.append("Resolve damaged or unexpected paper entries without deleting unknown files.")
         if any(item["code"] == "INDEX_INVALID" for item in diagnostics):
@@ -230,9 +233,21 @@ def inspect_workspace(workspace_root: Path) -> dict[str, Any]:
     diagnostics.extend(index_diagnostics)
     tx_diagnostics = _scan_transactions(root)
     diagnostics.extend(tx_diagnostics)
+    diagnostics.extend(library_diagnostics(root))
     diagnostics.sort(key=lambda item: (item["relative_path"], item["code"], item["message"]))
     papers.sort(key=lambda item: item["paper_id"])
-    pending = any(item["code"] in {"TRANSACTION_ACTIVE", "TRANSACTION_ABANDONED", "TRANSACTION_UNKNOWN"} for item in diagnostics)
+    pending = any(
+        item["code"]
+        in {
+            "TRANSACTION_ACTIVE",
+            "TRANSACTION_ABANDONED",
+            "TRANSACTION_UNKNOWN",
+            "LIBRARY_OPERATION_PENDING",
+            "LIBRARY_STAGING_NONEMPTY",
+            "LIBRARY_JOURNAL_FOREIGN",
+        }
+        for item in diagnostics
+    )
     damage = any(
         item["code"]
         in {
