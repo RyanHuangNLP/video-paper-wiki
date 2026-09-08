@@ -51,17 +51,49 @@ from video_paper_wiki_research.light_writing import export_writing_context
 
 LIGHT_KNOWLEDGE_INVALID = "LIGHT_KNOWLEDGE_INVALID"
 LIGHT_KNOWLEDGE_CONFLICT = "LIGHT_KNOWLEDGE_CONFLICT"
+LIGHT_BATCH_INVALID = "LIGHT_BATCH_INVALID"
+LIGHT_BATCH_CONFLICT = "LIGHT_BATCH_CONFLICT"
+LIGHT_BATCH_INCOMPLETE = "LIGHT_BATCH_INCOMPLETE"
+LIGHT_REFRESH_INVALID = "LIGHT_REFRESH_INVALID"
+LIGHT_REFRESH_CONFLICT = "LIGHT_REFRESH_CONFLICT"
 KNOWLEDGE_CONTEXT_SCHEMA = "video-paper-wiki.light-knowledge-context.v1"
 KNOWLEDGE_DOCUMENT_SCHEMA = "video-paper-wiki.light-knowledge-document.v1"
+BATCH_RECORD_CONTEXT_SCHEMA = "video-paper-wiki.light-knowledge-batch-record-context.v1"
+REFRESH_RECORD_CONTEXT_SCHEMA = "video-paper-wiki.light-knowledge-refresh-record-context.v1"
 RECORD_SCHEMA = "video-paper-wiki.light-knowledge-record.v1"
 HEADS_SCHEMA = "video-paper-wiki.light-knowledge-heads.v1"
 VIEW_SCHEMA = "video-paper-wiki.light-knowledge-view.v1"
 CURRENT_SCHEMA = "video-paper-wiki.light-knowledge-current.v1"
 OWNERSHIP_SCHEMA = "video-paper-wiki.light-knowledge-ownership.v1"
 IDENTITY_SCHEMA = "video-paper-wiki.light-knowledge-identity.v1"
+EXTENDED_RECORD_SCHEMAS = frozenset({BATCH_RECORD_CONTEXT_SCHEMA, REFRESH_RECORD_CONTEXT_SCHEMA})
+RECORD_COVERAGE_KEYS = (
+    "mode",
+    "processing_complete",
+    "inventory",
+    "planned_chunks",
+    "processed_chunks",
+    "batch_count",
+    "gap_chunk_ids",
+    "provenance",
+)
+PROVENANCE_KEYS = (
+    "plan_id",
+    "plan_sha256",
+    "merge_sha256",
+    "base_record_id",
+    "candidate_record_id",
+    "accepted_sections",
+    "accept_concepts",
+)
+MAX_RECORD_ANCESTRY = 128
+MAX_DOCUMENT_CHARS = 32_000
+MAX_MERGE_CONTEXT_CHARS = 80_000
+MAX_BATCHES = 128
 
 KNOWLEDGE_STATE_DIR = ".light-knowledge"
 RECORDS_DIRNAME = "records"
+BATCH_JOBS_DIRNAME = "batch-jobs"
 STAGING_DIRNAME = "staging"
 HEADS_NAME = "HEADS.json"
 VIEWS_ROOT = "knowledge"
@@ -172,6 +204,52 @@ def sha256_canonical(value: object) -> str:
     return sha256_bytes(canonical_bytes(value))
 
 
+def canonical_text(value: object) -> str:
+    return canonical_bytes(value).decode("utf-8")
+
+
+def canonical_char_count(value: object) -> int:
+    return len(canonical_text(value))
+
+
+def workspace_identity(workspace: Path) -> str:
+    return sha256_canonical({"workspace_root": str(workspace)})
+
+
+def inventory_row(chunk: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "chunk_id": chunk["chunk_id"],
+        "page": chunk["page"],
+        "paper_id": chunk["paper_id"],
+        "text_end": chunk["text_end"],
+        "text_sha256": chunk["text_sha256"],
+        "text_start": chunk["text_start"],
+    }
+
+
+def sort_inventory(rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    return sorted(
+        (dict(item) for item in rows),
+        key=lambda item: (item["page"], item["text_start"], item["text_end"], item["chunk_id"]),
+    )
+
+
+def require_hex64(value: object, name: str, *, code: str = LIGHT_KNOWLEDGE_INVALID) -> str:
+    if type(value) is not str or not HEX64.fullmatch(value):
+        _raise(code, f"{name} must be 64 lowercase hex")
+    return value
+
+
+def require_nonneg_int(value: object, name: str, *, code: str = LIGHT_KNOWLEDGE_INVALID) -> int:
+    if type(value) is not int or type(value) is bool or value < 0:
+        _raise(code, f"{name} must be a nonnegative integer")
+    return value
+
+
+def unknown_block() -> dict[str, Any]:
+    return {"citations": [], "status": STATUS_UNKNOWN, "text": UNKNOWN_TEXT}
+
+
 def _is_regular_dir(path: Path) -> bool:
     return (not path.is_symlink()) and path.is_dir()
 
@@ -205,26 +283,49 @@ def _as_path(value: object, name: str) -> Path:
     raise AssertionError("unreachable")
 
 
-def _absolute_path(value: object, name: str) -> Path:
+def _raw_absolute_path(value: object, name: str) -> Path:
     path = _as_path(value, name).expanduser()
     if not path.is_absolute():
         path = Path.cwd() / path
-    return Path(os.path.normpath(path))
+    return path
+
+
+def _has_raw_parent_component(path: Path) -> bool:
+    return ".." in path.parts
+
+
+def _refuse_raw_parent_component(path: Path, name: str) -> None:
+    if _has_raw_parent_component(path):
+        _raise(
+            WORKSPACE_INVALID,
+            f"{name} must not contain a raw parent-directory component",
+            {"path": str(path)},
+        )
+
+
+def _absolute_path(value: object, name: str) -> Path:
+    raw = _raw_absolute_path(value, name)
+    _refuse_raw_parent_component(raw, name)
+    return Path(os.path.normpath(raw))
 
 
 def require_product_workspace(workspace_root: object) -> Path:
     """Require an existing regular workspace whose given and resolved paths contain .work."""
-    given = _absolute_path(workspace_root, "workspace_root")
+    raw = _raw_absolute_path(workspace_root, "workspace_root")
+    _refuse_raw_parent_component(raw, "workspace_root")
+    if ".work" not in raw.parts:
+        _raise(WORKSPACE_INVALID, "workspace must be under .work/**", {"path": str(raw)})
+    if _symlink_in_chain(raw) or raw.is_symlink():
+        _raise(WORKSPACE_INVALID, "workspace path must not traverse a symlink", {"path": str(raw)})
+    given = Path(os.path.normpath(raw))
     if ".work" not in given.parts:
         _raise(WORKSPACE_INVALID, "workspace must be under .work/**", {"path": str(given)})
-    if _symlink_in_chain(given) or given.is_symlink():
-        _raise(WORKSPACE_INVALID, "workspace path must not traverse a symlink", {"path": str(given)})
     if not given.exists() or not _is_regular_dir(given):
         _raise(WORKSPACE_INVALID, "workspace_root must be a regular directory under .work/**", {"path": str(given)})
     resolved = given.resolve()
     if ".work" not in resolved.parts:
         _raise(WORKSPACE_INVALID, "workspace must be under .work/**", {"path": str(resolved)})
-    if resolved.is_symlink() or not _is_regular_dir(resolved):
+    if resolved.is_symlink() or not _is_regular_dir(resolved) or _symlink_in_chain(resolved):
         _raise(
             WORKSPACE_INVALID,
             "workspace_root must be a regular directory under .work/**",
@@ -234,18 +335,22 @@ def require_product_workspace(workspace_root: object) -> Path:
 
 
 def require_work_output(output: object, *, suffix: str = ".md", code: str = LIGHT_KNOWLEDGE_INVALID) -> Path:
-    given = _absolute_path(output, "output")
+    raw = _raw_absolute_path(output, "output")
+    _refuse_raw_parent_component(raw, "output")
+    given = Path(os.path.normpath(raw))
     if given.suffix != suffix or given.name in {"", ".", ".."}:
         _raise(code, f"output must be a {suffix} file path", {"path": str(given)})
-    if ".work" not in given.parts:
-        _raise(WORKSPACE_INVALID, "output must be under .work/**", {"path": str(given)})
-    if _symlink_in_chain(given):
-        _raise(WORKSPACE_INVALID, "output path must not traverse a symlink", {"path": str(given)})
-    resolved = given.parent.resolve() / given.name if given.parent.exists() else given
+    if ".work" not in raw.parts or ".work" not in given.parts:
+        _raise(WORKSPACE_INVALID, "output must be under .work/**", {"path": str(raw)})
+    if _symlink_in_chain(raw) or raw.is_symlink():
+        _raise(WORKSPACE_INVALID, "output path must not traverse a symlink", {"path": str(raw)})
     if given.parent.exists():
         if _symlink_in_chain(given.parent) or given.parent.is_symlink():
             _raise(WORKSPACE_INVALID, "output path must not traverse a symlink", {"path": str(given)})
-        resolved = given.parent.resolve() / given.name
+    resolved_parent = given.parent.resolve()
+    if _symlink_in_chain(resolved_parent) or resolved_parent.is_symlink():
+        _raise(WORKSPACE_INVALID, "output path must not traverse a symlink", {"path": str(raw)})
+    resolved = resolved_parent / given.name
     if ".work" not in resolved.parts:
         _raise(WORKSPACE_INVALID, "output must be under .work/**", {"path": str(resolved)})
     return given
@@ -691,24 +796,29 @@ def _validate_concept(
     evidence_ids: set[str],
     paper_id: str,
     by_chunk: Mapping[str, Mapping[str, Any]],
+    code: str = LIGHT_KNOWLEDGE_INVALID,
 ) -> dict[str, Any]:
     if type(item) is not dict:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concept must be an object")
+        _raise(code, "concept must be an object")
     if set(item) != {"name", "citations"}:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concept must have exactly name and citations")
+        _raise(code, "concept must have exactly name and citations")
     name = item.get("name")
     if type(name) is not str:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concept name must be a string")
+        _raise(code, "concept name must be a string")
     display = display_concept_name(name)
     if not display or len(display) > MAX_CONCEPT_NAME:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concept name must be 1 to 120 characters")
+        _raise(code, "concept name must be 1 to 120 characters")
     if _control_in(display):
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concept name must not contain control characters")
+        _raise(code, "concept name must not contain control characters")
     citations = _validate_citation_ids(
-        item.get("citations"), evidence_ids=evidence_ids, paper_id=paper_id, by_chunk=by_chunk
+        item.get("citations"),
+        evidence_ids=evidence_ids,
+        paper_id=paper_id,
+        by_chunk=by_chunk,
+        code=code,
     )
     if not citations:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concept citations must be nonempty")
+        _raise(code, "concept citations must be nonempty")
     return {"citations": citations, "name": display}
 
 
@@ -717,48 +827,67 @@ def _validate_document(
     *,
     paper_id: str,
     evidence: list[dict[str, Any]],
+    allow_all_unknown: bool = False,
+    allowed_citation_ids: set[str] | None = None,
+    code: str = LIGHT_KNOWLEDGE_INVALID,
+    max_chars: int | None = None,
 ) -> dict[str, Any]:
     if type(document) is not dict:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "document must be an object")
+        _raise(code, "document must be an object")
     if document.get("schema") != KNOWLEDGE_DOCUMENT_SCHEMA:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "document schema must be light-knowledge-document.v1")
+        _raise(code, "document schema must be light-knowledge-document.v1")
     if set(document) != {"schema", "paper_id", "sections", "concepts"}:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "document must have exactly schema, paper_id, sections, and concepts")
+        _raise(code, "document must have exactly schema, paper_id, sections, and concepts")
     if document.get("paper_id") != paper_id:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "document paper_id does not match the selected paper")
+        _raise(code, "document paper_id does not match the selected paper")
+    if max_chars is not None and canonical_char_count(document) > max_chars:
+        _raise(code, f"document canonical JSON must be at most {max_chars} characters")
     sections = document.get("sections")
     if type(sections) is not dict:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "sections must be an object")
+        _raise(code, "sections must be an object")
     if set(sections) != set(SECTION_KEYS):
-        _raise(LIGHT_KNOWLEDGE_INVALID, "sections must use the exact frozen keys")
-    by_chunk = {item["chunk_id"]: item for item in evidence}
-    evidence_ids = set(by_chunk)
+        _raise(code, "sections must use the exact frozen keys")
+    by_chunk = {item["chunk_id"]: item for item in evidence if type(item) is dict and type(item.get("chunk_id")) is str}
+    evidence_ids = set(allowed_citation_ids) if allowed_citation_ids is not None else set(by_chunk)
     checked_sections: dict[str, Any] = {}
     provisional = 0
     for key in SECTION_KEYS:
         checked = validate_cited_block(
-            sections.get(key), evidence_ids=evidence_ids, paper_id=paper_id, by_chunk=by_chunk
+            sections.get(key),
+            evidence_ids=evidence_ids,
+            paper_id=paper_id,
+            by_chunk=by_chunk,
+            code=code,
         )
         checked_sections[key] = checked
         if checked["status"] == STATUS_PROVISIONAL:
             provisional += 1
     concepts_raw = document.get("concepts")
     if type(concepts_raw) is not list:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concepts must be a list")
+        _raise(code, "concepts must be a list")
     if len(concepts_raw) > MAX_CONCEPTS:
-        _raise(LIGHT_KNOWLEDGE_INVALID, "concepts must contain at most 20 objects")
+        _raise(code, "concepts must contain at most 20 objects")
     concepts = [
-        _validate_concept(item, evidence_ids=evidence_ids, paper_id=paper_id, by_chunk=by_chunk)
+        _validate_concept(
+            item,
+            evidence_ids=evidence_ids,
+            paper_id=paper_id,
+            by_chunk=by_chunk,
+            code=code,
+        )
         for item in concepts_raw
     ]
-    if provisional < 1:
-        return {}
-    return {
+    checked = {
         "concepts": concepts,
         "paper_id": paper_id,
         "schema": KNOWLEDGE_DOCUMENT_SCHEMA,
         "sections": checked_sections,
     }
+    if provisional < 1:
+        if allow_all_unknown:
+            return checked
+        return {}
+    return checked
 
 
 def _citation_rows(chunk_ids: list[str], by_chunk: Mapping[str, Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -938,13 +1067,222 @@ def _valid_identity_chunk(item: object) -> bool:
         type(item["chunk_id"]) is str
         and item["chunk_id"]
         and type(item["page"]) is int
+        and type(item["page"]) is not bool
         and type(item["paper_id"]) is str
         and PAPER_ID_PATTERN.fullmatch(item["paper_id"]) is not None
         and type(item["text_end"]) is int
+        and type(item["text_end"]) is not bool
         and type(item["text_start"]) is int
+        and type(item["text_start"]) is not bool
         and type(item["text_sha256"]) is str
         and HEX64.fullmatch(item["text_sha256"]) is not None
     )
+
+
+def _valid_legacy_coverage(value: object) -> bool:
+    if not _exact_keys(value, {"exported_chunks", "omitted_pages", "total_chunks", "truncated"}):
+        return False
+    assert type(value) is dict
+    omitted = value.get("omitted_pages")
+    return (
+        type(value["exported_chunks"]) is int
+        and type(value["exported_chunks"]) is not bool
+        and value["exported_chunks"] >= 0
+        and type(value["total_chunks"]) is int
+        and type(value["total_chunks"]) is not bool
+        and value["total_chunks"] >= 0
+        and type(value["truncated"]) is bool
+        and type(omitted) is list
+        and all(type(page) is int and type(page) is not bool for page in omitted)
+    )
+
+
+def _valid_chunk_inventory(rows: object, *, paper_id: str) -> bool:
+    if type(rows) is not list:
+        return False
+    seen: set[str] = set()
+    previous: tuple[int, int, int, str] | None = None
+    for item in rows:
+        if not _valid_identity_chunk(item):
+            return False
+        assert type(item) is dict
+        if item["paper_id"] != paper_id or item["chunk_id"] in seen:
+            return False
+        seen.add(item["chunk_id"])
+        key = (item["page"], item["text_start"], item["text_end"], item["chunk_id"])
+        if previous is not None and key < previous:
+            return False
+        previous = key
+    return True
+
+
+def _hex64_or_none(value: object) -> bool:
+    return value is None or (type(value) is str and HEX64.fullmatch(value) is not None)
+
+
+def _valid_accepted_sections(value: object) -> bool:
+    if type(value) is not list:
+        return False
+    seen: set[str] = set()
+    for item in value:
+        if type(item) is not str or item not in SECTION_KEYS or item in seen:
+            return False
+        seen.add(item)
+    return True
+
+
+def _valid_extended_coverage(value: object, *, paper_id: str, schema: str) -> bool:
+    if not _exact_keys(value, set(RECORD_COVERAGE_KEYS)):
+        return False
+    assert type(value) is dict
+    mode = value.get("mode")
+    if mode not in {"full", "refresh", "selection"}:
+        return False
+    if schema == BATCH_RECORD_CONTEXT_SCHEMA and mode != "full":
+        return False
+    if schema == REFRESH_RECORD_CONTEXT_SCHEMA and mode not in {"refresh", "selection"}:
+        return False
+    if value.get("processing_complete") is not True:
+        return False
+    if not _valid_chunk_inventory(value.get("inventory"), paper_id=paper_id):
+        return False
+    inventory = value["inventory"]
+    assert type(inventory) is list
+    for name in ("planned_chunks", "processed_chunks", "batch_count"):
+        number = value.get(name)
+        if type(number) is not int or type(number) is bool or number < 0:
+            return False
+    if value["processed_chunks"] != len(inventory):
+        return False
+    if value.get("gap_chunk_ids") != []:
+        return False
+    provenance = value.get("provenance")
+    if not _exact_keys(provenance, set(PROVENANCE_KEYS)):
+        return False
+    assert type(provenance) is dict
+    if type(provenance.get("plan_id")) is not str or not HEX64.fullmatch(str(provenance["plan_id"])):
+        return False
+    if type(provenance.get("plan_sha256")) is not str or not HEX64.fullmatch(str(provenance["plan_sha256"])):
+        return False
+    if not _hex64_or_none(provenance.get("merge_sha256")):
+        return False
+    if not _hex64_or_none(provenance.get("base_record_id")):
+        return False
+    if not _hex64_or_none(provenance.get("candidate_record_id")):
+        return False
+    if value["planned_chunks"] != len(inventory):
+        return False
+    if mode == "full":
+        return (
+            provenance["base_record_id"] is None
+            and provenance["candidate_record_id"] is None
+            and provenance["accepted_sections"] is None
+            and provenance["accept_concepts"] is None
+            and type(provenance["merge_sha256"]) is str
+            and value["batch_count"] >= 1
+        )
+    if mode == "refresh":
+        if (
+            type(provenance["base_record_id"]) is not str
+            or provenance["candidate_record_id"] is not None
+            or provenance["accepted_sections"] is not None
+            or provenance["accept_concepts"] is not None
+        ):
+            return False
+        if value["batch_count"] == 0:
+            return provenance["merge_sha256"] is None
+        return type(provenance["merge_sha256"]) is str
+    return (
+        type(provenance["base_record_id"]) is str
+        and type(provenance["candidate_record_id"]) is str
+        and _valid_accepted_sections(provenance.get("accepted_sections"))
+        and type(provenance.get("accept_concepts")) is bool
+    )
+
+
+def _collect_wrapper_record_refs(wrapper: Mapping[str, Any]) -> list[tuple[str, str]]:
+    coverage = wrapper.get("coverage")
+    if type(coverage) is not dict:
+        return []
+    provenance = coverage.get("provenance")
+    if type(provenance) is not dict:
+        return []
+    refs: list[tuple[str, str]] = []
+    for key in ("base_record_id", "candidate_record_id"):
+        value = provenance.get(key)
+        if type(value) is str:
+            refs.append((key, value))
+    return refs
+
+
+def _ancestry_edge_ok(
+    child: Mapping[str, Any],
+    role: str,
+    referenced: Mapping[str, Any],
+) -> bool:
+    if child["paper_id"] != referenced["paper_id"]:
+        return False
+    child_wrapper = child["identity"]["wrapper"]
+    if type(child_wrapper) is not dict:
+        return False
+    coverage = child_wrapper.get("coverage")
+    if type(coverage) is not dict:
+        return False
+    mode = coverage.get("mode")
+    provenance = coverage.get("provenance")
+    if type(provenance) is not dict:
+        return False
+    ref_wrapper = referenced["identity"]["wrapper"]
+    if type(ref_wrapper) is not dict:
+        return False
+    if role == "base_record_id":
+        return mode in {"refresh", "selection"}
+    if role != "candidate_record_id" or mode != "selection":
+        return False
+    if ref_wrapper.get("schema") != REFRESH_RECORD_CONTEXT_SCHEMA:
+        return False
+    ref_coverage = ref_wrapper.get("coverage")
+    if type(ref_coverage) is not dict or ref_coverage.get("mode") != "refresh":
+        return False
+    ref_provenance = ref_coverage.get("provenance")
+    if type(ref_provenance) is not dict:
+        return False
+    return ref_provenance.get("base_record_id") == provenance.get("base_record_id")
+
+
+def _validate_record_ancestry(workspace: Path, record_id: str) -> bool:
+    validated: set[str] = set()
+
+    def visit(current: str, stack: tuple[str, ...]) -> bool:
+        if current in stack:
+            return False
+        if current in validated:
+            return True
+        if len(validated) >= MAX_RECORD_ANCESTRY:
+            return False
+        if type(current) is not str or not HEX64.fullmatch(current):
+            return False
+        dest = _records_root(workspace) / current
+        bundle = _record_bundle_ok(workspace, dest, check_ancestry=False)
+        if bundle is None:
+            return False
+        validated.add(current)
+        nxt = stack + (current,)
+        for role, ref in _collect_wrapper_record_refs(bundle["identity"]["wrapper"]):
+            if type(ref) is not str or not HEX64.fullmatch(ref):
+                return False
+            if not visit(ref, nxt):
+                return False
+            referenced = _record_bundle_ok(
+                workspace,
+                _records_root(workspace) / ref,
+                check_ancestry=False,
+            )
+            if referenced is None or not _ancestry_edge_ok(bundle, role, referenced):
+                return False
+        return True
+
+    return visit(record_id, ())
 
 
 def _valid_inventory_rows(rows: object, files: Mapping[str, bytes]) -> bool:
@@ -1541,6 +1879,84 @@ def _publish_json_pointer(workspace: Path, *, kind: str, target_id: str, relativ
         _cleanup_empty_staging(staged, expected)
 
 
+def publish_managed_file(
+    workspace: Path,
+    *,
+    kind: str,
+    target_id: str,
+    relative_target: str,
+    payload: Mapping[str, Any],
+) -> bool:
+    """Atomically publish one canonical JSON file via owned staging. True if reused."""
+    if Path(relative_target).is_absolute() or "\\" in relative_target or ".." in Path(relative_target).parts:
+        _raise(LIGHT_KNOWLEDGE_CONFLICT, "managed file target is unsafe")
+    destination = workspace / relative_target
+    encoded = persisted_bytes(payload)
+    name = Path(relative_target).name
+    expected = {name: encoded}
+    allowed = [name]
+    already = False
+    if destination.exists() or destination.is_symlink():
+        _require_safe_file(destination, relative_target)
+        if destination.read_bytes() == encoded:
+            already = True
+        else:
+            _raise(LIGHT_KNOWLEDGE_CONFLICT, "managed file already exists with different bytes")
+    complete = _reconcile_prefix_staging(
+        workspace,
+        kind=kind,
+        target_id=target_id,
+        intended_relative_target=relative_target,
+        allowed_payload_set=allowed,
+        expected=expected,
+        destination_ready=already,
+    )
+    if already:
+        return True
+    if complete is not None:
+        tmp = complete / PAYLOAD_DIRNAME / name
+        _ensure_regular_dir(destination.parent, stop_at=workspace)
+        os.replace(tmp, destination)
+        _cleanup_empty_staging(complete, expected)
+        return False
+    staged = _create_staging(
+        workspace,
+        kind=kind,
+        target_id=target_id,
+        intended_relative_target=relative_target,
+        allowed_payload_set=allowed,
+    )
+    try:
+        _write_bytes(staged / PAYLOAD_DIRNAME / name, encoded)
+        _ensure_regular_dir(destination.parent, stop_at=workspace)
+        os.replace(staged / PAYLOAD_DIRNAME / name, destination)
+    finally:
+        _cleanup_empty_staging(staged, expected)
+    return False
+
+
+def pointer_head_record_id(workspace: Path, paper_id: str) -> str | None:
+    loaded = _load_heads(workspace)
+    if loaded.get("ok") is False:
+        _raise(str(loaded["status"]), str(loaded["message"]))
+    value = loaded["heads"].get(paper_id)
+    if type(value) is not str or not HEX64.fullmatch(value):
+        return None
+    return value
+
+
+def current_head_record_id(workspace: Path, paper_id: str) -> str | None:
+    loaded = _load_heads(workspace)
+    if loaded.get("ok") is False:
+        _raise(str(loaded["status"]), str(loaded["message"]))
+    value = loaded["heads"].get(paper_id)
+    if type(value) is not str or not HEX64.fullmatch(value):
+        return None
+    if _owned_record_bundle(workspace, record_id=value, paper_id=paper_id) is None:
+        return None
+    return value
+
+
 def _set_head(workspace: Path, paper_id: str, record_id: str) -> None:
     current = _load_heads(workspace)
     if current.get("ok") is False:
@@ -1748,7 +2164,65 @@ def _document_citation_ids(document: Mapping[str, Any]) -> list[str]:
     return used
 
 
-def _record_bundle_ok(workspace: Path, record_dir: Path) -> dict[str, Any] | None:
+def _extended_record_binds_job(workspace: Path, bundle: Mapping[str, Any]) -> bool:
+    from video_paper_wiki_research.light_knowledge_batch import _merge_step, load_plan
+
+    wrapper = bundle["identity"]["wrapper"]
+    if type(wrapper) is not dict:
+        return False
+    coverage = wrapper.get("coverage")
+    if type(coverage) is not dict:
+        return False
+    provenance = coverage.get("provenance")
+    if type(provenance) is not dict:
+        return False
+    plan_id = provenance.get("plan_id")
+    plan_sha256 = provenance.get("plan_sha256")
+    if type(plan_id) is not str or type(plan_sha256) is not str:
+        return False
+    plan = load_plan(workspace, plan_id)
+    if plan is None or plan["plan_sha256"] != plan_sha256:
+        return False
+    if plan["paper_id"] != bundle["paper_id"]:
+        return False
+    if canonical_bytes(coverage.get("inventory")) != canonical_bytes(plan["inventory"]):
+        return False
+    if coverage.get("planned_chunks") != plan["planned_chunks"]:
+        return False
+    if coverage.get("batch_count") != plan["batch_count"]:
+        return False
+    if canonical_bytes(wrapper.get("paper_snapshot")) != canonical_bytes(plan["paper_snapshot"]):
+        return False
+    mode = coverage.get("mode")
+    if mode == "full" and plan["mode"] != "full":
+        return False
+    if mode == "refresh" and plan["mode"] != "refresh":
+        return False
+    if mode == "selection":
+        return True
+    if plan["batch_count"] == 0:
+        if provenance.get("merge_sha256") is not None:
+            return False
+        seed = plan.get("seed_document")
+        if type(seed) is not dict:
+            return False
+        return canonical_bytes(bundle["document"]) == canonical_bytes(seed)
+    last = _merge_step(workspace, plan, plan["batch_count"] - 1)
+    if last is None:
+        return False
+    if sha256_canonical(last) != provenance.get("merge_sha256"):
+        return False
+    return canonical_bytes(bundle["document"]) == canonical_bytes(last["document"])
+
+
+def _record_bundle_ok(
+    workspace: Path,
+    record_dir: Path,
+    *,
+    check_ancestry: bool = True,
+    require_completed_job: bool = True,
+    bind_job_result: bool = True,
+) -> dict[str, Any] | None:
     if not HEX64.fullmatch(record_dir.name) or record_dir.is_symlink() or not record_dir.is_dir():
         return None
     inspected = _inspect_tree(record_dir)
@@ -1812,6 +2286,16 @@ def _record_bundle_ok(workspace: Path, record_dir: Path) -> dict[str, Any] | Non
     wrapper = identity.get("wrapper")
     if not _exact_keys(wrapper, set(_KNOWLEDGE_WRAPPER_TYPES)):
         return None
+    assert type(wrapper) is dict
+    wrapper_schema = wrapper.get("schema")
+    if wrapper_schema == KNOWLEDGE_CONTEXT_SCHEMA:
+        if not _valid_legacy_coverage(wrapper.get("coverage")):
+            return None
+    elif wrapper_schema in EXTENDED_RECORD_SCHEMAS:
+        if not _valid_extended_coverage(wrapper.get("coverage"), paper_id=paper_id, schema=str(wrapper_schema)):
+            return None
+    else:
+        return None
     chunks = identity.get("chunks")
     if type(chunks) is not list or any(not _valid_identity_chunk(item) for item in chunks):
         return None
@@ -1862,6 +2346,37 @@ def _record_bundle_ok(workspace: Path, record_dir: Path) -> dict[str, Any] | Non
             return None
         if item.get("markdown_sha256") != snapshot.get("markdown_sha256"):
             return None
+    if wrapper_schema in EXTENDED_RECORD_SCHEMAS:
+        coverage = wrapper["coverage"]
+        inventory_ids = {row["chunk_id"] for row in coverage["inventory"]}
+        for chunk_id in _document_citation_ids(document):
+            if chunk_id not in inventory_ids:
+                return None
+        payload = {
+            "chunks": chunks,
+            "document": document,
+            "identity": identity,
+            "manifest": manifest,
+            "paper_id": paper_id,
+            "snapshot": snapshot,
+            "source": source,
+        }
+        if bind_job_result and not _extended_record_binds_job(workspace, payload):
+            return None
+        if require_completed_job:
+            from video_paper_wiki_research.light_knowledge_batch import validate_job_provenance
+
+            provenance = coverage["provenance"]
+            if not validate_job_provenance(
+                workspace,
+                plan_id=str(provenance["plan_id"]),
+                plan_sha256=str(provenance["plan_sha256"]),
+                merge_sha256=provenance.get("merge_sha256"),
+            ):
+                return None
+        if check_ancestry and not _validate_record_ancestry(workspace, record_dir.name):
+            return None
+        return payload
     return {
         "chunks": chunks,
         "document": document,

@@ -12,6 +12,10 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from video_paper_wiki_research.light_index import classify_index_tree
+from video_paper_wiki_research.light_knowledge_batch import (
+    LIGHT_BATCH_CONFLICT,
+    knowledge_batch_backup_blockers,
+)
 from video_paper_wiki_research.light_library import library_backup_blockers
 from video_paper_wiki_research.light_library_state import (
     BACKUP_SCHEMA,
@@ -65,6 +69,12 @@ from video_paper_wiki_research.light_library_state import (
     validate_relpath,
 )
 from video_paper_wiki_research.light_pdf import classify_transaction_tree, lock_is_held
+from video_paper_wiki_research.light_writing_project import (
+    LIGHT_WRITING_PROJECT_CONFLICT,
+    STAGING_DIRNAME as WRITING_STAGING,
+    WRITING_DIRNAME,
+    writing_backup_blockers,
+)
 
 MANIFEST_NAME = "LIGHT-LIBRARY-MANIFEST.json"
 ZIP_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
@@ -158,6 +168,17 @@ def _snapshot_workspace(workspace: Path, *, extra_outputs: list[Path], held_work
     blockers = library_backup_blockers(workspace)
     if blockers is not None:
         return blockers
+    batch_blockers = knowledge_batch_backup_blockers(workspace)
+    if batch_blockers:
+        first = batch_blockers[0]
+        code = LIGHT_BACKUP_CONFLICT if first.get("status") == LIGHT_BATCH_CONFLICT else LIGHT_BACKUP_INVALID
+        return closed(code, first["message"], path=first.get("path"))
+    writing_blockers = writing_backup_blockers(workspace)
+    if writing_blockers:
+        first = writing_blockers[0]
+        status = first.get("status")
+        code = LIGHT_BACKUP_CONFLICT if status in {LIGHT_WRITING_PROJECT_CONFLICT, "conflict"} else LIGHT_BACKUP_INVALID
+        return closed(code, first["message"], path=first.get("path"))
     if knowledge_staging_nonempty(workspace):
         return closed(
             LIGHT_BACKUP_INVALID,
@@ -199,8 +220,16 @@ def _snapshot_workspace(workspace: Path, *, extra_outputs: list[Path], held_work
         f"{WORKFLOW_DIRNAME}/{WORKFLOW_STAGING}/",
         f"{WORKFLOW_DIRNAME}/{SESSIONS_DIRNAME}/",
         f"{KNOWLEDGE_DIRNAME}/{KNOWLEDGE_STAGING}/",
+        f"{WRITING_DIRNAME}/{WRITING_STAGING}/",
     )
-    skip_exact = {INDEX_DIRNAME, TRANSACTIONS_DIR, f"{WORKFLOW_DIRNAME}/{LOCKS_DIRNAME}", f"{WORKFLOW_DIRNAME}/{WORKFLOW_STAGING}", f"{KNOWLEDGE_DIRNAME}/{KNOWLEDGE_STAGING}"}
+    skip_exact = {
+        INDEX_DIRNAME,
+        TRANSACTIONS_DIR,
+        f"{WORKFLOW_DIRNAME}/{LOCKS_DIRNAME}",
+        f"{WORKFLOW_DIRNAME}/{WORKFLOW_STAGING}",
+        f"{KNOWLEDGE_DIRNAME}/{KNOWLEDGE_STAGING}",
+        f"{WRITING_DIRNAME}/{WRITING_STAGING}",
+    }
 
     for dirpath, dirnames, filenames in os.walk(workspace, followlinks=False):
         base = Path(dirpath)
@@ -216,7 +245,7 @@ def _snapshot_workspace(workspace: Path, *, extra_outputs: list[Path], held_work
                 if rel == f"{WORKFLOW_DIRNAME}/{SESSIONS_DIRNAME}":
                     dirnames.remove(name)
                     continue
-                if rel == INDEX_DIRNAME or rel == TRANSACTIONS_DIR or rel == f"{WORKFLOW_DIRNAME}/{LOCKS_DIRNAME}" or rel == f"{WORKFLOW_DIRNAME}/{WORKFLOW_STAGING}" or rel == f"{KNOWLEDGE_DIRNAME}/{KNOWLEDGE_STAGING}":
+                if rel == INDEX_DIRNAME or rel == TRANSACTIONS_DIR or rel == f"{WORKFLOW_DIRNAME}/{LOCKS_DIRNAME}" or rel == f"{WORKFLOW_DIRNAME}/{WORKFLOW_STAGING}" or rel == f"{KNOWLEDGE_DIRNAME}/{KNOWLEDGE_STAGING}" or rel == f"{WRITING_DIRNAME}/{WRITING_STAGING}":
                     dirnames.remove(name)
                     continue
             if not child.is_dir():

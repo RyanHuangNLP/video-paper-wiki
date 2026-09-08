@@ -2,7 +2,7 @@
 
 这份说明面向实际使用者：把一份本地、可选中文字的 PDF 做成可检索的 Markdown 工作区，再用**当前对话模型**写出带 PDF 文件页码引用的问答或草稿。它不是 OCR、不是模型服务、也不是正式 Vault 发布。
 
-普通用户先走自然语言 Skill：打开 `.agents/skills/video-paper-read/SKILL.md`，用当前会话说“读这篇 PDF / 用选定论文回答 / 写一段相关工作”。Skill 负责准备会话和内部 JSON。下面是同一路径的最小 CLI fallback；不要把内部 JSON 当成日常手写格式。知识整理、多篇比较、论文维护和轻量备份见 [轻量文库快速入门](lightweight-library-quickstart.md)；那边说明如何保存 export 对象、8 MiB 文件策略、只收文件的备份，以及恢复后重新 index/prepare。
+普通用户先走自然语言 Skill：打开 `.agents/skills/video-paper-read/SKILL.md`，用当前会话说“读这篇 PDF / 用选定论文回答 / 写一段相关工作”。Skill 负责准备会话和内部 JSON。下面是同一路径的最小 CLI fallback；不要把内部 JSON 当成日常手写格式。知识整理、多篇比较、论文维护和轻量备份见 [轻量文库快速入门](lightweight-library-quickstart.md)；中文问英文论文、长文分批、选择性刷新和提纲/章节修订见 [轻量研究快速入门](lightweight-research-quickstart.md)。那边说明如何保存 export 对象、8 MiB 文件策略、只收文件的备份，以及恢复后重新 index/prepare。
 
 ## 1. 启动方式（不要用旧 console script）
 
@@ -155,7 +155,7 @@ mkdir -p "$WS" "$OUT"
 "${CLI[@]}" writing import --context "$WCTX" --draft "$DRAFT" --output "$WMD" --workspace "$WS"
 ```
 
-export / import / prepare **不会**调用模型。旧的 `--vault-root` / `--upstream-root` / `--config` 路径仍然可用，但不能和 `--workspace` 写在同一条命令里。
+export / import / prepare **不会**调用模型。工作区 `qa export` / `writing export` 可另加 `--rewrite` JSON 文件，供当前会话提供英文词法；该旗标不能用在 Vault/catalog 路径。旧的 `--vault-root` / `--upstream-root` / `--config` 路径仍然可用，但不能和 `--workspace` 写在同一条命令里。
 
 ## 5. 查看页码引用
 

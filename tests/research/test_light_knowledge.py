@@ -36,6 +36,8 @@ from video_paper_wiki_research.light_knowledge import (
     import_knowledge,
     list_knowledge,
     persisted_bytes,
+    require_product_workspace,
+    require_work_output,
     sha256_bytes,
     sha256_canonical,
 )
@@ -790,3 +792,207 @@ def test_complete_workspace_relocation_preserves_valid_old_view_and_advance(tmp_
     assert built["view_id"] != json.loads((relocated / "knowledge" / "CURRENT.json").read_text(encoding="utf-8")).get("unused", "")
     first_id = json.loads((workspace / "knowledge" / "CURRENT.json").read_text(encoding="utf-8"))["view_id"]
     assert built["view_id"] != first_id
+
+
+def _regular_file_snapshot(root: Path) -> dict[str, bytes]:
+    rows: dict[str, bytes] = {}
+    if not root.exists():
+        return rows
+    for path in sorted(root.rglob("*")):
+        if path.is_file() and not path.is_symlink():
+            rows[str(path.relative_to(root))] = path.read_bytes()
+    return rows
+
+
+def _raw_symlink_parent_path(work_root: Path, *, target: Path, name: str = "link") -> Path:
+    link = work_root / name
+    if not link.exists() and not link.is_symlink():
+        link.symlink_to(target, target_is_directory=True)
+    raw = work_root / name / ".." / "ws"
+    assert ".." in raw.parts
+    assert name in raw.parts
+    assert name not in Path(os.path.normpath(raw)).parts
+    assert Path(os.path.normpath(raw)) == work_root / "ws"
+    return raw
+
+
+def test_raw_parent_and_symlink_edges_are_refused_before_normalization(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    workspace = _workspace(tmp_path)
+    work = workspace.parent
+    alias = work / "alias"
+    alias.mkdir()
+    (alias / "marker.txt").write_text("alias-only\n", encoding="utf-8")
+    outside = tmp_path / "outside-dir"
+    outside.mkdir()
+    (outside / "secret.txt").write_text("outside\n", encoding="utf-8")
+    reports = workspace / "reports"
+    reports.mkdir()
+    sentinel = reports / "keep.md"
+    sentinel_bytes = b"existing-output-sentinel\n"
+    sentinel.write_bytes(sentinel_bytes)
+    missing_parent = workspace / "missing-reports"
+    differing = _raw_symlink_parent_path(work, target=alias, name="link")
+    same_target = _raw_symlink_parent_path(work, target=workspace, name="same")
+    plain_parent = workspace / ".." / "ws"
+    inside_link = workspace / "inside-link"
+    inside_link.symlink_to(reports, target_is_directory=True)
+    outside_link = workspace / "outside-link"
+    outside_link.symlink_to(outside, target_is_directory=True)
+    assert list_knowledge(workspace)["ok"] is True
+    alias_before = _regular_file_snapshot(alias)
+    outside_before = _regular_file_snapshot(outside)
+
+    def _refuse_workspace(value: object) -> None:
+        with pytest.raises(ResearchError) as caught:
+            require_product_workspace(value)
+        assert caught.value.code == WORKSPACE_INVALID
+
+    def _refuse_output(value: object) -> None:
+        with pytest.raises(ResearchError) as caught:
+            require_work_output(value)
+        assert caught.value.code == WORKSPACE_INVALID
+
+    _refuse_workspace(differing)
+    _refuse_workspace(same_target)
+    _refuse_workspace(plain_parent)
+    _refuse_workspace(str(differing))
+    monkeypatch.chdir(tmp_path)
+    _refuse_workspace(Path(".work") / "link" / ".." / "ws")
+    _refuse_workspace(".work/ws/../ws")
+    assert require_product_workspace(workspace) == workspace.resolve()
+    assert require_product_workspace(".work/ws") == workspace.resolve()
+    assert require_product_workspace(Path(".work") / "ws") == workspace.resolve()
+
+    _refuse_output(differing / "reports" / "keep.md")
+    _refuse_output(same_target / "reports" / "keep.md")
+    _refuse_output(plain_parent / "reports" / "keep.md")
+    _refuse_output(differing / "missing-reports" / "new.md")
+    _refuse_output(inside_link / "keep.md")
+    _refuse_output(outside_link / "keep.md")
+    _refuse_output(inside_link / "missing.md")
+    _refuse_output(outside_link / "missing.md")
+    _refuse_output(".work/link/../ws/reports/keep.md")
+    assert require_work_output(sentinel) == sentinel
+    assert require_work_output(missing_parent / "new.md") == missing_parent / "new.md"
+    assert not missing_parent.exists()
+
+    from video_paper_wiki_research.light_compare import (
+        COMPARISON_DOCUMENT_SCHEMA,
+        DEFAULT_DIMENSIONS,
+        export_comparison_context,
+        import_comparison,
+    )
+
+    exported = export_comparison_context(
+        workspace,
+        query="quasar",
+        paper_ids=[PAPER_A, PAPER_B],
+    )
+    assert exported["ok"] is True
+    by_paper = {item["paper_id"]: item["chunk_id"] for item in exported["context"]["evidence"]}
+    rows = []
+    for label in DEFAULT_DIMENSIONS:
+        cells = []
+        for paper_id in (PAPER_A, PAPER_B):
+            chunk_id = by_paper.get(paper_id)
+            if chunk_id is None:
+                cells.append(
+                    {
+                        "citations": [],
+                        "conditions": "unknown",
+                        "paper_id": paper_id,
+                        "status": "unknown",
+                        "text": "证据不足",
+                    }
+                )
+            else:
+                cells.append(
+                    {
+                        "citations": [chunk_id],
+                        "conditions": "synthetic fixture",
+                        "paper_id": paper_id,
+                        "status": "provisional",
+                        "text": "Observed method text.",
+                    }
+                )
+        rows.append(
+            {
+                "cells": cells,
+                "comparability": "unknown",
+                "dimension": label,
+                "reason": "Fixture comparison under matching synthetic conditions.",
+            }
+        )
+    document = {"rows": rows, "schema": COMPARISON_DOCUMENT_SCHEMA}
+    bad_outputs = (
+        differing / "reports" / "keep.md",
+        same_target / "reports" / "keep.md",
+        plain_parent / "reports" / "keep.md",
+        differing / "missing-reports" / "new.md",
+        inside_link / "keep.md",
+        outside_link / "keep.md",
+    )
+    with pytest.raises(ResearchError) as caught:
+        import_comparison(workspace, exported, document, output=bad_outputs[0])
+    assert caught.value.code == WORKSPACE_INVALID
+    assert sentinel.read_bytes() == sentinel_bytes
+    assert not missing_parent.exists()
+    before = _regular_file_snapshot(workspace)
+    for bad_output in bad_outputs[1:]:
+        with pytest.raises(ResearchError) as caught:
+            import_comparison(workspace, exported, document, output=bad_output)
+        assert caught.value.code == WORKSPACE_INVALID
+        assert sentinel.read_bytes() == sentinel_bytes
+        assert not missing_parent.exists()
+        assert _regular_file_snapshot(workspace) == before
+
+    assert _regular_file_snapshot(workspace) == before
+    assert _regular_file_snapshot(alias) == alias_before
+    assert _regular_file_snapshot(outside) == outside_before
+    assert list_knowledge(workspace)["heads"] == {}
+    assert not (workspace / KNOWLEDGE_STATE_DIR / "batch-jobs").exists()
+    assert (alias / "marker.txt").read_text(encoding="utf-8") == "alias-only\n"
+    assert (outside / "secret.txt").read_text(encoding="utf-8") == "outside\n"
+
+
+def test_legacy_import_still_rejects_custom_wrapper_schema(tmp_path: Path) -> None:
+    workspace = _workspace(tmp_path)
+    exported = export_knowledge_context(workspace, paper_id=PAPER_A)
+    tampered = dict(exported)
+    tampered["schema"] = "video-paper-wiki.light-knowledge-batch-record-context.v1"
+    closed = import_knowledge(
+        workspace,
+        tampered,
+        _knowledge_document(PAPER_A, exported["context"]["evidence"][0]["chunk_id"]),
+    )
+    assert closed["ok"] is False
+    assert closed["status"] == LIGHT_KNOWLEDGE_INVALID
+    accepted = import_knowledge(
+        workspace,
+        exported,
+        _knowledge_document(PAPER_A, exported["context"]["evidence"][0]["chunk_id"]),
+    )
+    assert accepted["ok"] is True
+
+
+def test_malformed_nested_document_enum_closes_without_traceback(tmp_path: Path) -> None:
+    workspace = _workspace(tmp_path)
+    exported = export_knowledge_context(workspace, paper_id=PAPER_A)
+    closed = import_knowledge(
+        workspace,
+        exported,
+        {
+            "concepts": [],
+            "paper_id": PAPER_A,
+            "schema": KNOWLEDGE_DOCUMENT_SCHEMA,
+            "sections": {
+                key: {"citations": [], "status": "maybe", "text": UNKNOWN_TEXT}
+                for key in SECTION_KEYS
+            },
+        },
+    )
+    assert closed["ok"] is False
+    assert closed["status"] == LIGHT_KNOWLEDGE_INVALID
+    assert list_knowledge(workspace)["heads"] == {}

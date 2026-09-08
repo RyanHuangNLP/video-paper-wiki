@@ -1,3 +1,25 @@
+# Lightweight research enhancements — 2026-09-08
+
+This increment adds Chinese/English lexical retrieval handoffs, complete bounded
+long-paper processing, selective knowledge refresh, and outline/section writing
+revisions. See [the release record](docs/ai/lightweight-research-release-2026-09-08.md)
+and its linked frozen contract and source validation record. Exact-head CI is
+recorded separately after delivery; source validation alone does not establish it.
+
+Astra coordinates and accepts exact candidates; three existing Luna/xhigh
+controllers manage pinned Cursor Grok Builders. Builders are stopped for
+acceptance. Only an explicitly authorized unfinished packet may start new work.
+Keep serialized delivery to draft PR #95 targeting integration. No merge, main
+change, automatic merge, real Vault operation or human-gate closure is authorized.
+The continuation heartbeat remains paused. Preserve inbox, tools, local plans,
+raw documents, model trial material, rejected evidence and previous acceptance.
+The contract's dispatch preconditions describe this historical development run.
+
+The preceding library increment is complete at 6963292a93ae322eaf9bb563b7b1170dee6a6fc6,
+with Tests run 34197658919. Its records below remain bound to that earlier revision.
+
+## Preserved earlier coordination and product evidence
+
 # Lightweight library increment — 2026-09-08
 
 The current increment adds cited structured knowledge, paper maintenance,

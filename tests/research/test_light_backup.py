@@ -743,3 +743,129 @@ def test_verify_refuses_unsafe_and_noncanonical_zip_filename_flags(tmp_path: Pat
     malformed = mutations / "unicode-malformed-name.zip"
     _mutate_zip_name(unicode_archive, malformed, old="papers/fixture/notes-α-中文.md")
     _refused(malformed)
+
+
+def test_backup_refuses_pending_knowledge_batch_job(tmp_path: Path) -> None:
+    from tests.research.test_light_index import SHA_A, _write_paper
+    from video_paper_wiki_research.light_knowledge_batch import plan_knowledge_batches
+
+    workspace = tmp_path / ".work" / "batch-pending"
+    workspace.mkdir(parents=True)
+    _write_paper(workspace, SHA_A, "Alpha paper", ["Synthetic quasar method evidence uniquealpha."])
+    assert build_index(workspace)["ok"] is True
+    planned = plan_knowledge_batches(workspace, paper_id="sha256:" + SHA_A)
+    assert planned["ok"] is True
+    blocked = create_backup(workspace, output=_output(tmp_path, "pending-batch.zip"))
+    assert blocked["ok"] is False
+    assert blocked["status"] == LIGHT_BACKUP_INVALID
+    assert planned["plan_id"] in blocked["message"]
+
+
+def test_backup_completed_batch_history_and_unknown_directory(tmp_path: Path) -> None:
+    from tests.research.test_light_index import SHA_A, SHA_B, _write_paper
+    from tests.research.test_light_knowledge import PAPER_A
+    from tests.research.test_light_knowledge_batch import _run_batches
+    from video_paper_wiki_research.light_knowledge import KNOWLEDGE_STATE_DIR
+    from video_paper_wiki_research.light_knowledge_batch import BATCH_JOBS_DIRNAME, knowledge_batch_backup_blockers
+
+    workspace = tmp_path / ".work" / "batch-complete"
+    workspace.mkdir(parents=True)
+    _write_paper(workspace, SHA_A, "Alpha paper", ["Synthetic quasar method evidence uniquealpha."])
+    _write_paper(workspace, SHA_B, "Beta paper", ["Nebula writing token evidence uniquebeta."])
+    assert build_index(workspace)["ok"] is True
+    notes = workspace / "knowledge" / "notes.md"
+    notes.parent.mkdir(parents=True, exist_ok=True)
+    notes.write_text("backup must keep notes\n", encoding="utf-8")
+    finalized = _run_batches(workspace, PAPER_A)
+    assert finalized["ok"] is True
+    assert knowledge_batch_backup_blockers(workspace) == []
+    created = create_backup(workspace, output=_output(tmp_path, "complete-batch.zip"))
+    assert created["ok"] is True
+    verified = verify_backup(_output(tmp_path, "complete-batch.zip"))
+    assert verified["ok"] is True
+    dest = tmp_path / ".work" / "restored-complete"
+    restored = restore_backup(_output(tmp_path, "complete-batch.zip"), destination=dest)
+    assert restored["ok"] is True
+    assert (dest / "knowledge" / "notes.md").read_text(encoding="utf-8") == "backup must keep notes\n"
+    extra = workspace / KNOWLEDGE_STATE_DIR / BATCH_JOBS_DIRNAME / finalized["plan_id"] / "ghost"
+    extra.mkdir()
+    blocked = create_backup(workspace, output=_output(tmp_path, "ghost-dir.zip"))
+    assert blocked["ok"] is False
+    assert blocked["status"] == LIGHT_BACKUP_CONFLICT
+    assert extra.is_dir()
+
+
+def test_backup_allows_intact_unwritten_writing_and_refuses_pending_publication(tmp_path: Path) -> None:
+    from tests.research.test_light_writing_project import (
+        WRITING_DIRNAME,
+        _create_project,
+        _workspace as _writing_workspace,
+    )
+    from video_paper_wiki_research.light_writing_project import writing_backup_blockers
+
+    workspace = _writing_workspace(tmp_path)
+    _context, _wrapper, imported = _create_project(workspace)
+    assert imported["progress"]["complete"] is False
+    assert imported["progress"]["unwritten"] == 2
+    assert writing_backup_blockers(workspace) == []
+    created = create_backup(workspace, output=_output(tmp_path, "unwritten-writing.zip"))
+    assert created["ok"] is True, created
+    verified = verify_backup(_output(tmp_path, "unwritten-writing.zip"))
+    assert verified["ok"] is True
+    dest = tmp_path / ".work" / "restored-unwritten"
+    restored = restore_backup(_output(tmp_path, "unwritten-writing.zip"), destination=dest)
+    assert restored["ok"] is True
+    project_dir = dest / WRITING_DIRNAME / "projects" / imported["project_id"]
+    assert (project_dir / "HEAD.json").is_file()
+
+    staging = workspace / WRITING_DIRNAME / "staging"
+    staging.mkdir(parents=True, exist_ok=True)
+    orphan = staging / "orphan.txt"
+    orphan.write_text("pending publication\n", encoding="utf-8")
+    blockers = writing_backup_blockers(workspace)
+    assert blockers
+    blocked = create_backup(workspace, output=_output(tmp_path, "pending-writing.zip"))
+    assert blocked["ok"] is False
+    assert blocked["status"] == LIGHT_BACKUP_INVALID
+    assert orphan.read_text(encoding="utf-8") == "pending publication\n"
+    orphan.unlink()
+    recovered = create_backup(workspace, output=_output(tmp_path, "unwritten-writing-retry.zip"))
+    assert recovered["ok"] is True, recovered
+
+
+def test_backup_includes_completed_writing_history_after_relocation(tmp_path: Path) -> None:
+    from tests.research.test_light_writing_project import (
+        WRITING_DIRNAME,
+        _chunk,
+        _create_project,
+        _section_document,
+        _workspace as _writing_workspace,
+    )
+    from video_paper_wiki_research.light_writing_project import (
+        export_writing_section,
+        import_writing_section,
+        writing_backup_blockers,
+        writing_project_history,
+    )
+
+    workspace = _writing_workspace(tmp_path)
+    context, _wrapper, imported = _create_project(workspace)
+    project_id = imported["project_id"]
+    first = import_writing_section(
+        workspace,
+        export_writing_section(workspace, project_id=project_id, section_id="s1"),
+        _section_document(project_id, "s1", _chunk(context, 0), "第一段方法。"),
+    )
+    assert first["ok"] is True
+    assert first["progress"]["complete"] is False
+    assert writing_backup_blockers(workspace) == []
+    created = create_backup(workspace, output=_output(tmp_path, "partial-writing.zip"))
+    assert created["ok"] is True, created
+    dest = tmp_path / ".work" / "restored-writing"
+    restored = restore_backup(_output(tmp_path, "partial-writing.zip"), destination=dest)
+    assert restored["ok"] is True
+    history = writing_project_history(dest, project_id=project_id)
+    assert history["ok"] is True
+    assert {row["source_status"] for row in history["revisions"]} == {"historical"}
+    assert (dest / WRITING_DIRNAME / "projects" / project_id / "HEAD.json").is_file()
+    assert writing_backup_blockers(dest) == []

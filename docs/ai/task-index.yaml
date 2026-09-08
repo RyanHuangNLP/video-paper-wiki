@@ -1,5 +1,27 @@
-# Current library increment. Source validation and exact-head CI are separate records.
+# Current research increment; source validation and exact-head CI remain separate.
 current_coordination:
+  requested_on: "2026-09-08"
+  contract: docs/ai/packets/lightweight-research-v1/CONTRACT.md
+  release_record: docs/ai/lightweight-research-release-2026-09-08.md
+  source_validation_record: artifacts/verification/lightweight-research-v1/local-acceptance.json
+  status: locally-accepted-pending-fresh-ci
+  baseline: 6963292a93ae322eaf9bb563b7b1170dee6a6fc6
+  primary: {model: gpt-6-astra, reasoning_effort: ultra, service_tier: priority}
+  controllers: {count: 3, model: gpt-5.6-luna, reasoning_effort: xhigh}
+  builders: {maximum_concurrent: 3, runtime: cursor-cli, model: cursor-grok-4.6-xhigh-fast}
+  product_scope: lightweight-research-v1-query-batches-refresh-writing
+  delivery: {pull_request: 95, draft: true, target: integration, merge_authorized: false}
+  continuation_heartbeat: paused
+  previous_library_acceptance: {head: 6963292a93ae322eaf9bb563b7b1170dee6a6fc6, ci_run: 34197658919, jobs: 4, tests_per_job: 2591}
+  note: >-
+    Builders are stopped. The release record binds source validation separately
+    from a later exact-head CI observation. Earlier records are historical;
+    their pending text must not be interpreted as an instruction to restart.
+    New source changes invalidate candidate acceptance and require fresh checks.
+    Only an explicitly authorized unfinished work packet may start new work.
+
+# Current library increment. Source validation and exact-head CI are separate records.
+previous_coordination_library_v1:
   requested_on: "2026-09-08"
   contract: docs/ai/packets/lightweight-library-v1/CONTRACT.md
   release_record: docs/ai/lightweight-library-release-2026-09-08.md

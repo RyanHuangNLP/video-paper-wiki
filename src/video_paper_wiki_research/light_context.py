@@ -19,6 +19,7 @@ from video_paper_wiki_research.light_index import (
     _load_paper,
     _normalize_paper_ids,
     _paper_dirs,
+    _require_traced_source_edges,
     _sha256_bytes,
     _sha256_text,
     _snapshot_id,
@@ -53,7 +54,16 @@ EVIDENCE_IDENTITY_FIELDS = (
     "text",
 )
 _MANAGED_ROOTS = frozenset(
-    {INDEX_DIRNAME, "papers", ".light-transactions", ".light-workflow", ".light-knowledge", ".light-library", "knowledge"}
+    {
+        INDEX_DIRNAME,
+        "papers",
+        ".light-transactions",
+        ".light-workflow",
+        ".light-knowledge",
+        ".light-library",
+        ".light-writing",
+        "knowledge",
+    }
 )
 _MD_SOURCE_LINK = re.compile(r"\]\((?:<)?(papers/[0-9a-f]{64}/source\.md#page-\d+)(?:>)?\)")
 _TICK_SOURCE_LINK = re.compile(r"`(papers/[0-9a-f]{64}/source\.md#page-\d+)`")
@@ -78,6 +88,77 @@ def _require_workspace(workspace_root: Path) -> Path:
     if workspace_root.is_symlink() or not workspace_root.is_dir():
         raise ResearchError(WORKSPACE_INVALID, "workspace_root must be a regular directory")
     return workspace_root.resolve()
+
+
+def _absolute_given(workspace_root: Path) -> Path:
+    """Absolute caller path without lexical collapse of supplied edges."""
+    if not isinstance(workspace_root, Path):
+        workspace_root = Path(workspace_root)
+    given = workspace_root.expanduser()
+    if not given.is_absolute():
+        given = Path.cwd() / given
+    return given
+
+
+def _has_parent_traversal(path: Path) -> bool:
+    return any(part == ".." for part in path.parts)
+
+
+def _chain_has_symlink(path: Path) -> bool:
+    current = path
+    seen: set[Path] = set()
+    while current not in seen:
+        seen.add(current)
+        try:
+            if current.is_symlink():
+                return True
+        except OSError:
+            return True
+        if current.parent == current:
+            break
+        current = current.parent
+    return False
+
+
+def _require_traced_workspace(workspace_root: Path) -> Path:
+    """Check the caller's given path before resolve or normpath can discard an edge."""
+    given = _absolute_given(workspace_root)
+    if _has_parent_traversal(given):
+        raise ResearchError(
+            WORKSPACE_INVALID,
+            "workspace path must not contain parent-traversal components",
+            {"path": str(given)},
+        )
+    if ".work" not in given.parts:
+        raise ResearchError(WORKSPACE_INVALID, "workspace must be under .work/**", {"path": str(given)})
+    if _chain_has_symlink(given):
+        raise ResearchError(WORKSPACE_INVALID, "workspace path must not traverse a symlink", {"path": str(given)})
+    if not given.exists() or given.is_symlink() or not given.is_dir():
+        raise ResearchError(
+            WORKSPACE_INVALID,
+            "workspace_root must be a regular directory under .work/**",
+            {"path": str(given)},
+        )
+    resolved = given.resolve()
+    if ".work" not in resolved.parts:
+        raise ResearchError(WORKSPACE_INVALID, "workspace must be under .work/**", {"path": str(resolved)})
+    if resolved.is_symlink() or not resolved.is_dir():
+        raise ResearchError(
+            WORKSPACE_INVALID,
+            "workspace_root must be a regular directory under .work/**",
+            {"path": str(resolved)},
+        )
+    return resolved
+
+
+def _has_query_plan(context: object) -> bool:
+    return type(context) is dict and "query_plan" in context
+
+
+def _workspace_for_context(workspace_root: Path, context: object) -> Path:
+    if _has_query_plan(context):
+        return _require_traced_workspace(workspace_root)
+    return _require_workspace(workspace_root)
 
 
 def _load_live_papers(workspace_root: Path) -> list[dict[str, Any]]:
@@ -224,9 +305,16 @@ def _successful_context_shape(context: Mapping[str, Any], workspace: Path) -> di
 
 def validate_live_context(workspace_root: Path, context: object) -> dict[str, Any]:
     """Read-only check that a context still matches the live source/index snapshot."""
-    workspace = _require_workspace(workspace_root)
+    workspace = _workspace_for_context(workspace_root, context)
     if type(context) is not dict:
         return _fail(LIGHT_CONTEXT_INVALID, "context must be an object", workspace_root=str(workspace))
+    if _has_query_plan(context):
+        try:
+            _require_traced_source_edges(workspace)
+        except ResearchError as exc:
+            if exc.code == SOURCE_INVALID:
+                return _fail(SOURCE_INVALID, exc.message, workspace_root=str(workspace))
+            raise
     if _context_workspace_mismatch(context, workspace):
         return _fail(
             LIGHT_WORKSPACE_MISMATCH,
@@ -296,6 +384,17 @@ def validate_live_context(workspace_root: Path, context: object) -> dict[str, An
             )
     else:
         selected = []
+    if _has_query_plan(context):
+        from video_paper_wiki_research.light_query import _traced_evidence_score_error
+
+        score_error = _traced_evidence_score_error(context.get("evidence"))
+        if score_error is not None:
+            return _fail(
+                LIGHT_CONTEXT_INVALID,
+                score_error,
+                workspace_root=str(workspace),
+                index_id=current_id,
+            )
     try:
         evidence = copy_evidence(context["evidence"])
     except ResearchError:
@@ -340,6 +439,12 @@ def validate_live_context(workspace_root: Path, context: object) -> dict[str, An
                 workspace_root=str(workspace),
                 index_id=current_id,
             )
+    if "query_plan" in context:
+        from video_paper_wiki_research.light_query import validate_live_query_plan
+
+        planned = validate_live_query_plan(workspace, context, papers=papers, stored=stored)
+        if planned is not None:
+            return planned
     return {
         "ok": True,
         "status": OK,
@@ -442,7 +547,7 @@ def _render_kind(context: dict[str, Any], document: dict[str, Any]) -> dict[str,
 
 def render_document(workspace_root: Path, context: object, document: object, *, output: Path) -> dict[str, Any]:
     """Validate live context and return prospective Markdown bytes without writing."""
-    workspace = _require_workspace(workspace_root)
+    workspace = _workspace_for_context(workspace_root, context)
     resolved, conflict = _prepare_output_path(output, workspace, overwrite=True)
     if conflict is not None:
         return conflict
@@ -540,7 +645,7 @@ def import_document(
     """Render, revalidate, and atomically install Markdown."""
     if type(overwrite) is not bool:
         raise ResearchError(LIGHT_CONTEXT_INVALID, "overwrite must be a boolean")
-    workspace = _require_workspace(workspace_root)
+    workspace = _workspace_for_context(workspace_root, context)
     resolved, conflict = _prepare_output_path(output, workspace, overwrite=overwrite)
     if conflict is not None:
         return conflict

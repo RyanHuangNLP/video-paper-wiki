@@ -19,7 +19,7 @@ export PYTHONPATH=/absolute/path/to/integration/src
 python -B -m video_paper_wiki_research --help
 ```
 
-连续步骤、选论文、状态/重启继续、改 source 后重新 prepare，以及 Bash/zsh 可复制命令见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。整理带引用的知识笔记、比较选定论文、编辑/归档/恢复/替换论文，以及轻量工作区备份/恢复见 [轻量文库快速入门](docs/lightweight-library-quickstart.md)。把 export 的 stdout JSON 对象保存为 `--context`；知识/比较 JSON 与显式 `--include-output` 必须是 8 MiB 内的常规 UTF-8 文件。备份 ZIP 只收文件、不收空目录，也不拷原 PDF；恢复后重新 `index build` 并 prepare。最小 CLI fallback（内部 JSON 仍由当前会话根据 prepare 结果生成）：
+连续步骤、选论文、状态/重启继续、改 source 后重新 prepare，以及 Bash/zsh 可复制命令见 [轻量 PDF 快速入门](docs/lightweight-pdf-quickstart.md)。整理带引用的知识笔记、比较选定论文、编辑/归档/恢复/替换论文，以及轻量工作区备份/恢复见 [轻量文库快速入门](docs/lightweight-library-quickstart.md)。中文问英文论文、长文分批知识、选择性刷新和提纲/章节修订见 [轻量研究快速入门](docs/lightweight-research-quickstart.md)。把 export 的 stdout JSON 对象保存为 `--context`；知识/比较 JSON 与显式 `--include-output` 必须是 8 MiB 内的常规 UTF-8 文件。备份 ZIP 只收文件、不收空目录，也不拷原 PDF；恢复后重新 `index build` 并 prepare。最小 CLI fallback（内部 JSON 仍由当前会话根据 prepare 结果生成）：
 
 ```bash
 SESSION_ID=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
@@ -31,7 +31,7 @@ python -m video_paper_wiki_research workflow complete --workspace .work/papers-w
 
 同一 PDF 可再 `prepare` / `pdf add`，已有 notes 和用户改过的 `source.md` 会保留。`--paper-id sha256:<64 hex>` 可重复出现，用来限定问答或写作只看这些论文；未知或格式错误的 ID 会被拒绝，不会悄悄退回全部论文。`workflow status` 只读；重启后用同一个 `session_id` 继续 `complete`。改过 source 后需要重新 `index build` 或再 `workflow prepare`，旧 context 会变成 `INDEX_STALE`。同一已完成会话再用相同 document/output 会复用原文件；换一份 document 或输出路径则是 `LIGHT_SESSION_CONFLICT`，旧 Markdown 保持不动。
 
-高级用户仍可用 `qa export` / `writing export` 看原始 context，以及 `qa import` / `writing import` 直接安装 Markdown。`--workspace` 不必再提供 Vault、retrieval config 或 Docling 参数。成功的轻量 export JSON 含 `workspace_root`。写出的 Markdown 里的来源链接相对**输出文件所在目录**，应能打开 workspace 内的 `source.md` 和 PDF **文件页码**对应的 `page-N` 锚点。旧的 `qa export --vault-root ... --upstream-root ... --config ...` 与 `writing export --paper-id ... --vault-root ...` 仍然可用，且不能与 `--workspace` 混用。`qa import` / `writing import` 按 `context.schema` 选择轻量或旧路径。
+高级用户仍可用 `qa export` / `writing export` 看原始 context，以及 `qa import` / `writing import` 直接安装 Markdown。工作区路径可加可选 `--rewrite` JSON（仅 `--workspace`，不能走 Vault/catalog）。`--workspace` 不必再提供 Vault、retrieval config 或 Docling 参数。成功的轻量 export JSON 含 `workspace_root`。写出的 Markdown 里的来源链接相对**输出文件所在目录**，应能打开 workspace 内的 `source.md` 和 PDF **文件页码**对应的 `page-N` 锚点。旧的 `qa export --vault-root ... --upstream-root ... --config ...` 与 `writing export --paper-id ... --vault-root ...` 仍然可用，且不能与 `--workspace` 混用。`qa import` / `writing import` 按 `context.schema` 选择轻量或旧路径。
 
 限制：只提取 PDF 里已经可以选中的文字。扫描页没有原生文本时会给出明确警告或拒绝空文档，不会改走 OCR。图表、公式、多栏版面的阅读顺序仍需对照原 PDF。词法检索支持中文文本，但不等于跨语言语义匹配。无命中是 `NO_RESULTS` / `INSUFFICIENT_EVIDENCE`，不要编造论文。轻量路径不会自动关闭 receipt / published / human-gate，也不代替正式 Vault 发布。当前模型试用不是人工事实验收。
 

@@ -14,7 +14,10 @@ from video_paper_wiki_research.light_index import (
     LIGHT_SELECTION_INVALID,
     NO_RESULTS,
     OK,
+    SOURCE_INVALID,
     _load_paper,
+    _normalize_paper_ids,
+    _search_same_snapshot,
     build_index,
     search,
 )
@@ -574,3 +577,70 @@ def test_invalid_utf8_markdown_is_source_invalid_not_raw_decode(tmp_path: Path) 
     assert found["ok"] is False
     assert found["status"] == INDEX_STALE
     assert found["evidence"] == []
+
+
+def test_same_snapshot_search_matches_legacy_and_detects_change(tmp_path: Path) -> None:
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    _write_paper(workspace, SHA_A, "Alpha paper", ["transformer video uniquealpha sharedterm"])
+    _write_paper(workspace, SHA_B, "Beta paper", ["transformer video uniquebeta sharedterm"])
+    build_index(workspace)
+    first = search(workspace, "uniquealpha", top_k=24)
+    second = search(workspace, "uniquebeta", top_k=24)
+    batch = _search_same_snapshot(workspace, ["uniquealpha", "uniquebeta"], top_k=24, allowed=None)
+    assert batch["ok"] is True
+    assert batch["status"] == OK
+    assert batch["index_id"] == first["index_id"] == second["index_id"]
+    assert [item["chunk_id"] for item in batch["routes"][0]["evidence"]] == [item["chunk_id"] for item in first["evidence"]]
+    assert [item["score"] for item in batch["routes"][0]["evidence"]] == [item["score"] for item in first["evidence"]]
+    assert [item["chunk_id"] for item in batch["routes"][1]["evidence"]] == [item["chunk_id"] for item in second["evidence"]]
+    legacy = search(workspace, "sharedterm")
+    assert legacy["ok"] is True
+    assert len(legacy["evidence"]) <= 8
+    source = workspace / "papers" / SHA_A / "source.md"
+    original = source.read_bytes()
+    source.write_text(source.read_text(encoding="utf-8").replace("uniquealpha", "changedalpha"), encoding="utf-8")
+    stale = _search_same_snapshot(workspace, ["uniquealpha", "uniquebeta"], top_k=24, allowed=None)
+    source.write_bytes(original)
+    assert stale["ok"] is False
+    assert stale["status"] == INDEX_STALE
+    assert stale["routes"] is None
+    assert search(workspace, "sharedterm")["ok"] is True
+
+
+def test_r2_traced_source_edges_do_not_change_legacy_skip(tmp_path: Path) -> None:
+    paper_id = "sha256:" + SHA_A
+    selected, error = _normalize_paper_ids([paper_id, paper_id])
+    assert error is None
+    assert selected == [paper_id]
+
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    empty = tmp_path / "empty-papers"
+    empty.mkdir()
+    (workspace / "papers").symlink_to(empty)
+    built = build_index(workspace)
+    assert built["ok"] is True
+    assert built["paper_count"] == 0
+    legacy = search(workspace, "uniquealpha")
+    assert legacy["ok"] is False
+    assert legacy["status"] == NO_RESULTS
+    batch = _search_same_snapshot(workspace, ["uniquealpha"], top_k=24, allowed=None)
+    assert batch["ok"] is False
+    assert batch["status"] == SOURCE_INVALID
+    assert batch["routes"] is None
+
+    regular = tmp_path / "regular"
+    regular.mkdir()
+    _write_paper(regular, SHA_A, "Alpha paper", ["transformer video uniquealpha sharedterm"])
+    build_index(regular)
+    md = regular / "papers" / SHA_A / "source.md"
+    copy = tmp_path / "hard-md"
+    copy.write_bytes(md.read_bytes())
+    md.unlink()
+    md.hardlink_to(copy)
+    assert search(regular, "uniquealpha")["ok"] is True
+    hard = _search_same_snapshot(regular, ["uniquealpha"], top_k=24, allowed=None)
+    assert hard["ok"] is False
+    assert hard["status"] == SOURCE_INVALID
+    assert hard["routes"] is None

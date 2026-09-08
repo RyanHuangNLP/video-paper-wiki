@@ -1,3 +1,20 @@
+# Lightweight research enhancements — 2026-09-08
+
+The authorized increment implements cross-language lexical retrieval, complete
+bounded paper batches, selective refresh and revisioned writing. Scope and
+validation are in [the release record](lightweight-research-release-2026-09-08.md).
+Astra owns requirements and exact acceptance; the three existing Luna/xhigh
+controllers manage the pinned Cursor Grok Builders, now stopped for acceptance.
+Only the explicitly assigned Repo Steward performs serialized delivery actions.
+The target remains draft PR #95 -> integration. Source validation and fresh CI
+are separate evidence. No merge, main change, real Vault operation, human-gate
+closure or restart of the paused heartbeat follows from this record.
+
+The preceding library release is complete at 6963292a93ae322eaf9bb563b7b1170dee6a6fc6
+and Tests run 34197658919. Preserve its original contract, evidence and status text.
+
+## Preserved previous coordination
+
 # 当前轻量文献库增量 — 2026-09-08
 
 本次增量覆盖带引用的结构化知识、论文维护、轻量备份恢复和多论文对比。

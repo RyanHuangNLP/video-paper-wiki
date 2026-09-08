@@ -4,7 +4,7 @@
 
 普通用户先走自然语言 Skill：打开 `.agents/skills/video-paper-read/SKILL.md`，用当前会话说“整理这篇论文的知识笔记 / 比较这几篇 / 改标题或标签 / 先归档以后再恢复 / 备份这个工作区”。Skill 负责准备内部 JSON。下面是同一路径的最小 CLI fallback；不要把内部 JSON 当成日常手写格式。当前问答/写作仍只用 `workflow --kind qa|writing`，不要发明新的 session kind。
 
-`vpwiki-research` 与 `python -m video_paper_wiki_research` 等价。启动方式见 [轻量 PDF 快速入门](lightweight-pdf-quickstart.md)。下文使用数组 `CLI`。
+`vpwiki-research` 与 `python -m video_paper_wiki_research` 等价。启动方式见 [轻量 PDF 快速入门](lightweight-pdf-quickstart.md)。中文检索、长文分批、选择性刷新和提纲/章节见 [轻量研究快速入门](lightweight-research-quickstart.md)。下文使用数组 `CLI`。
 
 ## 1. 先定义本次变量
 
@@ -77,7 +77,7 @@ PAPER_B=sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210
 - 备份输出必须在被备份工作区**外面**的 `.work` 路径上，且是 create-only。ZIP 只收文件，不写空目录成员。中文/希腊文笔记名和中文 `--include-output` 报告按原名原字节进出 ZIP；对完全相同的已有 ZIP 再 create 是 reuse。
 - `verify` 只读，不创建工作区或恢复目录。
 - 恢复目标的父目录必须已存在且在 `.work` 下；目标本身必须不存在，即使是空目录也算冲突。
-- 可重建的索引和短暂锁/空 staging 会被排除。未完成的 library / knowledge / workflow 发布 staging 会拒绝，先 `library recover` 或重试对应 import/build。
+- 可重建的索引和短暂锁/空 staging 会被排除。未完成的 library / knowledge / workflow / writing 发布 staging 会拒绝，先 `library recover` 或重试对应 import/build。完整保存但尚未写完的提纲/章节是有效历史，可以备份；`progress.complete` 不是发布完整性。
 - 恢复后的旧 workflow session 进入 history，不会在新根下自动继续。需要重新 `index build` 和 `workflow prepare`。
 - ZIP 不包含原 PDF。也不要跟随旧 receipt 里的外部输出路径。
 

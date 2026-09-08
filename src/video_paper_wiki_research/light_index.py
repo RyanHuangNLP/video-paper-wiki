@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import unicodedata
 from pathlib import Path
@@ -15,6 +16,7 @@ OK = "OK"
 NO_RESULTS = "NO_RESULTS"
 INDEX_STALE = "INDEX_STALE"
 LIGHT_SELECTION_INVALID = "LIGHT_SELECTION_INVALID"
+SOURCE_INVALID = "SOURCE_INVALID"
 INDEX_DIRNAME = ".light-index"
 INDEX_FILENAME = "index.v1.json"
 SCHEMA = "video-paper-wiki.light-index.v1"
@@ -108,6 +110,37 @@ def _paper_dirs(workspace_root: Path) -> list[Path]:
         if _HEX64.fullmatch(item.name):
             found.append(item)
     return found
+
+
+def _file_is_hardlinked(path: Path) -> bool:
+    try:
+        return (not path.is_symlink()) and path.is_file() and path.stat().st_nlink > 1
+    except OSError:
+        return True
+
+
+def _require_traced_source_edges(workspace_root: Path) -> None:
+    """Refuse unsafe papers/, paper directories, and source files on the new route."""
+    papers = workspace_root / "papers"
+    if papers.is_symlink() or (os.path.lexists(papers) and not papers.is_dir()):
+        _fail(SOURCE_INVALID, "papers/ must be a regular directory", {"path": str(papers)})
+    if not papers.exists():
+        return
+    try:
+        children = list(papers.iterdir())
+    except OSError as exc:
+        _fail(SOURCE_INVALID, f"cannot read papers/: {exc}", {"path": str(papers)})
+    for item in children:
+        if _HEX64.fullmatch(item.name) is None:
+            continue
+        if item.is_symlink() or not item.is_dir():
+            _fail(SOURCE_INVALID, "paper directory must be a regular directory", {"path": str(item)})
+        meta_path = item / "source.json"
+        md_path = item / "source.md"
+        if meta_path.is_symlink() or md_path.is_symlink() or not meta_path.is_file() or not md_path.is_file():
+            _fail(SOURCE_INVALID, "paper directory must contain regular source.json and source.md", {"path": str(item)})
+        if _file_is_hardlinked(meta_path) or _file_is_hardlinked(md_path):
+            _fail(SOURCE_INVALID, "source.md and source.json must not be hardlinked", {"path": str(item)})
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -727,24 +760,34 @@ def search(
         )
 
 
-def _search_current(
-    workspace_root: Path,
+def _stale_index_result(query: str, stored: Mapping[str, Any] | None) -> dict[str, Any]:
+    return _result(
+        ok=False,
+        status=INDEX_STALE,
+        query=query,
+        index_id=None if stored is None else stored.get("index_id") if type(stored) is dict else None,
+        evidence=[],
+        message="workspace Markdown or paper set disagrees with the stored index",
+    )
+
+
+def _load_current_snapshot(workspace_root: Path) -> tuple[dict[str, Any] | None, list[dict[str, Any]] | None]:
+    stored = _load_index(workspace_root)
+    current = _current_papers(workspace_root)
+    if stored is None or current is None or not _index_is_current(stored, current):
+        return stored, None
+    return stored, current
+
+
+def _rank_on_snapshot(
+    stored: Mapping[str, Any],
+    current: Sequence[Mapping[str, Any]],
     query: str,
     *,
     top_k: int,
     allowed: set[str] | None,
 ) -> dict[str, Any]:
-    stored = _load_index(workspace_root)
-    current = _current_papers(workspace_root)
-    if stored is None or current is None or not _index_is_current(stored, current):
-        return _result(
-            ok=False,
-            status=INDEX_STALE,
-            query=query,
-            index_id=None if stored is None else stored.get("index_id"),
-            evidence=[],
-            message="workspace Markdown or paper set disagrees with the stored index",
-        )
+    """Rank one query against an already-checked in-memory snapshot."""
     tokens = tokenize(query)
     if not tokens:
         return _result(
@@ -776,26 +819,12 @@ def _search_current(
                 markdown = paper["markdown"]
                 break
         if markdown is None:
-            return _result(
-                ok=False,
-                status=INDEX_STALE,
-                query=query,
-                index_id=stored["index_id"],
-                evidence=[],
-                message="workspace Markdown or paper set disagrees with the stored index",
-            )
+            return _stale_index_result(query, stored)
         start = chunk["text_start"]
         end = chunk["text_end"]
         slice_text = markdown[start:end]
         if slice_text != chunk.get("text") or _sha256_text(slice_text) != chunk.get("text_sha256"):
-            return _result(
-                ok=False,
-                status=INDEX_STALE,
-                query=query,
-                index_id=stored["index_id"],
-                evidence=[],
-                message="workspace Markdown or paper set disagrees with the stored index",
-            )
+            return _stale_index_result(query, stored)
         ranked.append((-score, chunk["chunk_id"], chunk))
     ranked.sort()
     evidence = [_evidence_item(chunk, -key) for key, _cid, chunk in ranked[:top_k]]
@@ -816,6 +845,101 @@ def _search_current(
         evidence=evidence,
         message="retrieved lexical evidence from the workspace index",
     )
+
+
+def _search_current(
+    workspace_root: Path,
+    query: str,
+    *,
+    top_k: int,
+    allowed: set[str] | None,
+) -> dict[str, Any]:
+    stored, current = _load_current_snapshot(workspace_root)
+    if stored is None or current is None:
+        return _stale_index_result(query, stored)
+    return _rank_on_snapshot(stored, current, query, top_k=top_k, allowed=allowed)
+
+
+def _search_same_snapshot(
+    workspace_root: Path,
+    queries: Sequence[str],
+    *,
+    top_k: int,
+    allowed: set[str] | None,
+) -> dict[str, Any]:
+    """Search many queries against one live snapshot, then recheck disk bytes.
+
+    A stale, invalid, or unsafe route aborts the whole batch with that closed
+    backend status. Per-query misses stay NO_RESULTS and are never substituted
+    for a stale route. Legacy ``search`` ranking and return values are unchanged.
+    """
+    if not isinstance(workspace_root, Path):
+        workspace_root = Path(workspace_root)
+    if type(top_k) is not int or isinstance(top_k, bool) or top_k < 1:
+        _fail("QUERY_INVALID", "top_k must be a positive integer")
+    if type(queries) is not list and type(queries) is not tuple:
+        _fail("QUERY_INVALID", "queries must be a sequence of strings")
+    try:
+        _require_traced_source_edges(workspace_root)
+    except ResearchError as exc:
+        if exc.code != SOURCE_INVALID:
+            raise
+        stored = _load_index(workspace_root)
+        return {
+            "ok": False,
+            "status": SOURCE_INVALID,
+            "index_id": None if stored is None else stored.get("index_id") if type(stored) is dict else None,
+            "message": exc.message,
+            "routes": None,
+        }
+    stored, current = _load_current_snapshot(workspace_root)
+    if stored is None or current is None:
+        return {
+            "ok": False,
+            "status": INDEX_STALE,
+            "index_id": None if stored is None else stored.get("index_id") if type(stored) is dict else None,
+            "message": "workspace Markdown or paper set disagrees with the stored index",
+            "routes": None,
+        }
+    index_id = stored.get("index_id")
+    routes: list[dict[str, Any]] = []
+    for query in queries:
+        if type(query) is not str:
+            _fail("QUERY_INVALID", "query must be a string")
+        ranked = _rank_on_snapshot(stored, current, query, top_k=top_k, allowed=allowed)
+        if ranked["status"] not in {OK, NO_RESULTS}:
+            return {
+                "ok": False,
+                "status": ranked["status"],
+                "index_id": ranked.get("index_id"),
+                "message": ranked.get("message") or "workspace Markdown or paper set disagrees with the stored index",
+                "routes": None,
+            }
+        if ranked.get("index_id") != index_id:
+            return {
+                "ok": False,
+                "status": INDEX_STALE,
+                "index_id": ranked.get("index_id"),
+                "message": "workspace Markdown or paper set disagrees with the stored index",
+                "routes": None,
+            }
+        routes.append(ranked)
+    stored_after, current_after = _load_current_snapshot(workspace_root)
+    if stored_after is None or current_after is None or stored_after.get("index_id") != index_id:
+        return {
+            "ok": False,
+            "status": INDEX_STALE,
+            "index_id": None if stored_after is None else stored_after.get("index_id") if type(stored_after) is dict else None,
+            "message": "workspace Markdown or paper set disagrees with the stored index",
+            "routes": None,
+        }
+    return {
+        "ok": True,
+        "status": OK,
+        "index_id": index_id,
+        "message": "retrieved lexical evidence from one workspace snapshot",
+        "routes": routes,
+    }
 
 
 def classify_index_tree(workspace_root: Path) -> dict[str, Any]:

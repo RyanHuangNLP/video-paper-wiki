@@ -28,6 +28,7 @@ from video_paper_wiki_research.light_index import (
     build_index,
 )
 from video_paper_wiki_research.light_qa import INVALID_CITATION, export_qa_context, render_answer
+from video_paper_wiki_research.light_query import export_rewritten_context
 
 PAPER_A = "sha256:" + SHA_A
 PAPER_B = "sha256:" + SHA_B
@@ -38,8 +39,8 @@ def _sha(data: bytes) -> str:
 
 
 def _workspace(tmp_path: Path) -> Path:
-    workspace = tmp_path / "ws"
-    workspace.mkdir()
+    workspace = tmp_path / ".work" / "ws"
+    workspace.mkdir(parents=True)
     _write_paper(workspace, SHA_A, "Alpha paper", ["Synthetic quasar method evidence."])
     _write_paper(workspace, SHA_B, "Beta paper", ["Nebula writing token evidence."])
     build_index(workspace)
@@ -180,6 +181,30 @@ def test_finite_score_is_not_source_identity(tmp_path: Path) -> None:
     assert validate_live_context(workspace, mutated)["ok"] is True
     mutated["evidence"][0]["score"] = float("nan")
     assert validate_live_context(workspace, mutated)["status"] == LIGHT_CONTEXT_INVALID
+
+
+def test_query_plan_is_validated_on_import_and_legacy_omission_stays(tmp_path: Path) -> None:
+    workspace = _workspace(tmp_path)
+    rewrite = {
+        "schema": "video-paper-wiki.light-query-rewrite.v1",
+        "original_query": "时间注意力机制问题",
+        "rewritten_query": "quasar method",
+        "language": "en",
+    }
+    context = export_rewritten_context(workspace, kind="qa", query="时间注意力机制问题", rewrite=rewrite)
+    assert context["ok"] is True
+    assert "query_plan" in context
+    assert validate_live_context(workspace, context)["ok"] is True
+    tampered = json.loads(json.dumps(context))
+    tampered["query_plan"]["fused"][0]["score"] = float(tampered["query_plan"]["fused"][0]["score"]) + 0.5
+    assert validate_live_context(workspace, tampered)["status"] == LIGHT_CONTEXT_INVALID
+    forged_out = tmp_path / "forged-plan.md"
+    forged = import_document(workspace, tampered, _answer(context), output=forged_out)
+    assert forged["status"] == LIGHT_CONTEXT_INVALID
+    assert not forged_out.exists()
+    legacy = export_context(workspace, kind="qa", query="quasar method")
+    assert "query_plan" not in legacy
+    assert validate_live_context(workspace, legacy)["ok"] is True
 
 
 def test_legacy_context_without_selected_paper_ids_still_checks_evidence(tmp_path: Path) -> None:
@@ -377,6 +402,16 @@ def test_symlink_and_managed_output_are_refused(tmp_path: Path) -> None:
         import_document(workspace, context, _answer(context), output=index_target)
     assert exc.value.code == "WORKSPACE_INVALID"
     assert index_target.read_bytes() == index_before
+    writing_root = workspace / ".light-writing"
+    writing_root.mkdir()
+    user_artifact = writing_root / "user-outline.md"
+    user_artifact.write_text("user-owned writing note\n", encoding="utf-8")
+    writing_before = user_artifact.read_bytes()
+    with pytest.raises(ResearchError) as exc:
+        import_document(workspace, context, _answer(context), output=user_artifact)
+    assert exc.value.code == "WORKSPACE_INVALID"
+    assert user_artifact.read_bytes() == writing_before
+    assert user_artifact.is_file()
 
 
 def test_parent_not_created_on_validation_failure(tmp_path: Path) -> None:
@@ -741,3 +776,72 @@ def test_relative_output_uses_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatc
     assert Path(imported["path"]) == target
     assert target.is_file()
     assert "<../work space/ws/papers/" in imported["markdown"] or "<" in imported["markdown"]
+
+
+def test_r2_traced_context_uses_given_path_legacy_does_not(tmp_path: Path) -> None:
+    legacy_ws = tmp_path / "legacy-outside"
+    legacy_ws.mkdir()
+    _write_paper(legacy_ws, SHA_A, "Alpha paper", ["Synthetic quasar method evidence."])
+    build_index(legacy_ws)
+    legacy = export_context(legacy_ws, kind="qa", query="quasar method")
+    assert "query_plan" not in legacy
+    assert validate_live_context(legacy_ws, legacy)["ok"] is True
+
+    workspace = _workspace(tmp_path)
+    rewrite = {
+        "schema": "video-paper-wiki.light-query-rewrite.v1",
+        "original_query": "时间注意力机制问题",
+        "rewritten_query": "quasar method",
+        "language": "en",
+    }
+    traced = export_rewritten_context(workspace, kind="qa", query="时间注意力机制问题", rewrite=rewrite)
+    assert traced["ok"] is True
+    forged = json.loads(json.dumps(traced))
+    forged["query_plan"]["routes"][0]["status"] = {"ok": True}
+    keep = tmp_path / "traced-owned.md"
+    keep.write_text("owned-traced\n", encoding="utf-8")
+    before = keep.read_bytes()
+    assert validate_live_context(workspace, forged)["status"] == LIGHT_CONTEXT_INVALID
+    assert render_document(workspace, forged, _answer(traced), output=keep)["status"] == LIGHT_CONTEXT_INVALID
+    imported = import_document(workspace, forged, _answer(traced), output=keep)
+    assert imported["status"] == LIGHT_CONTEXT_INVALID
+    assert keep.read_bytes() == before
+
+    papers = workspace / "papers"
+    moved = tmp_path / "moved-papers"
+    papers.rename(moved)
+    papers.symlink_to(moved)
+    live = validate_live_context(workspace, traced)
+    assert live["status"] == SOURCE_INVALID
+    unsafe_out = tmp_path / "unsafe-traced.md"
+    imported_unsafe = import_document(workspace, traced, _answer(traced), output=unsafe_out)
+    assert imported_unsafe["status"] == SOURCE_INVALID
+    assert not unsafe_out.exists()
+    assert keep.read_bytes() == before
+
+
+def test_r3_traced_evidence_score_and_legacy_output(tmp_path: Path) -> None:
+    workspace = _workspace(tmp_path)
+    rewrite = {
+        "schema": "video-paper-wiki.light-query-rewrite.v1",
+        "original_query": "时间注意力机制问题",
+        "rewritten_query": "quasar method",
+        "language": "en",
+    }
+    traced = export_rewritten_context(workspace, kind="qa", query="时间注意力机制问题", rewrite=rewrite)
+    assert traced["ok"] is True
+    assert [row["score"] for row in traced["evidence"]] == [row["score"] for row in traced["query_plan"]["fused"]]
+    keep = tmp_path / "context-owned.md"
+    keep.write_text("owned-context\n", encoding="utf-8")
+    before = keep.read_bytes()
+    huge = json.loads(json.dumps(traced))
+    huge["evidence"][0]["score"] = 10**400
+    assert validate_live_context(workspace, huge)["status"] == LIGHT_CONTEXT_INVALID
+    assert render_document(workspace, huge, _answer(traced), output=keep)["status"] == LIGHT_CONTEXT_INVALID
+    imported = import_document(workspace, huge, _answer(traced), output=keep)
+    assert imported["status"] == LIGHT_CONTEXT_INVALID
+    assert keep.read_bytes() == before
+    legacy = export_context(workspace, kind="qa", query="quasar method")
+    assert "query_plan" not in legacy
+    assert validate_live_context(workspace, legacy)["ok"] is True
+    assert keep.read_bytes() == before

@@ -114,6 +114,11 @@ def build_parser() -> argparse.ArgumentParser:
     qa_export.add_argument("--vault-root", dest="vault_root", default=None)
     qa_export.add_argument("--upstream-root", dest="upstream_root", default=None)
     qa_export.add_argument("--config", default=None)
+    qa_export.add_argument(
+        "--rewrite",
+        default=None,
+        help="optional rewrite JSON for workspace export only; rejected on vault/catalog routes",
+    )
     qa_export.set_defaults(handler=_cmd_qa_export)
     qa_import = qa_sub.add_parser("import", allow_abbrev=False)
     qa_import.add_argument("--context", required=True)
@@ -132,6 +137,11 @@ def build_parser() -> argparse.ArgumentParser:
     writing_export.add_argument("--vault-root", dest="vault_root", default=None)
     writing_export.add_argument("--upstream-root", dest="upstream_root", default=None)
     writing_export.add_argument("--config", default=None)
+    writing_export.add_argument(
+        "--rewrite",
+        default=None,
+        help="optional rewrite JSON for workspace export only; rejected on vault/catalog routes",
+    )
     writing_export.set_defaults(handler=_cmd_writing_export)
     writing_import = writing_sub.add_parser("import", allow_abbrev=False)
     writing_import.add_argument("--context", required=True)
@@ -139,6 +149,35 @@ def build_parser() -> argparse.ArgumentParser:
     writing_import.add_argument("--output", default=None)
     writing_import.add_argument("--workspace", default=None)
     writing_import.set_defaults(handler=_cmd_writing_import)
+    writing_outline_export = writing_sub.add_parser("outline-export", allow_abbrev=False)
+    writing_outline_export.add_argument("--workspace", required=True)
+    writing_outline_export.add_argument("--context", required=True)
+    writing_outline_export.set_defaults(handler=_cmd_writing_outline_export)
+    writing_outline_import = writing_sub.add_parser("outline-import", allow_abbrev=False)
+    writing_outline_import.add_argument("--workspace", required=True)
+    writing_outline_import.add_argument("--context", required=True)
+    writing_outline_import.add_argument("--document", required=True)
+    writing_outline_import.set_defaults(handler=_cmd_writing_outline_import)
+    writing_section_export = writing_sub.add_parser("section-export", allow_abbrev=False)
+    writing_section_export.add_argument("--workspace", required=True)
+    writing_section_export.add_argument("--project-id", dest="project_id", required=True)
+    writing_section_export.add_argument("--section-id", dest="section_id", required=True)
+    writing_section_export.add_argument("--instructions", default="")
+    writing_section_export.set_defaults(handler=_cmd_writing_section_export)
+    writing_section_import = writing_sub.add_parser("section-import", allow_abbrev=False)
+    writing_section_import.add_argument("--workspace", required=True)
+    writing_section_import.add_argument("--context", required=True)
+    writing_section_import.add_argument("--document", required=True)
+    writing_section_import.set_defaults(handler=_cmd_writing_section_import)
+    writing_history = writing_sub.add_parser("history", allow_abbrev=False)
+    writing_history.add_argument("--workspace", required=True)
+    writing_history.add_argument("--project-id", dest="project_id", required=True)
+    writing_history.set_defaults(handler=_cmd_writing_history)
+    writing_project_export = writing_sub.add_parser("project-export", allow_abbrev=False)
+    writing_project_export.add_argument("--workspace", required=True)
+    writing_project_export.add_argument("--project-id", dest="project_id", required=True)
+    writing_project_export.add_argument("--output", required=True)
+    writing_project_export.set_defaults(handler=_cmd_writing_project_export)
 
     workspace = sub.add_parser("workspace", allow_abbrev=False)
     workspace_sub = workspace.add_subparsers(dest="workspace_cmd", required=True)
@@ -215,6 +254,54 @@ def build_parser() -> argparse.ArgumentParser:
     knowledge_build = knowledge_sub.add_parser("build", allow_abbrev=False)
     knowledge_build.add_argument("--workspace", required=True)
     knowledge_build.set_defaults(handler=_cmd_knowledge_build)
+    knowledge_batch_plan = knowledge_sub.add_parser("batch-plan", allow_abbrev=False)
+    knowledge_batch_plan.add_argument("--workspace", required=True)
+    knowledge_batch_plan.add_argument("--paper-id", dest="paper_id", required=True)
+    knowledge_batch_plan.set_defaults(handler=_cmd_knowledge_batch_plan)
+    knowledge_batch_export = knowledge_sub.add_parser("batch-export", allow_abbrev=False)
+    knowledge_batch_export.add_argument("--workspace", required=True)
+    knowledge_batch_export.add_argument("--plan-id", dest="plan_id", required=True)
+    knowledge_batch_export.add_argument("--batch-index", dest="batch_index", type=_parse_batch_index, required=True)
+    knowledge_batch_export.set_defaults(handler=_cmd_knowledge_batch_export)
+    knowledge_batch_import = knowledge_sub.add_parser("batch-import", allow_abbrev=False)
+    knowledge_batch_import.add_argument("--workspace", required=True)
+    knowledge_batch_import.add_argument("--context", required=True)
+    knowledge_batch_import.add_argument("--document", required=True)
+    knowledge_batch_import.set_defaults(handler=_cmd_knowledge_batch_import)
+    knowledge_batch_status = knowledge_sub.add_parser("batch-status", allow_abbrev=False)
+    knowledge_batch_status.add_argument("--workspace", required=True)
+    knowledge_batch_status.add_argument("--plan-id", dest="plan_id", default=None)
+    knowledge_batch_status.set_defaults(handler=_cmd_knowledge_batch_status)
+    knowledge_merge_export = knowledge_sub.add_parser("merge-export", allow_abbrev=False)
+    knowledge_merge_export.add_argument("--workspace", required=True)
+    knowledge_merge_export.add_argument("--plan-id", dest="plan_id", required=True)
+    knowledge_merge_export.set_defaults(handler=_cmd_knowledge_merge_export)
+    knowledge_merge_import = knowledge_sub.add_parser("merge-import", allow_abbrev=False)
+    knowledge_merge_import.add_argument("--workspace", required=True)
+    knowledge_merge_import.add_argument("--context", required=True)
+    knowledge_merge_import.add_argument("--document", required=True)
+    knowledge_merge_import.set_defaults(handler=_cmd_knowledge_merge_import)
+    knowledge_finalize = knowledge_sub.add_parser("finalize", allow_abbrev=False)
+    knowledge_finalize.add_argument("--workspace", required=True)
+    knowledge_finalize.add_argument("--plan-id", dest="plan_id", required=True)
+    knowledge_finalize.set_defaults(handler=_cmd_knowledge_finalize)
+    knowledge_refresh_plan = knowledge_sub.add_parser("refresh-plan", allow_abbrev=False)
+    knowledge_refresh_plan.add_argument("--workspace", required=True)
+    knowledge_refresh_plan.add_argument("--paper-id", dest="paper_id", required=True)
+    knowledge_refresh_plan.set_defaults(handler=_cmd_knowledge_refresh_plan)
+    knowledge_diff = knowledge_sub.add_parser("diff", allow_abbrev=False)
+    knowledge_diff.add_argument("--workspace", required=True)
+    knowledge_diff.add_argument("--base-record-id", dest="base_record_id", required=True)
+    knowledge_diff.add_argument("--candidate-record-id", dest="candidate_record_id", required=True)
+    knowledge_diff.set_defaults(handler=_cmd_knowledge_diff)
+    knowledge_apply = knowledge_sub.add_parser("apply", allow_abbrev=False)
+    knowledge_apply.add_argument("--workspace", required=True)
+    knowledge_apply.add_argument("--diff", required=True)
+    knowledge_apply.add_argument("--accept-section", dest="accept_sections", action="append", default=None)
+    knowledge_apply.add_argument("--keep-sections", dest="keep_sections", action="store_true")
+    knowledge_apply.add_argument("--accept-concepts", dest="accept_concepts", action="store_true")
+    knowledge_apply.add_argument("--keep-concepts", dest="keep_concepts", action="store_true")
+    knowledge_apply.set_defaults(handler=_cmd_knowledge_apply)
 
     compare = sub.add_parser("compare", allow_abbrev=False)
     compare_sub = compare.add_subparsers(dest="compare_cmd", required=True)
@@ -316,6 +403,123 @@ def _workspace_root(raw: str, *, create: bool, allow_missing: bool = False) -> P
     )
 
 
+def _absolute_given_path(raw: str) -> Path:
+    given = Path(raw).expanduser()
+    if not given.is_absolute():
+        given = Path.cwd() / given
+    return given
+
+
+def _has_parent_traversal(path: Path) -> bool:
+    return any(part == ".." for part in path.parts)
+
+
+def _chain_has_symlink(path: Path) -> bool:
+    current = path
+    seen: set[Path] = set()
+    while current not in seen:
+        seen.add(current)
+        try:
+            if current.is_symlink():
+                return True
+        except OSError:
+            return True
+        if current.parent == current:
+            break
+        current = current.parent
+    return False
+
+
+def _lexical_workspace_root(raw: str, *, allow_missing: bool = False) -> Path:
+    """Validate the caller's original workspace path before resolve() can hide edges."""
+
+    given = _absolute_given_path(raw)
+    if _has_parent_traversal(given):
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            "workspace path must not contain parent-traversal components",
+            {"path": str(given)},
+        )
+    if ".work" not in given.parts:
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            "workspace must be under .work/**",
+            {"path": str(given)},
+        )
+    if _chain_has_symlink(given):
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            "workspace path must not traverse a symlink",
+            {"path": str(given)},
+        )
+    if given.exists():
+        if given.is_symlink() or not given.is_dir():
+            raise ResearchError(
+                "WORKSPACE_INVALID",
+                "workspace must be a regular directory under .work/**",
+                {"path": str(given)},
+            )
+    elif not allow_missing:
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            "workspace must be a regular directory under .work/**",
+            {"path": str(given)},
+        )
+    resolved = given.resolve()
+    if ".work" not in resolved.parts:
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            "workspace must be under .work/**",
+            {"path": str(resolved)},
+        )
+    if resolved.exists():
+        if resolved.is_symlink() or not resolved.is_dir():
+            raise ResearchError(
+                "WORKSPACE_INVALID",
+                "workspace must be a regular directory under .work/**",
+                {"path": str(resolved)},
+            )
+        return resolved
+    if allow_missing:
+        return resolved
+    raise ResearchError(
+        "WORKSPACE_INVALID",
+        "workspace must be a regular directory under .work/**",
+        {"path": str(resolved)},
+    )
+
+
+def _lexical_work_output(raw: str, *, suffix: str = ".md", label: str = "output") -> Path:
+    """Keep the original output path so the backend can still see symlink/dotdot edges."""
+
+    given = _absolute_given_path(raw)
+    if given.suffix.lower() != suffix.lower() or given.name in {"", ".", ".."}:
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            f"{label} must be a {suffix} file path",
+            {"path": str(given)},
+        )
+    if _has_parent_traversal(given):
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            f"{label} must not contain parent-traversal components",
+            {"path": str(given)},
+        )
+    if ".work" not in given.parts:
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            f"{label} must be under .work/**",
+            {"path": str(given)},
+        )
+    if _chain_has_symlink(given):
+        raise ResearchError(
+            "WORKSPACE_INVALID",
+            f"{label} must not traverse a symlink",
+            {"path": str(given)},
+        )
+    return given
+
+
 def _try_light_attr(module: str, attr: str):
     loaded = _load_light(module)
     func = getattr(loaded, attr, None)
@@ -337,11 +541,51 @@ def _optional_light_attr(module: str, attr: str):
         raise
 
 
+def _parse_batch_index(value: str) -> int:
+    if type(value) is not str or value.strip() != value:
+        raise argparse.ArgumentTypeError("batch-index must be an integer")
+    if value.lower() in {"true", "false"}:
+        raise argparse.ArgumentTypeError("batch-index must be an integer")
+    try:
+        return int(value, 10)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("batch-index must be an integer") from exc
+
+
 def _paper_ids_from_args(args: argparse.Namespace) -> list[str] | None:
     raw = getattr(args, "paper_ids", None)
     if raw is None:
         return None
     return list(raw)
+
+
+def _reject_duplicate_paper_ids(paper_ids: list[str] | None) -> None:
+    if paper_ids is None:
+        return
+    if len(paper_ids) != len(set(paper_ids)):
+        raise UsageError("duplicate --paper-id values are not allowed")
+
+
+def _rewrite_object(args: argparse.Namespace) -> dict[str, Any] | None:
+    raw = getattr(args, "rewrite", None)
+    if not raw:
+        return None
+    if not getattr(args, "workspace", None):
+        raise UsageError("--rewrite requires --workspace and is not valid on the vault/catalog route")
+    return _read_library_json(raw)
+
+
+def _apply_refresh_choices(args: argparse.Namespace) -> tuple[list[str], bool]:
+    has_accept = args.accept_sections is not None
+    has_keep_sections = bool(args.keep_sections)
+    if has_accept == has_keep_sections:
+        raise UsageError("knowledge apply requires exactly one of --accept-section or --keep-sections")
+    if bool(args.accept_concepts) == bool(args.keep_concepts):
+        raise UsageError("knowledge apply requires exactly one of --accept-concepts or --keep-concepts")
+    sections = [] if has_keep_sections else list(args.accept_sections)
+    if len(sections) != len(set(sections)):
+        raise UsageError("duplicate --accept-section values are not allowed")
+    return sections, bool(args.accept_concepts)
 
 
 def _pdf_paths_from_args(args: argparse.Namespace) -> list[Path] | None:
@@ -371,7 +615,13 @@ def _read_json(path: str) -> dict[str, Any]:
     target = Path(path)
     try:
         payload = json.loads(target.read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+    except RecursionError as exc:
+        raise ResearchError(
+            "LIGHT_HANDOFF_INVALID",
+            "JSON nesting exceeds the supported limit",
+            {"path": str(target)},
+        ) from exc
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
         raise ResearchError("LIGHT_HANDOFF_INVALID", "JSON is not readable", {"path": str(target)}) from exc
     if type(payload) is not dict:
         raise ResearchError("LIGHT_HANDOFF_INVALID", "JSON must be an object", {"path": str(target)})
@@ -609,8 +859,8 @@ def _resolve_import_workspace(args: argparse.Namespace, context: dict[str, Any])
     stored = context.get("workspace_root")
     stored_path = Path(stored).expanduser() if type(stored) is str and stored.strip() else None
     if flagged and stored_path is not None:
-        left = _workspace_root(flagged, create=False)
-        right = _workspace_root(str(stored_path), create=False)
+        left = _lexical_workspace_root(flagged)
+        right = _lexical_workspace_root(str(stored_path))
         if left != right:
             raise ResearchError(
                 "LIGHT_WORKSPACE_MISMATCH",
@@ -619,9 +869,9 @@ def _resolve_import_workspace(args: argparse.Namespace, context: dict[str, Any])
             )
         return left
     if flagged:
-        return _workspace_root(flagged, create=False)
+        return _lexical_workspace_root(flagged)
     if stored_path is not None:
-        return _workspace_root(str(stored_path), create=False)
+        return _lexical_workspace_root(str(stored_path))
     raise ResearchError(
         "LIGHT_WORKSPACE_REQUIRED",
         "provide --workspace or re-export a context with workspace_root",
@@ -808,7 +1058,18 @@ def _export_light_context(
     query: str,
     requirements: str = "",
     paper_ids: list[str] | None,
+    rewrite: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if rewrite is not None:
+        export_rewritten = _try_light_attr("light_query", "export_rewritten_context")
+        return export_rewritten(
+            workspace,
+            kind=kind,
+            query=query,
+            rewrite=rewrite,
+            requirements=requirements,
+            paper_ids=paper_ids,
+        )
     export_context = _optional_light_attr("light_context", "export_context")
     if export_context is not None:
         return export_context(
@@ -850,15 +1111,20 @@ def _import_light_document(
 
 def _cmd_qa_export(args: argparse.Namespace) -> int:
     _reject_mixed_export(args)
+    rewrite = _rewrite_object(args)
+    paper_ids = _paper_ids_from_args(args)
+    if rewrite is not None:
+        _reject_duplicate_paper_ids(paper_ids)
     if args.workspace:
-        workspace = _workspace_root(args.workspace, create=False)
+        workspace = _lexical_workspace_root(args.workspace)
         return _dump_handoff(
             _with_workspace_root(
                 _export_light_context(
                     workspace,
                     kind="qa",
                     query=args.question,
-                    paper_ids=_paper_ids_from_args(args),
+                    paper_ids=paper_ids,
+                    rewrite=rewrite,
                 ),
                 workspace,
             )
@@ -876,9 +1142,15 @@ def _cmd_qa_export(args: argparse.Namespace) -> int:
 
 
 def _cmd_qa_import(args: argparse.Namespace) -> int:
+    if args.workspace:
+        context = _read_library_json(args.context)
+        if not _is_light_context(context):
+            raise UsageError("--workspace applies only to light-context import")
+        return _import_light_document(args, context, _read_library_json(args.answer))
     context = _read_json(args.context)
     if _is_light_context(context):
-        return _import_light_document(args, context, _read_json(args.answer))
+        context = _read_library_json(args.context)
+        return _import_light_document(args, context, _read_library_json(args.answer))
     if args.workspace:
         raise UsageError("--workspace applies only to light-context import")
     from video_paper_wiki_research.qa import import_and_check
@@ -893,9 +1165,12 @@ def _cmd_qa_import(args: argparse.Namespace) -> int:
 
 def _cmd_writing_export(args: argparse.Namespace) -> int:
     _reject_mixed_export(args)
+    rewrite = _rewrite_object(args)
     paper_ids = _paper_ids_from_args(args)
+    if rewrite is not None:
+        _reject_duplicate_paper_ids(paper_ids)
     if args.workspace:
-        workspace = _workspace_root(args.workspace, create=False)
+        workspace = _lexical_workspace_root(args.workspace)
         return _dump_handoff(
             _with_workspace_root(
                 _export_light_context(
@@ -904,6 +1179,7 @@ def _cmd_writing_export(args: argparse.Namespace) -> int:
                     query=args.topic,
                     requirements=args.requirements,
                     paper_ids=paper_ids,
+                    rewrite=rewrite,
                 ),
                 workspace,
             )
@@ -926,9 +1202,15 @@ def _cmd_writing_export(args: argparse.Namespace) -> int:
 
 
 def _cmd_writing_import(args: argparse.Namespace) -> int:
+    if args.workspace:
+        context = _read_library_json(args.context)
+        if not _is_light_context(context):
+            raise UsageError("--workspace applies only to light-context import")
+        return _import_light_document(args, context, _read_library_json(args.draft))
     context = _read_json(args.context)
     if _is_light_context(context):
-        return _import_light_document(args, context, _read_json(args.draft))
+        context = _read_library_json(args.context)
+        return _import_light_document(args, context, _read_library_json(args.draft))
     if args.workspace:
         raise UsageError("--workspace applies only to light-context import")
     from video_paper_wiki_research.writing import import_and_render
@@ -1134,6 +1416,138 @@ def _cmd_knowledge_build(args: argparse.Namespace) -> int:
     workspace = _workspace_root(args.workspace, create=False)
     build_knowledge_views = _try_light_attr("light_knowledge", "build_knowledge_views")
     return _dump_handoff(build_knowledge_views(workspace))
+
+
+def _cmd_writing_outline_export(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    context = _read_library_json(args.context)
+    export_writing_outline = _try_light_attr("light_writing_project", "export_writing_outline")
+    return _dump_handoff(export_writing_outline(workspace, context))
+
+
+def _cmd_writing_outline_import(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    context = _read_library_json(args.context)
+    document = _read_library_json(args.document)
+    import_writing_outline = _try_light_attr("light_writing_project", "import_writing_outline")
+    return _dump_handoff(import_writing_outline(workspace, context, document))
+
+
+def _cmd_writing_section_export(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    export_writing_section = _try_light_attr("light_writing_project", "export_writing_section")
+    return _dump_handoff(
+        export_writing_section(
+            workspace,
+            project_id=args.project_id,
+            section_id=args.section_id,
+            instructions=args.instructions,
+        )
+    )
+
+
+def _cmd_writing_section_import(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    context = _read_library_json(args.context)
+    document = _read_library_json(args.document)
+    import_writing_section = _try_light_attr("light_writing_project", "import_writing_section")
+    return _dump_handoff(import_writing_section(workspace, context, document))
+
+
+def _cmd_writing_history(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace, allow_missing=True)
+    writing_project_history = _try_light_attr("light_writing_project", "writing_project_history")
+    return _dump_handoff(writing_project_history(workspace, project_id=args.project_id))
+
+
+def _cmd_writing_project_export(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    output = _lexical_work_output(args.output, label="writing project output")
+    export_writing_project = _try_light_attr("light_writing_project", "export_writing_project")
+    return _dump_handoff(export_writing_project(workspace, project_id=args.project_id, output=output))
+
+
+def _cmd_knowledge_batch_plan(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    plan_knowledge_batches = _try_light_attr("light_knowledge_batch", "plan_knowledge_batches")
+    return _dump_handoff(plan_knowledge_batches(workspace, paper_id=args.paper_id))
+
+
+def _cmd_knowledge_batch_export(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    export_knowledge_batch = _try_light_attr("light_knowledge_batch", "export_knowledge_batch")
+    return _dump_handoff(
+        export_knowledge_batch(workspace, plan_id=args.plan_id, batch_index=args.batch_index)
+    )
+
+
+def _cmd_knowledge_batch_import(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    context = _read_library_json(args.context)
+    document = _read_library_json(args.document)
+    import_knowledge_batch = _try_light_attr("light_knowledge_batch", "import_knowledge_batch")
+    return _dump_handoff(import_knowledge_batch(workspace, context, document))
+
+
+def _cmd_knowledge_batch_status(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace, allow_missing=True)
+    knowledge_batch_status = _try_light_attr("light_knowledge_batch", "knowledge_batch_status")
+    return _dump_handoff(knowledge_batch_status(workspace, plan_id=args.plan_id))
+
+
+def _cmd_knowledge_merge_export(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    export_knowledge_merge_context = _try_light_attr(
+        "light_knowledge_batch", "export_knowledge_merge_context"
+    )
+    return _dump_handoff(export_knowledge_merge_context(workspace, plan_id=args.plan_id))
+
+
+def _cmd_knowledge_merge_import(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    context = _read_library_json(args.context)
+    document = _read_library_json(args.document)
+    import_knowledge_merge = _try_light_attr("light_knowledge_batch", "import_knowledge_merge")
+    return _dump_handoff(import_knowledge_merge(workspace, context, document))
+
+
+def _cmd_knowledge_finalize(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    finalize_knowledge_batches = _try_light_attr("light_knowledge_batch", "finalize_knowledge_batches")
+    return _dump_handoff(finalize_knowledge_batches(workspace, plan_id=args.plan_id))
+
+
+def _cmd_knowledge_refresh_plan(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    plan_knowledge_refresh = _try_light_attr("light_knowledge_refresh", "plan_knowledge_refresh")
+    return _dump_handoff(plan_knowledge_refresh(workspace, paper_id=args.paper_id))
+
+
+def _cmd_knowledge_diff(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    export_knowledge_diff = _try_light_attr("light_knowledge_refresh", "export_knowledge_diff")
+    return _dump_handoff(
+        export_knowledge_diff(
+            workspace,
+            base_record_id=args.base_record_id,
+            candidate_record_id=args.candidate_record_id,
+        )
+    )
+
+
+def _cmd_knowledge_apply(args: argparse.Namespace) -> int:
+    workspace = _lexical_workspace_root(args.workspace)
+    accept_sections, accept_concepts = _apply_refresh_choices(args)
+    diff = _read_library_json(args.diff)
+    apply_knowledge_refresh = _try_light_attr("light_knowledge_refresh", "apply_knowledge_refresh")
+    return _dump_handoff(
+        apply_knowledge_refresh(
+            workspace,
+            diff,
+            accept_sections=accept_sections,
+            accept_concepts=accept_concepts,
+        )
+    )
 
 
 def _cmd_compare_export(args: argparse.Namespace) -> int:
