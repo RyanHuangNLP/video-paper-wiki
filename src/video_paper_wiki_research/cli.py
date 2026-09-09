@@ -335,6 +335,9 @@ def build_parser() -> argparse.ArgumentParser:
     backup_restore.add_argument("--archive", required=True)
     backup_restore.add_argument("--destination", required=True)
     backup_restore.set_defaults(handler=_cmd_backup_restore)
+    from video_paper_wiki_research.paper_preview import register_preview_commands
+
+    register_preview_commands(sub)
     return parser
 
 
@@ -1627,7 +1630,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         ns = parser.parse_args(args)
     except UsageError as exc:
-        return emit_error(_command_from_argv(args), "USAGE", exc.message)
+        return emit_error(_command_from_argv(args), "USAGE_ERROR" if args[:1] == ["paper"] else "USAGE", exc.message)
     handler = getattr(ns, "handler", None)
     if handler is None:
         return emit_error(_command_from_argv(args), "USAGE", "missing command")

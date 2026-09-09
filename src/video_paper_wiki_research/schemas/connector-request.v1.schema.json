@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.connector-request.v1.schema.json",
+  "title": "video-paper-wiki-research.connector-request.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "connector-request.v1"
+    },
+    "kind": {
+      "const": "request"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^rw1:request:[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/sha256"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity_id",
+        "requested_version",
+        "resolution_policy",
+        "source_url",
+        "method",
+        "adapter",
+        "budget"
+      ],
+      "properties": {
+        "entity_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "requested_version": {
+          "oneOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/version"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolution_policy": {
+          "enum": [
+            "explicit",
+            "latest_observation"
+          ]
+        },
+        "source_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "method": {
+          "const": "GET"
+        },
+        "adapter": {
+          "const": "arxiv-abs-normalized-v1"
+        },
+        "budget": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/budget"
+        }
+      }
+    }
+  }
+}
