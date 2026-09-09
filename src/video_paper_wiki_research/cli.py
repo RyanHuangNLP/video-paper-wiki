@@ -66,6 +66,9 @@ def build_parser() -> argparse.ArgumentParser:
     from video_paper_wiki_research.formal_source import register_commands
 
     register_commands(sub)
+    from video_paper_wiki_research.discovery_cli import register_commands as register_discovery
+
+    register_discovery(sub)
     pdf = sub.add_parser("pdf", allow_abbrev=False)
     pdf_sub = pdf.add_subparsers(dest="pdf_cmd", required=True)
 

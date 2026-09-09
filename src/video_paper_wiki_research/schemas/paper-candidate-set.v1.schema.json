@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.local/research/paper-candidate-set.v1.schema.json",
+  "title": "video-paper-wiki-research.paper-candidate-set.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "video-paper-wiki-research.paper-candidate-set.v1"
+    },
+    "kind": {
+      "const": "paper-candidate-set"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180,
+      "pattern": "^rw3:paper-candidate-set:[0-9a-f]{64}$"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session",
+        "sequence",
+        "plan_id",
+        "input_set_sha256",
+        "observations",
+        "items"
+      ],
+      "properties": {
+        "session": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "plan_id": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/id"
+        },
+        "input_set_sha256": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "observations": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/refs"
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/candidate"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        }
+      }
+    }
+  }
+}
