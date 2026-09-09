@@ -598,6 +598,8 @@ def catalog_status(vault_root:Path|str,upstream_root:Path|str,retrieval_config:o
         try:
             collected=_collector(vault_root=Path(vault_root),upstream_root=upstream,retrieval_config=cfg,**({"_retain":True} if default_collector else {}))
         except ContractError as exc:
+            if exc.code == "SOURCE_PROFILE_REQUIRED":
+                raise
             raise ContractError("CATALOG_STALE","live catalog authority is invalid",{}) from exc
         if default_collector and type(collected) is tuple and len(collected)==2:
             material,live_snap=collected

@@ -175,6 +175,31 @@ def build_parser() -> argparse.ArgumentParser:
             source_parser.add_argument("--" + flag, required=True)
         source_parser.set_defaults(handler=run_source_publication_command)
 
+    from video_paper_wiki.source_catalog import run_source_catalog_command
+    source_catalog = _add_parser(sub, "source-catalog")
+    catalog_sub = source_catalog.add_subparsers(dest="source_catalog_cmd", required=True)
+    for name in ("build", "status", "lookup", "query", "resolve"):
+        command = _add_parser(catalog_sub, name)
+        command.add_argument("--vault-root", required=True)
+        command.add_argument("--batch-id", required=True)
+        command.set_defaults(handler=run_source_catalog_command)
+        if name in {"lookup", "query", "resolve"}:
+            command.add_argument("--catalog-sha256")
+        if name == "lookup":
+            command.add_argument("--kind", required=True)
+            command.add_argument("--key", required=True)
+        elif name == "resolve":
+            command.add_argument("--claim-id", required=True)
+            command.add_argument("--evidence-ordinal", type=int, required=True)
+        elif name == "query":
+            command.add_argument("--text", required=True)
+            command.add_argument("--scope", default="all")
+            command.add_argument("--paper-id")
+            command.add_argument("--assessment", default="all")
+            command.add_argument("--lifecycle", default="active")
+            command.add_argument("--limit", type=int, default=20)
+            command.add_argument("--offset", type=int, default=0)
+
     code_map = _add_parser(sub, "code-map")
     code_map_sub = code_map.add_subparsers(dest="code_map_cmd", required=True)
     code_map_plan = _add_parser(code_map_sub, "plan")

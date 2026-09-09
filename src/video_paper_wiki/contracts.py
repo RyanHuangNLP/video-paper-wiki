@@ -15,7 +15,7 @@ from referencing import Registry, Resource
 from video_paper_wiki import identity
 from video_paper_wiki.identity import IdentityError
 from video_paper_wiki.jcs import CanonicalJsonError
-from video_paper_wiki.resources import load_schema_json, schema_resource_names
+from video_paper_wiki.resources import _RESOURCE_VIEW, load_schema_json, schema_resource_names
 
 SCHEMA_INVALID = "SCHEMA_INVALID"
 INVALID_PAPER_ID = identity.INVALID_PAPER_ID
@@ -153,8 +153,7 @@ def _schema_error(
     return ContractError(SCHEMA_INVALID, message, details)
 
 
-@lru_cache(maxsize=1)
-def _registry() -> tuple[Registry, dict[str, dict[str, Any]]]:
+def _schema_registry() -> tuple[Registry, dict[str, dict[str, Any]]]:
     resources: list[tuple[str, Resource]] = []
     by_title: dict[str, dict[str, Any]] = {}
     for filename in schema_resource_names():
@@ -177,6 +176,20 @@ def _registry() -> tuple[Registry, dict[str, dict[str, Any]]]:
         if title:
             by_title[title] = schema
     return Registry().with_resources(resources), by_title
+
+
+@lru_cache(maxsize=1)
+def _default_registry() -> tuple[Registry, dict[str, dict[str, Any]]]:
+    return _schema_registry()
+
+
+def _registry() -> tuple[Registry, dict[str, dict[str, Any]]]:
+    view = _RESOURCE_VIEW.get()
+    if view is None:
+        return _default_registry()
+    # ContextVar copies inherit the immutable view by reference. Build parsed
+    # objects afresh so copied contexts cannot share mutable schema contents.
+    return _schema_registry()
 
 
 def schema_by_title(title: str) -> dict[str, Any]:

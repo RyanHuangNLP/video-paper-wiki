@@ -1,0 +1,102 @@
+{
+  "$schema": "full-todo.source-catalog-resource-isolation-review-r2.v1",
+  "schema": "full-todo.source-catalog-resource-isolation-review-r2.v1",
+  "reviewed_at_utc": "2026-09-09T08:41:28Z",
+  "scope": "Bounded focused read-only repair review of captured resource-view registry isolation and the exact-integer resolve ordinal correction. This successor preserves the R1 cache/generation review and does not re-accept the full cache race matrix, full suite, exact candidate, CI or delivery.",
+  "decision": "GO_FOR_RESOURCE_CONTEXT_ISOLATION_REPAIR",
+  "status": "PASS_FOCUSED_REPAIR_REVIEW",
+  "prior_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/independent-wip-io-r1.json",
+    "sha256": "3662905f69658572972afd60caa8090b07ebe9f96775fa461388bba7ffb216ca",
+    "reviewed_at_utc_recorded_there": "2026-09-09T09:20:00Z",
+    "metadata_correction": "The preserved R1 artifact recorded a future review timestamp relative to the actual observed clock. This successor uses the actual invocation timestamp and leaves the R1 bytes unchanged."
+  },
+  "candidate": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "files": [
+      {
+        "path": "src/video_paper_wiki/source_catalog_io.py",
+        "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+        "status": "unchanged_from_r1_lease"
+      },
+      {
+        "path": "src/video_paper_wiki/resources.py",
+        "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+        "status": "repaired"
+      },
+      {
+        "path": "src/video_paper_wiki/contracts.py",
+        "sha256": "6eec9b537a579211fe471df5d638be9033cc5e34c5b467f867a475d12389ed31",
+        "status": "repaired"
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog.py",
+        "sha256": "d76cf2b1fbc0e82cb9ed815fb65bad60f067d502003545718100f1bea93cad78",
+        "status": "ordinal_validation_repaired"
+      },
+      {
+        "path": "tests/unit/test_source_catalog.py",
+        "sha256": "8bf775b1acefb753c0a34572d0509439234127c377e65d6feafd9cc187bc419f",
+        "status": "focused_regression_updated"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "R2-CONTEXTVAR-COPIED-REGISTRY",
+      "status": "PASS",
+      "evidence": "resources._ResourceView is frozen and no longer carries a mutable registry cache. contracts._registry() keeps the ordinary lru-cached default registry outside a view and builds the active-view Registry from immutable captured bytes. The exact captured 71-schema copy_context probe returned same_registry=false."
+    },
+    {
+      "id": "R2-PARSED-OBJECT-MUTATION-ISOLATION",
+      "status": "PASS",
+      "evidence": "A copied execution context mutated its own parsed schema title; the parent parsed title remained unchanged. A nested view mutation likewise did not reach the outer view. Two independent worker-thread views returned distinct Registry objects. The resource ContextVar reset to None after exit, and the prewarmed ordinary Registry and schema remained unchanged."
+    },
+    {
+      "id": "R2-NESTED-EXCEPTION-DEFAULT-RESTORATION",
+      "status": "PASS",
+      "evidence": "The focused resource-context tests cover nested views and exception cleanup; the full source-catalog unit resource-context checks pass. Ordinary default registry identity remains stable after view exit."
+    },
+    {
+      "id": "R2-RESOLVE-ORDINAL",
+      "status": "PASS",
+      "evidence": "source_catalog.py now requires only type(evidence_ordinal) is int before reconstruction. Negative and large exact integers are allowed to reach the identity lookup and therefore become SOURCE_CATALOG_NOT_FOUND when unknown, while Boolean and float values remain invalid."
+    },
+    {
+      "id": "R2-FOCUSED-TESTS",
+      "status": "PASS",
+      "evidence": "At 2026-09-09T08:41:28Z under Python 3.13.13, the full source-catalog unit suite passed 61 tests and the source-catalog upstream suite passed 10 tests. The standalone copied-context/parsed-mutation/default/nested/thread probe passed with schema_count=71, copied_registry_distinct=true, parsed_mutation_isolated=true, nested_restored=true, thread_registry_distinct=true and default_restored=true."
+    }
+  ],
+  "closed_findings": [
+    {
+      "id": "CAT-WIP-RESOURCE-CONTEXT-001",
+      "severity": "P1",
+      "closure": "CLOSED_BY_REPAIR_AND_FOCUSED_REPLAY",
+      "required_contract": "Independent execution contexts cannot share a cached parsed Registry or schema objects; nested views restore their parent and exceptions restore the default view.",
+      "repair": "The mutable per-view registry field was removed. Active views build from immutable captured material per call, while the default registry keeps its existing lru_cache outside a view.",
+      "proof": "copy_context(), nested view, parsed-object mutation, worker-thread, exception-reset and default-registry probes all passed as recorded above."
+    },
+    {
+      "id": "KNOWN-NON-IO-ORDINAL-BOUND",
+      "severity": "P1",
+      "closure": "CLOSED_BY_SOURCE_CATALOG_API_REPAIR",
+      "proof": "The exact-int-only check is present in source_catalog.py and the full unit/upstream source-catalog suites pass."
+    }
+  ],
+  "remaining_gates": [
+    "The preserved R1 cache-slot and generation retention advice still needs the full named-edge, complete-set, byte, mode and exception-path race matrix.",
+    "This focused review does not claim full dual-Python suites, installed-wheel parity, exact-head acceptance, CI, real Vault trials or human gates."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "catalog_resources": false,
+    "git": false,
+    "vault": false,
+    "network": false,
+    "human_gates": false
+  }
+}

@@ -3,8 +3,12 @@
 from __future__ import annotations
 
 import json
+from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 _PACKAGE = "video_paper_wiki"
@@ -16,6 +20,29 @@ _TAXONOMY_DIR = "taxonomy"
 _CATALOG_DIR = "catalog"
 _REPO_TAXONOMY = Path("taxonomy")
 _REPO_CATALOG = Path("catalog")
+
+
+@dataclass(frozen=True)
+class _ResourceView:
+    material: Any
+    schema_names: tuple[str, ...]
+
+
+_RESOURCE_VIEW: ContextVar[_ResourceView | None] = ContextVar("vpwiki_resource_view", default=None)
+
+
+@contextmanager
+def _retained_resource_view(material, schema_names):
+    """Use one private captured resource set, without filesystem fallback."""
+    if any(type(k) is not tuple or len(k) != 2 or type(v) is not bytes
+           for k, v in material.items()):
+        raise TypeError("resource view requires (kind, filename) keys and exact bytes")
+    view = _ResourceView(MappingProxyType(dict(material)), tuple(schema_names))
+    token = _RESOURCE_VIEW.set(view)
+    try:
+        yield view
+    finally:
+        _RESOURCE_VIEW.reset(token)
 
 
 def _package_text(*parts: str) -> str | None:
@@ -84,6 +111,10 @@ def _schema_text_without_cwd(filename: str) -> str | None:
     The production registry must not depend on the process working directory.
     """
 
+    view = _RESOURCE_VIEW.get()
+    if view is not None:
+        raw = view.material.get(("schema", filename))
+        return None if raw is None else raw.decode("utf-8")
     text = _package_text(_SCHEMA_DIR, filename)
     if text is not None:
         return text
@@ -102,7 +133,7 @@ def _schema_text_without_cwd(filename: str) -> str | None:
 def read_schema_text(filename: str) -> str | None:
     """Package resources first, then repo schemas/."""
     text = _schema_text_without_cwd(filename)
-    if text is not None:
+    if text is not None or _RESOURCE_VIEW.get() is not None:
         return text
     return _repo_text(_REPO_SCHEMAS / filename)
 
@@ -128,6 +159,9 @@ def read_projection_resource_bytes(kind: str, filename: str) -> bytes | None:
     }
     if kind not in choices or type(filename) is not str or "/" in filename or "\\" in filename:
         return None
+    view = _RESOURCE_VIEW.get()
+    if view is not None:
+        return view.material.get((kind, filename))
     package_dir, repo_dir = choices[kind]
     try:
         traversable = resources.files(_PACKAGE).joinpath(package_dir, filename)
@@ -146,6 +180,9 @@ def read_projection_resource_bytes(kind: str, filename: str) -> bytes | None:
 
 
 def schema_resource_names() -> tuple[str, ...]:
+    view = _RESOURCE_VIEW.get()
+    if view is not None:
+        return view.schema_names
     names: list[str] = []
     try:
         traversable = resources.files(_PACKAGE).joinpath(_SCHEMA_DIR)
