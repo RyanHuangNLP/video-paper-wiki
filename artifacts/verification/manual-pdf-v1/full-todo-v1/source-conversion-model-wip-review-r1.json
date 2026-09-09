@@ -1,0 +1,146 @@
+{
+  "$schema": "full-todo.source-conversion-model-wip-review-r1.v1",
+  "packet": "SOURCE-CONVERSION",
+  "revision": "R1-independent-wip-model-review",
+  "reviewed_at_utc": "2026-09-09T07:02:00Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent read-only model and semantic reviewer"
+  },
+  "scope": "Review of the exact source-conversion WIP model and orchestrator against SOURCE-CONVERSION R1/R2/R3, the conversion freeze, source-state preservation, source association and publication contracts. No production source, test source, Git, Vault, network, operator or human-gate mutation was performed.",
+  "decision": "BLOCKED_PENDING_MODEL_FIXES",
+  "baseline": {
+    "source_root": ".work/parallel/source-conversion-v1/terminal-1/source",
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "working_tree": "Expected conversion WIP paths are modified or untracked; no Git mutation was performed by this review.",
+    "contract_inputs": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R1.md",
+        "sha256": "464e3e98e8aa51199df5b93834bf196e49829918e95589c29de0c7572dfb5c72"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R2.md",
+        "sha256": "c4374416cb546fbef7abd33bc78c7074738a88a940967f059a938f991cf01029"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R3.md",
+        "sha256": "cb18df54729f32a12aacf10e2dfe8b3c5f655e8789df33ce29a430fed54d1880"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-freeze-r1.json",
+        "sha256": "not_recomputed_in_this_review"
+      }
+    ],
+    "reviewed_files": [
+      {
+        "path": "src/video_paper_wiki_research/source_conversion_model.py",
+        "sha256": "49fb985aa0d216612fff1fe5aafc86a720b804bf8cbbc5e0cda2061572b9ad92"
+      },
+      {
+        "path": "src/video_paper_wiki_research/source_conversion.py",
+        "sha256": "304f29d17ebbda69e2c30d74759232c8379698ea39064c5b2fd4fe8a7ff0d947"
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d"
+      },
+      {
+        "path": "src/video_paper_wiki/source_versions.py",
+        "sha256": "c93765c6940d1e1e0a6719d4e56d99c6e6d045fe37b2f1cd2fac6e150889cbb1"
+      },
+      {
+        "path": "src/video_paper_wiki/source_registration.py",
+        "sha256": "cde1f4e5460308b63b7669cafe180868e9789d125b916a20b131bd97b530bc7f"
+      },
+      {
+        "path": "src/video_paper_wiki/source_semantics_contracts.py",
+        "sha256": "406a1c1b14e53dcaec7bd9f3656de877923a46575423fa5d37549cebd082b790"
+      },
+      {
+        "path": "tests/research/test_source_conversion.py",
+        "sha256": "f15dec6bd25b2abc8f60921ed1d0244e5a9e758f31d01154540281ed6076f50e"
+      },
+      {
+        "path": "tests/upstream/test_source_conversion.py",
+        "sha256": "73e2974994246919922c01eac7aa499b3edff83adc8db34b90fcc8473dea6cb9"
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "CONVERSION-UNRELATED-REVIEWED-AT-001",
+      "severity": "blocker",
+      "location": "src/video_paper_wiki_research/source_conversion_model.py:159-164",
+      "finding": "assemble_conversion deep-copies the complete claim ledger and calls row.setdefault('reviewed_at', None) for every claim, including unrelated papers and repositories. A legacy structural ledger explicitly permits absent reviewed_at on nonaccepted rows. Therefore upgrading or converting one selected paper can persist a claim-ledger rewrite that adds reviewed_at:null to unrelated legacy rows, changing their raw optional-key presence and ledger bytes without changing their text, owner, assessment, evidence or history.",
+      "contract_basis": [
+        "SOURCE-PUBLICATION-R3 says raw optional-key presence is preserved and the internal legacy branch may expose null only in its compiler-shaped object; explicit knowledge migration must add the key in proposed ledger bytes.",
+        "SOURCE-CONVERSION-R3 requires unrelated paper/repository records, claim rows and history to remain unchanged.",
+        "SOURCE-CONVERSION-R1 permits the reviewed_at migration for the explicit v2 migration, which must be scoped to the selected paper's claims rather than every ledger row."
+      ],
+      "impact": "A conversion can rewrite unrelated claim history and create a ledger timestamp change for rows outside the selected paper. This violates no-unrelated-history preservation and can make a valid conversion fail or publish an unexpected global metadata diff.",
+      "required_fix": "Keep the raw ledger rows unchanged for unrelated owners. If v2 publication requires reviewed_at as a typed key, add null only to claims being migrated or otherwise changed for the selected paper, while using a non-mutating internal projection for compiler validation. Add an adversarial fixture with a second legacy repository/paper claim lacking reviewed_at and assert its exact raw row and ledger bytes survive conversion.",
+      "status": "blocking"
+    },
+    {
+      "id": "CONVERSION-SOURCE-PAGES-ORDER-002",
+      "severity": "blocker",
+      "location": "src/video_paper_wiki_research/source_conversion_model.py:234-244",
+      "finding": "When a selected source lacks the target paper page, assemble_conversion appends the page to the existing pages list without sorting. The publication preservation check requires every changed source pages list to equal sorted(set(pages)) and refuses otherwise. A valid source already linked to a lexicographically later page can therefore be made unpublishable merely by converting an earlier page.",
+      "contract_basis": [
+        "source_state.preserve_history checks changed source pages at lines 533-540 and rejects any target list that is not sorted and unique.",
+        "SOURCE-CONVERSION-R1 requires source row page links to be updated for every source attached to a changed paper or claim, while preserving publication validation and refusing only unsupported semantic changes."
+      ],
+      "impact": "Conversion behavior depends on historical page insertion order. Some legitimate multi-paper/source conversions fail with the generic source-ledger validation path even though the complete page set is representable.",
+      "required_fix": "Construct the changed pages value as sorted(set(existing_pages + [page])) while retaining the existing page set and validating the complete compiled-page set. Add a fixture with an existing source page that sorts after the selected page and assert conversion succeeds with canonical sorted links; retain duplicate/unknown-page refusals.",
+      "status": "blocking"
+    }
+  ],
+  "verified_positive_paths": [
+    {
+      "area": "section mapping and result partition",
+      "evidence": "The model uses the frozen eight-key mapping, rejects unmapped provisional sections, keeps created/invalidated/unchanged IDs disjoint by control flow, sorts all summary ID sets, and keeps location_migrated_claim_ids independent."
+    },
+    {
+      "area": "claim identity and evidence",
+      "evidence": "Claim IDs derive from canonical paper subject plus exact text; owner/ref collisions are refused; changed evidence appends one source-conversion-v1 event; unchanged profile/fingerprint preserves the old evidence wire and history; each new Markdown locator is resolved before use."
+    },
+    {
+      "area": "association/history proof",
+      "evidence": "source_association delegates complete existing-association inventory, version/provenance conflict handling, and earliest actual registration proof to associate_source/registration_proof, including the current-ledger hash-equal fallback for a missing historical snapshot."
+    },
+    {
+      "area": "metadata and identity",
+      "evidence": "Metadata is validated as a closed resource, canonical paper identity is checked, aliases retain exact spelling/order for existing papers, published_at keeps its date/timestamp union, and proposed_at is validated at whole-second UTC precision before input I/O."
+    },
+    {
+      "area": "single retained Vault session",
+      "evidence": "The orchestrator audits and collects current state once from the retained _vault snapshot, assembles a prospective overlay, derives pages and registries from that snapshot, then passes the same snapshot/current state to the retained publication helper."
+    }
+  ],
+  "verification": {
+    "focused_test_observation": "The prior locked-v1 focused run recorded 78 passed and one unrelated failure: test_light_index_is_not_required_for_record_conversion could not import INDEX_DIRNAME from the WIP light_index module. No source or test edits were made to alter that result.",
+    "static_checks": [
+      "Reviewed model and orchestrator source against all R1/R2/R3 conversion clauses and the source-state preservation code.",
+      "Confirmed source_conversion_model.py and source_conversion.py hashes above before writing this artifact.",
+      "Confirmed no Git mutation, real Vault mutation, network action, operator action or human-gate closure."
+    ],
+    "required_followup": [
+      "Fix both blockers in the owned conversion model path and add focused tests within the existing conversion allowlist.",
+      "Re-run conversion focused tests, the two locked Python full suites, installed-wheel checks, and the exact source-publication compatibility/no-op suite.",
+      "Recompute candidate source hashes and obtain independent review before exact-head acceptance."
+    ]
+  },
+  "implementation_boundary": {
+    "allowed": "This artifact records review evidence only.",
+    "forbidden": [
+      "production source edits",
+      "test edits",
+      "Git mutations",
+      "real Vault or operator writes",
+      "network or external-process actions",
+      "human-gate closure"
+    ],
+    "stopped_writing": true
+  }
+}
