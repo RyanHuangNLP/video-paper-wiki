@@ -152,7 +152,8 @@ def run_command(args) -> int:
                 result = admit_markdown_source(authority=objects[0], capture_result=objects[1] if len(objects) > 1 else None,
                                                batch_id=args.batch_id, operation_id=args.operation_id,
                                                vault_root=args.vault_root, upstream_root=args.upstream_root,
-                                               ingested_at=args.ingested_at)
+                                               ingested_at=args.ingested_at,
+                                               publication_profile=args.publication_profile)
         else:
             fail("USAGE", "unknown formal-source operation")
         return emit_success(command, result)
@@ -183,5 +184,6 @@ def register_commands(subparsers) -> None:
     for flag in ("authority", "batch-id", "operation-id", "vault-root", "upstream-root", "ingested-at"):
         admit.add_argument("--" + flag, required=True)
     admit.add_argument("--capture-result")
+    admit.add_argument("--publication-profile", choices=("legacy-v1", "source-v1"), default="legacy-v1")
     for parser in (plan, prepare, inspect, bind, admit):
         parser.set_defaults(handler=run_command)

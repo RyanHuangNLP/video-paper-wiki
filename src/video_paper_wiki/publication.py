@@ -143,6 +143,10 @@ def stage_publication_request(*, batch_id: object, operation_id: object, operati
                               prospective_groups: list[Mapping[str, str]] | None = None,
                               _retained_baseline_sink: Any = None) -> dict[str, Any]:
     """Stage exact content first and the closed request last under `.work/**`."""
+    from video_paper_wiki.source_state import require_legacy_profile
+    if not isinstance(payloads, Mapping) or any(type(path) is not str or type(data) is not bytes for path, data in payloads.items()):
+        _fail("PUBLICATION_REQUEST_INVALID", "payload map must contain string-to-bytes entries")
+    require_legacy_profile(payloads)
     batch = validate_batch_id(batch_id)
     if type(operation_id) is not str or _ID.fullmatch(operation_id) is None or type(operation_type) is not str or operation_type not in {"generic", "ingest"}:
         _fail("PUBLICATION_REQUEST_INVALID", "invalid publication identity")
@@ -328,6 +332,72 @@ def _verify_input_tree(tree: tuple[Path, os.stat_result, Path, os.stat_result,di
         if stamp(now)!=stamp(first) or now_digest!=digest or now_size!=size:_fail("PUBLICATION_PATH_UNSAFE","publication input content changed")
 
 
+def _assemble_publication_transaction(*, operation_id, operation_type, batch,
+                                      payload_bytes, claimed_input_paths, read_bytes,
+                                      audit, snapshot, session, upstream_root,
+                                      checkout, vault):
+    """Share only receipt/transport construction after front-end validation."""
+    sequence = 1 if audit["head"] is None else audit["head"]["sequence"] + 1
+    old_head_bytes = None if sequence == 1 else snapshot.read(HEAD_PATH, max_bytes=1024 * 1024)
+    old_head_stat = None if sequence == 1 else snapshot.files[HEAD_PATH][0]
+    business = []
+    original: dict[str, bytes | None] = {}
+    expected: dict[str, str | None] = {}
+    for path, data in sorted(payload_bytes.items()):
+        try:
+            old=snapshot.read_optional(path)
+            if old is None: raise FileNotFoundError
+            old_st=snapshot.files[path][0]
+            mode = "replace"; before = hashlib.sha256(old).hexdigest(); original[path] = old
+            original_mode = stat.S_IMODE(old_st.st_mode); original_size = len(old)
+        except FileNotFoundError:
+            mode = "create"; before = None; original[path] = None; original_mode = None; original_size = 0
+        digest = hashlib.sha256(data).hexdigest(); expected[path] = before
+        business.append({"path": path, "role": "business", "mode": mode, "sha256": digest,
+                         "size_bytes": len(data), "original_size_bytes": original_size, "original_mode": original_mode})
+    claims = [{"path": path, "mode": "read", "sha256": hashlib.sha256(read_bytes[path]).hexdigest()}
+              for path in claimed_input_paths]
+    previous = None if sequence == 1 else {"path": audit["head"]["receipt_path"], "sha256": audit["head"]["receipt_sha256"]}
+    receipt = {"schema": "video-paper-wiki.operation-receipt.v1", "sequence": sequence, "previous": previous,
+               "operation_id": operation_id, "operation_type": operation_type, "intent_sha256": "0" * 64,
+               "writes": [{"path": x["path"], "mode": x["mode"], "before_sha256": expected[x["path"]], "after_sha256": x["sha256"]} for x in business],
+               "claimed_inputs": claims}
+    receipt["intent_sha256"] = receipt_intent_sha256(receipt)
+    receipt_path = f"wiki/meta/operations/{sequence:012d}-{operation_id}.json"; receipt_raw = canonicalize(receipt)
+    head = {"schema": "video-paper-wiki.operation-head.v1", "sequence": sequence, "receipt_path": receipt_path,
+            "receipt_sha256": hashlib.sha256(receipt_raw).hexdigest()}; head_raw = canonicalize(head)
+    for path, data, role in ((receipt_path, receipt_raw, "receipt"), (HEAD_PATH, head_raw, "head")):
+        old = None if sequence == 1 or role == "receipt" else old_head_bytes
+        business.append({"path": path, "role": role, "mode": "create" if old is None else "replace",
+                         "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data),
+                         "original_size_bytes": len(old or b""), "original_mode": None if old is None else stat.S_IMODE(old_head_stat.st_mode)})
+        expected[path] = None if old is None else hashlib.sha256(old).hexdigest(); original[path] = old
+        payload_bytes[path] = data
+    read_hashes = {p: hashlib.sha256(v).hexdigest() for p, v in read_bytes.items()}
+    material = {"operation_id": operation_id, "operation_type": operation_type,
+                "writes": [{k: x[k] for k in ("path", "mode", "sha256")} for x in business],
+                "expected_hashes": expected, "read_preconditions": read_hashes}
+    bundle = encode_transaction_inspect_bundle(material)
+    if len(bundle) > MAX_BUNDLE_BYTES:
+        _fail("TRANSACTION_LIMIT_EXCEEDED", "bundle exceeds limit")
+    proposal = {"schema": "video-paper-wiki.transaction-facade.v1", "phase": "proposal",
+                "operation_id": operation_id, "operation_type": operation_type, "writes": business,
+                "expected_hashes": expected, "read_preconditions": read_hashes, "claimed_inputs": claims,
+                "address_requests": [], "source_manifest_updates": {}, "engine_expanded_paths": [],
+                "receipt": receipt, "head": head, "input_bundle_sha256": hashlib.sha256(bundle).hexdigest(),
+                "declaration_sha256": "0" * 64, "inspection": None, "runtime_result": None}
+    proposal["declaration_sha256"] = transaction_declaration_hash(proposal)
+    proposal = validate_transaction(proposal)
+    verify_transaction_bytes(proposal, write_bytes=payload_bytes, original_bytes=original, read_bytes=read_bytes)
+    staging = _stage_transaction_inspect_transport(proposal, write_bytes=payload_bytes, original_bytes=original,
+                                                   read_bytes=read_bytes, batch_id=batch, session=session)
+    upstream = inspect_pinned_transaction(proposal, upstream_root=upstream_root,
+        work_root=checkout / WORK_DIRNAME, vault_root=vault,
+        bundle_path=checkout / WORK_DIRNAME / batch / "transaction-inspect" / "bundle.json")
+    tx = attach_upstream_inspection(proposal, upstream["transaction"]["inspection"])
+    return {"transaction": tx, "transaction_staging": staging, "upstream_authority": upstream}
+
+
 def _inspect_publication_core(*, prepared: Path | str, operation_id: object,
                              upstream_root: Path | str, vault_root: Path | str,
                              _session: object, _vault_snapshot: _Snapshot) -> dict[str, Any]:
@@ -357,6 +427,10 @@ def _inspect_publication_core(*, prepared: Path | str, operation_id: object,
         if exc.code != "RECEIPT_BOOTSTRAP_REQUIRED":
             raise
         sequence = 1; audit = {"head": None}
+    from video_paper_wiki.source_state import require_legacy_profile
+    from video_paper_wiki.receipt_audit import _walk_inventory
+    require_legacy_profile(payload_bytes)
+    require_legacy_profile({p: _vault_snapshot.files[p][1] for p in _walk_inventory(_vault_snapshot, read_bytes=True)})
     if sequence == 1 and (request["operation_type"] != "generic" or not request["payloads"]
                           or set(request["claimed_input_paths"]) != {"wiki/meta/ledgers/claim-ledger.json", "wiki/meta/ledgers/source-ledger.json"}):
         _fail("RECEIPT_BOOTSTRAP_REQUIRED", "genesis must claim both pristine ledgers and publish business bytes")
@@ -373,61 +447,11 @@ def _inspect_publication_core(*, prepared: Path | str, operation_id: object,
         if path.endswith(".json"):
             decoded[path]=_decode_publication_json(path, data)
     _prospective(request,decoded,payload_bytes,_vault_snapshot)
-    business = []
-    original: dict[str, bytes | None] = {}
-    expected: dict[str, str | None] = {}
-    for path, data in sorted(payload_bytes.items()):
-        try:
-            old=_vault_snapshot.read_optional(path)
-            if old is None: raise FileNotFoundError
-            old_st=_vault_snapshot.files[path][0]
-            mode = "replace"; before = hashlib.sha256(old).hexdigest(); original[path] = old
-            original_mode = stat.S_IMODE(old_st.st_mode); original_size = len(old)
-        except FileNotFoundError:
-            mode = "create"; before = None; original[path] = None; original_mode = None; original_size = 0
-        digest = hashlib.sha256(data).hexdigest(); expected[path] = before
-        business.append({"path": path, "role": "business", "mode": mode, "sha256": digest,
-                         "size_bytes": len(data), "original_size_bytes": original_size, "original_mode": original_mode})
-    claims = [{"path": path, "mode": "read", "sha256": hashlib.sha256(read_bytes[path]).hexdigest()}
-              for path in request["claimed_input_paths"]]
-    previous = None if sequence == 1 else {"path": audit["head"]["receipt_path"], "sha256": audit["head"]["receipt_sha256"]}
-    receipt = {"schema": "video-paper-wiki.operation-receipt.v1", "sequence": sequence, "previous": previous,
-               "operation_id": operation_id, "operation_type": request["operation_type"], "intent_sha256": "0" * 64,
-               "writes": [{"path": x["path"], "mode": x["mode"], "before_sha256": expected[x["path"]], "after_sha256": x["sha256"]} for x in business],
-               "claimed_inputs": claims}
-    receipt["intent_sha256"] = receipt_intent_sha256(receipt)
-    receipt_path = f"wiki/meta/operations/{sequence:012d}-{operation_id}.json"; receipt_raw = canonicalize(receipt)
-    head = {"schema": "video-paper-wiki.operation-head.v1", "sequence": sequence, "receipt_path": receipt_path,
-            "receipt_sha256": hashlib.sha256(receipt_raw).hexdigest()}; head_raw = canonicalize(head)
-    for path, data, role in ((receipt_path, receipt_raw, "receipt"), (HEAD_PATH, head_raw, "head")):
-        old = None if sequence == 1 or role == "receipt" else old_head_bytes
-        business.append({"path": path, "role": role, "mode": "create" if old is None else "replace",
-                         "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data),
-                         "original_size_bytes": len(old or b""), "original_mode": None if old is None else stat.S_IMODE(old_head_stat.st_mode)})
-        expected[path] = None if old is None else hashlib.sha256(old).hexdigest(); original[path] = old
-        payload_bytes[path] = data
-    read_hashes = {p: hashlib.sha256(v).hexdigest() for p, v in read_bytes.items()}
-    material = {"operation_id": operation_id, "operation_type": request["operation_type"],
-                "writes": [{k: x[k] for k in ("path", "mode", "sha256")} for x in business],
-                "expected_hashes": expected, "read_preconditions": read_hashes}
-    bundle = encode_transaction_inspect_bundle(material)
-    if len(bundle) > MAX_BUNDLE_BYTES:
-        _fail("TRANSACTION_LIMIT_EXCEEDED", "bundle exceeds limit")
-    proposal = {"schema": "video-paper-wiki.transaction-facade.v1", "phase": "proposal",
-                "operation_id": operation_id, "operation_type": request["operation_type"], "writes": business,
-                "expected_hashes": expected, "read_preconditions": read_hashes, "claimed_inputs": claims,
-                "address_requests": [], "source_manifest_updates": {}, "engine_expanded_paths": [],
-                "receipt": receipt, "head": head, "input_bundle_sha256": hashlib.sha256(bundle).hexdigest(),
-                "declaration_sha256": "0" * 64, "inspection": None, "runtime_result": None}
-    proposal["declaration_sha256"] = transaction_declaration_hash(proposal)
-    proposal = validate_transaction(proposal)
-    verify_transaction_bytes(proposal, write_bytes=payload_bytes, original_bytes=original, read_bytes=read_bytes)
-    staging = _stage_transaction_inspect_transport(proposal, write_bytes=payload_bytes, original_bytes=original,
-                                                   read_bytes=read_bytes, batch_id=batch, session=_session)
-    upstream = inspect_pinned_transaction(proposal, upstream_root=upstream_root,
-        work_root=checkout / WORK_DIRNAME, vault_root=vault,
-        bundle_path=checkout / WORK_DIRNAME / batch / "transaction-inspect" / "bundle.json")
-    tx = attach_upstream_inspection(proposal, upstream["transaction"]["inspection"])
+    children = _assemble_publication_transaction(operation_id=operation_id,
+        operation_type=request["operation_type"], batch=batch, payload_bytes=payload_bytes,
+        claimed_input_paths=request["claimed_input_paths"], read_bytes=read_bytes, audit=audit,
+        snapshot=_vault_snapshot, session=_session, upstream_root=upstream_root, checkout=checkout, vault=vault)
+    tx, staging, upstream = (children[key] for key in ("transaction", "transaction_staging", "upstream_authority"))
     for path, first in retained:
         try:
             if stamp(path.lstat()) != stamp(first):

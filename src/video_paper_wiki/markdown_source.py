@@ -197,7 +197,9 @@ def _capture_proof(authority: dict, result: object, *, mode: int) -> dict:
 @retain_directory_arguments("vault_root", "upstream_root")
 def admit_markdown_source(*, authority: object, batch_id: object, operation_id: object,
                           vault_root: Path | str, upstream_root: Path | str, ingested_at: object,
-                          capture_result: object = None) -> dict:
+                          capture_result: object = None, publication_profile: str = "legacy-v1") -> dict:
+    if type(publication_profile) is not str or publication_profile not in {"legacy-v1", "source-v1"}:
+        fail("MARKDOWN_SOURCE_INVALID", "publication profile is unknown")
     value = validate(authority, AUTHORITY)
     batch, operation = validate_batch_id(batch_id), operation_name(operation_id)
     plan = value["request"]["plan"]
@@ -225,6 +227,9 @@ def admit_markdown_source(*, authority: object, batch_id: object, operation_id: 
             audit = audit_integrity(vault, _snapshot=snap)
             if audit["classification"] != "receipt_backed":
                 fail("RECEIPT_BOOTSTRAP_REQUIRED", "genesis publication must precede source admission")
+            if publication_profile == "source-v1":
+                from video_paper_wiki.source_state import collect_source_state
+                collect_source_state(snap, audit, allow_legacy_structural=True)
             with retain_files([(vault / SOURCE_LEDGER, 16777216, True),
                                (vault / target, 8388608, True)]) as held:
                 ledger_raw = held[0].data
@@ -245,8 +250,11 @@ def admit_markdown_source(*, authority: object, batch_id: object, operation_id: 
                         matching = True
                 claimed = target in audit["ever_claimed_raw"]
                 if matching and claimed:
-                    return {"state": "source_already_registered", "source_id": source_id, "stored_path": target,
-                            "paper_id": observation["paper_id"], "published": True, "receipt_backed": True}
+                    result = {"state": "source_already_registered", "source_id": source_id, "stored_path": target,
+                              "paper_id": observation["paper_id"], "published": True, "receipt_backed": True}
+                    if publication_profile == "source-v1":
+                        result["publication_profile"] = publication_profile
+                    return result
                 if matching or claimed:
                     fail("MARKDOWN_SOURCE_CONFLICT", "source registration and raw receipt claim disagree")
                 proof = _capture_proof(value, capture_result, mode=captured.sibling["mode"])
@@ -259,20 +267,30 @@ def admit_markdown_source(*, authority: object, batch_id: object, operation_id: 
                     "title": observation["title"], "authority": "primary", "content_sha256": payload["sha256"],
                     "ingested_at": ingested_at[:10], "retrieved_at": None, "refresh_due": "2099-01-01",
                     "review_status": "unreviewed", "independence_key": None, "pages": [], "supersedes": None}
-                staged = stage_publication_request(
-                    batch_id=batch, operation_id=operation, operation_type="ingest",
-                    payloads={SOURCE_LEDGER: canonicalize(updated)}, claimed_input_paths=[target],
-                    additional_read_paths=[], prospective_groups=[])
+                if publication_profile == "source-v1":
+                    from video_paper_wiki.source_publication import prepare_source_publication, inspect_source_publication
+                    staged = prepare_source_publication(batch_id=batch, operation_id=operation, vault_root=vault,
+                        payloads={SOURCE_LEDGER: canonicalize(updated)},
+                        registration={"authority": value, "capture_result": proof, "ingested_at": ingested_at})
+                else:
+                    staged = stage_publication_request(
+                        batch_id=batch, operation_id=operation, operation_type="ingest",
+                        payloads={SOURCE_LEDGER: canonicalize(updated)}, claimed_input_paths=[target],
+                        additional_read_paths=[], prospective_groups=[])
                 for item in held:
                     item.verify()
                 snap.verify()
-                inspected = inspect_publication(prepared=staged["request_path"], operation_id=operation,
-                                                upstream_root=upstream, vault_root=vault)
+                inspect = inspect_source_publication if publication_profile == "source-v1" else inspect_publication
+                inspected = inspect(prepared=staged["request_path"], operation_id=operation,
+                                    upstream_root=upstream, vault_root=vault)
                 snap.verify()
-                return {"state": "source_registration_prepared", "next_action": "awaiting_operator_publication",
+                result = {"state": "source_registration_prepared", "next_action": "awaiting_operator_publication",
                         "source_id": source_id, "stored_path": target, "paper_id": observation["paper_id"],
                         "batch_id": batch, "operation_id": operation, "publication_request": staged,
                         "publication_authority": inspected, "published": False, "receipt_backed": False}
+                if publication_profile == "source-v1":
+                    result["publication_profile"] = publication_profile
+                return result
     finally:
         try:
             snap.verify()

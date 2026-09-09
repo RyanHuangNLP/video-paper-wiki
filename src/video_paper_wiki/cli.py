@@ -164,6 +164,17 @@ def build_parser() -> argparse.ArgumentParser:
         publication_inspect.add_argument("--"+flag,dest=flag.replace("-","_"),required=True)
     publication_inspect.set_defaults(handler=publication_commands.inspect)
 
+    from video_paper_wiki.source_publication import run_source_publication_command
+    source_publication = _add_parser(sub, "source-publication")
+    source_sub = source_publication.add_subparsers(dest="source_publication_cmd", required=True)
+    for name, flags in (("prepare", ("proposal", "batch-id", "operation-id", "vault-root")),
+                        ("inspect", ("prepared", "operation-id", "vault-root", "upstream-root")),
+                        ("audit", ("vault-root",))):
+        source_parser = _add_parser(source_sub, name)
+        for flag in flags:
+            source_parser.add_argument("--" + flag, required=True)
+        source_parser.set_defaults(handler=run_source_publication_command)
+
     code_map = _add_parser(sub, "code-map")
     code_map_sub = code_map.add_subparsers(dest="code_map_cmd", required=True)
     code_map_plan = _add_parser(code_map_sub, "plan")

@@ -167,6 +167,8 @@ def collect_current_catalog_material(*,vault_root:Path|str,upstream_root:Path|st
         # chunk and row collected below.
         audit_integrity(vault,_snapshot=snap)
         actual=_walk_inventory(snap,read_bytes=True)
+        from video_paper_wiki.source_state import require_legacy_profile
+        require_legacy_profile({p: snap.files[p][1] for p in actual})
         tax=read_projection_resource_bytes("taxonomy","v1.json")
         if tax is None:_fail("taxonomy resource is unavailable")
         byte_map={p:snap.files[p][1] for p in sorted(actual) if _kind(p) is not None}

@@ -816,6 +816,14 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
     if schema_name in {
+        "video-paper-wiki.source-publication-request.v1", "video-paper-wiki.source-publication-authority.v1",
+        "video-paper-wiki.source-publication-proposal.v1", "video-paper-wiki.assessment-heads.v2",
+    }:
+        from video_paper_wiki.source_publication_contracts import check_document
+
+        check_document(document, schema_name)
+        return
+    if schema_name in {
         "video-paper-wiki.source-version-association.v1", "video-paper-wiki.source-display-decision.v1",
         "video-paper-wiki.source-display-heads.v1", "video-paper-wiki.paper-record.v2",
         "video-paper-wiki.ledger-locator.v2", "video-paper-wiki.assessment-event.v2",
@@ -913,6 +921,14 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
     }
     requested = expected_schema or (document.get("schema") if type(document) is dict else None)
     is_semantics = type(requested) is str and requested in semantics_names
+    is_source_publication = type(requested) is str and requested in {
+        "video-paper-wiki.source-publication-request.v1", "video-paper-wiki.source-publication-authority.v1",
+        "video-paper-wiki.source-publication-proposal.v1", "video-paper-wiki.assessment-heads.v2",
+    }
+    if is_source_publication:
+        from video_paper_wiki.source_semantics_contracts import preflight
+
+        preflight(document)
     if is_semantics:
         from video_paper_wiki.source_semantics_contracts import preflight
 
@@ -997,6 +1013,12 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             keyword="type",
         ) from exc
     if errors:
+        if is_source_publication:
+            errors.sort(key=lambda error: (tuple(str(x) for x in error.absolute_path), str(error.validator)))
+            try:
+                _raise_validation_error(errors[0], schema_name)
+            except ContractError as exc:
+                raise ContractError("SOURCE_PUBLICATION_INVALID", exc.message, exc.details) from None
         if is_semantics:
             errors.sort(key=lambda error: (tuple(str(x) for x in error.absolute_path), str(error.validator)))
             _raise_validation_error(errors[0], schema_name)
