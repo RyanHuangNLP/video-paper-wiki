@@ -1,0 +1,245 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.ledger-locator.v2.schema.json",
+  "title": "video-paper-wiki.ledger-locator.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "locator"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.ledger-locator.v2"
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source_id",
+        "association",
+        "path",
+        "sha256",
+        "charspan",
+        "page_anchor",
+        "excerpt_sha256"
+      ],
+      "properties": {
+        "kind": {
+          "const": "markdown"
+        },
+        "source_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+        },
+        "association": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "association_id",
+            "sha256"
+          ],
+          "properties": {
+            "association_id": {
+              "type": "string",
+              "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          }
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^\\.raw/captured/[0-9a-f]{64}\\.md$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "charspan": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8388608
+          }
+        },
+        "page_anchor": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^page-[1-9][0-9]{0,2}$(?![\\s\\S])"
+            }
+          ]
+        },
+        "excerpt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "markdown_locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source_id",
+        "association",
+        "path",
+        "sha256",
+        "charspan",
+        "page_anchor",
+        "excerpt_sha256"
+      ],
+      "properties": {
+        "kind": {
+          "const": "markdown"
+        },
+        "source_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+        },
+        "association": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "association_id",
+            "sha256"
+          ],
+          "properties": {
+            "association_id": {
+              "type": "string",
+              "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          }
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^\\.raw/captured/[0-9a-f]{64}\\.md$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "charspan": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8388608
+          }
+        },
+        "page_anchor": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^page-[1-9][0-9]{0,2}$(?![\\s\\S])"
+            }
+          ]
+        },
+        "excerpt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    },
+    "markdown_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "source_id",
+        "association",
+        "path",
+        "sha256",
+        "charspan",
+        "page_anchor",
+        "excerpt_sha256",
+        "relation"
+      ],
+      "properties": {
+        "kind": {
+          "const": "markdown"
+        },
+        "source_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+        },
+        "association": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "association_id",
+            "sha256"
+          ],
+          "properties": {
+            "association_id": {
+              "type": "string",
+              "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          }
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^\\.raw/captured/[0-9a-f]{64}\\.md$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "charspan": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 8388608
+          }
+        },
+        "page_anchor": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^page-[1-9][0-9]{0,2}$(?![\\s\\S])"
+            }
+          ]
+        },
+        "excerpt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "relation": {
+          "enum": [
+            "supports",
+            "contradicts",
+            "uncertain"
+          ]
+        }
+      }
+    }
+  }
+}

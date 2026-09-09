@@ -815,6 +815,16 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 
 
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
+    if schema_name in {
+        "video-paper-wiki.source-version-association.v1", "video-paper-wiki.source-display-decision.v1",
+        "video-paper-wiki.source-display-heads.v1", "video-paper-wiki.paper-record.v2",
+        "video-paper-wiki.ledger-locator.v2", "video-paper-wiki.assessment-event.v2",
+        "video-paper-wiki.compile-input.v2",
+    }:
+        from video_paper_wiki.source_semantics_contracts import check_document
+
+        check_document(document, schema_name)
+        return
     if schema_name.startswith("video-paper-wiki.markdown-"):
         from video_paper_wiki.markdown_source_contracts import check_document
 
@@ -895,6 +905,18 @@ def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
 def validate_document(document: object, expected_schema: str | None = None) -> dict[str, Any]:
     """Validate one document against the production schema registry."""
 
+    semantics_names = {
+        "video-paper-wiki.source-version-association.v1", "video-paper-wiki.source-display-decision.v1",
+        "video-paper-wiki.source-display-heads.v1", "video-paper-wiki.paper-record.v2",
+        "video-paper-wiki.ledger-locator.v2", "video-paper-wiki.assessment-event.v2",
+        "video-paper-wiki.compile-input.v2",
+    }
+    requested = expected_schema or (document.get("schema") if type(document) is dict else None)
+    is_semantics = type(requested) is str and requested in semantics_names
+    if is_semantics:
+        from video_paper_wiki.source_semantics_contracts import preflight
+
+        preflight(document, evidence_scope="compile" if requested == "video-paper-wiki.compile-input.v2" else None)
     if expected_schema in (
         "video-paper-wiki.upstream-chunk-profile.v1",
         "video-paper-wiki.upstream-bm25-profile.v1",
@@ -975,6 +997,9 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             keyword="type",
         ) from exc
     if errors:
+        if is_semantics:
+            errors.sort(key=lambda error: (tuple(str(x) for x in error.absolute_path), str(error.validator)))
+            _raise_validation_error(errors[0], schema_name)
         _raise_validation_error(best_match(iter(errors)) or errors[0], schema_name)
     _post_schema_checks(document, schema_name)
     return document

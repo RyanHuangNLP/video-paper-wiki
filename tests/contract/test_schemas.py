@@ -28,7 +28,7 @@ def _first_nested_object(document: dict) -> dict | None:
 
 
 def test_all_schemas_are_draft_2020_12_and_well_formed(schema_paths: list[Path]) -> None:
-    assert len(schema_paths) == 58
+    assert len(schema_paths) == 65
     for path in schema_paths:
         schema = load_json(path)
         assert schema["$schema"] == "https://json-schema.org/draft/2020-12/schema"
