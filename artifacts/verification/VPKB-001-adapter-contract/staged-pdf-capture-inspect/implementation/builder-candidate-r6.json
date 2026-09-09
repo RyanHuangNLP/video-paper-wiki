@@ -1,0 +1,316 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-implementation-candidate.v1",
+  "authority": {
+    "preserved_revision_5_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r5.json",
+      "sha256": "71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5",
+      "size_bytes": 19409
+    },
+    "revision_6_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json",
+      "sha256": "8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842",
+      "size_bytes": 12933
+    }
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/captured_snapshot.py": {
+      "sha256": "3455186ec7a87c29a67314779eeed941aedc91009ad224c0b79382068276d018",
+      "size_bytes": 9423
+    },
+    "src/video_paper_wiki/cli.py": {
+      "sha256": "53f7d77ab1c34d96b2c400839abbe499845ae50dd5b9f292d108f10eaa81acfb",
+      "size_bytes": 8644
+    },
+    "src/video_paper_wiki/commands/capture.py": {
+      "sha256": "7067dce5aabba67894fe856a36045ddce323a6ec69cd8f011ff23d122324f6df",
+      "size_bytes": 230
+    },
+    "src/video_paper_wiki/commands/prepare.py": {
+      "sha256": "5bfb14e73d2f25589316c0cda7832933624a3bad2ed521a528a2161a943e5b3b",
+      "size_bytes": 12610
+    },
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "06aa47e58e35fb87d1c8ce520e499bf1dbedc022f0f42a4ed9be1d1533682906",
+      "size_bytes": 75547
+    },
+    "src/video_paper_wiki/staged_capture.py": {
+      "sha256": "0904042ead608af849587e64bbd1a755c7d3d20a504c77fe8fb92beb929d23d5",
+      "size_bytes": 24854
+    },
+    "src/video_paper_wiki/staging.py": {
+      "sha256": "60016d344a227a1a98bc7b9475fe553ed81fa4bd6f8ffc57a28c461daf4e821d",
+      "size_bytes": 54921
+    },
+    "src/video_paper_wiki/transaction_staging.py": {
+      "sha256": "71d77db124be2673362a6186f68af1df7e354f975bcac985c4bf2237927694b1",
+      "size_bytes": 11104
+    },
+    "src/video_paper_wiki/upstream_adapter.py": {
+      "sha256": "4ffe8d84be005d25cc3d5e377e8a5ca9f79d5b9441e5075682552e884aa23406",
+      "size_bytes": 64058
+    },
+    "tests/contract/test_staged_pdf_capture.py": {
+      "sha256": "67f95bf9410305ad1de615d934467c0127a18249bc6d8f12fc81554d6109e7fc",
+      "size_bytes": 1517
+    },
+    "tests/security/test_staged_pdf_capture_boundary.py": {
+      "sha256": "e4d57dd1362fd85aaedf4b6105bcbec1297cce1a8f71b24620d2fc359dbf9a49",
+      "size_bytes": 8325
+    },
+    "tests/security/test_work_staging_boundary.py": {
+      "sha256": "31fa387febe8922fc28be6c14f1c7ee59612bab534aa1d4b0569bbb66578457f",
+      "size_bytes": 39774
+    },
+    "tests/support.py": {
+      "sha256": "b7ad0ea11a25e10bef8312d5e6e5c697b7e7ad58e428486071221c712bcf3e85",
+      "size_bytes": 7935
+    },
+    "tests/unit/test_json_boundary.py": {
+      "sha256": "e3bd484feed3b6c5ecf4dbf7b85af0ea4d79678d047e8d67c3f18af3ec14ddd5",
+      "size_bytes": 5631
+    },
+    "tests/unit/test_prepare.py": {
+      "sha256": "1d34edeac903268f1bec8551449b3c8091c06e592afbfe99cb31aed49c40f6a6",
+      "size_bytes": 32657
+    },
+    "tests/unit/test_staged_capture.py": {
+      "sha256": "276fd023dd6188620dae1d6b5cf5d907b6cbf4455f0af5321de0af8df0ce697b",
+      "size_bytes": 15750
+    },
+    "tests/unit/test_transaction_staging.py": {
+      "sha256": "816766e69814e8b75f9ce0004807b4b5db8f1cbed4b02d1b240c2baecd70f639",
+      "size_bytes": 11859
+    },
+    "tests/upstream/test_vpkb001_staged_pdf_capture.py": {
+      "sha256": "20b358aa66df2c09ddce6bde74996c47c489fbbb5c5baf250c3af492a9fc2906",
+      "size_bytes": 2123
+    }
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted_by_raw_utf8(repo_relative_path) of utf8(path) || TAB || ascii(sha256(raw_file_bytes)) || TAB || ascii(decimal_size_bytes) || LF))",
+    "includes_raw_bytes_directly": false,
+    "path_count": 18,
+    "r5_before_sha256": "c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d",
+    "sha256": "da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c"
+  },
+  "correction": {
+    "all_nine_production_paths_unchanged_from_r5": true,
+    "changed_source_test_paths": [
+      "tests/unit/test_prepare.py"
+    ],
+    "mechanism": "while the original named target remains live, exclusively create a no-follow same-directory sibling, write identical bytes, fsync, preserve permission bits and mtime, prove distinct (st_dev, st_ino), atomically os.replace it onto the target, then prove the named identity equals the pre-observed sibling identity and bytes remain exact",
+    "preserved_assertions": [
+      "exit 2",
+      "WORK_PATH_UNSAFE",
+      "blob case publishes no request",
+      "request case retains exact safe blob",
+      "zero network"
+    ],
+    "probes": [
+      "test_missing_blob_install_refuses_same_bytes_inode_replacement",
+      "test_missing_request_install_refuses_same_bytes_inode_replacement"
+    ],
+    "production_behavior_changed": false
+  },
+  "environment_observations": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_prepare.py --basetemp=/private/tmp/vpkb-spci-r6-prepare --junitxml=/private/tmp/vpkb-spci-r6-prepare.xml",
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-r6-prepare.xml",
+        "sha256": "c22f38981f15debad856efd8e293b313d77de736e490cf7ad5113e75120b8395",
+        "size_bytes": 10121
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-r6-prepare.log",
+        "sha256": "4090ea31188ae1ec6911b0fb49d11b2163cfdc8de94873c9624ab87a1ff70f95",
+        "size_bytes": 3745
+      },
+      "result": "52 passed, 1 failed because managed sandbox denied AF_UNIX bind with PermissionError; the exact module passed after authorized escalation"
+    }
+  ],
+  "failed_r5_delivery": {
+    "candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r5.json",
+      "sha256": "e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f",
+      "size_bytes": 15811,
+      "source_snapshot_sha256": "c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d"
+    },
+    "ci_failure_observation": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/ci-failure-observation-r5.json",
+      "run_id": 33554650002,
+      "sha256": "a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34",
+      "size_bytes": 5843,
+      "tested_merge_sha": "49e987c4228406fde3b33ab7cf73966b31c73f59"
+    },
+    "commit": "39d279fa8b357d63ef282cbc9dee35a93773e4d4",
+    "tree": "e740f43de6c39922cfe3f799c6574183d406d2a6"
+  },
+  "limitations": [
+    "Independent review, exact delivery, fresh merge-ref CI and separate exact-head Architect acceptance remain pending."
+  ],
+  "production_files_unchanged_from_r5": {
+    "src/video_paper_wiki/captured_snapshot.py": {
+      "sha256": "3455186ec7a87c29a67314779eeed941aedc91009ad224c0b79382068276d018",
+      "size_bytes": 9423
+    },
+    "src/video_paper_wiki/cli.py": {
+      "sha256": "53f7d77ab1c34d96b2c400839abbe499845ae50dd5b9f292d108f10eaa81acfb",
+      "size_bytes": 8644
+    },
+    "src/video_paper_wiki/commands/capture.py": {
+      "sha256": "7067dce5aabba67894fe856a36045ddce323a6ec69cd8f011ff23d122324f6df",
+      "size_bytes": 230
+    },
+    "src/video_paper_wiki/commands/prepare.py": {
+      "sha256": "5bfb14e73d2f25589316c0cda7832933624a3bad2ed521a528a2161a943e5b3b",
+      "size_bytes": 12610
+    },
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "06aa47e58e35fb87d1c8ce520e499bf1dbedc022f0f42a4ed9be1d1533682906",
+      "size_bytes": 75547
+    },
+    "src/video_paper_wiki/staged_capture.py": {
+      "sha256": "0904042ead608af849587e64bbd1a755c7d3d20a504c77fe8fb92beb929d23d5",
+      "size_bytes": 24854
+    },
+    "src/video_paper_wiki/staging.py": {
+      "sha256": "60016d344a227a1a98bc7b9475fe553ed81fa4bd6f8ffc57a28c461daf4e821d",
+      "size_bytes": 54921
+    },
+    "src/video_paper_wiki/transaction_staging.py": {
+      "sha256": "71d77db124be2673362a6186f68af1df7e354f975bcac985c4bf2237927694b1",
+      "size_bytes": 11104
+    },
+    "src/video_paper_wiki/upstream_adapter.py": {
+      "sha256": "4ffe8d84be005d25cc3d5e377e8a5ca9f79d5b9441e5075682552e884aa23406",
+      "size_bytes": 64058
+    }
+  },
+  "revision": 6,
+  "scope_verification": {
+    "catalog_entries": 67,
+    "git_diff_check_exit_code": 0,
+    "git_index_empty": true,
+    "git_stage_commit_push_pr_mutated": false,
+    "network_accessed": false,
+    "only_authorized_test_path_changed_from_r5": true,
+    "protected_paths_untouched": true,
+    "real_vault_accessed": false,
+    "test_writes_stopped_before_evidence": true
+  },
+  "status": "builder_candidate_local_only",
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_prepare.py::test_missing_blob_install_refuses_same_bytes_inode_replacement tests/unit/test_prepare.py::test_missing_request_install_refuses_same_bytes_inode_replacement --basetemp=/private/tmp/vpkb-spci-r6-nodes --junitxml=/private/tmp/vpkb-spci-r6-nodes.xml",
+      "duration_seconds": 0.124,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-r6-nodes.xml",
+        "sha256": "52151eb6da89cb8566289c016a4493eaea9c6d887c7a47d5931ebbb040d2aabd",
+        "size_bytes": 533
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-r6-nodes.log",
+        "sha256": "570d6eca2cee31278223b2b6adcac2ab615ae9199c8a0c16418279c36414f36e",
+        "size_bytes": 98
+      },
+      "name": "two_ci_failure_nodes",
+      "passed": 2,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 2
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_prepare.py --basetemp=/private/tmp/vpkb-spci-r6-prepare-final --junitxml=/private/tmp/vpkb-spci-r6-prepare-final.xml",
+      "duration_seconds": 0.285,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-r6-prepare-final.xml",
+        "sha256": "404a7bb7a327de062ff8960f041d7ab9490d59382e4df8706529e0a0dbdb3d1e",
+        "size_bytes": 6687
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-r6-prepare-final.log",
+        "sha256": "d635d06030cdc08ca839e0be5455e9f17f069e8b8d5b0673a51cb6f0d17c8a8b",
+        "size_bytes": 99
+      },
+      "name": "complete_prepare_module",
+      "passed": 53,
+      "python": "3.13.13",
+      "sandbox_permissions": "require_escalated for local AF_UNIX fixture",
+      "skipped": 0,
+      "tests": 53
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_staged_capture.py tests/contract/test_staged_pdf_capture.py tests/security/test_staged_pdf_capture_boundary.py tests/upstream/test_vpkb001_staged_pdf_capture.py tests/unit/test_prepare.py tests/security/test_prepare_offline.py tests/security/test_work_staging_boundary.py tests/security/test_cli_isolation.py tests/contract/test_agent_command_tree.py tests/unit/test_transaction_staging.py tests/security/test_transaction_staging_boundary.py tests/upstream/test_vpkb001_staged_transaction_inspect.py tests/unit/test_upstream_adapter_capture.py tests/security/test_upstream_adapter_boundary.py tests/unit/test_json_boundary.py --basetemp=/private/tmp/vpkb-spci-r6-focus --junitxml=/private/tmp/vpkb-spci-r6-focus.xml",
+      "duration_seconds": 10.603,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-r6-focus.xml",
+        "sha256": "d6ccfd2abc7ec21a6b3bbb6f74de5104132003714a4ddcb11a8029b110c7f5db",
+        "size_bytes": 42073
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-r6-focus.log",
+        "sha256": "6ea86036575ba1537fc98a8f70daaa8c595e2f31cb940e097dd95a4802811444",
+        "size_bytes": 421
+      },
+      "name": "focused_and_compatibility",
+      "passed": 289,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 289
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q --basetemp=/private/tmp/vpkb-spci-r6-full313 --junitxml=/private/tmp/vpkb-spci-r6-full313.xml",
+      "duration_seconds": 72.072,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-r6-full313.xml",
+        "sha256": "ac8cc1b05aea2d8d007d7e2825f5ece03ef924f09c6ea72e8761f97556008517",
+        "size_bytes": 482812
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-r6-full313.log",
+        "sha256": "df5a6b3d48e202f4c466c4e92419e3e2b602a7db359d9682cf30638fd64cc3b3",
+        "size_bytes": 2272
+      },
+      "name": "complete_python_3_13_no_deselect",
+      "passed": 1962,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 1962
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /private/tmp/vpkb-py312-venv/bin/python -m pytest -q --basetemp=/private/tmp/vpkb-spci-r6-full312 --junitxml=/private/tmp/vpkb-spci-r6-full312.xml",
+      "duration_seconds": 75.263,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-r6-full312.xml",
+        "sha256": "5f714c7e9e5b391f0ec9703a12c5f7ecae8c734b9cb4ad3b5cac9e7e93d76792",
+        "size_bytes": 482812
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-r6-full312.log",
+        "sha256": "3fec0a07751b4baa9d6a94cd5985f50eacf7b2579055499fb854478fe8cf6728",
+        "size_bytes": 2272
+      },
+      "name": "complete_python_3_12_no_deselect",
+      "passed": 1962,
+      "python": "3.12.14",
+      "skipped": 0,
+      "tests": 1962
+    }
+  ],
+  "unresolved_contract_blockers": []
+}

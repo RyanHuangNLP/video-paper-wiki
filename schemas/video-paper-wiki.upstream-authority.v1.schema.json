@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+  "title": "video-paper-wiki.upstream-authority.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile",
+    "upstream",
+    "transport",
+    "transaction"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.upstream-authority.v1"
+    },
+    "profile": {
+      "const": "claude-obsidian-transaction-inspect-9f8c119-v1"
+    },
+    "upstream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "distribution",
+        "version",
+        "commit",
+        "tree",
+        "tracked_and_untracked_clean",
+        "profile_sha256",
+        "source_snapshot_sha256"
+      ],
+      "properties": {
+        "distribution": {
+          "const": "claude-obsidian"
+        },
+        "version": {
+          "const": "2.1.1"
+        },
+        "commit": {
+          "const": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+        },
+        "tree": {
+          "const": "b00665e266988fe99138e761dbbf4da04b2ddb5a"
+        },
+        "tracked_and_untracked_clean": {
+          "const": true
+        },
+        "profile_sha256": {
+          "const": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1"
+        },
+        "source_snapshot_sha256": {
+          "const": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34"
+        }
+      }
+    },
+    "transport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bundle_file",
+        "bundle_sha256",
+        "bundle_size_bytes",
+        "content_files",
+        "stdout_sha256",
+        "stdout_size_bytes"
+      ],
+      "properties": {
+        "bundle_file": {
+          "const": "bundle.json"
+        },
+        "bundle_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "bundle_size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        },
+        "content_files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1024,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "write_path",
+              "content_file",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "write_path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "content_file": {
+                "type": "string",
+                "pattern": "^content/[0-9a-f]{64}$(?![\\s\\S])",
+                "minLength": 72,
+                "maxLength": 72
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$(?![\\s\\S])",
+                "minLength": 64,
+                "maxLength": 64
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 67108864
+              }
+            }
+          }
+        },
+        "stdout_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "stdout_size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        }
+      }
+    },
+    "transaction": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-facade.v1.schema.json"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-plan.v1.schema.json",
+  "title": "video-paper-wiki.markdown-capture-plan.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "observation",
+    "workspace_root",
+    "source_markdown_path",
+    "source_metadata_path",
+    "limits",
+    "pipeline"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.markdown-capture-plan.v1"
+    },
+    "batch_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$(?![\\s\\S])"
+    },
+    "observation": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-source-observation.v1.schema.json"
+    },
+    "workspace_root": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    },
+    "source_markdown_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "source_metadata_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_markdown_bytes",
+        "max_metadata_bytes",
+        "max_pages",
+        "max_requests"
+      ],
+      "properties": {
+        "max_markdown_bytes": {
+          "const": 8388608
+        },
+        "max_metadata_bytes": {
+          "const": 1048576
+        },
+        "max_pages": {
+          "const": 300
+        },
+        "max_requests": {
+          "const": 0
+        }
+      }
+    },
+    "pipeline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engine",
+        "version",
+        "normalization"
+      ],
+      "properties": {
+        "engine": {
+          "const": "markdown-native"
+        },
+        "version": {
+          "const": "1"
+        },
+        "normalization": {
+          "const": "preserve-exact-utf8"
+        }
+      }
+    }
+  }
+}

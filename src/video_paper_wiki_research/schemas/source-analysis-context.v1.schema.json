@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.source-analysis-context.v1.schema.json",
+  "title": "video-paper-wiki-research.source-analysis-context.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "content_sha256", "data"],
+  "properties": {
+    "schema": {"const": "video-paper-wiki-research.source-analysis-context.v1"},
+    "id": {"type": "string", "pattern": "^mp1-context-[0-9a-f]{64}$"},
+    "content_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intake",
+        "profile",
+        "local_artifacts",
+        "run_sha256",
+        "paper_id",
+        "prospective_source_id",
+        "pdf_sha256",
+        "prospective_document_path",
+        "document_sha256",
+        "pipeline_fingerprint",
+        "evidence_scope",
+        "state",
+        "capture_authorized",
+        "receipt_backed",
+        "published",
+        "blocks",
+        "omitted",
+        "prompt_sha256"
+      ],
+      "properties": {
+        "intake": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/content_ref"},
+        "profile": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/content_ref"},
+        "local_artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["document_json", "parser_config", "model_manifest", "run_manifest"],
+          "properties": {
+            "document_json": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/local_artifact"},
+            "parser_config": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/local_artifact"},
+            "model_manifest": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/local_artifact"},
+            "run_manifest": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/local_artifact"}
+          }
+        },
+        "run_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "paper_id": {"type": "string", "minLength": 1, "maxLength": 256},
+        "prospective_source_id": {"type": "string", "pattern": "^src-[A-Za-z0-9][A-Za-z0-9._-]*$"},
+        "pdf_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "prospective_document_path": {
+          "type": "string",
+          "pattern": "^\\.raw/derived/[0-9a-f]{64}/docling/[0-9a-f]{64}/document\\.json$"
+        },
+        "document_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "pipeline_fingerprint": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "evidence_scope": {"const": "staged-pdf-text"},
+        "state": {"const": "staged_extraction"},
+        "capture_authorized": {"const": false},
+        "receipt_backed": {"const": false},
+        "published": {"const": false},
+        "blocks": {
+          "type": "array",
+          "maxItems": 128,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["block_id", "text", "locator"],
+            "properties": {
+              "block_id": {"type": "string", "pattern": "^mp1-block-[0-9a-f]{64}$"},
+              "text": {"type": "string", "minLength": 1, "maxLength": 262144},
+              "locator": {"type": "string", "minLength": 1, "maxLength": 65536}
+            }
+          }
+        },
+        "omitted": {
+          "type": "array",
+          "maxItems": 20000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ref", "reason"],
+            "properties": {
+              "ref": {"type": "string", "minLength": 1, "maxLength": 4096},
+              "reason": {
+                "enum": [
+                  "block_limit",
+                  "text_budget",
+                  "non_text_node",
+                  "empty_text",
+                  "unsupported_provenance"
+                ]
+              }
+            }
+          }
+        },
+        "prompt_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"}
+      }
+    }
+  }
+}

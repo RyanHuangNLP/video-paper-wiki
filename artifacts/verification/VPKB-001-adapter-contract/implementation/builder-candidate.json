@@ -1,0 +1,107 @@
+{
+  "authenticated_upstream_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+  "baseline": {
+    "architecture_ci_run": 33461002166,
+    "architecture_merge": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+    "head": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "pr_base": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "tree": "757f33cfcfc561e919b0b5d2702e40834cb53204"
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/contracts.py": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+    "src/video_paper_wiki/upstream_adapter.py": "30c662d31a8ef77123bfe0057596bdb24e0f140951b9733f3826debcf1594f3f",
+    "tests/contract/test_upstream_authority.py": "20045d21002ba520d6f66d8668e04773ac2b029cd8600f125dd5b1fef8784001",
+    "tests/fixtures/upstream-authority/source-id-vectors.json": "adf41eb1599df42a95324c3f8c732e5a61c255a623d482e4450833a5f8f8bb93",
+    "tests/security/test_upstream_adapter_boundary.py": "02b53cdb7393508962e121bacd83baf738d20a3ddbbcc033d7d2652711aa19ba",
+    "tests/unit/test_upstream_adapter.py": "5b5c603ca519678f02485637dc871a41dcde8bfeaab0dad78f1712a7f374773b",
+    "tests/upstream/test_vpkb001_transaction_inspect.py": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817"
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "includes_raw_bytes_directly": false,
+    "sha256": "44db08d313bae3d8aa4668bc9c760cd7130fb8d74cf5664237756b329f10bcff"
+  },
+  "frozen_expected": {
+    "contract": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+    "packet": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+    "profile": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+    "schema": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+    "source_snapshot": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34"
+  },
+  "frozen_inputs": {
+    "architect_acceptance": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-architect-acceptance.json",
+      "sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827"
+    },
+    "contract": {
+      "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md",
+      "sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792"
+    },
+    "packet": {
+      "path": "docs/ai/packets/VPKB-001-adapter-contract.md",
+      "sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9"
+    },
+    "profile": {
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1"
+    },
+    "schema": {
+      "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+      "sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a"
+    }
+  },
+  "git_observation": {
+    "candidate_paths_present_in_status": [
+      "src/video_paper_wiki/contracts.py",
+      "src/video_paper_wiki/upstream_adapter.py",
+      "tests/contract/test_upstream_authority.py",
+      "tests/security/test_upstream_adapter_boundary.py",
+      "tests/unit/test_upstream_adapter.py",
+      "tests/upstream/test_vpkb001_transaction_inspect.py"
+    ],
+    "index_paths": [],
+    "note": "Existing user/untracked content was preserved and is outside this candidate."
+  },
+  "implemented_scope": [
+    "public read-only pinned transaction inspect for capture/generic/ingest",
+    "strict deterministic staging transport and bounded subprocess handling",
+    "fresh exact 21-file private execution tree and exact replacement scratch environment",
+    "authority schema semantic validation and central dispatch",
+    "isolated pinned stable_source_id helper for captured files"
+  ],
+  "limitations": [
+    "original_size_bytes is preserved but is not independently attested by upstream inspect",
+    "this candidate does not authorize apply/recover/admin, ledger merge/audit, mapper, real Vault, models, or network",
+    "local Builder environment provides Python 3.13.13 only; Python 3.12, installed-wheel smoke, independent review, and fresh four-job CI remain acceptance work"
+  ],
+  "schema": "video-paper-wiki.vpkb-001-adapter-implementation-candidate.v1",
+  "status": "builder_candidate_local_only",
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -q -p no:cacheprovider --basetemp=<PRIVATE_TMP>/focused-base-r3 --junitxml=<PRIVATE_TMP>/focused-r3.xml tests/unit/test_upstream_adapter.py tests/contract/test_upstream_authority.py tests/upstream/test_vpkb001_transaction_inspect.py tests/security/test_upstream_adapter_boundary.py",
+      "count": 52,
+      "duration_seconds": 2.93,
+      "exit_code": 0,
+      "junit": "/private/tmp/vpa-builder-final/focused-r3.xml",
+      "junit_sha256": "56d3bc441cf1b678561a610a75896bb09da5e23db695d0ffafb684b9027d959f",
+      "log": "/private/tmp/vpa-builder-final/focused-r3.log",
+      "log_sha256": "f00ede91e2d71b97c596448b3708b5e12d6997cf317855f3d018cdf2edd2c397",
+      "name": "focused",
+      "python": "3.13.13"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -q -p no:cacheprovider --basetemp=<PRIVATE_TMP>/full-base-r2 --junitxml=<PRIVATE_TMP>/full-r2.xml",
+      "count": 1713,
+      "duration_seconds": 66.02,
+      "environment_note": "AF_UNIX security cases required the already-authorized execution outside the managed sandbox; all test data remained under a short real /private/tmp base.",
+      "exit_code": 0,
+      "junit": "/private/tmp/vpa-builder-final/full-r2.xml",
+      "junit_sha256": "2c5f5594d032b583ba595717b0f312bfc316668d461d9671d379cf8e413bfd2a",
+      "log": "/private/tmp/vpa-builder-final/full-r2.log",
+      "log_sha256": "f25785c3d3702cbe37c24b37a3613d214092bbd1816f09e9f64470e072e9385b",
+      "name": "full_locked_local",
+      "python": "3.13.13"
+    }
+  ],
+  "unresolved_contract_blockers": []
+}

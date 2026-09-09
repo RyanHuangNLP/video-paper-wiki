@@ -1,0 +1,32 @@
+{
+  "status": "stable-candidate-source-stopped-awaiting-independent-review",
+  "baseline": "3e2bebb1d50928a7af95e07b4868bdbe8113cd0b",
+  "contract": "docs/ai/contracts/assessment-history-v1.md",
+  "contract_revision": 1,
+  "contract_sha256": "ff7e7830d9931c52c447a2a95818dca091cb6d5bc97184d1be1103072ecf44cb",
+  "files": {
+    "src/video_paper_wiki/assessment_history.py": "db681b6c993e12837977c91e579959d26203e6b8a21e567f2b08961827bd7694",
+    "tests/test_assessment_history.py": "00521c0823ad74615290b9749bc0639521f1e068022fadd943bdc4dea74703e1",
+    "tests/fixtures/assessment-history/complete-vectors.json": "aeb019b08807361021d12d75896bea489e38fd56abac71fe2f7a1123e012f4d3"
+  },
+  "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+  "tests": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/test_assessment_history.py tests/test_ledger_locator.py tests/contract/test_identity.py tests/contract/test_prospective_validation.py tests/unit/test_identity.py --basetemp=<TMP>/vph-builder-tests/run4 --junitxml=<TMP>/vph-builder-tests/target4.xml",
+    "environment": {
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+    },
+    "stdout": "<TMP>/vph-builder-tests/target4.log",
+    "junit": "<TMP>/vph-builder-tests/target4.xml",
+    "exit_code": 0,
+    "tests": 290,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "golden_authority": "Independent stdlib-only generator <TMP>/vph-builder-generate.py; fixed full identity preimages and digests in complete-vectors.json; no production helper used to create expected values. Synthetic cycle test is isolated graph control, not a genuine hashed persisted cycle.",
+  "remaining": [
+    "Independent Architect/Steward review",
+    "Full Python 3.12 and 3.13 acceptance, installed-wheel smoke, exact-candidate CI owned by Architect/Steward"
+  ],
+  "contract_gaps": []
+}

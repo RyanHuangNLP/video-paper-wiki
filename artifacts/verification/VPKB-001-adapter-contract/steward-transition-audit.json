@@ -1,0 +1,214 @@
+{
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+    "tree": "108188a0efcb4c0dd31a8f430b095ab07d2b83b6"
+  },
+  "blockers": [],
+  "checks": {
+    "acceptance_authorizes_architecture_only": true,
+    "ci_trigger_available_on_current_pr": true,
+    "current_facts": true,
+    "minimum_boundary_is_design_and_governance_only": true,
+    "same_commit_has_no_recursive_acceptance": true,
+    "user_files_protected": true
+  },
+  "facts": {
+    "baseline_head_exact": true,
+    "four_job_matrix_preserved": true,
+    "human_baseline_gate_not_required_for_vpkb001": true,
+    "human_baseline_gate_still_reserved_for_vpkb004_005": true,
+    "post_ci_records_untracked_and_byte_fixed": true,
+    "pr94_open_draft_integration_at_acceptance": true,
+    "user_untracked_present": true,
+    "vpkb001_architecture_permitted": true,
+    "vpkb001_production_not_authorized": true,
+    "whole_acceptance_exact_head": true,
+    "workflow_triggers_pr_to_integration": true
+  },
+  "inputs": {
+    ".github/workflows/tests.yml": {
+      "bytes": 2973,
+      "sha256": "a46548e0649e2cb830d693a17b1d39426a95dffd5878c6cc07624fcd5be22bd2"
+    },
+    "AGENTS.md": {
+      "bytes": 4537,
+      "sha256": "4ca40619cc9e1460f68c6668a6117a06755ac8d5987b40971b15e1837ac336c8"
+    },
+    "docs/ai/codex-team.md": {
+      "bytes": 11830,
+      "sha256": "eff61b73b7c225838a581bfe565f6376e656d56f616479bedf9ca3b7e9ac086b"
+    },
+    "docs/ai/task-index.yaml": {
+      "bytes": 30046,
+      "sha256": "9e9821fa6a29b2081f9f006474ee4497818fa254eafd9bb8e7eb05ef863c1fc2"
+    },
+    "docs/video-paper-wiki-development-plan.md": {
+      "bytes": 85578,
+      "sha256": "3738176a71f82464ece997ab75e0cdbd91c7d1ad08276e6072f323bf38812ea3"
+    }
+  },
+  "limits": [
+    "This GO permits preparing/reviewing an architecture freeze candidate only.",
+    "No VPKB-001 production implementation, real Vault/admin/model/network operation, PR mutation, merge, auto-merge or human gate is authorized.",
+    "The resulting architecture-freeze commit must receive fresh exact-head four-job CI and separate Architect acceptance before Builder implementation begins."
+  ],
+  "minimum_exact_path_boundary": {
+    "conditional": [
+      {
+        "condition": "Required if the new schema is placed in top-level schemas/, because the current exact schema count is 21.",
+        "path": "tests/contract/test_schemas.py"
+      },
+      {
+        "condition": "Include only if the architecture release promises the new title is callable through the production registry; otherwise defer registry integration to the Builder implementation packet and say so explicitly.",
+        "path": "src/video_paper_wiki/contracts.py"
+      },
+      {
+        "condition": "Include only if packaging rules do not already include the new schema; no dependency change is permitted.",
+        "path": "pyproject.toml"
+      },
+      {
+        "condition": "Recommended durable copy of the independent closure review; copy exact reviewed bytes and record raw/archive SHA distinction.",
+        "path": "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-whole-acceptance-steward-review.json"
+      },
+      {
+        "condition": "Use only if the packet document is not itself the complete work package; do not maintain divergent duplicate authorities.",
+        "path": "artifacts/verification/VPKB-001-adapter-contract/work-package.md"
+      }
+    ],
+    "required": [
+      "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-closure-ci-observation.json",
+      "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-closure-merge-parents.json",
+      "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-architect-acceptance.json",
+      "AGENTS.md",
+      "docs/ai/task-index.yaml",
+      "docs/ai/codex-team.md",
+      "docs/ai/packets/VPKB-001-adapter-contract.md",
+      "docs/ai/contracts/vpkb-001-adapter-contract-v1.md",
+      "schemas/video-paper-wiki.vault-adapter.v1.schema.json",
+      "tests/fixtures/contracts/valid/video-paper-wiki.vault-adapter.v1.json",
+      "tests/fixtures/contracts/invalid/video-paper-wiki.vault-adapter.v1.invalid.json",
+      "artifacts/verification/VPKB-001-adapter-contract/README.md",
+      "artifacts/verification/VPKB-001-adapter-contract/architect-freeze.json",
+      "artifacts/verification/VPKB-001-adapter-contract/builder-spec-review.json",
+      "artifacts/verification/VPKB-001-adapter-contract/steward-spec-review.json",
+      "artifacts/verification/VPKB-001-adapter-contract/freeze-candidate.json"
+    ],
+    "rule": "Architect must replace any proposed schema/fixture filename only by issuing a new exact work package before writing; no glob-based staging. The candidate manifest hashes every final path and self-excludes itself."
+  },
+  "mode": "read-only repository governance audit; only this /private/tmp report was written",
+  "must_never_mix": [
+    ".DS_Store",
+    "docs/feishu-multi-bot-phase1-plan.md",
+    "docs/hermes-subscription-collaboration-prd.md",
+    "docs/pi-feishu-cli-assessment.md",
+    "docs/video-paper-wiki-development-plan-v0.3.2.md",
+    "docs/video-paper-wiki-development-plan.md",
+    "inbox/**",
+    "tools/**",
+    "docs/seed/engine-mvp.json",
+    "docs/seed/** overlays or catalog entries",
+    "vendor/claude-obsidian/** or the gitlink pin",
+    "uv.lock",
+    "dependency upgrades or Docling/model artifacts",
+    ".github/workflows/tests.yml",
+    "existing VPKB-000 frozen contracts/schemas/catalog resources",
+    "src/** production adapter/admin/writer/audit implementation except the conditional registry-only integration",
+    "tests using a real Vault, models, network, admin or operator credentials",
+    ".work/**, real Vault bytes, credentials or approval material",
+    "retrieval gold corpus or HUMAN-GATE-BASELINE-001 decision artifacts",
+    "PR body/title/base/draft, review, ready, merge or auto-merge state"
+  ],
+  "persistence_and_recursion": {
+    "is_acceptance_recursion": false,
+    "reason": "The whole-package acceptance already binds tested head acd3821 and its merge-ref CI. A later commit merely persists that historical decision while adding a new design candidate; it must not claim that acd3821 contained its own acceptance record.",
+    "same_commit_recommended": true,
+    "successor_rule": "The combined closure-persistence/architecture-freeze head needs fresh four-job CI and a separate Architect decision for the VPKB-001 architecture freeze. That decision does not reopen or recursively re-prove VPKB-000 unless VPKB-000 bytes or its accepted limitations change.",
+    "why_not_two_commits": "A separate metadata-only closure commit would create an extra head and extra exact-head CI cycle without strengthening the already completed acd3821 decision. One bounded commit is clearer if the manifest partitions closure-history files from new VPKB-001 design files."
+  },
+  "recommended_status_updates": {
+    "AGENTS.md": "Replace the stale VPKB-000-in-progress invariant with exact acd3821 completion; permit VPKB-001 architecture/contract freeze only; retain the production implementation block until an exact frozen packet and explicit Builder scope exist.",
+    "VPKB-000": {
+      "acceptance_record": "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-architect-acceptance.json",
+      "accepted_head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+      "note": "Completion binds acd3821 and run 33456016766; the architecture-freeze successor does not rewrite that historical decision.",
+      "status": "complete"
+    },
+    "VPKB-000-projection-contracts": {
+      "accepted_head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+      "phase": "architect_accepted",
+      "status": "complete"
+    },
+    "VPKB-001": {
+      "active_packet": "VPKB-001-adapter-contract",
+      "implementation_status": "not_started",
+      "ordered_verification_slices": [
+        "adapter-contract",
+        "integrity-runtime"
+      ],
+      "phase": "architecture_contract_freeze",
+      "prerequisite_status": "satisfied-for-architecture-and-contract-freeze",
+      "status": "in_progress"
+    },
+    "codex-team": "Record acd3821/run33456016766 whole acceptance and the new architecture packet as the current handoff; do not relabel old CI as testing the successor."
+  },
+  "reviewed_at_utc": "2026-09-01T01:01:55.412954+00:00",
+  "risks": [
+    {
+      "detail": "AGENTS.md, task-index and codex-team still describe VPKB-000 as in progress; the freeze candidate must update all three consistently.",
+      "id": "stale-governance",
+      "severity": "blocker-if-unfixed"
+    },
+    {
+      "detail": "Adding a top-level schema without updating the exact 21-schema test, and without stating whether registry exposure is deferred, will make CI fail or leave an ambiguous API.",
+      "id": "schema-registry-count",
+      "severity": "blocker-if-applicable"
+    },
+    {
+      "detail": "Whole VPKB-000 acceptance permits architecture/contract work only. Do not include adapter, admin, Vault, network, writer, receipt/audit or index-builder production code.",
+      "id": "production-creep",
+      "severity": "blocker"
+    },
+    {
+      "detail": "adapter-contract must freeze and be accepted before integrity-runtime implementation; the two names remain verification slices inside one VPKB-001 package, not gates or lifecycle states.",
+      "id": "slice-order",
+      "severity": "blocker"
+    },
+    {
+      "detail": "Freeze manifest must self-exclude its own hash; post-CI acceptance is written after the tested head and carried historically in the next delivery.",
+      "id": "evidence-self-reference",
+      "severity": "blocker"
+    },
+    {
+      "detail": "The three closure records retain hashes to /private/tmp raw files. Persist the summaries and independent review; do not claim the temporary raw logs are stored in Git.",
+      "id": "raw-evidence-durability",
+      "severity": "non-blocker-with-disclosure"
+    },
+    {
+      "detail": "Current workflow triggers only PRs targeting integration/main. PR94 presently targets integration; a new PR based on the repair branch would not receive this workflow.",
+      "id": "pr-trigger",
+      "severity": "blocker-if-base-changed"
+    },
+    {
+      "detail": "HUMAN-GATE-BASELINE-001 remains not-recorded and blocks VPKB-004/005, not VPKB-001 architecture. No agent may change it.",
+      "id": "human-gate",
+      "severity": "guardrail"
+    }
+  ],
+  "schema": "video-paper-wiki.vpkb-001-architecture-transition-steward-audit.v1",
+  "verdict": "GO_FOR_VPKB_001_ARCHITECTURE_FREEZE",
+  "whole_vpkb_000_records": {
+    "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-architect-acceptance.json": {
+      "sha256": "afe0609ee6c17b87cae6233a4cca8b4e64da01f5e3265c917c49855ba2e1c82b",
+      "untracked": true
+    },
+    "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-closure-ci-observation.json": {
+      "sha256": "1eec16adcf7641e693819549ebeb8b9ff439e809c6483ef46425adbbee20c22e",
+      "untracked": true
+    },
+    "artifacts/verification/VPKB-000-projection-contracts/vpkb-000-closure-merge-parents.json": {
+      "sha256": "944a479c62329bdc16f211dee5c95109dbf3dba62d30e80439179e35e06970fe",
+      "untracked": true
+    }
+  }
+}

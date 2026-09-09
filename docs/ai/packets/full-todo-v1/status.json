@@ -1,0 +1,344 @@
+{
+  "schema": "research-wiki-remaining-todo-status.v1",
+  "recorded_at_utc": "2026-09-09T07:41:02.892844+00:00",
+  "user_authorization": "把剩余的TODO都完成了吧，cursor grok的权限我都approve",
+  "baseline_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+  "items": [
+    {
+      "id": "NPDF",
+      "objective": "Remove tracked PDF assets and generate test samples at runtime",
+      "status": "accepted-at-exact-head",
+      "dependencies": [],
+      "implementation_accepted_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "fresh_ci": {
+        "run_id": 34256770949,
+        "attempt": 1,
+        "jobs_passed": 4,
+        "tests_per_job": 2701,
+        "checkout_sha": "fceb3c6a54de3626b1a36fe683591a6ceb1ce813"
+      },
+      "external_human_gates_closed": false,
+      "candidate_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "local_validation": {
+        "python312": 2701,
+        "python313": 2701,
+        "independent_probes": 34,
+        "focused_tests": 16
+      },
+      "acceptance": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/no-pdf-v1/architect-exact-head-acceptance-r2.json",
+        "sha256": "ca45e99405da0e001635e59d3f7452fabfa828e1ad8b07a7a50b3a6e24310171"
+      },
+      "pr_body_verified": "cc5bf299f22cdf5e6682a03021792bbd4155cc659a0c95a06caaaaece0ca93d7"
+    },
+    {
+      "id": "SOURCE",
+      "objective": "Lightweight formal source binding, canonical knowledge publication and versions",
+      "status": "capture-semantics-publication-accepted-conversion-in-progress-catalog-pending",
+      "dependencies": [
+        "NPDF"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "capture": {
+          "packet": "SOURCE-CAPTURE-R1.md",
+          "freeze_sha256": "9daa95f62beadf7256dd09356232c78d3e1f8a3293536aea7b97a618963860d8",
+          "allowed_paths": 25,
+          "controller": "five_agent_config_review",
+          "lane": 1,
+          "status": "accepted-at-exact-head",
+          "implementation_owner": "root",
+          "implementation_accepted_head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+          "fresh_ci": {
+            "run_id": 34303132932,
+            "attempt": 1,
+            "jobs_passed": 4,
+            "tests_per_job": 2763,
+            "checkout_sha": "2732314fe8216e9d7a536c7b3d25f5afa22ab310"
+          },
+          "acceptance": {
+            "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/architect-exact-head-acceptance-r4.json",
+            "sha256": "5d2f47c65324a653e8a31d891d653564c563482b7b5889e16eef6b66c7042988"
+          }
+        },
+        "version_and_knowledge": {
+          "status": "semantics-publication-accepted-conversion-in-progress-catalog-pending",
+          "design": "SOURCE-CANONICAL-DESIGN-R1.md",
+          "sha256": "e46211baa9bba40f52746748757257ed49dbc3cb5c5801668824a486d900e5af",
+          "active_contract": "SOURCE-SEMANTICS-R2.md",
+          "compatibility_amendment": "SOURCE-SEMANTICS-LEGACY-BBOX-R3.md",
+          "semantics": {
+            "status": "accepted-at-exact-head",
+            "implementation_accepted_head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+            "fresh_ci": {
+              "run_id": 34311144703,
+              "attempt": 1,
+              "jobs_passed": 4,
+              "tests_per_job": 3107,
+              "checkout_sha": "2a98c14e023bf01450f6e0c015c0e2814c41e5a1"
+            },
+            "acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-exact-head-acceptance-r1.json",
+              "sha256": "28ceb71aa04c228e69fc49991223b108b1361133f9bf56c9cd034a2cdadb22c0"
+            }
+          },
+          "publication": {
+            "status": "accepted-at-exact-head",
+            "contracts": [
+              "SOURCE-PUBLICATION-R2.md",
+              "SOURCE-PUBLICATION-R3.md",
+              "SOURCE-PUBLICATION-R4.md",
+              "SOURCE-PUBLICATION-CLI-FIXTURE-R5.md"
+            ],
+            "freeze_sha256": "080b631ead1914de2a7882d404f2e0a85539772818c90ce5d333c528cb032e90",
+            "baseline": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+            "allowed_paths": 27,
+            "candidate_frozen": true,
+            "candidate_sha256": "5ad4596b9e108eda54c29bf6d231fd1dc66a60a03fb6bab1af865b7d79744402",
+            "snapshot_sha256": "443d2cf980dd74aee8be235cac40d09e55de84e700697698c35d02ef392d21fb",
+            "full_local_tests": {
+              "py312": 3285,
+              "py313": 3285
+            },
+            "wheel": {
+              "backend": "hatchling.build",
+              "schemas": 69,
+              "sha256": "4620bc6040af2b7799f26ae59d94dfd2015f9f61429361cba8b43cb1ec194dfe"
+            },
+            "local_acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-local-acceptance-r2.json",
+              "sha256": "d331ee0bf77a7145ed35b2ac341ecddb868ff960af70d7589d21506d239c1ebe"
+            },
+            "delivery_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/delivery/source",
+            "implementation_accepted_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+            "fresh_ci": {
+              "run_id": 34318336303,
+              "attempt": 1,
+              "jobs_passed": 4,
+              "tests_per_job": 3285,
+              "checkout_sha": "e209c35a1c860cc2ce304bdfb9ec107e28850ff4"
+            },
+            "acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-exact-head-acceptance-r2.json",
+              "sha256": "2ef3d01b98ff2950e83f402219dc7b38f4c3833c2b3ef70f6507221ffcd4c193",
+              "size_bytes": 3934
+            }
+          },
+          "conversion": {
+            "state": "locally-accepted-r2-pending-delivery-ci",
+            "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-conversion-v1/terminal-1/source",
+            "baseline_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+            "freeze": {
+              "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-freeze-r1.json",
+              "sha256": "6a07450b23f8714ddc40dfb829b561a010396cca94365e98067635bef0a36d2b",
+              "size_bytes": 5364
+            },
+            "candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r2.json",
+              "sha256": "b6d426a541204cb8f0191796c12ec7dca1fab0ebf2da12bb4c2823f81914719b",
+              "size_bytes": 5915
+            },
+            "rejection": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1.json",
+              "sha256": "6262eb7fa03872136e566267dea3ace0a595bc13ba9435b89819cbdc50173112",
+              "size_bytes": 2155
+            },
+            "prior_candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r1.json",
+              "sha256": "99e6eddc760f78229f806ba85584acf1dcfc5fc9e04b1d42e7f27a5def1bfb7e",
+              "size_bytes": 5004
+            },
+            "snapshot_sha256": "4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c",
+            "full_local_tests": {
+              "py312": 3383,
+              "py313": 3383
+            },
+            "full_local_reports": [
+              {
+                "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py312-r2.json",
+                "sha256": "8ef8594d62ccddfc886b955a842775ef71793a8854927a2d9a608e8f28eb6fa5",
+                "size_bytes": 101353
+              },
+              {
+                "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py313-r2.json",
+                "sha256": "27b6a551bb226082cdaabf4b9816748d4ceed35908c3f89e40b477166b9198da",
+                "size_bytes": 101420
+              }
+            ],
+            "rejection_taxonomy_supplement": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1-taxonomy-supplement.json",
+              "sha256": "d8a802b2b35dbd1496be7db117b11fff21cc590e56a14bd18865eaad02bde550",
+              "size_bytes": 1781
+            },
+            "local_acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-local-acceptance-r2.json",
+              "sha256": "d10fefbe7d55b0ebf040a357f64c66fc0f3349a3c1f023ea54a3b89c0d7338de",
+              "size_bytes": 7026
+            },
+            "wheel": {
+              "backend": "hatchling.build",
+              "schemas": 70,
+              "sha256": "1573dbe1dec356b8b4fb14c9f268f748219cc0cdfba7de555b4ca129cccdaac5"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "DISCOVERY",
+      "objective": "Online paper preview, observation, version selection and candidate expansion",
+      "status": "preview-accepted-expansion-pending",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "preview": {
+          "packet": "DISCOVERY-PREVIEW-R1.md",
+          "allowed_paths": 23,
+          "controller": "cursor_lanes34_controller",
+          "lane": 2,
+          "engineering_dependencies": [
+            "NPDF"
+          ],
+          "candidate_revision": 2,
+          "candidate_sha256": "40ca4e5a1ca8dc18dff292ecdeab7993d62c14d4f540ddbaf979c9cd359e5db5",
+          "focused_tests": 141,
+          "independent_reviews": "two-GO-and-combined-integration-GO",
+          "status": "accepted-at-exact-head",
+          "implementation_accepted_head": "97a533a08222d59d46a8de5dfd4047050cd945c5",
+          "fresh_ci": {
+            "run_id": 34306674801,
+            "attempt": 1,
+            "jobs_passed": 4,
+            "tests_per_job": 2904,
+            "checkout_sha": "317aae52627dc6df4e90a8ba6bf47b68dccba378"
+          },
+          "acceptance": {
+            "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/combined-integration-r1/architect-exact-head-acceptance-r1.json",
+            "sha256": "d2630b2797638f0f5690ac2c1cf9bd851e8babed728929e669345316fb583d6b",
+            "size_bytes": 5060
+          }
+        },
+        "expansion": {
+          "status": "design-gap-review-complete-not-frozen",
+          "review": "artifacts/verification/manual-pdf-v1/full-todo-v1/w3-design-gap-review-r1.json",
+          "sha256": "ad216fb75bda7ad0af303eb5325a69ef9dcedb64e304450779cc571ed0c2321d"
+        }
+      }
+    },
+    {
+      "id": "CODE",
+      "objective": "Official repository, commit, code/config evidence and mapping",
+      "status": "design-gap-review-complete-not-frozen",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "design": "CODE-DESIGN-R1.md"
+    },
+    {
+      "id": "DOMAIN",
+      "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "CODE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "SYNTHESIS",
+      "objective": "Cited full articles and source-bound reproduction plans",
+      "status": "pending-contract",
+      "dependencies": [
+        "DOMAIN"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "QUALITY",
+      "objective": "Corpus, independent gold interfaces, model runs and semantic evaluation",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "PRODUCT",
+      "objective": "Obsidian views, status and all-namespace backup/restore integration",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    }
+  ],
+  "constraints": {
+    "zero_egress_python": true,
+    "no_committed_pdfs": true,
+    "no_models_or_ocr_install": true,
+    "catalog_count": 67,
+    "no_real_vault_mutation": true,
+    "no_merge": true
+  },
+  "runtime": {
+    "status": "local-codex-implementation-active",
+    "implementation_owner": "root",
+    "external_builder_launches": false,
+    "prior_host_runtime_question": "superseded-by-explicit-local-implementation-choice",
+    "ownership_record": "LOCAL-CODEX-OWNERSHIP-R2.json"
+  },
+  "source_publication_exact_head_acceptance": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-exact-head-acceptance-r2.json",
+    "sha256": "2ef3d01b98ff2950e83f402219dc7b38f4c3833c2b3ef70f6507221ffcd4c193",
+    "size_bytes": 3934
+  },
+  "source_publication_delivery": {
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "ci_run": 34318336303,
+    "ci_tests_per_job": 3285,
+    "ci_jobs": 4,
+    "state": "accepted-at-exact-head"
+  },
+  "source_conversion": {
+    "state": "r1-rejected-boundary-code-r2-repair-pending",
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-conversion-v1/terminal-1/source",
+    "baseline_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-freeze-r1.json",
+      "sha256": "6a07450b23f8714ddc40dfb829b561a010396cca94365e98067635bef0a36d2b",
+      "size_bytes": 5364
+    },
+    "candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r1.json",
+      "sha256": "99e6eddc760f78229f806ba85584acf1dcfc5fc9e04b1d42e7f27a5def1bfb7e",
+      "size_bytes": 5004
+    },
+    "rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1.json",
+      "sha256": "6262eb7fa03872136e566267dea3ace0a595bc13ba9435b89819cbdc50173112",
+      "size_bytes": 2155
+    }
+  }
+}

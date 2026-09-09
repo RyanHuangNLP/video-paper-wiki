@@ -1,0 +1,239 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-builder-spec-review.v2",
+  "baseline": {
+    "head": "57c2519425dbccd6bb48a0f82e77699e17afcfb6",
+    "tree": "c77a7c6ccc8bae3292611c2b24c33255f248710c"
+  },
+  "checks": [
+    {
+      "evidence": "All requested contract/schema/fixture/work-package/R1-review hashes and sizes match; every work-package linked candidate and carried record also matches.",
+      "id": "EXACT-BYTES",
+      "status": "PASS"
+    },
+    {
+      "evidence": "The two public APIs remain implementable without proposal mapping, upstream execution, Vault access, CLI or alternate layout authority.",
+      "id": "API-IMPLEMENTABILITY",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Facade validation, proposal phase, three exact byte maps, batch grammar, bundle binding/limit, digest grouping and both result variants are fully decidable before starting the filesystem session.",
+      "id": "PURE-PREFLIGHT-ORDER",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Field projection and json.dumps parameters remain byte-identical to the accepted transaction-inspect adapter domain; no JCS/LF/alternate content-file encoding was introduced.",
+      "id": "BUNDLE-BYTE-PARITY",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Bundle preserves proposal write order; physical writes use a strictly sorted unique digest set and exact byte equality protects an adversarial same-digest collision.",
+      "id": "DEDUP-COLLISION",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Retained descriptors plus named reopen checks around every installation and both complete-set barriers close the R1 cross-call replacement gap.",
+      "id": "MULTIFILE-LINEAGE",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Bundle is unreachable from this invocation until all expected content is exact in the retained lineage; failures may leave safe content/orphan directories but do not roll back or overwrite shared digest files.",
+      "id": "BUNDLE-LAST-PARTIAL-FAILURE",
+      "status": "PASS"
+    },
+    {
+      "evidence": "already_staged is true only when every unique content and bundle install reports exact reuse in the same authenticated session; any creation/repair makes it false.",
+      "id": "IDEMPOTENCE",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Closed schema and object-only validator can enforce full strings, strict digest order/uniqueness, content-file suffix binding and safe deep-copy semantics.",
+      "id": "RESULT-SCHEMA-SEMANTICS",
+      "status": "PASS"
+    },
+    {
+      "evidence": "The future path ceiling now includes staging.py and its established unit/security tests; the helper is internal, fixed-layout and can reuse current fd/atomic internals without changing stage_bytes signature or behavior.",
+      "id": "ADDITIVE-STAGING-SCOPE",
+      "status": "PASS"
+    },
+    {
+      "evidence": "The matrix now explicitly covers replacement before, between and after content installs, between last content and bundle, and final-set verification, alongside operation types, limits, errors, compatibility, no subprocess/network and unchanged Vault.",
+      "id": "TEST-MATRIX",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Proposal mapping, operation result, apply/recover/admin, Vault, ledger/integrity, mapper/index/retrieval, Git/PR/merge and human gates remain excluded.",
+      "id": "BOUNDARY",
+      "status": "PASS"
+    }
+  ],
+  "checks_run": [
+    {
+      "command": "hash/size recomputation over exact core, R1 review, work-package linked inputs and carried evidence",
+      "result": "all matched"
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest tests/contract/test_schemas.py",
+      "result": "44 passed in 0.17s"
+    },
+    {
+      "command": "disposable /private/tmp retained-fd and named no-follow batch replacement probe",
+      "result": "replacement changed dev/inode for batch, transaction-inspect and content; detectable without repo/Vault mutation"
+    }
+  ],
+  "findings": [],
+  "inputs": {
+    "architecture_work_package": {
+      "actual_sha256": "34daa89c2a30ac04fe1082ca8faa38f1a1089da43b03254917f2a4f6cae5414f",
+      "actual_size_bytes": 15152,
+      "expected_sha256": "34daa89c2a30ac04fe1082ca8faa38f1a1089da43b03254917f2a4f6cae5414f",
+      "expected_size_bytes": 15152,
+      "matches": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json"
+    },
+    "contract": {
+      "actual_sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "actual_size_bytes": 16847,
+      "expected_sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "expected_size_bytes": 16847,
+      "matches": true,
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md"
+    },
+    "invalid_fixture": {
+      "actual_sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "actual_size_bytes": 710,
+      "expected_sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "expected_size_bytes": 710,
+      "matches": true,
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json"
+    },
+    "r1_builder_review": {
+      "actual_sha256": "9ff4dc799ebe3b0dc7a5baf495869efd3457fb175193d97a51eadcb8926d9260",
+      "actual_size_bytes": 9315,
+      "expected_sha256": "9ff4dc799ebe3b0dc7a5baf495869efd3457fb175193d97a51eadcb8926d9260",
+      "expected_size_bytes": 9315,
+      "matches": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/builder-spec-review-r1.json"
+    },
+    "schema": {
+      "actual_sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "actual_size_bytes": 2470,
+      "expected_sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "expected_size_bytes": 2470,
+      "matches": true,
+      "path": "schemas/video-paper-wiki.transaction-staging.v1.schema.json"
+    },
+    "valid_fixture": {
+      "actual_sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "actual_size_bytes": 1186,
+      "expected_sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "expected_size_bytes": 1186,
+      "matches": true,
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json"
+    }
+  },
+  "non_blocking_implementation_notes": [
+    "Complete-set verification should require every expected file and exact bytes while permitting unrelated digest-addressed orphan content explicitly allowed by the contract.",
+    "A post-final-check actor race remains an explicit contract limitation; implementation must not claim an OS sandbox.",
+    "Tests should assert the additive helper is not exported as public API and all pre-existing stage_bytes tests remain unchanged."
+  ],
+  "r1_blocker_closure": {
+    "disposable_probe": "Replacing the retained batch with a fresh same-name batch produced different dev/inode values for batch, transaction-inspect and content on named no-follow reopening; all replacements were detectable.",
+    "evidence": [
+      "One internal multi-file session retains checkout, .work, batch, transaction-inspect and content descriptors for the entire ordered request.",
+      "Named no-follow reopen and dev/inode equality checks occur before and after every content installation, before and after bundle installation, and before return.",
+      "Every expected content file is reopened and exact-byte checked before bundle publication; the expected content plus bundle are checked again before success.",
+      "Writes use retained descriptors and existing atomic-install internals, so a fresh same-name directory cannot continue the original session.",
+      "The implementation ceiling now includes additive staging.py work and existing staging unit/security tests while freezing public stage_bytes behavior."
+    ],
+    "finding": "STAGING-MULTIFILE-IDENTITY-001",
+    "status": "CLOSED_BY_REVISION_2"
+  },
+  "repository_effects": {
+    "git_mutation": false,
+    "network": false,
+    "only_written_path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/builder-spec-review-r2.json",
+    "production_or_test_edit": false,
+    "real_vault": false
+  },
+  "reviewed_at_utc": "2026-09-01T07:07:10.646263Z",
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Builder"
+  },
+  "revision": 2,
+  "verdict": "GO",
+  "work_package_linked_inputs": [
+    {
+      "matches_work_package": true,
+      "name": "accepted_facade_contract",
+      "path": "docs/ai/contracts/transaction-facade-v1.md",
+      "sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67",
+      "size_bytes": 21769
+    },
+    {
+      "matches_work_package": true,
+      "name": "accepted_facade_schema",
+      "path": "schemas/video-paper-wiki.transaction-facade.v1.schema.json",
+      "sha256": "8239fbec8be17093ed4594bd1f69adde6fd21ee37e641408d1dfb6beb6cf62f8",
+      "size_bytes": 10418
+    },
+    {
+      "matches_work_package": true,
+      "name": "accepted_transaction_profile",
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "size_bytes": 5731
+    },
+    {
+      "matches_work_package": true,
+      "name": "contract",
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "size_bytes": 16847
+    },
+    {
+      "matches_work_package": true,
+      "name": "invalid_fixture",
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json",
+      "sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "size_bytes": 710
+    },
+    {
+      "matches_work_package": true,
+      "name": "schema",
+      "path": "schemas/video-paper-wiki.transaction-staging.v1.schema.json",
+      "sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "size_bytes": 2470
+    },
+    {
+      "matches_work_package": true,
+      "name": "valid_fixture",
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json",
+      "sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "size_bytes": 1186
+    },
+    {
+      "matches_work_package": true,
+      "name": "carried_record_1",
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/ci-observation.json",
+      "sha256": "35e7ef971ebb7d0b504705f650a8842d8800a7793a7ba72874d800c49ce7e5e6",
+      "size_bytes": 12561
+    },
+    {
+      "matches_work_package": true,
+      "name": "carried_record_2",
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/merge-parents.json",
+      "sha256": "021c76c8f2bcad6e31e443335e766be9dbdf789ca0fb3b674397fd360d1ffc97",
+      "size_bytes": 4259
+    },
+    {
+      "matches_work_package": true,
+      "name": "carried_record_3",
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-acceptance.json",
+      "sha256": "752a94704d167b3f6619267e87059e6e7dffd44ddc980b9ed5b9a74dfc301c0e",
+      "size_bytes": 9995
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "architect_post_observation": {
+    "file": "failed-attempt1-source-after.json",
+    "observed_at": "2026-08-31T18:23:29.456677+00:00",
+    "raw_sha256": "f4760d002300a635f958e09fc110417d72402a7c647409072ff730d76ce1cb6c",
+    "unchanged": true
+  },
+  "attempt": 1,
+  "failure_analysis": "Both old security guards scan arbitrary source text for the substring requests, incorrectly matching the required address_requests field. No network client import was observed. The assertions were not bypassed; an authorized bounded guard correction and complete new-snapshot retest are required.",
+  "frozen_contract_revision": 1,
+  "frozen_contract_sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67",
+  "merge_authorized": false,
+  "normalization": "Literal repository and /private/tmp path prefixes replaced in log copies; raw SHA256/byte counts retained. Raw JUnit with personal host metadata is not committed. In these normalized log copies only, per-line trailing ASCII spaces/tabs and excess blank lines at EOF are also removed; internal whitespace and content are retained. Raw digests remain unchanged.",
+  "packet": "VPKB-000-transaction-facade",
+  "remote_ci": "not run for this working-tree attempt",
+  "runs": [
+    {
+      "command": {
+        "argv": [
+          "<TEMP>/vpkb-py312-venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "--basetemp=<TEMP>/vtf12-final",
+          "--junitxml=<TEMP>/vtf12-final.xml"
+        ],
+        "cwd": "<REPOSITORY>",
+        "environment": {
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "stdout_and_stderr": "<TEMP>/vtf12-final.log"
+      },
+      "failed_tests": [
+        {
+          "classname": "tests.security.test_cli_isolation",
+          "name": "test_agent_source_has_no_network_client_imports"
+        },
+        {
+          "classname": "tests.security.test_work_staging_boundary",
+          "name": "test_no_network_clients_or_boundary_bypasses"
+        }
+      ],
+      "junit_counts": {
+        "errors": 0,
+        "failures": 2,
+        "skipped": 0,
+        "tests": 1164
+      },
+      "normalized_log": "failed-attempt1-python312.normalized.log",
+      "normalized_log_sha256": "3c58645a29df5ecbe6ac8513b11fe6ee9a6a49852f4b08cfc67607a17128ee10",
+      "passed": 1162,
+      "permissions": "require_escalated for disposable AF_UNIX fixtures",
+      "process_exit_code": 1,
+      "process_exit_evidence": "Architect tool-session completion reported to Steward",
+      "pytest_reported_seconds": 61.36,
+      "python_minor": "3.12",
+      "raw_junit_bytes": 164877,
+      "raw_junit_sha256": "d27b02d8dc5bed7612acf5cf0fe8328e6ef5c3596f0b46b019bfe8dd07458020",
+      "raw_log_bytes": 4436,
+      "raw_log_sha256": "50446527012a2d066a6ee8b5cfed584c0b0f41056ebf885ff80a4ecf9c45c9e0"
+    },
+    {
+      "command": {
+        "argv": [
+          "<REPOSITORY>/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "--basetemp=<TEMP>/vtf13-final",
+          "--junitxml=<TEMP>/vtf13-final.xml"
+        ],
+        "cwd": "<REPOSITORY>",
+        "environment": {
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "stdout_and_stderr": "<TEMP>/vtf13-final.log"
+      },
+      "failed_tests": [
+        {
+          "classname": "tests.security.test_cli_isolation",
+          "name": "test_agent_source_has_no_network_client_imports"
+        },
+        {
+          "classname": "tests.security.test_work_staging_boundary",
+          "name": "test_no_network_clients_or_boundary_bypasses"
+        }
+      ],
+      "junit_counts": {
+        "errors": 0,
+        "failures": 2,
+        "skipped": 0,
+        "tests": 1164
+      },
+      "normalized_log": "failed-attempt1-python313.normalized.log",
+      "normalized_log_sha256": "dea6d0225cd4e1d194da36b045bf5a0f1bc6367b5c5fcb766ea78976f00659e3",
+      "passed": 1162,
+      "permissions": "require_escalated for disposable AF_UNIX fixtures",
+      "process_exit_code": 1,
+      "process_exit_evidence": "Steward exec session 13938 completed with exit_code=1",
+      "pytest_reported_seconds": 58.37,
+      "python_minor": "3.13",
+      "raw_junit_bytes": 164877,
+      "raw_junit_sha256": "49c0977949fd6cdd5f4bd035151aca48e53d44d5740a739126789068d1e17a34",
+      "raw_log_bytes": 4426,
+      "raw_log_sha256": "b8c9f7a6a26a5fc76670b4828fd9023b811879a4eeba5acaa85e3b5ee2a9d479",
+      "recorded_environment": {
+        "baseline_head": "9d87dc67b949fc0cef5ac64b91a2d15aea8ec0fe",
+        "command": [
+          "<REPOSITORY>/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-q",
+          "--basetemp=<TEMP>/vtf13-final",
+          "--junitxml=<TEMP>/vtf13-final.xml"
+        ],
+        "cwd": "<REPOSITORY>",
+        "exit_code": 1,
+        "explicit_environment": {
+          "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1"
+        },
+        "finished_at": "2026-08-31T18:18:04.207770+00:00",
+        "implementation": "CPython",
+        "junit_counts": {
+          "errors": 0,
+          "failures": 2,
+          "skipped": 0,
+          "tests": 1164
+        },
+        "junit_time_seconds": 58.365,
+        "machine": "arm64",
+        "packet": "VPKB-000-transaction-facade",
+        "permission_context": "require_escalated: existing AF_UNIX fixtures require socket bind unavailable in sandbox; no real Vault/admin/models",
+        "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
+        "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+        "reference_snapshot_sha256": "493b88c84413045c8fec1a3dd073d30914cc8dc021d160567be8a8723d659fef",
+        "source_count": 272,
+        "source_kind": "working-tree",
+        "source_unchanged": true,
+        "started_at": "2026-08-31T18:17:05.709845+00:00",
+        "versions": {
+          "jsonschema": "4.26.0",
+          "pypdf": "6.16.2",
+          "pytest": "9.1.1"
+        }
+      }
+    }
+  ],
+  "snapshot_sha256": "493b88c84413045c8fec1a3dd073d30914cc8dc021d160567be8a8723d659fef",
+  "source_count": 272,
+  "source_manifest": "failed-attempt1-source.json",
+  "source_stability": "Steward independently compared all 272 source files before and after the Python 3.13 run; both equal this snapshot. Architect also captured a post-both-runs identical 272-file observation. These are before/after comparisons, not continuous monitoring; the inventory does not freeze other files.",
+  "status": "failed; preserved history, never acceptance of a later source revision"
+}

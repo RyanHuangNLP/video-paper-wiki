@@ -1,0 +1,266 @@
+{
+  "schema": "video-paper-wiki.source-capture-acceptance-plan.v1",
+  "review": "source-capture-r1-independent-acceptance-plan",
+  "reviewed_on": "2026-09-09",
+  "reviewer": {
+    "agent": "cursor-lanes34-controller",
+    "role": "controller/independent-read-only-review"
+  },
+  "status": "READY_FOR_IMPLEMENTATION_CANDIDATE_REVIEW",
+  "scope": "Independent acceptance and adversarial test plan for the frozen SOURCE-CAPTURE-R1 public operations. No product source or lane tests were edited.",
+  "inputs": {
+    "packet": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-R1.md",
+      "sha256": "5bf912cc2aec0fec951168779d6336c95733c25be3e4377a611adb55296cacf8",
+      "size_bytes": 14565
+    },
+    "allowlist": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-allowed-paths-r1.json",
+      "sha256": "f692648d42a18d3c310b310e5dba8ef19372dc032bf0cc9b99872cfe7bb75ece",
+      "path_count": 24
+    },
+    "source_capture_spec_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-spec-review-r1.json"
+    },
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source",
+    "baseline_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+    "baseline_tree": "be13818d9a8d8afd0630672d58b952250dec6e10",
+    "vendor_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+  },
+  "current_helper_bindings": [
+    {
+      "helper": "video_paper_wiki.staging.stage_bytes",
+      "purpose": "create-only canonical plan/request/payload staging and idempotent byte checks"
+    },
+    {
+      "helper": "video_paper_wiki.captured_snapshot.capture_snapshot",
+      "purpose": "complete .raw/captured sibling inventory, selected digest bytes and all-exits directory lineage"
+    },
+    {
+      "helper": "video_paper_wiki.upstream_adapter.inspect_pinned_transaction",
+      "purpose": "inspect the real pinned generic capture transaction for create disposition"
+    },
+    {
+      "helper": "video_paper_wiki.operation_result.bind_operation_result",
+      "purpose": "bind externally supplied result and before/after descriptors without applying or synthesizing"
+    },
+    {
+      "helper": "video_paper_wiki.upstream_adapter.verify_pinned_source_id",
+      "purpose": "verify the actual pinned source ID for the captured .md path and digest"
+    },
+    {
+      "helper": "video_paper_wiki.publication.stage_publication_request / inspect_publication",
+      "purpose": "stage and inspect the distinct source-ledger registration publication"
+    }
+  ],
+  "isolated_fixture": {
+    "root": "fresh temporary checkout with a .work component; no repository seed/catalog mutation",
+    "lightweight_workspace": "validated workspace containing exactly papers/<light_paper_id>/source.md and source.json",
+    "source_bytes": "small UTF-8 Markdown with non-ASCII text and exact trailing bytes retained",
+    "source_json": "valid lightweight metadata with page anchors/spans/hashes and the declared title",
+    "batch_ids": {
+      "capture_batch": "md-capture-r1",
+      "capture_operation": "md-capture-op",
+      "admission_batch": "md-admit-r1",
+      "admission_operation": "md-admit-op"
+    },
+    "distinct_operation_assertion": "admission batch/operation IDs must never equal or replace the capture IDs",
+    "vault": "isolated fixture Vault initialized with the pinned vendor helper when a receipt-backed chain is required",
+    "external_approval": "explicit test fixture supplied by the test; the implementation must never generate or default it",
+    "snapshots": "byte/stat/inventory snapshots for source inputs, .work batch, Vault, catalog/index and private notes before every mutating candidate operation"
+  },
+  "public_operation_matrix": {
+    "plan": [
+      {
+        "id": "PLAN_VALID_EXACT",
+        "action": "plan with valid workspace, light paper ID, batch ID and optional canonical/version declaration",
+        "expected": "exit 0; awaiting_external_approval; canonical plan in .work/<batch>/markdown-source/plan.json; source observation bound; no payload, Vault, index or PDF read",
+        "postcondition": "repeat with identical source bytes and declaration returns exact same bytes; no overwrite"
+      },
+      {
+        "id": "PLAN_SOURCE_DRIFT",
+        "action": "change source.md or source.json after plan; retry or continue prepare",
+        "expected": "MARKDOWN_SOURCE_STALE; prior plan remains byte-identical; no new authority"
+      },
+      {
+        "id": "PLAN_METADATA_AND_PAGE_VALIDATION",
+        "action": "missing/duplicate page anchor, wrong span/hash, stale metadata hash, page 0, >300 pages, no usable text, NUL or invalid UTF-8",
+        "expected": "MARKDOWN_SOURCE_INVALID or MARKDOWN_SOURCE_STALE; refusal occurs before any generated file or external write"
+      },
+      {
+        "id": "PLAN_LIMITS",
+        "action": "source.md > 8 MiB, source.json > 1 MiB, field/string over bound, invalid batch/paper IDs or invalid version label",
+        "expected": "closed refusal with stable code; no traceback and no partial success envelope"
+      },
+      {
+        "id": "PLAN_PATH_BOUNDARY",
+        "action": "workspace root traversal, symlinked workspace/ancestor, hardlink or special source file, path that becomes unsafe before normalization",
+        "expected": "WORK_PATH_UNSAFE or WORK_PATH_ESCAPE; no outside read/write"
+      }
+    ],
+    "prepare": [
+      {
+        "id": "PREPARE_REQUIRES_EXTERNAL_REF",
+        "action": "prepare a valid plan without approval-ref",
+        "expected": "MARKDOWN_APPROVAL_REQUIRED; no payload, request or authority"
+      },
+      {
+        "id": "PREPARE_APPROVAL_FIELD_TAMPER",
+        "action": "tamper approval plan_sha256, batch_id, paper_id, markdown_sha256, unknown field, wrong schema or legacy approval-ref",
+        "expected": "MARKDOWN_APPROVAL_MISMATCH or MARKDOWN_PLAN_INVALID; no output overwrite"
+      },
+      {
+        "id": "PREPARE_VALID_FIXED_SET",
+        "action": "prepare with exact external approval-ref",
+        "expected": "exit 0; exact markdown-source/<digest>.md and request.json; request binds canonical plan/ref bytes and fixed payload slot; awaiting_capture_inspect"
+      },
+      {
+        "id": "PREPARE_IDEMPOTENT_AND_CONFLICTING_RETRY",
+        "action": "repeat exact prepare, then retry same batch with changed approval or source bytes",
+        "expected": "same exact bytes are reused; changed bytes produce MARKDOWN_CAPTURE_CONFLICT or MARKDOWN_REQUEST_MISMATCH and preserve the first files"
+      },
+      {
+        "id": "PREPARE_FIXED_SLOT_RACES",
+        "action": "rename/replace markdown-source directory, plan, request or payload during source re-read, validation, staging and exception cleanup",
+        "expected": "WORK_PATH_UNSAFE wins over a child parser/approval error; every named ancestor and expected byte is rechecked on success and exception paths"
+      },
+      {
+        "id": "PREPARE_COMPLETE_SET",
+        "action": "inject unknown entries, unexpected empty directories, alternate payload extension or request without exact payload",
+        "expected": "MARKDOWN_REQUEST_MISMATCH or WORK_PATH_UNSAFE; no success authority and no deletion of competing files"
+      }
+    ],
+    "inspect": [
+      {
+        "id": "INSPECT_CREATE_GENERIC_CAPTURE",
+        "action": "inspect prepared request when .raw/captured/<digest>.md is absent",
+        "expected": "exit 0; disposition=create; stored_path exact .raw/captured/<digest>.md; generic transaction staging and pinned upstream authority bind capture-op; status awaiting_operator_capture; no apply, receipt, source registration or Vault mutation"
+      },
+      {
+        "id": "INSPECT_REUSE_EXACT_MARKDOWN",
+        "action": "inspect same prepared request after exact .raw/captured/<digest>.md exists",
+        "expected": "exit 0; disposition=reuse; source_id verifies; transaction_staging and upstream_authority are null; no applied operation ID, receipt or registration is invented"
+      },
+      {
+        "id": "INSPECT_ALTERNATE_EXTENSION_CONFLICT",
+        "action": "plant same digest as .pdf, .txt, second .md, or multiple matching siblings",
+        "expected": "MARKDOWN_CAPTURE_CONFLICT or captured-snapshot refusal; never silently select an extension or treat multiple files as reuse"
+      },
+      {
+        "id": "INSPECT_CHANGED_OR_UNSAFE_CAPTURE",
+        "action": "captured .md bytes differ, mode/path is unsafe, symlink/hardlink/FIFO exists, or captured directory contains unknown entries",
+        "expected": "MARKDOWN_CAPTURE_CONFLICT or WORK_PATH_UNSAFE; no authority that claims current bytes"
+      },
+      {
+        "id": "INSPECT_OPERATION_AND_REQUEST_BINDING",
+        "action": "invalid operation ID, wrong request slot, wrong payload digest/path, changed plan/ref hash, cross-batch request or legacy/PDF/code authority",
+        "expected": "MARKDOWN_REQUEST_MISMATCH, MARKDOWN_AUTHORITY_MISMATCH, WORK_PATH_UNSAFE or schema refusal; exact error precedence documented and stable"
+      },
+      {
+        "id": "INSPECT_ALL_EXITS_LINEAGE",
+        "action": "replace batch, markdown-source, request, payload, Vault/raw or captured directory after a child parser/adapter error and after a success path",
+        "expected": "WORK_PATH_UNSAFE on both paths, even when replacement bytes are identical; foreign replacements are never removed"
+      },
+      {
+        "id": "INSPECT_READ_ONLY_BOUNDARY",
+        "action": "snapshot Vault, source ledger, catalog/index and user notes before/after create and reuse inspection",
+        "expected": "byte/stat/inventory exact equality; only .work inspection artifacts may be created"
+      }
+    ],
+    "bind_result": [
+      {
+        "id": "BIND_RESULT_VALID_CREATE",
+        "action": "bind authority create with actual generic capture result and before/after descriptors",
+        "expected": "operation-result-authority.v1 binds exact inspected transaction, capture-op, .md path, digest, size, mode and actual after state; no apply or Vault mutation"
+      },
+      {
+        "id": "BIND_RESULT_REJECT_REUSE",
+        "action": "bind a reuse authority or authority with null child transaction",
+        "expected": "closed refusal; reuse does not manufacture an operation-result authority"
+      },
+      {
+        "id": "BIND_RESULT_TAMPER",
+        "action": "wrong operation/batch, business path, digest, size, mode, expected old hash, before/after inventory, extra write/read/input path or runtime result attachment",
+        "expected": "stable result/authority mismatch; no output claiming capture execution"
+      },
+      {
+        "id": "BIND_RESULT_LINEAGE_RACE",
+        "action": "replace authority/result/before/after named ancestor during validation and then raise a child error",
+        "expected": "WORK_PATH_UNSAFE takes precedence; competing files remain untouched"
+      }
+    ],
+    "admit": [
+      {
+        "id": "ADMIT_REQUIRES_RECEIPT_BOOTSTRAP",
+        "action": "admit against missing or non-receipt-backed canonical chain",
+        "expected": "RECEIPT_BOOTSTRAP_REQUIRED with genesis/bootstrap next action; no publication staging and no source record claim"
+      },
+      {
+        "id": "ADMIT_REJECT_MANUAL_RAW_ORPHAN",
+        "action": "manually place exact .raw/captured/<digest>.md without matching bound capture result",
+        "expected": "capture authority/result refusal; raw bytes are not proven capture and cannot be registered"
+      },
+      {
+        "id": "ADMIT_CREATE_WITH_BOUND_CAPTURE_RESULT",
+        "action": "admit create authority with matching result and current exact .md bytes",
+        "expected": "source_registration_prepared; distinct admission batch/operation IDs; standard source-ledger publication request staged; awaiting_operator_publication; published=false and receipt_backed=false; no apply"
+      },
+      {
+        "id": "ADMIT_REUSE_WITH_PRIOR_CAPTURE_PROOF",
+        "action": "admit reuse authority citing prior exact-content capture proof",
+        "expected": "same source bytes may be registered through a new admission publication; reuse does not invent a capture transaction or receipt"
+      },
+      {
+        "id": "ADMIT_CAPTURE_RESULT_BINDING",
+        "action": "wrong capture result path/hash/size/mode/operation, changed after file, missing runtime binding or unrelated business write",
+        "expected": "MARKDOWN_AUTHORITY_MISMATCH or MARKDOWN_SOURCE_CONFLICT; no publication request"
+      },
+      {
+        "id": "ADMIT_ALREADY_REGISTERED",
+        "action": "exact source ID/path/hash is already receipt-claimed in the current audited ledger",
+        "expected": "source_already_registered with no staged mutation; unrelated or incompatible rows refuse"
+      },
+      {
+        "id": "ADMIT_SOURCE_ID_AND_TITLE",
+        "action": "verify pinned source ID and source record fields",
+        "expected": "source ID is computed/verified for exact .md path and digest; title comes from bound observation; ingested_at is valid canonical UTC; no PDF read or version/claim authority"
+      },
+      {
+        "id": "ADMIT_LINEAGE_AND_READ_ONLY",
+        "action": "replace source-ledger snapshot, raw path, Vault ancestors or staged publication inputs during success and exception paths",
+        "expected": "WORK_PATH_UNSAFE or source conflict; no real Vault/catalog/index/user-note mutation and no foreign replacement cleanup"
+      }
+    ]
+  },
+  "cli_boundary_matrix": [
+    "Unknown formal-source command, missing required option, duplicate option, extra positional argument and invalid enum return exit 2 with one structured refusal envelope.",
+    "Malformed JSON, duplicate keys, NaN/Infinity, invalid UTF-8, recursive/deep JSON, missing file, directory-as-file and over-limit input return stable refusal without traceback.",
+    "Batch, operation, paper, event and path values reject empty strings, whitespace/newlines, traversal, slash/backslash, unsupported Unicode and suffix ambiguity before normalization.",
+    "Legacy PDF/code commands, legacy approval-ref, ingest-plan, paper-record, Docling and cross-kind authority objects are rejected; no fallback adapter is selected.",
+    "Staged conflicts return exit 75; ordinary malformed or boundary refusals return exit 2; no refusal prints success or future-applied language.",
+    "Success output uses the established JSON envelope, names exact paths/hashes and preserves published=false/receipt_backed=false for pending admission."
+  ],
+  "invariants_after_every_case": [
+    "No operation calls vpwiki-admin, network, model runtime or PDF submission; only the pinned vendor helper is allowed in isolated fixture setup/application probes.",
+    "No files outside the approved temporary checkout .work boundary are created or changed.",
+    "Prior valid bytes and competing files remain byte-identical after refusal or conflict.",
+    "No capture operation creates a canonical source claim, source-ledger receipt, approval-ref or applied transaction receipt.",
+    "Admission IDs and nested publication IDs are distinct from capture IDs and bind the new admission request exactly.",
+    "All named ancestors, descriptors, complete sets, hashes and retained directory lineages are rechecked on success and exception paths."
+  ],
+  "minimum_acceptance_commands": [
+    "focused unit/contract tests for markdown_source_contracts, markdown_source_io and markdown_source",
+    "focused research CLI tests for formal-source plan/prepare/inspect/bind-result/admit",
+    "focused security tests for path, symlink, hardlink, special-file, replacement and lineage races",
+    "isolated upstream fixture tests for create, apply evidence binding, reuse and source-ledger registration",
+    "installed-wheel resource check for five new schemas and preservation of existing schema bytes",
+    "zero-egress/import-closure check and full source/Vault/catalog/index before-after inventory check"
+  ],
+  "review_limitations": [
+    "The plan does not assert implementation function names beyond existing helper bindings; exact new module signatures must be checked against the candidate handoff.",
+    "No probe was executed because the new Markdown implementation is not present in the frozen terminal-1 source yet.",
+    "No test result, candidate hash, CI run or Architect acceptance is implied by this plan."
+  ],
+  "architect_acceptance": false,
+  "builder_dispatch": false
+}

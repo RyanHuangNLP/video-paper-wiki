@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.catalog-rows.v1.schema.json",
+  "title": "video-paper-wiki.catalog-rows.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "ddl_sha256",
+    "generation_sha256",
+    "tables"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.catalog-rows.v1"
+    },
+    "ddl_sha256": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+    },
+    "generation_sha256": {
+      "type": "string",
+      "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+    },
+    "tables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "columns",
+          "rows"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^(?:[a-z][a-z0-9_]*)$(?![\\s\\S])"
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^(?:[a-z][a-z0-9_]*)$(?![\\s\\S])"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": [
+                  "string",
+                  "integer",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
