@@ -63,6 +63,9 @@ def _command_from_argv(args: list[str]) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = _JsonArgumentParser(prog="vpwiki-research", add_help=True, allow_abbrev=False)
     sub = parser.add_subparsers(dest="command")
+    from video_paper_wiki_research.formal_source import register_commands
+
+    register_commands(sub)
     pdf = sub.add_parser("pdf", allow_abbrev=False)
     pdf_sub = pdf.add_subparsers(dest="pdf_cmd", required=True)
 

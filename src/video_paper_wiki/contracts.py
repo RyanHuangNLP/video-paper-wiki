@@ -815,7 +815,11 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 
 
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
-    if schema_name in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
+    if schema_name.startswith("video-paper-wiki.markdown-"):
+        from video_paper_wiki.markdown_source_contracts import check_document
+
+        check_document(document, schema_name)
+    elif schema_name in {"video-paper-wiki.transaction-facade.v1", "video-paper-wiki.operation-head.v1"}:
         from video_paper_wiki.transaction_contracts import _check_transaction, _check_operation_head
 
         (_check_transaction if schema_name == "video-paper-wiki.transaction-facade.v1" else _check_operation_head)(document)
@@ -913,6 +917,10 @@ def validate_document(document: object, expected_schema: str | None = None) -> d
             keyword="type",
         )
     schema_name = expected_schema or document.get("schema")
+    if isinstance(schema_name, str) and schema_name.startswith("video-paper-wiki.markdown-"):
+        from video_paper_wiki.markdown_source_contracts import json_preflight
+
+        json_preflight(document)
     if not isinstance(schema_name, str) or not schema_name:
         raise _schema_error(
             "document is missing schema",
