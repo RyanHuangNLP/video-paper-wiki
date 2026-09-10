@@ -11,6 +11,27 @@ ENVELOPE_EXCEPTIONS = {
 RUNTIME_OVERLAYS = {
     ("properties", "runtime", "oneOf", str(index)) for index in range(3)
 }
+CODE_COMMON_SCHEMA = "video-paper-wiki.code-proof-common.v1.schema.json"
+CODE_CONDITIONAL_OVERLAYS = {
+    ("$defs", "request_target", branch) for branch in ("if", "then")
+} | {
+    ("$defs", name, "allOf", str(index), branch)
+    for name, count in (("git_stopped_at", 2), ("status_payload", 8))
+    for index in range(count)
+    for branch in ("if", "then")
+}
+
+
+def _assert_code_overlay_is_inside_closed_object(schema, node, path) -> None:
+    parent = schema["$defs"][path[1]]
+    assert parent["type"] == "object"
+    assert parent["additionalProperties"] is False
+    expected_keys = {"properties", "required"} if path[-1] == "if" else {"properties"}
+    assert set(node) == expected_keys
+    assert node["properties"]
+    assert set(node["properties"]) <= set(parent["properties"])
+    if path[-1] == "if":
+        assert node["required"] == list(node["properties"])
 
 
 def _walk(value: object, path: tuple[str, ...] = ()):
@@ -33,8 +54,21 @@ def test_every_declared_object_schema_is_closed(schema_paths: list[Path]) -> Non
                 elif (schema_path.name == "video-paper-wiki.projection-generation.v1.schema.json"
                       and path in RUNTIME_OVERLAYS):
                     assert "additionalProperties" not in node
+                elif schema_path.name == CODE_COMMON_SCHEMA and path in CODE_CONDITIONAL_OVERLAYS:
+                    _assert_code_overlay_is_inside_closed_object(schema, node, path)
                 else:
                     assert node.get("additionalProperties") is False, f"{schema_path}:{'/'.join(path)}"
+
+
+def test_code_conditional_overlays_only_refine_closed_objects() -> None:
+    schema = load_json(Path("schemas") / CODE_COMMON_SCHEMA)
+    observed = set()
+    for node, path in _walk(schema):
+        if (node.get("type") == "object" or "properties" in node) and node.get("additionalProperties") is not False:
+            assert path in CODE_CONDITIONAL_OVERLAYS
+            _assert_code_overlay_is_inside_closed_object(schema, node, path)
+            observed.add(path)
+    assert observed == CODE_CONDITIONAL_OVERLAYS
 
 
 def test_envelope_open_payloads_are_the_only_exceptions() -> None:

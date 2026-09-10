@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json",
+  "title": "video-paper-wiki.code-acquisition-intent.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.code-acquisition-intent.v1"
+    },
+    "kind": {
+      "const": "code-acquisition-intent"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "\\A(?:ce1:code-acquisition-intent:[0-9a-f]{64})\\Z",
+      "minLength": 92,
+      "maxLength": 92
+    },
+    "data": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.code-proof-common.v1.schema.json#/$defs/intent_data"
+    }
+  },
+  "required": [
+    "schema",
+    "kind",
+    "id",
+    "data"
+  ]
+}
