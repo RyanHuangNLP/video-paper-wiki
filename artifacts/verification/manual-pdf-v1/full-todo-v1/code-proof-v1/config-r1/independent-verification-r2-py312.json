@@ -1,0 +1,100 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-fixture-verification-r2.v1",
+  "fixture_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json",
+  "fixture_sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37",
+  "fixture_size_bytes": 125029,
+  "runtime": {
+    "python": "3.12.14",
+    "production_imported": false,
+    "network_or_provider": false
+  },
+  "r1_preservation": {
+    "r1_fixture_sha256": "a835382c7924969ee1d1b12b26e38fae126cc3ee03770ecfc23937b1b5915b24",
+    "r1_fixture_unchanged": true,
+    "success_vectors": 7,
+    "refusal_vectors": 31,
+    "semantic_and_source_fields_preserved": true
+  },
+  "success_replay": {
+    "vectors": 7,
+    "value_spans_checked": 50,
+    "nodes_checked": 61,
+    "all_value_spans_complete_exact_path": true,
+    "container_containment": true,
+    "array_element_source_order": true,
+    "root_spans_complete": true,
+    "declaration_key_correspondence": true,
+    "coordinate_and_hash_checks": true
+  },
+  "supplementary_groups": {
+    "toml_transition_matrix_r2": {
+      "source_sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+      "case_count": 26,
+      "embedded_content_self_contained": true
+    },
+    "dynamic_offset_vectors_r2": {
+      "source_sha256": "6a1d0215e994f0f4d4c559eb0c4e859944645899d78a6617372acc0dfbe470f8",
+      "vector_count": 9,
+      "embedded_content_self_contained": true
+    }
+  },
+  "critical_span_assertions": [
+    {
+      "vector": "json-nested-lf",
+      "path": "",
+      "raw": "{\n  \"optimizer\": {\n    \"name\": \"AdamW\",\n    \"learning_rate\": 1e-4,\n    \"betas\": [0.9, 0.999],\n    \"weight_decay\": 0.01\n  },\n  \"schedule\": {\n    \"warmup_steps\": 1000,\n    \"gamma\": 0.95\n  }\n}",
+      "byte_start": 0,
+      "byte_end": 189,
+      "raw_sha256": "fa5202130f026f41645d5e7df9cfd0428b69b8804cd6a894aa66c23dffcf301b"
+    },
+    {
+      "vector": "json-unicode-crlf-tabs",
+      "path": "",
+      "raw": "{\r\n\t\"学习率\": 1e-4,\r\n\t\"备注\": \"β\\n\",\r\n\t\"empty\": {},\r\n\t\"list\": [true, null, \"\", []]\r\n}",
+      "byte_start": 0,
+      "byte_end": 91,
+      "raw_sha256": "e84668d6b541b0cee83e98eafec60226a1983de1382dd45d7c6619707a107ea7"
+    },
+    {
+      "vector": "json-unicode-crlf-tabs",
+      "path": "/list",
+      "raw": "[true, null, \"\", []]",
+      "byte_start": 68,
+      "byte_end": 88,
+      "raw_sha256": "6397c10c451b4a0f5b88c014f5b02631ce66bd6b1cf1927f9ed3362fc942dff7"
+    },
+    {
+      "vector": "json-pointer-escaping",
+      "path": "",
+      "raw": "{\"a/b\": {\"~key\": 1}, \"\\u0065\": \"é\", \"empty\": []}",
+      "byte_start": 0,
+      "byte_end": 49,
+      "raw_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+    },
+    {
+      "vector": "toml-nested-lf",
+      "path": "/optimizer/betas",
+      "raw": "[0.9, 0.999]",
+      "byte_start": 56,
+      "byte_end": 68,
+      "raw_sha256": "5b0398c132464cfdfc206dc8f5f5cf5d62ded41c2447326cdc7565d9104dd54c"
+    },
+    {
+      "vector": "toml-unicode-crlf-inline",
+      "path": "/model/nested/betas",
+      "raw": "[0.9, 0.999,]",
+      "byte_start": 117,
+      "byte_end": 130,
+      "raw_sha256": "e198b947c1629dfeb0afe12f979b7fbc763a15eefb6870c322676a5770fe790c"
+    },
+    {
+      "vector": "toml-unicode-crlf-inline",
+      "path": "/model/nested/empty",
+      "raw": "[]",
+      "byte_start": 140,
+      "byte_end": 142,
+      "raw_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ],
+  "result": "PASS_R2_EXACT_VALUE_SPANS_AND_EMBEDDED_SUPPLEMENTS"
+}

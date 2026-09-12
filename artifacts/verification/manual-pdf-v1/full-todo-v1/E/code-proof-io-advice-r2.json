@@ -1,0 +1,382 @@
+{
+  "$schema": "full-todo.code-proof-io-advice-r2.v1",
+  "packet": "CODE-DESIGN",
+  "revision": "R2-git-proof-bundle-io-review-read-only",
+  "recorded_at_utc": "2026-09-09T09:59:46Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent read-only code proof and source I/O reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Design advice only. No production source, tests, Git state, network, connector, real Vault, or human relation review was mutated.",
+  "verdict": "DESIGN_ADVICE_READY_PENDING_ARCHITECT_FREEZE",
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90",
+      "size_bytes": 5206
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-observation-contract-advice-r1.json",
+      "sha256": "cd75bbca34cb14d43b177b46bd4c34fbae53c6119028fd3c5fa080de9bb45597",
+      "size_bytes": 23497
+    },
+    {
+      "path": "src/video_paper_wiki/code_evidence_contracts.py",
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "size_bytes": 10125
+    },
+    {
+      "path": "src/video_paper_wiki/staged_code_capture.py",
+      "sha256": "f3f713c47740c8ddf83168a777c6e8bed71dde017d2a60c2c32be222de0530bb",
+      "size_bytes": 15134
+    },
+    {
+      "path": "src/video_paper_wiki/secure_io.py",
+      "sha256": "2fa1674354ab57ef7e90d20303aa5739c232f6e0b039598c51237a8879fec03b",
+      "size_bytes": 15126
+    },
+    {
+      "path": "schemas/video-paper-wiki.code-evidence-manifest.v1.schema.json",
+      "sha256": "d6faf83a8316a63f6abd50cbea8cb322a85b74cfc310888caea0af082c25aeb7",
+      "size_bytes": 4398
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/source-git-show-verification-r4.json",
+      "sha256": "cb469682ce0bf40000f70f090187aacaa6a4fddbbf4442c90c33a70cd74a3cbb",
+      "size_bytes": 11218
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-code-scope-review-r1.json",
+      "sha256": "2b60f8d0222ef2664909081d6710172f33426a179626f48b15dcb0fafa24e2b5",
+      "size_bytes": 23891
+    }
+  ],
+  "observed_boundary": {
+    "existing_code_contract": "code_evidence_contracts.py validates strict UTF-8 text metadata, normalized snippet hashes, a portable repository/full 40-hex commit/path origin, and content/proposal/manifest identities. The v1 origin cannot represent a 64-hex Git SHA-256 commit.",
+    "existing_capture_io": "staged_code_capture.py retains the prepared request, plan and payload file identities in one inspection and passes the caller-supplied payload to content-addressed transaction staging. It does not prove that payload bytes are the Git blob at the declared origin, and it has no multi-file Git lineage container.",
+    "existing_file_safety": "secure_io.read_regular_file uses no-follow parent/child reads, bounded reads and before/after identity checks; parse_strict_json rejects BOMs, duplicate keys, floats, non-finite constants and trailing data under the current JSON limits.",
+    "prior_external_evidence": "The prior source-git-show verification records SHA-1 blob IDs plus ordinary SHA-256 and size comparisons from an external read-only git show. It is evidence of an external procedure, not a public Python Git dependency or a multi-file observation contract.",
+    "compatibility_implication": "A SHA-256 repository commit must remain a 64-hex typed value in the proof and handoff. It cannot be truncated, re-encoded as a SHA-1, or silently placed in code-evidence-manifest.v1; SHA-256 source proof needs a successor manifest/binding or an explicit raw-capture-only state."
+  },
+  "design_decision": {
+    "purpose": "Define a bounded local, uncompressed Git object proof bundle that an approved host or operator may supply as data, while the public Python verifier proves object self-consistency, one commit/tree lineage, complete requested target membership, and exact source bytes without running Git or using a network.",
+    "trust_boundary": "Git object hashes prove the supplied bytes are self-consistent objects under the selected object format. They do not prove that a hosting service owns the canonical repository, that a ref points to the commit, or that a paper officially claims the repository. Hosting assertions and independent relation review remain separate evidence.",
+    "recommendation": "Freeze the bundle, observation, and handoff schemas together. Do not dispatch implementation until SHA-256 compatibility, exact source spans, bundle snapshot rules, and target mode policy are resolved.",
+    "non_goals": [
+      "No agent-side GitHub or Git fetcher, clone, archive download, remote ref lookup, shell command, or recursive repository traversal.",
+      "No compressed packfile, zlib loose-object transport, executable hook, config import, model loading, weight download, or arbitrary provider response parser.",
+      "No automatic officiality decision or publication. A host assertion is retained as an assertion and reviewed independently.",
+      "No mutation of code-evidence-manifest.v1, legacy locators, real Vault state, or existing capture transaction semantics in place."
+    ]
+  },
+  "proof_bundle": {
+    "schema": "video-paper-wiki.code-git-proof-bundle.v1",
+    "transport": "LOCAL_DIRECTORY_UNCOMPRESSED_V1",
+    "root_layout": {
+      "manifest": "manifest.v1.json",
+      "object_body_pattern": "objects/<lowercase_git_oid>.body",
+      "body_meaning": "Each body file contains the exact uncompressed Git object body. The manifest records object_type and body_size; the verifier reconstructs type + ASCII space + decimal body_size + NUL + body bytes before hashing.",
+      "forbidden": [
+        ".pack",
+        ".idx",
+        "tar",
+        "zip",
+        "gzip",
+        "zlib",
+        "symlinked bundle component",
+        "nested bundle root"
+      ],
+      "root_policy": "The root and every component are regular directories/files beneath the approved .work boundary. No component is followed through a symlink. The bundle is read as one retained local snapshot."
+    },
+    "manifest_required_fields": [
+      "schema",
+      "bundle_id",
+      "bundle_sha256",
+      "object_format",
+      "repository",
+      "commit_oid",
+      "root_tree_oid",
+      "objects",
+      "targets",
+      "budgets",
+      "hosting_assertion",
+      "created_at"
+    ],
+    "object_record": {
+      "required": [
+        "object_type",
+        "oid",
+        "body_file",
+        "body_size_bytes",
+        "body_sha256",
+        "framed_sha256"
+      ],
+      "object_type_enum": [
+        "commit",
+        "tree",
+        "blob"
+      ],
+      "oid_rule": "oid is lowercase and has exactly 40 hex characters for sha1 or 64 for sha256; every object in one bundle uses the selected object_format.",
+      "body_hash_rule": "body_sha256 is ordinary SHA-256 over the exact uncompressed body bytes. framed_sha256 is ordinary SHA-256 over the Git object header and body. For object_format=sha256 the Git oid equals framed_sha256; for sha1 the oid is the separate SHA-1 digest of the same framed bytes.",
+      "deduplication": "An OID appears at most once. A blob body may be referenced by several distinct logical target paths, but each target retains its own tree path proof."
+    },
+    "commit_and_tree_proof": {
+      "commit": "The commit object is present and its first tree header resolves exactly to root_tree_oid. The parser retains parent OIDs and author/committer headers as data; it does not verify signatures or execute hooks.",
+      "trees": "The root tree and every intermediate tree needed by every requested path are present. Each raw tree body is hash-checked, parsed with Git's binary entry format, checked for valid names/no duplicate names/canonical ordering, and linked by the exact mode, entry name and child OID in the path walk.",
+      "target_membership": "A present target ends in a tree entry with the requested exact POSIX path and an allowed regular blob mode. A missing target retains the deepest proven parent tree and the exact missing edge; it never becomes a successful source target.",
+      "object_set": "The complete declared object set is exactly the commit, the path-walk trees, and the blob bodies for present blob targets. Unreferenced object records and omitted required path-walk objects refuse the bundle; unrelated entries inside a supplied tree body do not require their child objects.",
+      "canonicalization": "The manifest is strict UTF-8, BOM-free, duplicate-key-free, canonical JSON bytes, and contains no unknown fields. Object and target records are sorted by their canonical keys before bundle_sha256 is computed."
+    },
+    "hosting_assertion": {
+      "meaning": "An optional bounded assertion that a provider/operator associated repository owner/name, commit_oid and perhaps a ref. It is not a cryptographic property of the Git object and cannot upgrade officiality.",
+      "fields": [
+        "provider",
+        "repository",
+        "commit_oid",
+        "ref",
+        "assertion_kind",
+        "assertion_sha256",
+        "attestation_bytes_sha256"
+      ],
+      "rules": [
+        "repository and commit_oid must equal the bundle values; a different host assertion is a typed repository/commit mismatch.",
+        "assertion_sha256 is SHA-256 of canonical assertion fields and only protects the retained assertion bytes. It is never substituted for oid, body_sha256, framed_sha256 or bundle_sha256.",
+        "No public Python code resolves provider URLs or validates provider signatures. A bundle without a hosting assertion is self-consistent but origin-unbound and cannot be presented as official source evidence."
+      ]
+    }
+  },
+  "hash_semantics": {
+    "object_format": "The request and bundle select exactly one of sha1 or sha256. Do not accept shortened OIDs, uppercase OIDs, mixed-format object records, or implicit algorithm negotiation.",
+    "separate_digests": {
+      "git_oid": "Git object identity under the selected object format, computed from the typed Git header plus exact body.",
+      "raw_sha256": "Ordinary SHA-256 over source blob body bytes; this is the value carried into source capture and is distinct from the Git blob OID.",
+      "normalized_sha256": "Existing UTF-8 LF-normalized source digest; it describes a derived text view and cannot replace raw_sha256 or git_oid.",
+      "framed_sha256": "Ordinary SHA-256 over the Git typed header plus body; retained to make the object framing explicit even when the selected Git object format is SHA-1.",
+      "bundle_sha256": "Ordinary SHA-256 over canonical manifest bytes plus the sorted declared object body bytes and their canonical relative names; no archive/compression implementation is implied.",
+      "hosting_assertion_sha256": "Ordinary SHA-256 over the canonical retained host assertion. It proves only assertion-byte identity."
+    },
+    "sha256_transition": "If a provider supplies a compatibility SHA-1 for a SHA-256 repository, retain it only in an explicitly typed compatibility field if a later schema freezes that rule. v1 must never use it as the primary commit/tree/blob identity or silently map a 64-hex commit into the legacy 40-hex field.",
+    "raw_body_check": "For every object, verify body file size, body_sha256, framed_sha256 and selected-format oid before parsing. For every blob target, require raw_sha256 == body_sha256 and preserve bytes byte-for-byte through the handoff."
+  },
+  "observation_lineage": {
+    "schema": "video-paper-wiki.code-observation.v1",
+    "one_session_rule": "One observation retains one request, one bundle snapshot, one repository, one object_format, one commit_oid and one root_tree_oid. All target records and path walks must come from that same retained bundle session.",
+    "identity_fields": [
+      "request_sha256",
+      "bundle_sha256",
+      "repository",
+      "object_format",
+      "commit_oid",
+      "root_tree_oid",
+      "target_set_sha256",
+      "hosting_assertion_sha256"
+    ],
+    "target_set": "target_set_sha256 is SHA-256 over canonical sorted exact requested {ordinal, role, path, capability} records. Observation targets must equal the request set exactly: no omitted, duplicate, silently reordered, or extra target may be installed.",
+    "retained_snapshot": "Open the bundle root and all manifest/object files with no-follow, bounded retained I/O. Record directory/file identities and exact bytes, recheck them after hash/parsing and before returning, and fail closed on replacement, disappearance, mode change, size change or byte drift. A second target call must not be able to switch to another directory generation.",
+    "statuses": {
+      "present": "Exact requested path, commit/tree path walk, allowed mode/type, raw body and requested capability are proven.",
+      "missing": "The path is absent at a proven parent tree; retain bounded inventory scope and no blob handoff.",
+      "inaccessible": "The bundle or object cannot be read safely; retain the requested path and refusal reason.",
+      "mismatch": "Repository, commit, format, tree, path, mode, type, OID or digest disagrees; retain requested and observed values.",
+      "unsafe": "A symlink, submodule, unsupported tree/mode, unsafe bundle path or changed retained input is observed; no source handoff."
+    },
+    "completeness": "OBSERVED_COMPLETE requires every requested target to be present with all required raw proof. Any missing, inaccessible, mismatch, unsafe, normalized-only or byte-limit target yields explicit partial/refusal and cannot be published as complete.",
+    "order_independence": "Target order and any connector arrival order do not affect canonical observation bytes. The verifier installs one complete observation only after the complete set and final retained-snapshot check pass."
+  },
+  "target_admission": {
+    "path_rules": "Relative normalized POSIX paths only: no leading slash, empty/dot/dot-dot component, backslash, NUL, URL query/fragment, wildcard, encoded traversal, or recursive pattern. Compare exact requested path bytes; do not normalize an ambiguous path after observation.",
+    "git_modes": {
+      "100644": "Allowed regular non-executable blob for README, citation, license, implementation, configuration and entrypoint roles when the raw text capability is valid.",
+      "100755": "Allowed regular executable blob only for implementation or entrypoint roles after the request explicitly permits executable source. Preserve the mode in proof and handoff; existing code-evidence-manifest.v1 alone does not represent it.",
+      "120000": "Symlink entry; unsafe for v1. Retain bounded link-target bytes/oid only as refusal evidence and never dereference or hand off the target.",
+      "160000": "Gitlink/submodule entry; unsafe for v1. Do not treat the gitlink commit OID as a source blob or traverse the nested repository.",
+      "040000_or_other": "Tree is allowed only as an intermediate path-walk object; a requested target ending at a tree or any other mode refuses with a typed mode/type error."
+    },
+    "regular_file_rule": "A present target must be Git type blob, mode 100644 or an explicitly permitted 100755, exact path match, body hash/OID match, and strict source capability validation. Local filesystem executable bits are never used to infer Git mode.",
+    "duplicate_content_rule": "Equal raw bytes or equal blob OIDs at distinct requested paths remain distinct logical targets and distinct origin paths. A content-addressed capture may deduplicate storage but cannot merge path evidence.",
+    "normalized_only_rule": "A normalized web excerpt or text-only connector result may be retained as normalized-only evidence, but it cannot satisfy raw blob proof, source handoff, config exact-span evidence, or an inspected Git source manifest."
+  },
+  "source_handoff": {
+    "schema": "video-paper-wiki.code-source-file-handoff.v1",
+    "required_binding": [
+      "observation_id",
+      "request_sha256",
+      "bundle_sha256",
+      "target_ordinal",
+      "repository",
+      "object_format",
+      "commit_oid",
+      "root_tree_oid",
+      "path",
+      "mode",
+      "git_type",
+      "blob_oid",
+      "raw_sha256",
+      "size_bytes"
+    ],
+    "payload_rule": "The handoff payload is the exact blob body read from the retained proof bundle, not a checkout path or caller-supplied replacement. Verify raw_sha256 before placing it in the existing prepared/<sha256>.blob input.",
+    "sha1_compatibility": "For object_format=sha1, a verified handoff may feed the existing code capture after retaining all new proof fields in the observation/handoff successor.",
+    "sha256_compatibility": "For object_format=sha256, do not construct code-evidence-manifest.v1 because its commit contract is 40 hex. Freeze a successor manifest/binding carrying object_format and the 64-hex commit, or return a typed raw-capture-only result. Never truncate, hash, or substitute the commit.",
+    "mode_preservation": "Retain 100755 versus 100644 through publication and relation review even if legacy code payload capture stores only text bytes. A capture that drops mode/type loses proof and must not be upgraded to official source evidence.",
+    "handoff_refusal": "No handoff for symlinks, submodules, trees, unsupported modes, incomplete observations, normalized-only content, invalid UTF-8 text, raw-byte mismatch, or an unbound host assertion when repository binding is required."
+  },
+  "config_evidence": {
+    "schema": "video-paper-wiki.config-evidence.v1",
+    "formats": [
+      "json",
+      "toml"
+    ],
+    "raw_binding": "Every config record names the observation/target, blob_oid, raw_sha256, size_bytes, parser_profile_sha256 and exact source bytes. A config record from a normalized view is insufficient.",
+    "span_record": {
+      "required": [
+        "json_pointer_or_toml_key_path",
+        "byte_start",
+        "byte_end",
+        "line_start",
+        "column_start",
+        "line_end",
+        "column_end",
+        "raw_span_sha256",
+        "normalized_line_span_sha256"
+      ],
+      "coordinate_rule": "Byte offsets and columns are computed against the exact raw UTF-8 bytes; line ranges use the existing UTF-8 LF normalization. byte_end is exclusive and every offset/range must be within the blob.",
+      "verification_rule": "The public verifier slices the retained raw bytes and recomputes raw_span_sha256. It recomputes the normalized line digest with the existing code snippet rule. Caller-provided excerpts are advisory and never replace these checks.",
+      "semantic_rule": "JSON pointers use RFC 6901 escaping; TOML key paths are ordered key components. The span must resolve to the parser node/value named by the path; key/value spans are retained separately when required. Span lists are canonical sorted and bounded."
+    },
+    "json_profile": "Strict UTF-8, no BOM, RFC 8259 whitespace, no duplicate keys, no floats/NaN/Infinity under the current safe profile, no trailing data, bounded depth/nodes/string/bytes, and a span-producing tokenizer cross-checked against the parsed data. stdlib JSON parsing alone is insufficient because it does not provide trusted node spans.",
+    "toml_profile": "Bounded TOML data-only parsing with duplicate-key and syntax rejection, no imports/interpolation/object constructors/scripts, supported scalar/table/array types frozen explicitly, and a span-producing lexer cross-checked against the parsed data. tomllib may validate data syntax but its returned values alone do not provide exact source spans.",
+    "claim_rule": "Capability or mismatch claims cite exact verified spans and source hash. A missing key is only an observed absence when the requested config inventory and bounded search scope are complete; an unfetched file remains unverified."
+  },
+  "budgets": {
+    "status": "Prospective starting profile for Architect freeze; every value must be copied into the request and charged before observation installation. No silent truncation.",
+    "max_targets": 32,
+    "max_path_bytes": 512,
+    "max_path_components": 64,
+    "max_objects": 4096,
+    "max_tree_entries_parsed": 65536,
+    "max_object_body_bytes": 67108864,
+    "max_total_object_body_bytes": 134217728,
+    "max_manifest_bytes": 1048576,
+    "max_config_bytes": 1048576,
+    "max_config_depth": 64,
+    "max_config_nodes": 4096,
+    "max_config_string_bytes": 65536,
+    "max_span_records": 256,
+    "max_span_bytes": 1048576,
+    "charging": "Count request targets and declared object records before reading bodies; charge each retained body and span bytes before allocation/publication; limit overflow is a typed refusal. The existing 64 MiB code payload ceiling remains the hard per-source cap unless a successor explicitly changes it."
+  },
+  "error_taxonomy": [
+    {
+      "code": "CODE_PROOF_BUNDLE_INVALID",
+      "case": "Noncanonical JSON, unknown field, duplicate key, missing required object, invalid path, symlinked bundle component, compressed/archived transport, or manifest digest mismatch."
+    },
+    {
+      "code": "CODE_PROOF_OBJECT_HASH_MISMATCH",
+      "case": "Body size, body_sha256, framed_sha256, selected-format Git OID, type, or object header does not agree."
+    },
+    {
+      "code": "CODE_PROOF_OBJECT_FORMAT_MISMATCH",
+      "case": "Mixed SHA-1/SHA-256 objects, short/uppercase OID, wrong OID length, or an untyped compatibility OID is used as primary identity."
+    },
+    {
+      "code": "CODE_PROOF_COMMIT_TREE_MISMATCH",
+      "case": "Commit tree header, root tree, intermediate tree path walk, tree entry mode/name/OID, or canonical tree body is inconsistent."
+    },
+    {
+      "code": "CODE_PROOF_TARGET_SET_MISMATCH",
+      "case": "Omitted, duplicate, extra, reordered-without-canonicalization, or differently scoped target record."
+    },
+    {
+      "code": "CODE_PROOF_LINEAGE_MISMATCH",
+      "case": "Per-file observations disagree on repository, object format, commit, root tree, request, bundle snapshot, or retained generation."
+    },
+    {
+      "code": "CODE_PROOF_LOCAL_BUNDLE_UNSAFE",
+      "case": "Bundle root/object replacement, disappearance, mode/identity/size/byte change, unsafe component, or directory generation race."
+    },
+    {
+      "code": "CODE_PROOF_REPOSITORY_ASSERTION_MISMATCH",
+      "case": "Hosting assertion disagrees with the self-consistent bundle repository or commit. A self-consistent unbound bundle remains non-official evidence."
+    },
+    {
+      "code": "CODE_PROOF_TARGET_UNSAFE",
+      "case": "Symlink, submodule/gitlink, tree target, unsupported mode, executable role violation, path traversal, or unsafe type."
+    },
+    {
+      "code": "CODE_PROOF_CAPABILITY_INSUFFICIENT",
+      "case": "Normalized-only text, metadata-only result, invalid source text, raw byte mismatch, or missing mode/type proof is offered for source handoff."
+    },
+    {
+      "code": "CODE_PROOF_CONFIG_UNSAFE",
+      "case": "Unsupported format, duplicate key, parser construct, limit overflow, trailing data, span outside bytes, span digest mismatch, or span/value path disagreement."
+    },
+    {
+      "code": "CODE_PROOF_LEGACY_COMMIT_UNREPRESENTABLE",
+      "case": "A SHA-256 commit is forced into the 40-hex legacy code-evidence-manifest.v1 origin."
+    },
+    {
+      "code": "CODE_PROOF_COMPLETE_SET_REQUIRED",
+      "case": "A partial target set or missing/inaccessible target is published or handed off as complete."
+    }
+  ],
+  "acceptance_cases": [
+    "A local SHA-1 bundle with one commit, root tree, path-walk trees and two blobs verifies framed Git object hashes, raw SHA-256 bytes and complete same-commit target membership.",
+    "A local SHA-256 bundle verifies 64-hex commit/tree/blob identities and remains distinct from ordinary body SHA-256; no field truncation or SHA-1 substitution occurs.",
+    "Mutating only the hosting assertion changes its assertion digest and repository-binding result while leaving self-consistent object proofs unchanged; the result is not officiality.",
+    "One observation over several targets fails closed when an object file or bundle directory is replaced between target scans; separate per-file calls cannot split one observation across lineages.",
+    "An absent target retains the deepest proven tree edge and bounded inventory scope; an extra/omitted/duplicate target is rejected before installation.",
+    "Equal blob bytes at two distinct paths remain two target records, two exact tree walks and two logical origin paths.",
+    "A mode-100755 implementation/entrypoint source succeeds when explicitly permitted, while the same mode at an unpermitted role, mode-120000 symlink, mode-160000 submodule, and requested tree each refuse without dereference.",
+    "CRLF source preserves raw_sha256 and blob OID while normalized line metadata and line-span digest follow existing UTF-8-LF rules.",
+    "A normalized-only provider excerpt cannot create a byte-verified handoff or Git source manifest.",
+    "A SHA-256 source target refuses legacy code-evidence-manifest.v1 with CODE_PROOF_LEGACY_COMMIT_UNREPRESENTABLE and remains available for a successor/raw-capture-only path.",
+    "Malformed tree ordering, duplicate tree names, wrong parent tree, forged path, wrong blob OID, wrong body length and mixed object formats each produce the named typed refusal.",
+    "JSON duplicate keys, BOM, floats/NaN, trailing bytes, deep/nodal overflow, and TOML duplicate/unsupported constructs refuse without execution; valid JSON/TOML spans are checked from raw byte offsets and normalized line hashes.",
+    "Source code imports contain no subprocess/socket/urllib/Git invocation for bundle validation; public tests prove zero network, zero process spawn and no real-Vault write."
+  ],
+  "proposed_files": {
+    "schemas": [
+      "schemas/video-paper-wiki.code-git-proof-bundle.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation-common.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation-request.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation.v1.schema.json",
+      "schemas/video-paper-wiki.code-source-file-handoff.v1.schema.json",
+      "schemas/video-paper-wiki.code-relation-review.v1.schema.json",
+      "schemas/video-paper-wiki.config-evidence.v1.schema.json",
+      "schemas/video-paper-wiki.code-evidence-manifest.v2.schema.json"
+    ],
+    "implementation": [
+      "src/video_paper_wiki/code_git_proof.py",
+      "src/video_paper_wiki/code_observation_contracts.py",
+      "src/video_paper_wiki/code_observation.py",
+      "src/video_paper_wiki/config_evidence.py",
+      "src/video_paper_wiki/staged_code_capture.py",
+      "src/video_paper_wiki/commands/prepare.py"
+    ],
+    "tests_and_fixtures": [
+      "tests/contract/test_code_git_proof_contracts.py",
+      "tests/contract/test_code_observation_contracts.py",
+      "tests/unit/test_code_git_proof.py",
+      "tests/unit/test_code_observation.py",
+      "tests/unit/test_config_evidence.py",
+      "tests/security/test_code_observation_boundary.py",
+      "tests/fixtures/contracts/valid/video-paper-wiki.code-git-proof-bundle.v1.json",
+      "tests/fixtures/contracts/valid/video-paper-wiki.code-observation.v1.json",
+      "tests/fixtures/contracts/invalid/video-paper-wiki.code-git-proof-hostile-path.v1.json",
+      "tests/fixtures/contracts/invalid/video-paper-wiki.code-git-proof-sha256-legacy-manifest.v1.json"
+    ],
+    "ownership_note": "Prospective paths only. Connector transport, hosting assertions, external Git object acquisition and human relation review remain outside public Python. Any v2 legacy-manifest schema requires a separate Architect freeze and compatibility review."
+  },
+  "blockers": [
+    "Freeze whether v1 will include a new SHA-256-capable code-evidence manifest/binding. Existing code-evidence-manifest.v1 hard-codes a 40-hex commit, so accepting SHA-256 proof without a successor would create a false binding.",
+    "Freeze the exact local uncompressed bundle directory digest algorithm, raw-object record schema, tree canonicalization rules, retained descriptor/snapshot implementation and hosting-assertion status semantics before Builder writes.",
+    "Freeze a span-producing JSON/TOML parser profile. stdlib JSON and tomllib can validate data but do not alone expose trusted exact node spans; line numbers supplied by a connector are not evidence until raw-byte slices are recomputed.",
+    "Actual provider/repository observations, officiality relation judgments, and human publication gates remain open and are not established by this design review."
+  ],
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false,
+  "network_used": false,
+  "real_vault_touched": false
+}

@@ -1,0 +1,68 @@
+{
+  "schema": "lightweight-workflow-v2-architect-lane-preflight.v1",
+  "review": "lane-3-current-terminal-3-r2-sanity",
+  "observed_at_utc": "2026-09-07T16:43:38Z",
+  "decision": "GO_FOR_ARCHITECT_R2_SANITY_REVIEW",
+  "scope": "Read-only replay of the original eight-case workflow probe against the current terminal-3 source; no product or Git mutation and no formal handoff or acceptance claim.",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-3/source",
+  "source_files": {
+    "src/video_paper_wiki_research/light_workflow.py": {
+      "before": "73bc3982273189f739481473d786fea8499c626be9bf380c9b9178326cd729d0",
+      "after": "73bc3982273189f739481473d786fea8499c626be9bf380c9b9178326cd729d0"
+    },
+    "src/video_paper_wiki_research/light_index.py": {
+      "before": "e03b05fe50a7e4793e9b4ab8ab9f0ec4b7fe046ce9865ca2dafdc7040dea07c9",
+      "after": "e03b05fe50a7e4793e9b4ab8ab9f0ec4b7fe046ce9865ca2dafdc7040dea07c9"
+    },
+    "src/video_paper_wiki_research/light_context.py": {
+      "before": "7c3b46b9323eb04297ea07eb44de319b40430f60cd12316e70f7ef06f66fecac",
+      "after": "7c3b46b9323eb04297ea07eb44de319b40430f60cd12316e70f7ef06f66fecac"
+    }
+  },
+  "source_hashes_stable_before_after": true,
+  "probe": {
+    "original": "artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r1/probe_workflow.py",
+    "copy": "artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane3-preflight/probe_workflow.py",
+    "copy_sha256": "ad3e24333fa90829588ef99ece87c85825b3657fbd59e59879d2a09e6c4af54e",
+    "copy_matches_original": true,
+    "result": "artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane3-preflight/probe-workflow-results.json",
+    "stdout": "artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane3-preflight/probe.stdout.json",
+    "synthetic_only": true,
+    "temporary_workspaces_cleaned": true,
+    "exit_code": 0,
+    "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "import_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-3/source"
+  },
+  "prior_findings": {
+    "symlink_state_paths_external_writes": {
+      "closed": true,
+      "observed": "All four .light-workflow, sessions, staging, and locks symlink cases returned LIGHT_SESSION_INVALID; external_files was empty for each.",
+      "source_anchors": ["light_workflow.py:327-380", "light_workflow.py:510-531"]
+    },
+    "unknown_completion_temporary_overwritten": {
+      "closed": true,
+      "observed": "The pre-existing unowned fixed temporary file remained byte-preserved while completion returned OK/complete.",
+      "source_anchors": ["light_workflow.py:1029-1100", "light_workflow.py:1187-1210"]
+    },
+    "publish_before_live_context_check": {
+      "closed": true,
+      "observed": "Changing source.md after staged manifest writing returned INDEX_STALE with session_id null and published_sessions 0.",
+      "source_anchors": ["light_workflow.py:1111-1160", "light_workflow.py:1465-1495"]
+    },
+    "request_fields_accepted_without_contract_validation": {
+      "closed": true,
+      "observed": "Rehashed invalid request fields produced status needs_attention and complete returned LIGHT_SESSION_INVALID; no successful completion.",
+      "source_anchors": ["light_workflow.py:584-730", "light_workflow.py:813-848"]
+    }
+  },
+  "control_case": {
+    "valid_prepare_and_complete": true,
+    "prepare_state": "awaiting_model",
+    "complete_state": "complete"
+  },
+  "formal_handoff": {
+    "r2_handoff_json_present": false,
+    "r2_ready_json_present": false,
+    "status": "No formal handoff/ready files were invented or claimed; current terminal-3 report remains a producer report for Architect review."
+  }
+}

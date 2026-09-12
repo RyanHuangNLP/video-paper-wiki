@@ -1,0 +1,92 @@
+{
+  "schema": "video-paper-wiki.architect-independent-review.v1",
+  "review": "T3 R3 CLI, Skill, documentation, integrated pipeline, and installed-wheel review",
+  "review_mode": "independent_read_only",
+  "recorded_at_utc": "2026-09-08T06:02:00Z",
+  "decision": "GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE_NO_NEW_T3_BLOCKER",
+  "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-3/source",
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "freeze_sha256": "44aa3aef9b4090bc9a55f3afb98d903c5de22378620f5a85ce3482cc602c6f5b",
+  "handoff_sha256": "f22ca64df6c4c22d83e2fa1cb5ba0320b75d45f2e93c8de9e8454ab504609746",
+  "snapshot_sha256": "61434f4581bb7c86e5c49185d7388cdafba598bcff8fdedc4010286533fbce91",
+  "previous_snapshot_sha256": "a6e114fde2195d22a7b1a3480b6d62394b4e3a675d1f7a30c9698b5f4c80ba56",
+  "source_status": {
+    "status_path_count": 26,
+    "owner_path_count": 11,
+    "accepted_import_path_count": 15,
+    "owner_paths_exactly_match_freeze": true,
+    "all_owner_files_regular_utf8_and_mode_0644": true,
+    "imported_owner_files_read_only_by_contract": true,
+    "r3_delta_path_count": 6,
+    "r2_carried_t3_path_count": 5
+  },
+  "owner_manifest": [
+    {"path": "src/video_paper_wiki_research/cli.py", "size_bytes": 49238, "sha256": "abd00391cd00708dd8a838bf93a35f74c38e3ded485eadb208d3107adceda1dc"},
+    {"path": ".agents/skills/video-paper-read/SKILL.md", "size_bytes": 4478, "sha256": "42c111c31e2cc59a83d4616a8b052bcc457a7145dffe5e79a2044292316799fe"},
+    {"path": ".agents/skills/video-paper-read/agents/openai.yaml", "size_bytes": 276, "sha256": "60142c4f2a961196ac239325427bf4ee626b1fe2fa998df1e018ce865c0cb205"},
+    {"path": ".agents/skills/video-paper-read/references/workflow.md", "size_bytes": 3603, "sha256": "0b407862829e34118a8fc3be820e7e3fda44a4b2737bb81238324237173e6449"},
+    {"path": ".agents/skills/video-paper-read/references/library.md", "size_bytes": 7629, "sha256": "b6a4cd41a27c1abd07670d0800d1f360305af9746624a0c513dd9988668a712a"},
+    {"path": "docs/lightweight-library-quickstart.md", "size_bytes": 7285, "sha256": "f3e2743543fb47cd5619fbda86d9eb91074ca0f8e692435cb7bfe0c49cd29f32"},
+    {"path": "docs/lightweight-pdf-quickstart.md", "size_bytes": 10156, "sha256": "5d13be0c34c956f45e21a6bf22f68db63bad455e0926c8554985477cb5fb0a4e"},
+    {"path": "README.md", "size_bytes": 14477, "sha256": "480ee3958ede31daf31d083d9298980fe4f0605a1aca0072044348a4f8e01e34"},
+    {"path": "tests/research/test_light_library_cli.py", "size_bytes": 39021, "sha256": "b5c9a56824d93ea393840f37e1493bc9e207b5f414df8051c6b6449f513a67da"},
+    {"path": "tests/research/test_light_library_pipeline.py", "size_bytes": 15511, "sha256": "111dfacf91826c012092d2dcf69c093a78345d674a7b273830154e85305f6be6"},
+    {"path": "tests/research/test_light_library_installed.py", "size_bytes": 9345, "sha256": "17d46448e5bceb5e16bbfad8406e1b47e77c1fd294c72d53c5df04431fa1c39a"}
+  ],
+  "independent_checks": [
+    {
+      "name": "r3-owner-manifest-and-scope",
+      "result": "pass",
+      "evidence": "The 11 freeze paths matched the recorded size and SHA-256 values; status contained exactly those 11 T3 paths plus the 15 accepted T1/T2 imports. No extra source path was present."
+    },
+    {
+      "name": "bounded-library-json-parser",
+      "result": "pass",
+      "command": "python -m pytest -q .work/acceptance/lightweight-library-v1/architect_t3_parser_checks.py",
+      "result_detail": "4 passed in 0.06s",
+      "environment": "Python 3.13.13; source-local PYTHONPATH; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1; UV_OFFLINE=1; UV_PYTHON_DOWNLOADS=never; UV_CACHE_DIR=/Users/huangzhanpeng/.cache/uv",
+      "coverage": "10,000-level nested JSON and 5,001-digit integer inputs for knowledge and compare imports close as LIGHT_HANDOFF_INVALID JSON/nonzero, preserve input bytes, do not call a backend, and emit no traceback."
+    },
+    {
+      "name": "owned-cli-pipeline-installed",
+      "result": "pass",
+      "command": "python -m pytest -q tests/research/test_light_library_cli.py tests/research/test_light_library_pipeline.py tests/research/test_light_library_installed.py",
+      "result_detail": "47 passed in 4.32s",
+      "coverage": "Actual CLI routing and live synthetic-PDF flows cover knowledge export/save/import/build/list, comparison export/import and output conflict, metadata/index staleness, tag clearing, archive alias and restore, replacement and recovery, backup create/verify/restore, notes and workflow history, external Markdown, both module and console installed entrypoints, and fresh isolated wheel provenance."
+    },
+    {
+      "name": "skill-docs-and-routing-static-review",
+      "result": "pass",
+      "evidence": "The official Skill validator recorded 'Skill is valid!'. The reviewed Skill, library reference, workflow reference, README, and quickstart describe current-model-authored JSON, stdout export preservation, path/size/type policy, current/stale states, cited comparison output, file-only backup, PDF exclusion, and post-restore reindex/prepare. No dependency-pending skip or test skip was present in the owned CLI/pipeline/installed tests."
+    },
+    {
+      "name": "recorded-integrated-evidence",
+      "result": "pass_with_inherited_environment_note",
+      "evidence": "The stopped R3 handoff records 221 focused integrated checks, 1 fresh isolated-wheel check, official Skill validation, and 1,289 research/unit checks on each locked Python. Its full-tree 2,539-pass/33-error result is retained as a closure-only offline hatchling-cache environment observation, not relabelled as a pass."
+    }
+  ],
+  "findings": [
+    {
+      "id": "INHERITED-T2-SAME-PAPER-RESTORE-REPLACE-RECOVER",
+      "severity": "P2",
+      "status": "owner_observation",
+      "summary": "After restoring a paper and replacing that same paper, recover_library returns LIGHT_LIBRARY_NEEDS_RECOVERY because the completed restore has no live paper and no unique archive successor.",
+      "scope": "T2 light_library owner implementation; T3 records and avoids this vector in its integrated pipeline test."
+    },
+    {
+      "id": "INHERITED-FULL-TREE-CLOSURE-CACHE",
+      "severity": "environment",
+      "status": "rerun_required_before_final_full_suite_claim",
+      "summary": "Both recorded full-tree runs have 33 tests/closure errors from uv build --offline failing to resolve hatchling in the worktree cache. The product/research/unit suites and owned installed-wheel check pass.",
+      "scope": "Validation environment; use the populated UV_CACHE_DIR together with LW2_UV_CACHE for the final dual full-suite replay."
+    }
+  ],
+  "limitations": [
+    "This review did not read or execute the separate real-paper/current-model trial.",
+    "This review did not mutate source, Git state, Vault state, or the stopped T3 runner.",
+    "The review decision is independent evidence for Architect local acceptance and is not a merge, CI, or human semantic acceptance."
+  ],
+  "ready_for_architect": true,
+  "architect_accepted": false
+}

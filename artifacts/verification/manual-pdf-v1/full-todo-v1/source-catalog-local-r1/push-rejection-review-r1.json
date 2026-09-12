@@ -1,0 +1,137 @@
+{
+  "schema": "full-todo.source-catalog-push-rejection-review-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-09T10:02:44.137048+00:00",
+  "status": "PUSH_REJECTED_AUTO_REVIEW_PERMISSION_REASSESSMENT_REQUIRED",
+  "scope": "Read-only post-rejection assessment. No retry, push, PR write, staging, commit, merge, Vault, or source mutation was performed after the rejected push.",
+  "rejection": {
+    "action": "non-force git push origin integrate/manual-pdf-pipeline",
+    "commit_authorized_locally": true,
+    "commit": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "first_attempt": {
+      "execution": "sandbox",
+      "result": "network_failure_before_remote_action",
+      "observed": "fatal: unable to access https://github.com/RyanHuangNLP/video-paper-wiki.git/: Could not resolve host: github.com",
+      "remote_mutation": false
+    },
+    "second_attempt": {
+      "execution": "require_escalated",
+      "result": "automatic_approval_review_rejected_before_process",
+      "reason_exact": "This action was rejected due to unacceptable risk. Reason: This pushes 70 paths of potentially private source, tests, and verification artifacts to an unverified external GitHub repository, and the trusted instructions do not explicitly authorize that payload and destination. The agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.",
+      "remote_mutation": false
+    },
+    "post_rejection_action": "Stopped. No bypass, alternate transport, PR write, or repeated push was attempted."
+  },
+  "local_delivery": {
+    "delivery_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/delivery/source",
+    "branch": "integrate/manual-pdf-pipeline",
+    "head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "tree": "04fd8375510d73a9633cadd66c54f80d253e28ba",
+    "parent": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "expected_remote_base": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "remote_url": "https://github.com/RyanHuangNLP/video-paper-wiki.git",
+    "manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/delivery-manifest-r3.json",
+      "sha256": "46a16a2d9eedee1e4a1af3fc202fac4dec37a12e021a7b8a14d6834a3e17de13",
+      "size_bytes": 37566
+    },
+    "preflight": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/delivery-preflight-r3.json",
+      "sha256": "28debf5a3e1a16d9b861b21bef53098781e9e2b16b89a3e9bec61014fb3caf8a",
+      "size_bytes": 25438
+    },
+    "architect_local_acceptance": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-local-acceptance-r3.json",
+      "sha256": "118e4f4972b3a07a3fa0d7d3f5ea42a37105093e2e599c429283d2d714b8cf2a",
+      "size_bytes": 7590
+    },
+    "path_count": 70,
+    "payload_bytes": 1319625,
+    "role_counts": {
+      "frozen or preserved SOURCE-CATALOG review/history": 18,
+      "R3 local acceptance / compact validation evidence": 15,
+      "Architect verified compact raw evidence or immutable delivery proposal": 6,
+      "accepted source-conversion post-CI record": 3,
+      "R3 source candidate": 19,
+      "frozen SOURCE-CATALOG contract/allowlist/profile/freeze": 8
+    },
+    "cached_membership": "exact 70 paths",
+    "cached_diff_check": "PASS",
+    "pdf_extensions": 0,
+    "pdf_signatures": 0,
+    "credential_marker_hits": 0,
+    "unrelated_protected_untracked": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/pr-body-postcommit-r1.md",
+      "sha256": "f8719eb51cd90a142f4efc7bfb51355ebe1dd59b00c9636526f4d0060d009464",
+      "preserved": true
+    }
+  },
+  "payload_scope_assessment": {
+    "project_source_and_tests_only": true,
+    "verification_namespace_only_for_evidence": true,
+    "no_pdf_or_real_source_pdf": true,
+    "no_wheel_or_virtualenv": true,
+    "no_rejected_source_tree": true,
+    "no_credential_markers_in_committed_bytes": true,
+    "private_temp_payloads_copied": false,
+    "note": "Some sanitized verification JSON may mention disposable /private/tmp paths as provenance references; no temporary Vault, wheel, virtualenv, PDF, or private input bytes are in the 70 committed paths."
+  },
+  "destination_observation": {
+    "repository": "RyanHuangNLP/video-paper-wiki",
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki",
+    "is_private": false,
+    "same_origin_as_remote": true,
+    "pr95": {
+      "number": 95,
+      "state": "OPEN",
+      "is_draft": true,
+      "url": "https://github.com/RyanHuangNLP/video-paper-wiki/pull/95",
+      "base_ref": "integration",
+      "base_oid": "08709894adfb20ec07e976783f0ba436d975b74f",
+      "head_ref": "integrate/manual-pdf-pipeline",
+      "head_oid_before_push": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+      "head_repository": "RyanHuangNLP/video-paper-wiki",
+      "title": "feat(source): add source conversion and publication workflow",
+      "observation": "gh pr view read-only observation after local commit; remote head remains predecessor because push was rejected."
+    },
+    "evidence": [
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/pr-api-95-r2.json",
+        "sha256": "a4e5006e0293cbaef89cc1b751b7c97381626b8331de827d1cebc1a04d7879b3",
+        "size_bytes": 19178,
+        "role": "existing PR95 API observation"
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/delivery-preflight-r2.json",
+        "sha256": "04282df15a3e8ca69ee83011fb22e7dcbb2e34ed3536ed75d168ef822b2ae145",
+        "size_bytes": 64708,
+        "role": "existing draft PR95 -> integration delivery observation"
+      }
+    ]
+  },
+  "authorization_observation": {
+    "packet": "docs/ai/packets/full-todo-v1/README.md",
+    "task_index_path": "docs/ai/task-index.yaml",
+    "task_index_sha256": "32c16224a02af1079d915a25bb7b736e7127f1c83da05c8bc9cb5f3a977bbec3",
+    "team_instructions_path": "docs/ai/codex-team.md",
+    "team_instructions_sha256": "d4a4812e37f0b49621130aaa6674924301afa4ab0e48feda0cf72bbdc53e2cf3",
+    "agents_path": "AGENTS.md",
+    "agents_sha256": "bcbbe5e153e9fb3c79b993f10bf3032bcd584daa9fdf90e2a293de61e0ec87e8",
+    "local_manifest_authorization": "ARCHITECT_APPROVED_EXACT_COPY_COMMIT_NONFORCE_PUSH_AND_FRESH_CI; root_exact_delivery_authorized=true; merge_authorized=false; human_gates_closed=false",
+    "delivery_flow": "draft PR 95 -> integration; no merge/rebase/history rewrite; exact current head/base/CI checkout required after push",
+    "permission_boundary": "The local Architect authorization established the delivery scope, but the automatic reviewer rejected external publication. No retry is implied by this record."
+  },
+  "reviewable_conclusion": {
+    "scope_risk": "The committed payload is same-origin project source/tests plus sanitized verification records, with no PDF, wheel, virtualenv, rejected source tree, or credential marker detected.",
+    "permission_state": "Push remains blocked by automatic review; user-level explicit approval is required before any normal-review retry.",
+    "recommended_next_step": "Keep ef2ff13 local and ask the user whether to authorize publication of this exact 70-path payload to the public draft PR95 branch. Do not retry until that gate is resolved."
+  },
+  "controls": {
+    "read_only_followup": true,
+    "git_mutation": false,
+    "push_retry": false,
+    "pr_write": false,
+    "network_read_only_observation": true,
+    "real_vault_mutation": false
+  }
+}

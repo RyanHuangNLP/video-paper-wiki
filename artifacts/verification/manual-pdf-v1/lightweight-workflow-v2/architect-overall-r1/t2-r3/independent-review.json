@@ -1,0 +1,36 @@
+{
+  "schema": "lightweight-workflow-v2-t2-r3-independent-review.v1",
+  "decision": "GO_FOR_PRIOR_R3_REPAIRS_WITH_P2_CROSS_LANE_FINDING",
+  "review_scope": "T2 R3 versus R2 repair findings and malformed context/index shape blockers only",
+  "handoff_sha256": "802b5d787e4e75db654ec236d6e4b326e1dc8d487fd1eeb2ece9bbd86bfcb7fd",
+  "ready_matches_handoff": true,
+  "source_files": {
+    "src/video_paper_wiki_research/light_index.py": "e03b05fe50a7e4793e9b4ab8ab9f0ec4b7fe046ce9865ca2dafdc7040dea07c9",
+    "src/video_paper_wiki_research/light_context.py": "7c3b46b9323eb04297ea07eb44de319b40430f60cd12316e70f7ef06f66fecac",
+    "tests/research/test_light_index.py": "b614fd9127af01dbbf2e9e8f150fd3194ea5bce718c8d58c38680bb4de068e6c",
+    "tests/research/test_light_context.py": "6824cb5e784b0b2ae938b1cce8b01c24a94088e38d74a8cacd0afa42745584f8",
+    "tests/research/test_light_selection.py": "e85b4eebcb5ccefebfd2e3ac2e7b6e2ebb819ab666b3fbe9e32d0f611a867b71"
+  },
+  "validation": {
+    "command": "tests/research/test_light_index.py tests/research/test_light_context.py tests/research/test_light_selection.py tests/research/test_light_qa.py tests/research/test_light_writing.py tests/research/test_light_pipeline.py",
+    "result": "55 passed",
+    "prior_repairs": {
+      "post_stage_live_check": "closed; source change after owned temp staging returns INDEX_STALE and preserves old output",
+      "malformed_context_and_index_shapes": "closed; kind list returns LIGHT_CONTEXT_INVALID, missing index paper hash returns INDEX_STALE without output",
+      "public_search_selection": "closed; None/[] select all and blank/unknown IDs return LIGHT_SELECTION_INVALID"
+    }
+  },
+  "remaining_finding": {
+    "severity": "P2",
+    "status": "OPEN_FOR_T2_R4_CROSS_LANE_HANDLING",
+    "title": "Malformed live UTF-8 source escapes after-staging validation and leaves owned temp",
+    "evidence": {
+      "validate_live_context": "UnicodeDecodeError when current source.md contains invalid UTF-8",
+      "import_document_after_stage": "UnicodeDecodeError escapes when source is changed to invalid UTF-8 after _stage_output_bytes; pre-existing output remains unchanged but .<name>.<token>.light-out.tmp remains",
+      "create_only": "same exception-path cleanup defect; target remains absent while owned temp remains"
+    },
+    "contract_effect": "Expected malformed source must yield structured SOURCE_INVALID/closed failure; every validation exception after staging must clean only the owned temporary output. T1 R3 source decoding and T2 R4 exception cleanup together address this cross-lane finding.",
+    "not_a_r3_repair_failure": "The three authorized T2 R3 repair groups and the seven malformed-shape cases are closed; this finding is exposed only by the T1 R2 source decoder and an exception path outside the R3 regression set."
+  },
+  "review_artifact": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r1/t2-r3/independent-review.json"
+}

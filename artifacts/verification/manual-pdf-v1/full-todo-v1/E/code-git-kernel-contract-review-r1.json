@@ -1,0 +1,297 @@
+{
+  "$schema": "full-todo.code-git-kernel-contract-review-r1.v1",
+  "schema": "full-todo.code-git-kernel-contract-review-r1.v1",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "revision": "R1-independent-read-only-contract-review",
+  "recorded_at_utc": "2026-09-09T14:55:16.659268Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent pure in-memory CODE Git-object kernel contract reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only review of the Architect-owned kernel packet after the CODE-PROOF R3 closure review. No production implementation, test, fixture, Git mutation, new CLI, network, provider, Vault, or public-wire work was performed.",
+  "decision": "CONDITIONAL_GO_PENDING_FIXTURE_BINDING_AND_KERNEL_FREEZE_CLARIFICATIONS",
+  "verdict": "The R1 packet is semantically feasible as a separately frozen pure in-memory verifier. Its framing, strict raw-body API, object identity checks, pre-read budget ordering, commit/tree grammar, Git ordering, target outcome table, exact consumed-set rule, deterministic success shape, and closed refusal surface are mutually implementable. Implementation dispatch must remain blocked until Steward binds the independent static fixture and exact new CODE worktree baseline, and the minor freeze clarifications below are recorded.",
+  "semantic_result": {
+    "status": "PASS_NO_ALGORITHMIC_CONTRADICTION_FOUND",
+    "checked_contract_areas": [
+      "strict builtin container and bytes types; owned output containers and no input aliasing",
+      "sha1/sha256 object-format widths and canonical Git raw-body framing",
+      "OID-sorted closed object records with exactly one commit and explicit root-tree type",
+      "ASCII logical target grammar, path sorting, ancestor refusal, and casefold component-prefix anti-aliasing",
+      "five caller-lowerable limits with fixed maxima and declaration-before-body/hash accounting",
+      "body key equality, extra-key precedence, exact bytes/size/hash/type verification",
+      "first-tree commit grammar, bounded headers, continuation restrictions, parent grammar, opaque message",
+      "complete binary tree syntax, raw-name uniqueness, Git base-name ordering, and one-time tree parsing",
+      "missing-versus-unsafe target outcomes and terminal executable/symlink/gitlink/directory rules",
+      "exact success dictionary, stopped-edge/null semantics, repeated shared blob/tree use, and walk-edge counter",
+      "hard error taxonomy without source disclosure and no partial proof on refusal",
+      "static vectors and import-time guards against I/O/network/subprocess/resource-loader activity"
+    ],
+    "supporting_packet_ranges": [
+      {
+        "topic": "scope-and-baseline",
+        "lines": {
+          "start": 7,
+          "end": 16
+        }
+      },
+      {
+        "topic": "allowed-paths-and-import-boundary",
+        "lines": {
+          "start": 18,
+          "end": 36
+        }
+      },
+      {
+        "topic": "API-and-strict-types",
+        "lines": {
+          "start": 38,
+          "end": 110
+        }
+      },
+      {
+        "topic": "fixed-profile-and-limits",
+        "lines": {
+          "start": 112,
+          "end": 132
+        }
+      },
+      {
+        "topic": "verification-order-and-budgets",
+        "lines": {
+          "start": 134,
+          "end": 173
+        }
+      },
+      {
+        "topic": "framing",
+        "lines": {
+          "start": 175,
+          "end": 188
+        }
+      },
+      {
+        "topic": "commit-grammar",
+        "lines": {
+          "start": 190,
+          "end": 206
+        }
+      },
+      {
+        "topic": "tree-grammar-and-walk-policy",
+        "lines": {
+          "start": 208,
+          "end": 239
+        }
+      },
+      {
+        "topic": "success-result",
+        "lines": {
+          "start": 241,
+          "end": 281
+        }
+      },
+      {
+        "topic": "closed-errors",
+        "lines": {
+          "start": 283,
+          "end": 305
+        }
+      },
+      {
+        "topic": "required-verification",
+        "lines": {
+          "start": 307,
+          "end": 331
+        }
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "CGK-R1-PROC-001",
+      "severity": "BLOCKER_BEFORE_FREEZE",
+      "status": "OPEN",
+      "title": "Independent static fixture is not yet delivered or hash-bound",
+      "evidence": {
+        "packet_lines": {
+          "start": 20,
+          "end": 31
+        },
+        "observation": "tests/fixtures/code-git-objects-v1.json is currently absent from this checkout; the packet requires an exact copy of a Steward-delivered fixture bound in the freeze."
+      },
+      "why_it_blocks": "Without an immutable fixture path, byte length, and SHA-256 recorded in the freeze, tests can silently drift from the independent Git-produced vectors and cannot prove the allowed fixture was copied byte-for-byte.",
+      "required_resolution": "Steward must deliver the offline static fixture, record its exact SHA-256 and size, and include that binding in the separate freeze/dispatch record. Grok may copy it but may not edit it."
+    },
+    {
+      "id": "CGK-R1-PROC-002",
+      "severity": "BLOCKER_BEFORE_FREEZE",
+      "status": "OPEN",
+      "title": "Exact CODE worktree baseline/head is not yet recorded",
+      "evidence": {
+        "packet_lines": {
+          "start": 13,
+          "end": 16
+        },
+        "observation": "The packet requires a new CODE worktree from the locally delivered Discovery R3 successor of ef2ff13 and forbids using the older root checkout; no exact worktree/head binding accompanies this review."
+      },
+      "why_it_blocks": "A review or implementation result cannot be attributed to the authorized source baseline until the worktree path and exact head are recorded; root-checkout files could otherwise be mistaken for the candidate.",
+      "required_resolution": "Steward must create or identify the CODE worktree, record exact head/tree and source root in the freeze/dispatch record, and ensure implementation and tests run there."
+    },
+    {
+      "id": "CGK-R1-CONTRACT-001",
+      "severity": "MINOR_FREEZE_CLARIFICATION",
+      "status": "OPEN",
+      "title": "Helper failure behavior and fixed body cap need explicit closed mapping",
+      "evidence": {
+        "packet_lines": {
+          "start": 45,
+          "end": 51
+        },
+        "packet_lines_limits": {
+          "start": 124,
+          "end": 127
+        },
+        "packet_lines_errors": {
+          "start": 289,
+          "end": 300
+        },
+        "observation": "frame_git_object and git_object_ids have no limits argument, while the packet says helpers reject raw bodies over 8 MiB before hashing/framing; the closed table names a generic limit error but does not explicitly bind helper invalid type/object_type/body or the exact instance pointer/details shape."
+      },
+      "risk": "Two conforming implementations could expose different exception types or details for helper misuse and over-cap bodies, making static tests and callers depend on an unstated distinction.",
+      "required_resolution": "Freeze that helper misuse raises CodeGitProofError with the same exit_code=2 and closed code/details rules; bind whether invalid object_type/format/body type use CODE_PROOF_INPUT_INVALID and over-cap raw body uses CODE_PROOF_LIMIT_EXCEEDED with limit_name=max_object_bytes, limit=8388608, observed=len(body). Require the cap check before any hash or frame construction."
+    },
+    {
+      "id": "CGK-R1-CONTRACT-002",
+      "severity": "MINOR_FREEZE_CLARIFICATION",
+      "status": "OPEN",
+      "title": "Immutable CODE_GIT_PROFILE_LIMITS representation is underspecified",
+      "evidence": {
+        "packet_lines": {
+          "start": 124,
+          "end": 132
+        },
+        "observation": "The packet requires a mapping callers cannot mutate but does not say whether a MappingProxyType, a fresh copy, or another behavior is part of the public contract."
+      },
+      "risk": "An implementation could expose a mutable dict or a proxy whose nested data/identity behavior differs, allowing accidental profile weakening or making tests ambiguous.",
+      "required_resolution": "Freeze an immutable mapping representation and exact five-key/value order or observable equality requirement; tests should assert mutation refusal and that per-call lower limits cannot mutate the module profile."
+    },
+    {
+      "id": "CGK-R1-CONTRACT-003",
+      "severity": "MINOR_FREEZE_CLARIFICATION",
+      "status": "OPEN",
+      "title": "One shorthand error name must match the closed error code",
+      "evidence": {
+        "packet_lines": {
+          "start": 157,
+          "end": 160
+        },
+        "closed_code_lines": {
+          "start": 289,
+          "end": 300
+        },
+        "observation": "The verification-order prose says a declared wrong type is TYPE_MISMATCH, while the closed error surface names CODE_PROOF_OBJECT_TYPE_MISMATCH."
+      },
+      "risk": "A literal test or caller could treat TYPE_MISMATCH as a separate code, violating the claimed closed ten-code surface.",
+      "required_resolution": "Replace the shorthand with CODE_PROOF_OBJECT_TYPE_MISMATCH (and retain the same expected_type/actual_type details) or explicitly define TYPE_MISMATCH as prose only; the freeze record should state there are exactly ten public error codes."
+    },
+    {
+      "id": "CGK-R1-CONTRACT-004",
+      "severity": "MINOR_FREEZE_CLARIFICATION",
+      "status": "OPEN",
+      "title": "Exact deterministic key/shape observability should be frozen before tests",
+      "evidence": {
+        "packet_lines": {
+          "start": 241,
+          "end": 281
+        },
+        "observation": "The result keys and nested fields are exact, but the packet leaves dictionary insertion order and the concrete null shape for stopped_at on a missing component to implementation convention, while also requiring deterministic construction."
+      },
+      "risk": "JSON/text snapshots may differ despite semantic equality, especially for stopped_at fields where component_index and tree_oid are required but mode/oid are null only for absent names.",
+      "required_resolution": "Freeze the observable nested key order if byte snapshots are intended, and state explicitly that missing stopped_at is {component_index, tree_oid, name_hex:null, mode:null, oid:null} (or the chosen exact form); preserve target/object/list ordering already specified by the packet."
+    }
+  ],
+  "closed_or_sufficient_areas": [
+    {
+      "area": "pure-process boundary",
+      "status": "SUFFICIENT",
+      "basis": "Allowed module paths and import prohibition exclude filesystem, network, subprocess, Git, schema/resource, staging, parser and configuration dependencies (lines 18-36); required tests guard these entry points (lines 323-327)."
+    },
+    {
+      "area": "raw versus framed identity",
+      "status": "SUFFICIENT",
+      "basis": "Canonical framing, object-format-selected Git OID, raw body SHA-256, framed SHA-256, and sha256 OID equality are distinct and explicit (lines 175-188)."
+    },
+    {
+      "area": "budget precedence",
+      "status": "SUFFICIENT",
+      "basis": "Declared caps precede body lookup/hashing; actual size caps precede mismatch; hash checks follow all size checks; tree entries charge before storing (lines 134-155)."
+    },
+    {
+      "area": "tree safety and target outcomes",
+      "status": "SUFFICIENT",
+      "basis": "Raw-byte names, closed modes, Git ordering, explicit terminal/intermediate outcomes, and no unsafe object consumption are specified (lines 208-239)."
+    },
+    {
+      "area": "graph closure",
+      "status": "SUFFICIENT",
+      "basis": "Consumed OIDs are precisely defined and must equal all declared records; unused trees/blobs/parent commits cannot be silently retained (lines 161-173)."
+    },
+    {
+      "area": "scope isolation",
+      "status": "SUFFICIENT",
+      "basis": "The packet expressly excludes public envelopes, JSON decoding, resources, retained I/O, normalized text, configuration, hosting/officiality, capture/publication, catalog and commands (lines 7-11). R3 closure separately found public wire work remains open but does not block an independently frozen pure kernel."
+    }
+  ],
+  "required_freeze_record": {
+    "status": "OPEN",
+    "must_bind_before_dispatch": [
+      "exact CODE worktree/source root and baseline commit/tree",
+      "exact static fixture path, byte length, SHA-256, and independent Git-produced provenance",
+      "three allowed implementation paths and no additional writable source paths",
+      "Grok model/reasoning and readiness/dispatch evidence already recorded separately",
+      "helper invalid-type/over-cap error mapping and pre-hash cap check",
+      "immutable CODE_GIT_PROFILE_LIMITS observable behavior",
+      "TYPE_MISMATCH shorthand harmonization",
+      "exact deterministic stopped_at missing shape and any byte-level dict-order assertion"
+    ],
+    "must_not_be_added_to_this_packet": [
+      "public request/intent/bundle/observation envelopes",
+      "filesystem, descriptor, retained-bundle or staging code",
+      "JSON/TOML/config parser or source normalization",
+      "provider/repository acquisition, network, Git process, CLI or Vault behavior",
+      "CODE-RELATION/CODE-CANONICAL or final public handoff schemas"
+    ]
+  },
+  "implementation_observation": {
+    "status": "PRE_IMPLEMENTATION_EXPECTED",
+    "paths_checked": [
+      {
+        "path": "src/video_paper_wiki/code_git_objects.py",
+        "exists": false
+      },
+      {
+        "path": "tests/unit/test_code_git_objects.py",
+        "exists": false
+      },
+      {
+        "path": "tests/fixtures/code-git-objects-v1.json",
+        "exists": false
+      }
+    ],
+    "interpretation": "Absence is consistent with the packet being pending independent review, fixture delivery, freeze and dispatch; it is not an implementation failure."
+  },
+  "evidence_integrity": {
+    "no_source_or_git_mutation": true,
+    "no_network_or_external_connector": true,
+    "no_implementation_authority_granted": true,
+    "readiness_evidence": {
+      "result": "KERNEL_PACKET_FEASIBLE_AFTER_KERNEL_CONTRACT_FREEZE; PUBLIC_CODE_PROOF_STILL_CHANGES_REQUIRED",
+      "stdout_sha256": "806c1b38cbeaedc9f18be461895b7f1ea36d57ade3b1c5648b7aa828b7eb1b87",
+      "stdout_size_bytes": 20725,
+      "exit_observation_sha256": "ac29170f75db11b602775604c5eefeb04b8bda0c037d8ca6d078fc32de980654",
+      "dispatch_sha256": "2a2551035fbf21be69bbebf05ab170819122ab02a3cf8281ed70c7f0e8b25d6c"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "lightweight-library-v1-delivery-preflight.v1",
+  "observed_at_utc": "2026-09-08T04:28:09Z",
+  "read_only": true,
+  "candidate_acceptance": false,
+  "repository": "RyanHuangNLP/video-paper-wiki",
+  "pull_request": {
+    "number": 95,
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki/pull/95",
+    "title": "feat(research): recoverable PDF workflow and current-source citations",
+    "state": "OPEN",
+    "is_draft": true,
+    "merge_state_status": "CLEAN",
+    "head_branch": "integrate/manual-pdf-pipeline",
+    "head_oid": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "base_branch": "integration",
+    "base_oid": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "target": "integration",
+    "merge_authorized": false
+  },
+  "ci": {
+    "workflow": "Tests",
+    "event": "pull_request",
+    "run_id": 34176699951,
+    "head_sha": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/34176699951",
+    "jobs": [
+      {"name": "ubuntu-24.04 / Python 3.13", "id": 101907414854, "conclusion": "success"},
+      {"name": "ubuntu-24.04 / Python 3.12", "id": 101907415012, "conclusion": "success"},
+      {"name": "macos-15 / Python 3.13", "id": 101907415013, "conclusion": "success"},
+      {"name": "macos-15 / Python 3.12", "id": 101907415102, "conclusion": "success"}
+    ]
+  },
+  "delivery_checkout": {
+    "path": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+    "branch": "integrate/manual-pdf-pipeline",
+    "head": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "tree": "fc317f13ad781a9121c15503c4f1d945c5fafe2a",
+    "clean_status": true,
+    "matches_expected_baseline": true,
+    "expected_baseline": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "remote": "https://github.com/RyanHuangNLP/video-paper-wiki.git",
+    "local_target_ref_observation": "No fetch performed; local checkout branch is the PR head branch."
+  },
+  "vendor_pin": {
+    "path": "vendor/claude-obsidian",
+    "gitlink_oid": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "submodule_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "describe": "v2.1.1",
+    "gitmodules_update": "none",
+    "working_tree_clean": true
+  },
+  "commands": [
+    "gh pr view 95 --repo RyanHuangNLP/video-paper-wiki --json number,state,isDraft,headRefName,headRefOid,baseRefName,baseRefOid,mergeStateStatus,statusCheckRollup,url,title",
+    "gh run view 34176699951 --repo RyanHuangNLP/video-paper-wiki --json databaseId,headSha,status,conclusion,workflowName,event,jobs,url",
+    "git -C /Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration status --short --branch",
+    "git -C /Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration rev-parse HEAD",
+    "git -C /Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration rev-parse HEAD^{tree}",
+    "git -C /Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration submodule status --recursive"
+  ],
+  "mutations": {"fetch": false, "checkout": false, "commit": false, "push": false, "pr_update": false, "source_edit": false, "cursor_launch": false}
+}

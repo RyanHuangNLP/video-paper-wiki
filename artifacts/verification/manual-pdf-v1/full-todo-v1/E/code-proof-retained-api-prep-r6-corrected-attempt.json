@@ -1,0 +1,290 @@
+{
+  "$schema": "full-todo.code-proof-retained-api-prep-r6.v1",
+  "schema": "full-todo.code-proof-retained-api-prep-r6.v1",
+  "revision": 6,
+  "recorded_at_utc": "2026-09-09T16:38:12.000000000Z",
+  "packet": "CODE-PROOF-STATE-AND-INSTALL-R5",
+  "decision": "PREPARATION_GO_PRIVATE_RETAINED_SESSION_REQUIRED",
+  "scope": "Read-only preparation for a new private CODE retained session. Existing staging/resource/registry APIs were inspected against R4/R5. No production, contract, test, fixture, candidate, Git or network mutation was performed.",
+  "baseline": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "git_status_short": ""
+  },
+  "frozen_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "size_bytes": 12868,
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-STATE-AND-INSTALL-R5.md",
+      "size_bytes": 10096,
+      "sha256": "b44a61d560c8c6a09fa47200e39a5fda5c7d63fd74a3a788bf885aba9379062e"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/staging.py",
+      "size_bytes": 54827,
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/source_catalog_io.py",
+      "size_bytes": 15411,
+      "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/resources.py",
+      "size_bytes": 7579,
+      "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/contracts.py",
+      "size_bytes": 81936,
+      "sha256": "1f27c01706aace27fa55972cb3d0a51ce74351a40131e2611e132b1a08cd1655"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/secure_io.py",
+      "size_bytes": 15126,
+      "sha256": "2fa1674354ab57ef7e90d20303aa5739c232f6e0b039598c51237a8879fec03b"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/markdown_source_io.py",
+      "size_bytes": 13712,
+      "sha256": "3fb3636d872977827b3f0c10f45f95296e484a0f8e6dbc1e10a363749ad1bd40"
+    }
+  ],
+  "reusable_helpers": [
+    {
+      "area": "batch and ancestor authority",
+      "helpers": [
+        {
+          "name": "staging._open_batch_session",
+          "signature": "_open_batch_session(batch_id: object, *, create: bool) -> contextmanager",
+          "lines": "staging.py:100-136",
+          "reuse": "Retains checkout, .work and batch descriptors and identities; verifies on entry, normal exit and exception exit. Returns _RetainedBatchSession with checkout_fd/work_fd/batch_fd and work_root/batch_path.",
+          "adaptation": "Use as a lineage primitive only after adding CODE-scoped complete-set state; do not let its create path silently create arbitrary CODE family directories."
+        },
+        {
+          "name": "_RetainedBatchSession.verify",
+          "signature": "_RetainedBatchSession.verify(self) -> None",
+          "lines": "staging.py:75-97",
+          "reuse": "Checks retained descriptor identities, reopens named checkout/.work/batch edges and checks .work ancestry.",
+          "adaptation": "Call at every CODE checkpoint and on all exits; extend with CODE input/output roots and family descriptors."
+        },
+        {
+          "name": "_require_fd_inside_work",
+          "signature": "_require_fd_inside_work(fd: int, work_fd: int, path: Path) -> None",
+          "lines": "staging.py:387-425",
+          "reuse": "Checks live directory, /proc fd path where available, then ascends directory descriptors to prove containment and detect loops.",
+          "adaptation": "Useful for input/output roots below .work, but must be paired with equality/ancestor disjointness and named-edge snapshots for both roots."
+        },
+        {
+          "name": "_require_work_still_in_checkout",
+          "signature": "_require_work_still_in_checkout(work_fd: int, checkout_fd: int, path: Path) -> None",
+          "lines": "staging.py:427-467",
+          "reuse": "Proves the retained .work descriptor remains the named child of the retained checkout and has the expected basename/path.",
+          "adaptation": "Keep unchanged as the checkout/.work authority check; CODE must not rely on path-only realpath checks."
+        },
+        {
+          "name": "_require_staging_fds",
+          "signature": "_require_staging_fds(*, parent_fd: int, work_fd: int, checkout_fd: int, path: Path) -> None",
+          "lines": "staging.py:470-478",
+          "reuse": "Combines containment and checkout/.work authority checks before/after staging operations.",
+          "adaptation": "Use as a low-level precondition only; it does not inspect CODE complete sets or resource/input descriptors."
+        },
+        {
+          "name": "staging._open_dir_path / _open_dir_at",
+          "signature": "_open_dir_path(path: Path) -> int; _open_dir_at(parent_fd: int, name: str, path: Path) -> int",
+          "lines": "staging.py:490-513",
+          "reuse": "Uses directory/O_NOFOLLOW/CLOEXEC flags and rejects symlink/non-directory descriptors.",
+          "adaptation": "Add explicit CODE mode/identity policy after open; _open_dir_at does not enforce 0700, nlink or complete-set membership."
+        }
+      ]
+    },
+    {
+      "area": "retained files and all-exits verification",
+      "helpers": [
+        {
+          "name": "source_catalog_io._Tree",
+          "signature": "_Tree(); directory(path, optional=False, create=False); observe_set(path, kind); file(path, optional=False, private=False, maximum=MAX_CACHE); verify(); close()",
+          "lines": "source_catalog_io.py:39-222",
+          "reuse": "Captures named edges and descriptors, exact regular-file bytes, stat size bounds, single-link requirement, optional private 0600 mode, directory sets and all-exits verification via verify_all.",
+          "adaptation": "Strong template for CODE retained state. Use observe_set(..., kind='all') or a new CODE scanner before any classification; do not use its filtered 'schemas'/'python' modes for CODE unknown-entry policy. Add CODE family filename/type/mode checks and output logical-byte accounting."
+        },
+        {
+          "name": "_Tree._verify_edge / _verify_file / _verify_set / verify",
+          "signature": "_verify_edge(edge); _verify_file(edge); _verify_set(path, kind, names); verify()",
+          "lines": "source_catalog_io.py:167-205",
+          "reuse": "Rechecks named edge and retained fd identity, file bytes/link count, complete scoped name sets and all retained groups even after an earlier failure.",
+          "adaptation": "Use the verify_all ordering as the R5 all-exits model; distinguish authorized current-command temp/install edges from foreign entries and preserve the first lineage failure."
+        },
+        {
+          "name": "markdown_source_io.RetainedFile / retain_files",
+          "signature": "RetainedFile(path: Path | str, *, maximum: int, required: bool = True); retain_files(specs)",
+          "lines": "markdown_source_io.py:100-235",
+          "reuse": "No-follow ancestor capture, optional missing slot, regular single-link and size checks, bounded reads, named-edge/fd/byte verification and final verification on every exit. adopt(identity, data) binds a file created by the installer.",
+          "adaptation": "Useful per-file model for CODE request/intent/bundle/observation/body/config/handoff slots. Extend exact mode policy, ctime/dev/ino identity as required, initial-absence lineage state and path-key family accounting."
+        },
+        {
+          "name": "markdown_source_io.MarkdownSlots",
+          "signature": "MarkdownSlots(session, *, create: bool); verify(); install(name, data)",
+          "lines": "markdown_source_io.py:262-365",
+          "reuse": "Captures full direct names before parsing; rejects unexpected names; retains fixed slots; checks complete set and directory lineage around each install.",
+          "adaptation": "Template for a CODE fixed-family object. It is too narrow for seven slots/families and its install delegates to legacy _atomic_install, so only its capture/verify structure is reusable."
+        },
+        {
+          "name": "secure_io.read_child_regular",
+          "signature": "read_child_regular(parent_fd, name, *, path, missing_code, unsafe_code, changed_code=SOURCE_CHANGED, max_bytes=None, limit_code=BLOB_LIMIT_EXCEEDED) -> bytes",
+          "lines": "secure_io.py:195-283",
+          "reuse": "No-follow stat/open, same-fd identity, bounded read and named-edge recheck.",
+          "adaptation": "Must add nlink==1 and CODE mode policy: current helper rejects symlink/special/nonregular but does not reject a hardlinked regular input. Keep raw stat charging before read."
+        }
+      ]
+    },
+    {
+      "area": "resource capture and fresh registry",
+      "helpers": [
+        {
+          "name": "source_catalog_io.Generation / generation",
+          "signature": "Generation(tree); generation() -> contextmanager",
+          "lines": "source_catalog_io.py:286-370",
+          "reuse": "Retains package/source schema and projection resources through _Tree, records resource hashes/profile and enters a captured resource view for the operation.",
+          "adaptation": "Reuse the capture pattern only. Generation is catalog-specific, requires an installed filesystem package, has taxonomy/catalog assumptions and only checks its catalog PROFILE_SHA; CODE needs a six-envelope/profile resource set with exact expected names/hashes and no package/CWD fallback."
+        },
+        {
+          "name": "resources._retained_resource_view",
+          "signature": "_retained_resource_view(material, schema_names) -> contextmanager",
+          "lines": "resources.py:34-45",
+          "reuse": "Installs an immutable MappingProxyType of captured bytes in a ContextVar and restores the prior view on exit.",
+          "adaptation": "Bind only after independently checking material key schema, exact resource hashes and schema_names. The helper checks only tuple keys/bytes and does not itself validate profile identity or names."
+        },
+        {
+          "name": "resources._schema_text_without_cwd / schema_resource_names / load_schema_json",
+          "signature": "_schema_text_without_cwd(filename); schema_resource_names() -> tuple[str,...]; load_schema_json(filename)",
+          "lines": "resources.py:108-149 and 182-199",
+          "reuse": "When a retained view is active, schema reads come only from captured material and schema names; no package/repository/CWD fallback is consulted.",
+          "adaptation": "Use inside the CODE retained view only; never call the default fallback path after the session's resource identity is bound."
+        },
+        {
+          "name": "contracts._registry / _schema_registry",
+          "signature": "_registry() -> tuple[Registry, dict[str, dict[str, Any]]]; _schema_registry() -> tuple[...]",
+          "lines": "contracts.py:156-192",
+          "reuse": "Builds a fresh referencing Registry from schema resources; under _RESOURCE_VIEW, _registry rebuilds parsed resources rather than reusing mutable schema objects.",
+          "adaptation": "Use the fresh registry path with CODE's captured view. The default _default_registry is lru-cached and must not be used as a substitute for a per-command profile/resource binding."
+        }
+      ]
+    }
+  ],
+  "hardlink_temp_observation": {
+    "helpers": [
+      {
+        "name": "staging._mkstemp_at",
+        "signature": "_mkstemp_at(dir_fd: int, path: Path) -> tuple[int, str]",
+        "lines": "staging.py:654-674",
+        "observed": "O_RDWR|O_CREAT|O_EXCL with O_NOFOLLOW/O_CLOEXEC when available, mode 0600 and bounded random sibling-name retries.",
+        "gap": "It does not retain/verify the named edge before writing and does not itself enforce CODE byte budget or exact all-exits cleanup."
+      },
+      {
+        "name": "staging._link_at",
+        "signature": "_link_at(*, src_name: str, dst_name: str, src_dir_fd: int, dst_dir_fd: int) -> None",
+        "lines": "staging.py:677-688",
+        "observed": "os.link with follow_symlinks=False, falling back to a call without that keyword on TypeError.",
+        "gap": "R5 requires an explicit private CODE no-follow primitive; the fallback and absence of retained source-descriptor publication semantics must not be inherited blindly."
+      },
+      {
+        "name": "staging._unlink_at",
+        "signature": "_unlink_at(parent_fd: int, name: str) -> None",
+        "lines": "staging.py:690-694",
+        "observed": "Silently catches every OSError.",
+        "gap": "R5 lines 132-138 expressly forbid using this helper for CODE cleanup; cleanup failures and replacement/missing names must surface as refusal evidence."
+      },
+      {
+        "name": "staging._atomic_install",
+        "signature": "_atomic_install(work_fd, parent_fd, filename, data, *, target, checkout_fd, return_identity=False) -> bool | tuple[bool, os.stat_result]",
+        "lines": "staging.py:697-809",
+        "observed": "Writes/fsyncs/fstats a temp, closes its descriptor before link, hard-links temp to the final, adopts an identical existing target on EEXIST, fsyncs directories, then silently unlinks the temp in finally.",
+        "gap": "It permits late identical-target adoption, has no zero-progress write guard, does not retain the source descriptor through link/cleanup and may remove destination on a post-link session failure. It is unchanged legacy behavior and is not a valid CODE installer."
+      },
+      {
+        "name": "staging.stage_bytes",
+        "signature": "stage_bytes(*, batch_id: object, relative: tuple[str, ...], data: bytes) -> StageResult",
+        "lines": "staging.py:1365-1458",
+        "observed": "Legacy public wrapper performs path checks, creates 0755 directories, rewalks descriptors, reuses same bytes and calls _atomic_install.",
+        "gap": "R5 keeps public stage_bytes unchanged; the private CODE session must not call it or infer its reuse/mode/cleanup semantics."
+      }
+    ],
+    "required_private_phases": [
+      "capture complete scoped directory names before unknown/unsafe classification",
+      "retain input/resource/family descriptors and initial named-edge absence/presence identity",
+      "charge observed regular-file st_size before read and enforce mode/nlink/type policies",
+      "preflight C + 2*N before private temp creation",
+      "create one O_EXCL/O_NOFOLLOW 0600 temp, retain fd and verify name/fd identity",
+      "write bounded bytes with short-write and zero-progress handling, fsync and revalidate all retained inputs",
+      "os.link no-replace from the checked temp name to initially absent final; verify link count two and exact inode/bytes/mode",
+      "identity-check and remove only the owned temp with surfaced cleanup errors",
+      "verify temp absence, final single-link identity, directory fsync, complete set and all retained lineages on every exit"
+    ]
+  },
+  "mode_and_complete_set_policy": {
+    "r5_state_lines": "STATE-AND-INSTALL-R5:12-61",
+    "policy": [
+      "Capture absence as an initial state; a request alone has no acquisition mode.",
+      "Only a validated intent supplies normalized_text or git_objects mode.",
+      "Forbidden fixed files/families refuse even when empty; status never repairs them.",
+      "Raw objects are absent/empty/valid OID-sorted prefix only after a retained bundle; non-prefix or unknown bodies refuse.",
+      "A complete raw observation requires every declared body; missing dependencies are corruption.",
+      "Every reusable target must have been present in the command's initial complete snapshot; a late identical file is lineage failure.",
+      "Generated directories are 0700 and output files 0600/single-link; input regular files and directories retain exact observed mode/identity policy."
+    ],
+    "implementation_warning": "Existing _Tree.observe_set(kind='all') plus per-entry _edge capture is the closest complete-set primitive. Existing filtered scans, _require_safe_transaction_inspect_entries and _open_dir_at alone do not prove the CODE seven-slot/family policy."
+  },
+  "gaps_before_private_code_freeze": [
+    {
+      "id": "R6-API-001",
+      "gap": "No private CODE retained session type binds checkout/.work/batch, input bundle, output root, resources, all family sets, initial absence/presence and authorized current-command installs in one object.",
+      "required": "Define the session fields, checkpoint order, error precedence and close behavior before implementation."
+    },
+    {
+      "id": "R6-RESOURCE-002",
+      "gap": "Existing resource view/registry primitives do not validate the complete CODE profile/resource hash set themselves; default registry/resource fallback remains available outside a retained view.",
+      "required": "Capture exact resource bytes and hashes first, reject any missing/changed/extra resource, enter _retained_resource_view, and use a fresh _registry for every command."
+    },
+    {
+      "id": "R6-COMPLETE-SET-003",
+      "gap": "Existing family scanners are either catalog-specific or filtered; no generic CODE scanner enforces unknown sibling/type/mode/link-count rules before parsing or writing.",
+      "required": "Capture all direct names and stat identities before classification, then apply the R5 mode matrix and recheck the complete set after every authorized install/cleanup."
+    },
+    {
+      "id": "R6-OUTPUT-MODE-004",
+      "gap": "_ensure_dir_at creates 0755 and _open_dir_at does not enforce exact output directory mode; _atomic_install/legacy reuse does not prove final single-link/mode policy for all retained files.",
+      "required": "Private CODE directory creation/retention must enforce 0700 generated dirs, 0600 output files, single-link outputs and exact observed input policy."
+    },
+    {
+      "id": "R6-CLEANUP-005",
+      "gap": "Legacy temp cleanup swallows OSError and closes the source fd before publication; post-link rollback can remove a destination without the R5 owned-temp/final-identity matrix.",
+      "required": "Implement and adversarially review a private installer with retained source fd, no-replace link, explicit cleanup evidence and no unconditional final rollback."
+    },
+    {
+      "id": "R6-ANCESTOR-006",
+      "gap": "_open_batch_session proves checkout/.work/batch only; it does not prove input/output disjointness or raw bundle ancestor/descendant restrictions.",
+      "required": "Add retained descriptor identity/equality and strict ancestor checks for input bundle root, output namespace and all resource roots before writes."
+    },
+    {
+      "id": "R6-ERROR-007",
+      "gap": "Existing modules have independent StagingError, SecureIOError and ContractError mappings; no CODE error schema distinguishes budget, lineage, cleanup and semantic failures with R5 lineage precedence.",
+      "required": "Freeze one CODE error mapping and preserve failure evidence through all cleanup/verification paths."
+    }
+  ],
+  "next_action": "Use this as preparation for the Architect-owned private CODE retained-session design and implementation freeze. Do not modify or call legacy helpers as if they satisfy R5; do not change public stage_bytes behavior.",
+  "mutations": {
+    "source": false,
+    "contracts": false,
+    "tests": false,
+    "fixture": false,
+    "git": false,
+    "network": false,
+    "candidate": false,
+    "review_artifact_only": true
+  }
+}

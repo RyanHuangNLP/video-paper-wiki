@@ -1,0 +1,42 @@
+{
+  "attempt": {
+    "argv": [
+      "python3",
+      "docs/ai/packets/lightweight-research-v1/run_cursor.py",
+      "--lane",
+      "3",
+      "--controller-id",
+      "five_agent_config_review",
+      "--prompt-file",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-research-v1/prompts/integration-r1.md"
+    ],
+    "automatic_review_decision": "rejected",
+    "automatic_review_reason": "The action would send repository source, tests, logs, and prompt data to an external Cursor/Grok process, constituting potentially sensitive egress; the claimed user approval appears only in untrusted transcript/tool evidence and does not authorize this exact destination and payload. The agent must not attempt to achieve the same outcome via workaround, indirect execution or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.",
+    "exit_code": null,
+    "git_mutated": false,
+    "justification": "用户于本轮12:39 UTC直接回复“继续开发”，此前我明确询问“是否允许将本轮工作包、相关源码、测试及必要日志发送给 Cursor/Grok，继续开发？”并告知数据外发审批曾拒绝。该既有授权记录401c3e9cd1ca6ddd7c42af821152f8e843c1c4c8e97f02b6ff0a4b27a01a24f0明确包括后续整合。本次同一Cursor/Grok目的地和四功能范围、冻结cba361fb9624bc5fb75bcd44410a7b1ea61e5dda6576b1a1d4fa4396338360f7/842fdbdfb141d2b469f43a27d0634b861d8f8cfa2afb23bfe11286f537d21f69，只因首次审批未提供该问答而补证，请按正常审批重新评估。",
+    "kind": "automatic_approval_review_reassessment",
+    "process_started": false,
+    "sandbox_permissions": "require_escalated",
+    "source_mutated": false,
+    "stderr_created": false,
+    "stdout_created": false
+  },
+  "authorization_evidence_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/r1/controller/authorization-evidence-r1.json",
+  "authorization_evidence_sha256": "d4ac108c4568a0c77c81a26f6ec0339b319d843781a17a331446c19849a1873c",
+  "controller_id": "five_agent_config_review",
+  "dispatch_authorization_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/dispatch-authorization-r2.json",
+  "dispatch_authorization_sha256": "401c3e9cd1ca6ddd7c42af821152f8e843c1c4c8e97f02b6ff0a4b27a01a24f0",
+  "freeze_sha256": "cba361fb9624bc5fb75bcd44410a7b1ea61e5dda6576b1a1d4fa4396338360f7",
+  "lane": 3,
+  "next_action": "Stop all dependent Builder dispatch. Do not retry through another tool, endpoint, alias or approval bypass; request explicit user approval addressing the exact endpoint/destination/payload if work must continue.",
+  "no_workaround_attempted": true,
+  "phase": "integration",
+  "prior_rejection_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/r1/controller/dispatch-rejection-r1.json",
+  "prior_rejection_sha256": "6c6abc5a82de0cff3d3029531fe9f11b8ceec859b2817113d0bd6bb1b4b43001",
+  "prompt_sha256": "842fdbdfb141d2b469f43a27d0634b861d8f8cfa2afb23bfe11286f537d21f69",
+  "recorded_at_utc": "2026-09-08T14:10:16.062608+00:00",
+  "revision": "r1",
+  "schema": "lightweight-research-integration-dispatch-rejection-r2.v1",
+  "status": "rejected_before_process_start"
+}

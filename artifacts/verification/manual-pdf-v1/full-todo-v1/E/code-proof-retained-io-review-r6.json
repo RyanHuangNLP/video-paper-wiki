@@ -1,0 +1,233 @@
+{
+  "$schema": "full-todo.code-proof-retained-io-review-r6.v1",
+  "schema": "full-todo.code-proof-retained-io-review-r6.v1",
+  "packet": "CODE-PROOF-RETAINED-IO-R6",
+  "revision": "R6-independent-retained-io-review",
+  "recorded_at_utc": "2026-09-09T16:46:07.839381000Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CODE-PROOF retained-I/O and installer reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_IMPLEMENTATION_FREEZE_AND_PUBLIC_WIRE_PENDING",
+  "verdict": "R6 materially closes the R5 retained-I/O design gap. It names one private session, preserves the R2 checkout flock and duplicate lock descriptor, captures initial complete sets including absence, bounds interrupted scans, binds a fresh retained resource view, and specifies the no-replace hard-link installer through write, link, cleanup and directory-fsync phases. The implementation is feasible without changing the legacy staging helpers when it uses descriptor-relative primitives and its own state machine. It is not yet an exact private-I/O freeze: the API must expose the retained layout/scan state, define setup for a first request when the batch namespace is absent, reject or explicitly bind ordinary input/output overlap, and record post-link prefix state before errors can be reverified. The public schema/resource/error freeze and adversarial implementation evidence remain separate gates.",
+  "scope": "Read-only review of CODE-PROOF-RETAINED-IO-R6 against immutable CODE-PROOF-DESIGN-R2, CODE-PROOF-CLOSURE-R3, CODE-PROOF-IDENTITY-LAYOUT-R4, CODE-PROOF-STATE-AND-INSTALL-R5, their independent reviews, the corrected R4 input identity, the R6 preparation record, and the actual retained-I/O/resource helpers in the inspected source workspace. The only metadata mutation was the explicitly requested correction of one omitted trailing hexadecimal zero in the R6 preparation record; no production, schema, test, fixture, Git, provider, network, connector, Vault or candidate-packet mutation was performed.",
+  "frozen_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92",
+      "size_bytes": 15524
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-STATE-AND-INSTALL-R5.md",
+      "sha256": "b44a61d560c8c6a09fa47200e39a5fda5c7d63fd74a3a788bf885aba9379062e",
+      "size_bytes": 10096
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0",
+      "size_bytes": 12868
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md",
+      "sha256": "eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57",
+      "size_bytes": 19802
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-state-install-review-r5.json",
+      "sha256": "da0bb3a266dedaad712c0d40dbece858cd66d0377a75903bcc623b959816609e",
+      "size_bytes": 12051
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-identity-layout-review-r4.json",
+      "sha256": "7152f8606edc1e31be9ea7f4d3818a6f4a526e4edb212a7a519e4ba028378be9",
+      "size_bytes": 9976
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-identity-layout-review-r4-input-correction.json",
+      "sha256": "d92bb5dfd873bdf74079bbb960ebdeba3895f0c1e5c6d9b28197c2e9612bcbbc",
+      "size_bytes": 1944
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-api-prep-r6.json",
+      "sha256": "a90f034f602a0b6be4a31c0257be846ce3c78020a5d5dafb8b9c3ebf6b06274d",
+      "size_bytes": 19960
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "size_bytes": 54827,
+      "lines": "75-136, 387-513, 654-809"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/source_catalog_io.py",
+      "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+      "size_bytes": 15411,
+      "lines": "39-222"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/resources.py",
+      "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+      "size_bytes": 7579,
+      "lines": "34-45, 108-149, 182-199"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/contracts.py",
+      "sha256": "1f27c01706aace27fa55972cb3d0a51ce74351a40131e2611e132b1a08cd1655",
+      "size_bytes": 81936,
+      "lines": "156-192"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/secure_io.py",
+      "sha256": "2fa1674354ab57ef7e90d20303aa5739c232f6e0b039598c51237a8879fec03b",
+      "size_bytes": 15126,
+      "lines": "35-98, 195-283"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/markdown_source_io.py",
+      "sha256": "3fb3636d872977827b3f0c10f45f95296e484a0f8e6dbc1e10a363749ad1bd40",
+      "size_bytes": 13712,
+      "lines": "19-32, 100-235"
+    }
+  ],
+  "metadata_correction": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-api-prep-r6.json",
+    "field": "frozen_inputs[0].sha256",
+    "old_value": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe",
+    "new_value": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0",
+    "old_record_sha256": "2a83b7b689cc6f26355eefa01c692b4accd1e70a467a2f119224d0ae00e7b7d4",
+    "new_record_sha256": "a90f034f602a0b6be4a31c0257be846ce3c78020a5d5dafb8b9c3ebf6b06274d",
+    "explanation": "The R6 preparation record had one 63-character R4 packet digest. The candidate file is unchanged; this correction appends the actual trailing hexadecimal zero and changes no review or source content."
+  },
+  "closure_matrix": [
+    {
+      "id": "CPI-R6-RETAINED-GRAPH-001",
+      "status": "PASS_WITH_API_STATE_DEPENDENCY",
+      "evidence": "R6 lines 11-18 reject the legacy independent-session and installer helpers; lines 49-65 bind checkout, resources, output state and external-input retention to one command session; lines 87-93 retain the duplicate checkout lock descriptor through final verification and cleanup. This is the correct R2 model and is implementable with descriptor-relative primitives.",
+      "residual": "The public/internal method signatures do not expose the session's retained layout and scan state; see CPI-R6-API-STATE-001."
+    },
+    {
+      "id": "CPI-R6-INITIAL-ABSENCE-002",
+      "status": "PASS_SEMANTICALLY_OPEN_STATE_API",
+      "evidence": "R6 lines 95-112 require complete-set registration before classification, fixed-slot absence records, earliest missing ancestor retention, bounded in-progress scans and refusal preservation. This carries R5's initial-snapshot and late-arrival rule into the retained graph.",
+      "residual": "The state needed to enforce those rules is not returned by snapshot(); the concrete representation and accessor remain an implementation-freeze dependency."
+    },
+    {
+      "id": "CPI-R6-RESOURCE-003",
+      "status": "PASS_WITH_PUBLIC_RESOURCE_FREEZE_DEPENDENCY",
+      "evidence": "R6 lines 132-143 require exact installed-resource names, sizes and hashes, reject non-filesystem origins, enter a captured immutable view and rebuild a fresh registry without the cached default or CWD fallback. This matches resources._retained_resource_view and contracts._registry only after the wrapper validates the material and schema-name set.",
+      "residual": "The public wire freeze still has to provide the concrete six-envelope/input resource names, profile digest and package/source-layout rule; the candidate intentionally does not invent these hashes."
+    },
+    {
+      "id": "CPI-R6-SCAN-004",
+      "status": "PASS_WITH_IMPLEMENTATION_EVIDENCE_DEPENDENCY",
+      "evidence": "R6 lines 104-112 require an explicit in-progress scan state, cap+1 refusal and preservation of the original refusal on final rescan. This correctly avoids treating a failed enumeration as a valid complete set.",
+      "residual": "The inspected source helper source_catalog_io._Tree.observe_set at lines 91-109 materializes os.listdir and mutates its set before each stat, while _names at lines 112-125 performs another fresh enumeration. It cannot be reused as the R6 scanner. The new module must provide a bounded iterator state with observed names, cap-exceeded/refused status and reached named edges, then adversarially test stat/enumeration failure before and during classification."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CPI-R6-API-STATE-001",
+      "status": "OPEN_IMPLEMENTATION_FREEZE_DEPENDENCY",
+      "severity": "high",
+      "title": "The session API does not expose retained layout, absence and partial-scan state",
+      "evidence": "R6 lines 26-47 define snapshot() as a dict of output bytes and say absence, empty families and authorized installations remain in separate retained state. R6 lines 95-112 require that state to distinguish every fixed-slot absence, initial complete family set, earliest missing ancestor, in-progress/over-cap scan and current-command installation. R5 lines 12-46 requires the workflow/status matrix to make those distinctions observable.",
+      "risk": "A workflow using only the frozen methods must either access undocumented private fields or reopen/rescan paths. Either path can lose initial-absence lineage, misclassify a forbidden empty family, adopt a late identical file, or replace an incomplete scan with a later snapshot.",
+      "required_closure": "Freeze an immutable layout/scan result accessor (for example layout_state()) or expand snapshot() to return fixed-slot origin, initial and current complete sets, missing-edge records, scan completion/over-cap/refusal state, mode/type/link metadata and authorized-install phases. Keep byte mappings as a separate immutable view and prohibit callers from obtaining a fresh filesystem snapshot."
+    },
+    {
+      "id": "CPI-R6-SETUP-002",
+      "status": "OPEN_IMPLEMENTATION_FREEZE_DEPENDENCY",
+      "severity": "high",
+      "title": "Session setup cannot represent the first request with an absent batch namespace",
+      "evidence": "R6 lines 23-24 expose only open_code_session(batch_id), while lines 49-50 say opening a session creates no path. The same candidate says lines 83-85 that new .work and batch directories use 0700 and lines 166-171 that new output directories are created and captured after mkdir. R5's request-only state requires a first command to create the namespace when it is absent.",
+      "risk": "A request command cannot safely create .work/<batch>/code-evidence-v1 through this API unless a side channel creates paths outside the one retained graph or the context silently creates them before its initial missing-edge snapshot. Either choice can bypass the checkout lock, lose the first-absence edge or leave an untracked directory after setup failure.",
+      "required_closure": "Define a retained setup phase that captures checkout/.work/batch/output missing edges, acquires the lock before creation, creates each approved 0700 directory with descriptor-relative no-follow operations, records post-create identity before authorizing it, and verifies/cleans partial setup on every pre-yield exception. Alternatively add an explicit create-capable constructor with these same guarantees; do not leave creation to the orchestrator."
+    },
+    {
+      "id": "CPI-R6-INPUT-003",
+      "status": "OPEN_CONTAINMENT_POLICY_DEPENDENCY",
+      "severity": "medium",
+      "title": "Ordinary metadata input has no explicit relation to the output namespace",
+      "evidence": "R6 lines 50-55 define retain_input() for the request/observe metadata file, but lines 126-130 specify equality/ancestor rejection only for the raw bundle and output roots. R2 lines 211-216 put all command inputs and work/output paths in the retained graph and require all-exit lineage checks; R6 does not state whether an ordinary input may be an output slot, family member or ancestor of code-evidence-v1.",
+      "risk": "A caller can point --input at a retained output file or a directory containing the output namespace. The command can then read one lineage while its install mutates the same namespace, producing self-referential reuse or a late input/output change whose refusal happens only after partial output installation.",
+      "required_closure": "Reject ordinary input paths that equal, contain or are contained by the output namespace (and record the descriptor relation before any install), or explicitly freeze a narrow same-file case with no mutation and exact reuse semantics. Apply the same relation check to any resource root that can reside below the checkout."
+    },
+    {
+      "id": "CPI-R6-INSTALL-004",
+      "status": "OPEN_IMPLEMENTATION_FREEZE_DEPENDENCY",
+      "severity": "high",
+      "title": "Post-link cleanup and directory-fsync errors lack an explicit authorized-prefix transition",
+      "evidence": "R6 lines 173-188 require final identity checks, temp unlink, final verification and then recording the authorized installation. The table at lines 197-200 and the text at lines 208-210 separately allow a correct final to remain after temp cleanup or a directory-fsync failure. The API only specifies install() -> bool and has no phase/result record for a linked-final, cleaned-final, leftover-temp or ambiguous-link state.",
+      "risk": "If directory fsync fails after a correct final and temp absence, the next verifier can see a file first captured as absent but not yet recorded as authorized and report WORK_PATH_UNSAFE instead of the specified I/O failure with an allowed prefix. If temp unlink fails or post-link identity verification fails, the implementation can likewise disagree about whether the final belongs to the command or is foreign."
+      ,"required_closure": "Freeze an explicit install phase enum and transition order. Record the owned final stamp and authorized-set addition immediately after verified temp absence and before directory fsync, retain a directory-durability-pending phase for fsync failure, and define install/verify/snapshot results for every table row. Post-link mismatch must preserve the unverified final without adding it to the authorized set; a cleanup failure must preserve the owned temp phase and never rebaseline."
+    },
+    {
+      "id": "CPI-R6-MODE-CAP-005",
+      "status": "OPEN_MODE_AND_ACCOUNTING_CLARIFICATION",
+      "severity": "medium",
+      "title": "Directory mode and temporary-entry cap scopes need a fixed matrix",
+      "evidence": "R6 lines 95-100 give output-root/family ordinary-entry caps and permit one active temp, while lines 114-124 define file charging and directory mode rules. The candidate does not state whether a pre-existing code-evidence-v1 or family directory is required to be exactly 0700, how its initial empty state is classified, or whether each family cap is cap ordinary entries plus one owned temp during its live phase. Existing staging._ensure_dir_at at lines 504-513 creates 0755 and cannot be inherited for this policy.",
+      "risk": "A scanner can reject the command's own temp as an eighth output-root entry, accept cap+1 foreign entries, or treat a pre-existing 0755 output directory as a valid retained namespace. That would break R5's complete-set and exact-permission claims and can alter the C+2*N budget accounting.",
+      "required_closure": "Publish a mode/count table for checkout/.work/batch, output root, each family and active temp phases. State exact 0700 requirements for existing generated directories, ordinary-cap versus cap+owned-temp counting, and the bytes charged for every observed regular entry before classification."
+    },
+    {
+      "id": "CPI-R6-ERROR-006",
+      "status": "OPEN_PUBLIC_ERROR_FREEZE_DEPENDENCY",
+      "severity": "medium",
+      "title": "Final-verifier precedence is described only for lineage versus prior errors",
+      "evidence": "R6 lines 145-153 require every retained group to be checked and say persistent lineage failure overrides an earlier semantic or I/O error. The candidate does not define deterministic selection when multiple lineages fail, when cleanup and final verification both fail, or when a setup/resource failure occurs before a session is registered. The public error mapping remains explicitly forthcoming at lines 212-220.",
+      "risk": "Equivalent races can emit different codes/details or lose the owned-temp/foreign-final evidence, making the failure matrix and retry/status behavior non-deterministic even though the underlying lineage result is the same.",
+      "required_closure": "Freeze a stable group order and precedence tuple for setup, input, resources, output, temp, final and ancestors; preserve the first operation error plus all persistent lineage/cleanup evidence in bounded details. Define the pre-yield setup path and descriptor-close failure mapping before implementation review."
+    },
+    {
+      "id": "CPI-R6-CHECKPOINT-007",
+      "status": "OPEN_IMPLEMENTATION_FEASIBILITY_DEPENDENCY",
+      "severity": "medium",
+      "title": "The checkpoint API does not distinguish bounded name checks from full byte rereads",
+      "evidence": "R6 lines 145-150 require a final verifier with retained byte rereads, while lines 173-177 require a retained-lineage/set check after each write and a full payload check before link. The only method exposed is verify() at lines 33-35; no operation or checkpoint level says whether verify() rereads every retained input/output byte on each short os.write.",
+      "risk": "If every short write performs the full byte reread, an adversarial short-write stream can multiply bounded input/output I/O by the number of write calls and make the maximum-body case impractically unbounded. If the implementation silently performs only named-edge checks, it can fail to meet the intended prepublication byte guarantee.",
+      "required_closure": "Freeze separate bounded checkpoint operations, such as verify_names_and_sets(phase) for every write and verify_full(phase) before publication, after cleanup and at final exit, or specify an equivalent cadence and cost bound. Preserve the exact owned-temp/link phase in both paths and test forced short writes without weakening the full-byte checks."
+    }
+  ],
+  "resolved_prior_findings": [
+    "CPI-R4-MODE-ABSENCE-004",
+    "CPI-R4-REUSE-INITIAL-005",
+    "CPI-R5-INSTALL-003",
+    "CPI-R5-PEAK-004",
+    "CPI-R5-SNAPSHOT-005",
+    "CPI-R5-RACE-006"
+  ],
+  "required_next_freezes": [
+    "Freeze the retained layout/scan state accessor and setup/create lifecycle, including first absence, missing ancestors, empty families and pre-yield failures.",
+    "Freeze ordinary-input/output/resource containment relations before any install.",
+    "Freeze the post-link install phase/result state, especially authorized-prefix recording before directory fsync and leftover-temp handling.",
+    "Freeze exact directory mode and ordinary-entry versus owned-temp cap accounting for every output family.",
+    "Freeze the distinction and cost bound between per-write named-edge checks and prepublication/final retained-byte rereads.",
+    "Freeze the six public envelope/input schemas, installed-resource names/hashes/origin rule and deterministic bounded error precedence.",
+    "Implement the private module against the stopped packet, then run every installer table row, partial scan, setup failure, lock contention, exact boundary and full-suite/wheel check without changing legacy staging helpers."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true,
+    "metadata_correction_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T16:46:07.839381000Z",
+    "note": "Tool-observed current UTC; no retrospective review-start time is asserted."
+  }
+}

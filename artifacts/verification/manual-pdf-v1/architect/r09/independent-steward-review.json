@@ -1,0 +1,99 @@
+{
+  "audit": "R08 Repo Steward read-only independent audit",
+  "observed_at": "2026-09-07T00:35:33.821617+08:00",
+  "network_used": false,
+  "git_mutations_performed": false,
+  "packet_sha256": null,
+  "baseline_json_sha256": "a616c8e5ff3db04a72df65f043b88634c33f02d31448f7a150910e005a80de28",
+  "handoffs": {
+    "1": {
+      "ready_sha256": "5075faa05c8d14c066467a38e851262a8be55ace1c864153c90df457520ebe5c",
+      "handoff_sha256": "5075faa05c8d14c066467a38e851262a8be55ace1c864153c90df457520ebe5c",
+      "ready_equals_handoff": true,
+      "status": "ready",
+      "stopped_writing": true,
+      "artifact_count": 20,
+      "artifact_bad": []
+    },
+    "2": {
+      "ready_sha256": "b9a849f52ffeee41b4439104723e48d036166b746fc0c46d2da054957d344f05",
+      "handoff_sha256": "b9a849f52ffeee41b4439104723e48d036166b746fc0c46d2da054957d344f05",
+      "ready_equals_handoff": true,
+      "status": "ready",
+      "stopped_writing": true,
+      "artifact_count": 26,
+      "artifact_bad": []
+    },
+    "3": {
+      "ready_sha256": "00e6f52097ea8c65c1881fe47bf35b442293fdb940058fc71d35fa42c6c76ebe",
+      "handoff_sha256": "00e6f52097ea8c65c1881fe47bf35b442293fdb940058fc71d35fa42c6c76ebe",
+      "ready_equals_handoff": true,
+      "status": "ready",
+      "stopped_writing": true,
+      "artifact_count": 17,
+      "artifact_bad": []
+    },
+    "4": {
+      "ready_sha256": "b97222e2f2f9c902a844e5984ae92062db7f1647fe6a55ff7c0db34097a27021",
+      "handoff_sha256": "b97222e2f2f9c902a844e5984ae92062db7f1647fe6a55ff7c0db34097a27021",
+      "ready_equals_handoff": true,
+      "status": "ready",
+      "stopped_writing": true,
+      "artifact_count": 20,
+      "artifact_bad": []
+    }
+  },
+  "t4_artifact_bad": [],
+  "integration": {
+    "head": "bcff631ce12fe777ab6db7a4dd6531db3bbaea3f",
+    "branch": "integrate/manual-pdf-pipeline",
+    "status_rows": 70,
+    "tracked_modified": 10,
+    "untracked": 60,
+    "staged_names": [],
+    "git_dir": "/Users/huangzhanpeng/python_code/video-paper-wiki/.git/worktrees/integration",
+    "common_dir": "/Users/huangzhanpeng/python_code/video-paper-wiki/.git"
+  },
+  "main": {
+    "head": "bcff631ce12fe777ab6db7a4dd6531db3bbaea3f",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "status_rows": 820,
+    "tracked_modified": 6,
+    "untracked": 814,
+    "staged_names": [],
+    "git_dir": ".git",
+    "common_dir": ".git"
+  },
+  "candidate": {
+    "manifest_entries": 70,
+    "live_status_rows": 70,
+    "status_paths_equal": true,
+    "extra_live_paths": [],
+    "missing_manifest_paths": [],
+    "hash_mismatches": [],
+    "mapping_sha256": "bb64af4cc4152a21c2c5d20ecf33441b9bcb30ce7198ae1ccdb2a466d06f5d03",
+    "manifest_mapping_sha256": "bb64af4cc4152a21c2c5d20ecf33441b9bcb30ce7198ae1ccdb2a466d06f5d03",
+    "counts": {
+      "tracked_modified": 10,
+      "untracked": 60,
+      "total": 70
+    }
+  },
+  "protected_history": {
+    "count": 188,
+    "bad": []
+  },
+  "pdf_unchanged": true,
+  "r08_final_scope_sha256": "9146539c7a8238082115549deff21d74acb9294434fdff062e348f360defae82",
+  "quickstart_sha256": "0c66d84539417e7d902925f1144e558b54fe481b79fd8b77258e562a9c74910e",
+  "verifier_sha256": "1ca5f342517294c1d5ed3ed3974585bc6ede410a15b08d78f84f6ae285120197",
+  "wheel_sha256": "9e1861d92a3b5fc63159a0d0e6e1aca63eb50e283fb6e008f579ef70fce13b21",
+  "decision": "GO_FOR_ARCHITECT_REVIEW_ONLY; NOT_AUTHORIZED_FOR_GIT_DELIVERY",
+  "notes": [
+    "All new T1/T2/T3/T4 ready/handoff files are byte-identical within each terminal and all listed artifact hashes match.",
+    "Integration candidate is exact 70 paths: 10 tracked modified + 60 untracked; index empty; all manifest hashes match live bytes.",
+    "The timestamped T4 git-readonly artifact records an older main-worktree count (6 tracked + 686 untracked / 692 rows); fresh current main snapshot is 6 tracked + 802 untracked / 808 rows. Integration remains 10 + 60 / 70.",
+    "T4 PR/CI materials correctly leave commit, PR, live base/head, merge preview, run, attempt, jobs and checkout SHA pending; historical base is explicitly not live-verified.",
+    "No Git write, fetch, push, PR, remote CI or merge performed."
+  ]
+}

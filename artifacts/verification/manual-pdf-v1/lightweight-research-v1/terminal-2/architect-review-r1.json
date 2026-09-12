@@ -1,0 +1,111 @@
+{
+  "at_utc": "2026-09-08T10:50:25.300280+00:00",
+  "base": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+  "builder_scoped_tests": "94 passed in 1.56s, separately bound in r1/checks.json; these are additional contract failures.",
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "decision": "CHANGES_REQUIRED_AT_STOPPED_T2_R1",
+  "files": [
+    {
+      "path": "src/video_paper_wiki_research/light_backup.py",
+      "sha256": "3f71dbc34bb25b0cfe6866598fa9d5aa38b0de39a6358c2621f27e5061917610",
+      "size_bytes": 59801
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_knowledge.py",
+      "sha256": "5a51703068a88373feeff746e3fe14a08d95e8539fd21d19322a7e56eaa866b8",
+      "size_bytes": 103669
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_knowledge_batch.py",
+      "sha256": "4b58e9dc412872a157f1a02b4393b02dd37fe699efcc291d46ca6eb0aa6c4bca",
+      "size_bytes": 65023
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_knowledge_refresh.py",
+      "sha256": "e30682610d69214f4c6b12dd5f8b1dae0aafdf0dacb292a5a0ee9d197df35ba3",
+      "size_bytes": 23040
+    },
+    {
+      "path": "tests/research/test_light_backup.py",
+      "sha256": "212a710e4ee3b531020cbf32ad4856dc1d4f17108c5a5ab667794593d00d8eb8",
+      "size_bytes": 35174
+    },
+    {
+      "path": "tests/research/test_light_knowledge.py",
+      "sha256": "8229e5dfe2737606491d459278ced54bce59b04d3ed893ea829685d1af105ec9",
+      "size_bytes": 38382
+    },
+    {
+      "path": "tests/research/test_light_knowledge_batch.py",
+      "sha256": "fa202a13416bd53090923cdea3660b1b535f3a25e3eec34a89324fe30b0d4fc8",
+      "size_bytes": 16908
+    },
+    {
+      "path": "tests/research/test_light_knowledge_refresh.py",
+      "sha256": "a03e86fcb2dbb77c4eebb7754f995a3c5b5acc51bc84c45a9967144576d99260",
+      "size_bytes": 10118
+    }
+  ],
+  "limitations": [
+    "No source, Git or external changes. All fixtures and injected interruptions were synthetic and disposable.",
+    "Independent complete-plan/chain review still pending; no acceptance or source transfer."
+  ],
+  "module": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-2/source/src/video_paper_wiki_research/light_knowledge_batch.py",
+  "observations": [
+    {
+      "blockers": [
+        {
+          "message": "pending batch job 6e020b35238613667f40d0e322edce8c7fedc0ac98dd8032c9c5beec32b2ec0b must be finished or retried (missing batches []; next merge step 1)",
+          "path": ".light-knowledge/batch-jobs/6e020b35238613667f40d0e322edce8c7fedc0ac98dd8032c9c5beec32b2ec0b",
+          "status": "LIGHT_BATCH_INCOMPLETE"
+        }
+      ],
+      "case": "interruption_after_head_before_completion",
+      "first": {
+        "exception": "OSError",
+        "message": "synthetic interruption before completion publication"
+      },
+      "head_after": "863b86fbdbf4e48fd57a72722d6cc8758275b92c919fadc07a6a79304f87b34d",
+      "id": "T2-R1-01",
+      "retry": {
+        "message": "expected base knowledge head changed before finalization",
+        "ok": false,
+        "status": "LIGHT_BATCH_CONFLICT"
+      }
+    },
+    {
+      "blockers": [],
+      "case": "completion_nonexistent_record",
+      "id": "T2-R1-02",
+      "retry": {
+        "advanced_head": true,
+        "message": "reused finalized knowledge record",
+        "ok": true,
+        "page_path": "/private/tmp/t2r1._3dub1gc/completion/.work/ws/.light-knowledge/records/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff/knowledge.md",
+        "record_id": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "reused": true,
+        "status": "OK"
+      },
+      "returned_page_exists": false
+    },
+    {
+      "blockers": [],
+      "case": "completed_job_unknown_empty_directory",
+      "classification": "completed",
+      "id": "T2-R1-03",
+      "unknown_directory_preserved": true
+    },
+    {
+      "bundle_validator_accepts": true,
+      "case": "rehashed_record_document_diverges_from_actual_final_merge",
+      "forged_record_id": "0198f3bfd4b6719e1f9ce8d4a313670448aa32bbbe0ecf66cc44c20ddc7a2a6d",
+      "forged_record_source_status": "current",
+      "id": "T2-R1-04",
+      "original_record_id": "811f5da185cd6a9c1de291040bf51a3e61ea8ee3792d5e10e0e87a0b66092075",
+      "public_list_ok": true
+    }
+  ],
+  "schema": "lightweight-research-architect-t2-r1-review.v1",
+  "snapshot_sha256": "5abc88dac56fc77f4ecbb9858f1f9c82950266a10558ee4a64842515a26a6181",
+  "source_and_frozen_copies_verified_before_after": true
+}

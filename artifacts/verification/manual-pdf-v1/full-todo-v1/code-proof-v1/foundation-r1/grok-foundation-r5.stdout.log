@@ -1,0 +1,557 @@
+```python
+def _require_plain_json_tree(root: object) -> None:
+    ancestors: set[int] = set()
+    completed: set[int] = set()
+    stack: list[tuple[object, bool]] = [(root, False)]
+    while stack:
+        node, exiting = stack.pop()
+        kind = type(node)
+        if exiting:
+            ident = id(node)
+            ancestors.discard(ident)
+            completed.add(ident)
+            continue
+        if kind is dict or kind is list:
+            ident = id(node)
+            if ident in ancestors:
+                raise CodeProofResourceError("resource_shape")
+            if ident in completed:
+                continue
+            ancestors.add(ident)
+            stack.append((node, True))
+            if kind is dict:
+                for key, child in node.items():
+                    if type(key) is not str:
+                        raise CodeProofResourceError("resource_shape")
+                    if _contains_surrogate(key):
+                        raise CodeProofResourceError("resource_shape")
+                    stack.append((child, False))
+            else:
+                for child in node:
+                    stack.append((child, False))
+        elif kind is str:
+            if _contains_surrogate(node):
+                raise CodeProofResourceError("resource_shape")
+        elif kind is int or kind is bool or kind is type(None):
+            continue
+        else:
+            raise CodeProofResourceError("resource_shape")
+
+
+def _canonical_list_index(token: str) -> int:
+    if type(token) is not str:
+        raise CodeProofResourceError("resource_shape")
+    if token == "":
+        raise CodeProofResourceError("resource_shape")
+    if token[0] == "0":
+        if len(token) != 1:
+            raise CodeProofResourceError("resource_shape")
+    else:
+        for char in token:
+            if char < "0" or char > "9":
+                raise CodeProofResourceError("resource_shape")
+    try:
+        return int(token)
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _require_exact_mapping(value: object, expected_keys: tuple[str, ...]) -> dict:
+    if type(value) is not dict:
+        raise CodeProofResourceError("resource_shape")
+    keys: list[str] = []
+    for key in value:
+        if type(key) is not str:
+            raise CodeProofResourceError("resource_shape")
+        keys.append(key)
+    if frozenset(keys) != frozenset(expected_keys):
+        raise CodeProofResourceError("resource_shape")
+    return value
+
+
+def _walk_schema_document(document: dict, current_root: dict, schemas: dict[str, dict]) -> None:
+    visited: set[int] = set()
+    stack: list[object] = [document]
+    while stack:
+        node = stack.pop()
+        kind = type(node)
+        if kind is dict:
+            ident = id(node)
+            if ident in visited:
+                continue
+            visited.add(ident)
+            nested = node is not document
+            for key, child in node.items():
+                if key == "$id" and nested:
+                    raise CodeProofResourceError("resource_shape")
+                if key in _FORBIDDEN_SCHEMA_KEYWORDS:
+                    raise CodeProofResourceError("resource_shape")
+                if key == "$ref":
+                    _resolve_ref(child, current_root, schemas)
+                stack.append(child)
+        elif kind is list:
+            ident = id(node)
+            if ident in visited:
+                continue
+            visited.add(ident)
+            for child in node:
+                stack.append(child)
+
+
+def _validate_schema_references(schemas: dict[str, dict]) -> None:
+    if type(schemas) is not dict:
+        raise CodeProofResourceError("resource_shape")
+    try:
+        _require_plain_json_tree(schemas)
+        if frozenset(schemas) != frozenset(_SCHEMA_IDS):
+            raise CodeProofResourceError("resource_shape")
+        for schema_id in _SCHEMA_IDS:
+            document = schemas[schema_id]
+            if type(document) is not dict:
+                raise CodeProofResourceError("resource_shape")
+            if "$id" not in document:
+                raise CodeProofResourceError("resource_shape")
+            identified = document["$id"]
+            if type(identified) is not str or identified != schema_id:
+                raise CodeProofResourceError("resource_shape")
+        for schema_id in sorted(_SCHEMA_IDS):
+            document = schemas[schema_id]
+            _walk_schema_document(document, document, schemas)
+    except CodeProofResourceError:
+        raise
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+
+
+class CodeProofResources:
+    __slots__ = ("_hard_limits", "_profile_sha256", "_resource_pins", "_validators")
+
+    def __init__(self) -> None:
+        raise CodeProofResourceError("resource_shape")
+
+    @property
+    def profile_sha256(self) -> str:
+        return self._profile_sha256
+
+    @property
+    def resource_pins(self) -> tuple:
+        return self._resource_pins
+
+    def validate_structure(self, title: object, instance: object) -> None:
+        if type(title) is not str or title not in self._validators:
+            raise CodeProofStructureError("shape")
+        _preflight_instance(instance)
+        try:
+            self._validators[title].validate(instance)
+        except Exception:
+            raise CodeProofStructureError("shape") from None
+
+    def materialize_limits(self, value: object) -> dict[str, dict[str, int]]:
+        if value is None:
+            return _copy_hard_limits(self._hard_limits)
+        if type(value) is not dict:
+            raise CodeProofStructureError("limits")
+        groups: list[str] = []
+        for key in value:
+            if type(key) is not str:
+                raise CodeProofStructureError("limits")
+            groups.append(key)
+        if frozenset(groups) != frozenset(_LIMIT_GROUP_KEYS):
+            raise CodeProofStructureError("limits")
+        materialized: dict[str, dict[str, int]] = {}
+        for group in groups:
+            inner = value[group]
+            if type(inner) is not dict:
+                raise CodeProofStructureError("limits")
+            fields: list[str] = []
+            for key in inner:
+                if type(key) is not str:
+                    raise CodeProofStructureError("limits")
+                fields.append(key)
+            if frozenset(fields) != frozenset(_LIMIT_KEYS[group]):
+                raise CodeProofStructureError("limits")
+            materialized_inner: dict[str, int] = {}
+            for key in fields:
+                raw = inner[key]
+                if type(raw) is not int:
+                    raise CodeProofStructureError("limits")
+                if raw <= 0 or raw > self._hard_limits[group][key]:
+                    raise CodeProofStructureError("limits")
+                materialized_inner[key] = raw
+            materialized[group] = materialized_inner
+        return materialized
+
+
+def compile_code_proof_resources(retained_bytes: object) -> CodeProofResources:
+    snapshot = _require_retained_mapping(retained_bytes)
+    _check_production_pins(snapshot)
+    parsed: dict = {}
+    for key, payload in snapshot:
+        parsed[key] = _parse_resource_bytes(payload)
+    schemas: dict[str, dict] = {}
+    for stem, size, digest in _SCHEMA_STEMS:
+        document = parsed[_schema_logical_key(stem)]
+        _require_schema_header(document, stem)
+        schemas[_schema_id(stem)] = document
+        try:
+            Draft202012Validator.check_schema(document)
+        except Exception:
+            raise CodeProofResourceError("resource_shape") from None
+    _validate_schema_references(schemas)
+    profile = parsed[_PROFILE_LOGICAL_KEY]
+    _validate_profile_inventory(profile)
+    try:
+        registry = _build_registry(schemas)
+        _StrictDraft202012Validator({"$ref": _PROFILE_DEF_REF}, registry=registry).validate(profile)
+        validators = {}
+        for stem, size, digest in _SCHEMA_STEMS:
+            validators[_schema_title(stem)] = _StrictDraft202012Validator(
+                copy.deepcopy(schemas[_schema_id(stem)]),
+                registry=registry,
+            )
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    compiled = object.__new__(CodeProofResources)
+    compiled._profile_sha256 = _PROFILE_SHA256
+    compiled._resource_pins = _PRODUCTION_PINS
+    compiled._validators = validators
+    compiled._hard_limits = _copy_hard_limits(_HARD_LIMITS)
+    return compiled
+```
+
+```python
+def test_structure_preflight_and_titles(resources):
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_SCHEMA_ID, [])
+    _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure("video-paper-wiki.code-proof-noninventory.v1", [])
+    _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure("video-paper-wiki.code-proof-profile.v1", [])
+    _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE + "#/$defs/profile", [])
+    _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_Str(_COMMON_TITLE), [])
+    _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, _Dict())
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, _List())
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, _Str("ok"))
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, _Int(0))
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, 0.0)
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, 1.5)
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, float("nan"))
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, float("inf"))
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, float("-inf"))
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, {"\ud800": 1})
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, "\ud800")
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, {"k": "\ud800"})
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, {1: "a"})
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, {None: "a"})
+    _assert_structure(exc, "type")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, {_Str("a"): 1})
+    _assert_structure(exc, "type")
+    dict_cycle = {}
+    dict_cycle["loop"] = dict_cycle
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, dict_cycle)
+    _assert_structure(exc, "type")
+    list_cycle = []
+    list_cycle.append(list_cycle)
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, list_cycle)
+    _assert_structure(exc, "type")
+    mixed = {}
+    nested = [mixed]
+    mixed["child"] = nested
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_COMMON_TITLE, mixed)
+    _assert_structure(exc, "type")
+    nfd = "e\u0301"
+    shared_map = {"k": nfd}
+    shared_seq = [shared_map]
+    shared_instance = {"a": shared_seq, "b": shared_seq, "c": shared_map}
+    resources.validate_structure(_COMMON_TITLE, shared_instance)
+    resources.validate_structure(_COMMON_TITLE, [shared_seq, shared_seq, shared_map, shared_map])
+    assert shared_instance["a"] is shared_instance["b"]
+    assert shared_map["k"] == nfd
+    assert shared_map["k"] == "e\u0301"
+    assert len(shared_map["k"]) == 2
+    resources.validate_structure(_COMMON_TITLE, [])
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure("video-paper-wiki.code-proof-request.v1", {})
+    _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.validate_structure(_MARKER, [])
+    _assert_structure(exc, "shape")
+
+
+def test_limit_exact_key_and_value_types(resources):
+    class _Armed:
+        def __init__(self):
+            self._live = False
+
+        def arm(self):
+            self._live = True
+
+        def __hash__(self):
+            if self._live:
+                raise RuntimeError(_MARKER)
+            return id(self)
+
+        def __eq__(self, other):
+            if self._live:
+                raise RuntimeError(_MARKER)
+            return self is other
+
+    full = _full_limits(resources)
+    omitted = resources.materialize_limits(None)
+    assert omitted == full
+    got = resources.materialize_limits(full)
+    assert got == full
+    assert got is not full
+    for group in full:
+        assert got[group] is not full[group]
+    bad = _full_limits(resources)
+    group = next(iter(bad))
+    bad[_Str(group)] = bad.pop(group)
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    group = next(iter(bad))
+    inner = dict(bad[group])
+    field = next(iter(inner))
+    inner[_Str(field)] = inner.pop(field)
+    bad[group] = inner
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(_Dict(_full_limits(resources)))
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    group = next(iter(bad))
+    bad[group] = _Dict(bad[group])
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    group = next(iter(bad))
+    field = next(iter(bad[group]))
+    bad[group][field] = _Int(1)
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    items = list(_full_limits(resources).items())
+    probe = _Armed()
+    outer = {probe: dict(items[0][1])}
+    for group, inner in items[1:]:
+        outer[group] = dict(inner)
+    probe.arm()
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(outer)
+    _assert_structure(exc, "limits")
+    full = _full_limits(resources)
+    group = next(iter(full))
+    inner_items = list(full[group].items())
+    probe = _Armed()
+    new_inner = {probe: inner_items[0][1]}
+    for key, raw in inner_items[1:]:
+        new_inner[key] = raw
+    outer = {}
+    for name, inner in full.items():
+        outer[name] = dict(inner)
+    outer[group] = new_inner
+    probe.arm()
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(outer)
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    bad["not-a-limit-group"] = dict(next(iter(bad.values())))
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    bad.pop(next(iter(bad)))
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    group = next(iter(bad))
+    inner = dict(bad[group])
+    inner["not-a-limit-key"] = 1
+    bad[group] = inner
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+    bad = _full_limits(resources)
+    group = next(iter(bad))
+    inner = dict(bad[group])
+    inner.pop(next(iter(inner)))
+    bad[group] = inner
+    with pytest.raises(CodeProofStructureError) as exc:
+        resources.materialize_limits(bad)
+    _assert_structure(exc, "limits")
+
+
+def test_profile_exact_builtin_keys(profile_document):
+    _validate_profile_inventory(profile_document)
+    mutated = copy.deepcopy(profile_document)
+    key = next(iter(mutated))
+    mutated[_Str(key)] = mutated.pop(key)
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_profile_inventory(mutated)
+    _assert_resource(exc, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    limits = mutated["limits"]
+    key = next(iter(limits))
+    limits[_Str(key)] = limits.pop(key)
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_profile_inventory(mutated)
+    _assert_resource(exc, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    limits = mutated["limits"]
+    group = next(iter(limits))
+    subgroup = limits[group]
+    key = next(iter(subgroup))
+    subgroup[_Str(key)] = subgroup.pop(key)
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_profile_inventory(mutated)
+    _assert_resource(exc, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    admission = mutated["admission"]
+    key = next(iter(admission))
+    admission[_Str(key)] = admission.pop(key)
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_profile_inventory(mutated)
+    _assert_resource(exc, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    row = mutated["inventory"][0]
+    key = next(iter(row))
+    row[_Str(key)] = row.pop(key)
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_profile_inventory(mutated)
+    _assert_resource(exc, "resource_shape")
+
+
+def test_schema_reference_malformed_graphs(schema_map):
+    _validate_schema_references(copy.deepcopy(schema_map))
+    shared = copy.deepcopy(schema_map)
+    shared_node = {"description": "shared"}
+    shared_list = [shared_node]
+    shared[_COMMON_SCHEMA_ID]["codeProofSharedA"] = shared_node
+    shared[_COMMON_SCHEMA_ID]["codeProofSharedB"] = shared_node
+    shared[_COMMON_SCHEMA_ID]["codeProofSharedC"] = shared_list
+    shared[_COMMON_SCHEMA_ID]["codeProofSharedD"] = shared_list
+    _validate_schema_references(shared)
+    escaped = copy.deepcopy(schema_map)
+    escaped[_COMMON_SCHEMA_ID]["~"] = {"a/b": {"type": "null"}}
+    escaped[_COMMON_SCHEMA_ID]["codeProofEscapedRef"] = {"$ref": "#/~0/a~1b"}
+    _validate_schema_references(escaped)
+    huge = copy.deepcopy(schema_map)
+    huge[_COMMON_SCHEMA_ID]["codeProofList"] = [{"type": "null"}]
+    huge[_COMMON_SCHEMA_ID]["codeProofHugeRef"] = {"$ref": "#/codeProofList/" + ("1" * 4301)}
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_schema_references(huge)
+    _assert_resource(exc, "resource_shape")
+    dict_cycle = copy.deepcopy(schema_map)
+    loop_dict = {}
+    loop_dict["loop"] = loop_dict
+    dict_cycle[_COMMON_SCHEMA_ID]["codeProofCycleDict"] = loop_dict
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_schema_references(dict_cycle)
+    _assert_resource(exc, "resource_shape")
+    list_cycle = copy.deepcopy(schema_map)
+    loop_list = []
+    loop_list.append(loop_list)
+    list_cycle[_COMMON_SCHEMA_ID]["codeProofCycleList"] = loop_list
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_schema_references(list_cycle)
+    _assert_resource(exc, "resource_shape")
+    subclass_key = copy.deepcopy(schema_map)
+    subclass_key[_COMMON_SCHEMA_ID]["codeProofSubclassKey"] = {_Str("child"): True}
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_schema_references(subclass_key)
+    _assert_resource(exc, "resource_shape")
+    surrogate_key = copy.deepcopy(schema_map)
+    surrogate_key[_COMMON_SCHEMA_ID]["codeProofSurrogateKey"] = {"\ud800": True}
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_schema_references(surrogate_key)
+    _assert_resource(exc, "resource_shape")
+    surrogate_str = copy.deepcopy(schema_map)
+    surrogate_str[_COMMON_SCHEMA_ID]["codeProofSurrogateStr"] = {"k": "\ud800"}
+    with pytest.raises(CodeProofResourceError) as exc:
+        _validate_schema_references(surrogate_str)
+    _assert_resource(exc, "resource_shape")
+
+
+def test_context_rejects_external_configuration(retained_bytes):
+    def _external(*args, **kwargs):
+        raise AssertionError(_MARKER)
+
+    with pytest.raises(CodeProofResourceError) as exc:
+        cpr.CodeProofResources()
+    _assert_resource(exc, "resource_shape")
+    with pytest.raises(TypeError):
+        cpr.CodeProofResources(_MARKER, (), _external, {})
+    with pytest.raises(TypeError):
+        cpr.CodeProofResources(
+            digest=_MARKER,
+            pins=(),
+            validators={_COMMON_TITLE: _external},
+            hard_limits={},
+        )
+    with pytest.raises(TypeError):
+        cpr.CodeProofResources(
+            _profile_sha256=_MARKER,
+            _resource_pins=(),
+            _validators={_COMMON_TITLE: _external},
+            _hard_limits={},
+        )
+    first = compile_code_proof_resources(retained_bytes)
+    second = compile_code_proof_resources(retained_bytes)
+    assert type(first) is cpr.CodeProofResources
+    assert type(second) is cpr.CodeProofResources
+    assert first is not second
+    assert type(first.profile_sha256) is str
+    assert type(first.resource_pins) is tuple
+    assert first.profile_sha256 == second.profile_sha256
+    assert first.resource_pins == second.resource_pins
+    with pytest.raises(AttributeError):
+        first.profile_sha256 = first.profile_sha256
+    with pytest.raises(AttributeError):
+        first.resource_pins = first.resource_pins
+```
+
+Tests not run.

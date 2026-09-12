@@ -1,0 +1,154 @@
+{
+  "$schema": "full-todo.code-git-kernel-stopped-candidate-review-r8.v1",
+  "schema": "full-todo.code-git-kernel-stopped-candidate-review-r8.v1",
+  "revision": "R8-stopped-candidate-independent-review",
+  "recorded_at_utc": "2026-09-10T02:10:00Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded Repo Steward review",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only review of the frozen R8 candidate: patch lineage, exact three-path scope, frozen R1/R2 contract binding, corrected R3 adversarial replay and focused dual-runtime tests. No source/test/fixture/Git/network/provider/Vault mutation.",
+  "baseline": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "source_writes_stopped": true,
+    "git_mutation": false
+  },
+  "contract_binding": {
+    "r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "size_bytes": 17862,
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe"
+    },
+    "r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "size_bytes": 3659,
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568"
+    },
+    "r8": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-INTEGRATION-R8.md",
+      "size_bytes": 1336,
+      "sha256": "dccf16f4897f466df214cedb3728c51b5479a00007e3e9f11c26b7f58c143a8d"
+    }
+  },
+  "candidate": {
+    "handoff": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-candidate-r8.json",
+      "size_bytes": 3018,
+      "sha256": "b6d10cd036092a6a56a61170afbcb4e475fdfcab3c0406a3bdfb7cf8739453fa",
+      "candidate_snapshot_sha256": "c75abbfbca9a554fe0f8226a5a5db375fdb8c2d15f7267e5f51c3b5020452a84"
+    },
+    "files": [
+      {
+        "path": "src/video_paper_wiki/code_git_objects.py",
+        "size_bytes": 30702,
+        "sha256": "86c2c0b2e58239bb44b8b8a2bf302a8fd99478a9faaf3ea8d63586f29a8d861b"
+      },
+      {
+        "path": "tests/fixtures/code-git-objects-v1.json",
+        "size_bytes": 52532,
+        "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0"
+      },
+      {
+        "path": "tests/unit/test_code_git_objects.py",
+        "size_bytes": 44944,
+        "sha256": "53dd96862f506af4e56c42c55a3ea6d98eae82f215e6b71c7cbc2e68f22ab"
+      }
+    ],
+    "exact_three_path_scope": true,
+    "fixture_byte_identical_to_frozen": true,
+    "candidate_files_unchanged_before_after_review": true
+  },
+  "patch_lineage_review": {
+    "raw_builder_output": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-r7.stdout.log",
+      "size_bytes": 14075,
+      "sha256": "04025ec506722ad4abfe48cbab0e0706ea91da39c84698a4193bd8ee3c6daa63",
+      "one_fenced_patch": true,
+      "two_allowed_header_paths": true,
+      "prose_before_patch": false
+    },
+    "normalized_patch": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-generated-repair-r7-normalized.patch",
+      "size_bytes": 14361,
+      "sha256": "8c299505acf749fb4e8e7cabef5c053ed8ab6c3122d088f5b35e028f6e0f987a"
+    },
+    "ordered_patch": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-generated-repair-r7-normalized-ordered.patch",
+      "size_bytes": 14361,
+      "sha256": "28b033d79ada89ce8ba52b444b78e89015217dc54f87865328df116ba9845e6e",
+      "review": "Only source-order hunk reordering; normalized and ordered patches have identical added/removed line multisets per file. No semantic correction or production/fixture expansion.",
+      "order_correction_record": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-patch-format-normalization-r7-order-correction.json"
+    },
+    "architect_integration": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-integration-r8.diff",
+      "size_bytes": 925,
+      "sha256": "ef34c06e9a4720d92892340822e1c106dd0ed840e19e864f99acceb4a3c82697",
+      "review": "Exactly four existing test expectation replacements: limit_count→limit, observed_count→observed, and two invalid_type→invalid_oid_key. No production or fixture lines occur."
+    }
+  },
+  "independent_replay": {
+    "official_r3_harness": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/steward-adversarial-review-r3.py",
+      "sha256": "38eea82fab54624f82e2ef16c6b810d1b57b7352a9ca89c9d8df9b0c25002dea",
+      "initial_exit_code": 1,
+      "initial_result": "Harness-only TypeError in derived_success_expected while indexing bodies with an object record; candidate had not failed a kernel assertion. A second harness-only mutation-order defect compared a deliberately mutated result to its repeat."
+    },
+    "corrected_r3_harness_replay": {
+      "temporary_path": "/private/tmp/steward-adversarial-review-r3-corrected.py",
+      "temporary_sha256": "8a56edf7a0cd38a61ddef2b2014296b3c645caabe3a842ac743c07e237488cfe",
+      "corrections": ["index bodies by row['oid'] in expected budget", "snapshot result before the intentional non-alias mutation before repeat comparison"],
+      "exit_code": 0,
+      "output_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/stopped-candidate-review-r8-harness.json",
+      "output_sha256": "0b3c6aecceb02d15d874a54b2962b9093b1e799925e994d88d328e68ff3f78a5",
+      "result": "PASS; 124 checks total, 62 each for sha1 and sha256; candidate files unchanged."
+    },
+    "focused_tests": {
+      "py312": {
+        "python": "3.12.14",
+        "exit_code": 0,
+        "tests": 46,
+        "result": "46 passed",
+        "environment": "locked Codex primary-runtime Python; pytest loaded from existing .venv site-packages; no install/network",
+        "basetemp": "/private/tmp/cgk-r8-py312.*"
+      },
+      "py313": {
+        "python": "3.13.13",
+        "exit_code": 0,
+        "tests": 46,
+        "result": "46 passed",
+        "environment": "existing .venv; no install/network",
+        "basetemp": "/private/tmp/cgk-r8-py313.*"
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "R8-REVIEW-HARNESS-001",
+      "severity": "review-tool-only",
+      "status": "corrected-in-disposable-copy",
+      "description": "The checked-in R3 review harness contained two mechanical self-test defects; both were corrected only in /private/tmp for replay and did not alter the candidate or the official harness. The corrected run passed all 124 checks."
+    },
+    {
+      "id": "R8-CANDIDATE-001",
+      "severity": "none",
+      "status": "no_candidate_blocker_found",
+      "description": "The exact-key preflights, cap-order test repair, distinct unused-tree fixture, and meaningful primitive-output assertion satisfy the R4 repair and R8 four-line integration scope under both object formats."
+    }
+  ],
+  "decision": "GO_FOR_ARCHITECT_R8_LOCAL_ACCEPTANCE",
+  "remaining_gates": ["Architect exact-head acceptance", "exact delivery diff-check/commit and later CI integration"],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixture": false,
+    "schemas": false,
+    "git": false,
+    "network": false,
+    "provider": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

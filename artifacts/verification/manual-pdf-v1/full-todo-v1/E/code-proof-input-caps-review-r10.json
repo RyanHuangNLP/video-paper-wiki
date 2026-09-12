@@ -1,0 +1,124 @@
+{
+  "$schema": "full-todo.code-proof-input-caps-review-r10.v1",
+  "schema": "full-todo.code-proof-input-caps-review-r10.v1",
+  "packet": "CODE-PROOF-INPUT-CAPS-R10",
+  "revision": "R10-independent-input-cap-review",
+  "recorded_at_utc": "2026-09-09T17:22:58.021036Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CODE-PROOF input-cap and retained-I/O reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_ORIGINAL_CAP_NAME_FINDING_CLOSED_PENDING_EXACT_ERROR_AND_BUNDLE_DOMAIN_BINDINGS",
+  "verdict": "R10 closes R9-INPUT-CAP-NAMES-008 at the design level: it preserves R7's eight materialized public keys, defines max_request_input_bytes and max_observe_input_bytes as fixed non-materialized parser caps, and separates max_request_bytes from raw request admission. Two contract details remain under-specified before schema/profile freeze: the complete raw-input error context must explicitly bind its fixed limit value, and max_bundle_bytes must identify whether observed bytes are the canonical saved bundle envelope (including LF) or a supplied raw manifest domain. The cap+1 retained read strategy is finite and feasible when implemented through one retained input descriptor with the existing final lineage priority.",
+  "scope": "Read-only review of R10 against R7, R9 and the immutable R9 independent closure review, focused on raw fixed-cap names, saved-cap domains, exact error naming/pointer/limit/observed semantics, and retained-I/O feasibility. No source, schema, test, fixture, Git, provider, network, connector, Vault or Grok mutation.",
+  "frozen_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-INPUT-CAPS-R10.md",
+      "sha256": "4c01d0803c638922b47b05a3efbc05c4e8c1dbe10375c4c883a0a77b582135e5",
+      "size_bytes": 3502
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2",
+      "size_bytes": 20246
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62",
+      "size_bytes": 12611
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-public-closure-review-r9.json",
+      "sha256": "d580db45266d6c8720e487b54c2c21369da2b6ab36797cb4372ad5b98f851edd",
+      "size_bytes": 10818
+    }
+  ],
+  "public_limit_shape_check": {
+    "r7_materialized_public_keys_unchanged": [
+      "max_bundle_bytes",
+      "max_inline_normalized_bytes",
+      "max_request_bytes",
+      "max_intent_bytes",
+      "max_observation_bytes",
+      "max_config_document_bytes",
+      "max_handoff_bytes",
+      "max_output_peak_bytes"
+    ],
+    "r10_fixed_nonmaterialized_input_error_names": [
+      "max_request_input_bytes",
+      "max_observe_input_bytes"
+    ],
+    "r10_does_not_add_request_limit_keys": true,
+    "hard_caps": {
+      "max_request_input_bytes": 65536,
+      "max_observe_input_bytes": 1048576,
+      "max_request_bytes": 65536
+    }
+  },
+  "closure_matrix": [
+    {
+      "id": "R9-INPUT-CAP-NAMES-008",
+      "status": "CLOSED_DESIGN",
+      "severity": "medium",
+      "evidence": "R10 lines 3-5 preserves R7's eight-field limits.public map; lines 7-21 bind fixed request/observe raw caps, names, /input pointer, pre-decode priority and bounded cap+1 observation; lines 23-40 binds max_request_bytes exclusively to the complete sealed request envelope; lines 42-53 separates observe saved envelopes and bundle/body domains. This directly supplies the fixed-constant and saved-request mapping missing from the R9 finding.",
+      "cross_check": "R7 lines 38-60; R9 lines 33-75; R9 review finding R9-INPUT-CAP-NAMES-008"
+    },
+    {
+      "id": "R10-RAW-CAP-CONTEXT-001",
+      "status": "OPEN_CONTRACT_GAP",
+      "severity": "medium",
+      "title": "Fixed raw-cap errors do not explicitly bind the required limit field/value",
+      "evidence": "R9 lines 67-75 require CODE_PROOF_LIMIT_EXCEEDED details exactly {instance_pointer, limit_name, limit, observed} and strict integer limit and observed values. R10 lines 9-12 bind name/pointer and lines 17-19 bind observed=cap+1 on excess, but never state the complete raw error object or that limit equals the fixed 65536/1048576 constant. The saved request example at lines 28-33 is exact, making the omission for the two fixed errors material.",
+      "required_closure": "State exact contexts for request and observe raw overflow, including limit=max_request_input_bytes constant or 65536 and limit=max_observe_input_bytes constant or 1048576, observed=the bounded cap+1 prefix count, instance_pointer=/input, and the fixed names. Include equal/cap+1 vectors and the oversized-malformed-JSON precedence."
+    },
+    {
+      "id": "R10-BUNDLE-CAP-DOMAIN-002",
+      "status": "OPEN_CONTRACT_GAP",
+      "severity": "medium",
+      "title": "max_bundle_bytes observed domain and pointer remain ambiguous",
+      "evidence": "R7 lines 140-149 calls the bundle input manifest a canonical saved envelope and says its output copy is byte-identical. R7 lines 53-60 state lowered saved caps apply to complete canonical envelope bytes including LF. R9 lines 67-75 closes serialized-cap errors but gives pointer examples that omit bundle. R10 lines 42-46 says max_bundle_bytes applies to a separately retained raw Git bundle manifest, without saying whether observed is complete canonical saved bytes (including LF) or supplied raw manifest bytes, and without an exact instance_pointer/context example.",
+      "required_closure": "Choose and state one domain. If it is the R7 saved-envelope domain, bind {instance_pointer:\"/bundle\", limit_name:\"max_bundle_bytes\", limit:<materialized cap>, observed:<complete canonical bytes including LF>}; if it is a raw supplied-manifest domain, state how that differs from the byte-identical canonical bundle file and its retained lineage. Add cap-1/equal/cap+1 and no-install vectors."
+    }
+  ],
+  "retained_io_review": {
+    "status": "FEASIBLE_WITH_IMPLEMENTATION_BINDINGS",
+    "positive_constraints": [
+      "Read at most cap+1 raw bytes before JSON decoding or embedded-limit access.",
+      "Use the bounded prefix count as observed; never drain the remainder merely to report total size.",
+      "Keep fixed raw-cap refusal ahead of decoder errors, while final unsafe-path/lineage verification retains priority.",
+      "Perform refusal before any output installation and assert unchanged output state."
+    ],
+    "required_implementation_evidence": [
+      "One retained descriptor/identity must cover the bounded read and final lineage check; do not reopen by pathname after the cap decision.",
+      "The implementation must prove cap+1 is a byte count, not decoded characters or a stat-size trust decision.",
+      "For a replaced/uncheckable input edge, return existing WORK_PATH_UNSAFE precedence even when the raw cap was exceeded.",
+      "Persist no unbounded prefix and do not allocate the complete oversized input."
+    ],
+    "r10_text_support": "R10 lines 16-21 explicitly require bounded cap+1 reading and existing final lineage verification; the descriptor rule remains an implementation gate inherited from retained-I/O reviews."
+  },
+  "required_next_closure": [
+    "Add exact fixed raw-cap CODE_PROOF_LIMIT_EXCEEDED contexts with limit values.",
+    "Resolve max_bundle_bytes byte domain, pointer and observed-count semantics against the canonical saved-envelope rule.",
+    "Generate/profile-check error-name enums without adding the two fixed names to limits.public.",
+    "Run cap-1/equal/cap+1, malformed-oversize, whitespace-heavy, lowered-saved-request, bundle and no-install retained-lineage vectors."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "grok": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T17:22:58.021254Z",
+    "note": "Tool-observed current UTC; no retrospective review-start time is asserted."
+  }
+}

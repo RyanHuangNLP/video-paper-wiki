@@ -1,0 +1,1192 @@
+{
+  "$schema": "full-todo.discovery-heldout-trial-plan-r2.v1",
+  "schema": "full-todo.discovery-heldout-trial-plan-r2.v1",
+  "revision": "R2",
+  "recorded_at_utc": "2026-09-09T10:46:06Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "bounded independent read-only holdout-trial planner",
+    "authority": "Architect/root"
+  },
+  "decision": "PLAN_ONLY_EXACT_WIP_CHAIN_BOUND_NO_PROVIDER_INVOCATION",
+  "supersedes": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-heldout-trial-plan-r1.json",
+    "sha256": "20ce7c39d44f973060c8683eb343cafb5d7916d126c583b3a0188bab8cf3ac49",
+    "reason": "R1 was descriptive only. R2 binds the full supported config, planner-generated query text, deterministic spec keys, sorted plan slots, exact targets, and sealed document identities."
+  },
+  "scope": "Read-only deterministic binding of a two-slot Discovery holdout plan. The current WIP pure planner was exercised from config_input through seal, frontier, plan_document, and request_document. No provider, Web, OpenAlex, arXiv, connector, Vault, source, or Git mutation was performed.",
+  "scope_controls": {
+    "source_edits": false,
+    "test_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_provider_invoked": false,
+    "connector_install": false,
+    "pdf_download": false,
+    "real_vault_mutation": false,
+    "user_selection_or_publication": false,
+    "success_claimed": false
+  },
+  "implementation_input": {
+    "source_root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+    "module_paths": {
+      "contracts": "src/video_paper_wiki_research/discovery_contracts.py",
+      "planner": "src/video_paper_wiki_research/discovery_plan.py"
+    },
+    "resource_profile_sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+    "frozen_hard_limits": {
+      "rounds": 8,
+      "requests": 32,
+      "observations": 32,
+      "per_round_requests": 8,
+      "per_page": 20,
+      "results_per_observation": 100,
+      "total_results": 2048,
+      "unique_candidates": 256,
+      "payload_bytes": 1048576,
+      "total_payload_bytes": 16777216
+    },
+    "python": ".venv/bin/python",
+    "python_version": "3.13.13",
+    "pure_call_sequence": [
+      "config_input(config_input_value)",
+      "seal('research-config', config)",
+      "seal('research-session', {'session_key': 'svd-holdout-r2', 'config': reference(config_doc)})",
+      "frontier(config, [], [], {})",
+      "plan_document(session_doc, 1, None, None, selected_specs, [])",
+      "request_document(session_doc, plan_doc, slot) for slot in sorted_slot_order"
+    ]
+  },
+  "seed_provenance": {
+    "seed": {
+      "key": "svd",
+      "namespace": "arxiv",
+      "value": "2311.15127",
+      "version": 1,
+      "canonical_reference": "2311.15127v1",
+      "title": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets"
+    },
+    "raw_observed_source_locator": "https://arxiv.org/abs/2311.15127v1",
+    "basis": "Identifier and source provenance only from the prior accepted real-source preview; no normalized preview payload or PDF is copied into this plan.",
+    "prior_preview_evidence": [
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/preview-local-r1/live-trial-r1.json",
+        "sha256": "6c16cab7b3a45b575f9dd87aa4c2d7d6c68239d8ea5e19f55a1d18ac3adaf7d4",
+        "size_bytes": 4004,
+        "status_in_that_record": "LIVE_PREVIEW_OBSERVED_USER_SELECTION_PENDING"
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/preview-local-r1/live-svd-r1/web-observation.json",
+        "sha256": "ef6dbc208ab5ea5c50a063bab7f992edfc2c16449314bb9b3526492763748450",
+        "size_bytes": 8902,
+        "payload_reused": false
+      },
+      {
+        "path": ".work/parallel/full-todo-v1/terminal-2/source/.work/research/real-preview-svd-r1/preview-v1/observations/be07d202ce6520d132f78fd706876903e56b7d0b170029c4fa12d6d56522970b.json",
+        "reference_id": "rw1:observation:be07d202ce6520d132f78fd706876903e56b7d0b170029c4fa12d6d56522970b",
+        "sha256": "24073d1a94eb395cd757f225d79b3ee53e87153149842ed8803923c515b62861",
+        "payload_reused": false
+      }
+    ],
+    "identity_constraints": [
+      "The arXiv version remains explicit; do not infer a DOI/OpenAlex same-work bridge from the seed alone.",
+      "Prior preview provenance is not a Discovery observation, candidate set, user selection, or source-publication authorization.",
+      "Each later observation must retain its own request, executor, outcome, visible result ordinals, and locators."
+    ]
+  },
+  "host_capability_inventory": {
+    "metadata_surface": "functions.exec ALL_TOOLS",
+    "observed_at_utc": "2026-09-09",
+    "available_relevant_tool": "web__run",
+    "available_operations": [
+      "search_query",
+      "open"
+    ],
+    "provider_specific_http_or_openalex_tools": [],
+    "provider_specific_arxiv_tools": [],
+    "snapshot": {
+      "path": "/private/tmp/host_capability_metadata_r1.json",
+      "sha256": "d7eaf60f5ed3b82b9e44d6ceba3ee34e4f4c62e55efb5feea4ed3084e0d6858",
+      "size_bytes": 472,
+      "note": "Metadata inventory only; no provider tool was invoked."
+    },
+    "execution_policy": {
+      "web_lookup": "Use web__run search_query for the generated Web target and normalize only visible results.",
+      "openalex_topic": "At execution, try web__run open on the exact generated OpenAlex URL if the host permits it. Record the actual host result or refusal as a typed outcome; do not substitute another target or claim raw HTTP facts.",
+      "no_workaround": true
+    }
+  },
+  "research_question": "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+  "exact_config_input": {
+    "question": "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+    "seeds": [
+      {
+        "key": "svd",
+        "ids": [
+          {
+            "namespace": "arxiv",
+            "value": "2311.15127",
+            "version": 1
+          }
+        ],
+        "title": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets",
+        "author_terms": [],
+        "project_terms": []
+      }
+    ],
+    "query_terms": [
+      "video diffusion",
+      "training",
+      "data curation"
+    ],
+    "lenses": [
+      {
+        "lens": "method",
+        "terms": [
+          "training stages",
+          "data curation",
+          "pretraining",
+          "finetuning"
+        ],
+        "scope": "training stages, objectives, and data selection"
+      },
+      {
+        "lens": "benchmark",
+        "terms": [
+          "benchmark",
+          "evaluation",
+          "metrics",
+          "dataset"
+        ],
+        "scope": "datasets, evaluation protocol, metrics, and comparisons"
+      },
+      {
+        "lens": "implementation",
+        "terms": [
+          "implementation",
+          "pipeline",
+          "adaptation",
+          "compute"
+        ],
+        "scope": "pipeline details, conditioning, adaptation, and compute"
+      },
+      {
+        "lens": "counterevidence",
+        "terms": [
+          "limitations",
+          "ablation",
+          "failure",
+          "negative results"
+        ],
+        "scope": "limitations, ablations, failures, and contrary evidence"
+      },
+      {
+        "lens": "reproduction",
+        "terms": [
+          "reproduction",
+          "code",
+          "hyperparameters",
+          "reproducibility"
+        ],
+        "scope": "code, data, hyperparameters, and reproducibility details"
+      }
+    ],
+    "limits": {
+      "observations": 2,
+      "payload_bytes": 1048576,
+      "per_page": 5,
+      "per_round_requests": 2,
+      "requests": 2,
+      "results_per_observation": 5,
+      "rounds": 1,
+      "total_payload_bytes": 2097152,
+      "total_results": 10,
+      "unique_candidates": 32
+    },
+    "ranking": {
+      "rrf_k": 60,
+      "score_scale": 1000000
+    },
+    "stopping": {
+      "consecutive_rounds": 2,
+      "min_new_relevant": 1,
+      "duplicate_percent": 80
+    }
+  },
+  "exact_config_after_config_input": {
+    "question": "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+    "seeds": [
+      {
+        "key": "svd",
+        "ids": [
+          {
+            "namespace": "arxiv",
+            "value": "2311.15127",
+            "version": 1
+          }
+        ],
+        "title": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets",
+        "author_terms": [],
+        "project_terms": []
+      }
+    ],
+    "query_terms": [
+      "video diffusion",
+      "training",
+      "data curation"
+    ],
+    "lenses": [
+      {
+        "lens": "method",
+        "terms": [
+          "training stages",
+          "data curation",
+          "pretraining",
+          "finetuning"
+        ],
+        "scope": "training stages, objectives, and data selection"
+      },
+      {
+        "lens": "benchmark",
+        "terms": [
+          "benchmark",
+          "evaluation",
+          "metrics",
+          "dataset"
+        ],
+        "scope": "datasets, evaluation protocol, metrics, and comparisons"
+      },
+      {
+        "lens": "implementation",
+        "terms": [
+          "implementation",
+          "pipeline",
+          "adaptation",
+          "compute"
+        ],
+        "scope": "pipeline details, conditioning, adaptation, and compute"
+      },
+      {
+        "lens": "counterevidence",
+        "terms": [
+          "limitations",
+          "ablation",
+          "failure",
+          "negative results"
+        ],
+        "scope": "limitations, ablations, failures, and contrary evidence"
+      },
+      {
+        "lens": "reproduction",
+        "terms": [
+          "reproduction",
+          "code",
+          "hyperparameters",
+          "reproducibility"
+        ],
+        "scope": "code, data, hyperparameters, and reproducibility details"
+      }
+    ],
+    "limits": {
+      "observations": 2,
+      "payload_bytes": 1048576,
+      "per_page": 5,
+      "per_round_requests": 2,
+      "requests": 2,
+      "results_per_observation": 5,
+      "rounds": 1,
+      "total_payload_bytes": 2097152,
+      "total_results": 10,
+      "unique_candidates": 32
+    },
+    "ranking": {
+      "rrf_k": 60,
+      "score_scale": 1000000
+    },
+    "stopping": {
+      "consecutive_rounds": 2,
+      "min_new_relevant": 1,
+      "duplicate_percent": 80
+    }
+  },
+  "sealed_documents": {
+    "config": {
+      "document": {
+        "schema_version": "video-paper-wiki-research.research-config.v1",
+        "kind": "research-config",
+        "data": {
+          "question": "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+          "seeds": [
+            {
+              "key": "svd",
+              "ids": [
+                {
+                  "namespace": "arxiv",
+                  "value": "2311.15127",
+                  "version": 1
+                }
+              ],
+              "title": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets",
+              "author_terms": [],
+              "project_terms": []
+            }
+          ],
+          "query_terms": [
+            "video diffusion",
+            "training",
+            "data curation"
+          ],
+          "lenses": [
+            {
+              "lens": "method",
+              "terms": [
+                "training stages",
+                "data curation",
+                "pretraining",
+                "finetuning"
+              ],
+              "scope": "training stages, objectives, and data selection"
+            },
+            {
+              "lens": "benchmark",
+              "terms": [
+                "benchmark",
+                "evaluation",
+                "metrics",
+                "dataset"
+              ],
+              "scope": "datasets, evaluation protocol, metrics, and comparisons"
+            },
+            {
+              "lens": "implementation",
+              "terms": [
+                "implementation",
+                "pipeline",
+                "adaptation",
+                "compute"
+              ],
+              "scope": "pipeline details, conditioning, adaptation, and compute"
+            },
+            {
+              "lens": "counterevidence",
+              "terms": [
+                "limitations",
+                "ablation",
+                "failure",
+                "negative results"
+              ],
+              "scope": "limitations, ablations, failures, and contrary evidence"
+            },
+            {
+              "lens": "reproduction",
+              "terms": [
+                "reproduction",
+                "code",
+                "hyperparameters",
+                "reproducibility"
+              ],
+              "scope": "code, data, hyperparameters, and reproducibility details"
+            }
+          ],
+          "limits": {
+            "observations": 2,
+            "payload_bytes": 1048576,
+            "per_page": 5,
+            "per_round_requests": 2,
+            "requests": 2,
+            "results_per_observation": 5,
+            "rounds": 1,
+            "total_payload_bytes": 2097152,
+            "total_results": 10,
+            "unique_candidates": 32
+          },
+          "ranking": {
+            "rrf_k": 60,
+            "score_scale": 1000000
+          },
+          "stopping": {
+            "consecutive_rounds": 2,
+            "min_new_relevant": 1,
+            "duplicate_percent": 80
+          }
+        },
+        "id": "rw3:research-config:66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106",
+        "content_sha256": "66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106"
+      },
+      "hashes": {
+        "kind": "research-config",
+        "id": "rw3:research-config:66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106",
+        "content_sha256": "66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106",
+        "saved_sha256": "80154591833b742d481eb1f9881d0f3b29a78056fc677c52a699edb01cb7d280",
+        "saved_bytes": 1773
+      }
+    },
+    "session": {
+      "document": {
+        "schema_version": "video-paper-wiki-research.research-session.v1",
+        "kind": "research-session",
+        "data": {
+          "session_key": "svd-holdout-r2",
+          "config": {
+            "id": "rw3:research-config:66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106",
+            "sha256": "80154591833b742d481eb1f9881d0f3b29a78056fc677c52a699edb01cb7d280"
+          }
+        },
+        "id": "rw3:research-session:184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae",
+        "content_sha256": "184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae"
+      },
+      "hashes": {
+        "kind": "research-session",
+        "id": "rw3:research-session:184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae",
+        "content_sha256": "184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae",
+        "saved_sha256": "2ff8d55554ece6a0beaf3dc73349fd9d651e006b9a0c4a51828b2d0b98e918ef",
+        "saved_bytes": 489
+      }
+    },
+    "round_plan": {
+      "document": {
+        "schema_version": "video-paper-wiki-research.research-round-plan.v1",
+        "kind": "research-round-plan",
+        "data": {
+          "session": {
+            "id": "rw3:research-session:184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae",
+            "sha256": "2ff8d55554ece6a0beaf3dc73349fd9d651e006b9a0c4a51828b2d0b98e918ef"
+          },
+          "sequence": 1,
+          "previous_round": null,
+          "control_head": null,
+          "request_specs": [
+            {
+              "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+              "provider": "platform-web-search-normalized-v1",
+              "operation": "lookup",
+              "seed_key": "svd",
+              "subject_ids": [
+                {
+                  "namespace": "arxiv",
+                  "value": "2311.15127",
+                  "version": 1
+                }
+              ],
+              "subject_origin": null,
+              "lens": "method",
+              "depth": 0,
+              "query": null,
+              "per_page": 5,
+              "cursor": null,
+              "continuation": null,
+              "retry": null,
+              "neighbor_ids": null
+            },
+            {
+              "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+              "provider": "openalex-rest-normalized-v1",
+              "operation": "topic",
+              "seed_key": "svd",
+              "subject_ids": [
+                {
+                  "namespace": "arxiv",
+                  "value": "2311.15127",
+                  "version": 1
+                }
+              ],
+              "subject_origin": null,
+              "lens": "method",
+              "depth": 0,
+              "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages, objectives, and data selection video diffusion training data curation training stages data curation pretraining finetuning",
+              "per_page": 5,
+              "cursor": null,
+              "continuation": null,
+              "retry": null,
+              "neighbor_ids": null
+            }
+          ],
+          "reservation_after": {
+            "rounds_planned": 1,
+            "request_slots_reserved": 2,
+            "observation_slots_reserved": 2,
+            "retry_slots": 0
+          }
+        },
+        "id": "rw3:research-round-plan:f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62",
+        "content_sha256": "f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62"
+      },
+      "hashes": {
+        "kind": "research-round-plan",
+        "id": "rw3:research-round-plan:f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62",
+        "content_sha256": "f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62",
+        "saved_sha256": "49d6c7f9eedb13120e54c3c54aa636d454584a41997fd858cdc8254a79eddb68",
+        "saved_bytes": 1650
+      }
+    },
+    "requests_in_sorted_slot_order": [
+      {
+        "document": {
+          "schema_version": "video-paper-wiki-research.discovery-request.v1",
+          "kind": "discovery-request",
+          "data": {
+            "session": {
+              "id": "rw3:research-session:184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae",
+              "sha256": "2ff8d55554ece6a0beaf3dc73349fd9d651e006b9a0c4a51828b2d0b98e918ef"
+            },
+            "sequence": 1,
+            "plan_id": "rw3:research-round-plan:f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62",
+            "slot": 0,
+            "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+            "spec": {
+              "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+              "provider": "platform-web-search-normalized-v1",
+              "operation": "lookup",
+              "seed_key": "svd",
+              "subject_ids": [
+                {
+                  "namespace": "arxiv",
+                  "value": "2311.15127",
+                  "version": 1
+                }
+              ],
+              "subject_origin": null,
+              "lens": "method",
+              "depth": 0,
+              "query": null,
+              "per_page": 5,
+              "cursor": null,
+              "continuation": null,
+              "retry": null,
+              "neighbor_ids": null
+            },
+            "target": {
+              "kind": "web_search",
+              "query": "2311.15127v1",
+              "max_results": 5
+            }
+          },
+          "id": "rw3:discovery-request:4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2",
+          "content_sha256": "4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2"
+        },
+        "hashes": {
+          "kind": "discovery-request",
+          "id": "rw3:discovery-request:4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2",
+          "content_sha256": "4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2",
+          "saved_sha256": "060f96ae2a62766721d6b2366fc52236b026ce6a5009697159b819179d6df2a4",
+          "saved_bytes": 1124
+        }
+      },
+      {
+        "document": {
+          "schema_version": "video-paper-wiki-research.discovery-request.v1",
+          "kind": "discovery-request",
+          "data": {
+            "session": {
+              "id": "rw3:research-session:184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae",
+              "sha256": "2ff8d55554ece6a0beaf3dc73349fd9d651e006b9a0c4a51828b2d0b98e918ef"
+            },
+            "sequence": 1,
+            "plan_id": "rw3:research-round-plan:f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62",
+            "slot": 1,
+            "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+            "spec": {
+              "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+              "provider": "openalex-rest-normalized-v1",
+              "operation": "topic",
+              "seed_key": "svd",
+              "subject_ids": [
+                {
+                  "namespace": "arxiv",
+                  "value": "2311.15127",
+                  "version": 1
+                }
+              ],
+              "subject_origin": null,
+              "lens": "method",
+              "depth": 0,
+              "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages, objectives, and data selection video diffusion training data curation training stages data curation pretraining finetuning",
+              "per_page": 5,
+              "cursor": null,
+              "continuation": null,
+              "retry": null,
+              "neighbor_ids": null
+            },
+            "target": {
+              "kind": "http_get",
+              "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20training%20stages%2C%20objectives%2C%20and%20data%20selection%20video%20diffusion%20training%20data%20curation%20training%20stages%20data%20curation%20pretraining%20finetuning&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+            }
+          },
+          "id": "rw3:discovery-request:4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea",
+          "content_sha256": "4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea"
+        },
+        "hashes": {
+          "kind": "discovery-request",
+          "id": "rw3:discovery-request:4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea",
+          "content_sha256": "4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea",
+          "saved_sha256": "5f60e1aa6a405820684da97f9a4120d0cbb771a1be229ed42fbf5804167610f5",
+          "saved_bytes": 1833
+        }
+      }
+    ]
+  },
+  "frontier_preflight": {
+    "available_frontier_count": 11,
+    "capability_entry_count": 3,
+    "selection_lineages": [],
+    "frontier_request_keys_in_frontier_order": [
+      "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+      "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+      "d0dccd7068ffece3b10219314062149f089bb2c18e3ab426ddff0b05d5e7e7a1",
+      "1f2762d70774685886939ee2ff5d67f65bbc227feecfd8a5497591a54afc7585",
+      "48ce515f13ecaaf828d8336e9d707a0a5aa39f6b1ed5e3136d99c22e7e3b0bb2",
+      "c7eaf7302ff795d4581b3d123ee769bafc9ac110a037dae98e064baecc1d5d3f",
+      "338c975af250ff681e381dfe35c3b1afe237fe403e5f32e7bd8b3b724ae6279e",
+      "b9896b1584fc286f35da394b476f637be31db5397a297d1a75beda4b9cc3af16",
+      "8b131421f97a2479f3848dd34180aaa424acf00957719cec816b21c8a9b1f6c0",
+      "e4d3427718f83e8b576bd62aeeb856254a97f2fa43d2730efae7ba4efb37ebe1",
+      "c03855c2c2d3f23b90d574a132fe6d39f4771a770caced16e2809a93c4673f03"
+    ],
+    "capability_entries": [
+      {
+        "operation": "citations",
+        "seed_key": "svd",
+        "subject_origin": null,
+        "subject_ids": [
+          {
+            "namespace": "arxiv",
+            "value": "2311.15127",
+            "version": 1
+          }
+        ],
+        "lens": "counterevidence",
+        "provider": "openalex-rest-normalized-v1",
+        "depth": 0,
+        "reason": "observed_openalex_identity_unavailable_or_ambiguous"
+      },
+      {
+        "operation": "references",
+        "seed_key": "svd",
+        "subject_origin": null,
+        "subject_ids": [
+          {
+            "namespace": "arxiv",
+            "value": "2311.15127",
+            "version": 1
+          }
+        ],
+        "lens": "method",
+        "provider": "openalex-rest-normalized-v1",
+        "depth": 0,
+        "reason": "observed_openalex_identity_unavailable_or_ambiguous"
+      },
+      {
+        "operation": "related",
+        "seed_key": "svd",
+        "subject_origin": null,
+        "subject_ids": [
+          {
+            "namespace": "arxiv",
+            "value": "2311.15127",
+            "version": 1
+          }
+        ],
+        "lens": "method",
+        "provider": "openalex-rest-normalized-v1",
+        "depth": 0,
+        "reason": "observed_openalex_identity_unavailable_or_ambiguous"
+      }
+    ],
+    "all_frontier_specs_and_regenerated_targets": [
+      {
+        "spec": {
+          "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "lookup",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "method",
+          "depth": 0,
+          "query": null,
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "2311.15127v1",
+          "max_results": 5
+        }
+      },
+      {
+        "spec": {
+          "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+          "provider": "openalex-rest-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "method",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages, objectives, and data selection video diffusion training data curation training stages data curation pretraining finetuning",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20training%20stages%2C%20objectives%2C%20and%20data%20selection%20video%20diffusion%20training%20data%20curation%20training%20stages%20data%20curation%20pretraining%20finetuning&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      },
+      {
+        "spec": {
+          "request_key": "d0dccd7068ffece3b10219314062149f089bb2c18e3ab426ddff0b05d5e7e7a1",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "method",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages, objectives, and data selection video diffusion training data curation training stages data curation pretraining finetuning",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages, objectives, and data selection video diffusion training data curation training stages data curation pretraining finetuning",
+          "max_results": 5
+        }
+      },
+      {
+        "spec": {
+          "request_key": "1f2762d70774685886939ee2ff5d67f65bbc227feecfd8a5497591a54afc7585",
+          "provider": "openalex-rest-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "benchmark",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? datasets, evaluation protocol, metrics, and comparisons video diffusion training data curation benchmark evaluation metrics dataset",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20datasets%2C%20evaluation%20protocol%2C%20metrics%2C%20and%20comparisons%20video%20diffusion%20training%20data%20curation%20benchmark%20evaluation%20metrics%20dataset&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      },
+      {
+        "spec": {
+          "request_key": "48ce515f13ecaaf828d8336e9d707a0a5aa39f6b1ed5e3136d99c22e7e3b0bb2",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "benchmark",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? datasets, evaluation protocol, metrics, and comparisons video diffusion training data curation benchmark evaluation metrics dataset",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? datasets, evaluation protocol, metrics, and comparisons video diffusion training data curation benchmark evaluation metrics dataset",
+          "max_results": 5
+        }
+      },
+      {
+        "spec": {
+          "request_key": "c7eaf7302ff795d4581b3d123ee769bafc9ac110a037dae98e064baecc1d5d3f",
+          "provider": "openalex-rest-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "implementation",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? pipeline details, conditioning, adaptation, and compute video diffusion training data curation implementation pipeline adaptation compute",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20pipeline%20details%2C%20conditioning%2C%20adaptation%2C%20and%20compute%20video%20diffusion%20training%20data%20curation%20implementation%20pipeline%20adaptation%20compute&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      },
+      {
+        "spec": {
+          "request_key": "338c975af250ff681e381dfe35c3b1afe237fe403e5f32e7bd8b3b724ae6279e",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "implementation",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? pipeline details, conditioning, adaptation, and compute video diffusion training data curation implementation pipeline adaptation compute",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? pipeline details, conditioning, adaptation, and compute video diffusion training data curation implementation pipeline adaptation compute",
+          "max_results": 5
+        }
+      },
+      {
+        "spec": {
+          "request_key": "b9896b1584fc286f35da394b476f637be31db5397a297d1a75beda4b9cc3af16",
+          "provider": "openalex-rest-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "counterevidence",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? limitations, ablations, failures, and contrary evidence video diffusion training data curation limitations ablation failure negative results",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20limitations%2C%20ablations%2C%20failures%2C%20and%20contrary%20evidence%20video%20diffusion%20training%20data%20curation%20limitations%20ablation%20failure%20negative%20results&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      },
+      {
+        "spec": {
+          "request_key": "8b131421f97a2479f3848dd34180aaa424acf00957719cec816b21c8a9b1f6c0",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "counterevidence",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? limitations, ablations, failures, and contrary evidence video diffusion training data curation limitations ablation failure negative results",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? limitations, ablations, failures, and contrary evidence video diffusion training data curation limitations ablation failure negative results",
+          "max_results": 5
+        }
+      },
+      {
+        "spec": {
+          "request_key": "e4d3427718f83e8b576bd62aeeb856254a97f2fa43d2730efae7ba4efb37ebe1",
+          "provider": "openalex-rest-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "reproduction",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? code, data, hyperparameters, and reproducibility details video diffusion training data curation reproduction code hyperparameters reproducibility",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20code%2C%20data%2C%20hyperparameters%2C%20and%20reproducibility%20details%20video%20diffusion%20training%20data%20curation%20reproduction%20code%20hyperparameters%20reproducibility&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      },
+      {
+        "spec": {
+          "request_key": "c03855c2c2d3f23b90d574a132fe6d39f4771a770caced16e2809a93c4673f03",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "reproduction",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? code, data, hyperparameters, and reproducibility details video diffusion training data curation reproduction code hyperparameters reproducibility",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? code, data, hyperparameters, and reproducibility details video diffusion training data curation reproduction code hyperparameters reproducibility",
+          "max_results": 5
+        }
+      }
+    ]
+  },
+  "selected_trial": {
+    "round_sequence": 1,
+    "selected_count": 2,
+    "selected_specs_sorted_by_request_key": [
+      {
+        "spec": {
+          "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+          "provider": "platform-web-search-normalized-v1",
+          "operation": "lookup",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "method",
+          "depth": 0,
+          "query": null,
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "web_search",
+          "query": "2311.15127v1",
+          "max_results": 5
+        }
+      },
+      {
+        "spec": {
+          "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+          "provider": "openalex-rest-normalized-v1",
+          "operation": "topic",
+          "seed_key": "svd",
+          "subject_ids": [
+            {
+              "namespace": "arxiv",
+              "value": "2311.15127",
+              "version": 1
+            }
+          ],
+          "subject_origin": null,
+          "lens": "method",
+          "depth": 0,
+          "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages, objectives, and data selection video diffusion training data curation training stages data curation pretraining finetuning",
+          "per_page": 5,
+          "cursor": null,
+          "continuation": null,
+          "retry": null,
+          "neighbor_ids": null
+        },
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20training%20stages%2C%20objectives%2C%20and%20data%20selection%20video%20diffusion%20training%20data%20curation%20training%20stages%20data%20curation%20pretraining%20finetuning&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      }
+    ],
+    "sorted_request_keys": [
+      "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+      "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8"
+    ],
+    "slot_assignment": [
+      {
+        "slot": 0,
+        "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+        "request_document_id": "rw3:discovery-request:4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2",
+        "request_document_content_sha256": "4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2",
+        "target": {
+          "kind": "web_search",
+          "query": "2311.15127v1",
+          "max_results": 5
+        }
+      },
+      {
+        "slot": 1,
+        "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+        "request_document_id": "rw3:discovery-request:4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea",
+        "request_document_content_sha256": "4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea",
+        "target": {
+          "kind": "http_get",
+          "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20training%20stages%2C%20objectives%2C%20and%20data%20selection%20video%20diffusion%20training%20data%20curation%20training%20stages%20data%20curation%20pretraining%20finetuning&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+        }
+      }
+    ],
+    "plan_reservation_after": {
+      "rounds_planned": 1,
+      "request_slots_reserved": 2,
+      "observation_slots_reserved": 2,
+      "retry_slots": 0
+    },
+    "host_execution_by_slot": [
+      {
+        "slot": 0,
+        "request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+        "tool": "web__run",
+        "operation": "search_query",
+        "shape": {
+          "search_query": [
+            {
+              "q": "2311.15127v1"
+            }
+          ],
+          "response_length": "short"
+        },
+        "normalization_rule": "Bound visible results to max_results=5; preserve each visible locator and ordinal; no raw transport claim."
+      },
+      {
+        "slot": 1,
+        "request_key": "de71b433b629e176264f28f6e13811ed4e83dd651e3e2e59544d1e5d20ddddb8",
+        "tool": "web__run",
+        "operation": "open",
+        "shape": {
+          "open": [
+            {
+              "ref_id": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20training%20stages%2C%20objectives%2C%20and%20data%20selection%20video%20diffusion%20training%20data%20curation%20training%20stages%20data%20curation%20pretraining%20finetuning&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+            }
+          ],
+          "response_length": "short"
+        },
+        "normalization_rule": "Use only content visibly returned by opening this exact regenerated URL; if the host refuses or cannot open it, record the actual typed capability/refusal outcome and do not substitute another URL."
+      }
+    ]
+  },
+  "assessment_and_coverage": {
+    "required_lenses_in_fixed_order": [
+      "method",
+      "benchmark",
+      "implementation",
+      "counterevidence",
+      "reproduction"
+    ],
+    "question": "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+    "assessment_initial_state": "pending_trial",
+    "unanswered_lens_is": "gap",
+    "coverage_requires": "explicit visible evidence or bounded not_applicable rationale tied to this scope",
+    "quality_or_scientific_approval": false,
+    "no_automatic_stop_claim": true,
+    "stop_precedence": [
+      "budget_exhausted",
+      "paths_covered",
+      "duplicate_ratio",
+      "yield_below_threshold"
+    ],
+    "stopping": {
+      "consecutive_rounds": 2,
+      "min_new_relevant": 1,
+      "duplicate_percent": 80
+    },
+    "ranking": {
+      "rrf_k": 60,
+      "score_scale": 1000000
+    }
+  },
+  "execution_artifacts_to_record_later": [
+    "immutable session/config/request/observation refs under .work/research/<session>/discovery-v1",
+    "host invocation evidence and actual capability/refusal metadata",
+    "final round event or typed terminal outcome with no fabricated candidates",
+    "candidate/rank/assessment projections only from complete retained inputs",
+    "a separate decision record listing which five lenses remain gaps"
+  ],
+  "claim_boundary": {
+    "this_record_claims": [
+      "The exact data-only config passes the current config_input and schema/seal path.",
+      "The deterministic frontier contains 11 specs; the selected Web lookup and OpenAlex method topic specs are exact members.",
+      "The round plan is sealed with two request slots sorted by request_key, and both request documents bind regenerated targets.",
+      "No provider or host Web call was made while creating this record."
+    ],
+    "this_record_does_not_claim": [
+      "that either request has been executed",
+      "that any provider returned a result or refused access",
+      "that any lens is covered, any candidate is relevant, or any scientific conclusion is valid",
+      "that CI, human acceptance, source publication, Vault mutation, or user selection exists"
+    ],
+    "next_owner": "Architect/root executes the two-slot trial after the local candidate is frozen and required acceptance gates are met, then records actual outcomes separately."
+  }
+}

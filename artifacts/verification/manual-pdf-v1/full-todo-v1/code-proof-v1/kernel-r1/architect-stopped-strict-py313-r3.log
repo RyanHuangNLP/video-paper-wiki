@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-strict-inputs-r1.py", line 127, in <module>
+    result = run(json.loads(args.handoff.read_text()))
+  File "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-strict-inputs-r1.py", line 107, in run
+    mod.verify_code_git_objects(**kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py", line 823, in verify_code_git_objects
+    owned_records = _validate_objects(
+        objects,
+    ...<2 lines>...
+        owned_limits["max_objects"],
+    )
+  File "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py", line 334, in _validate_objects
+    if type(item) is not dict or len(item) != 5 or set(item) != _OBJECT_RECORD_KEYS:
+                                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-strict-inputs-r1.py", line 17, in call
+    raise AssertionError('untrusted primitive callback was invoked')
+AssertionError: untrusted primitive callback was invoked

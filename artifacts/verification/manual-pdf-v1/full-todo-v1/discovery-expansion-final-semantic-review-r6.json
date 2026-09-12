@@ -1,0 +1,169 @@
+{
+  "$schema": "full-todo.discovery-expansion-final-semantic-review-r6.v1",
+  "schema": "full-todo.discovery-expansion-final-semantic-review-r6.v1",
+  "reviewed_at_utc": "2026-09-09T09:50:47Z",
+  "reviewer": "Astra semantic review controller",
+  "scope": "Bounded read-only semantic review of the R5 wire/capacity amendment and R6 ranking/logical-frontier amendment against the R2 design, R3 recovery rules, R4 bounds, provider target notes, and their preserved reviews. The review distinguishes resolved design rules from remaining contract ambiguities; future implementation and acceptance tests are recorded as obligations and are not treated as present failures. No source, schema, test, Git, connector, Vault, or network mutation was performed.",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "provider_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    },
+    "r5_wire": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    "r6_rank": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    "prior_r4_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-semantic-review-r4.json",
+      "sha256": "60d1c560a2ce1775f0b223b2eb04f0f0d1734ae2374f8ad5a6780cdfa851b7fb"
+    },
+    "r3_recovery_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-expansion-recovery-r3-review.json",
+      "sha256": "34ea7b9fcef2df387db577a899408f4fd7da3600a6cf46b06fbf4aab67ed8c89"
+    },
+    "r2_io_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-design-r2-io-review.json",
+      "sha256": "76f416b55caefa11799c61053dea5cda4147874c5116898a0fb8912e077eb390"
+    }
+  },
+  "findings": [
+    {
+      "id": "DISC-R5-FEASIBLE-PREFIX",
+      "status": "CLOSED_DESIGN_PENDING_ACCEPTANCE_VECTORS",
+      "evidence": "R5 defines automatic planning as the largest N from one through the configured and remaining slot limits that passes exact plan/request serialization, family, count, and total reservation checks. It never skips an earlier frontier item, stores membership sorted by request key, and makes explicit specs all-or-reject.",
+      "determination": "This closes the R4 prefix-selection gap and preserves scheduler order as membership selection rather than slot order. The implementation must retain chosen, omitted, and limiting-bound derivations, but no further semantic rule is needed for the selected-prefix algorithm.",
+      "required_acceptance": [
+        "Compare all N candidates in descending order for family-limited, count-limited, plan-size-limited, and global-total-limited frontiers.",
+        "Verify that automatic plans use the longest prefix while explicit plans either validate as a complete set or refuse without shrinking."
+      ]
+    },
+    {
+      "id": "DISC-R5-PREFIX-STATUS-WORDING",
+      "status": "OPEN_FREEZE_CLARIFICATION",
+      "evidence": "R5 says that no feasible prefix yields budget_exhausted before plan installation, while its preceding rules require a budget_exhausted outcome when the fixed total reserve admits no N and forbid installing an empty plan.",
+      "determination": "State the two cases explicitly: a selected feasible prefix installs a plan and cannot later be classified as a pre-install budget refusal; zero feasible prefixes produce budget_exhausted with no plan or request files. No available eligible frontier produces needs_scope. This is wording clarification, but the distinction affects status and stop semantics.",
+      "required_acceptance": [
+        "Exercise one feasible N and zero feasible N at the same immutable frontier and compare status, stop reason, and retained files.",
+        "Verify a no-capacity result does not create an empty plan or mark a request attempted."
+      ]
+    },
+    {
+      "id": "DISC-R5-PENDING-CANDIDATE-CHARGE",
+      "status": "CLOSED_DESIGN_PENDING_GRAPH_VECTORS",
+      "evidence": "R5 permanently charges candidate_slots_reserved only from completed rounds and names pending_candidate_introductions as a temporary estimate from currently accepted observations. A same_work bridge may lower the estimate; completed charges never refund. Before every observation install, completed charges plus the estimate and current component/projection bounds must fit.",
+      "determination": "This resolves the R3/R4 ambiguity without permitting capacity gaming. The final complete graph charges the pending estimate exactly once, while incomplete status may expose only the separate estimate. Final event and candidate bytes remain based on the complete terminal set, not arrival order.",
+      "required_acceptance": [
+        "Exercise disjoint pending introductions, a bridge that lowers the estimate, a bridge joining old components, and a refused disjoint overflow with no observation debit.",
+        "Complete equal terminal sets in different arrival orders and verify identical final candidate/rank/stop/event bytes and permanent counters."
+      ]
+    },
+    {
+      "id": "DISC-R5-CANONICAL-WIRE-TYPES",
+      "status": "CLOSED_DESIGN_PENDING_SCHEMA_ACCEPTANCE",
+      "evidence": "R5 closes identifier, executor, mirror provenance, target, normalized-count/date/score, and local-normalization-failure wire types. Canonical identifiers are namespace/value/version objects; only explicit identity_links connect different IDs; target execution remains host-mediated and Python remains zero-egress.",
+      "determination": "The wire rules are compatible with the R2/R3 graph and provider notes. In particular, co-occurring IDs do not silently become same_work, arXiv versions do not create new candidate keys, unknown executor/mirror provenance requires an explicit reason, and unsupported or malformed payloads refuse before installation.",
+      "required_acceptance": [
+        "Reject noncanonical sealed identifiers, inconsistent known/unknown reason fields, unbounded counts/scores/dates, arbitrary target fields, and unidentifiable result hits.",
+        "Verify explicit same_work endpoint membership and preserve directed preprint_of/published_as facts without joining components."
+      ]
+    },
+    {
+      "id": "DISC-R6-MIRROR-RRF",
+      "status": "CLOSED_DESIGN_PENDING_RANKING_VECTORS",
+      "evidence": "R6 makes one retrieval list for each provider/seed/lens/operation across rounds, depths, cursor pages, retries, and explicit slices; makes all lists compatible; builds transitive mirror classes by normalized locator or known group; selects deterministic representatives; suppresses same classes and unknown classes with explicit reasons; and sums only kept terms as reduced exact Fractions.",
+      "determination": "The prior R4 mirror/list equivalence blocker is closed by an implementable deterministic algorithm. Known classes are preferred over unknown classes, conflicting known labels on one URL remain one visible class, one list cannot multiply a candidate by repeated locations, and unknown-only evidence conservatively contributes one term. The group value is treated as a globally stable source identifier as required by the R6 same-group rule across all lists.",
+      "required_acceptance": [
+        "Exercise same URL, same known group, conflicting group labels, known/unknown mixtures, separate unknown locators, cursor pages, retries, and explicit reference/related slices.",
+        "Verify exact representative facts, class keys, suppression reasons, Fraction numerators/denominators, scaled floors, and candidate-key ties under all observation permutations."
+      ]
+    },
+    {
+      "id": "DISC-R6-FACT-RANKING-AND-YIELD",
+      "status": "CLOSED_DESIGN_PENDING_METRIC_VECTORS",
+      "evidence": "R6 freezes separate title/summary NFC substring matching, fact-specific config/lens/seed terms, per-list relevance/count/depth/date/ordinal ordering, display-title provenance, and component-based repeated-hit/new-relevant metrics over the complete current identity graph.",
+      "determination": "The ranking signals are deterministic and keep scientific interpretation provisional. R6 correctly avoids provider-score fusion, counts one hit per named current component, treats aliases/versions through the graph, and prevents a zero-hit round from satisfying duplicate stop. R2's sorted canonical term arrays and R6's declared query order are compatible when declared order means the sealed canonical array order.",
+      "required_acceptance": [
+        "Exercise title-only, summary-only, multiple-term, null-date/count, alias, same_work bridge, and conflicting-component vectors.",
+        "Compare repeated_hits, total_hits, new_relevant, list rank, fused rank, and score bytes under observation permutations."
+      ]
+    },
+    {
+      "id": "DISC-R6-DUPLICATE-THRESHOLD-OPERATOR",
+      "status": "OPEN_FREEZE_CLARIFICATION",
+      "evidence": "R6 says duplicate threshold compares repeated_hits*100 against configured_percent*total_hits but does not state whether equality qualifies, while R2 exposes duplicate_percent as a stopping threshold.",
+      "determination": "Freeze the comparator, preferably inclusive `repeated_hits * 100 >= duplicate_percent * total_hits`, with total_hits=0 explicitly false. Without the operator, exact boundary stop bytes are not uniquely specified.",
+      "required_acceptance": [
+        "Test exact equality, one unit below, one unit above, and total_hits=0 for every configured percentage boundary."
+      ]
+    },
+    {
+      "id": "DISC-R6-LOGICAL-ATTEMPT-DEDUPE",
+      "status": "OPEN_FREEZE_CLARIFICATION",
+      "evidence": "R6 adds a logical attempted-job key excluding transient origin refs, query text, versions, neighbor slice IDs, cursor, retry, and request key; any matching committed plan slot marks the job attempted. It also says explicit retries/continuations remain separately authorized and that aliases/merges must not reissue plain jobs.",
+      "determination": "The intended alias suppression is clear, but the rule must say whether the depth field remains part of the intersection test after an identity bridge changes a component's minimum depth, and must explicitly exempt only authorized retry/continuation specs from the already-attempted plain-job refusal. Otherwise an alias that changes depth can produce a new logical key, while a continuation can be confused with a duplicate base operation.",
+      "required_acceptance": [
+        "Attempt a plain job, extend its component with an alias, merge it with another component, and change its minimum depth; verify no new plain job is issued at either depth.",
+        "Verify explicit retry, cursor continuation, and reference/related neighbor slice each issue only with the required predecessor and remain separate from plain attempted-job suppression.",
+        "Verify a plan slot committed without a request file still marks the logical job attempted and exact repair does not create a second slot."
+      ]
+    },
+    {
+      "id": "DISC-R6-EXPANSION-SELECTION-LINEAGE",
+      "status": "OPEN_FREEZE_CLARIFICATION",
+      "evidence": "R6 limits graph expansion to three distinct unambiguous components for the whole session, keeps previously selected components in place across aliases/bridges, chooses from the last complete fused rank, derives seed/depth provenance, and says the count is status/graph-derived rather than a separate artifact. R4 also leaves unavailable neighborhood jobs as capability frontier entries rather than fabricated requests.",
+      "determination": "The ranking and depth choices are deterministic once a selected component exists, but the contract does not define the durable derivation of a selection that has no materialized request because its required capability or neighborhood is unavailable, nor the exact selection identity after a bridge changes its candidate key. Freeze a selection lineage derived from the selected candidate-set/key plus its identifier set, and specify how status reconstructs it across restart and merges. Preserve the three-selection debit even when no request can yet be issued; later newly enabled operations must use the retained lineage rather than consume a fourth selection.",
+      "required_acceptance": [
+        "Select an unavailable component, restart, then enable its neighborhood capability; verify the same selection resumes and no extra selection is consumed.",
+        "Merge two selected components and extend one with an alias; verify selection count stays unchanged and both historical expansion origins remain bound.",
+        "Exercise depth-one and depth-two selections and prove depth two never recurses while a shallower reappearance cannot consume another selection."
+      ]
+    },
+    {
+      "id": "DISC-R6-NEIGHBOR-ORIGIN-AND-QUERY",
+      "status": "CLOSED_DESIGN_PENDING_TARGET_VECTORS",
+      "evidence": "R6 freezes deterministic OpenAlex/DOI/arXiv subject preference, source-observation selection by exact ref and ordinal, null versus empty neighbor semantics, neighborhood lens assignments, topic/project query construction, and explicit cursor/slice predecessor rules.",
+      "determination": "The rules close the earlier unspecified exact query/lens/neighbor-origin points. Empty lists are exhausted paths, null lists are capability gaps, citation queries do not require neighbor arrays, and references/related slices preserve exact singleton provenance and canonical unseen ID prefixes.",
+      "required_acceptance": [
+        "Verify canonical target bytes for every operation, exact query term order, 2048-character/4094-byte limits, and all cursor/retry/slice predecessor checks.",
+        "Exercise multiple matching source observations and ensure exact reference/ordinal selection is independent of arrival order."
+      ]
+    }
+  ],
+  "remaining_acceptance": [
+    "Implement and run the frozen graph, frontier, ranking, stop, recovery, and provider-target vectors on both supported Python versions.",
+    "Keep local results distinct from remote CI, installed-wheel, real-data, held-out provider, and human scientific acceptance gates.",
+    "Preserve the zero-egress boundary and approved .work staging boundary; no real Vault or connector mutation is authorized by this review."
+  ],
+  "decision": "CONDITIONAL_GO_FOR_DISCOVERY_EXPANSION_DESIGN_FREEZE_PENDING_THREE_CONTRACT_CLARIFICATIONS",
+  "decision_basis": "R5 closes feasible-prefix and pending-candidate accounting, and R6 closes the prior mirror/RRF, fact-ranking, exact-target, and frontier-operation gaps. Design freeze is ready after the explicit zero-feasible-prefix status distinction, inclusive duplicate-threshold operator, and durable expansion-selection lineage/depth dedup rules are written. These are narrow contract clarifications; the listed acceptance vectors are future verification obligations rather than present implementation failures.",
+  "implementation_boundary": {
+    "source_files_changed": false,
+    "tests_changed": false,
+    "git_mutated": false,
+    "vault_mutated": false,
+    "network_or_connector_used": false,
+    "review_artifact_only": true
+  }
+}

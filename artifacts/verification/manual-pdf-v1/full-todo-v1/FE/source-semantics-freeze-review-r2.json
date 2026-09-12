@@ -1,0 +1,109 @@
+{
+  "blockers": [],
+  "checks": [
+    {
+      "evidence": "R2 freezes SOURCE_SEMANTICS_INVALID/LIMIT, SCHEMA_INVALID, association/conflict/provenance/inventory/registration/locator/display/assessment/compile codes with exit values, instance_pointer requirement, full-object preflight, shape-before-map-before-content ordering, stable pointer/keyword ordering and phase precedence.",
+      "id": "ERROR-TABLE-AND-PRECEDENCE",
+      "status": "PASS"
+    },
+    {
+      "evidence": "R2 defines a closed source-ledger projection with exact root/row fields, enums, null-versus-absent, timestamp/date rules, path/URL grammar, synthetic pairing, target row identity/primary binding, exact historical bytes, no wall clock and no delegation to the full upstream validator.",
+      "id": "HISTORICAL-LEDGER",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Registration requires generic capture receipt=null/head=null/claimed_inputs=[], separate ingest receipt, first raw-path claim, one matching read plus source-ledger write, canonical reachable receipt chain, replay and ledger binding; relabeling a raw create is refused.",
+      "id": "RECEIPT-ORDER",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Same-key/same-raw reuse now requires exact observation, registration proof and extraction reference; metadata changes return SOURCE_PROVENANCE_VARIANT exit 75; old references are immutable and no duplicate association is manufactured.",
+      "id": "FULL-REUSE-PROOF",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Accepted version form is exactly {kind: unknown|declared, label}; conflict keys and unknown semantics use kind consistently.",
+      "id": "VERSION-KIND",
+      "status": "PASS"
+    },
+    {
+      "evidence": "R2 forbids canonical alias ownership collisions across primary/alias owners and requires optional arxiv_id/doi normalization to the primary or stated canonical alias without changing legacy IDs.",
+      "id": "ALIAS-OWNERSHIP",
+      "status": "PASS"
+    },
+    {
+      "evidence": "No-v2 input requires empty source maps and delegates exact v1 compile; mixed compile validates complete source material, preserves unchanged legacy bytes for unchanged related sets, renders explicit version/selection/evidence/assessment state, rejects graph/owner/path/taxonomy conflicts and uses deterministic sorted output.",
+      "id": "MIXED-COMPILER",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Durable JCS bytes have no terminal LF; raw/extraction hashes and source identity are exact; Markdown charspan is decoded Unicode character count with no normalization/newline rewrite, exact excerpt hash, anchor containment and null cross-page handling.",
+      "id": "BYTE-AND-SPAN",
+      "status": "PASS"
+    },
+    {
+      "evidence": "R2 binds v1->v2 migration to exact claim text and complete historic v1 event objects/IDs/links/profile, requires first v2 event to link actual v1 terminal event, forbids drop/regenerate/relabel, and requires immutable event-byte prefix comparison by the retained publisher.",
+      "id": "MIGRATION-PREFIX",
+      "status": "PASS"
+    },
+    {
+      "evidence": "R2 fixes the 来源版本 section, selected/unselected lines, sorted association bullets, evidence bullet identity, span/excerpt display, exact provisional wording, frontmatter append order and complete expected-byte fixtures.",
+      "id": "RENDER-SKELETON",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Existing v1 APIs/errors remain unchanged; new wrappers dispatch only seven new schemas, preserve delegated v1 errors, and keep v1 locators/fingerprints/compiler bytes stable.",
+      "id": "LEGACY-API-ISOLATION",
+      "status": "PASS"
+    }
+  ],
+  "contract": {
+    "allowlist_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-allowed-paths-r1.json",
+    "allowlist_path_count": 29,
+    "allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "baseline_head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "baseline_tree": "a12faeba7c34cfc07dc305e2aca13bfc153db041",
+    "expected_allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "expected_sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R2.md",
+    "sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9"
+  },
+  "decision": "GO_FOR_SOURCE_SEMANTICS_R2_FREEZE",
+  "historical_inputs": {
+    "r1_contract_review": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/FE/source-semantics-contract-review-r1.json",
+      "sha256": "087798cf753580d89d027e7e8d15fce2faa3cebc09806395b27da67d03d6b5f5"
+    },
+    "r1_probe_result": {
+      "expected_sha256": "eb23c91ef268405c9e90ada6dc6f50cb064faee607d872603ddb0273fdcc51af",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/probes/probe_preview_decision_r1.result.json",
+      "sha256": "eb23c91ef268405c9e90ada6dc6f50cb064faee607d872603ddb0273fdcc51af"
+    },
+    "r2_probe_result": {
+      "expected_sha256": "c2c4771d155cfa96192abb45f58dadd65a9b14b446e06084f91c323ae6dae535",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/probes/probe_preview_decision_r2.result.json",
+      "sha256": "c2c4771d155cfa96192abb45f58dadd65a9b14b446e06084f91c323ae6dae535"
+    }
+  },
+  "residuals": [
+    {
+      "id": "R2-IMPLEMENTATION-RESIDUAL-RAW-MAP",
+      "requirement": "Builder must route malformed raw UTF-8/size/path and source-map content failures through SOURCE_INVENTORY_INVALID or the explicitly scoped lower-level code, with stable pointers, rather than leaking UnicodeError/KeyError.",
+      "severity": "non_blocking"
+    },
+    {
+      "id": "R2-IMPLEMENTATION-RESIDUAL-RENDER-GOLDEN",
+      "requirement": "Builder must add the complete expected v2 byte fixture and mixed legacy/concept/code bytes exactly as required by R2; the contract fixes the skeleton and field order, while the fixture proves every blank line, escaping and link spelling.",
+      "severity": "non_blocking"
+    },
+    {
+      "id": "R2-IMPLEMENTATION-RESIDUAL-HISTORY-COVERAGE",
+      "requirement": "Builder tests must exercise actual capture->ingest historical fixtures, not fabricate an earlier capture receipt, and must verify v1 result bytes plus the immutable v2 migration prefix.",
+      "severity": "non_blocking"
+    }
+  ],
+  "revision": "R2",
+  "schema": "full-todo.source-semantics-freeze-review.v2",
+  "scope": "Bounded read-only freeze review of SOURCE-SEMANTICS-R2 against accepted L1 semantics and recovered R1 evidence. No source, schema, Git, Vault, network or external runtime changes.",
+  "source_git_edited": false
+}

@@ -1,0 +1,254 @@
+{
+  "$schema": "full-todo.discovery-output-review-r1.v1",
+  "schema": "full-todo.discovery-output-review-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-read-only-public-status-render-review",
+  "recorded_at_utc": "2026-09-09T11:10:00Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "bounded independent Discovery public-output reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_WITH_PUBLIC_OUTPUT_FINDINGS",
+  "verdict": "The complete held-out round replays successfully and the public calls are read-only, but status and render do not expose the completed assessment reference/lens coverage or operation health. The output therefore hides the recorded OpenAlex capability failure and all five provisional gap states. Render also omits candidate identifiers, why-found/reason details and provenance JSON despite its source comment claiming provenance is displayed.",
+  "scope": "Read-only inspection of the live complete round .work/research/svd-holdout-r2 and the public Discovery status, render and context functions in the prepared WIP source. Compared output behavior with frozen R2 assessment/operation-health requirements. No source, schema, test, Git, network, connector, Vault or human-gate mutation.",
+  "scope_controls": {
+    "source_edits": false,
+    "tests_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_mutation": false,
+    "review_artifact_only": true
+  },
+  "inputs": {
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732
+    },
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576,
+      "references": [
+        "lines 275-294",
+        "lines 306-315"
+      ]
+    },
+    "r7_final": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    }
+  },
+  "reviewed_source": {
+    "root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+    "head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "path": "src/video_paper_wiki_research/discovery.py",
+    "sha256": "1491bd0385e465aa31aa106c96312ce35bc5a99d058e518ccd769c338536ef65",
+    "size_bytes": 21527,
+    "lines": 379,
+    "reviewed_ranges": {
+      "_status": "88-130",
+      "context": "253-266",
+      "render": "360-379"
+    }
+  },
+  "live_round": {
+    "session": "svd-holdout-r2",
+    "root": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1",
+    "state_observed": "calculated_stopped",
+    "last_complete_round": {
+      "id": "rw3:research-round-event:8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13",
+      "sha256": "36d1e733e908114d7f98ce538f54eb8b80f75d3b99fa8bf776f76a57135069d0",
+      "path": "metadata/8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13.json"
+    },
+    "assessment": {
+      "id": "rw3:research-assessment:b5fd7e6215a0dda42418887e50d5e65063448f4fd5bcf1d87b37fc127e234170",
+      "sha256": "d799b2eb9b7b6e8154ee59ee49ccabbccadd803cd2c3d17e834d77bc1f04a1ee",
+      "path": "decisions/b5fd7e6215a0dda42418887e50d5e65063448f4fd5bcf1d87b37fc127e234170.json",
+      "lens_states": [
+        {
+          "lens": "method",
+          "state": "gap"
+        },
+        {
+          "lens": "benchmark",
+          "state": "gap"
+        },
+        {
+          "lens": "implementation",
+          "state": "gap"
+        },
+        {
+          "lens": "counterevidence",
+          "state": "gap"
+        },
+        {
+          "lens": "reproduction",
+          "state": "gap"
+        }
+      ]
+    },
+    "stop": {
+      "id": "rw3:research-stop-decision:daf00093b772f4f952e0eaf0c60becaa21b15cdcbb80dcbc0a683a1d713d4ef1",
+      "sha256": "e03c1206fdc89d972fe0772a9d8ff8c902833de6795e723972299f103ced794c",
+      "path": "proposals/daf00093b772f4f952e0eaf0c60becaa21b15cdcbb80dcbc0a683a1d713d4ef1.json",
+      "primary_reason": "budget_exhausted",
+      "failed_requests": 1
+    },
+    "operation_health": [
+      {
+        "request_id": "rw3:discovery-request:4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2",
+        "provider": "platform-web-search-normalized-v1",
+        "outcome": "success",
+        "failure": null
+      },
+      {
+        "request_id": "rw3:discovery-request:4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea",
+        "provider": "openalex-rest-normalized-v1",
+        "outcome": "capability_unavailable",
+        "failure": {
+          "code": "HOST_SAFE_OPEN_UNAVAILABLE",
+          "message": "The host returned: is not safe to open (non-retryable error). No OpenAlex payload was visible.",
+          "retry_after_seconds": null
+        }
+      }
+    ],
+    "candidate_set": {
+      "id": "rw3:paper-candidate-set:6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914",
+      "sha256": "d8d803529bbd1225aec58ca5795cfa5bd7f6bc15af019968cc7900456ce4ec22",
+      "item_count": 1,
+      "path": "proposals/6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914.json"
+    },
+    "rank": {
+      "id": "rw3:paper-rank:ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6",
+      "sha256": "6ef3d732959f0f73cdf2078ebb020a170e69c005711c05f25f309cdea37eea19",
+      "path": "proposals/ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6.json"
+    }
+  },
+  "public_call_observations": [
+    {
+      "call": "status(session=\"svd-holdout-r2\")",
+      "result": "calculated_stopped",
+      "observed_fields": [
+        "base_state",
+        "effective_state",
+        "last_complete_round",
+        "matched_reasons",
+        "budget",
+        "candidate_set",
+        "rank",
+        "scientific_assessment",
+        "formal_admission"
+      ],
+      "missing_fields_for_complete_round": [
+        "assessment reference",
+        "assessment lens states/reasons/evidence",
+        "operation_health",
+        "failed request details",
+        "stop metrics summary"
+      ],
+      "observed_values": {
+        "matched_reasons": [
+          "budget_exhausted"
+        ],
+        "scientific_assessment": "provisional_scientific_assessment",
+        "formal_admission": false
+      }
+    },
+    {
+      "call": "render(session=\"svd-holdout-r2\")",
+      "result": "markdown",
+      "observed_markdown": [
+        "# Discovery svd-holdout-r2",
+        "State: calculated_stopped",
+        "All scientific coverage and relevance remain provisional.",
+        "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+        "- Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets"
+      ],
+      "missing_rendered_content": [
+        "assessment reference and five lens states/reasons/evidence",
+        "operation health and the HOST_SAFE_OPEN_UNAVAILABLE failure",
+        "rank number and candidate identifiers",
+        "why_found entries and matched/relevance reasons",
+        "rank contributions/suppression explanations and provenance JSON"
+      ]
+    },
+    {
+      "call": "context(session=\"svd-holdout-r2\")",
+      "result": "contains assessment_context",
+      "observed_fields": [
+        "assessment_context.observation_refs",
+        "assessment_context.observations",
+        "assessment_context.prompt",
+        "assessment_context.operation_health"
+      ],
+      "interpretation": "The data exists in the public context path, but status and render do not project it."
+    }
+  ],
+  "checks": [
+    {
+      "id": "DOUT-STATUS-ASSESSMENT-001",
+      "status": "OPEN_PRODUCT_OUTPUT_FINDING",
+      "severity": "high",
+      "evidence": "discovery.py:111-130 returns last_complete_round, candidate/rank refs and only the literal scientific_assessment label. It does not dereference the complete event assessment or expose its reference, generator, five lens states, reasons or citations. context():260-266 proves this data is available.",
+      "contract_impact": "R2:275-293 requires caller-supplied provisional assessment coverage to remain inspectable; a status consumer cannot distinguish the five recorded gaps from an unassessed round.",
+      "required_fix": "Add a non-creating complete/pending assessment projection to status and render, retaining exact artifact references and lens state/reason/evidence summaries without implying formal admission."
+    },
+    {
+      "id": "DOUT-OPERATION-HEALTH-002",
+      "status": "OPEN_PRODUCT_OUTPUT_FINDING",
+      "severity": "high",
+      "evidence": "The live stop decision records failed_requests=1 and the OpenAlex observation records outcome capability_unavailable with HOST_SAFE_OPEN_UNAVAILABLE. context():266 returns this operation_health, but status() and render() omit it entirely.",
+      "contract_impact": "R2:289-293 explicitly requires failed required lens requests to stay visible and both operation health and provisional coverage to be reported.",
+      "required_fix": "Project per-request outcome/failure summaries into status and render for complete and pending states; preserve exact failure code/message and keep failure separate from lens coverage."
+    },
+    {
+      "id": "DOUT-RENDER-CANDIDATE-PROVENANCE-003",
+      "status": "OPEN_PRODUCT_OUTPUT_FINDING",
+      "severity": "medium",
+      "evidence": "render():367-378 orders candidate titles from rank but emits only the escaped title and an identity-conflict suffix. It does not include the candidate_key, IDs, rank, why_found, matched terms, relevance signals, or contribution/suppression reasons. The comment at :373-374 claims provenance is displayed as JSON, but no provenance JSON is appended to the output.",
+      "contract_impact": "R2/R6 require deterministic candidate provenance, suppression reasons and provisional interpretation to remain auditable; the current Markdown hides those retained fields.",
+      "required_fix": "Render deterministic rank number, candidate key/identifiers, relevance/signals, why_found and bounded provenance/reason JSON (escaped as literal text), including conflict and suppression reasons."
+    },
+    {
+      "id": "DOUT-RENDER-HEALTH-COVERAGE-004",
+      "status": "OPEN_PRODUCT_OUTPUT_FINDING",
+      "severity": "high",
+      "evidence": "The live render contains only state, generic provisional sentence, question and one title; it does not render the five lens states/reasons or the failed operation even though both are retained and context exposes them.",
+      "contract_impact": "A Markdown-only consumer receives an incomplete report of a complete round and can mistake a successful candidate title for coverage.",
+      "required_fix": "Add clearly labeled provisional coverage and operation-health sections to the Markdown projection, with escaped source text and exact artifact references."
+    },
+    {
+      "id": "DOUT-ESCAPING-005",
+      "status": "PASS_STATIC_WITH_ACCEPTANCE_OPEN",
+      "severity": "info",
+      "evidence": "render():375-378 HTML-escapes and Markdown-escapes candidate titles before emitting them. The live title is rendered as a literal list item; no provider HTML/Markdown is interpreted.",
+      "remaining": "Future output changes must preserve literal escaping for assessment statements, reasons and provider-derived provenance fields."
+    }
+  ],
+  "actual_findings": [
+    "DOUT-STATUS-ASSESSMENT-001: status omits the completed assessment ref and lens coverage details.",
+    "DOUT-OPERATION-HEALTH-002: status and render omit the retained OpenAlex capability failure and failed-request summary.",
+    "DOUT-RENDER-CANDIDATE-PROVENANCE-003: render emits only a title/conflict marker; candidate identifiers, rank, why_found, reasons and provenance are absent despite the source comment.",
+    "DOUT-RENDER-HEALTH-COVERAGE-004: Markdown output cannot show the five provisional gap states or operation health."
+  ],
+  "limitations_and_remaining_gates": [
+    "This review exercises a retained local round and public functions with the project .venv only; no provider/network call was made.",
+    "No source or test changes were made; this artifact grants no implementation or final acceptance approval.",
+    "The live round is one complete round with one successful Web operation, one unavailable OpenAlex operation, one candidate and five gap lens states; pending-plan output projection remains a separate acceptance vector.",
+    "Provider capability, real-data, Vault/admin and human scientific gates remain outside this output review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

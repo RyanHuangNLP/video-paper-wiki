@@ -1,0 +1,84 @@
+{
+  "$schema": "full-todo.code-proof-public-closure-review-r9.v1",
+  "schema": "full-todo.code-proof-public-closure-review-r9.v1",
+  "packet": "CODE-PROOF-PUBLIC-CLOSURE-R9",
+  "revision": "R9-independent-public-closure-review",
+  "recorded_at_utc": "2026-09-09T17:14:45.191242000Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CODE-PROOF public-closure and serialization-bound reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_RESOURCE_FREEZE_AND_INPUT_CAP_KEY_CLOSURE_PENDING",
+  "verdict": "R9 closes the four R7 public-wire findings and the R8 mkdir/post-stat residual at the design level. The repository grammar is restored to the R2 component set, handoffs are a strict validated path prefix, request/observe and derived-envelope serialization are preflighted before installation, the whole planned install is simulated against the peak cap, semantic context shapes and blocker precedence are closed, and the mkdir exception matrix now preserves conservative no-adoption/no-rollback behavior. The supplied R2 bound script and JSON reproduce exactly and are correctly labelled as conservative structural bounds rather than valid Git fixtures. Two gates remain before public-wire freeze: generated schemas/profile/resources and exact origin/hash parity, plus clarification of the ordinary-input limit names and saved-request-cap mapping. No implementation acceptance is implied.",
+  "scope": "Read-only review of CODE-PROOF-PUBLIC-CLOSURE-R9 against CODE-PROOF-WIRE-R7, CODE-PROOF-RETAINED-CLARIFICATIONS-R8, their independent reviews, and the supplied R2 structural serialization-bound evidence. No source, schema, test, fixture, Git, provider, network, connector, Vault or prior-evidence mutation; only this review artifact was written.",
+  "frozen_inputs": [
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md", "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62", "size_bytes": 12611},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md", "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2", "size_bytes": 20246},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md", "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f", "size_bytes": 15471},
+    {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-wire-review-r7.json", "sha256": "bb9a62d97b37457122d9373beca99313646d165316ddc46c96a7794659f4443b", "size_bytes": 15313},
+    {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-clarifications-review-r8.json", "sha256": "c9667be5c2e5e2d0b2da7a85f0193128fc430970e743265d2bc8bf2987ac616f", "size_bytes": 7543},
+    {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-serialized-bounds-r2.py", "sha256": "1d342e4cf9cc550f9fa995c5c370e822996ef92aad19754581cd639bf255ce7c", "size_bytes": 6048},
+    {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-serialized-bounds-r2.json", "sha256": "4793fb7b8772d70bbf18f283379b7af587c580e5f4a75274fefa933b95462ff1", "size_bytes": 1565}
+  ],
+  "closure_matrix": [
+    {"id": "R9-REPOSITORY-001", "status": "CLOSED_DESIGN", "evidence": "R9 restores both repository components to [A-Za-z0-9._-]{1,100}, rejects exact dot/dot-dot and a case-insensitive .git suffix, preserves leading dot/underscore/hyphen, and specifies lowercase saved spelling plus request/bundle/hosting equality. This resolves CPR7-REPOSITORY-GRAMMAR-001 while retaining the earlier R2 boundary."},
+    {"id": "R9-HANDOFF-002", "status": "CLOSED_DESIGN", "evidence": "R9 makes handoffs exactly the path-ordered requested prefix, including the empty prefix; rejects initial non-prefix subsets as STATE_INVALID/nonprefix_handoffs; permits only initial identical-file reuse; and refuses late appearance as lineage failure. Config remains an arbitrary validated subset and raw objects retain their OID-sorted prefix rule."},
+    {"id": "R9-PREFLIGHT-003", "status": "CLOSED_DESIGN", "evidence": "R9 orders raw input cap before decode, per-target limits before sealed records, complete request/intent/observation/config/handoff serialization before first install, and saved intent before saved observation. It preserves raw bundle/body validation and the R6/R8 final-lineage precedence."},
+    {"id": "R9-PEAK-004", "status": "CLOSED_DESIGN_WITH_IMPLEMENTATION_GATE", "evidence": "R9 simulates the complete deterministic install from retained logical byte count C, charges reused initial-identical files at zero, requires C+2*N for each missing payload, updates prospective C after each file, includes retained optional families, and repeats the check before each temporary. This closes the R7 pre-install budget finding while preserving the R5/R8 allowance for unexpected post-write failures to leave verified prefixes."},
+    {"id": "R9-BOUNDS-005", "status": "PASS_WITH_STRUCTURAL_LIMITATION", "evidence": "Independent invocation of architect-serialized-bounds-r2.py.run() reproduced git proof 1014633 bytes, raw observation 1041187 bytes including LF, handoff 12910 bytes, and the three recorded construction hashes exactly. The values are below default observation 2097152 and handoff 131072 caps. The script's deliberately incompatible field maxima, repeated OIDs, and union-inconsistent target rows are explicitly labelled structural overestimates, so this is not evidence of a hash-valid Git fixture; the stated ASCII/JCS and profile-width premises still require generated-resource and implementation checks."},
+    {"id": "R9-MKDIR-006", "status": "CLOSED_DESIGN", "evidence": "R9 adds explicit mkdir-raises, post-create stat/open failure, parent-fsync failure, and later replacement/removal rows. A present unverified name is WORK_PATH_UNSAFE and is never adopted or deleted; verified creation may remain after parent fsync failure with an I/O refusal; later replacement/removal is also WORK_PATH_UNSAFE. This closes R8-MKDIR-001 and preserves the retained first-observation boundary."},
+    {"id": "R9-SEMANTIC-007", "status": "CLOSED_DESIGN_WITH_SCHEMA_GATE", "evidence": "R9 fixes six new semantic code context shapes and reason enums, bounded pointers, TARGET_INELIGIBLE blocker rows and path ordering, selected-role versus whole-set eligibility, NOT_READY/raw_evidence_required, and CONFLICT versus binding/lineage precedence. It extends the R8 bounded I/O reason vocabulary without changing the pure kernel. Exact generated schema/profile bytes and positive/negative wire fixtures remain external gates."}
+  ],
+  "findings": [
+    {
+      "id": "R9-INPUT-CAP-NAMES-008",
+      "status": "OPEN_PUBLIC_WIRE_CONTRACT_DEPENDENCY",
+      "severity": "medium",
+      "title": "Ordinary-input error limit names do not match the frozen R7 limits map, and the saved request cap is not explicit",
+      "evidence": "R7 public limits materialize max_request_bytes, max_intent_bytes, max_observation_bytes, max_config_document_bytes, max_handoff_bytes and max_output_peak_bytes; ordinary request input is prose-capped at 65536 raw bytes and ordinary observe input at 1048576 raw bytes. R9 later names the fixed input limits max_request_input_bytes and max_observe_input_bytes while also requiring limit_name to identify a corresponding materialized key. It does not state whether max_request_bytes applies to both raw request input and the sealed request envelope, nor how the fixed observe-input cap is represented in the profile/error shape.",
+      "risk": "Schema/profile generation and implementations can expose different limit_name values or apply a lowered max_request_bytes to different byte domains. That changes refusal identity and precedence for oversized request/observe inputs and for a request whose canonical saved envelope differs from its raw input size.",
+      "required_closure": "Before schema generation, either retain R7's exact materialized key set and explicitly define the fixed input constants plus the saved request-envelope cap, or intentionally add/version the two new keys in the complete limits map. Bind request and observe pointer/limit_name/observed semantics to cap-minus/equal/plus fixtures and to a lowered saved-request-cap case."
+    },
+    {
+      "id": "R9-RESOURCE-009",
+      "status": "OPEN_EXTERNAL_RESOURCE_FREEZE_DEPENDENCY",
+      "severity": "medium",
+      "title": "Generated public schemas, profile bytes and exact origins are still absent",
+      "evidence": "R9 explicitly says actual schemas/profile bytes, independent checks, exact source freeze and implementation remain required. R7/R8 require ten self-contained public schemas, the installed code-proof profile, exact resource hashes and source/installed origin parity; no such generated resource set is included by this design packet.",
+      "risk": "A later implementation can satisfy the prose while shipping a missing, extra, stale or wrong-origin schema/profile resource, or can choose a different error envelope than the reviewed context table.",
+      "required_closure": "Generate and independently validate all ten schemas and the profile with strict integer/no-external-ref checks; record exact bytes, source paths, installed-wheel paths and hashes; add positive/negative wire fixtures for all new context shapes and verify isolated-wheel parity before implementation acceptance."
+    }
+  ],
+  "resolved_prior_findings": [
+    "CPR7-REPOSITORY-GRAMMAR-001",
+    "CPR7-NORMALIZED-SERIALIZATION-002",
+    "CPR7-HANDOFF-SUBSET-003",
+    "CPR7-PROOF-SERIALIZATION-004",
+    "R8-MKDIR-001"
+  ],
+  "required_next_freezes": [
+    "Resolve the R7/R9 ordinary-input and saved-request limit-name/cap mapping before schema generation.",
+    "Generate the ten schemas and installed code-proof profile with exact source/resource hashes and origins.",
+    "Run strict schema/resource checks, wire positive/negative context fixtures, and isolated-wheel parity.",
+    "Implement and test the pre-serialization and whole-plan peak checks, including cap-minus/equal/plus and no-change-on-preflight-refusal vectors.",
+    "Keep the structural bound labelled as an overestimate and separately provide hash-valid raw fixtures during implementation acceptance."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T17:14:45.191242000Z",
+    "note": "Tool-observed current UTC; no retrospective review-start time is asserted."
+  }
+}

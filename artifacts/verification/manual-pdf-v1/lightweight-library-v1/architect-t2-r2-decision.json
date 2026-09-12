@@ -1,0 +1,71 @@
+{
+  "schema": "video-paper-wiki.library-architect-decision.v1",
+  "recorded_at_utc": "2026-09-08T04:43:35.130482+00:00",
+  "packet": "lightweight-library-v1",
+  "lane": 2,
+  "revision": 2,
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "candidate_snapshot": "2a3ba59afb2a23cfa11c14b6f1e1ecf60bb161d591d675c9eed2964202c36355",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "source_writer_stopped": true,
+  "actual_runner_exit_code": 0,
+  "runner_verified": true,
+  "decision": "REJECTED_T2_R2_REQUIRES_EXACT_OWNERSHIP_HISTORY_AND_BACKUP_VALIDATION_FIXES",
+  "accepted_for_integration": false,
+  "checks": {
+    "original_independent": {
+      "passed": 23,
+      "failed": 0
+    },
+    "additional_independent": {
+      "passed": 2,
+      "failed": 23
+    },
+    "positive_controls": [
+      "legitimate archive -> restore -> recover",
+      "deterministic backup exact reuse with external Markdown and fresh restore"
+    ]
+  },
+  "confirmed_failures": [
+    "six malformed journal enum dict/list values raise TypeError",
+    "unknown empty stage directory is removed",
+    "foreign digest source.md and edited workspace.lock are removed during final stage cleanup",
+    "completed archive/restore missing terminal payloads returns reuse",
+    "completed replacement edited/missing new live payload returns reuse",
+    "relative/traversing/nonnormal workspace roots accepted after selfhash recomputation",
+    "unsafe/invented/contradictory exclusion path-rule rows accepted",
+    "extra original basename/location/type does not match mapping but verifies",
+    "controller separately reproduced newly appearing output overwrite, malformed EOCD struct.error and local CRC inconsistency accepted"
+  ],
+  "inputs": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r2/handoff.json",
+      "sha256": "645cee4299e3e8847574b089530c8c85d4b5f6cd1cedd31e1b780c3874ba225c",
+      "size_bytes": 4045
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r2-replay/checks.json",
+      "sha256": "90f81d0ffad5b52674bb89b9d270716dc46a5d66976a1f7378a40594eeaf385a",
+      "size_bytes": 3234
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r2-additional/checks.json",
+      "sha256": "2f7e76e13cf6dcd11860be0b51cde857934a457942140fb84bb61188b936ee32",
+      "size_bytes": 3243
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/controller-review-r2.json",
+      "sha256": "f2d98835399bc9c7dd0dfb756e6131b04c4c3627e07704b2593efe882a063f41",
+      "size_bytes": 7392
+    },
+    {
+      "path": ".work/acceptance/lightweight-library-v1/architect_t2_r2_additional.py",
+      "sha256": "bdd4002125865fb199e37f42e228af36f7319dcddad9a899aa80faeedcb875da",
+      "size_bytes": 7235
+    }
+  ],
+  "raw_real_data_policy": "Read only the reproducer SOURCE and checks/decision through Cursor; root real-corpus text and raw logs are outside Builder input scope.",
+  "next": "Freeze same-nine-path R3 correction packet after independent contract review; no T3 import before accepted exact owner inputs.",
+  "remote_ci": "not run for this candidate",
+  "merge_authorized": false
+}

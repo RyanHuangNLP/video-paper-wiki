@@ -1,0 +1,145 @@
+{
+  "$schema": "full-todo.code-proof-public-acceptance-plan-review-r1.v1",
+  "schema": "full-todo.code-proof-public-acceptance-plan-review-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T13:15:00Z",
+  "phase": "pre_implementation_public_acceptance_preparation",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded public-acceptance-plan reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only review of the public acceptance preparation plan against the frozen R4/R6/R7/R8/R9/R12 requirements and the corrected public integration map. This is preparation evidence only: it does not freeze a source interface, authorize implementation, launch a Builder, mutate product/tests/resources/Git, or accept public CODE.",
+  "decision": "CHANGES_REQUIRED_PUBLIC_ACCEPTANCE_PLAN_BEFORE_USE",
+  "verdict": "The plan has the right nine acceptance groups and correctly separates schema, retained-byte, filesystem, CI and human evidence. Before it is used as the public implementation acceptance checklist, it needs explicit observable cases for the closed error/context contracts, fixed input and bundle cap precedence, the retained installer all-exits matrix, exact raw prefix/install order, resource-origin lineage, clarified input-directory grammar, and normalized/raw evidence-strength refusals. One phrase about copying the raw bundle must also be clarified to mean the canonical manifest plus declared object bodies rather than an archive or directory copy.",
+  "reviewed_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-ACCEPTANCE-PLAN-R1.md",
+      "sha256": "4e488999c6e3a999cdca8c7bec72fe8a2099b1dcc82a8027ecea260e19061672"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-public-integration-map-notes-r1.json",
+      "sha256": "d5836a4acb94431269f1b9b9758aa4e346827b7b29c83575a880913a70541d46"
+    }
+  ],
+  "strengths": [
+    "The five leaves, exact success-data shapes, fixed output families, path-key rule and handoff no-body-copy rule follow R7/map corrections.",
+    "Resource loading, strict primitive checks, ordinary input admission, identity binding, six-state replay, retained paths, peak simulation, evidence strength and zero-egress are all represented.",
+    "The plan preserves the separation between schema validity, retained-byte derivation, local fixtures, remote CI and human/real-data gates."
+  ],
+  "findings": [
+    {
+      "id": "ERROR_CONTEXT_AND_PRECEDENCE_CASES_NOT_EXPLICIT",
+      "severity": "BLOCKER_FOR_ACCEPTANCE_CHECKLIST",
+      "plan_area": "Independent acceptance groups 2, 4, 6, 7 and 9",
+      "contract_basis": "R7/R8/R9 define six public semantic codes with closed reason/details, TARGET_INELIGIBLE blockers, exact limit contexts, CONFLICT contexts, R8 I/O details, exit code 2 and lineage/cleanup precedence.",
+      "missing_cases": [
+        "Each JSON/document/binding/state/not-ready/target-ineligible code with every applicable reason/context shape, including bounded pointers and path-sorted blockers.",
+        "CODE_PROOF_LIMIT_EXCEEDED for /input, /request, /bundle, /intent, /observation, /config, /handoffs/<index> and /output with exact limit_name, limit and observed fields.",
+        "CODE_PROOF_CONFLICT context versus STATE_INVALID/NOT_READY/TARGET_INELIGIBLE, and lineage WORK_PATH_UNSAFE overriding semantic, operation or cleanup errors.",
+        "R8 phase/group/reason/operation/errno/prior fields with no raw path/parser/syscall text, plus exit code 2 for every refusal."
+      ],
+      "required_update": "Add a dedicated closed-error acceptance group with exact envelope, details and precedence assertions; keep success-schema validation separate from error validation."
+    },
+    {
+      "id": "FIXED_INPUT_AND_BUNDLE_CAP_PRECEDENCE_UNDER_SPECIFIED",
+      "severity": "BLOCKER_FOR_ACCEPTANCE_CHECKLIST",
+      "plan_area": "Independent acceptance group 2 and install group 7",
+      "contract_basis": "R10/R11 require raw request/observe cap-1/equal/cap+1, bounded cap+1 observed counts, oversized malformed JSON before decode, whitespace-heavy input, lowered saved caps, and canonical bundle cap domain/pointer /bundle.",
+      "missing_cases": [
+        "Request 65536-byte and observe 1048576-byte raw admissions at cap-1/equal/cap+1, including malformed oversized JSON receiving the raw cap error before decode.",
+        "A valid raw input within fixed admission cap whose lowered max_request_bytes/max_intent_bytes/max_observation_bytes fails after canonical serialization, with no installation.",
+        "Canonical manifest bundle cap-1/equal/cap+1 and hard-cap malformed overflow, with max_bundle_bytes at /bundle and no directory/output mutation."
+      ],
+      "required_update": "Record exact bytes-read semantics (cap+1 prefix only), error pointers/limits/observed values, and zero-install assertions for every deterministic cap refusal."
+    },
+    {
+      "id": "RETAINED_INSTALLER_ALL_EXITS_MATRIX_TOO_VAGUE",
+      "severity": "BLOCKER_FOR_ACCEPTANCE_CHECKLIST",
+      "plan_area": "Independent acceptance group 6",
+      "contract_basis": "R6/R8 require phase-aware lineage checks and cleanup across short/zero writes, link/mkdir/post-create failures, fsync/unlink/close failures, interruption, temporary replacement/disappearance and final late arrival.",
+      "missing_cases": [
+        "One-byte short writes and zero-progress writes with owned temporary cleanup and preserved IO_ERROR.",
+        "Link raises with final absent and with a distinct final appearing; link success followed by identity/lineage failure; EEXIST never adopted even with equal bytes.",
+        "Temporary inode disappearance/replacement, mode/link-count changes, temp unlink failure, file fsync failure, directory fsync failure after verified cleaned prefix, and close failure while closing remaining descriptors.",
+        "mkdir raises with name absent/present, post-mkdir stat/open failure before ownership, parent fsync failure after verified creation, and KeyboardInterrupt/SystemExit cleanup paths."
+      ],
+      "required_update": "Enumerate the R8 event rows and assert retained prefix, refusal code, final lineage precedence, no foreign deletion/adoption and reverse-close behavior. Keep persistent distinct replacement identities; do not infer safety from inode-number reuse."
+    },
+    {
+      "id": "RAW_PREFIX_AND_INSTALL_ORDER_NEEDS_EXACT_OBSERVABLE_CASES",
+      "severity": "BLOCKER_FOR_ACCEPTANCE_CHECKLIST",
+      "plan_area": "Observable observe outcome and independent groups 4 and 7",
+      "contract_basis": "R4/R5/R7 require byte-identical canonical manifest bundle.json before body completion, OID-sorted body prefixes including empty prefix, observation last, no fabricated inventory and valid-prefix-only repair.",
+      "missing_cases": [
+        "Raw observe with request+intent only, then bundle.json installed byte-identically before bodies; status reports pending_raw_bundle with exact missing list.",
+        "Empty, partial and complete OID-sorted object prefixes, including all bodies present with observation absent; status missing order is exact and repeated observe installs only the missing suffix.",
+        "Non-prefix/unknown/incorrect-body families and observation without dependencies refuse as STATE_INVALID and are never adopted or repaired.",
+        "Assert that 'raw bundle copy' means canonical manifest.json bytes plus declared objects/<oid>.body files, not an archive, directory hash or unrelated input-directory copy."
+      ],
+      "required_update": "State the fixed install order and exact status/missing/next_action payloads for each pending raw state."
+    },
+    {
+      "id": "RESOURCE_ORIGIN_LINEAGE_CASES_NOT_OBSERVABLE_ENOUGH",
+      "severity": "REQUIRED_GAP",
+      "plan_area": "Independent resource-loading group 1 and retained-path group 5/6",
+      "contract_basis": "R6/R8 require a closed installed resource set, filesystem origin, exact profile/schema bytes, output/resource disjointness and resource lineage checks through exceptional/final exits.",
+      "missing_cases": [
+        "Source-layout and wheel origins with changed/missing/undeclared schema, profile hash/shape mismatch, non-filesystem origin and external resolver denial.",
+        "Resource origin equal to/inside output namespace, resource ancestor/symlink/type/mode/link-count replacement and changed resource bytes during final verification.",
+        "Resource checks surviving a semantic failure, installer failure and normal success, with WORK_PATH_UNSAFE/resource_origin or resource_hash/resource_shape precedence as specified."
+      ],
+      "required_update": "Make origin identity, disjointness and all-exits resource reread cases explicit rather than relying on the general loading statement."
+    },
+    {
+      "id": "R2_INPUT_DIRECTORY_CLARIFICATION_LACKS_DISCRIMINATING_CASES",
+      "severity": "REQUIRED_GAP",
+      "plan_area": "Independent retained-paths group 5",
+      "contract_basis": "R2 repair clarification separates raw input-directory spelling from output batch grammar: components may contain Unicode, spaces, dot/underscore/hyphen; exact dot/dot-dot, slash/backslash/control and lexical aliases remain forbidden.",
+      "missing_cases": [
+        "Positive canonical roots .work/a, .work/input.v1, .work/_input, .work/-input, .work/input_, .work/input-, .work/.input and nested Unicode/space components.",
+        "Negative .work, .work/, repeated/trailing slashes, exact . and .. components, backslash, C0/C1/DEL, U+2028/U+2029 and path alias/symlink cases."
+      ],
+      "required_update": "Add these schema/CLI admission cases and assert that output batch-id grammar is not applied to input directory components."
+    },
+    {
+      "id": "EVIDENCE_STRENGTH_AND_LEGACY_CLI_CASES_NEED_EXACT_ASSERTIONS",
+      "severity": "REQUIRED_GAP",
+      "plan_area": "Evidence strength and CLI/zero-egress groups",
+      "contract_basis": "R7 distinguishes normalized evidence from raw-only derivation, unverified hosting/source association, whole-set handoff eligibility, exact blockers and unchanged legacy CLI behavior.",
+      "missing_cases": [
+        "Normalized observation config/handoff attempts return NOT_READY/raw_evidence_required where appropriate; normalized missing/inaccessible/unavailable statuses preserve exact eligibility and blockers.",
+        "Source association remains explicitly unverified; required hosting assertion, incomplete target set, missing, unsafe and unsupported-source blockers are path-sorted and do not echo unbound selectors.",
+        "Real installed entry point preserves existing legacy command/help/error behavior while new leaves use the existing outer envelope and never import operator/admin workflows or subprocess/Git/network paths."
+      ],
+      "required_update": "Add exact state/error and legacy-regression assertions, alongside the existing zero-egress instrumentation."
+    }
+  ],
+  "clarification_not_contradiction": "The phrase 'Raw observation copies the exact input bundle bytes' is ambiguous against R4/R11. Define it as a byte-identical canonical bundle.json manifest plus each declared retained object body; do not imply an archive, whole-directory copy or unrelated lexical-directory hash.",
+  "next_step": "Amend the preparation plan with these explicit cases before using it to review a public implementation. Keep the amendment separate from the future source allowlist, resource acceptance and implementation dispatch.",
+  "stop": "STOP: no implementation, launch, test run, Git action, network action or acceptance decision was performed."
+}

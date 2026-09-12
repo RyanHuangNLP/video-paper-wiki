@@ -1,0 +1,62 @@
+{
+  "schema": "video-paper-wiki.library-architect-decision.v1",
+  "recorded_at_utc": "2026-09-08T04:47:44.479680+00:00",
+  "lane": 1,
+  "revision": 3,
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "candidate_snapshot": "0267502300995cce09fc72fd4a1f3dbfc8fb2f6bcdf2cf2fd34dcce9d38355e5",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "source_writer_stopped": true,
+  "actual_runner_exit_code": 0,
+  "runner_verified": true,
+  "decision": "REJECTED_T1_R3_REQUIRES_RECORD_REFERENCE_AND_SNAPSHOT_BINDING_AND_TABLE_TITLE_FIXES",
+  "accepted_for_integration": false,
+  "checks": {
+    "original_accumulated": {
+      "passed": 24,
+      "failed": 0
+    },
+    "additional": {
+      "passed": 1,
+      "failed": 4
+    },
+    "positive": "Complete workspace relocation and valid prior view/record advancement passes."
+  },
+  "confirmed_failures": [
+    "HEADS paper key can refer to another paper record then be overwritten",
+    "CURRENT can reference a copied view whose record bundles are absent locally",
+    "contradictory redundant source snapshots can classify original stale record current",
+    "newline in cited source title breaks comparison table row"
+  ],
+  "inputs": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/r3/handoff.json",
+      "sha256": "c2432def32d7aa4ceebe5ea52eb872a1ba0384899fb80f0a52b3351feae71991",
+      "size_bytes": 2774
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t1-r3-replay/checks.json",
+      "sha256": "d908d661bc374b9542a158da1e5fbca3e41a83484bee0adce3e4e8674e909845",
+      "size_bytes": 2902
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t1-r3-additional/checks.json",
+      "sha256": "e1d43e6dfd38ab9b3112f6e3be4ab3cc28b4a23a46ee94fd9b013405062ec5ae",
+      "size_bytes": 2784
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/controller-review-r3.json",
+      "sha256": "b7b4087dc8fe5f9c5f570376d60384693ac23cc7d1a272294f9ffce38168cbb8",
+      "size_bytes": 4412
+    },
+    {
+      "path": ".work/acceptance/lightweight-library-v1/architect_t1_r3_additional.py",
+      "sha256": "2fe143b73a9e50843ad1749c8bd475bec4d098f48ba7c2c60be5f4347aac8357",
+      "size_bytes": 4846
+    }
+  ],
+  "review_timestamp_note": "Controller report has recorded_at_utc 05:00Z, which is later than this actual observation. Preserve its bytes as reported; rely on this timestamp and root executed checks for observed timing.",
+  "next": "Same-six-path bounded R4; no T3 import before owner acceptance.",
+  "remote_ci": "not run for this candidate",
+  "merge_authorized": false
+}

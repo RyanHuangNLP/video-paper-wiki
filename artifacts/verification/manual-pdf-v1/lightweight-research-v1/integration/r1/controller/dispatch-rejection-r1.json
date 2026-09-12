@@ -1,0 +1,60 @@
+{
+  "attempts": [
+    {
+      "argv": [
+        "python3",
+        "docs/ai/packets/lightweight-research-v1/run_cursor.py",
+        "--lane",
+        "3",
+        "--controller-id",
+        "five_agent_config_review",
+        "--prompt-file",
+        "docs/ai/packets/lightweight-research-v1/prompts/integration-r1.md"
+      ],
+      "exit_code": 2,
+      "kind": "runner_argument_validation",
+      "ordinal": 1,
+      "process_started": false,
+      "result": "cursor-run refused: --prompt-file must be an absolute path",
+      "source_mutated": false
+    },
+    {
+      "approval_question": "Allow the explicitly authorized fresh pinned Cursor/Grok integration R1 run for lane 3 using the frozen prompt?",
+      "argv": [
+        "python3",
+        "docs/ai/packets/lightweight-research-v1/run_cursor.py",
+        "--lane",
+        "3",
+        "--controller-id",
+        "five_agent_config_review",
+        "--prompt-file",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-research-v1/prompts/integration-r1.md"
+      ],
+      "automatic_review_decision": "rejected",
+      "automatic_review_reason": "This action launches an external Cursor/Grok process with repository workspace access and potential source/prompt egress; the user approved Grok Build generally but not this exact Cursor endpoint, payload, or destination. The agent must not attempt to achieve the same outcome via workaround, indirect execution or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.",
+      "exit_code": null,
+      "kind": "automatic_approval_review",
+      "ordinal": 2,
+      "process_started": false,
+      "sandbox_permissions": "require_escalated",
+      "source_mutated": false,
+      "stderr_created": false,
+      "stdout_created": false
+    }
+  ],
+  "builder_evidence_created": false,
+  "builder_evidence_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source/.work/integration-r1-evidence",
+  "controller_id": "five_agent_config_review",
+  "freeze_sha256": "cba361fb9624bc5fb75bcd44410a7b1ea61e5dda6576b1a1d4fa4396338360f7",
+  "git_mutated": false,
+  "lane": 3,
+  "next_action": "Stopped dispatch; no alternate tool/path retry. Preserve frozen source and await safer approved path or explicit user authorization addressing this exact endpoint/payload/destination.",
+  "official_evidence_materialized": false,
+  "phase": "integration",
+  "prompt_sha256": "842fdbdfb141d2b469f43a27d0634b861d8f8cfa2afb23bfe11286f537d21f69",
+  "recorded_at_utc": "2026-09-08T14:08:03.939206+00:00",
+  "revision": "r1",
+  "schema": "lightweight-research-integration-dispatch-rejection.v1",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source",
+  "status": "rejected_before_process_start"
+}

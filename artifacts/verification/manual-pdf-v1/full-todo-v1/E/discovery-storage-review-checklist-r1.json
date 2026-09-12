@@ -1,0 +1,305 @@
+{
+  "$schema": "full-todo.discovery-storage-review-checklist-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-storage-preparation-read-only",
+  "recorded_at_utc": "2026-09-09T10:08:00Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded discovery storage reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CHECKLIST_READY_IMPLEMENTATION_ACCEPTANCE_PENDING",
+  "scope": "Read-only preparation for the frozen R7 Discovery implementation. No Discovery source, schema, contract, test, Git state, network, connector, catalog, Vault, or human gate was mutated. The changing discovery storage draft was not inspected.",
+  "freeze_status": "R2-R7 storage and capacity rules are treated as frozen. This checklist adds implementation vectors and does not reopen their semantics.",
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R1.md",
+      "sha256": "2e255f9d9acd928fb26086b30422e7d9e8796b20f064beff5567bb225c9fb6c1",
+      "size_bytes": 12094
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-allowed-paths-r1.json",
+      "sha256": "e7930638d4814f4a8389e2cf9ac0b4dd0e5fb07423c089a050004ebe85e490d5",
+      "size_bytes": 2207
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-final-io-review-r7.json",
+      "sha256": "85b3b8640c8d0622aa200b8f9fe1ae12d32d35c24a01b6f656ed03a6dc6d1794",
+      "size_bytes": 12932
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/source_catalog_io.py",
+      "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+      "size_bytes": 15411
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "size_bytes": 54827
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/resources.py",
+      "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+      "size_bytes": 7579
+    }
+  ],
+  "frozen_storage_contract": {
+    "root": "<checkout>/.work/research/<session>/discovery-v1",
+    "families": [
+      "requests",
+      "observations",
+      "metadata",
+      "proposals",
+      "decisions"
+    ],
+    "artifact_names": "Every artifact is content_sha256.json; no mutable HEAD.",
+    "lock": "Every reader and writer takes one non-blocking exclusive flock on the retained checkout-root directory descriptor before observing or creating .work/research, holds it through all validation, installs, final checks and cleanup, and returns DISCOVERY_BUSY without store scan/write when busy.",
+    "create_only": "Read paths never create parents. Writers create only expected directories and files with no-follow and atomic install. Exact existing bytes may be reused; foreign or competing bytes, unknown siblings and orphan objects refuse.",
+    "lineage": "One retained descriptor session owns checkout/.work/research/session/discovery-v1, all family sets, reached files/resources/inputs and their final checks.",
+    "install_order": "config then session; plan then deterministic requests; one terminal observation per slot; assessment then candidate set, rank, stop and event last.",
+    "caps": "R4 per-artifact bytes and per-plan reserve apply before installation; families are <=256 files and <=32 MiB except decisions <=512 files, total store <=64 MiB. R7 chooses the largest feasible automatic prefix; zero feasible eligible prefix installs nothing; an over-cap observation is rejected before it becomes an observation."
+  },
+  "helper_observations": [
+    {
+      "helper": "source_catalog_io._Tree",
+      "location": "source_catalog_io.py:39-223",
+      "observation": "Retains named edges, first absence, descriptors, complete sets and bytes; verify_all continues all checks after an ordinary failure; optional missing directories/files remain classified by their first observation."
+    },
+    {
+      "helper": "source_catalog_io.CatalogSlot",
+      "location": "source_catalog_io.py:225-266",
+      "observation": "Uses a fixed directory shape, rejects foreign siblings, and treats an atomic-install reuse after a prior absence as unsafe; it rebinds the owned descriptor and mode/identity after creation."
+    },
+    {
+      "helper": "staging._open_batch_session",
+      "location": "staging.py:100-137",
+      "observation": "Retains checkout/.work/batch identities and rewalks named edges, but it does not acquire the Discovery checkout-root flock. Discovery must acquire its flock before calling any .work observer/creator."
+    },
+    {
+      "helper": "staging._atomic_install",
+      "location": "staging.py:697-808",
+      "observation": "Writes a bounded temp sibling, links atomically, rechecks placement before/after link and cleans the temp. Identical pre-existing bytes return reuse; a caller must distinguish this from a target that appeared after first absence."
+    },
+    {
+      "helper": "resources and Generation",
+      "location": "resources.py:34-45,108-199; source_catalog_io.py:286-369",
+      "observation": "A retained resource view can pin exact bytes and schema names. Discovery must reject non-filesystem/unsafe package resources, avoid caller-CWD fallback, and keep profile/schema/prompt bytes in the same final verification lineage."
+    }
+  ],
+  "pitfalls": [
+    {
+      "id": "DSTORAGE-001",
+      "priority": "P0",
+      "topic": "flock-before-work",
+      "risk": "Opening, scanning or creating .work/research before the shared lock permits a stale control/plan/event decision and violates the R3 serialization boundary.",
+      "invariant": "Open and retain the checkout-root descriptor without alias-hiding resolution, verify actual checkout identity, then take LOCK_EX|LOCK_NB before touching .work/research. Hold it through graph/resource/input checks, every install, final set/byte checks and descriptor cleanup. A busy acquisition returns DISCOVERY_BUSY/exit75 with no store scan or write; no lock file, PID file, lease or stale-lock deletion exists.",
+      "vectors": [
+        "two processes race init, plan, observe, finish, control and status; one gets DISCOVERY_BUSY without creating .work",
+        "busy process is pointed at an absent .work tree and must not create it",
+        "checkout directory rename/replacement while the descriptor is held; named checkout and .work edges must still fail WORK_PATH_UNSAFE",
+        "Linux and macOS acquire/busy/release subprocess test; do not infer Linux from macOS"
+      ]
+    },
+    {
+      "id": "DSTORAGE-002",
+      "priority": "P0",
+      "topic": "first-absence-and-missing-parent",
+      "risk": "A read or repair can claim a descendant missing below an absent parent, or adopt a foreign file/dir that appeared after the first scan.",
+      "invariant": "Retain the first classifier for every reached named edge. If an ancestor is absent, retain only that deepest missing edge and do not assert descendants. Read-only commands never create parents. A later appearance, disappearance, mode/type change or replacement of an edge first observed absent is WORK_PATH_UNSAFE/conflict, even when bytes are identical.",
+      "vectors": [
+        "absent .work; absent research; absent session; absent family; absent leaf, each with status/no-create assertions",
+        "config-only init_pending derives exactly one session from identical retained config; changed config/seeds refuse",
+        "session without config, multiple configs/sessions, wrong config ref, foreign artifact before session",
+        "missing parent appears with a valid-looking descendant during status/resume; refuse rather than adopt"
+      ]
+    },
+    {
+      "id": "DSTORAGE-003",
+      "priority": "P0",
+      "topic": "classifier-and-complete-set-snapshots",
+      "risk": "A file can change from ignored/unknown to expected, or a same-name entry can be replaced while the set of names remains equal; checking names alone can accept a split generation.",
+      "invariant": "Capture complete named sets for all five families and every exact resource/input directory. Retain no-follow type/mode/identity for every included and excluded classifier entry; re-enumerate sets and verify every retained edge after each ordinary failure and at final exit. Unknown names, temporary siblings, symlinks, hardlinks, FIFOs, directories in file slots and same-name replacement refuse.",
+      "vectors": [
+        "add/remove an unknown family sibling during parser and during cleanup",
+        "replace an expected file with equal bytes but new inode, mode, link count or mtime",
+        "replace an excluded entry with a valid artifact or add/remove __pycache__-like names in a directory whose contract does not exclude them",
+        "interrupt while a temp sibling exists; final set must either be clean or refuse"
+      ]
+    },
+    {
+      "id": "DSTORAGE-004",
+      "priority": "P0",
+      "topic": "one-shared-lineage",
+      "risk": "Separate family scans or independent resource/input reads can cross a directory replacement and combine artifacts from different generations.",
+      "invariant": "Use one retained descriptor/session object for checkout, .work, research, session/discovery-v1, all five family directories, all reached files, package resources and caller input files. Every operation verifies the same lineage before and after parsing/projection/install; no per-family context manager or path-only re-open may authorize success.",
+      "vectors": [
+        "replace the research/session/family directory between requests and observations",
+        "replace installed package/resource root between schema and profile reads",
+        "change config/plan/observation input bytes after hash and before final event",
+        "run status/render/handoff while a writer changes an uncooperative path; return unsafe, never a mixed graph"
+      ]
+    },
+    {
+      "id": "DSTORAGE-005",
+      "priority": "P0",
+      "topic": "create-only-atomic-install",
+      "risk": "The generic staging helper returns identical-byte reuse when a target appeared after the caller observed absence; treating that as idempotence adopts a foreign writer's object.",
+      "invariant": "Before each install, recheck retained parent/session/family identities and first target state. If target was initially absent, only the current operation's owned atomic installation may satisfy it; a FileExistsError or identical pre-existing bytes after first absence is unsafe/conflict. After link, verify regular mode, nlink, exact bytes, named edge and ownership identity; remove temp only after final checks. Existing equal bytes may be reused only when the target was present in the retained initial snapshot.",
+      "vectors": [
+        "foreign writer installs identical config/request/event after first absence",
+        "foreign writer installs different bytes or a symlink/FIFO/directory at the target",
+        "atomic link succeeds then parent/family is replaced before post-link verification",
+        "crash/interruption after temp creation, after link and before temp cleanup; no temp/partial artifact is adopted"
+      ]
+    },
+    {
+      "id": "DSTORAGE-006",
+      "priority": "P0",
+      "topic": "all-exits-and-error-precedence",
+      "risk": "A parser, schema, projection, cap or cleanup exception can hide a path race, leaving the command with a misleading semantic error or successful partial state.",
+      "invariant": "Run all retained checkout/ancestor/family/set/file/byte/resource/input checks on acquisition, parse failure, invalid input, target failure, projection failure, budget refusal, install conflict, KeyboardInterrupt and normal return. Preserve WORK_PATH_UNSAFE precedence over ordinary parser/limit/conflict errors; never delete evidence or self-heal conflicts.",
+      "vectors": [
+        "inject a file replacement while raising each ordinary error",
+        "replace checkout/.work/session/family on a malformed request and assert unsafe wins",
+        "raise during final event serialization and verify prior complete children remain, pending state is exact, and final checks still run",
+        "close/destructor failure after a primary unsafe error must not replace the primary code"
+      ]
+    },
+    {
+      "id": "DSTORAGE-007",
+      "priority": "P0",
+      "topic": "exact-capacity-preflight",
+      "risk": "Writing a plan/request or valid observation before calculating all future bounded artifacts can strand finalization or debit capacity for a refused input.",
+      "invariant": "Canonicalize and size complete UTF-8 JCS bytes including LF before install. Bootstrap preflights config+session together. Automatic planning tries N in descending order and installs the largest feasible prefix; eligible frontier with no feasible N returns budget_exhausted and installs no plan/request; explicit specs are all-or-reject. Count family/global bytes and counts, pending reserved files, event overhead, candidate/rank upper bounds and non-reserved control/decision writes under the held lock.",
+      "vectors": [
+        "N=8 fails while N=7 fits; assert largest feasible N and canonical request_key order",
+        "N=1 fails all limits; assert budget_exhausted with no plan/request",
+        "explicit oversized or permuted specs refuse without shrinking/reordering",
+        "bootstrap exact max config+session bytes, family 32 MiB, total 64 MiB, file-count 256/512 and artifact-size boundaries",
+        "control/candidate decision while a plan is pending cannot consume finalization reserve",
+        "oversized/malformed/over-cap observation leaves its request pending with no observation/candidate debit"
+      ]
+    },
+    {
+      "id": "DSTORAGE-008",
+      "priority": "P0",
+      "topic": "candidate-admission-and-no-refund",
+      "risk": "A provisional over-cap graph or a later bridge can produce order-dependent observations or silently refund semantic charges.",
+      "invariant": "Before installing each terminal observation, rebuild the complete identity graph from all accepted observations plus the prospective input and enforce current components, completed introductions plus pending introductions, candidate-set bytes and rank bytes. A unique_candidates over-cap input is refused before observation installation; later same_work bridges cannot rescue it. Completed plan/request/observation/retry/candidate/selection charges never refund.",
+      "vectors": [
+        "prospective 257th component, alias bridge, same_work bridge and conflicting component in each arrival order",
+        "refused over-cap attempt followed by a bridge; no hidden observation or debit",
+        "partial/failure/empty result and explicit local-normalization failure preserve their exact debit semantics",
+        "fourth distinct R7 expansion introduction after historical merges remains refused"
+      ]
+    },
+    {
+      "id": "DSTORAGE-009",
+      "priority": "P1",
+      "topic": "resource-and-input-lineage",
+      "risk": "Installed schema/profile/prompt bytes or caller input files can change after validation, or loader fallback can read an unintended CWD resource.",
+      "invariant": "Retain exact bytes, identity and complete sets for all 13 discovery schemas, profile and assessment prompt from the frozen package/resource root. Require filesystem regular files, no symlinks, exact profile hash/resource parity and no CWD fallback. Retain external input descriptors/bytes throughout the command; changed input is unsafe. Keep resource/input checks in the same shared session and final verification.",
+      "vectors": [
+        "package resource replaced between schema validation and projection",
+        "resource directory adds/removes a schema or profile/prompt sibling",
+        "package unavailable/zip traversable/non-filesystem origin; refuse rather than search CWD",
+        "config/spec/observation/assessment input path replacement with same bytes and with changed bytes",
+        "installed wheel resources differ by one byte from the frozen profile"
+      ]
+    },
+    {
+      "id": "DSTORAGE-010",
+      "priority": "P1",
+      "topic": "no-egress-and-no-Vault",
+      "risk": "A convenience provider call, URL fetch, subprocess or real-Vault helper would violate the frozen zero-egress CLI boundary.",
+      "invariant": "Discovery public Python only validates supplied canonical JSON and writes approved .work artifacts. No subprocess, socket, urllib/requests/http client, Git command, provider call, model execution, weights access or Vault/admin mutation. External Web execution occurs between CLI calls and returns normalized observation input.",
+      "vectors": [
+        "monkeypatch subprocess/socket/urllib/http clients and run every CLI command",
+        "supply arbitrary URL/header/credential/redirect fields in nested request input; reject closed shape",
+        "run from a real Vault-like CWD and assert only approved .work writes occur",
+        "offline provider capability/unknown executor outcome is retained as data, not fetched or fabricated"
+      ]
+    }
+  ],
+  "all_exit_checklist": [
+    "Lock acquisition and release, including DISCOVERY_BUSY, preserve no-store-scan/no-write behavior and no hidden lock artifact.",
+    "Retained checkout/.work/research/session/family/resource/input edges and complete sets are verified after ordinary errors, before each install, after each install, at final return and during cleanup.",
+    "Status/context/render/handoff/list/resume reads remain non-creating; only init/repair under exact state and explicit frozen installation rules can create.",
+    "Unknown names, orphan artifacts, missing event children, competing bytes and stale controls are structured refusal states; nothing is deleted or selected by mtime/arrival order.",
+    "Temporary installation siblings are outside the persistent complete set only while owned and are gone before final verification; any leftover is unsafe.",
+    "Error precedence is explicit: WORK_PATH_UNSAFE or a detected foreign generation cannot be hidden by a schema, parser, provider-input, projection, capacity or cleanup error."
+  ],
+  "preflight_checklist": [
+    "Compute exact canonical artifact bytes and sizes before install, with strict depth/count/string limits and no truncation.",
+    "Charge config/session bootstrap, plan reservations, request/observation slots, retries, actual pending bytes, family/global files/bytes, candidate/rank upper bounds and event overhead using frozen R4 formulas.",
+    "Keep event budget_after prefix-derived and self-size-excluding while separately scanning exact saved bytes including events and controls after install.",
+    "Distinguish semantic no-refund counters from released physical reserve; exact same-byte retry adds zero only when it is an existing retained artifact, never when it appeared after first absence.",
+    "Preflight non-reserved control/candidate decisions around pending plans against U and finalization reserve; reject out-of-reservation/unknown objects without adoption."
+  ],
+  "acceptance_vectors": [
+    "Cross-platform flock busy/release with two processes, checkout replacement and no .work creation on busy.",
+    "Absent, config-only/init_pending, matching session, session-only, multiple config/session, wrong ref, changed seeds/config, foreign pre-session artifact and same-byte retry state matrix.",
+    "Interrupt after config, session, plan, each request, each terminal observation, assessment, candidate set, rank, stop and event installation; resume exact bytes and counters.",
+    "Replace every retained ancestor/family/file/resource/input at each parser/limit/projection/install/cleanup stage; assert unsafe precedence and no deletion.",
+    "N=1/N=8 reservation arithmetic, largest-feasible prefix, explicit all-or-reject, exact per-artifact/family/global byte and file boundaries.",
+    "Strict candidate admission with 257th component, aliases, same_work bridges, fourth expansion selection and no hidden debit/refund.",
+    "Complete membership replay under permutation/parallelism, unknown orphan/extra child, duplicate terminal outcome, alternate projection and active-ancestry cycle/cross-session reference.",
+    "Resource parity and installed-wheel check for the frozen 31-path allowlist; subprocess/socket/network/Vault sentinels."
+  ],
+  "remaining_gates": [
+    "Implement the frozen storage boundary and prove all vectors on both macOS and Linux; no Linux flock result is inferred from the prior macOS feasibility check.",
+    "Run exact-head local/remote acceptance, resource/CLI parity and full test suites against the implementation candidate; this checklist is not source acceptance.",
+    "Provider capability outcomes and scientific/human relation gates remain outside this storage review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "connector": false,
+    "catalog": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

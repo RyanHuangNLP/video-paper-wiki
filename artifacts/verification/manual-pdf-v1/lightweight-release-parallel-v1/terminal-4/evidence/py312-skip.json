@@ -1,0 +1,74 @@
+{
+  "ran": false,
+  "reason": "No existing Python 3.12 environment can import the locked test/runtime dependencies. Did not install packages, did not uv sync, did not download a Python, and did not substitute the Python 3.13.13 shared venv.",
+  "observed_at": "2026-09-06T14:20:00Z",
+  "requested_checks": [
+    "six light tests: tests/research/test_light_{pdf,index,qa,writing,cli,pipeline}.py",
+    "python -m video_paper_wiki_research empty-argv entry"
+  ],
+  "interpreters": [
+    {
+      "path": "/Users/huangzhanpeng/.local/bin/python3.12",
+      "kind": "symlink",
+      "target": "/private/tmp/vpw-python/cpython-3.12-macos-aarch64-none/bin/python3.12",
+      "usable": false,
+      "error": "relocatable build: stdlib dir /install/lib/python3.12 missing encodings; Fatal Python error init_fs_encoding"
+    },
+    {
+      "path": "/private/tmp/vpw-python/cpython-3.12.14-macos-aarch64-none/bin/python3.12",
+      "usable": false,
+      "error": "same relocatable prefix; PYTHONHOME to the install root still fails codec search"
+    },
+    {
+      "path": "/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "usable_as_interpreter": true,
+      "version": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "pytest": false,
+      "jsonschema": false,
+      "pypdf": true,
+      "note": "Interpreter starts. site-packages lack pytest and jsonschema. No existing 3.12 venv with the locked default extra set."
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "version": "3.13.13",
+      "used_as_3_12_substitute": false
+    },
+    {
+      "path": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+      "version": "3.13.13",
+      "used_as_3_12_substitute": false,
+      "note": "Existing R06 installed wheel; read-only; not a 3.12 matrix stand-in."
+    }
+  ],
+  "uv": {
+    "UV_OFFLINE": "1",
+    "UV_PYTHON_DOWNLOADS": "never",
+    "UV_CACHE_DIR": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/cache/uv-tests",
+    "cached_cpython_trees_observed": ["cpython-3.11-macos-aarch64-none"],
+    "network_prepare_performed": false
+  },
+  "entry_attempt": {
+    "command": [
+      "/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "-B",
+      "-m",
+      "video_paper_wiki_research"
+    ],
+    "env": {
+      "PYTHONPATH": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src",
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-4",
+    "exit_code": 1,
+    "stderr_excerpt": "ModuleNotFoundError: No module named 'jsonschema'",
+    "stdout_path": "evidence/py312/entry.stdout",
+    "stderr_path": "evidence/py312/entry.stderr",
+    "probe_log": "evidence/py312/probe.log"
+  },
+  "six_light_tests": {
+    "ran": false,
+    "reason": "pytest missing on the only starting 3.12 interpreter"
+  },
+  "deferred_to": "remote Tests workflow matrix jobs macos-15/ubuntu-24.04 × Python 3.12 after Repo Steward serialized Git/CI",
+  "did_not_rerun_python313_full_suite": true
+}

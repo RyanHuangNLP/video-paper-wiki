@@ -1,0 +1,25 @@
+{
+  "schema": "full-todo.code-proof-structural-serialization-bound.v1",
+  "revision": 2,
+  "correction": "R1 handoff size omitted possible quote/backslash escaping in printable-ASCII DOI suffixes; R2 charges 1024 JSON content bytes for a 512-byte paper ID. R1 remains history.",
+  "status": "CONSERVATIVE_STRUCTURAL_BOUND_ONLY_NOT_A_VALID_GIT_FIXTURE",
+  "git_proof_bytes_upper_bound": 1014633,
+  "raw_observation_saved_bytes_upper_bound": 1041187,
+  "handoff_saved_bytes_upper_bound": 12910,
+  "default_caps": {
+    "observation": 2097152,
+    "handoff": 131072
+  },
+  "bound_construction_sha256": {
+    "proof": "f1b6a1853118e0e81ea79ea4c034f6b0a321108e13fdccf82db3d30b23f37b8b",
+    "observation": "981f51c2ded818925fb176c8d256c68053632e420abffe294ceb3f53dd28f71a",
+    "handoff": "ea7b9bce746bdc8dea632b240b022b3b958aa69c5e9dd1452b7e1200c5be374f"
+  },
+  "limitations": [
+    "Independent maxima deliberately violate cross-field and cryptographic constraints; never pass these as a valid kernel fixture.",
+    "This bounds the R7 raw branch only; normalized intent/config bytes require actual canonical serialization and their own caps.",
+    "Lowered request caps may refuse otherwise valid results before any output install.",
+    "Byte identity with JCS follows ASCII-only strings with standard JSON escaping, integers within the safe JCS range, and compact sorted keys; the 512-byte paper ID pessimistically doubles every byte.",
+    "Required target path/walk grammar, object count, OID width and source metadata caps are the premises of this bound."
+  ]
+}

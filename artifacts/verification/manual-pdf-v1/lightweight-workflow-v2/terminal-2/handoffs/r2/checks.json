@@ -1,0 +1,74 @@
+{
+  "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source",
+  "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+  "env": {
+    "PYTHONPATH": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "UV_OFFLINE": "1",
+    "UV_PYTHON_DOWNLOADS": "never",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/research/test_light_index.py",
+        "tests/research/test_light_context.py",
+        "tests/research/test_light_selection.py",
+        "tests/research/test_light_qa.py",
+        "tests/research/test_light_writing.py",
+        "tests/research/test_light_pipeline.py"
+      ],
+      "exit_code": 0,
+      "result": "50 passed",
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/logs/final-pytest.log"
+    }
+  ],
+  "api_smoke": {
+    "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/logs/final-api-smoke.json",
+    "result": {
+      "module_files": {
+        "light_index": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source/src/video_paper_wiki_research/light_index.py",
+        "light_context": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source/src/video_paper_wiki_research/light_context.py"
+      },
+      "valid_control": {
+        "ok": true,
+        "status": "OK",
+        "output_created": true,
+        "output_sha256": "b47e8a5f7f43182cbfcb551b7d46f77254796c0465bf45ec8e8c526957310f28"
+      },
+      "tampered_context_text_and_hash": {
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID",
+        "output_created": false
+      },
+      "source_changed_without_reindex": {
+        "ok": false,
+        "status": "INDEX_STALE",
+        "output_created": false
+      },
+      "old_context_after_reindex": {
+        "ok": false,
+        "status": "INDEX_STALE",
+        "output_created": false
+      },
+      "source_hashes": {
+        "src/video_paper_wiki_research/light_index.py": "c05abaa47217ca4007c38ecf1072d60479eb1f0c424ec2eebbcdf4e10ee26ac1",
+        "src/video_paper_wiki_research/light_context.py": "ef8e41eefb00a66542ec0882e7710c4684e77dd4f6378d10fc8d7b7164b53cc3",
+        "tests/research/test_light_index.py": "752a27686daf7002c6064cfebdcf59d79928a09e1d86f42e436f095e5825a2c2",
+        "tests/research/test_light_context.py": "dd9e035bb36a44d1b1e3baca9b12e4aabae4cdcdf3696ae187adc73016a6e941",
+        "tests/research/test_light_selection.py": "ad7188061a8335a958cd6984b23b9e91db7b79b173416be80b7dc9f136156ee0"
+      },
+      "hashes_unchanged_across_pytest_and_smoke": true
+    }
+  },
+  "changed_from_r1": [
+    "src/video_paper_wiki_research/light_context.py",
+    "tests/research/test_light_context.py"
+  ]
+}

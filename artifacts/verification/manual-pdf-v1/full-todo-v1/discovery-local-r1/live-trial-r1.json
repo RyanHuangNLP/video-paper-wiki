@@ -1,0 +1,399 @@
+{
+  "schema": "full-todo.discovery-live-trial.v1",
+  "recorded_at_utc": "2026-09-09T10:58:30.421708+00:00",
+  "decision": "LIVE_TWO_SLOT_DISCOVERY_COMPLETE_WITH_ALL_FIVE_COVERAGE_GAPS",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r1.json",
+    "sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54",
+    "size_bytes": 6991
+  },
+  "trial_plan": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-heldout-trial-plan-r2.json",
+    "sha256": "5e1e37a774e23c8995bdc662bd84845e6aceba60bfdb87fa2219424b787acf8b",
+    "size_bytes": 48699
+  },
+  "session_key": "svd-holdout-r2",
+  "host_observation": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/host-return-evidence.json",
+    "sha256": "1339f16b0af62661ebd39e56bef5df6c54c0aae123da69f084842534df20cc25",
+    "size_bytes": 2246
+  },
+  "normalization": {
+    "result_selection": "First five visible returned search hits in host order, bounded by target max_results=5. Optional metadata not normalized stays null/empty. No inferred DOI/OpenAlex bridge.",
+    "summaries": "Short exact visible excerpts only; no generated scientific summary used for ranking. Whitespace collapsed in PDF text excerpt; bibliography title markup removed for the fifth hit.",
+    "full_page_or_pdf_saved": false,
+    "raw_transport_evidence": false
+  },
+  "input_rejection_history": {
+    "first_input": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observation-input-0.json",
+      "sha256": "94bbc12d476beae8025ad9dc7f696a796d37e3c3e0f040117dd19287a2dcf65c",
+      "size_bytes": 4740
+    },
+    "first_response": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-0.stdout.json",
+      "sha256": "c3ed8835597f2e3b4203c3bef2acdb28940400e0b0e356d1db84040d9ea4ca85",
+      "size_bytes": 205
+    },
+    "code": "DISCOVERY_INPUT_INVALID",
+    "reason": "Root supplied unsupported executor identity_source host_observed. The schema correctly refused before installing an observation. New corrected input uses platform_reported for the actual platform tool name; no source change and no extra host call."
+  },
+  "actual_operation_outcomes": [
+    {
+      "slot": 0,
+      "provider": "platform-web-search-normalized-v1",
+      "outcome": "success",
+      "normalized_results": 5
+    },
+    {
+      "slot": 1,
+      "provider": "openalex-rest-normalized-v1",
+      "outcome": "capability_unavailable",
+      "normalized_results": 0,
+      "reason": "Actual host safe-open refusal; no automatic retry, substitute URL or fabricated provider result."
+    }
+  ],
+  "final_status": {
+    "base_state": "calculated_stopped",
+    "budget": {
+      "rounds_planned": 1,
+      "rounds_completed": 1,
+      "request_slots_reserved": 2,
+      "requests_materialized": 2,
+      "pending_request_files": 0,
+      "observation_slots_reserved": 2,
+      "terminal_observations": 2,
+      "pending_observations": 0,
+      "retry_slots": 0,
+      "result_records": 5,
+      "normalized_payload_bytes": 3053,
+      "candidate_slots_reserved": 1,
+      "current_candidate_components": 1
+    },
+    "matched_reasons": [
+      "budget_exhausted"
+    ],
+    "last_complete_round": {
+      "id": "rw3:research-round-event:8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13",
+      "sha256": "36d1e733e908114d7f98ce538f54eb8b80f75d3b99fa8bf776f76a57135069d0"
+    },
+    "candidate_set": {
+      "reference": {
+        "id": "rw3:paper-candidate-set:6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914",
+        "sha256": "d8d803529bbd1225aec58ca5795cfa5bd7f6bc15af019968cc7900456ce4ec22"
+      },
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/proposals/6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914.json"
+    },
+    "rank": {
+      "reference": {
+        "id": "rw3:paper-rank:ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6",
+        "sha256": "6ef3d732959f0f73cdf2078ebb020a170e69c005711c05f25f309cdea37eea19"
+      },
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/proposals/ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6.json"
+    },
+    "scientific_assessment": "provisional_scientific_assessment",
+    "formal_admission": false
+  },
+  "coverage": {
+    "lenses": [
+      {
+        "lens": "method",
+        "state": "gap",
+        "scope": "training stages, objectives, and data selection",
+        "statement": "已观察到训练阶段的简短描述，仍不足以比较各阶段及数据筛选对质量和迁移的影响。",
+        "evidence": [
+          {
+            "observation": {
+              "id": "rw3:discovery-observation:2fb96837d27557791aec39379e5c9314db5fbea16eebcb12200cacf266d0548c",
+              "sha256": "5a2d0c573b3eb6282c6b2f1f7490099607968f58a1f1049bd939e19a7c6a50ad"
+            },
+            "ordinal": 2,
+            "field": "summary",
+            "start": 0,
+            "end": 80,
+            "excerpt_sha256": "54565a98ba18813d29d53c39649d822fbfb36ced010f3ae5b42e7723b260ce4e"
+          }
+        ],
+        "reason": "缺少训练目标、数据筛选条件、对照实验和效应量。"
+      },
+      {
+        "lens": "benchmark",
+        "state": "gap",
+        "scope": "datasets, evaluation protocol, metrics, and comparisons",
+        "statement": "当前保存的摘要片段没有可核验的评测条件或数值结果。",
+        "evidence": [],
+        "reason": "缺少数据集划分、指标定义、样本规模和可比较的基线结果。"
+      },
+      {
+        "lens": "implementation",
+        "state": "gap",
+        "scope": "pipeline details, conditioning, adaptation, and compute",
+        "statement": "当前证据不足以重建实现和适配过程。",
+        "evidence": [],
+        "reason": "尚未观察到具体管线、条件输入、适配设置或计算资源。"
+      },
+      {
+        "lens": "counterevidence",
+        "state": "gap",
+        "scope": "limitations, ablations, failures, and contrary evidence",
+        "statement": "当前证据不能说明反例、失败条件和实验局限。",
+        "evidence": [],
+        "reason": "没有保留消融、负面结果或与其他研究冲突的证据。"
+      },
+      {
+        "lens": "reproduction",
+        "state": "gap",
+        "scope": "code, data, hyperparameters, and reproducibility details",
+        "statement": "当前证据不足以提出可执行的复现方案。",
+        "evidence": [],
+        "reason": "没有精确代码版本、配置、数据清单、超参数或运行条件。"
+      }
+    ],
+    "generator": {
+      "value": "gpt-6-astra",
+      "identity_source": "self_reported",
+      "reason": null
+    },
+    "recorded_at": "2026-09-09T10:56:54Z"
+  },
+  "commands": [
+    "init",
+    "plan",
+    "observe rejected malformed executor metadata",
+    "observe slot0",
+    "observe slot1",
+    "context",
+    "finish",
+    "status",
+    "resume",
+    "render"
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/assessment-input.json",
+      "sha256": "0611c0ed716e244a438dad458062ef8d95a0e225973ec2ccd7e1238252b9c69b",
+      "size_bytes": 2364
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/config.json",
+      "sha256": "396f6de72048f94ca4826dd6787627106c56abd3a957ca8ff93fd286975ace94",
+      "size_bytes": 2147
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/context.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/context.stdout.json",
+      "sha256": "11212315270d59e7297375e80d1858286fc183c582cf6225757ceb082c717ebe",
+      "size_bytes": 15642
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/finish.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/finish.stdout.json",
+      "sha256": "b4ba4a908ffa85dd0e5aed47ade8b733dd726bd846997d10f6994b56a17454c7",
+      "size_bytes": 3170
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/host-return-evidence.json",
+      "sha256": "1339f16b0af62661ebd39e56bef5df6c54c0aae123da69f084842534df20cc25",
+      "size_bytes": 2246
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/init.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/init.stdout.json",
+      "sha256": "9d00667897a491214277e6337cfc9aa2ac0f4a144d2a00300a9726bc4b50ce44",
+      "size_bytes": 3043
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observation-input-0-r2.json",
+      "sha256": "abb754dec5e17b181b523075c6ab7baa327e6259c3858469787d6af0357cad0c",
+      "size_bytes": 4744
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observation-input-0.json",
+      "sha256": "94bbc12d476beae8025ad9dc7f696a796d37e3c3e0f040117dd19287a2dcf65c",
+      "size_bytes": 4740
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observation-input-1-r2.json",
+      "sha256": "adee354a9cb1aea67d1390970b987a2d20305b4879e0e6eba73764c3cfd6a9f7",
+      "size_bytes": 500
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-0-r2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-0-r2.stdout.json",
+      "sha256": "8de332da0899fcd27a65ad275d21e917cd1dddb40b17642334c053d5e625df74",
+      "size_bytes": 2548
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-0.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-0.stdout.json",
+      "sha256": "c3ed8835597f2e3b4203c3bef2acdb28940400e0b0e356d1db84040d9ea4ca85",
+      "size_bytes": 205
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-1-r2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/observe-1-r2.stdout.json",
+      "sha256": "6fea84582865081d50a6f150c5865d3d3fb603ea905d8aabf756ba9805411b1f",
+      "size_bytes": 2363
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/plan.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/plan.stdout.json",
+      "sha256": "3471c9a57e5ecc2c966c146f97edb46fc186f08e7e342c9f6c42705576d73f90",
+      "size_bytes": 2711
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/preflight.json",
+      "sha256": "44afa724381d7ea14bcae08f88322eabc46edec10fa052dafdf4e2e9aa2a67ac",
+      "size_bytes": 2320
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/render.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/render.stdout.json",
+      "sha256": "4b91fabd52fea1ba219c3571f5a54889d0811cc1dcea981536e88f740e6b8f79",
+      "size_bytes": 3513
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/resume.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/resume.stdout.json",
+      "sha256": "35f33a619d28ed2c1665d1401cde8cb17e306b0321af713e11d37b49d7bee5cf",
+      "size_bytes": 3170
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-r1/status.stdout.json",
+      "sha256": "641d47f128a848b0fa5eba524acae7889edab5284ef7c221827ff122431c6b0e",
+      "size_bytes": 3170
+    }
+  ],
+  "stored_documents": [
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/decisions/b5fd7e6215a0dda42418887e50d5e65063448f4fd5bcf1d87b37fc127e234170.json",
+      "sha256": "d799b2eb9b7b6e8154ee59ee49ccabbccadd803cd2c3d17e834d77bc1f04a1ee",
+      "size_bytes": 2937,
+      "kind": "research-assessment",
+      "id": "rw3:research-assessment:b5fd7e6215a0dda42418887e50d5e65063448f4fd5bcf1d87b37fc127e234170"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/metadata/184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae.json",
+      "sha256": "2ff8d55554ece6a0beaf3dc73349fd9d651e006b9a0c4a51828b2d0b98e918ef",
+      "size_bytes": 489,
+      "kind": "research-session",
+      "id": "rw3:research-session:184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/metadata/66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106.json",
+      "sha256": "80154591833b742d481eb1f9881d0f3b29a78056fc677c52a699edb01cb7d280",
+      "size_bytes": 1773,
+      "kind": "research-config",
+      "id": "rw3:research-config:66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/metadata/8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13.json",
+      "sha256": "36d1e733e908114d7f98ce538f54eb8b80f75d3b99fa8bf776f76a57135069d0",
+      "size_bytes": 2514,
+      "kind": "research-round-event",
+      "id": "rw3:research-round-event:8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/metadata/f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62.json",
+      "sha256": "49d6c7f9eedb13120e54c3c54aa636d454584a41997fd858cdc8254a79eddb68",
+      "size_bytes": 1650,
+      "kind": "research-round-plan",
+      "id": "rw3:research-round-plan:f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/observations/2e62bbd9804d966a8e6abf524cba0c0f727aa0bd9295d3220512bad9b4a5a4dc.json",
+      "sha256": "cef87f73a879ccbf81afd7d0aac3bd4a632244bc2a624dfd4591ce368c33c2da",
+      "size_bytes": 899,
+      "kind": "discovery-observation",
+      "id": "rw3:discovery-observation:2e62bbd9804d966a8e6abf524cba0c0f727aa0bd9295d3220512bad9b4a5a4dc"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/observations/2fb96837d27557791aec39379e5c9314db5fbea16eebcb12200cacf266d0548c.json",
+      "sha256": "5a2d0c573b3eb6282c6b2f1f7490099607968f58a1f1049bd939e19a7c6a50ad",
+      "size_bytes": 3772,
+      "kind": "discovery-observation",
+      "id": "rw3:discovery-observation:2fb96837d27557791aec39379e5c9314db5fbea16eebcb12200cacf266d0548c"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/proposals/6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914.json",
+      "sha256": "d8d803529bbd1225aec58ca5795cfa5bd7f6bc15af019968cc7900456ce4ec22",
+      "size_bytes": 4456,
+      "kind": "paper-candidate-set",
+      "id": "rw3:paper-candidate-set:6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/proposals/ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6.json",
+      "sha256": "6ef3d732959f0f73cdf2078ebb020a170e69c005711c05f25f309cdea37eea19",
+      "size_bytes": 5274,
+      "kind": "paper-rank",
+      "id": "rw3:paper-rank:ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/proposals/daf00093b772f4f952e0eaf0c60becaa21b15cdcbb80dcbc0a683a1d713d4ef1.json",
+      "sha256": "e03c1206fdc89d972fe0772a9d8ff8c902833de6795e723972299f103ced794c",
+      "size_bytes": 2072,
+      "kind": "research-stop-decision",
+      "id": "rw3:research-stop-decision:daf00093b772f4f952e0eaf0c60becaa21b15cdcbb80dcbc0a683a1d713d4ef1"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/requests/4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea.json",
+      "sha256": "5f60e1aa6a405820684da97f9a4120d0cbb771a1be229ed42fbf5804167610f5",
+      "size_bytes": 1833,
+      "kind": "discovery-request",
+      "id": "rw3:discovery-request:4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1/requests/4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2.json",
+      "sha256": "060f96ae2a62766721d6b2366fc52236b026ce6a5009697159b819179d6df2a4",
+      "size_bytes": 1124,
+      "kind": "discovery-request",
+      "id": "rw3:discovery-request:4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2"
+    }
+  ],
+  "human_review": false,
+  "user_selection": false,
+  "formal_admission": false,
+  "real_vault_or_admin": false,
+  "product_followup": "Review whether render/status expose complete assessment gaps and operation failures directly; titles-only Markdown was observed."
+}

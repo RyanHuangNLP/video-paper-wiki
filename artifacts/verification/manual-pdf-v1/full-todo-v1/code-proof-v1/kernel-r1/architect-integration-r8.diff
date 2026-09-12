@@ -1,0 +1,31 @@
+--- grok-r7-test.py
++++ integrated-r8-test.py
+@@ -583,8 +583,8 @@
+             exc.value,
+             CODE_PROOF_LIMIT_EXCEEDED,
+             limit_name=limit_name,
+-            limit_count=limit_count,
+-            observed_count=observed_count,
++            limit=limit_count,
++            observed=observed_count,
+             instance_pointer=instance_pointer,
+         )
+         assert hash_calls["n"] == 0
+@@ -746,7 +746,7 @@
+     else:
+         args["bodies"] = {HostileStr(key): value for key, value in args["bodies"].items()}
+         pointer = "/bodies"
+-        reason = "invalid_type"
++        reason = "invalid_oid_key"
+ 
+     blob_rec, blob_body = _record(object_format, "blob", b"x = 1\n")
+     safe = _minimal_graph(
+@@ -846,7 +846,7 @@
+         exc.value,
+         CODE_PROOF_INPUT_INVALID,
+         instance_pointer="/bodies",
+-        reason="invalid_type",
++        reason="invalid_oid_key",
+     )
+ 
+ 

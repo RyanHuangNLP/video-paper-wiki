@@ -1,0 +1,201 @@
+{
+  "$schema": "full-todo.source-catalog-semantic-review-r1.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R1-frozen-semantic-review-read-only",
+  "recorded_at_utc": "2026-09-09T07:29:38Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent semantic contract reviewer"
+  },
+  "scope": "Advice only against the frozen R1/R2 contract and profile. No production source, test source, catalog resource, real Vault, operator receipt, Git, network, or human-gate mutation was performed.",
+  "inputs": {
+    "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md": {
+      "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46",
+      "bytes": 17546
+    },
+    "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md": {
+      "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c",
+      "bytes": 4579
+    },
+    "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json": {
+      "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+      "bytes": 4376
+    },
+    "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-allowed-paths-r1.json": {
+      "sha256": "74a236e8a58803d0927ba05e2bed684d9236c6cae0674b29d2027fd2939f604a",
+      "bytes": 974
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-contract-advice-r2.json": {
+      "sha256": "b0c2e09fc55e6702f2efecf6678c2c1a380be498841ebfa503cc2d069c98841f",
+      "bytes": 15536
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-contract-advice-r3.json": {
+      "sha256": "b0c2e09fc55e6702f2efecf6678c2c1a380be498841ebfa503cc2d069c98841f",
+      "bytes": 15536
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/E/source-catalog-io-review-r1.json": {
+      "sha256": "5fc677aa636611c03678898e6714aa8ead43f12bf2d21dd884de392ba2f34acc",
+      "bytes": 7475
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-io-review-r2.json": {
+      "sha256": "31f6ac932cd5ecc6c81e50e9b167ab25c62ef02f373f269c87feca331cebe2e4",
+      "bytes": 5520
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/source-catalog-design-review-r1.json": {
+      "sha256": "775070b18f011fe79706f5d3a50dd3d8a1566aebebe36346de51d54ae84f35f2",
+      "bytes": 21347
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/source-catalog-design-review-r1-supplement-r1.json": {
+      "sha256": "d200e1e74b6636ccab30eaef56c6e6c5725b7eeee5e55558607d148bede01166",
+      "bytes": 1987
+    }
+  },
+  "focus_areas": [
+    {
+      "id": "row_closure",
+      "status": "PASS_WITH_REQUIRED_ASSERTIONS",
+      "evidence": [
+        "SOURCE-CATALOG-R1:75-82",
+        "SOURCE-CATALOG-R1:84-131",
+        "SOURCE-CATALOG-R1:133-139"
+      ],
+      "assessment": "The thirteen closed groups, exact original document bytes, complete inventory, sorted keys, duplicate refusal, and derived coverage rows provide the intended closure. Implement validation must enforce cross-row foreign-key and cardinality identities rather than only per-row JSON shape."
+    },
+    {
+      "id": "current_basis_cache_forgery",
+      "status": "PASS",
+      "evidence": [
+        "SOURCE-CATALOG-R1:37-43",
+        "SOURCE-CATALOG-R1:47-73",
+        "SOURCE-CATALOG-R1:133-139",
+        "SOURCE-CATALOG-R1:190-209",
+        "SOURCE-CATALOG-R2:19-50",
+        "SOURCE-CATALOG-R2:52-70"
+      ],
+      "assessment": "R2 makes the retained current-basis and fixed-slot state machine explicit. Reconstruction, profile/resource/implementation/runtime binding, no-create status, exclusive install, complete-set checks, and final safety precedence are sufficient to reject self-consistent forged or foreign cache material when implemented as written."
+    },
+    {
+      "id": "display_vs_citation_legacy_pdf_code",
+      "status": "PASS_WITH_REQUIRED_ASSERTIONS",
+      "evidence": [
+        "SOURCE-CATALOG-R1:103-117",
+        "SOURCE-CATALOG-R1:152-179",
+        "SOURCE-CATALOG-R1:181-186",
+        "SOURCE-CATALOG-R2:15-17"
+      ],
+      "assessment": "Citation and display associations are separated for modern Markdown and legacy PDF/code resolution is exact-or-explicitly-unsupported. Legacy PDF charspan absence is correctly distinguished from malformed present spans. Keep the null legacy association fields and verify the complete artifact/parser/run/manifest ownership chain before any legacy result."
+    },
+    {
+      "id": "coverage",
+      "status": "PASS_WITH_REQUIRED_ASSERTIONS",
+      "evidence": [
+        "SOURCE-CATALOG-R1:118-131",
+        "SOURCE-CATALOG-R1:202-206",
+        "SOURCE-CATALOG-R1:218-225"
+      ],
+      "assessment": "Registered-owned and registered-unclaimed sources, all artifacts including unreferenced material, and captured/derived coverage states are visible independently of cache state. No unclaimed source may be synthesized into a cited excerpt or hidden by lookup."
+    },
+    {
+      "id": "lookup_query_token_ranking",
+      "status": "PASS_WITH_CLARIFICATION",
+      "evidence": [
+        "SOURCE-CATALOG-R1:211-240",
+        "SOURCE-CATALOG-PROFILE-R1.json:tokenizer,ranking,limits"
+      ],
+      "assessment": "Exact identity lookup, frozen NFKC/casefold tokenizer, Han singles/bigrams, multiplicity, integer Dice score, positive-only hits, deterministic tie order, closed filters, and digest-bound paging are concrete. Freeze the boundary at which raw query limits versus normalized token limits are applied."
+    },
+    {
+      "id": "legacy_status_specific_errors",
+      "status": "PASS",
+      "evidence": [
+        "SOURCE-CATALOG-R1:20-25",
+        "SOURCE-CATALOG-R1:198-209",
+        "SOURCE-CATALOG-R1:242-244"
+      ],
+      "assessment": "The contract explicitly preserves SOURCE_PROFILE_REQUIRED and exit75 at the legacy catalog_status boundary while keeping source-catalog envelopes and safety/history errors distinct."
+    }
+  ],
+  "findings": [
+    {
+      "id": "SEM-001",
+      "severity": "P1",
+      "status": "OPEN_IMPLEMENTATION_ASSERTION",
+      "title": "Make cross-row closure and evidence ordinal rules executable",
+      "problem": "The contract closes each row shape and says public code validates identities, but it does not enumerate the required foreign-key/cardinality checks. A producer could emit individually well-shaped rows with missing paper/source/association/display/head links, a claim without its declared assessment head, or evidence ordinals with gaps/reordered positions while still passing shallow schema validation.",
+      "evidence": [
+        "SOURCE-CATALOG-R1:75-82",
+        "SOURCE-CATALOG-R1:99-117",
+        "SOURCE-CATALOG-R1:133-139"
+      ],
+      "advice": "Add contract tests and validator assertions: every referenced paper/repository/source/association/display decision/head exists; each claim has exactly one matching assessment_head and terminal event; every evidence group has unique zero-based original ordinals in source order; display-head and coverage references resolve; derived source_ids/paper_ids/repo_ids are exact sorted unique sets. Preserve malformed historical input as a typed error, never repair it in projection.",
+      "required_test": "A mixed fixture with missing foreign rows, duplicate or gapped evidence ordinals, wrong head hash, and mismatched derived sets must refuse with a specific ContractError before cache installation."
+    },
+    {
+      "id": "SEM-002",
+      "severity": "P2",
+      "status": "OPEN_CLARIFICATION",
+      "title": "Freeze raw-versus-normalized query bound semantics",
+      "problem": "The query limits are expressed in Unicode characters and UTF-8 bytes, while tokenization first applies NFKC and casefold. The contract does not say whether 512 characters/4096 bytes are checked on raw input, normalized text, or both; normalization can expand or alter length.",
+      "evidence": [
+        "SOURCE-CATALOG-R1:141-148",
+        "SOURCE-CATALOG-R1:218-232",
+        "SOURCE-CATALOG-PROFILE-R1.json:tokenizer,limits"
+      ],
+      "advice": "Specify that caller-supplied query UTF-8 bytes and Unicode character count are checked before normalization, then normalize/tokenize and apply the 1000-token bound to the resulting tokens; reject any normalized representation that exceeds the same bounded policy if the implementation materializes it. Add expansion cases such as U+00DF casefold and compatibility characters near both limits.",
+      "required_test": "Query strings at raw char/byte limits whose NFKC/casefold form expands, plus a nonblank string that normalizes to zero tokens, must return deterministic bounded errors without IO."
+    },
+    {
+      "id": "SEM-003",
+      "severity": "P2",
+      "status": "OPEN_IMPLEMENTATION_ASSERTION",
+      "title": "Define lifecycle and assessment provenance at every result boundary",
+      "problem": "Claims store reference and assessment fields and state that lifecycle comes from the reference and assessment from validated terminal history, while query results expose lifecycle/assessment. The contract does not spell out the rejection rule for missing or unknown reference lifecycle, absent terminal head, or a source excerpt whose owning claim history is invalid.",
+      "evidence": [
+        "SOURCE-CATALOG-R1:99-102",
+        "SOURCE-CATALOG-R1:115-117",
+        "SOURCE-CATALOG-R1:218-225",
+        "SOURCE-CATALOG-R1:235-240"
+      ],
+      "advice": "Require a validated reference lifecycle enum and exactly one validated terminal assessment head for every claim before projection. A source-excerpt hit must inherit those validated values and cannot be included when its owner history is missing/ambiguous; preserve the typed source/history error instead of defaulting to active/all. Add fixtures for retired references, assessment forks, missing heads, and unknown lifecycle values.",
+      "required_test": "The same claim with accepted/provisional/contested/unsupported/deprecated history and active/retired references must produce the frozen filter matrix; missing/ambiguous provenance must refuse build."
+    },
+    {
+      "id": "SEM-004",
+      "severity": "P2",
+      "status": "OPEN_IMPLEMENTATION_ASSERTION",
+      "title": "Keep legacy PDF/code exactness tied to citation ownership",
+      "problem": "Legacy evidence rows intentionally have association_id=null, so their exact citation authority cannot be inferred from the modern display association. The PDF/code resolver requirements are exact, but an implementation could validate only a parser/manifest locator and omit the artifact/source ownership chain or accidentally use the selected display association.",
+      "evidence": [
+        "SOURCE-CATALOG-R1:103-110",
+        "SOURCE-CATALOG-R1:118-131",
+        "SOURCE-CATALOG-R1:167-179",
+        "SOURCE-CATALOG-R1:181-186"
+      ],
+      "advice": "For every legacy PDF/code result, require source_id, artifact_path/artifact_sha256, validated parser/run or manifest/capture ancestry, and matching source ownership from retained inventory before returning RESOLVED. Keep display_association_id informational; when the chain cannot be reconstructed, return the fixed unsupported reason with null excerpt/hash/position rather than a display-derived excerpt.",
+      "required_test": "Select/rollback a modern display association while resolving legacy PDF and code citations, then mutate or remove one ancestry node; the first case must retain exact legacy citation behavior and the second must refuse or return explicit unsupported, never resolve through display."
+    }
+  ],
+  "required_tests": [
+    "Closed row foreign-key/cardinality/ordinal/derived-set fixture, including malformed historical state and no cache installation.",
+    "Current-basis forgery and fixed-slot R2 state-machine tests, including no-create status and foreign byte-identical appearance; preserve existing IO review matrix.",
+    "Modern Markdown plus selected/rollback display association with historical citation B still resolving against B.",
+    "Legacy PDF exact JSON Pointer/page/text/span/hash success, missing optional charspan unsupported, malformed span/hash mismatch evidence error, and code manifest line-slice hash/newline behavior.",
+    "Coverage fixture for registered owned/unclaimed, captured registered/unregistered, derived referenced/unreferenced, and unreferenced historical files.",
+    "Chinese Han singles/bigrams, NFKC/casefold expansion, duplicate term counts, zero-token query, stable ties, all filters, pagination and catalog digest binding.",
+    "Legacy catalog_status source-aware fixture retaining SOURCE_PROFILE_REQUIRED exit75 while source-catalog errors remain distinct."
+  ],
+  "decision": "PASS_WITH_ADVICE",
+  "decision_basis": "No new semantic blocker is found in the frozen R1/R2 contract. SEM-001 and SEM-004 are implementation assertions required for a sound closed projection; SEM-002 is a small profile clarification; SEM-003 is a provenance validation assertion. Existing R2 IO and cache-forgery advice remains applicable and is not overwritten by this review.",
+  "implementation_boundary": {
+    "allowed": "This artifact only; no source/catalog/Git changes.",
+    "forbidden": [
+      "production source edits",
+      "test edits",
+      "catalog freeze changes",
+      "real Vault/operator writes",
+      "network/external index actions",
+      "human-gate closure"
+    ],
+    "stopped_writing": true
+  }
+}

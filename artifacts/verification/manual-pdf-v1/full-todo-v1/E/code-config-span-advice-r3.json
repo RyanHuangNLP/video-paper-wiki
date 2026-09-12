@@ -1,0 +1,742 @@
+{
+  "$schema": "full-todo.code-config-span-advice-r3.v1",
+  "packet": "CODE-DESIGN-R1",
+  "revision": "R3-bounded-data-only-config-span-advice",
+  "status": "ADVICE_ONLY_NOT_FROZEN",
+  "reviewed_at_utc": "2026-09-09T11:15:39.524306000Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded CODE configuration/span design reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only design advice for exact JSON/TOML configuration evidence. No source, schema, test, Git, provider, network, Vault or model writes; this artifact does not freeze an interface or dispatch implementation.",
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90"
+    },
+    {
+      "path": "docs/ai/task-index.yaml",
+      "sha256": "32c16224a02af1079d915a25bb7b736e7127f1c83da05c8bc9cb5f3a977bbec3"
+    },
+    {
+      "path": "docs/ai/codex-team.md",
+      "sha256": "d4a4812e37f0b49621130aaa6674924301afa4ab0e48feda0cf72bbdc53e2cf3"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "5d9c487b0979bfe06a2c5fcb4e1e765760475fa9e80a60fa23f47b035d9d0a9a"
+    },
+    {
+      "path": "src/video_paper_wiki/jcs.py",
+      "sha256": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6",
+      "spans": "22-55"
+    },
+    {
+      "path": "src/video_paper_wiki/secure_io.py",
+      "sha256": "2fa1674354ab57ef7e90d20303aa5739c232f6e0b039598c51237a8879fec03b",
+      "spans": "367-425"
+    },
+    {
+      "path": "src/video_paper_wiki/projection_runtime.py",
+      "sha256": "87f426511f722c65660d548b83af70d0fe2d2afaae1be83bebf2b3348bd149c7",
+      "spans": "195-214"
+    },
+    {
+      "path": "src/video_paper_wiki/code_evidence_contracts.py",
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "spans": "24-75"
+    },
+    {
+      "path": "src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "spans": "180-212"
+    },
+    {
+      "path": "src/video_paper_wiki/staged_code_capture.py",
+      "sha256": "f3f713c47740c8ddf83168a777c6e8bed71dde017d2a60c2c32be222de0530bb",
+      "spans": "120-171"
+    }
+  ],
+  "installed_runtime": {
+    "python_executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "python_version": "3.13.13",
+    "project_version": "0.1.0",
+    "dependencies": {
+      "jsonschema": "4.26.0",
+      "referencing": "0.37.0",
+      "pypdf": "6.16.2",
+      "tomllib": "stdlib",
+      "tomli": null,
+      "PyYAML": null,
+      "ruamel.yaml": null,
+      "tomlkit": null
+    },
+    "dependency_policy": "Do not add YAML/TOML packages, parser plugins, model packages or network clients for this advice; Python >=3.12 supplies tomllib."
+  },
+  "legacy_findings": [
+    {
+      "id": "LEGACY-JCS-FLOAT-REFUSAL",
+      "status": "PASS",
+      "evidence": "jcs._serialize accepts exact integers but raises CanonicalJsonError for float values; new evidence must therefore carry every decimal magnitude as a string."
+    },
+    {
+      "id": "LEGACY-STRICT-JSON-FLOAT-REFUSAL",
+      "status": "PASS",
+      "evidence": "secure_io.parse_strict_json rejects duplicate keys, floats, NaN/Infinity, BOMs and trailing data. It remains the authority for existing integer-JCS artifacts and must not be weakened."
+    },
+    {
+      "id": "LEGACY-PROJECTION-FLOAT-DOMAIN",
+      "status": "BOUNDARY",
+      "evidence": "projection_runtime.parse_projection_json intentionally accepts finite floats for derived Docling document artifacts and tags them as ratios; it is not suitable for new config evidence because it admits binary float values."
+    },
+    {
+      "id": "LEGACY-CODE-NEWLINE-MODEL",
+      "status": "REUSE_WITH_RAW_EXTENSION",
+      "evidence": "code_evidence_contracts.normalize_code_bytes preserves strict UTF-8, rejects BOM/control/bare-CR, and computes CRLF-normalized metadata. New config evidence should retain raw bytes/spans in addition to this normalized hash."
+    },
+    {
+      "id": "LEGACY-TOML-BOOTSTRAP",
+      "status": "PASS",
+      "evidence": "staging.py uses stdlib tomllib only to read the bounded pyproject project name. That existing pattern does not interpret arbitrary code/config and supplies no external parser dependency."
+    },
+    {
+      "id": "LEGACY-STAGED-CODE-BYTE-BINDING",
+      "status": "BOUNDARY",
+      "evidence": "staged_code_capture.py consumes caller-provided staged payload bytes and binds raw payload identity through the existing capture/transaction boundary; a config scanner should receive exact bytes from the same host handoff and never fetch paths or execute content."
+    }
+  ],
+  "proposed_contract": {
+    "purpose": "Inspect a bounded host-supplied JSON or practical TOML configuration as data, return exact source locators and typed numeric facts, and let a later reviewed capability proposal cite those locators. Interpretation never proves officiality, execution, training, inference or checkpoint use by itself.",
+    "wire_boundary": {
+      "artifact_jcs_subset": "Existing artifact envelopes remain integer-only JCS. No Python float, Decimal object, NaN, Infinity or binary conversion may cross the artifact boundary.",
+      "numeric_node": {
+        "closed_fields": [
+          "kind",
+          "number_kind",
+          "value",
+          "source_lexeme",
+          "span"
+        ],
+        "kind_const": "number",
+        "number_kind_enum": [
+          "integer",
+          "decimal"
+        ],
+        "value_type": "string",
+        "source_lexeme_type": "string"
+      },
+      "numeric_policy": "Store integer and decimal magnitudes as canonical decimal strings. The original lexeme is retained only as a string and must equal the decoded raw span. Span offsets and limits are bounded integers, so they remain JCS-safe.",
+      "example_decimal_wire": {
+        "kind": "number",
+        "number_kind": "decimal",
+        "value": "0.0001",
+        "source_lexeme": "1e-4",
+        "span": {
+          "byte_start": 61,
+          "byte_end": 65
+        }
+      }
+    },
+    "limits": {
+      "max_source_bytes": 1048576,
+      "max_depth": 32,
+      "max_nodes": 10000,
+      "max_array_items": 256,
+      "max_object_or_table_keys": 1024,
+      "max_key_utf8_bytes": 256,
+      "max_string_codepoints": 16384,
+      "max_numeric_lexeme_bytes": 128,
+      "max_significant_digits": 64,
+      "max_abs_exponent": 128,
+      "max_canonical_decimal_chars": 256,
+      "max_path_segments": 64,
+      "max_scalar_spans": 4096
+    },
+    "input_boundary": [
+      "Accept exact bytes only from the host observation handoff; do not open arbitrary caller paths, follow URLs, import modules or invoke a loader.",
+      "Decode strict UTF-8 once. Reject BOM, invalid UTF-8, unpaired surrogates, forbidden controls and bare CR. Preserve the original bytes and decoded codepoints without NFC/NFKC rewriting.",
+      "Compute raw_sha256 over exact bytes. Optionally compute normalized_sha256 after CRLF-to-LF only, matching existing code metadata; normalized identity never substitutes for raw identity."
+    ],
+    "formats": {
+      "json": {
+        "parser": "stdlib json.loads",
+        "accepted_syntax": "RFC 8259 object/array/scalar grammar; SP/TAB/LF/CRLF whitespace only; no comments, trailing commas, JSON5 identifiers or extensions.",
+        "numeric_grammar": "RFC 8259 number grammar; no plus sign, underscores, leading zero, NaN or Infinity."
+      },
+      "toml": {
+        "parser": "stdlib tomllib.loads",
+        "accepted_subset": "TOML 1.0 single-line basic/literal strings, decimal integers, decimal finite floats, booleans, arrays, inline tables, tables and dotted keys.",
+        "rejected_subset": "Multiline strings, arrays-of-tables, date/time/datetime values, base-prefixed integers, noncanonical leading-zero forms and any syntax outside the frozen subset."
+      },
+      "source_only_formats": [
+        "yaml",
+        "yml",
+        "python",
+        "py",
+        "json5",
+        "hjson",
+        "ini",
+        "cfg",
+        "hydra",
+        "omegaconf",
+        "shell",
+        "jupyter"
+      ]
+    },
+    "numeric_canonicalization": {
+      "scanner_forms": {
+        "json": "-?(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?",
+        "toml": "[+-]?(?:0|[1-9](?:_?[0-9])*)(?:\\.(?:[0-9](?:_?[0-9])*))?(?:[eE][+-]?[0-9](?:_?[0-9])*)?"
+      },
+      "algorithm": [
+        "Validate the format-specific lexical grammar before Decimal construction.",
+        "Remove TOML digit separators only for numeric conversion; retain source_lexeme unchanged.",
+        "Construct Decimal from the cleaned lexeme without float(); reject nonfinite values and any bound violation.",
+        "Emit integer when the source grammar is an integer; otherwise emit decimal.",
+        "Render exact finite Decimal in fixed notation, remove trailing fractional zeroes and redundant leading zeroes, and encode zero as 0; retain source_lexeme so spelling such as 1e-4 remains auditable.",
+        "Cross-check canonical value against the parser result; never round or use a Decimal context that changes the value."
+      ],
+      "rejections": [
+        "NaN",
+        "Infinity",
+        "+Infinity",
+        "overflow/underflow that produces a nonfinite Decimal",
+        "more than 64 significant digits",
+        "absolute exponent above 128",
+        "canonical expansion above 256 characters",
+        "negative-zero lexeme; refuse rather than erase its sign or introduce a second canonical representation."
+      ]
+    },
+    "path_model": {
+      "syntax": "JSON Pointer-style paths, root is empty string, object/table keys escape ~ as ~0 and / as ~1, array indices are decimal segments with no leading zero.",
+      "examples": [
+        "/optimizer/learning_rate",
+        "/optimizer/betas/0",
+        "/schedule/warmup_steps"
+      ],
+      "toml_mapping": "Dotted TOML keys and table headers map to the same pointer model. Repeated table/key definitions are duplicate paths and refuse; array-of-table paths are outside this subset.",
+      "identity_rule": "Paths are based on decoded source strings exactly as supplied; no case folding or Unicode normalization is performed before span/hash binding."
+    },
+    "span_model": {
+      "byte_span": "0-based half-open [byte_start, byte_end) offsets into exact UTF-8 source bytes; raw_span_sha256 hashes precisely those bytes.",
+      "unicode_span": "0-based half-open [unicode_start, unicode_end) offsets into the strict decoded Unicode string before any newline normalization; Python codepoint units, not UTF-16 or grapheme clusters.",
+      "line_columns": "1-based physical line and column; column is decoded codepoint position and end column is exclusive. LF advances one line. CRLF advances one line as a pair; the byte span still includes both bytes. Bare CR refuses.",
+      "containers": "JSON containers span opening delimiter through closing delimiter. TOML table headers have header spans; scalar and array/inline-table values have exact value-token spans. A table has no synthetic closing span.",
+      "snippet_binding": "A capability locator may carry both raw_span_sha256 and the existing normalized line/snippet hash. Raw bytes prove exact source; normalized hash supports legacy line rendering only."
+    },
+    "scanner_cross_check": [
+      "Bound source bytes and build a line/byte index without changing the source.",
+      "Run a format-specific token/stack scanner that emits key, container and scalar spans while enforcing path, depth, count and lexical limits.",
+      "For JSON, reject duplicate decoded keys through the scanner and object_pairs_hook; parse_float=Decimal, parse_int=bounded_int and parse_constant=reject_nonfinite. Reject BOM and trailing data.",
+      "For TOML, parse_float=bounded_decimal and rely on tomllib duplicate/syntax errors, while the scanner rejects the out-of-subset constructs before typed evidence is emitted.",
+      "Project both parser output and scanner nodes to the same path map, compare container shape, scalar type and canonical decimal string, and refuse all typed output on any mismatch.",
+      "Validate every emitted span by slicing the original bytes and checking its raw hash, source_lexeme and decoded value. No partial successful interpretation survives a mismatch."
+    ],
+    "security_rejections": [
+      {
+        "code": "CODE_CONFIG_INVALID_UTF8",
+        "condition": "Invalid UTF-8, BOM, unpaired surrogate or forbidden control."
+      },
+      {
+        "code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "condition": "Any byte, depth, node, key, string, array, path, digit, exponent or span budget exceeded."
+      },
+      {
+        "code": "CODE_CONFIG_DUPLICATE_KEY",
+        "condition": "Duplicate JSON decoded key, TOML key/table collision, or duplicate dotted path."
+      },
+      {
+        "code": "CODE_CONFIG_NONFINITE",
+        "condition": "NaN, Infinity, -Infinity or Decimal result not finite."
+      },
+      {
+        "code": "CODE_CONFIG_NUMERIC_INVALID",
+        "condition": "Malformed numeric token, out-of-bound exact magnitude or parser/scanner numeric mismatch."
+      },
+      {
+        "code": "CODE_CONFIG_INTERPOLATION",
+        "condition": "Decoded strings contain explicit ${...}, $(...), {{...}}, }} or %(...) interpolation markers; no environment/template expansion is attempted."
+      },
+      {
+        "code": "CODE_CONFIG_CALLABLE",
+        "condition": "Python/YAML callable tags, !include, !!python, python: loader expressions, or conservative function-call strings matching the frozen callable marker grammar."
+      },
+      {
+        "code": "CODE_CONFIG_SPAN_MISMATCH",
+        "condition": "Any source slice, path, parser value, raw hash or line/Unicode coordinate disagrees."
+      },
+      {
+        "code": "CODE_CONFIG_FORMAT_UNSUPPORTED",
+        "condition": "YAML/Python/JSON5/HJSON/INI/Hydra/OmegaConf/shell or another non-frozen format."
+      }
+    ],
+    "interpretation_boundary": {
+      "verified_status": "Only a parser-cross-checked JSON/TOML source with complete typed nodes and exact raw spans may be marked config_data_verified.",
+      "source_only_status": "Unsupported but safely captured text may be retained as source_text_only_unverified with raw_sha256 and format/reason; it supplies no typed value, capability claim or absence claim.",
+      "absence": "A capability absence requires a declared search scope and complete observed file inventory. An unfetched path or unsupported config is unverified, never absent.",
+      "officiality": "Config facts do not establish A/B/C/D officiality. A later relation review must bind repository, full commit, logical path, source_id, and exact capability locators.",
+      "execution": "No import, eval, exec, subprocess, shell, model load, YAML constructor, interpolation expansion, checkpoint download or network operation is permitted."
+    }
+  },
+  "evidence_shape": {
+    "source": {
+      "kind": "code-config-source",
+      "repository": "Owner/Repo",
+      "commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "path": "configs/train.toml",
+      "source_id": "example-config",
+      "format": "toml",
+      "raw_sha256": "1f0a33eebefbbe5192e8e569753965f21c5ca525989d95669109ed070ae44beb",
+      "normalized_sha256": "1f0a33eebefbbe5192e8e569753965f21c5ca525989d95669109ed070ae44beb",
+      "size_bytes": 134
+    },
+    "value_node": {
+      "path": "/optimizer/learning_rate",
+      "kind": "number",
+      "number_kind": "decimal",
+      "value": "0.0001",
+      "source_lexeme": "1e-4",
+      "span": {
+        "byte_start": 43,
+        "byte_end": 47,
+        "unicode_start": 43,
+        "unicode_end": 47,
+        "line_start": 3,
+        "column_start": 17,
+        "line_end": 3,
+        "column_end": 21,
+        "raw_span_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff"
+      }
+    },
+    "review_binding": "Capability proposals reference source_id, repository, commit, path, format, raw_sha256 and one or more exact value-node paths/spans; proposal text remains data and cannot trigger execution.",
+    "illustrative_only": true
+  },
+  "valid_examples": [
+    {
+      "format": "json",
+      "raw_source": "{\n  \"optimizer\": {\n    \"name\": \"AdamW\",\n    \"learning_rate\": 1e-4,\n    \"betas\": [0.9, 0.999],\n    \"weight_decay\": 0.01\n  },\n  \"schedule\": {\n    \"warmup_steps\": 1000,\n    \"gamma\": 0.95\n  }\n}\n",
+      "raw_sha256": "0a9fc14ad0d677374f756c3c4a3884b8ba8d948450e9f33026da50bb1dc38a3a",
+      "size_bytes": 190,
+      "parser_cross_check": {
+        "stdlib": "json.loads",
+        "parse_float": "Decimal",
+        "learning_rate_parser_type": "Decimal",
+        "learning_rate_parser_value": "0.0001",
+        "warmup_steps_parser_type": "int",
+        "warmup_steps_parser_value": "1000"
+      },
+      "container_spans": [
+        {
+          "path": "",
+          "kind": "object",
+          "byte_start": 0,
+          "byte_end": 189
+        },
+        {
+          "path": "/optimizer",
+          "kind": "object",
+          "byte_start": 17,
+          "byte_end": 122
+        },
+        {
+          "path": "/optimizer/betas",
+          "kind": "array",
+          "byte_start": 80,
+          "byte_end": 92
+        },
+        {
+          "path": "/schedule",
+          "kind": "object",
+          "byte_start": 138,
+          "byte_end": 187
+        }
+      ],
+      "typed_values": [
+        {
+          "path": "/optimizer/name",
+          "kind": "string",
+          "value": "AdamW",
+          "source_lexeme": "\"AdamW\"",
+          "span": {
+            "byte_start": 31,
+            "byte_end": 38,
+            "unicode_start": 31,
+            "unicode_end": 38,
+            "line_start": 3,
+            "column_start": 13,
+            "line_end": 3,
+            "column_end": 20,
+            "raw_span_sha256": "5364bde3abdb6b71c9572f27255f7f278b13aabbf6c98765e5a2cd7a38e11463"
+          }
+        },
+        {
+          "path": "/optimizer/learning_rate",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.0001",
+          "source_lexeme": "1e-4",
+          "span": {
+            "byte_start": 61,
+            "byte_end": 65,
+            "unicode_start": 61,
+            "unicode_end": 65,
+            "line_start": 4,
+            "column_start": 22,
+            "line_end": 4,
+            "column_end": 26,
+            "raw_span_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff"
+          }
+        },
+        {
+          "path": "/optimizer/betas/0",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.9",
+          "source_lexeme": "0.9",
+          "span": {
+            "byte_start": 81,
+            "byte_end": 84,
+            "unicode_start": 81,
+            "unicode_end": 84,
+            "line_start": 5,
+            "column_start": 15,
+            "line_end": 5,
+            "column_end": 18,
+            "raw_span_sha256": "8139b33952401b3ee0e2ca84651cb9a1d7f66d442bf908f9cf1f53ea746e5801"
+          }
+        },
+        {
+          "path": "/optimizer/betas/1",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.999",
+          "source_lexeme": "0.999",
+          "span": {
+            "byte_start": 86,
+            "byte_end": 91,
+            "unicode_start": 86,
+            "unicode_end": 91,
+            "line_start": 5,
+            "column_start": 20,
+            "line_end": 5,
+            "column_end": 25,
+            "raw_span_sha256": "11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95"
+          }
+        },
+        {
+          "path": "/optimizer/weight_decay",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.01",
+          "source_lexeme": "0.01",
+          "span": {
+            "byte_start": 114,
+            "byte_end": 118,
+            "unicode_start": 114,
+            "unicode_end": 118,
+            "line_start": 6,
+            "column_start": 21,
+            "line_end": 6,
+            "column_end": 25,
+            "raw_span_sha256": "312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f"
+          }
+        },
+        {
+          "path": "/schedule/warmup_steps",
+          "kind": "number",
+          "number_kind": "integer",
+          "value": "1000",
+          "source_lexeme": "1000",
+          "span": {
+            "byte_start": 160,
+            "byte_end": 164,
+            "unicode_start": 160,
+            "unicode_end": 164,
+            "line_start": 9,
+            "column_start": 21,
+            "line_end": 9,
+            "column_end": 25,
+            "raw_span_sha256": "40510175845988f13f6162ed8526f0b09f73384467fa855e1e79b44a56562a58"
+          }
+        },
+        {
+          "path": "/schedule/gamma",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.95",
+          "source_lexeme": "0.95",
+          "span": {
+            "byte_start": 179,
+            "byte_end": 183,
+            "unicode_start": 179,
+            "unicode_end": 183,
+            "line_start": 10,
+            "column_start": 14,
+            "line_end": 10,
+            "column_end": 18,
+            "raw_span_sha256": "22fa3ce4995af8d96fcd771f0e1f5d74d8a98f36c3eec8e95bdf7524926b0141"
+          }
+        }
+      ]
+    },
+    {
+      "format": "toml",
+      "raw_source": "[optimizer]\nname = \"AdamW\"\nlearning_rate = 1e-4\nbetas = [0.9, 0.999]\nweight_decay = 0.01\n\n[schedule]\nwarmup_steps = 1000\ngamma = 0.95\n",
+      "raw_sha256": "1f0a33eebefbbe5192e8e569753965f21c5ca525989d95669109ed070ae44beb",
+      "size_bytes": 134,
+      "parser_cross_check": {
+        "stdlib": "tomllib.loads",
+        "parse_float": "Decimal",
+        "learning_rate_parser_type": "Decimal",
+        "learning_rate_parser_value": "0.0001",
+        "warmup_steps_parser_type": "int",
+        "warmup_steps_parser_value": "1000"
+      },
+      "header_spans": [
+        {
+          "path": "/optimizer",
+          "byte_start": 0,
+          "byte_end": 11
+        },
+        {
+          "path": "/schedule",
+          "byte_start": 90,
+          "byte_end": 100
+        }
+      ],
+      "typed_values": [
+        {
+          "path": "/optimizer/name",
+          "kind": "string",
+          "value": "AdamW",
+          "source_lexeme": "\"AdamW\"",
+          "span": {
+            "byte_start": 19,
+            "byte_end": 26,
+            "unicode_start": 19,
+            "unicode_end": 26,
+            "line_start": 2,
+            "column_start": 8,
+            "line_end": 2,
+            "column_end": 15,
+            "raw_span_sha256": "5364bde3abdb6b71c9572f27255f7f278b13aabbf6c98765e5a2cd7a38e11463"
+          }
+        },
+        {
+          "path": "/optimizer/learning_rate",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.0001",
+          "source_lexeme": "1e-4",
+          "span": {
+            "byte_start": 43,
+            "byte_end": 47,
+            "unicode_start": 43,
+            "unicode_end": 47,
+            "line_start": 3,
+            "column_start": 17,
+            "line_end": 3,
+            "column_end": 21,
+            "raw_span_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff"
+          }
+        },
+        {
+          "path": "/optimizer/betas/0",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.9",
+          "source_lexeme": "0.9",
+          "span": {
+            "byte_start": 57,
+            "byte_end": 60,
+            "unicode_start": 57,
+            "unicode_end": 60,
+            "line_start": 4,
+            "column_start": 10,
+            "line_end": 4,
+            "column_end": 13,
+            "raw_span_sha256": "8139b33952401b3ee0e2ca84651cb9a1d7f66d442bf908f9cf1f53ea746e5801"
+          }
+        },
+        {
+          "path": "/optimizer/betas/1",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.999",
+          "source_lexeme": "0.999",
+          "span": {
+            "byte_start": 62,
+            "byte_end": 67,
+            "unicode_start": 62,
+            "unicode_end": 67,
+            "line_start": 4,
+            "column_start": 15,
+            "line_end": 4,
+            "column_end": 20,
+            "raw_span_sha256": "11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95"
+          }
+        },
+        {
+          "path": "/optimizer/weight_decay",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.01",
+          "source_lexeme": "0.01",
+          "span": {
+            "byte_start": 84,
+            "byte_end": 88,
+            "unicode_start": 84,
+            "unicode_end": 88,
+            "line_start": 5,
+            "column_start": 16,
+            "line_end": 5,
+            "column_end": 20,
+            "raw_span_sha256": "312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f"
+          }
+        },
+        {
+          "path": "/schedule/warmup_steps",
+          "kind": "number",
+          "number_kind": "integer",
+          "value": "1000",
+          "source_lexeme": "1000",
+          "span": {
+            "byte_start": 116,
+            "byte_end": 120,
+            "unicode_start": 116,
+            "unicode_end": 120,
+            "line_start": 8,
+            "column_start": 16,
+            "line_end": 8,
+            "column_end": 20,
+            "raw_span_sha256": "40510175845988f13f6162ed8526f0b09f73384467fa855e1e79b44a56562a58"
+          }
+        },
+        {
+          "path": "/schedule/gamma",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.95",
+          "source_lexeme": "0.95",
+          "span": {
+            "byte_start": 129,
+            "byte_end": 133,
+            "unicode_start": 129,
+            "unicode_end": 133,
+            "line_start": 9,
+            "column_start": 9,
+            "line_end": 9,
+            "column_end": 13,
+            "raw_span_sha256": "22fa3ce4995af8d96fcd771f0e1f5d74d8a98f36c3eec8e95bdf7524926b0141"
+          }
+        }
+      ]
+    },
+    {
+      "format": "json",
+      "newline_style": "crlf",
+      "raw_source": "{\r\n  \"学习率\": 1e-4,\r\n  \"备注\": \"β\"\r\n}\r\n",
+      "raw_sha256": "681cc60666ac83cd7169f69d784f9b23b49c8fb46679f99d90cae5271f5e4c62",
+      "size_bytes": 46,
+      "typed_values": [
+        {
+          "path": "/学习率",
+          "kind": "number",
+          "number_kind": "decimal",
+          "value": "0.0001",
+          "source_lexeme": "1e-4",
+          "span": {
+            "byte_start": 18,
+            "byte_end": 22,
+            "unicode_start": 12,
+            "unicode_end": 16,
+            "line_start": 2,
+            "column_start": 10,
+            "line_end": 2,
+            "column_end": 14,
+            "raw_span_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff"
+          }
+        }
+      ],
+      "span_rule_demonstrated": "The Chinese key occupies more UTF-8 bytes than Unicode codepoints; CRLF contributes two raw/codepoint bytes but advances one physical line."
+    }
+  ],
+  "unsupported_examples": [
+    {
+      "format": "yaml",
+      "raw_source": "optimizer:\n  learning_rate: 1e-4\n",
+      "status": "source_text_only_unverified",
+      "reason": "YAML is outside the closed parser set; no PyYAML/ruamel dependency and no constructors."
+    },
+    {
+      "format": "python",
+      "raw_source": "config = {\"learning_rate\": 1e-4}\n",
+      "status": "source_text_only_unverified",
+      "reason": "Python source is executable/callable syntax; never import, eval or inspect its AST as configuration."
+    },
+    {
+      "format": "json5",
+      "raw_source": "{learning_rate: 1e-4,}\n",
+      "status": "source_text_only_unverified",
+      "reason": "JSON5 identifiers/trailing comma are outside RFC 8259 JSON."
+    },
+    {
+      "format": "toml",
+      "raw_source": "learning_rate = \"${BASE_RATE}\"\n",
+      "status": "refused",
+      "reason": "Explicit interpolation marker; no environment/template expansion."
+    },
+    {
+      "format": "toml",
+      "raw_source": "optimizer = \"torch.optim.AdamW(lr=1e-4)\"\n",
+      "status": "refused",
+      "reason": "Conservative callable marker; no execution or callable resolution."
+    },
+    {
+      "format": "json",
+      "raw_source": "{\"x\": 1, \"x\": 2}\n",
+      "status": "refused",
+      "reason": "Duplicate decoded key."
+    },
+    {
+      "format": "json",
+      "raw_source": "{\"x\": NaN}\n",
+      "status": "refused",
+      "reason": "Nonfinite constant."
+    },
+    {
+      "format": "toml",
+      "raw_source": "rate = nan\n",
+      "status": "refused",
+      "reason": "tomllib parse_float=Decimal returns nonfinite Decimal; reject before typed emission."
+    }
+  ],
+  "acceptance_vectors": [
+    "Exact JSON and TOML nested examples produce identical canonical decimal value 0.0001 for lexeme 1e-4 while preserving distinct raw source spans.",
+    "JSON escaped duplicate keys such as {\"x\":1,\"\\u0078\":2} refuse after decoded-key comparison.",
+    "TOML duplicate dotted/table definitions refuse even when spelling differs but decoded path is the same.",
+    "CRLF and LF inputs have distinct raw_sha256 and byte spans but equal normalized_sha256 only when bytes differ solely by line endings.",
+    "A Unicode key example proves byte offsets are not codepoint offsets; both coordinates must be checked by slicing original bytes and decoded text.",
+    "Malformed UTF-8, BOM, bare CR, trailing JSON, comments/trailing commas, depth/node/number limits and parser/scanner disagreements refuse without partial output.",
+    "YAML/Python/JSON5/Hydra/INI remain source-text-only and unverified; no dependency, model or execution path is introduced.",
+    "Capability evidence must bind repository/full commit/logical config path/source_id/raw_sha256 and exact numeric node path/span; numeric extraction alone cannot assert officiality or capability."
+  ],
+  "open_design_gates": [
+    "Architect must choose stable public error-code names before implementation freeze.",
+    "Implementation review must add adversarial duplicate/interpolation/callable, CRLF/Unicode, scanner-parser mismatch and no-execution tests before any CODE acceptance."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "real_vault": false,
+    "models": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": "Tool-observed current UTC from date -u; no retrospective review-start time is asserted.",
+  "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'"
+}

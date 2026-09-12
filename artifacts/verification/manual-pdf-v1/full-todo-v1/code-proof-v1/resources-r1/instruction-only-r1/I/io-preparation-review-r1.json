@@ -1,0 +1,131 @@
+{
+  "schema": "full-todo.code-proof-io-preparation-review.v1",
+  "record_type": "io-preparation-review-r1",
+  "reviewed_at_utc": "2026-09-11T08:34:00Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_CONCRETE_RETAINED_IO_FREEZE_PREPARATION",
+  "implementation_authority": "not_granted",
+  "scope": "Bounded read-only preparation review of the future CODE retained-I/O boundary. Focused on no-argument lexical checkout selection, the initial profile/schema resource policy, the resource-foundation to retained-session ownership handoff, and unavailable primitive plus checkout-flock behavior on macOS/Linux. No source, test, fixture, profile, schema, Git, model, provider, network, CLI, or UI action was performed.",
+  "reviewed_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "src/video_paper_wiki/secure_io.py",
+      "size_bytes": 15126,
+      "sha256": "2fa1674354ab57ef7e90d20303aa5739c232f6e0b039598c51237a8879fec03b"
+    },
+    {
+      "path": "src/video_paper_wiki/staging.py",
+      "size_bytes": 54827,
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180"
+    },
+    {
+      "path": "src/video_paper_wiki/resources.py",
+      "size_bytes": 6287,
+      "sha256": "3617fa4cbb5693fde15eb9f134a1ecd5e6f1bd5d19c8a6719646df1755615470"
+    }
+  ],
+  "source_observations": [
+    {
+      "path": "src/video_paper_wiki/staging.py",
+      "surfaces": ["resolve_checkout_root", "_open_batch_session", "_open_dir_path", "_ensure_dir_at"],
+      "finding": "The legacy helper checks the current directory and immediate .git/pyproject names but returns a Path, follows pyproject through Path.is_file/open, does not retain marker edges or bytes, and creates .work/batch without the CODE checkout flock. It is not a substitute for the future CODE session."
+    },
+    {
+      "path": "src/video_paper_wiki/secure_io.py",
+      "surfaces": ["dir_open_flags", "file_open_flags", "lexical_abs", "open_dir_nofollow"],
+      "finding": "The legacy flags conditionally omit O_NOFOLLOW/O_DIRECTORY and lexical_abs uses abspath/normpath. Those helpers may only be reused after an explicit CODE primitive preflight; raw lexical CODE root validation must not pass through this normalization."
+    },
+    {
+      "path": "src/video_paper_wiki/resources.py",
+      "surfaces": ["_repo_file", "_source_checkout_root", "read_projection_resource_bytes"],
+      "finding": "The legacy loader uses Path.resolve, scans parents, uses importlib.resources Traversables, and has CWD/source fallbacks. CODE must use the imported package's fixed source/installed plan and retained filesystem origins instead of this loader."
+    }
+  ],
+  "review_findings": [
+    {
+      "area": "no_arg_lexical_checkout_root",
+      "status": "FREEZE_REQUIRED",
+      "contract_result": "open_code_session(batch_id=...) must derive one current checkout root with no caller root/cwd argument, parent search, environment fallback, resolve, realpath, normpath, symlink fallback, or spelling repair. Exact batch-id type/grammar and raw path spelling are checked before path normalization or output creation. The session retains every lexical ancestor, the checkout descriptor, and each initial named edge/absence.",
+      "gap_or_risk": "resolve_checkout_root currently returns a path-based result and accepts an optional cwd; pyproject checks/open may follow a symlink. secure_io.lexical_abs normalizes before descriptor traversal. Neither surface supplies the CODE retained ancestor graph or the required .git/pyproject initial observations.",
+      "required_freeze": [
+        "Freeze a private no-argument root selector that captures the current absolute lexical spelling once and validates only that directory, with no upward search or alternate origin.",
+        "Open filesystem-root-to-checkout ancestors descriptor-relatively with O_DIRECTORY|O_NOFOLLOW|O_CLOEXEC, retaining the first identity and named edge for every component. A missing, symlinked, non-directory, or changed edge refuses without creating .work.",
+        "Capture .git and pyproject.toml through the retained checkout descriptor before validating meaning. Permit the R6 .git nonsymlink directory or single-link regular marker (bounded bytes); require project bytes to be a retained safe regular input file and validate the project name from those bytes. Recheck both through final verification.",
+        "Keep the root selector private to CODE and do not route it through legacy _open_batch_session, _assert_inside_work, Path.resolve, realpath, normpath, or CWD resource fallback."
+      ],
+      "acceptance": "Exercise a non-root CWD, symlinked marker/project, lexical ancestor replacement, dotted/unsafe spellings, CWD changes after setup, and absence of every fallback. Assert no .work/batch path is created on each refusal."
+    },
+    {
+      "area": "initial_profile_schema_mode_and_link_policy",
+      "status": "FREEZE_REQUIRED",
+      "contract_result": "The retained resource set is exactly the ten frozen CODE schemas plus profiles/code-proof-v1.json from the imported source or installed package origin. It is read-only input, independent of CWD, and retained through final verification. Initial missing/malformed/unchanged resources map to CODE_PROOF_RESOURCE_INVALID; a changed or uncheckable retained edge/bytes maps to WORK_PATH_UNSAFE and wins final precedence.",
+      "gap_or_risk": "R6 delegates resources to a frozen read-only input policy, but R6/R8/R9 do not state the exact resource directory mode, file mode mask, or link-count rule in one closed table. The current loader does not perform no-follow descriptor retention. Without this freeze, source and wheel installations could accept different initial resource states.",
+      "required_freeze": [
+        "Freeze origin selection as the imported module's direct source-layout rule or installed package-data rule: source schemas at the sibling checkout schemas directory and profile at the package profiles directory; installed schemas/profiles under package data. Reject archive/non-filesystem Traversables, CWD/cache/fallback origins, and a new origin after any failure.",
+        "Freeze directory policy for each selected origin as a nonsymlink directory with retained device/inode/type/mode and no unrelated enumeration. Freeze each resource file as regular, nonsymlink, single-link, bounded, and no special bits; explicitly choose the allowed read-only mode mask rather than inheriting platform defaults. The recommended input mask is no executable, group/other-write, or special bits, with any owner-write allowance stated explicitly.",
+        "Open/stat/read every selected file through retained descriptors, compare type/mode/link count/size/hash to the eleven production pins before parsing or registry construction, and retain the original named edge and bytes. Check lexical and descriptor disjointness from the output namespace before creation and after every reread.",
+        "Bind initial resource failures to the R8 detail shape without forwarding source paths, parser text, resolver text, or arbitrary mode data. Do not let the profile's own inventory authorize a replaced profile/schema set."
+      ],
+      "acceptance": "Run source-layout and installed-wheel fixtures with changed CWD; test missing, symlink, hardlink, special-file, mode, size/hash, directory replacement, output-overlap, and resource-reread changes. Verify exact resource-invalid versus work-path-unsafe mapping and all eleven bytes remain the same retained generation."
+    },
+    {
+      "area": "foundation_api_and_retained_resource_ownership",
+      "status": "FREEZE_REQUIRED",
+      "contract_result": "The pure foundation selects a lexical ResourceOriginPlan and compiles an exact builtin retained-byte mapping; it performs no filesystem I/O. R6/R8 require open_code_session to own one retained graph, installed resources, descriptors, named edges, bytes, and final verification for the entire command.",
+      "gap_or_risk": "compile_code_proof_resources(retained_bytes) has no concrete ownership-transfer object, while the R6 _CodeSession API has no named retain/bind operation for the eleven resources. A direct caller mapping or independently opened resource context could outlive the retained descriptors, use mixed generations, or bypass final resource lineage checks.",
+      "required_freeze": [
+        "Add a private adapter boundary: session setup obtains the immutable origin plan, retains all eleven origin descriptors/edges/bytes, and passes only a copied immutable byte view to one fresh foundation compiler. The session stores the resulting context and does not expose descriptors, paths, resolver callbacks, mutable maps, or a reusable registry.",
+        "Define the exact private return/lifetime surface, such as retain_code_resources(plan) plus a session-owned compiled context. The context may be used by public structural calls only while the session is active; resource descriptors and first observations remain owned until final verification and reverse-order close.",
+        "Make setup order explicit: capability preflight, lexical checkout lock, markers, resource retention/pins/shape/reference closure, initial output scan, then yield. Compile/resource failure still runs the same all-exits verifier; resource lineage failure overrides parse, semantic, install, and cleanup errors.",
+        "Keep public identity/JCS/reference/replay/state/eligibility validation above the foundation. A schema-valid resealed envelope must not become usable evidence through the resource adapter."
+      ],
+      "acceptance": "Instrument that no foundation call opens or resolves a path, mutate the caller byte mapping after compilation, force a resource replacement during semantic preflight/final reread, and prove the same descriptors/generation are checked through setup, workflow, installation refusal, and cleanup."
+    },
+    {
+      "area": "unavailable_primitives_and_checkout_flock",
+      "status": "FREEZE_REQUIRED",
+      "contract_result": "Before any output creation, CODE must require descriptor-relative no-follow open/stat/mkdir/link/unlink, directory fsync, dup/close, and nonblocking exclusive checkout flock. A busy flock is CODE_PROOF_BUSY; unsupported primitives are bounded CODE_PROOF_IO_ERROR with reason unavailable_primitive. The duplicate lock descriptor is retained until all final verification and other descriptor cleanup finish.",
+      "gap_or_risk": "The legacy flag helpers use hasattr conditionals and there is no CODE capability matrix or flock implementation. Merely having os.fsync or fcntl symbols does not prove directory fsync/flock works on the active filesystem. /proc/self/fd is unavailable on macOS and cannot be an authority or required fallback.",
+      "required_freeze": [
+        "Preflight os.supports_dir_fd for open/stat/mkdir/link/unlink, os.supports_follow_symlinks for stat/link, O_NOFOLLOW and O_DIRECTORY, os.fstat/os.fsync/os.dup/os.close, and fcntl.flock with LOCK_EX|LOCK_NB. Treat absent flags/API support as unavailable; never silently omit no-follow or substitute a path/lock file.",
+        "After retaining the checkout descriptor but before scanning resources/work or creating a path, perform the platform's supported directory-fsync capability check. On macOS and Linux, require a successful no-op directory fsync on the retained checkout; classify ENOSYS/EINVAL/ENOTSUP/EOPNOTSUPP as unavailable primitive and any other bounded syscall failure as syscall_failed.",
+        "Acquire flock(checkout_fd, LOCK_EX|LOCK_NB) before resource/work scans. Map EAGAIN/EACCES/EWOULDBLOCK to CODE_PROOF_BUSY with phase=setup, group=checkout, operation=flock, reason=lock_busy; release/close setup descriptors and create nothing. Duplicate the locked descriptor immediately; a dup failure is setup I/O failure and must release the lock without output.",
+        "On Linux and macOS use the same descriptor-relative contract; do not require /proc/self/fd. Parent/inode traversal and named-edge checks must establish ancestry when procfs is absent. Keep the duplicate lock descriptor last in reverse cleanup order and record close failures without retrying reused fd numbers."
+      ],
+      "acceptance": "Run locked Python 3.12/3.13 source and wheel checks on macOS/Linux; hold a competing checkout flock and assert no resource/work scan or output creation; monkeypatch/remove each required flag/API and directory-fsync/flock capability; verify exact busy/unavailable detail shapes and no lock-file fallback."
+    }
+  ],
+  "required_validation_order": [
+    "Validate exact builtin batch-id and raw no-argument lexical root spelling without path repair or fallback.",
+    "Preflight all required descriptor/no-follow/link/fsync/dup/flock primitives before output creation.",
+    "Retain filesystem-root-to-checkout ancestors and checkout identity, acquire nonblocking checkout flock plus duplicate, then retain marker/project edges.",
+    "Select the fixed source/installed resource plan, retain all eleven files and origin directories with exact mode/link/type/hash/size checks, and build one foundation context from those same bytes.",
+    "Retain and classify initial output state only after the lock and resources are valid; perform all public semantic preflight before first install.",
+    "Run final verification over checkout, ancestors, resources, inputs, bundles, output layout/files, and installation phase; resource or ancestor lineage failure overrides prior error; close the duplicated lock last."
+  ],
+  "platform_observation": {
+    "current_runtime": "Darwin CPython 3.13.13",
+    "observed_read_only_probe": "O_NOFOLLOW, O_DIRECTORY, O_CLOEXEC, required dir_fd/follow-symlink capability sets, fcntl.flock/LOCK_NB, checkout directory fsync, and a nonblocking checkout flock were available in the current runtime.",
+    "linux_status": "Not executed in this advisory; Linux must receive the same explicit capability and filesystem-behavior acceptance on the locked CI runtimes.",
+    "evidence_limit": "The probe is capability preparation only and is not implementation, product acceptance, or cross-platform test evidence."
+  },
+  "limitations": [
+    "This is an architecture advisory for freeze preparation only; it does not authorize Builder dispatch or implementation.",
+    "The exact resource mode mask and directory policy remain freeze items because the reviewed contracts delegate them to a read-only policy without closing one table.",
+    "No source/test/Git/model/provider/network/UI changes or product test execution were performed."
+  ]
+}

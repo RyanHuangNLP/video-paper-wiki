@@ -1,0 +1,327 @@
+{
+  "schema": "video-paper-wiki.discovery-w3-design-gap-review.v1",
+  "review": "discovery-expansion-after-w1-r1",
+  "reviewed_on": "2026-09-09",
+  "reviewer": {
+    "agent": "cursor-lanes34-controller",
+    "role": "controller/read-only-design-review"
+  },
+  "verdict": "DESIGN_GAP_IDENTIFIED",
+  "scope": "Read-only recommendation for the next bounded paper-discovery package. No product implementation, Git mutation, live connector call, credential access, or fixture promotion was performed.",
+  "inputs": {
+    "docs/ai/contracts/research-wiki-w1-preview-v1.md": {
+      "sha256": "1ac864cc19e8080cba19d98b2157fd8d8ea59f277f361df4851dcfca05c864d3"
+    },
+    "docs/ai/video-generation-research-wiki-v1-plan-r2.md": {
+      "sha256": "a63f1840e86be25872f6a99b6cea853fe22a209de3782723b5bcc17a2caadf5c"
+    },
+    "docs/ai/video-generation-research-wiki-v1-prd-r3.3.md": {
+      "sha256": "8f70a7e845e0cb3cd61b6d2ddbe12b36816c934ba3e4ea4eb370c05a62c3d8ff"
+    },
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/terminal-2-source-preflight-r1.json": {
+      "sha256": "71a4789ae8071140fab1baa1076ac2d2f4775022eba4cdab26ab8cda0a9b82b0"
+    }
+  },
+  "w1_boundary": {
+    "finding": "W1 connector-request.v1 and connector-observation.v1 cannot be reused unchanged for general discovery.",
+    "reasons": [
+      "W1 request fixes adapter=arxiv-abs-normalized-v1, one official arxiv.org/abs page, one paper identity and the page-rendering parser profile.",
+      "W1 observation payload is a normalized arXiv abstract page with named sections and version markers; OpenAlex list/search/citation responses have different result, cursor and relation semantics.",
+      "W1 budgets and arXiv three-second request policy are not a general provider contract.",
+      "W1 transport fields describe one page observation and do not model provider query cost, cursor continuation, indexed-reference completeness or provider authentication mode."
+    ],
+    "reuse": [
+      "Reuse the W1 JCS/envelope discipline, exact reference hashes, bounded JSON parsing, no-symlink staging helpers and five-directory session root.",
+      "Reference W1 metadata and preview artifacts by typed exact refs; do not add discovery fields to any W1 closed schema.",
+      "Use paper request/preview/decide for a discovered candidate only after candidate identity has been resolved; discovery does not mint a preview or decision implicitly."
+    ],
+    "new_contracts_required": [
+      "discovery-common.v1.schema.json",
+      "discovery-request.v1.schema.json",
+      "discovery-observation.v1.schema.json",
+      "research-config.v1.schema.json",
+      "research-session.v1.schema.json",
+      "research-round-event.v1.schema.json",
+      "paper-candidate.v1.schema.json",
+      "paper-rank.v1.schema.json",
+      "research-stop-decision.v1.schema.json",
+      "candidate-decision.v1.schema.json"
+    ]
+  },
+  "openalex_read_only_capability_observation": {
+    "observation_status": "official-documentation-only",
+    "held_out_real_connector_payload_copied_to_fixtures": false,
+    "anonymous_basic_queries_documented": true,
+    "api_key_required_for_this_package": false,
+    "api_key_policy": "If a platform connector requires a key, it must remain platform-managed and outside request/observation bytes; the local Python package never reads, stores or emits credentials.",
+    "documented_limits": {
+      "per_page_max": 100,
+      "or_values_per_filter_max": 100,
+      "basic_paging_result_limit": 10000,
+      "cursor_paging": true,
+      "url_length_for_large_boolean_search": "about 4094 bytes",
+      "429_causes": [
+        "daily budget exceeded",
+        "more than 100 requests per second"
+      ]
+    },
+    "documented_work_operations": [
+      "search and filtered /works lists",
+      "incoming citations through filter=cites:<work-id>",
+      "outgoing references through a work's referenced_works list",
+      "related_works on a work record",
+      "cursor continuation through response meta.next_cursor"
+    ],
+    "integrity_limits_to_record": [
+      "OpenAlex states that reference matching can omit works absent from OpenAlex or references whose metadata match fails; a discovery observation is indexed-source evidence, never proof of a complete PDF bibliography.",
+      "OpenAlex relevance_score and citation counts are provider signals; preserve them as source-local fields and never add them directly to scores from another ranker.",
+      "Actual platform Web connector access, exposed headers, rate-limit headers, cursor stability and anonymous API reachability remain unverified until a separately held-out live observation is recorded."
+    ],
+    "official_sources": [
+      "https://help.openalex.org/api/authentication/",
+      "https://help.openalex.org/how-to/api-recipes/",
+      "https://help.openalex.org/api/searching/",
+      "https://help.openalex.org/api/paging/",
+      "https://help.openalex.org/data/works/citations/",
+      "https://help.openalex.org/api/endpoints/"
+    ]
+  },
+  "namespace_and_storage": {
+    "id_prefix": "rw3",
+    "content_hash": "SHA256(JCS({schema_version,kind,data}))",
+    "file_hash_reference": "SHA256(complete UTF-8 JSON document plus exactly one LF)",
+    "object_filename": "<file_sha256>.json",
+    "session_root": ".work/research/<session-id>/",
+    "directory_map": {
+      "requests": ["discovery-request.v1"],
+      "observations": ["discovery-observation.v1"],
+      "metadata": ["research-config.v1", "research-session.v1", "research-round-event.v1"],
+      "proposals": ["paper-candidate.v1", "paper-rank.v1", "research-stop-decision.v1"],
+      "decisions": ["candidate-decision.v1", "preview-decision.v1"]
+    },
+    "invariants": [
+      "No mutable head file, database, parallel research root or engine catalog write.",
+      "Every cross-object reference carries the typed rw3 ID and exact file SHA-256; the validator reads only the expected session directory and rechecks the complete graph on success and failure paths.",
+      "A same-content object is idempotently reused; a same ID with different bytes is a staged conflict and exits 75.",
+      "Unexpected files, symlinks, special files, traversal, duplicate JSON keys, non-finite numbers, over-depth JSON and over-limit strings are refusals.",
+      "Candidate and rank artifacts are disposable proposals; only explicit candidate-decision and later W2 handoff can advance a user-selected paper."
+    ]
+  },
+  "discovery_request_profile": {
+    "schema": "discovery-request.v1",
+    "exact_data_fields": [
+      "session_id",
+      "connector",
+      "operation",
+      "seed_entities",
+      "query",
+      "page",
+      "cursor",
+      "select_fields",
+      "budget_profile"
+    ],
+    "connector_enum": ["openalex"],
+    "operation_enum": ["works_search", "references", "citations", "related_works"],
+    "query_rules": [
+      "Only canonical OpenAlex IDs, canonical arXiv IDs, bounded normalized search text or typed seed refs are accepted; title-only guessing is refused.",
+      "The generated host is api.openalex.org and the generated path/query is canonicalized from structured fields; caller-supplied arbitrary URLs are refused.",
+      "At most one search mode is present per request; search text is capped so the generated URL stays below the documented approximately 4094-byte limit.",
+      "per_page is 1..100; cursor is an opaque bounded continuation value and is carried forward only from a validated observation.",
+      "API keys, Authorization headers and platform account identifiers never occur in the request document."
+    ],
+    "request_semantics": "One bounded provider operation. No automatic retry, no direct Python socket/network, no PDF/fulltext/weight/data download, and no implicit cursor walk. A later request-next explicitly names the prior cursor and receives a new immutable request."
+  },
+  "discovery_observation_profile": {
+    "schema": "discovery-observation.v1",
+    "exact_data_fields": [
+      "request",
+      "observed_at",
+      "executor",
+      "connector_profile",
+      "source_url",
+      "transport",
+      "outcome",
+      "payload"
+    ],
+    "connector_profiles": ["openalex-rest-normalized-v1"],
+    "payload_shape": {
+      "format": "openalex-discovery-normalized-v1",
+      "query_echo": "canonical request query",
+      "results": "0..256 bounded result records",
+      "next_cursor": "null or bounded opaque cursor",
+      "provider_total": "nonnegative integer or unknown",
+      "source_completeness": "indexed_openalex_neighborhood|unknown"
+    },
+    "result_required_fields": [
+      "external_ids",
+      "title_or_unknown",
+      "publication_date_or_unknown",
+      "relation",
+      "source_locator",
+      "identity_resolution"
+    ],
+    "relation_enum": ["cites", "cited_by", "related"],
+    "identity_rules": [
+      "Each result requires at least one stable external ID: OpenAlex work ID, canonical arXiv ID or normalized DOI.",
+      "Resolution precedence is exact arXiv/DOI/OpenAlex identity, then explicit crosswalk evidence; title similarity alone never merges entities.",
+      "Conflicting stable IDs remain separate with identity_resolution=conflict and cannot silently collapse into one candidate.",
+      "OpenAlex citation/reference signals are source evidence with indexed-source completeness; they do not become W1 metadata or full-text proof."
+    ],
+    "transport_rules": "Transport fields remain null plus unavailable_reason unless the platform connector actually exposes them. A normalized observation never claims raw response bytes, headers, API-key use, complete citation coverage or server-side rate-limit enforcement."
+  },
+  "research_semantics": {
+    "config_schema": "research-config.v1",
+    "default_budget": {
+      "max_seeds": 3,
+      "max_rounds": 8,
+      "max_requests": 32,
+      "max_observations": 32,
+      "max_results_per_observation": 256,
+      "max_candidates": 256,
+      "max_single_normalized_bytes": 1048576,
+      "max_total_normalized_bytes": 16777216,
+      "max_json_depth": 32,
+      "max_files_per_kind_directory": 256
+    },
+    "required_lenses": ["method", "benchmark", "implementation", "counterevidence", "reproduction"],
+    "research_session_fields": [
+      "session_id",
+      "seed_refs",
+      "topic_or_unknown",
+      "config_ref",
+      "first_round_ref",
+      "status_projection_version"
+    ],
+    "round_event_fields": [
+      "session_id",
+      "sequence",
+      "previous_round_ref",
+      "request_refs",
+      "observation_refs",
+      "candidate_snapshot_ref",
+      "lens_results",
+      "new_relevant_yield",
+      "duplicate_ratio",
+      "coverage_gaps",
+      "budget_used",
+      "next_action"
+    ],
+    "round_rules": [
+      "Round request and observation refs are sorted by exact ref bytes before semantic hashing.",
+      "A failed provider observation is retained as evidence and cannot produce a successful candidate result; resume starts from the last complete immutable round.",
+      "Runtime duration, worker count and arrival order are scheduling evidence only and are excluded from normalized candidate/rank/stop semantics.",
+      "Parallelism 1 and N over the same frozen observation set and config must produce byte-identical normalized candidates, ranks and stop decision."
+    ]
+  },
+  "candidate_and_rank_invariants": {
+    "candidate_fields": [
+      "session_id",
+      "entity_id",
+      "source_versions",
+      "discovery_evidence_refs",
+      "relations",
+      "identity_resolution",
+      "freshness",
+      "why_found",
+      "preview_ref_or_null",
+      "dedupe_group"
+    ],
+    "candidate_rules": [
+      "Candidate has no action or user decision field.",
+      "Version merge is separate from entity deduplication; resolved entity IDs are stable and source version labels remain visible.",
+      "Every why_found item names a seed, relation, observation ref and structured reason terms; free-form LLM explanation cannot replace evidence.",
+      "Multiple URLs from one original source or mirror group do not count as independent evidence; unknown independence remains visible.",
+      "A candidate can be previewed through W1 only after paper request validates its exact canonical identity."
+    ],
+    "rank_fields": [
+      "session_id",
+      "round_ref",
+      "rank_config_ref",
+      "source_rank_lists",
+      "rrf_k",
+      "ordered_candidate_refs",
+      "explanations",
+      "tie_break_rule"
+    ],
+    "rank_rules": [
+      "Source lists are ranked independently; provider relevance/citation values are never numerically added to another ranker's raw score.",
+      "Initial decomposition is seed distance, relation type, publication-year signal, provider citation signal, topic overlap and source diversity; each term is retained separately.",
+      "Deterministic RRF uses a frozen integer k and canonical entity ID lexical tie-break.",
+      "Identity-conflict candidates are not merged and are marked in the rank output."
+    ]
+  },
+  "stop_and_resume": {
+    "stop_schema": "research-stop-decision.v1",
+    "reason_enum": ["yield_below_threshold", "paths_covered", "duplicate_ratio", "budget_exhausted", "user_stop"],
+    "default_precedence": ["user_stop", "budget_exhausted", "paths_covered", "duplicate_ratio", "yield_below_threshold"],
+    "default_thresholds": {
+      "yield_below_threshold": "new_relevant_yield < 1 for 2 consecutive completed rounds",
+      "duplicate_ratio": "duplicate_ratio >= 0.80 for 2 consecutive completed rounds",
+      "paths_covered": "each required lens has a completed observation or explicit not_applicable reason and no required lens remains pending",
+      "budget_exhausted": "any frozen count or byte cap is reached",
+      "user_stop": "explicit append-only user event"
+    },
+    "decision_fields": ["session_id", "evaluated_round_ref", "matched_reasons", "primary_reason", "metrics", "config_ref", "next_action"],
+    "rules": [
+      "All matched reasons are recorded; primary_reason is selected only by the frozen precedence list.",
+      "No wall-clock timeout can be the semantic stop reason; per-request deadlines remain connector outcome fields.",
+      "Resume validates the complete session, round, observation, candidate and rank graph before issuing the next request.",
+      "A user stop does not delete pending candidates or rewrite prior events."
+    ]
+  },
+  "proposed_cli": [
+    "vpwiki-research research start --session SESSION --seed REF [--seed REF ...] --config CONFIG.json",
+    "vpwiki-research research request-next --session SESSION",
+    "vpwiki-research research observe --session SESSION --request REQUEST.json --observation OBSERVATION.json",
+    "vpwiki-research research rank --session SESSION --round ROUND.json",
+    "vpwiki-research research status --session SESSION",
+    "vpwiki-research research resume --session SESSION",
+    "vpwiki-research research stop --session SESSION --event-id ID --user-text TEXT",
+    "vpwiki-research paper request/preview/decide for each selected candidate"
+  ],
+  "proposed_allowlist": [
+    ".agents/skills/video-paper-expand/SKILL.md",
+    ".agents/skills/video-paper-expand/skill-contract.v1.json",
+    "src/video_paper_wiki_research/observations/openalex.py",
+    "src/video_paper_wiki_research/discovery/dedupe.py",
+    "src/video_paper_wiki_research/discovery/rank.py",
+    "src/video_paper_wiki_research/research_session.py",
+    "src/video_paper_wiki_research/research_stop.py",
+    "src/video_paper_wiki_research/schemas/discovery-common.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/discovery-request.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/discovery-observation.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/research-config.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/research-session.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/research-round-event.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/paper-candidate.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/paper-rank.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/research-stop-decision.v1.schema.json",
+    "src/video_paper_wiki_research/schemas/candidate-decision.v1.schema.json",
+    "tests/research/test_discovery_request.py",
+    "tests/research/test_discovery_observation.py",
+    "tests/research/test_discovery_dedupe_rank.py",
+    "tests/research/test_research_session_resume.py",
+    "tests/research/test_research_stop_determinism.py",
+    "tests/security/test_discovery_boundary.py",
+    "tests/fixtures/research-discovery/"
+  ],
+  "prohibited_paths_and_behaviors": [
+    "No edits to W1 schema bytes, engine source, catalog/overlay seed count, vendor sources or real Vault.",
+    "No direct Python HTTP/socket client, API-key read, subprocess connector, PDF/fulltext/weight/data download or automatic ingest.",
+    "No title-only identity merge, raw-score fusion, hidden retry, implicit cursor walk, mutable failed terminal or user-decision synthesis.",
+    "No live OpenAlex response copied into checked-in fixtures; live capability evidence remains a separate held-out record."
+  ],
+  "acceptance_vectors": [
+    "Frozen normalized OpenAlex-like observations with references, citations and related works produce exact candidate/rank/stop bytes under scheduler parallelism 1 and N.",
+    "Duplicate IDs across sources merge only with explicit stable identity evidence; conflicting DOI/arXiv/OpenAlex IDs remain visible and separate.",
+    "OpenAlex indexed-reference incompleteness is rendered as a limitation, never as complete bibliography coverage.",
+    "Cursor continuation, per_page=100 boundary, approximately 4094-byte query boundary, 429 observation and missing credential capability all fail or resume with stable closed errors.",
+    "A candidate preview and append-only decision create exact W1 references and no Vault/catalog/index changes.",
+    "Malformed, oversized, symlinked, stale, reordered, duplicated or cross-session artifacts refuse without overwriting prior bytes."
+  ],
+  "builder_status": "not_dispatchable_until_architect_freezes_this_successor_contract_and_host-runtime_approval_is_resolved",
+  "blockers": [
+    "This design is not an implementation authorization or a replacement for an exact W3 packet/freeze.",
+    "A separate held-out platform connector observation is required before claiming OpenAlex access, transport fields, authentication mode or response shape."
+  ]
+}

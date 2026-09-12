@@ -1,0 +1,93 @@
+{
+  "$schema": "full-todo.config-test-correction-review-r4.v1",
+  "schema": "full-todo.config-test-correction-review-r4.v1",
+  "reviewed_at_utc": "2026-09-10T05:12:00.253823Z",
+  "scope": "Independent bounded read-only review of the R4 CONFIG parser test correction against the stopped original test snapshot and the R3 clarification. This successor preserves the earlier misplaced review artifact, corrects only its canonical path, observed timestamp and review wording, and does not run the candidate suite or accept production code, fixtures, CI, delivery, or human gates.",
+  "decision": "GO_FOR_R4_TEST_CORRECTION",
+  "status": "PASS_FOCUSED_TEST_CORRECTION_REVIEW",
+  "reviewed_inputs": {
+    "clarification": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-CLARIFICATIONS-R3.md",
+      "sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e",
+      "size_bytes": 5526
+    },
+    "original_stopped_test": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/candidate-original-r1/tests/unit/test_code_config_parser.py",
+      "sha256": "0c58af204300850125f1a52e40461019ca0488334e7ce5e95926a2e86f9a5491",
+      "size_bytes": 32993
+    },
+    "r4_patch": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r4.patch",
+      "sha256": "9ace08cf209cf2508d7cd457d915963d24cfe95424e2d2bda1a3adfa7e293c49",
+      "size_bytes": 8157
+    },
+    "r4_proposed_test": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r4.proposed.py",
+      "sha256": "89287d24f9698540098cc0d042b8e517091a37b06a4ac4e7a788be1206553cdd",
+      "size_bytes": 36695
+    },
+    "r4_static_vectors": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r4.json",
+      "sha256": "512384681dac91c737106d6cb84949aa446a9de9c015694582703be71485dfff",
+      "size_bytes": 133118
+    },
+    "r4_correction_report": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-correction-r4.json",
+      "sha256": "a30dd728e7be61b4d963af5436e783ded7c7d16efaffc8794645a0d705f9168d",
+      "size_bytes": 3502
+    }
+  },
+  "checks": [
+    {
+      "id": "R4-PATCH-APPLY",
+      "status": "PASS",
+      "evidence": "git apply --check and git apply succeeded against a temporary copy of the stopped original test path; the resulting file is byte-identical to architect-test-correction-r4.proposed.py. Neither source snapshot was modified."
+    },
+    {
+      "id": "R4-REFUSAL-CONTEXT",
+      "status": "PASS",
+      "evidence": "The proposed test enforces exact closed fields by error code, bounded nonempty reason text, instance pointer, limit name/value/observed context, scanner byte/codepoint integer bounds and UTF-8 geometry, CRLF boundary safety, and exact vector-declared error_details without requiring an uncontracted reason vocabulary."
+    },
+    {
+      "id": "R4-BYTE-INVALID",
+      "status": "PASS",
+      "evidence": "BOM and bare-CR vectors use direct payload-slice SHA and byte/codepoint geometry; they do not call the legacy text/snippet helper on invalid bytes."
+    },
+    {
+      "id": "R4-SOURCE-ANCHORS",
+      "status": "PASS",
+      "evidence": "The non-BYTES portions of this patch preserve and check raw/snippet parity for source_anchor_span annotations; coordinate checks for all fixture annotations are performed by the root fixture acceptance and are not claimed as separately enumerated by this patch review."
+    },
+    {
+      "id": "R4-KEY-ORDER",
+      "status": "PASS",
+      "evidence": "The key-order regression compares only canonical semantic fields, then separately checks exact key/value spans, line/column coordinates, raw hashes and snippet parity for both source orders."
+    }
+  ],
+  "findings": [],
+  "scope_exclusions": [
+    "The separate stdlib-key subtype and error-content regressions are outside this proposed file's R4 scope and remain pending their own review.",
+    "No full candidate test run, production import, wheel check, Git mutation, network action, CI observation, or human acceptance was performed or claimed."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixtures": false,
+    "catalog": false,
+    "vault": false,
+    "git": false,
+    "network": false,
+    "review_artifact_only": true
+  },
+  "remaining_gates": [
+    "The prior misplaced report remains immutable; consumers should use this canonical successor for the corrected timestamp and wording.",
+    "A separately authorized integration step may consume the reviewed test correction.",
+    "Production implementation correctness, full dual-Python suites, exact candidate, CI, delivery and human gates remain open."
+  ],
+  "prior_report": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/steward-test-correction-review-r4.json",
+    "sha256": "ec93c3bb551aefbc8eb72d2825d710c4e491e844a0e354ce519ba93f2b993480",
+    "immutable": true,
+    "timestamp_note": "The prior artifact recorded reviewed_at_utc=2026-09-10T00:00:00Z; that value was not an observed invocation time and is not used as evidence in this successor."
+  }
+}

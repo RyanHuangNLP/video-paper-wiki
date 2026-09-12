@@ -1,0 +1,15 @@
+{
+  "decision": "SUCCESSOR_ORACLE_CORRECTION_PENDING_INDEPENDENT_REVIEW",
+  "reason": "R1 serialized the source metadata fields in legacy helper order, while the frozen parser contract places normalized_sha256 before newline_style. Its JSON serialization assertion would reject contract-correct source key order. R2 changes only expected source construction order; all authored values, nodes, spans, budgets and 64 cases remain identical. R1 and its prior preparation/review stay immutable.",
+  "prior": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r1.py",
+    "sha256": "d8df120b43c05d6e406ff7c4eae19e1fa3652a1718bd676658b2c63ff8a23673"
+  },
+  "successor": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r2.py",
+    "sha256": "7ea8b0294ed0efb51853bbba6eed0e3b1ab1e0fab0d92a5a9849e83a3ac9a008"
+  },
+  "diff": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-oracle-order-correction-r2.diff",
+  "candidate_parser_imported": false,
+  "source_modified": false
+}

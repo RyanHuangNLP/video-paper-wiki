@@ -1,0 +1,117 @@
+{
+  "schema": "full-todo.foundation-wheel-environment-review.v1",
+  "recorded_at_utc": "2026-09-11T02:29:00Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_WHEEL_ENVIRONMENT_BINDING_R1",
+  "scope": "Bounded read-only review of the R2 build wrapper, R1 probe wrapper and their completed evidence. No wrapper, product, test, harness, Git, model, UI or network action was executed or modified during this review.",
+  "reviewed_artifacts": [
+    {
+      "label": "build_base",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/build_foundation_wheel_r1.py",
+      "size_bytes": 16081,
+      "sha256": "33c4071074b38f383915e9b62a42b562472b1d88bf47081d8bbeaf2756ce4a11"
+    },
+    {
+      "label": "probe_base",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/foundation_wheel_probe_r1.py",
+      "size_bytes": 27116,
+      "sha256": "efbd369ba7e421b0dfebcdf5669ff6157eeda17555e6b3a0edc301d850d3d378"
+    },
+    {
+      "label": "build_wrapper",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/run_wheel_build_r2.py",
+      "size_bytes": 872,
+      "sha256": "3c002fdebad0ab5204b66326d1f9723bbd7b9a4ae27e6e2b0c7c676f7f08dbe9"
+    },
+    {
+      "label": "probe_wrapper",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/run_wheel_probe_r1.py",
+      "size_bytes": 930,
+      "sha256": "8e686da5582509896083f1d41e6014eaaf3ae9462e8e7dd4714d18f74676fb72"
+    },
+    {
+      "label": "candidate",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/candidate-r1.json",
+      "size_bytes": 3674,
+      "sha256": "4610d3a31e1cff777037893b051df4b3e973a1c3af3e7fe58cb80eb8c43d0e53"
+    },
+    {
+      "label": "build_result",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/wheel-build-r2/foundation-wheel-build-r2.json",
+      "size_bytes": 2270,
+      "sha256": "0497f0858a16e91f6eeb5393ebbed03eeb0a6649a8b9daf3b7832c7612e35946"
+    },
+    {
+      "label": "probe_result",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/foundation-wheel-probe-r1.json",
+      "size_bytes": 30512,
+      "sha256": "f04d61c80158614562790f81c4065739cc9c9ab653e32f999da68a439b4ba0a2"
+    }
+  ],
+  "wrapper_review": {
+    "build": {
+      "status": "PASS",
+      "checks": [
+        "The wrapper pins the unchanged build module by SHA-256 before import.",
+        "It requires the preserved prior R1 result to have exit_code 2 and no wheel, then creates a separate wheel-build-r2 evidence directory.",
+        "It changes only the imported module's ARTIFACT_ROOT and RESULT_PATH; candidate, freeze, source-root, baseline, uv and locked Python pins remain those of the base module.",
+        "The invoked main therefore reuses the exact candidate/manifest guards and unchanged offline build path while writing fresh logs/result evidence exclusively under wheel-build-r2."
+      ]
+    },
+    "probe": {
+      "status": "PASS",
+      "checks": [
+        "The wrapper pins the unchanged probe module by SHA-256 before import.",
+        "It loads only the successful R2 build record, requires exit_code 0 and the exact recorded wheel SHA-256, then changes only BUILD_RESULT_PATH and argv.",
+        "The base probe retains its candidate/freeze/source-copy guards, wheel RECORD/path/resource checks, offline installs and isolated -I -B child probes for both interpreters.",
+        "The recorded --wheel path exactly matches the R2 build record; the probe output uses the original F evidence namespace and preserves exclusive-write behavior."
+      ]
+    }
+  },
+  "binding_checks": {
+    "candidate_snapshot_sha256": "e30287f6b5de415f15c7f3b4426521ffec44a3f20ca263557c8766e45849bdf2",
+    "freeze_sha256": "69e7073ea4f9ce69fb9f2dac890b253a69344a41c53aa35da6de5915c9fab8cc",
+    "baseline_head": "1e3f2a4c27ff83e4ead657c1e609ac9130a5b419",
+    "baseline_tree": "7bd89542a20dcd2fff2c254f20e1620305c7662d",
+    "build_manifest_guard_before": "3d23a2ecb9564e5aae288804844b91ff6052ddba28ce77f1846c31d7f9c16ce2",
+    "build_manifest_guard_after": "3d23a2ecb9564e5aae288804844b91ff6052ddba28ce77f1846c31d7f9c16ce2",
+    "probe_manifest_guard_before": "3d23a2ecb9564e5aae288804844b91ff6052ddba28ce77f1846c31d7f9c16ce2",
+    "probe_manifest_guard_after": "3d23a2ecb9564e5aae288804844b91ff6052ddba28ce77f1846c31d7f9c16ce2",
+    "wheel": {
+      "path": "/private/tmp/code-proof-foundation-build-kfbzq455/wheel-output/video_paper_wiki-0.1.0-py3-none-any.whl",
+      "size_bytes": 797972,
+      "sha256": "51ed433d7cccbe9c4d93c103c9d3b7cfa1bbc37f8af1440f017f98c617b62629",
+      "build_exit_code": 0,
+      "probe_record_matches_build": true
+    },
+    "source_copy": {
+      "path": "/private/tmp/code-proof-foundation-build-kfbzq455/source-copy",
+      "files_checked": 1378,
+      "meaning": "1376 frozen baseline regular files plus the two candidate product paths"
+    }
+  },
+  "probe_results": {
+    "all_passed": true,
+    "wheel_record_files_checked": 291,
+    "schema_files_checked_each": 81,
+    "resource_comparisons_each": 11,
+    "fixture_cases_each": 264,
+    "invalid_limit_boundaries_each": 104,
+    "lowered_limits_each": true,
+    "zero_io_guard_each": true,
+    "py312": {
+      "python": "3.12.14",
+      "install_exit_code": 0,
+      "probe_exit_code": 0,
+      "module_origin_under_install_target": true
+    },
+    "py313": {
+      "python": "3.13.13",
+      "install_exit_code": 0,
+      "probe_exit_code": 0,
+      "module_origin_under_install_target": true
+    }
+  },
+  "remaining_findings": [],
+  "boundary": "The wrappers and completed evidence are correctly bound to the exact R6 candidate, frozen baseline, successful R2 wheel and both isolated installed probes. This review does not accept the candidate, authorize product merge, or replace root-owned full-suite and CI gates."
+}

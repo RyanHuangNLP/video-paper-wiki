@@ -1,0 +1,1850 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json",
+  "title": "video-paper-wiki-research.discovery-common.v1",
+  "$defs": {
+    "sha": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180,
+      "pattern": "^rw3:[a-z-]+:[0-9a-f]{64}$"
+    },
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/id"
+        },
+        "sha256": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        }
+      }
+    },
+    "refs": {
+      "type": "array",
+      "items": {
+        "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+      },
+      "minItems": 0,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "slug": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+    },
+    "time": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 20,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "date": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 10,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "url": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4094,
+      "pattern": "^[hH][tT][tT][pP][sS]://"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384
+    },
+    "namespace": {
+      "enum": [
+        "doi",
+        "arxiv",
+        "openalex"
+      ]
+    },
+    "unversioned": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "value"
+      ],
+      "properties": {
+        "namespace": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/namespace"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "value",
+        "version"
+      ],
+      "properties": {
+        "namespace": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/namespace"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9999
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "ids": {
+      "type": "array",
+      "items": {
+        "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+      },
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "unversioned_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/unversioned"
+      },
+      "minItems": 1,
+      "maxItems": 256,
+      "uniqueItems": true
+    },
+    "lens": {
+      "enum": [
+        "method",
+        "benchmark",
+        "implementation",
+        "counterevidence",
+        "reproduction"
+      ]
+    },
+    "operation": {
+      "enum": [
+        "lookup",
+        "references",
+        "citations",
+        "related",
+        "topic",
+        "project"
+      ]
+    },
+    "provider": {
+      "enum": [
+        "openalex-rest-normalized-v1",
+        "platform-web-search-normalized-v1"
+      ]
+    },
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2048
+      },
+      "minItems": 1,
+      "maxItems": 32,
+      "uniqueItems": true
+    },
+    "identity": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "identity_source",
+            "reason"
+          ],
+          "properties": {
+            "value": {
+              "const": "unknown"
+            },
+            "identity_source": {
+              "const": "unknown"
+            },
+            "reason": {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "identity_source",
+            "reason"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "identity_source": {
+              "enum": [
+                "platform_reported",
+                "self_reported"
+              ]
+            },
+            "reason": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "executor": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool_name",
+            "identity_source",
+            "capability_profile",
+            "locator",
+            "reason"
+          ],
+          "properties": {
+            "tool_name": {
+              "const": "unknown"
+            },
+            "identity_source": {
+              "const": "unknown"
+            },
+            "capability_profile": {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/provider"
+            },
+            "locator": {
+              "anyOf": [
+                {
+                  "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/url"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool_name",
+            "identity_source",
+            "capability_profile",
+            "locator",
+            "reason"
+          ],
+          "properties": {
+            "tool_name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "identity_source": {
+              "enum": [
+                "platform_reported",
+                "self_reported"
+              ]
+            },
+            "capability_profile": {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/provider"
+            },
+            "locator": {
+              "anyOf": [
+                {
+                  "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/url"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "reason": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "mirror": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "group",
+            "provenance",
+            "reason"
+          ],
+          "properties": {
+            "group": {
+              "const": null
+            },
+            "provenance": {
+              "const": "unknown"
+            },
+            "reason": {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "group",
+            "provenance",
+            "reason"
+          ],
+          "properties": {
+            "group": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "provenance": {
+              "enum": [
+                "provider_reported",
+                "host_observed"
+              ]
+            },
+            "reason": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "user_record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "text",
+        "source",
+        "recorded_at"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/slug"
+        },
+        "text": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+        },
+        "source": {
+          "enum": [
+            "user_message",
+            "fixture"
+          ]
+        },
+        "recorded_at": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/time"
+        }
+      }
+    },
+    "seed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "ids",
+        "title",
+        "author_terms",
+        "project_terms"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/slug"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+          },
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "author_terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "minItems": 0,
+          "maxItems": 8,
+          "uniqueItems": true
+        },
+        "project_terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "minItems": 0,
+          "maxItems": 8,
+          "uniqueItems": true
+        }
+      }
+    },
+    "lens_config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lens",
+        "terms",
+        "scope"
+      ],
+      "properties": {
+        "lens": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens"
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observations",
+        "payload_bytes",
+        "per_page",
+        "per_round_requests",
+        "requests",
+        "results_per_observation",
+        "rounds",
+        "total_payload_bytes",
+        "total_results",
+        "unique_candidates"
+      ],
+      "properties": {
+        "observations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "payload_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "per_round_requests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "requests": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "results_per_observation": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "rounds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "total_payload_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16777216
+        },
+        "total_results": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "unique_candidates": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "question",
+        "seeds",
+        "query_terms",
+        "lenses",
+        "limits",
+        "ranking",
+        "stopping"
+      ],
+      "properties": {
+        "question": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "seeds": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/seed"
+          },
+          "minItems": 1,
+          "maxItems": 3
+        },
+        "query_terms": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/terms"
+        },
+        "lenses": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens_config"
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "limits": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/limits"
+        },
+        "ranking": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rrf_k",
+            "score_scale"
+          ],
+          "properties": {
+            "rrf_k": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "score_scale": {
+              "const": 1000000
+            }
+          }
+        },
+        "stopping": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "consecutive_rounds",
+            "min_new_relevant",
+            "duplicate_percent"
+          ],
+          "properties": {
+            "consecutive_rounds": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 4
+            },
+            "min_new_relevant": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 16
+            },
+            "duplicate_percent": {
+              "type": "integer",
+              "minimum": 50,
+              "maximum": 100
+            }
+          }
+        }
+      }
+    },
+    "origin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_set",
+        "candidate_key"
+      ],
+      "properties": {
+        "candidate_set": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "candidate_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        }
+      }
+    },
+    "retry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation",
+        "reason"
+      ],
+      "properties": {
+        "observation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "reason": {
+          "enum": [
+            "timeout",
+            "rate_limited",
+            "capability_changed",
+            "transient_failure"
+          ]
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request_key",
+        "provider",
+        "operation",
+        "seed_key",
+        "subject_ids",
+        "subject_origin",
+        "lens",
+        "query",
+        "per_page",
+        "cursor",
+        "continuation",
+        "retry",
+        "neighbor_ids",
+        "depth"
+      ],
+      "properties": {
+        "request_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "provider": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/provider"
+        },
+        "operation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/operation"
+        },
+        "seed_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/slug"
+        },
+        "subject_ids": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ids"
+        },
+        "subject_origin": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/origin"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "lens": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens"
+        },
+        "query": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[!-~]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "continuation": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "retry": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/retry"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "neighbor_ids": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+              },
+              "minItems": 1,
+              "maxItems": 20,
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    },
+    "target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "url"
+          ],
+          "properties": {
+            "kind": {
+              "const": "http_get"
+            },
+            "url": {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/url"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "query",
+            "max_results"
+          ],
+          "properties": {
+            "kind": {
+              "const": "web_search"
+            },
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "max_results": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20
+            }
+          }
+        }
+      ]
+    },
+    "reservation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rounds_planned",
+        "request_slots_reserved",
+        "observation_slots_reserved",
+        "retry_slots"
+      ],
+      "properties": {
+        "rounds_planned": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "request_slots_reserved": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "observation_slots_reserved": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "retry_slots": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32
+        }
+      }
+    },
+    "failure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "message",
+        "retry_after_seconds"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "message": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 86400
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "identity_link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "left",
+        "right",
+        "relation",
+        "locator"
+      ],
+      "properties": {
+        "left": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+        },
+        "right": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+        },
+        "relation": {
+          "enum": [
+            "same_work",
+            "preprint_of",
+            "published_as"
+          ]
+        },
+        "locator": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/url"
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "ids",
+        "identity_links",
+        "title",
+        "summary",
+        "authors",
+        "published_at",
+        "cited_by_count",
+        "provider_score",
+        "locator",
+        "relation",
+        "referenced_ids",
+        "related_ids",
+        "mirror"
+      ],
+      "properties": {
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "ids": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ids"
+        },
+        "identity_links": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identity_link"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "published_at": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cited_by_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provider_score": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "locator": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/url"
+        },
+        "relation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/operation"
+        },
+        "referenced_ids": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+              },
+              "minItems": 0,
+              "maxItems": 256,
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "related_ids": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+              },
+              "minItems": 0,
+              "maxItems": 256,
+              "uniqueItems": true
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mirror": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/mirror"
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "results",
+        "next_cursor",
+        "total_count",
+        "completeness"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/result"
+          },
+          "minItems": 0,
+          "maxItems": 100
+        },
+        "next_cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[!-~]+$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "completeness": {
+          "enum": [
+            "visible_page",
+            "partial_page",
+            "indexed_neighborhood"
+          ]
+        }
+      }
+    },
+    "fact_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation",
+        "ordinal"
+      ],
+      "properties": {
+        "observation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation",
+        "ordinal",
+        "field",
+        "start",
+        "end",
+        "excerpt_sha256"
+      ],
+      "properties": {
+        "observation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "field": {
+          "enum": [
+            "title",
+            "summary"
+          ]
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16383
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "excerpt_sha256": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        }
+      }
+    },
+    "lens_assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lens",
+        "state",
+        "scope",
+        "statement",
+        "evidence",
+        "reason"
+      ],
+      "properties": {
+        "lens": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens"
+        },
+        "state": {
+          "enum": [
+            "covered",
+            "not_applicable",
+            "gap"
+          ]
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "statement": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/citation"
+          },
+          "minItems": 0,
+          "maxItems": 8,
+          "uniqueItems": true
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/text"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "assessment_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lenses",
+        "generator",
+        "recorded_at"
+      ],
+      "properties": {
+        "lenses": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens_assessment"
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "generator": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identity"
+        },
+        "recorded_at": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/time"
+        }
+      }
+    },
+    "why_found": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "observation",
+        "ordinal",
+        "locator",
+        "seed_key",
+        "lens",
+        "relation",
+        "matched_terms",
+        "depth"
+      ],
+      "properties": {
+        "request": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "observation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "locator": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/url"
+        },
+        "seed_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/slug"
+        },
+        "lens": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens"
+        },
+        "relation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/operation"
+        },
+        "matched_terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "minItems": 0,
+          "maxItems": 64,
+          "uniqueItems": true
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        }
+      }
+    },
+    "signals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "min_depth",
+        "max_cited_by_count",
+        "latest_published_at"
+      ],
+      "properties": {
+        "min_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "max_cited_by_count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "latest_published_at": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/date"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_key",
+        "ids",
+        "versions",
+        "title",
+        "conflicts",
+        "why_found",
+        "relevance",
+        "signals"
+      ],
+      "properties": {
+        "candidate_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "ids": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/unversioned_ids"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identifier"
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "conflicts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "ids",
+              "facts"
+            ],
+            "properties": {
+              "namespace": {
+                "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/namespace"
+              },
+              "ids": {
+                "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/unversioned_ids"
+              },
+              "facts": {
+                "type": "array",
+                "items": {
+                  "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/fact_ref"
+                },
+                "minItems": 1,
+                "maxItems": 2048,
+                "uniqueItems": true
+              }
+            }
+          },
+          "minItems": 0,
+          "maxItems": 3
+        },
+        "why_found": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/why_found"
+          },
+          "minItems": 1,
+          "maxItems": 2048,
+          "uniqueItems": true
+        },
+        "relevance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "relevant",
+            "matched_terms",
+            "assessment"
+          ],
+          "properties": {
+            "relevant": {
+              "type": "boolean"
+            },
+            "matched_terms": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048
+              },
+              "minItems": 0,
+              "maxItems": 256,
+              "uniqueItems": true
+            },
+            "assessment": {
+              "const": "provisional_scientific_assessment"
+            }
+          }
+        },
+        "signals": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/signals"
+        }
+      }
+    },
+    "list_key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "seed_key",
+        "lens",
+        "operation"
+      ],
+      "properties": {
+        "provider": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/provider"
+        },
+        "seed_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/slug"
+        },
+        "lens": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens"
+        },
+        "operation": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/operation"
+        }
+      }
+    },
+    "list_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_key",
+        "rank",
+        "matched_terms",
+        "signals",
+        "best_ordinal"
+      ],
+      "properties": {
+        "candidate_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "matched_terms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          },
+          "minItems": 0,
+          "maxItems": 256,
+          "uniqueItems": true
+        },
+        "signals": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/signals"
+        },
+        "best_ordinal": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        }
+      }
+    },
+    "mirror_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class_key",
+        "known",
+        "group_labels",
+        "facts"
+      ],
+      "properties": {
+        "class_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "known": {
+          "type": "boolean"
+        },
+        "group_labels": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "minItems": 0,
+          "maxItems": 2048,
+          "uniqueItems": true
+        },
+        "facts": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/fact_ref"
+          },
+          "minItems": 1,
+          "maxItems": 2048,
+          "uniqueItems": true
+        }
+      }
+    },
+    "term": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "list_key",
+        "rank",
+        "class_key",
+        "fact",
+        "reason"
+      ],
+      "properties": {
+        "list_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/list_key"
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "class_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "fact": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/fact_ref"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "same_list_candidate",
+                "same_mirror_class",
+                "independence_unknown_with_known",
+                "independence_unknown_duplicate"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "fused": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_key",
+        "numerator",
+        "denominator",
+        "score",
+        "classes",
+        "contributions",
+        "suppressed"
+      ],
+      "properties": {
+        "candidate_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "numerator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^[0-9]+$"
+        },
+        "denominator": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048,
+          "pattern": "^[1-9][0-9]*$"
+        },
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/mirror_class"
+          },
+          "minItems": 1,
+          "maxItems": 2048
+        },
+        "contributions": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/term"
+          },
+          "minItems": 1,
+          "maxItems": 2048
+        },
+        "suppressed": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/term"
+          },
+          "minItems": 0,
+          "maxItems": 4096
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rounds_planned",
+        "rounds_completed",
+        "request_slots_reserved",
+        "requests_materialized",
+        "pending_request_files",
+        "observation_slots_reserved",
+        "terminal_observations",
+        "pending_observations",
+        "retry_slots",
+        "result_records",
+        "normalized_payload_bytes",
+        "candidate_slots_reserved",
+        "current_candidate_components"
+      ],
+      "properties": {
+        "rounds_planned": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "rounds_completed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "request_slots_reserved": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "requests_materialized": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "pending_request_files": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "observation_slots_reserved": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "terminal_observations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "pending_observations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "retry_slots": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "result_records": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "normalized_payload_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "candidate_slots_reserved": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "current_candidate_components": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "successful_requests",
+        "partial_requests",
+        "failed_requests",
+        "raw_hits",
+        "total_hits",
+        "new_components",
+        "repeated_hits",
+        "new_relevant",
+        "unresolved_components",
+        "pending_requests",
+        "lens_states",
+        "budget"
+      ],
+      "properties": {
+        "successful_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "partial_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "failed_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
+        "raw_hits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 800
+        },
+        "total_hits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "new_components": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "repeated_hits": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "new_relevant": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "unresolved_components": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "pending_requests": {
+          "const": 0
+        },
+        "lens_states": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "lens",
+              "state"
+            ],
+            "properties": {
+              "lens": {
+                "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens"
+              },
+              "state": {
+                "enum": [
+                  "covered",
+                  "not_applicable",
+                  "gap"
+                ]
+              }
+            }
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "budget": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/budget"
+        }
+      }
+    }
+  }
+}

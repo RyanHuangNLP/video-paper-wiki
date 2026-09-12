@@ -1,0 +1,148 @@
+{
+  "$schema": "full-todo.code-config-steward-generated-json-oracle-review-r1.v1",
+  "schema": "full-todo.code-config-steward-generated-json-oracle-review-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-09T17:53:00Z",
+  "packet": "CODE-CONFIG-KERNEL-R1",
+  "phase": "pre_candidate_oracle_review",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded generated-JSON oracle reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only audit of the Architect-generated JSON case generator and its preparation record against CODE-CONFIG-KERNEL-R1/R2. The absent configuration-parser candidate was not imported or executed. No candidate source, test, fixture, Git, network, connector, Vault, or prior evidence was mutated.",
+  "decision": "GO_GENERATED_JSON_ORACLE_NO_CONCRETE_BLOCKER",
+  "verdict": "The generator is an independent typed-source oracle for its 64 JSON cases. It constructs declarative typed trees before emitting source, records spans from source positions rather than parser output, orders object children by UTF-8 bytes, preserves original key token spans, derives budgets from the generated node model, and delegates source metadata/snippet hashing to the existing pure helper interface. An independent generator-only replay against stdlib json.loads(parse_float=Decimal), independent metadata/snippet formulas, pointer/key ordering, spans, declarations and budgets reproduced 64/64 cases, 824 nodes, 824 value spans and 489 declarations. The preparation record's stated root self-check against stdlib and legacy helpers is consistent with this replay. No self-fulfilling or wrong expectation was found; the generator remains supplementary evidence and does not replace the separately accepted static fixture or parser acceptance suite.",
+  "scope_controls": {
+    "candidate_parser_imported": false,
+    "candidate_parser_executed": false,
+    "generator_module_loaded_only": true,
+    "legacy_helper_direct_import": false,
+    "source_edits": false,
+    "tests_edits": false,
+    "fixture_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "review_artifact_only": true
+  },
+  "reviewed_inputs": {
+    "generator": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r1.py",
+      "size_bytes": 7601,
+      "sha256": "d8df120b43c05d6e406ff7c4eae19e1fa3652a1718bd676658b2c63ff8a23673",
+      "ast_parse": true
+    },
+    "preparation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-preparation-r1.json",
+      "size_bytes": 812,
+      "sha256": "3ea6042fcc354ba37c00b370d8287fcf6868edbf03ac489d95c0a2d58a5000c9",
+      "status": "PASS_ORACLE_PREPARATION_ONLY",
+      "reported_cases": 64,
+      "reported_nodes_verified": 824,
+      "reported_candidate_imported": false,
+      "reported_candidate_executed": false
+    },
+    "config_contract_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "size_bytes": 17799,
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4"
+    },
+    "config_clarifications_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "size_bytes": 4710,
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d"
+    },
+    "legacy_text_helpers": {
+      "path": "src/video_paper_wiki/code_evidence_contracts.py",
+      "size_bytes": 10125,
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "functions": ["code_text_metadata", "code_snippet_sha256"],
+      "preparation_record_reports_parity": true
+    }
+  },
+  "independent_generator_only_replay": {
+    "status": "PASS",
+    "runtime": "Python 3.13.13",
+    "candidate_parser_touched": false,
+    "cases": 64,
+    "nodes": 824,
+    "value_spans": 824,
+    "declarations": 489,
+    "checks": [
+      "stdlib json.loads with parse_float=Decimal full-tree path/kind/value agreement",
+      "strict integer versus Decimal and canonical numeric string agreement",
+      "UTF-8 byte offsets and original codepoint offsets",
+      "CRLF boundary non-splitting and one-based line/column coordinates",
+      "raw span SHA-256 and normalized physical-line snippet SHA-256",
+      "JSON pointer ~0/~1 escaping and UTF-8 key ordering",
+      "children immediate-order agreement for maps and arrays",
+      "json_key declaration token/path attribution and declaration ordering/uniqueness",
+      "node, scalar, depth, declaration, array-item and object-key budget recomputation",
+      "source body size/hash/newline metadata recomputation"
+    ],
+    "result": "64/64 cases passed without importing or executing a configuration parser."
+  },
+  "oracle_alignment": {
+    "status": "PASS",
+    "checks": [
+      {
+        "area": "declarative construction and independence",
+        "result": "PASS",
+        "evidence": "make_case builds typed scalar/array/object trees from a seeded local model, emits JSON source, and derives expected nodes from marks/declarations created during emission; no parser result is fed into expected output."
+      },
+      {
+        "area": "JSON grammar and semantic cross-check",
+        "result": "PASS",
+        "evidence": "Generated inputs use valid JSON dumps for strings/keys, strict JSON numeric spellings, escaped controls, Unicode and CRLF/LF layout. Independent stdlib parsing reproduced every generated tree, key set, array order and typed value."
+      },
+      {
+        "area": "node and key ordering",
+        "result": "PASS",
+        "evidence": "Object children are sorted by decoded-key UTF-8 bytes and arrays by index; declarations attach to member nodes, while root and array elements receive none. The replay reproduced all 824 paths and children lists."
+      },
+      {
+        "area": "source coordinates and spans",
+        "result": "PASS",
+        "evidence": "Source positions count Unicode codepoints before UTF-8 encoding; byte bounds are computed from exact UTF-8 prefixes; generated nodes include original token/delimiter spans and do not split CRLF. Replay checked all 824 value spans and line/snippet boundaries."
+      },
+      {
+        "area": "metadata and snippet parity",
+        "result": "PASS_WITH_PREPARATION_EVIDENCE",
+        "evidence": "The generator receives code_text_metadata and code_snippet_sha256 as explicit helper callables rather than reimplementing their API. The preparation record reports independent legacy-helper parity; this audit reproduced the same documented formulas without importing the dependency-bearing legacy module."
+      },
+      {
+        "area": "budget derivation",
+        "result": "PASS",
+        "evidence": "Expected budgets are computed from the generated marks. An independent recursive traversal reproduced node count, scalar count, maximum depth, maximum array length, maximum object-key count and declaration count for all 64 cases."
+      },
+      {
+        "area": "determinism and no alias",
+        "result": "PASS",
+        "evidence": "Seeded random.Random is local to each case; expected output is JSON-compatible. The future candidate run mutates a returned node child list, reruns the parser and checks expected output/limits, preserving the generator as an external expected source."
+      },
+      {
+        "area": "contract boundary",
+        "result": "PASS",
+        "evidence": "The generated JSON covers valid JSON values and exact source metadata/node shapes without changing R1/R2 API, limits, dynamic rules, TOML rules or accepted static-fixture authority. It is supplementary and does not claim complete acceptance coverage."
+      }
+    ]
+  },
+  "findings": [],
+  "residual_boundaries": [
+    "The generator is JSON-only and does not exercise TOML semantics; the accepted static fixture, R2 TOML matrix and dynamic vectors remain separate authorities.",
+    "The generator's expected spans originate from its own source emitter; the independent stdlib/span replay and recorded legacy-helper parity are required safeguards and passed.",
+    "No parser candidate exists in this review; implementation behavior, cross-check corruption, limits, refusal precedence and runtime purity remain future candidate gates."
+  ],
+  "writes_performed": [
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-generated-json-oracle-review-r1.json"
+  ],
+  "writes_forbidden": [
+    "configuration parser source",
+    "configuration parser tests",
+    "static fixture",
+    "Git state",
+    "network/provider",
+    "Vault/admin state",
+    "candidate execution evidence"
+  ]
+}

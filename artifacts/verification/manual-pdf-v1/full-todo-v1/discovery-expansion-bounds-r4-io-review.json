@@ -1,0 +1,226 @@
+{
+  "$schema": "full-todo.discovery-expansion-bounds-r4-io-review.v1",
+  "schema": "full-todo.discovery-expansion-bounds-r4-io-review.v1",
+  "reviewed_at_utc": "2026-09-09T09:37:51Z",
+  "scope": "Bounded independent read-only review of DISCOVERY-EXPANSION-DESIGN-R2, DISCOVERY-EXPANSION-RECOVERY-R3 and DISCOVERY-EXPANSION-BOUNDS-R4. Checked serialized file/family/global reservation formulas, complete-set and all-exits accounting, semantic observation preflight, default frontier fairness/starvation, and compatibility with the R3 flock/control/init rules. Linux flock behavior remains a future implementation/CI gate. No source, schema, test, Git, connector, Vault or network mutation.",
+  "decision": "CONDITIONAL_GO_WITH_DEFAULT_PREFIX_RULE_AND_IMPLEMENTATION_ACCEPTANCE_OPEN",
+  "status": "READ_ONLY_R4_FREEZE_REVIEW",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "r3_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-expansion-recovery-r3-review.json",
+      "sha256": "34ea7b9fcef2df387db577a899408f4fd7da3600a6cf46b06fbf4aab67ed8c89"
+    },
+    "r2_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-design-r2-io-review.json",
+      "sha256": "76f416b55caefa11799c61053dea5cda4147874c5116898a0fb8912e077eb390"
+    }
+  },
+  "amendment_effect": "R4 is read with R2 and R3 and closes the numeric byte/capacity proposal: exact saved-byte maxima, per-plan family reservations, one pending-plan total reservation, actual non-pending usage U_f/U, count reservations, semantic preflight before observation install, and a bounded round-robin frontier. R3 control/init/graph rules remain in force.",
+  "checks": [
+    {
+      "id": "DISC-R4-SAVED-BYTE-BOUNDS",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R4 lines 7-36 applies limits to complete UTF-8 JCS envelope bytes including exactly one LF and gives explicit maxima for every artifact kind, including 1114112-byte observations, 262144-byte assessments/stops, 2097152-byte candidate sets, 1048576-byte ranks and 65536-byte control/decision files. It separately bounds observation payload JCS bytes at 1048576 and rejects oversized inputs before installation without truncation.",
+      "assessment": "This closes the R3 ambiguity between data/payload bytes and saved artifact bytes. Bootstrap config+session bytes are prospectively checked, and assessment/evidence/text limits are coupled to the exact envelope bound.",
+      "implementation_requirements": [
+        "Use one exact saved_bytes calculation for preflight, install verification, family accounting and total accounting; do not count pretty JSON or filesystem allocation blocks.",
+        "Reject a validly structured but over-bound object before atomic install and preserve the original pending request/assessment state for explicit resubmission.",
+        "Verify that schema/resource names, refs and the final LF are included in each bound and that no unsealed input is silently truncated."
+      ]
+    },
+    {
+      "id": "DISC-R4-PER_PLAN_RESERVATION",
+      "status": "PASS_DESIGN_PENDING_PROOF_TESTS",
+      "evidence": "R4 lines 38-55 defines N=1..8 and reserves before plan install N*65536 requests, N*1114112 observations, 131072 metadata, 3407872 proposals and 262144 decisions. The N=8 sum is 13238272 bytes and a fixed 14680064-byte (14 MiB) total reserve leaves 1441792 bytes slack; config/session are already actual usage and are not reserved again.",
+      "assessment": "The R3 physical-reserve blocker is numerically resolved for one pending plan. The per-kind bounds and total reserve are internally consistent: 8*65536 + 8*1114112 + 131072 + 3407872 + 262144 = 13238272.",
+      "implementation_requirements": [
+        "Prove N=1 and N=8, including exact family and total inequalities, with no integer overflow or unit conversion ambiguity.",
+        "Keep at most one pending plan and reject an out-of-reservation/unknown pending object rather than adopting it.",
+        "Include the existing config/session bytes in U before plan reservation and use bootstrap preflight for the initial pair as specified."
+      ]
+    },
+    {
+      "id": "DISC-R4-FAMILY-GLOBAL-ACCOUNTING",
+      "status": "PASS_DESIGN_PENDING_ALL_EXITS",
+      "evidence": "R4 lines 57-84 defines U_f as actual saved bytes outside the pending plan, U as the total, requires U_f+R_f(N)<=33554432 for each family and U+14680064<=67108864, reserves file counts, tracks actual pending bytes with max(R_f,actual_pending_f), and places every install under retained sets/shared lock. Non-reserved controls/candidate decisions are included in U and cannot consume finalization reserve.",
+      "assessment": "This closes the R3 missing physical-capacity proof, including controls and candidate decisions during a pending plan. Unused reserve is released only after verified event installation; semantic round/request/observation/retry/candidate reservations never refund.",
+      "implementation_requirements": [
+        "Recompute U_f, U, file counts, pending names and retained identities on every install and every normal/exception exit.",
+        "Treat unknown, extra, stale, replacement or out-of-reservation files as integrity/limit failure and preserve WORK_PATH_UNSAFE precedence.",
+        "Use saved artifact bytes, not directory metadata/OS descriptors, exactly as R4 states; test family and global boundary conditions."
+      ]
+    },
+    {
+      "id": "DISC-R4-COUNT-RESERVATIONS",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R4 lines 61-65 reserves N request files, N observation files, two metadata files, three proposal files and one assessment file, while retaining family caps 256 except decisions512 and semantic caps 256 choices, 64 controls and 8 assessments.",
+      "assessment": "R3 decision-family contradiction is resolved and count reservations now correspond to the event-last artifact set. Existing semantic limits remain independent of physical capacity.",
+      "implementation_requirements": [
+        "Count a committed plan reservation even when request files or observations are missing; do not let partial materialization evade request/observation limits.",
+        "Count controls and candidate decisions in U/file counts while a plan is pending and reject the next one if non-reserved physical or semantic capacity is unavailable.",
+        "Reserve one assessment slot per plan and never let an assessment alternative or control consume it."
+      ]
+    },
+    {
+      "id": "DISC-R4-SEMANTIC_OBSERVATION_PREFLIGHT",
+      "status": "PASS_DESIGN_PENDING_ADVERSARIAL_TESTS",
+      "evidence": "R4 lines 92-115 reconstruct the tentative cumulative identity graph from all accepted observations plus the prospective terminal observation before installing it, enforce <=256 components/introduction reservations and candidate/rank byte bounds, repeat the check for each slot, and leave rejected malformed/oversized/identity-cap input pending. Prior accepted projections are rechecked before a new plan.",
+      "assessment": "This closes the R3 risk that a valid stored observation could later make candidate/rank/event finalization impossible. Partial data participates only in bound checking, not in a completed projection or assessment; invalid caller assessments do not erase observations or debit a request.",
+      "implementation_requirements": [
+        "Make the prospective graph exactly the same deterministic graph used by final candidate/rank projection, including conflicts, alias bridges and no-refund introduction counters.",
+        "Reject before atomic observation install when candidate/rank bounds or aggregate payload/result limits would fail; retain the request as pending unless the caller submits a real bounded normalization-failure outcome.",
+        "Run final size checks for stop/event even though their fields are expected small."
+      ]
+    },
+    {
+      "id": "DISC-R4-DEFAULT-FRONTIER-FAIRNESS",
+      "status": "PASS_DESIGN_PENDING_PLANNER_TESTS",
+      "evidence": "R4 lines 117-147 replaces the R2 all-lens-before-neighborhood order with bounded base families: <=3 lookup, <=9 references/citations/related, 10 topic, <=3 project, at most25 direct jobs. Sorted per-family queues are filled by repeated round-robin over lookup/references/citations/related/topic/project, then depth1/depth2 expansion is limited to three highest-ranked eligible components after direct eligible work.",
+      "assessment": "The schedule materially prevents citation/reference/related starvation. With the stated maximum family sizes, all direct families receive a turn in each pass; the 25 direct jobs leave at most seven of the 32 request reservations for expansion. Stable ordering and provenance rules preserve byte-identical plans.",
+      "implementation_requirements": [
+        "Prove with three seeds and both providers that references, citations and related jobs are actually materialized before the 32-request cap, under observation arrival permutations.",
+        "Treat unavailable identities as pending-capability frontier entries, never as fabricated requests or empty success, and permit later enablement only from accepted history.",
+        "Ensure the three-component expansion limit is applied after direct eligible work and binds exact prior candidate-set/key origin."
+      ]
+    },
+    {
+      "id": "DISC-R4-PLANNER-CAPACITY-PREFIX",
+      "status": "OPEN_FREEZE_CLARIFICATION",
+      "evidence": "R4 lines 40-60 defines reservation eligibility for a committed N, while lines 137-145 describe filling each plan until per_round_requests/remaining slots. The default scheduler does not explicitly say how to choose a smaller deterministic N when its first eight frontier items make the 64 KiB plan, family or global reserve fail but a smaller prefix would fit.",
+      "finding": "Without a canonical feasible-prefix rule, an automatic plan can report budget_exhausted or fail the whole round even though N=1..7 from the same sorted frontier fits every bound. Conversely, shrinking an explicit user-supplied plan would silently change the requested work. The distinction must be frozen to avoid capacity-induced planner starvation and preserve reproducibility.",
+      "required_freeze": [
+        "For automatic planning, compute the sorted round-robin frontier and choose the largest prefix N<=per_round_requests and remaining semantic slots that passes exact plan serialization, family/count and U/global reservation checks; if no N>=1 fits, report budget_exhausted with the limiting family/total.",
+        "For explicit specs, validate the supplied full set as-is and refuse it when it does not fit; never silently shrink or reorder user input.",
+        "Make the feasible-prefix decision part of the deterministic status derivation, with omitted frontier count/reasons and the exact limiting bound recorded.",
+        "If the fixed 14 MiB global reserve is intentionally conservative and independent of N, state that early budget_exhausted is an accepted policy; otherwise use an N-aware total reserve while preserving the same immutable accounting."
+      ]
+    },
+    {
+      "id": "DISC-R4-ALL-EXITS-AND-REPLAY",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R3 requires shared-lock retention through graph/input/resource validation, every install, final named-edge/complete-set verification and cleanup; R4 lines 67-84 makes every pending actual file and every non-reserved write part of the accounting, and lines 167-176 require interruption at every install edge and status to use the entire outstanding reservation.",
+      "assessment": "R2/R3 all-exits requirements remain compatible with R4. An ordinary parse/limit/projection failure cannot hide a path replacement or set change; a partial plan can resume without refunding slots or physical reserve beyond verified finalization.",
+      "implementation_requirements": [
+        "Run final retained descriptor, complete filename set, identity, byte, family-count and U/U_f verification after acquisition, parsing, preflight, projection and cleanup failures.",
+        "After any interruption, rederive exact pending expected children and reservation counters; never select an alternative plan/projection by timestamp or arrival.",
+        "Verify no lock release occurs before final checks, and busy lock acquisition performs no store creation or mutation."
+      ]
+    },
+    {
+      "id": "DISC-R4-INHERITED-R3-CONTROL-INIT",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R4 explicitly says it is read with R3. Therefore the R3 shared checkout-root flock, config-carried seeds/session reconstruction, stop/control separation, event.control_head group verification, complete memberships, and candidate component no-refund rules remain in force.",
+      "assessment": "No R4 bound or scheduler rule reintroduces the R2 control-head, config-only, complete-set, or candidate-cap gaps. The physical U accounting correctly includes historical controls/candidate decisions while the pending plan reserve excludes them.",
+      "implementation_requirements": [
+        "Update the final successor schemas/resources to the R3 shapes before code freeze: config seeds, stop field removal and event.control_head.",
+        "Keep Linux flock verification and all retained-edge race tests as implementation/CI gates; this review makes no cross-platform lock claim."
+      ]
+    }
+  ],
+  "numeric_accounting": {
+    "per_file_bytes": {
+      "config_session_plan_request_round_event": 65536,
+      "discovery_observation": 1114112,
+      "research_assessment": 262144,
+      "paper_candidate_set": 2097152,
+      "paper_rank": 1048576,
+      "research_stop_decision": 262144,
+      "candidate_decision_control": 65536
+    },
+    "per_plan_reserve_at_n8": {
+      "requests": 524288,
+      "observations": 8912896,
+      "metadata": 131072,
+      "proposals": 3407872,
+      "decisions": 262144,
+      "sum_bytes": 13238272,
+      "total_reserve_bytes": 14680064,
+      "slack_bytes": 1441792
+    },
+    "family_caps": {
+      "saved_bytes_each": 33554432,
+      "total_saved_bytes": 67108864,
+      "file_counts": "256 for requests/observations/metadata/proposals; 512 for decisions",
+      "semantic_decisions": "256 candidate decisions + 64 controls + 8 assessments"
+    },
+    "accounting_rule": "U_f and U exclude only the current pending plan; all completed artifacts and all controls/candidate decisions belong to U. While pending, actual pending bytes are bounded by R_f and status reports U_f+max(R_f,actual_pending_f), U+max(total_reserve,actual_pending_total)."
+  },
+  "planner_review": {
+    "base_family_maxima": {
+      "lookup": 3,
+      "references_citations_related": 9,
+      "topic": 10,
+      "project": 3,
+      "direct_total": 25
+    },
+    "fairness_result": "Round-robin gives every nonempty base family a turn per pass and reaches citation/reference/related jobs before all topic/project work; depth expansion is deferred until direct eligible jobs are attempted.",
+    "remaining_issue": "Automatic planning needs an explicit largest-feasible-prefix rule for exact serialized plan and reservation limits. Explicit plans must remain all-or-reject.",
+    "capacity_policy_note": "The fixed 14 MiB total reserve is safe and deterministic but can stop before using smaller feasible plans; freeze whether that conservative starvation is an intentional budget policy or make total reservation N-aware."
+  },
+  "all_exits_contract": {
+    "must_hold_lock_through": [
+      "initial discovery",
+      "graph/input/resource validation",
+      "every install",
+      "final named-edge and complete-set verification",
+      "descriptor cleanup"
+    ],
+    "must_retain_and_recheck": [
+      "checkout root/ancestor identities",
+      "all family descriptors",
+      "complete expected filename sets",
+      "first missing edges",
+      "pending reservation counters",
+      "U_f/U bytes and counts",
+      "control head/group",
+      "input bytes and identities"
+    ],
+    "ordinary_error_precedence": "A parser, limit, projection, assessment or cleanup error cannot hide WORK_PATH_UNSAFE, integrity conflict or out-of-reservation state discovered by final verification.",
+    "busy_behavior": "DISCOVERY_BUSY before store observation/creation, with no mutation; Linux result remains future implementation/CI evidence."
+  },
+  "remaining_blockers": [
+    "Freeze the automatic largest-feasible-prefix rule and explicit all-or-reject distinction; otherwise exact capacity can induce nondeterministic or avoidable planner starvation.",
+    "Decide/document whether the fixed 14 MiB reserve intentionally allows early budget_exhausted when a smaller plan would fit; if not, define an N-aware total reserve without weakening the no-stranding guarantee.",
+    "Implement and test the R2/R3/R4 contract, including Linux/macOS flock behavior, retained all-exits checks, schema/resource parity and provider target freeze. This review does not claim those passes."
+  ],
+  "acceptance_vectors": [
+    "Exact N=1 and N=8 reservation arithmetic, family/total byte boundaries, file-count boundaries and bootstrap config/session preflight.",
+    "Pending-plan interruption after every install edge, controls/candidate decisions around the pending reserve, exact idempotent reuse, unknown/out-of-reservation files and all-exits path replacement.",
+    "Three seeds, both providers, 25 direct-job frontier and 32 request cap; assert references/citations/related are not starved and plans are byte-identical across arrival permutations.",
+    "Automatic frontier where eight items fail plan/family/global preflight but a smaller prefix fits, plus explicit oversized specs; assert largest-feasible-prefix versus all-or-reject semantics.",
+    "Prospective observation that would exceed candidate/rank size, malformed/oversized input, partial/failure/empty result, alias bridge and 257th introduced component; verify no invalid stored debit or candidate-slot refund.",
+    "Control inserted before/during/after event under shared flock, Linux/macOS busy/release, checkout replacement and final WORK_PATH_UNSAFE precedence."
+  ],
+  "remaining_gates": [
+    "Architect must freeze the automatic feasible-prefix rule and conservative fixed-reserve policy before declaring the design fully frozen.",
+    "Implementation/CI must prove all exact byte/count formulas and all-exits behavior; no Linux lock result is inferred from the local macOS feasibility check.",
+    "Provider filter/sort/select target grammar remains a separate freeze item from these IO/bounds amendments.",
+    "No source implementation, Git mutation, connector/Vault access or scientific/human acceptance follows from this review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

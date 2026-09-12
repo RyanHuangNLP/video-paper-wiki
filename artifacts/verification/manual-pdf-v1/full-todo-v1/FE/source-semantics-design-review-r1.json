@@ -1,0 +1,435 @@
+{
+  "compatibility_findings": [
+    {
+      "finding": "The accepted compiler, assessment history, ledger locator and schemas are v1-only. They must remain unchanged while SOURCE-SEMANTICS adds separate v2 schemas/modules and an explicit compiler v2 profile.",
+      "id": "L1-V1-ONLY",
+      "required_test": "Run all prior v1 vectors and compile outputs unchanged; send every v2 wire/event/record to v1 validators and assert stable refusal.",
+      "severity": "design-boundary"
+    },
+    {
+      "finding": "compile-input.v1 cannot carry a paper-record.v2, source associations, display head, Markdown locators, evidence profiles or v2 events. A complete prospective mixed inventory therefore requires a new closed input schema and adapter; it must not be accepted by widening v1 validators.",
+      "id": "MIXED-PROJECTIVE-INVENTORY",
+      "required_test": "Compile legacy-only, v2-only and mixed inventories through the future v2 API; prove the legacy page bytes remain equal when its input and related set are unchanged.",
+      "severity": "freeze-required"
+    },
+    {
+      "finding": "The design requires a half-open Unicode span over exact decoded UTF-8 material and forbids normalization/line-ending rewriting. The new contract must freeze whether offsets count decoded Unicode scalar positions or UTF-8 byte offsets; tests must exercise both interpretations and reject ambiguity.",
+      "id": "SPAN-UNIT-FREEZE",
+      "required_test": "Use combining marks, precomposed characters, emoji, CRLF/LF, internal U+FEFF, and a non-ASCII multi-byte excerpt with exact boundary checks.",
+      "severity": "freeze-required"
+    },
+    {
+      "finding": "assessment_history.v1 binds the old PDF/code evidence fingerprint and has no profile field. A v2 event must carry explicit profile and one boundary invalidation referencing the prior v1 head/claim snapshot; a second independent v2 genesis would violate the one-authoritative-history rule.",
+      "id": "V1-V2-ASSESSMENT-BOUNDARY",
+      "required_test": "Preserve old v1 event bytes, append exactly one v2 boundary invalidation to provisional, derive one current v2 head, and refuse v2 human review before invalidation.",
+      "severity": "freeze-required"
+    }
+  ],
+  "decision": "GO_FOR_SOURCE_SEMANTICS_TEST_MATRIX_PENDING_EXACT_V2_FREEZE",
+  "inspected_interfaces": {
+    "src/video_paper_wiki/assessment_history.py": {
+      "observed_contract": [
+        "claim and event shapes are closed and assessment-event.v1 only",
+        "claim_id and claim text/evidence fingerprint are cross-bound",
+        "exactly one connected, nonforking genesis-to-head chain per claim",
+        "human transitions retain fingerprint; invalidation changes it and returns provisional",
+        "all supplied history is bounded and caller objects are not mutated"
+      ],
+      "sha256": "db681b6c993e12837977c91e579959d26203e6b8a21e567f2b08961827bd7694"
+    },
+    "src/video_paper_wiki/canonical_compiler.py": {
+      "observed_contract": [
+        "compile_pages validates video-paper-wiki.compile-input.v1 and each paper record as paper-record.v1",
+        "_paper requires complete claim set and derives v1 assessment heads",
+        "claim_id and evidence_fingerprint are v1 identity calls",
+        "core conclusion remains one-to-three active accepted/contested claims",
+        "output paths and case-fold/path-prefix collisions are refused"
+      ],
+      "sha256": "f4dde9f914796006af6b4b03c2d969f3686859e911854a49e69995e53e046291"
+    },
+    "src/video_paper_wiki/ledger_locator.py": {
+      "observed_contract": [
+        "vpwiki-locator-v1 is the only accepted wire prefix",
+        "only PDF and code locators are accepted",
+        "canonical JCS envelope and exact decode-reencode spelling are required",
+        "outer evidence source_id/relation must match decoded locator",
+        "no Markdown source-version association or Unicode span exists in v1"
+      ],
+      "sha256": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0"
+    },
+    "src/video_paper_wiki/projection_runtime.py": {
+      "observed_contract": [
+        "pure bounded JSON/tree parser with duplicate-key, UTF-8, cycle and resource-limit refusal",
+        "chunk and bm25 profiles validate supplied upstream records",
+        "volatile created_at/updated_at is excluded only from runtime projection equality",
+        "Markdown equality is exact bytes; no source/path I/O"
+      ],
+      "sha256": "87f426511f722c65660d548b83af70d0fe2d2afaae1be83bebf2b3348bd149c7"
+    }
+  },
+  "inspected_schemas": {
+    "schemas/video-paper-wiki.assessment-event.v1.schema.json": {
+      "sha256": "6d2f8bfce940fe6c274c06bcc6ae02cbcf3d1d18a04c0d671e0d14423385ec2f",
+      "transitions": [
+        "genesis",
+        "human_assessment",
+        "evidence_invalidation"
+      ]
+    },
+    "schemas/video-paper-wiki.compile-input.v1.schema.json": {
+      "paper_shape": [
+        "record",
+        "claims",
+        "events",
+        "optional assessment_heads"
+      ],
+      "sha256": "14eefc338cab8b5f07eb2119e84470e6a364827f514e70dea49d9efac3116168"
+    },
+    "schemas/video-paper-wiki.evidence-locator.v1.schema.json": {
+      "sha256": "76511b6b063c98441ad047604600dbccfe4d5a87117c7588251f823c8fe58e2f",
+      "variants": [
+        "pdf",
+        "code"
+      ]
+    },
+    "schemas/video-paper-wiki.markdown-source-observation.v1.schema.json": {
+      "markdown_fields": [
+        "sha256",
+        "size_bytes"
+      ],
+      "page_fields": [
+        "page",
+        "anchor",
+        "text_start",
+        "text_end",
+        "text_sha256"
+      ],
+      "sha256": "8da92711aac250ccb0ef26bf7e78a8d91e687c92649f7b211c38ea45c4b2445a",
+      "version_kinds": [
+        "unknown",
+        "declared"
+      ]
+    },
+    "schemas/video-paper-wiki.paper-record.v1.schema.json": {
+      "required": [
+        "schema",
+        "paper_id",
+        "title",
+        "title_zh",
+        "authors",
+        "published_at",
+        "aliases",
+        "source_ids",
+        "taxonomy",
+        "active_extraction_path",
+        "active_extraction_sha256",
+        "section_claim_refs",
+        "created_at",
+        "updated_at"
+      ],
+      "sha256": "d3fa6fce60e48e4e43152cdcb93aded2cd428e672ff06dd3803557d488371f45"
+    }
+  },
+  "limitations": [
+    "This is a design/test matrix only. No v2 implementation is authorized by this review, and no source, schema, Git, Vault or external runtime was modified."
+  ],
+  "open_freeze_items": [
+    "Freeze exact v2 schema titles, source association/provenance fields, source-version conflict key, association ID/content hash formulas and registration receipt reference shape.",
+    "Freeze Markdown span unit (decoded Unicode scalar index versus UTF-8 byte offset), page-anchor relation to observation pages, and exact out-of-range/empty-span codes.",
+    "Freeze v2 evidence profile identifier, domain-separated fingerprint field order, duplicate/order policy and assessment v2 event ID formula.",
+    "Freeze paper-record.v2/compiler-v2 input shape and legacy adaptation rule, including exact provisional wording and complete mixed-inventory authority checks.",
+    "Freeze display decision/head schema and transaction successor namespace before calling any association/display state current or published."
+  ],
+  "recommended_test_layers": [
+    "Contract vectors: exact JCS bytes, schema closedness, all new discriminators and resource byte hashes.",
+    "Pure semantic unit tests: association identity/reuse/conflict, display graph, Markdown locator spans and v1-to-v2 assessment migration.",
+    "Compiler compatibility tests: golden legacy pages plus complete mixed prospective inventories and hostile escaping.",
+    "Security tests: bounded input trees, no-I/O, caller immutability, stable pointer/error precedence and no v2 widening of v1 validators.",
+    "Installed-wheel tests: resource registry exposes every new schema/module byte-exactly and legacy resources continue to validate prior fixtures."
+  ],
+  "revision": "R1",
+  "schema": "full-todo.source-semantics-design-review.v1",
+  "scope": "Read-only compatibility and error-path review of accepted L1 source interfaces; no implementation, schema edits, Git, Vault, network or external runtime actions.",
+  "source": {
+    "baseline_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+    "baseline_tree": "be13818d9a8d8afd0630672d58b952250dec6e10",
+    "design_path": "docs/ai/packets/full-todo-v1/SOURCE-CANONICAL-DESIGN-R1.md",
+    "design_sha256": "e46211baa9bba40f52746748757257ed49dbc3cb5c5801668824a486d900e5af",
+    "root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source",
+    "status": "clean at the accepted L1 review baseline"
+  },
+  "test_matrix": [
+    {
+      "area": "legacy compatibility",
+      "error_or_invariant": "no error; identity and output stability",
+      "expected": "All IDs, v1 fingerprints, event bytes and Markdown page bytes are byte-identical to the accepted fixture.",
+      "id": "V1-IDENTITY-REPLAY",
+      "priority": "must",
+      "setup": "Replay pinned paper/claim IDs, v1 PDF/code locator fingerprints, assessment event IDs and v1 compile fixture."
+    },
+    {
+      "area": "legacy compatibility",
+      "error_or_invariant": "LEDGER_LOCATOR_INVALID or frozen SCHEMA_INVALID",
+      "expected": "Legacy decoder refuses before interpreting fields and does not silently downgrade.",
+      "id": "V1-LOCATOR-REJECTS-V2",
+      "priority": "must",
+      "setup": "Pass vpwiki-locator-v2 wire or Markdown locator object to decode_ledger_locator/decode_ledger_evidence."
+    },
+    {
+      "area": "legacy compatibility",
+      "error_or_invariant": "SCHEMA_INVALID",
+      "expected": "v1 validator remains closed and reports refusal; no v2 fields are ignored.",
+      "id": "V1-EVENT-REJECTS-V2",
+      "priority": "must",
+      "setup": "Pass assessment-event.v2 discriminator, profile, association or extra fields to validate_document/derive_assessment_heads v1."
+    },
+    {
+      "area": "legacy compatibility",
+      "error_or_invariant": "SCHEMA_INVALID",
+      "expected": "v1 record remains closed; no relabeling or lossy adaptation occurs in the v1 validator.",
+      "id": "V1-RECORD-REJECTS-V2",
+      "priority": "must",
+      "setup": "Pass paper-record.v2 with associations/display_head/active mirror to paper-record.v1 validation."
+    },
+    {
+      "area": "legacy compatibility",
+      "error_or_invariant": "no error; exact bytes",
+      "expected": "Every legacy page, link, frontmatter field and page hash remains equal.",
+      "id": "V1-COMPILER-UNCHANGED",
+      "priority": "must",
+      "setup": "Compile an unchanged legacy-only inventory before and after v2 support is introduced."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "freeze stable receipt/precondition code; review blocker RECEIPT_SELF_REFERENCE",
+      "expected": "Association remains unregistered/refused; capture cannot impersonate registration and no self-reference is accepted.",
+      "id": "ASSOC-RECEIPT-ORDER",
+      "priority": "must",
+      "setup": "Construct first source-version association using capture observation but no prior audited source-registration receipt, or embed the future receipt hash of the same transaction."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "reuse or frozen PROVENANCE_VARIANT",
+      "expected": "Reuse stable content/version identity only; preserve each immutable provenance variant or return explicit provenance-variant result; never overwrite metadata.",
+      "id": "ASSOC-UNKNOWN-SAME-BYTES",
+      "priority": "must",
+      "setup": "Two unknown-version observations for the same paper and same Markdown bytes/source content identity, with different observation metadata."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "distinct association IDs; no error",
+      "expected": "They are distinct content identities; no “all unknown is one version” conflict and no silent replacement.",
+      "id": "ASSOC-UNKNOWN-DIFFERENT-BYTES",
+      "priority": "must",
+      "setup": "Two unknown-version observations for same paper/source ID but different Markdown hashes."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "reuse; no error",
+      "expected": "Reuse the valid association; new observation metadata cannot overwrite its bytes or receipt.",
+      "id": "ASSOC-DECLARED-SAME-BYTES",
+      "priority": "must",
+      "setup": "Same paper and explicit declared version label with same Markdown bytes but repeated valid registration."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "SOURCE_VERSION_CONFLICT or frozen equivalent, exit 75 expected for conflict",
+      "expected": "Reject same-version conflict before publication; competing association remains untouched.",
+      "id": "ASSOC-DECLARED-DIFFERENT-BYTES",
+      "priority": "must",
+      "setup": "Same paper and explicit declared version label, changed Markdown hash/size."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "distinct associations; no overwrite",
+      "expected": "Keep distinct version descriptors/associations while allowing shared source ID and bytes; do not merge labels.",
+      "id": "ASSOC-DECLARED-DIFFERENT-LABEL",
+      "priority": "must",
+      "setup": "Same paper/source ID/Markdown bytes with two explicit declared labels."
+    },
+    {
+      "area": "source association",
+      "error_or_invariant": "SOURCE_ASSOCIATION_INVALID / ARTIFACT_BINDING_MISMATCH equivalent",
+      "expected": "Association identity and association content hash mismatch is detected; no claim of current/registered state.",
+      "id": "ASSOC-CROSS-BINDINGS",
+      "priority": "must",
+      "setup": "Change paper ID, source ID, raw path, raw hash, size, source observation, or registration receipt independently."
+    },
+    {
+      "area": "display chain",
+      "error_or_invariant": "no error; head absent/unselected",
+      "expected": "Default view is legacy/unknown/unselected; import alone never creates a display head or active extraction.",
+      "id": "DISPLAY-NO-AUTOSELECT",
+      "priority": "must",
+      "setup": "Import a valid association with no display decision."
+    },
+    {
+      "area": "display chain",
+      "error_or_invariant": "no error",
+      "expected": "One valid genesis and a deterministic materialized head are produced.",
+      "id": "DISPLAY-GENESIS",
+      "priority": "must",
+      "setup": "Create the first engine-owned decision selecting an association with exact previous=null, paper, association ref, actor choice, time and reason."
+    },
+    {
+      "area": "display chain",
+      "error_or_invariant": "SOURCE_DISPLAY_CHAIN_INVALID / identity conflict equivalent",
+      "expected": "Complete chain validation fails and no head is reported current.",
+      "id": "DISPLAY-MALFORMED-GRAPH",
+      "priority": "must",
+      "setup": "Try missing predecessor, two genesis events, fork, cycle, cross-paper predecessor, duplicate decision ID, or head not equal to derived terminal event."
+    },
+    {
+      "area": "display chain",
+      "error_or_invariant": "no error",
+      "expected": "Rollback is a new append-only decision; prior decisions remain immutable and the new terminal head selects the older association.",
+      "id": "DISPLAY-ROLLBACK",
+      "priority": "must",
+      "setup": "After selecting a newer association, append a decision selecting an older valid association."
+    },
+    {
+      "area": "paper record v2",
+      "error_or_invariant": "CROSS_OBJECT_IDENTITY_MISMATCH equivalent",
+      "expected": "Record refuses because active extraction mirror must equal selected association extraction exactly.",
+      "id": "PAPER-V2-MIRROR",
+      "priority": "must",
+      "setup": "Create v2 record with sorted complete associations and derived display head; set active extraction different from selected association."
+    },
+    {
+      "area": "paper record v2",
+      "error_or_invariant": "COMPILE_INPUT_INVALID / SOURCE_ASSOCIATION_INVALID equivalent",
+      "expected": "Complete prospective inventory validation refuses before compilation/publication.",
+      "id": "PAPER-V2-INCOMPLETE",
+      "priority": "must",
+      "setup": "Omit one association, include duplicate/unknown association, or provide a head referencing absent association."
+    },
+    {
+      "area": "Markdown locator",
+      "error_or_invariant": "no error",
+      "expected": "Valid locator round-trips canonically and identity includes the association/version plus exact raw path/hash/span/excerpt.",
+      "id": "MARKDOWN-LOCATOR-EXACT",
+      "priority": "must",
+      "setup": "Build v2 locator with source ID, association ref, `.raw/captured/<sha>.md`, raw hash, half-open span, optional observation-backed page anchor and excerpt hash."
+    },
+    {
+      "area": "Markdown locator",
+      "error_or_invariant": "MARKDOWN_LOCATOR_INVALID / span-specific frozen code",
+      "expected": "Reject without slicing, normalization or fabricated excerpt.",
+      "id": "MARKDOWN-SPAN-EMPTY-OOB",
+      "priority": "must",
+      "setup": "Use start=end, negative start/end, end past decoded material, reversed interval, or span over unavailable bytes."
+    },
+    {
+      "area": "Markdown locator",
+      "error_or_invariant": "MARKDOWN_LOCATOR_INVALID / ARTIFACT_BINDING_MISMATCH equivalent",
+      "expected": "Offsets and excerpt hash are checked against exact captured bytes/text; no NFC/NFKC or newline normalization changes identity. Freeze and test the offset unit explicitly.",
+      "id": "MARKDOWN-SPAN-BYTES",
+      "priority": "must",
+      "setup": "Use CRLF versus LF, combining `e\\u0301` versus `é`, emoji, internal U+FEFF and multi-byte text; alter one boundary unit at a time."
+    },
+    {
+      "area": "Markdown locator",
+      "error_or_invariant": "ARTIFACT_BINDING_MISMATCH / MARKDOWN_LOCATOR_INVALID",
+      "expected": "Reject binding mismatch; page anchor is supplementary and never sole authority.",
+      "id": "MARKDOWN-HASH-ANCHOR",
+      "priority": "must",
+      "setup": "Alter raw hash, excerpt hash, association reference, source ID, path, or provide an anchor absent/mismatched from source observation."
+    },
+    {
+      "area": "evidence fingerprint",
+      "error_or_invariant": "EVIDENCE_FINGERPRINT_MISMATCH or explicit profile/schema refusal",
+      "expected": "v1 digest stays identical; v2 digest is domain-separated and covers required association/path/hash/span/relation fields; unmarked mixed input refuses; profile is carried on assessment v2.",
+      "id": "EVIDENCE-FP-PROFILES",
+      "priority": "must",
+      "setup": "Compute legacy-only v1 evidence fingerprint, explicit v2 Markdown fingerprint, and mixed v1/v2 evidence with/without profile marker."
+    },
+    {
+      "area": "evidence fingerprint",
+      "error_or_invariant": "freeze exact duplicate/order code before implementation",
+      "expected": "Ordering/duplicate policy is explicit and deterministic: reorder behavior matches frozen rule, duplicates are rejected or represented exactly as specified, any identity field change changes v2 digest.",
+      "id": "EVIDENCE-FP-ORDER-DUP",
+      "priority": "must",
+      "setup": "Reorder evidence items; repeat an identical identity; alter only relation, source version, span or excerpt hash."
+    },
+    {
+      "area": "assessment migration",
+      "error_or_invariant": "ASSESSMENT_CHAIN_INVALID / EVIDENCE_FINGERPRINT_MISMATCH / CROSS_OBJECT_IDENTITY_MISMATCH as applicable",
+      "expected": "Old v1 event bytes remain unchanged; one authoritative chain reaches provisional; reviewed_at resets; no v2 human review is allowed before boundary event.",
+      "id": "MIGRATION-V1-TO-V2",
+      "priority": "must",
+      "setup": "Start with a valid v1 claim and v1 genesis/human head. Replace/add Markdown evidence and append one system v2 boundary invalidation referencing the actual prior v1 head and claim snapshot."
+    },
+    {
+      "area": "assessment migration",
+      "error_or_invariant": "ASSESSMENT_CHAIN_INVALID or frozen profile-boundary code",
+      "expected": "Refuse silent reinterpretation and duplicate authority; require explicit boundary event.",
+      "id": "MIGRATION-NO-SILENT-REINTERPRET",
+      "priority": "must",
+      "setup": "Submit v2 human event whose predecessor is v1 without explicit boundary/profile, or submit a v2 genesis alongside a retained v1 history."
+    },
+    {
+      "area": "assessment migration",
+      "error_or_invariant": "no error; same head/fingerprint",
+      "expected": "Do not invalidate assessment or mutate claim history; display switch is independent of evidence invalidation.",
+      "id": "MIGRATION-DISPLAY-ONLY",
+      "priority": "must",
+      "setup": "Switch display association while claim evidence and fingerprint remain unchanged."
+    },
+    {
+      "area": "assessment migration",
+      "error_or_invariant": "CROSS_OBJECT_IDENTITY_MISMATCH / EVIDENCE_FINGERPRINT_MISMATCH",
+      "expected": "Refuse before deriving current head; prior history remains untouched.",
+      "id": "MIGRATION-STALE-BOUNDARY",
+      "priority": "must",
+      "setup": "Boundary references missing/wrong v1 head, altered claim snapshot, wrong claim text hash or wrong v1 fingerprint."
+    },
+    {
+      "area": "compiler v2",
+      "error_or_invariant": "no error for valid inventory; incomplete/mismatch refusal otherwise",
+      "expected": "Compiler validates the complete set, emits legacy page bytes unchanged where unrelated, emits explicit imported-version/selection/evidence/status fields, and omits accepted core summary for provisional-only claims.",
+      "id": "COMPILE-MIXED-PROSPECTIVE",
+      "priority": "must",
+      "setup": "Compile complete inventory containing legacy paper, v2 provisional paper, v2 accepted paper, shared source across versions, display rollback and v1/v2 assessment histories."
+    },
+    {
+      "area": "compiler v2",
+      "error_or_invariant": "COMPILE_INPUT_INVALID for invalid eligible count",
+      "expected": "V2 preserves v1 one-to-three accepted/contested core requirement; provisional page states no accepted core conclusion rather than inventing one.",
+      "id": "COMPILE-V2-CORE-RULE",
+      "priority": "must",
+      "setup": "Try zero accepted/contested eligible core claims, one to three eligible claims, and four eligible claims across v2 pages."
+    },
+    {
+      "area": "compiler v2",
+      "error_or_invariant": "COMPILE_INPUT_INVALID",
+      "expected": "Frontmatter/body/link escaping remains safe; portable/case-fold/path-prefix collision refusal remains deterministic.",
+      "id": "COMPILE-ESCAPE-COLLISION",
+      "priority": "must",
+      "setup": "Use hostile source/model text with YAML delimiters, Markdown links, backticks, Unicode control characters, path case collisions, and paper/code/concept names that collide."
+    },
+    {
+      "area": "all pure APIs",
+      "error_or_invariant": "stable ContractError code/pointer; no side effects",
+      "expected": "Shape/limit and retained material identity checks have stable documented precedence; no false success, writes, receipt, head or current claim are returned.",
+      "id": "PURE-ERROR-PRECEDENCE",
+      "priority": "must",
+      "setup": "Supply malformed shape plus a changed association/locator/claim identity, and exercise success and exception paths."
+    },
+    {
+      "area": "all pure APIs",
+      "error_or_invariant": "no error on valid data; no I/O",
+      "expected": "Inputs remain unchanged; outputs are detached; APIs perform no Vault/network/path I/O.",
+      "id": "PURE-IMMUTABILITY",
+      "priority": "must",
+      "setup": "Pass caller-owned nested objects/bytes, then mutate returned values and compare originals; monkeypatch open/socket/path access."
+    },
+    {
+      "area": "schemas/package",
+      "error_or_invariant": "SCHEMA_INVALID for unknown/missing/mismatched resource",
+      "expected": "Every new resource is exposed byte-exactly; unknown titles fail closed; v1 resources remain unchanged.",
+      "id": "RESOURCE-REGISTRY",
+      "priority": "must",
+      "setup": "Load all eight new schemas through the installed package resource registry and compare resource bytes to source; request unknown schema title."
+    }
+  ]
+}

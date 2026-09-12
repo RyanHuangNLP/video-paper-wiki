@@ -1,0 +1,12 @@
+--- r4/test_light_workflow_installed.py
++++ r5/test_light_workflow_installed.py
+@@ -52,6 +52,9 @@
+     "referencing",
+     "rpds-py",
+ )
++# Match referencing's conditional dependency in the locked default environment.
++if sys.version_info < (3, 13):
++    _RUNTIME_DISTS += ("typing-extensions",)
+ 
+ 
+ def _sha256(path: Path) -> str:

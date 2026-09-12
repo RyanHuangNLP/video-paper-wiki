@@ -1,0 +1,98 @@
+{
+  "schema": "full-todo.foundation-independent-assembled-source-review.v6",
+  "recorded_at_utc": "2026-09-11T02:26:13Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_R6_ASSEMBLED_SOURCE_BOUNDARY",
+  "scope": "Independent bounded review of the exact R6 assembled production/test sources against the R5 sources and the R6 assembly record. The comparison was read-only. A fresh focused R6 replay was run only in an isolated temporary directory with the assembled source; no CODE product path was written.",
+  "reviewed_artifacts": [
+    {
+      "label": "r5_production",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r5-code_proof_resources.py",
+      "size_bytes": 29122,
+      "sha256": "5bbace6bedafa46b16274dd1a842ee6d0e643fae042c905d9eb5a7699483d0a5"
+    },
+    {
+      "label": "r6_production",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r6-code_proof_resources.py",
+      "size_bytes": 29412,
+      "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6"
+    },
+    {
+      "label": "r5_tests",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r5-test_code_proof_resources.py",
+      "size_bytes": 44029,
+      "sha256": "75e5d20582963324c15e70482f6f481cc1fe95dccd2b4e7250c4befee50e75c9"
+    },
+    {
+      "label": "r6_tests",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r6-test_code_proof_resources.py",
+      "size_bytes": 47492,
+      "sha256": "bf03ea61c0845e79cab8db958c57a2eb6c462d40cca42c6377ce81151f0b702c"
+    },
+    {
+      "label": "r6_assembly",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembly-r6.json",
+      "size_bytes": 43832,
+      "sha256": "2f3eb39fbeebede11a3ebe3aa14ada51b2ff65f192908b7fcb7178b30db94e74"
+    },
+    {
+      "label": "r6_result",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r6-result.json",
+      "size_bytes": 1891,
+      "sha256": "c9deb8eb38d1b773ff4fa63bc6b8a8bc702a207a215336dabb88f4738acf87ce"
+    }
+  ],
+  "diff_boundary": {
+    "production": {
+      "status": "PASS",
+      "changed_lines": 58,
+      "replaced_lines": 29,
+      "operation": "Every changed production line is one of the 29 pinned direct CodeProofResourceError/CodeProofStructureError raises in the seven authorized definitions, adding exactly `from None`; no other production line changed.",
+      "original_defect": "The R5 29 private direct raises could inherit unrelated active exception context. R6 suppresses that context without changing error type, reason or control flow."
+    },
+    "tests": {
+      "status": "PASS",
+      "bounded_edits": {
+        "exception_info_value_replacements": 48,
+        "profile_key_replacement": 1,
+        "new_test_append": 1
+      },
+      "operation": "The R6 test prefix is exactly the R5 test source after the 48 named helper calls change from exc to exc.value and the one profile lookup changes from mutated[\"inventory\"][0] to mutated[\"schemas\"][0]. The sole appended top-level function is test_private_errors_suppress_outer_exception_context(resources), has no decorator and one resources parameter; its pinned size/SHA match assembly-r6.json.",
+      "original_defects": "The pytest ExceptionInfo/value mismatch and the stale inventory profile lookup are closed with only the authorized replacements."
+    },
+    "assembly_record": {
+      "status": "PASS",
+      "production_edits_recorded": 29,
+      "test_edits_recorded": 49,
+      "output_pins_match_bytes": true,
+      "product_source_written": false,
+      "accepted": false
+    }
+  },
+  "outer_context_probe": {
+    "status": "PASS",
+    "new_test": "test_private_errors_suppress_outer_exception_context",
+    "coverage": "The test creates active RuntimeError contexts with adversarial markers and exercises structure validation, limits materialization, direct construction, retained-byte compilation, private parsing, profile validation and schema-reference validation. It asserts __suppress_context__ is true, __cause__ is None and traceback.format_exception contains no marker.",
+    "independent_py313": {
+      "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "replay": "isolated temporary directory /private/tmp/r6-independent-full.p9n8GJ",
+      "result": "267 passed",
+      "exit_code": 0,
+      "focused_new_test": "1 passed, 266 deselected",
+      "focused_exit_code": 0
+    },
+    "py312_result_review": {
+      "record": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r6-retry1-py312.json",
+      "result": "267 passed",
+      "exit_code": 0,
+      "note": "The earlier R6 py312 launch error was a runner path substitution before pytest started; the retry record uses the actual pinned py312 interpreter and passes."
+    }
+  },
+  "known_defect_closure": [
+    "29 direct private raises now suppress active outer exception context.",
+    "48 named pytest helper calls now pass exc.value.",
+    "The single profile schema lookup now uses schemas rather than inventory."
+  ],
+  "remaining_findings": [],
+  "boundary": "The exact R6 assembled source/test pair is suitable for the next root-owned candidate, installed-wheel and full-regression checks. This review does not accept the candidate, write product paths, or authorize Git/merge/CI actions."
+}

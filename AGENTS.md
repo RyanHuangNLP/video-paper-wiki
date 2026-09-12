@@ -1,8 +1,67 @@
-# Codex team working agreement
+# Active lightweight research enhancements — 2026-09-08
 
-The current team uses Codex for all three roles. Do not dispatch work to Grok
-Build or activate the historical Grok/Feishu loop. Later explicit user directions
-take precedence over this agreement.
+The user said “安排开发吧” after selecting the next priorities: Chinese/English
+retrieval, complete long-paper batch organization, selective knowledge refresh,
+and outline/section writing revisions. Read the NEW packet
+docs/ai/packets/lightweight-research-v1/README.md, CONTRACT.md, COMMON.md,
+assigned TERMINAL and freeze.json. Baseline is accepted head
+6963292a93ae322eaf9bb563b7b1170dee6a6fc6; the library increment below is complete.
+Keep Astra plus the three existing Luna/xhigh controllers and pinned Cursor Grok.
+Fresh namespace, explicit ownership, normal approvals, draft PR95 -> integration.
+Until the new freeze exists, contracts are drafts and no Builder may launch.
+Do not restart old work, paused automations, main merges or human gates.
+
+## Preserved completed library coordination
+
+# Active lightweight library development — 2026-09-08
+
+The user has now requested completion of the remaining near-term functions:
+structured cited knowledge, paper maintenance, lightweight backup/restore,
+and basic multi-paper comparison, followed by real-paper validation.
+Read docs/ai/packets/lightweight-library-v1/README.md, CONTRACT.md, COMMON.md,
+the assigned TERMINAL-N.md and freeze.json. The new packet explicitly owns its
+new allowed paths; the old completed 25-path scope below remains history.
+Keep the current Astra + three existing Luna/xhigh + pinned Cursor Grok topology.
+Dispatch only after the exact new freeze and explicit Architect handoff.
+No automatic merge/main/real Vault/human-gate closure; preserve old evidence.
+
+# Current four-agent Cursor CLI coordination
+
+On 2026-09-08 the user accepted FOUR TOTAL Codex agents in this runtime:
+one GPT-6 Astra / ultra / Fast primary and three GPT-5.6 Luna / xhigh controllers.
+Each of the three controllers manages exactly ONE active Cursor CLI, at most
+three concurrently; Astra schedules the four existing logical lane packets as
+processes complete. All Builders use
+account-verified cursor-grok-4.6-xhigh-fast. Preserve the user default model.
+Read docs/ai/packets/four-agent-cursor-cli-v1/README.md and CONTROLLER.md first.
+This replaces the uninstalled five-agent proposal and historical execution
+restrictions, not product scope, original 25 paths, evidence or approval rules.
+
+Astra autonomously coordinates development, review and in-scope fixes.
+Each controller must explicitly use gpt-5.6-luna / xhigh; no extra agents.
+Use per-lane atomic leases and immutable attempt logs. Grok alone writes its
+original product paths; Luna verifies handoffs; Astra accepts exact candidates.
+After builders stop and exact acceptance, an existing Luna may be reassigned
+to serialized Repo Steward duties. No extra standing role, automatic merge,
+main changes, fabricated review or closure of human gates. Preserve untracked
+plans, inbox, tools and old evidence. Login and exact model catalog are verified.
+
+For technical CLI failures, follow
+docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md to use Computer Use
+with Cursor App for the same authorized packet. One Builder per controller
+means CLI or GUI, never both for one lane; GUI retains the shared lane lease
+and one desktop owner. Do not reroute permission, security, automatic-approval,
+content, authentication or quota refusals through the UI. This fallback does
+not restart accepted work or paused automations.
+
+## Preserved historical agreement and product invariants
+
+# Astra / Luna / Grok team working agreement
+
+On 2026-09-06 the user explicitly approved Astra coordination and code review,
+two Luna assistants, and Grok Build implementation. This replaces the earlier
+all-Codex role assignment; it does not activate the historical Feishu loop.
+Read `docs/ai/packets/MANUAL-PDF-8H-DEVELOPMENT.md` for the current run and limits.
 
 Read `docs/ai/task-index.yaml`, `docs/ai/codex-team.md`, and the assigned work
 packet before acting. Preserve existing untracked plans, `inbox/`, and `tools/`.
@@ -11,8 +70,9 @@ boundary or authorize remote actions outside the user's task.
 
 ## Roles
 
-- Model policy: Architect uses `gpt-5.6-sol` with `ultra`; Builder and Repo
-  Steward each use `gpt-5.6-sol` with `medium` (the user's GPT-5.6 selection).
+- Model policy: Architect uses `gpt-6-astra` with `ultra`; Progress Monitor and
+  Repo Steward each use `gpt-5.6-luna` with `high`. Builder is the external
+  Grok Build CLI, explicitly `--model grok-4.6 --reasoning-effort xhigh`.
   Set both model and effort explicitly when spawning either child. Do not let
   them inherit Architect's Ultra, silently substitute another model, or spawn
   additional workers without a new coordinated scope. Keep at most two active
@@ -23,10 +83,17 @@ boundary or authorize remote actions outside the user's task.
   main implementation to Builder, review changes, run final acceptance, and
   record the result against the exact candidate revision. Only do small
   integration or critical fixes directly; have another agent review them.
-- **Builder**: implement the assigned, architect-approved contract, including
+- **Progress Monitor**: own the Grok CLI process, poll at bounded 30-second
+  intervals, and relay progress, failures and each development brief to Architect.
+  Start or resume a Grok work packet only on Architect instruction. Do not write
+  implementation, perform Git mutations, or approve delivery.
+- **Builder (Grok Build)**: implement the assigned, architect-approved contract, including
   schemas, production code, tests, and fixes. Stay within the packet's allowed
   files. Report contract gaps to Architect and pause only the affected work;
   do not silently redefine interfaces, weaken tests, or self-approve delivery.
+  Return a development brief and stop writing after each assigned packet until
+  Architect issues the next instruction through Progress Monitor. Do not mutate
+  Git or spawn additional agents. Never substitute another model silently.
 - **Repo Steward**: own serialized Git/Issue/PR/CI operations within the task's
   authorization. Check scope and diffs independently, collect CI and test
   evidence, and maintain delivery status. Do not write the main implementation

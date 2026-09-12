@@ -1,0 +1,36 @@
+{
+  "recorded_at_utc": "2026-09-08T05:36:35.450675+00:00",
+  "decision": "T2_R5_REQUIRES_NESTED_NOTE_FIX_BEFORE_FINAL_PRODUCT_ACCEPTANCE",
+  "candidate_snapshot": "69fdc89a2f90226602aef198f6d5c4d599c2d1959ecffc2ea5522c3836dcd108",
+  "previous_local_acceptance": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r5-local-acceptance.json",
+    "sha256": "be294b3516a802085f23ad0c160fe01bd0a56c8cdf02e024f2316dbc582450d1",
+    "size_bytes": 3605
+  },
+  "integration_checks": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-backend-cross-r1/checks.json",
+    "sha256": "6f3aadc874bc6c27ddd0ca14090f10bdae074b11abce9f30e424ce72f7da75e5",
+    "size_bytes": 3012
+  },
+  "overlay_provenance": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-backend-cross-r1/provenance.json",
+    "sha256": "ef19456d1d80938be43bfb8c51b8bfb80f962dab9fe96ea80fae5cfa77c3bc97",
+    "size_bytes": 4363
+  },
+  "regression_harness": {
+    "path": ".work/acceptance/lightweight-library-v1/architect_crossfeature_checks_r2.py",
+    "sha256": "f1944f9bddd8515d5911d8b7e8a8d795f1ee6454dcde383588f378bdabf76624",
+    "size_bytes": 12333
+  },
+  "result": {
+    "tests": 8,
+    "passed": 7,
+    "failed": 1
+  },
+  "finding": "A regular nested/example.py under a valid paper causes archive_paper to return LIGHT_LIBRARY_INVALID: unexpected dir nested before its complete file/directory inventory. CONTRACT archive behavior requires complete regular directory and retained text/code notes.",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "preservation_observed": "Archive refused before move; no user data loss is claimed.",
+  "scope": "T2 owner successor required; accepted T1 bytes unchanged. Active T3 may finish its own work but cannot change imported backend.",
+  "history": "Prior bounded R5 acceptance and all 68/21 checks remain immutable; this new integration finding keeps final product acceptance open.",
+  "merge_authorized": false
+}

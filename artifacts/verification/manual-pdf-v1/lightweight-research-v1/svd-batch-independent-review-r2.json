@@ -1,0 +1,238 @@
+{
+  "schema": "lightweight-research-svd-batch-independent-review-r2.v1",
+  "reviewed_at_utc": "2026-09-08T14:00:00.000000000Z",
+  "clock_source": "date -u on the review host; bounded review timestamp",
+  "scope": "Bounded read-only verification of the SVD R2 wording-only successor against preserved R1 documents, wrappers, plan/status records, and the prior independent review. No source, workspace, Git, or CLI mutation.",
+  "paper": "Stable Video Diffusion",
+  "paper_id": "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e",
+  "decision": "PASS_WORDING_ONLY_SUCCESSOR",
+  "human_scientific_acceptance": false,
+  "prior_review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/svd-batch-independent-review-r1.json",
+    "sha256": "8b7c4114391ef4a6a77af7762fee159c8e9a3066e5026038a66ba5db00dce751",
+    "size_bytes": 62918
+  },
+  "successor_authoring_review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/authoring-review.json",
+    "sha256": "07c74465cb52ee91a9d2923ac14fbca65bc6a17f29467a8e6fce71d262eccb6c",
+    "size_bytes": 478
+  },
+  "model_document_checks": {
+    "batch-0.model-document.json": [
+      {
+        "path": "/sections/training_data/text",
+        "kind": "value",
+        "before": "预处理包括级联镜头切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。",
+        "after": "预处理包括镜头检测后的关键帧对齐切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。"
+      }
+    ],
+    "batch-1.model-document.json": [],
+    "merge-0.model-document.json": [
+      {
+        "path": "/sections/training_data/text",
+        "kind": "value",
+        "before": "预处理包括级联镜头切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。",
+        "after": "预处理包括镜头检测后的关键帧对齐切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。"
+      }
+    ],
+    "merge-1.model-document.json": [
+      {
+        "path": "/sections/training_data/text",
+        "kind": "value",
+        "before": "预处理含级联镜头切分、光流、CoCa/VideoBLIP/LLM 字幕、OCR、CLIP 文图相似度和美学分数；LVD-F 为 152M 样本。筛选消融分别选择移除运动最少 25%、美学最低 25%、CLIP 最低 50%、文本区域最大 25%；字幕采样概率为 0.5/0.25/0.25。运动阈值兼顾质量和提示对齐。250K 片段对应第 3.4 节训练阶段消融，约 1M 对应第 4.2 节高分辨率模型，须区分设置。",
+        "after": "预处理含镜头检测后的关键帧对齐切分、光流、CoCa/VideoBLIP/LLM 字幕、OCR、CLIP 文图相似度和美学分数；LVD-F 为 152M 样本。筛选消融分别选择移除运动最少 25%、美学最低 25%、CLIP 最低 50%、文本区域最大 25%；字幕采样概率为 0.5/0.25/0.25。运动阈值兼顾质量和提示对齐。250K 片段对应第 3.4 节训练阶段消融，约 1M 对应第 4.2 节高分辨率模型，须区分设置。"
+      }
+    ]
+  },
+  "wrapper_checks": [
+    {
+      "path_old": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/batch-0.wrapper.json",
+      "path_r2": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-0.wrapper.json",
+      "context_identical": true,
+      "paper_snapshot_identical": true,
+      "evidence_text_hash_errors": [],
+      "old_sha256": "cb8236e52d4b67d0f193e83a0a53a696afbe672cb3130cfeacb113c79bb7f223",
+      "r2_sha256": "9bf5d15d105aa9fee1865417eb488b11afacff6d43483e8a6ea62952416f91d3"
+    },
+    {
+      "path_old": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/batch-1.wrapper.json",
+      "path_r2": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-1.wrapper.json",
+      "context_identical": true,
+      "paper_snapshot_identical": true,
+      "evidence_text_hash_errors": [],
+      "old_sha256": "9c12f650397adf2f0678c946903dc578227511c7448a571b96d7e3fb0b09c464",
+      "r2_sha256": "32310620be9b4fd09432868cc079532efee28f8efa39d057ac97c796d8a5510c"
+    }
+  ],
+  "merge_wrapper_checks": {
+    "merge-0.wrapper.json": [
+      {
+        "path": "/next_batch_document/sections/training_data/text",
+        "kind": "value",
+        "before": "预处理包括级联镜头切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。",
+        "after": "预处理包括镜头检测后的关键帧对齐切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。"
+      },
+      {
+        "path": "/next_batch_document_hash",
+        "kind": "value",
+        "before": "bc092e9e79adce716c74e9aab2710485285f585c21309e2c8d3fed69d6a30c30",
+        "after": "a1e64cbceba880643a5ab8d528c55bbd439d9179f5196a46c75ee1a6126d9a99"
+      },
+      {
+        "path": "/plan_id",
+        "kind": "value",
+        "before": "64f2bcf01ed1040adf8b56479f1ac5c2f7390b54e383f0337e4cdf37bb3b4d46",
+        "after": "53bf66106519795f93fc0f965e50b5ce326f5a5fdd3607b22a88783f66744fba"
+      },
+      {
+        "path": "/plan_sha256",
+        "kind": "value",
+        "before": "d26b6d3bb31c80bd58eb9bdd0530248c4e64dbf0e1454588f15458f91a268012",
+        "after": "79fa4480b4ff9bde513b89c95e595acd4f766f8448b1c0fac3328a2f1065d787"
+      },
+      {
+        "path": "/wrapper_sha256",
+        "kind": "value",
+        "before": "ab7572821a7bd6c9fea72a400f222b6b8421b30d93735cf830744a71c4908716",
+        "after": "b2569c39db88ad458f722757e439efd57c2c31bd2b374d840683a85445a3262a"
+      }
+    ],
+    "merge-1.wrapper.json": [
+      {
+        "path": "/accumulator/sections/training_data/text",
+        "kind": "value",
+        "before": "预处理包括级联镜头切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。",
+        "after": "预处理包括镜头检测后的关键帧对齐切分、光流运动标注、CoCa 与 VideoBLIP 字幕及其 LLM 汇总、OCR 文本区域、CLIP 文图相似度和美学分数。论文报告筛选后的 LVD-F 包含 152M 样本。第 3.4 节用于验证训练阶段作用的高质量微调数据为 250K 片段；第 4.2 节高分辨率文生视频模型使用约 1M 样本，二者属于不同实验设置。"
+      },
+      {
+        "path": "/parent_step_hash",
+        "kind": "value",
+        "before": "02a6cb490e612270b423f03e36905367a7fe9984811769b7e220f5e57f185ef7",
+        "after": "0fd44dd410f34034c5695202c9cfcbb67500713b37adc8d71d3fbfd5e50885a3"
+      },
+      {
+        "path": "/plan_id",
+        "kind": "value",
+        "before": "64f2bcf01ed1040adf8b56479f1ac5c2f7390b54e383f0337e4cdf37bb3b4d46",
+        "after": "53bf66106519795f93fc0f965e50b5ce326f5a5fdd3607b22a88783f66744fba"
+      },
+      {
+        "path": "/plan_sha256",
+        "kind": "value",
+        "before": "d26b6d3bb31c80bd58eb9bdd0530248c4e64dbf0e1454588f15458f91a268012",
+        "after": "79fa4480b4ff9bde513b89c95e595acd4f766f8448b1c0fac3328a2f1065d787"
+      },
+      {
+        "path": "/wrapper_sha256",
+        "kind": "value",
+        "before": "dceb3b1038804fbb1571a4e7c7637bc707d8c93e072a4a7d89bdf57c4f471b32",
+        "after": "04725c59f9770ac04b0a20523240350a70b281aa65fe94bcefa75e9e1c98d384"
+      }
+    ]
+  },
+  "r2_plan": {
+    "plan_id": "53bf66106519795f93fc0f965e50b5ce326f5a5fdd3607b22a88783f66744fba",
+    "plan_sha256": "79fa4480b4ff9bde513b89c95e595acd4f766f8448b1c0fac3328a2f1065d787",
+    "expected_base_head": "2c60ef68733a7d3ab34fd0637208f83f0ed4c8f3f32c1f1acb47d3d4335721db",
+    "batch_count": 2,
+    "planned_chunks": 56,
+    "status_processing_complete": true,
+    "processed_chunks": 56,
+    "accepted_batches": 2,
+    "accepted_merges": 2,
+    "missing_batches": [],
+    "gap_chunk_ids": [],
+    "final_record_id": "a76848c63c06fd2fc53a4ef2a1ef892f030f9b1989e593b1f52753a2331b5f63",
+    "advanced_head": true
+  },
+  "r2_files": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/authoring-review.json",
+      "sha256": "07c74465cb52ee91a9d2923ac14fbca65bc6a17f29467a8e6fce71d262eccb6c",
+      "size_bytes": 478
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-0.import-result.json",
+      "sha256": "1c981263b64aff08baa12aaa7d618b382dfd238ef73226b7c6dd92eb04c30605",
+      "size_bytes": 293
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-0.model-document.json",
+      "sha256": "985b93a67e93edaebfc06e93ee7ebc826d9a8a967b8475b483e437832584bc43",
+      "size_bytes": 4054
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-0.wrapper.json",
+      "sha256": "9bf5d15d105aa9fee1865417eb488b11afacff6d43483e8a6ea62952416f91d3",
+      "size_bytes": 125186
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-1.import-result.json",
+      "sha256": "01e1059916e5bac1589bc9223921a8c18ff5ed88aa876575e894940bec779fbd",
+      "size_bytes": 293
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-1.model-document.json",
+      "sha256": "675ea37a943a53af025794a9f9f076ee2c88c61629eec555f035c1a73135a769",
+      "size_bytes": 3354
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/batch-1.wrapper.json",
+      "sha256": "32310620be9b4fd09432868cc079532efee28f8efa39d057ac97c796d8a5510c",
+      "size_bytes": 46546
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/finalize-result.json",
+      "sha256": "d339f706b7cd3775fdae0206041ac8cf8e03ddb15236cc27bf0f9574cb79039e",
+      "size_bytes": 753
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/merge-0.import-result.json",
+      "sha256": "02756e3e810a622950c4b3cdbdd31467302e3b6a4ba79d67a338e63482b72fc6",
+      "size_bytes": 218
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/merge-0.model-document.json",
+      "sha256": "985b93a67e93edaebfc06e93ee7ebc826d9a8a967b8475b483e437832584bc43",
+      "size_bytes": 4054
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/merge-0.wrapper.json",
+      "sha256": "9e117238a5e731083eca2c7c9847458fdae776cea0fc8dff8a5cc9a3129d76e5",
+      "size_bytes": 6863
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/merge-1.import-result.json",
+      "sha256": "2202e9ddaadaa4af32e21b72549f8aa21d7a9997713459e88c3ab123fba34ee5",
+      "size_bytes": 221
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/merge-1.model-document.json",
+      "sha256": "88b0bd29c30736494b595d4b54d4cfefab23f9173432f0041123727947171f0b",
+      "size_bytes": 4898
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/merge-1.wrapper.json",
+      "sha256": "7d73b85bd8b7417ccd35f3e479b7805e12fcea0ee0fc4000e288a08ac937fbb6",
+      "size_bytes": 9496
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/plan-result.json",
+      "sha256": "1a81f9af0328b0894f6bf82913175564f5625427b08af1b1acc4578202402473",
+      "size_bytes": 688
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/batches/svd/r2/status-result.json",
+      "sha256": "508e56d3a1818a02500418deb26d2f1261110b6c799389f35ba89ebd653cbcd0",
+      "size_bytes": 647
+    }
+  ],
+  "findings": [
+    "Batch-0 and merge-0/merge-1 model documents changed only the training_data.text wording from the unsupported cascade phrase to 镜头检测后的关键帧对齐切分.",
+    "Batch-1 model document is byte-identical to R1; all model-document citation ID sets are byte/value identical.",
+    "Batch wrappers retain exactly the R1 evidence context, source snapshot and 40/16 chunk partition; embedded evidence text hashes recompute cleanly.",
+    "Merge wrapper changes are limited to the changed batch prose and the expected new plan/chain/wrapper hashes; no evidence IDs or source text changed.",
+    "R2 completes the same 56/56 full plan with two accepted batches and two accepted merges from the R1 published head."
+  ],
+  "no_product_source_git_mutation": true
+}

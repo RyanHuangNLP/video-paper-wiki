@@ -1,0 +1,99 @@
+{
+  "schema": "lightweight-research-integration-real-cli-harness-review-correction-r1.v1",
+  "recorded_at_utc": "2026-09-08T14:38:47.570761+00:00",
+  "scope": "Correction-only record for two findings in the preserved static harness review. The original review, harness, existing real-CLI report, and supplemental archive verification are unchanged; no trial was rerun and no product/source/Git mutation was performed.",
+  "preserved_original_review": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration-real-cli-harness-review-r1.json",
+    "sha256": "e418de127bd68c29b395a146c5af4f8d470f1a33357b755933581b38f881e3a4",
+    "expected_sha256": "e418de127bd68c29b395a146c5af4f8d470f1a33357b755933581b38f881e3a4",
+    "content_preserved": true
+  },
+  "reviewed_harness": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/probes/integration_real_cli_trial.py",
+    "sha256": "fc05b117d116d3567dc8e0bf729b73f3c12d4b47c5960bb6b75d8c74a021ea00",
+    "expected_sha256": "fc05b117d116d3567dc8e0bf729b73f3c12d4b47c5960bb6b75d8c74a021ea00",
+    "size_bytes": 9011,
+    "ast_parse": true
+  },
+  "corrections": {
+    "IRCH1-RESTORED-BACKUP-ASSERTION": {
+      "original": {
+        "severity": "minor",
+        "status": "gap",
+        "text": "backup.restored-history is called with the default success expectation, but the harness does not assert its payload is ok, that the archive exists, or that the archive verifies."
+      },
+      "corrected": {
+        "status": "narrowed_gap",
+        "text": "The harness call() helper asserts payload.get(\"ok\") is True and exit code 0 for a default-success call, so backup.restored-history does require an OK payload and successful process exit. The remaining harness gap is limited to not explicitly asserting that the created archive exists and not invoking backup.verify on that restored-history archive."
+      },
+      "static_basis": [
+        "integration_real_cli_trial.py:55-69 parses stdout, records the call, and asserts payload.get(\"ok\") is success and (returncode == 0) is success.",
+        "integration_real_cli_trial.py:128 invokes backup.restored-history through call() with the default success=True."
+      ],
+      "existing_run_reference": {
+        "report_path": ".work/trials/lightweight-research-v1/cli/r1/report.json",
+        "report_sha256": "29b0c748979f1f8539df1385b96df45c6567564829f2ae87fa28d39b3e62c361",
+        "expected_report_sha256": "29b0c748979f1f8539df1385b96df45c6567564829f2ae87fa28d39b3e62c361",
+        "backup_restored_history_call": {
+          "present": true,
+          "exit_code": 0,
+          "ok": true,
+          "status": "OK"
+        },
+        "commands_passed": 22
+      },
+      "supplemental_archive_verification": {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-real-cli-supplement-r1.json",
+        "sha256": "0d55b40158182c393aaf273a096aea8874450d63a5a970bc7172cb01d6d90bdb",
+        "expected_sha256": "0d55b40158182c393aaf273a096aea8874450d63a5a970bc7172cb01d6d90bdb",
+        "result": "The already recorded backup.verify replay returned exit 0, ok=true/status=OK for restored-history.zip; this is supplemental evidence and does not add an assertion to the harness."
+      }
+    },
+    "IRCH1-ERROR-REPORTING": {
+      "original": {
+        "severity": "minor",
+        "status": "gap",
+        "text": "call() parses stdout as JSON and raises on malformed/empty output; only ProbeFailure is caught by main. A CLI transport regression can therefore escape as an unstructured traceback from the harness instead of a report.json with passed=false."
+      },
+      "corrected": {
+        "status": "retracted",
+        "text": "Malformed or empty stdout raises during json.loads inside main()'s try block. main() catches BaseException, updates the report with passed=false and the exception representation, and its finally block writes report.json before the exception is re-raised. The process may still terminate nonzero and emit a traceback, but the claimed absence of a report.json with passed=false is false."
+      },
+      "static_basis": [
+        "integration_real_cli_trial.py:60 parses stdout inside the try block beginning at line 84.",
+        "integration_real_cli_trial.py:143-148 catches BaseException, records passed=false/error, and writes report.json in finally."
+      ]
+    }
+  },
+  "unchanged_findings": [
+    "IRCH1-API-MAPPING",
+    "IRCH1-TRIAL-FIELDS",
+    "IRCH1-BATCH-STATUS",
+    "IRCH1-OUTPUT-PATH",
+    "IRCH1-WRITING-AWARE-BACKUP",
+    "IRCH1-SCOPE"
+  ],
+  "supplemental_references": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-real-cli-review-r1.json",
+      "sha256": "a482a353c36233821c645317440c3039484e7291491cf14fcda7ef5ce4155800",
+      "expected_sha256": "a482a353c36233821c645317440c3039484e7291491cf14fcda7ef5ce4155800",
+      "role": "Existing Architect integration record binding the unchanged 22-command report; not modified by this correction."
+    },
+    {
+      "path": ".work/trials/lightweight-research-v1/cli/r1/report.json",
+      "sha256": "29b0c748979f1f8539df1385b96df45c6567564829f2ae87fa28d39b3e62c361",
+      "expected_sha256": "29b0c748979f1f8539df1385b96df45c6567564829f2ae87fa28d39b3e62c361",
+      "role": "Existing actual run report; not rerun or modified."
+    }
+  ],
+  "conclusion": {
+    "original_review_hash_and_content_preserved": true,
+    "harness_hash_rechecked": true,
+    "restored_backup_finding": "narrowed_to_archive_existence_and_reverification_gap",
+    "malformed_stdout_finding": "retracted_as_report-writing_false_negative",
+    "trial_rerun": false,
+    "human_scientific_acceptance": false,
+    "no_product_source_git_mutation": true
+  }
+}

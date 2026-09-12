@@ -1,0 +1,753 @@
+{
+  "assertions": [
+    "legacy IDs/fingerprint and v1 event bytes remain unchanged",
+    "migrated head is the v2 human event",
+    "no v2 false genesis",
+    "no direct human/profile bypass",
+    "no v1 schema re-entry after v2",
+    "first v2 event points to exact v1 terminal event",
+    "v2 claim text hash remains the legacy claim text hash"
+  ],
+  "authority": "legacy assessment_history.py + SOURCE-SEMANTICS-R2 contract",
+  "legacy_prefix": {
+    "claim_id": "clm-2b84f0b5227e7fbac50b",
+    "claims": [
+      {
+        "assessment": "accepted",
+        "canonical_claim_text": "Migration claim with stable legacy evidence.",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "evidence": [],
+        "reviewed_at": "2026-09-09",
+        "stable_subject_id": "paper:arxiv:2311.15127"
+      }
+    ],
+    "empty_evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "events": [
+      {
+        "actor_kind": "human",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+        "decided_at": "2026-09-09T00:01:00Z",
+        "decided_by": "fixture-reviewer",
+        "event_id": "ase-545e1708fbcd0eebbbfe",
+        "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "from_assessment": "provisional",
+        "previous_event_id": "ase-e05f936d627ede31488d",
+        "reason": "Synthetic legacy acceptance.",
+        "schema": "video-paper-wiki.assessment-event.v1",
+        "to_assessment": "accepted",
+        "transition_kind": "human_assessment"
+      },
+      {
+        "actor_kind": "system",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+        "decided_at": "2026-09-09T00:00:00Z",
+        "decided_by": "fixture",
+        "event_id": "ase-e05f936d627ede31488d",
+        "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "from_assessment": null,
+        "previous_event_id": null,
+        "reason": "Synthetic legacy genesis.",
+        "schema": "video-paper-wiki.assessment-event.v1",
+        "to_assessment": "provisional",
+        "transition_kind": "genesis"
+      }
+    ],
+    "expected_heads": {
+      "clm-2b84f0b5227e7fbac50b": "ase-545e1708fbcd0eebbbfe"
+    },
+    "genesis_event_id": "ase-e05f936d627ede31488d",
+    "human_event_id": "ase-545e1708fbcd0eebbbfe"
+  },
+  "legacy_reference_fixture": "tests/fixtures/assessment-history/complete-vectors.json",
+  "migrated_valid": {
+    "claims": [
+      {
+        "assessment": "accepted",
+        "canonical_claim_text": "Migration claim with stable legacy evidence.",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "evidence": [
+          {
+            "association": {
+              "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+              "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+            },
+            "charspan": [
+              51,
+              82
+            ],
+            "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+            "kind": "markdown",
+            "page_anchor": "page-1",
+            "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+            "relation": "supports",
+            "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+            "source_id": "src-13ea0ff610b50ce22aed"
+          }
+        ],
+        "reviewed_at": "2026-09-09",
+        "stable_subject_id": "paper:arxiv:2311.15127"
+      }
+    ],
+    "events": [
+      {
+        "actor_kind": "human",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+        "decided_at": "2026-09-09T00:03:00Z",
+        "decided_by": "fixture-reviewer",
+        "event_id": "ase-181de0afea80d772550b",
+        "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+        "evidence_profile": "mixed-v2",
+        "from_assessment": "provisional",
+        "previous_event_id": "ase-0e148441d093a811ab47",
+        "reason": "Synthetic migrated acceptance.",
+        "schema": "video-paper-wiki.assessment-event.v2",
+        "to_assessment": "accepted",
+        "transition_kind": "human_assessment"
+      },
+      {
+        "actor_kind": "system",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+        "decided_at": "2026-09-09T00:02:00Z",
+        "decided_by": "fixture-system",
+        "event_id": "ase-0e148441d093a811ab47",
+        "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+        "evidence_profile": "mixed-v2",
+        "from_assessment": "accepted",
+        "previous_event_id": "ase-545e1708fbcd0eebbbfe",
+        "reason": "Markdown evidence replaces legacy evidence.",
+        "schema": "video-paper-wiki.assessment-event.v2",
+        "to_assessment": "provisional",
+        "transition_kind": "evidence_invalidation"
+      },
+      {
+        "actor_kind": "human",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+        "decided_at": "2026-09-09T00:01:00Z",
+        "decided_by": "fixture-reviewer",
+        "event_id": "ase-545e1708fbcd0eebbbfe",
+        "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "from_assessment": "provisional",
+        "previous_event_id": "ase-e05f936d627ede31488d",
+        "reason": "Synthetic legacy acceptance.",
+        "schema": "video-paper-wiki.assessment-event.v1",
+        "to_assessment": "accepted",
+        "transition_kind": "human_assessment"
+      },
+      {
+        "actor_kind": "system",
+        "claim_id": "clm-2b84f0b5227e7fbac50b",
+        "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+        "decided_at": "2026-09-09T00:00:00Z",
+        "decided_by": "fixture",
+        "event_id": "ase-e05f936d627ede31488d",
+        "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "from_assessment": null,
+        "previous_event_id": null,
+        "reason": "Synthetic legacy genesis.",
+        "schema": "video-paper-wiki.assessment-event.v1",
+        "to_assessment": "provisional",
+        "transition_kind": "genesis"
+      }
+    ],
+    "expected_heads": {
+      "clm-2b84f0b5227e7fbac50b": "ase-181de0afea80d772550b"
+    }
+  },
+  "negative_cases": [
+    {
+      "claims": [
+        {
+          "assessment": "accepted",
+          "canonical_claim_text": "Migration claim with stable legacy evidence.",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "evidence": [
+            {
+              "association": {
+                "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+                "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+              },
+              "charspan": [
+                51,
+                82
+              ],
+              "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+              "kind": "markdown",
+              "page_anchor": "page-1",
+              "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+              "relation": "supports",
+              "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+              "source_id": "src-13ea0ff610b50ce22aed"
+            }
+          ],
+          "reviewed_at": "2026-09-09",
+          "stable_subject_id": "paper:arxiv:2311.15127"
+        }
+      ],
+      "description": "v2 genesis must be system/provisional and cannot create a second genesis",
+      "events": [
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:03:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-181de0afea80d772550b",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-0e148441d093a811ab47",
+          "reason": "Synthetic migrated acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:02:00Z",
+          "decided_by": "fixture-system",
+          "event_id": "ase-0e148441d093a811ab47",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "accepted",
+          "previous_event_id": "ase-545e1708fbcd0eebbbfe",
+          "reason": "Markdown evidence replaces legacy evidence.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "provisional",
+          "transition_kind": "evidence_invalidation"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-545e1708fbcd0eebbbfe",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:00:00Z",
+          "decided_by": "fixture",
+          "event_id": "ase-00000000000000000000",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": null,
+          "previous_event_id": null,
+          "reason": "Synthetic legacy genesis.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "genesis"
+        }
+      ],
+      "expected_code": "SCHEMA_INVALID",
+      "expected_exit_code": 2,
+      "id": "false-v2-genesis"
+    },
+    {
+      "claims": [
+        {
+          "assessment": "accepted",
+          "canonical_claim_text": "Migration claim with stable legacy evidence.",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "evidence": [
+            {
+              "association": {
+                "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+                "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+              },
+              "charspan": [
+                51,
+                82
+              ],
+              "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+              "kind": "markdown",
+              "page_anchor": "page-1",
+              "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+              "relation": "supports",
+              "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+              "source_id": "src-13ea0ff610b50ce22aed"
+            }
+          ],
+          "reviewed_at": "2026-09-09",
+          "stable_subject_id": "paper:arxiv:2311.15127"
+        }
+      ],
+      "description": "first v2 successor must be explicit system evidence_invalidation; a human approval cannot bypass profile migration",
+      "events": [
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:03:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-dc931dce240bbb255e63",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "accepted",
+          "previous_event_id": "ase-545e1708fbcd0eebbbfe",
+          "reason": "Synthetic migrated acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-545e1708fbcd0eebbbfe",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:00:00Z",
+          "decided_by": "fixture",
+          "event_id": "ase-e05f936d627ede31488d",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": null,
+          "previous_event_id": null,
+          "reason": "Synthetic legacy genesis.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "provisional",
+          "transition_kind": "genesis"
+        }
+      ],
+      "expected_code": "ASSESSMENT_CHAIN_INVALID",
+      "expected_exit_code": 2,
+      "id": "direct-v2-human-bypass"
+    },
+    {
+      "claims": [
+        {
+          "assessment": "accepted",
+          "canonical_claim_text": "Migration claim with stable legacy evidence.",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "evidence": [
+            {
+              "association": {
+                "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+                "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+              },
+              "charspan": [
+                51,
+                82
+              ],
+              "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+              "kind": "markdown",
+              "page_anchor": "page-1",
+              "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+              "relation": "supports",
+              "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+              "source_id": "src-13ea0ff610b50ce22aed"
+            }
+          ],
+          "reviewed_at": "2026-09-09",
+          "stable_subject_id": "paper:arxiv:2311.15127"
+        }
+      ],
+      "description": "first v2 invalidation must link the actual v1 terminal event",
+      "events": [
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:03:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-181de0afea80d772550b",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-0e148441d093a811ab47",
+          "reason": "Synthetic migrated acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:02:00Z",
+          "decided_by": "fixture-system",
+          "event_id": "ase-0ac925a61f6c463323f8",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "accepted",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Markdown evidence replaces legacy evidence.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "provisional",
+          "transition_kind": "evidence_invalidation"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-545e1708fbcd0eebbbfe",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:00:00Z",
+          "decided_by": "fixture",
+          "event_id": "ase-e05f936d627ede31488d",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": null,
+          "previous_event_id": null,
+          "reason": "Synthetic legacy genesis.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "provisional",
+          "transition_kind": "genesis"
+        }
+      ],
+      "expected_code": "ASSESSMENT_CHAIN_INVALID",
+      "expected_exit_code": 2,
+      "id": "wrong-v1-terminal-parent"
+    },
+    {
+      "claims": [
+        {
+          "assessment": "accepted",
+          "canonical_claim_text": "Migration claim with stable legacy evidence.",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "evidence": [
+            {
+              "association": {
+                "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+                "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+              },
+              "charspan": [
+                51,
+                82
+              ],
+              "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+              "kind": "markdown",
+              "page_anchor": "page-1",
+              "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+              "relation": "supports",
+              "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+              "source_id": "src-13ea0ff610b50ce22aed"
+            }
+          ],
+          "reviewed_at": "2026-09-09",
+          "stable_subject_id": "paper:arxiv:2311.15127"
+        }
+      ],
+      "description": "once schema v2 has entered, a later v1 event is refused; v1 prefix remains immutable",
+      "events": [
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-96aca3a9702f19214559",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-181de0afea80d772550b",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:03:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-181de0afea80d772550b",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-0e148441d093a811ab47",
+          "reason": "Synthetic migrated acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:02:00Z",
+          "decided_by": "fixture-system",
+          "event_id": "ase-0e148441d093a811ab47",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "accepted",
+          "previous_event_id": "ase-545e1708fbcd0eebbbfe",
+          "reason": "Markdown evidence replaces legacy evidence.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "provisional",
+          "transition_kind": "evidence_invalidation"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-545e1708fbcd0eebbbfe",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:00:00Z",
+          "decided_by": "fixture",
+          "event_id": "ase-e05f936d627ede31488d",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": null,
+          "previous_event_id": null,
+          "reason": "Synthetic legacy genesis.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "provisional",
+          "transition_kind": "genesis"
+        }
+      ],
+      "expected_code": "ASSESSMENT_CHAIN_INVALID",
+      "expected_exit_code": 2,
+      "id": "v1-reentry-after-v2"
+    },
+    {
+      "claims": [
+        {
+          "assessment": "accepted",
+          "canonical_claim_text": "Migration claim with stable legacy evidence.",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "evidence": [
+            {
+              "association": {
+                "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+                "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+              },
+              "charspan": [
+                51,
+                82
+              ],
+              "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+              "kind": "markdown",
+              "page_anchor": "page-1",
+              "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+              "relation": "supports",
+              "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+              "source_id": "src-13ea0ff610b50ce22aed"
+            }
+          ],
+          "reviewed_at": "2026-09-09",
+          "stable_subject_id": "paper:arxiv:2311.15127"
+        }
+      ],
+      "description": "evidence_invalidation must change profile or fingerprint",
+      "events": [
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:03:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-0e5a51a1aebc20a1e81d",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-b9bfc588a401b5e3162a",
+          "reason": "Synthetic migrated acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:02:00Z",
+          "decided_by": "fixture-system",
+          "event_id": "ase-b9bfc588a401b5e3162a",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "evidence_profile": "legacy-v1",
+          "from_assessment": "accepted",
+          "previous_event_id": "ase-545e1708fbcd0eebbbfe",
+          "reason": "Markdown evidence replaces legacy evidence.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "provisional",
+          "transition_kind": "evidence_invalidation"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-545e1708fbcd0eebbbfe",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:00:00Z",
+          "decided_by": "fixture",
+          "event_id": "ase-e05f936d627ede31488d",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": null,
+          "previous_event_id": null,
+          "reason": "Synthetic legacy genesis.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "provisional",
+          "transition_kind": "genesis"
+        }
+      ],
+      "expected_code": "EVIDENCE_FINGERPRINT_MISMATCH",
+      "expected_exit_code": 2,
+      "id": "invalidation-same-fingerprint"
+    },
+    {
+      "claims": [
+        {
+          "assessment": "accepted",
+          "canonical_claim_text": "Migration claim with stable legacy evidence.",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "evidence": [
+            {
+              "association": {
+                "association_id": "sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1",
+                "sha256": "f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8"
+              },
+              "charspan": [
+                51,
+                82
+              ],
+              "excerpt_sha256": "fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79",
+              "kind": "markdown",
+              "page_anchor": "page-1",
+              "path": ".raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md",
+              "relation": "supports",
+              "sha256": "d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52",
+              "source_id": "src-13ea0ff610b50ce22aed"
+            }
+          ],
+          "reviewed_at": "2026-09-09",
+          "stable_subject_id": "paper:arxiv:2311.15127"
+        }
+      ],
+      "description": "human assessment must retain predecessor profile/fingerprint",
+      "events": [
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:03:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-2498325c4230704dccc8",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-0e148441d093a811ab47",
+          "reason": "Synthetic migrated acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:02:00Z",
+          "decided_by": "fixture-system",
+          "event_id": "ase-0e148441d093a811ab47",
+          "evidence_fingerprint": "561d63f34327c824849d964461f27b27c26f30f56dd59b9e042d912605b87ef6",
+          "evidence_profile": "mixed-v2",
+          "from_assessment": "accepted",
+          "previous_event_id": "ase-545e1708fbcd0eebbbfe",
+          "reason": "Markdown evidence replaces legacy evidence.",
+          "schema": "video-paper-wiki.assessment-event.v2",
+          "to_assessment": "provisional",
+          "transition_kind": "evidence_invalidation"
+        },
+        {
+          "actor_kind": "human",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:01:00Z",
+          "decided_by": "fixture-reviewer",
+          "event_id": "ase-545e1708fbcd0eebbbfe",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": "provisional",
+          "previous_event_id": "ase-e05f936d627ede31488d",
+          "reason": "Synthetic legacy acceptance.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "accepted",
+          "transition_kind": "human_assessment"
+        },
+        {
+          "actor_kind": "system",
+          "claim_id": "clm-2b84f0b5227e7fbac50b",
+          "claim_text_sha256": "00c0d77243d02db8d63e238bd395f22a10b2fc0ae06a6423a9964df2067d0f6e",
+          "decided_at": "2026-09-09T00:00:00Z",
+          "decided_by": "fixture",
+          "event_id": "ase-e05f936d627ede31488d",
+          "evidence_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "from_assessment": null,
+          "previous_event_id": null,
+          "reason": "Synthetic legacy genesis.",
+          "schema": "video-paper-wiki.assessment-event.v1",
+          "to_assessment": "provisional",
+          "transition_kind": "genesis"
+        }
+      ],
+      "expected_code": "EVIDENCE_FINGERPRINT_MISMATCH",
+      "expected_exit_code": 2,
+      "id": "human-fingerprint-switch"
+    }
+  ],
+  "revision": "R2",
+  "schema": "video-paper-wiki.assessment-v1-to-v2-compatibility-vectors.v1"
+}

@@ -1,0 +1,129 @@
+schema: video-paper-wiki.external-reuse-audit.v1
+schema_path: docs/ai/external-reuse-audit.v1.schema.json
+observed_on: "2026-09-04"
+purpose: code-level architecture input for Video Generation Research Wiki v1
+evidence_scope: public source bytes at exact commits plus the existing local submodule
+gate_effect: none
+external_provenance_license_gate: EXTERNAL-PROVENANCE-LICENSE-001
+gate_status_at_observation: not-recorded
+audit_method:
+  commit_resolution: exact 40-character lowercase Git object ID
+  tree_resolution: git rev-parse AUDITED_COMMIT^{tree}
+  integrity_check: git fsck --full --no-progress
+  source_hash: SHA-256 over exact regular-file bytes
+  retrieval: existing pinned submodule or ephemeral public clone; clones are not retained
+  replay: >-
+    Fetch the repository URL and exact audited_commit, require the commit and tree
+    objects, compare tree_sha1, run the integrity check, then compare every listed
+    license and source-file SHA-256. A branch name is context only and is never a pin.
+  tools:
+    git: git version 2.50.1 (Apple Git-155)
+    shasum: "6.02"
+copy_policy: >-
+  The existing pinned claude-obsidian submodule may continue through its current
+  adapter contract. No newly audited external source is copied until the project
+  records the external provenance/license decision; W1 uses an independent implementation.
+
+repositories:
+  - id: github:agricidaniel/claude-obsidian
+    url: https://github.com/AgriciDaniel/claude-obsidian
+    default_branch: main
+    observed_remote_head: ad67087cad22ad84cc3288f915588ae42c0c2b44
+    audited_commit: 9f8c1199047eac2c3828496279fbb7ba9540b90b
+    tree_sha1: b00665e266988fe99138e761dbbf4da04b2ddb5a
+    source: existing-pinned-submodule
+    verification: {commit_object: present, tree_object: present, git_fsck_full: passed, listed_file_hashes: passed}
+    license:
+      spdx: MIT
+      path: LICENSE
+      sha256: 1c5915b8cde3e16949e40961353e483d44a65f90fae72405465dcff60118e57f
+    files:
+      - {path: claude_obsidian/transaction.py, sha256: e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2}
+      - {path: claude_obsidian/capture.py, sha256: 9fded207710e1e9b2fb60c6616b0675338b5eeaa1959f4ad972faec3c1ebd891}
+      - {path: claude_obsidian/ledgers.py, sha256: 9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1}
+      - {path: scripts/bm25-index.py, sha256: 6d9a2d9fc6b9dd08061ed6606b7dbff60715de5e128e987581a722293bb61289}
+    decision: direct-call-through-current-pin-and-adapter
+    do_not: [follow-remote-main, fork-transaction, create-second-ledger, create-second-bm25]
+
+  - id: github:ar9av/obsidian-wiki
+    url: https://github.com/Ar9av/obsidian-wiki
+    default_branch: main
+    observed_remote_head: f268d437442a551e4121aa1b7dd680ef987a8d50
+    audited_commit: f268d437442a551e4121aa1b7dd680ef987a8d50
+    tree_sha1: bdd389181be5fcfaa25de1a869254ff00450e892
+    source: shallow-public-clone
+    verification: {commit_object: present, tree_object: present, git_fsck_full: passed, listed_file_hashes: passed}
+    license: {spdx: MIT, path: LICENSE, sha256: 70c79a07317545794fe309811949c1e637fb4cf8fb7bfcddc3658c25e758b019}
+    files:
+      - {path: docs/architecture.md, sha256: c00ffea76cd89791533c67d140940c5c24cd7d2774ac789228e8f34b2c794a79}
+      - {path: obsidian_wiki/graph_analysis.py, sha256: a968c17725e5acd863515a6951621d160ad56f54cf8718f928cdabbd2ae5b9d6}
+      - {path: obsidian_wiki/context_pack.py, sha256: 9808698c60e9debe70c7d296c0407b4a2aa78cabe539381b7e43919d6f90d6fd}
+      - {path: obsidian_wiki/graphrag.py, sha256: 362d9380d45fb4541e60618c1ef6468a361c378e29d381e60770976ad2f89f76}
+    decision: independently-reimplement-graph-and-context-pack-interfaces
+    do_not: [direct-vault-write, qmd-side-effects, emergent-schema-as-truth, unlocked-prose-write]
+
+  - id: github:nvk/llm-wiki
+    url: https://github.com/nvk/llm-wiki
+    default_branch: master
+    observed_remote_head: 7c94c9bf2968f17deb496b285db0afdb610a01d9
+    audited_commit: 7c94c9bf2968f17deb496b285db0afdb610a01d9
+    tree_sha1: 55a1af947f566c03920ff1443040277380554c7d
+    source: shallow-public-clone
+    verification: {commit_object: present, tree_object: present, git_fsck_full: passed, listed_file_hashes: passed}
+    license: {spdx: MIT, path: LICENSE, sha256: e598f82ef0457e69317f0e7fcaee27016886a058742f8e01b1ff4ac36eb93914}
+    files:
+      - {path: claude-plugin/commands/research.md, sha256: 1407f939662122e5e166e689e1bc4b1b048874a9cdc4e2b1fbaf40a17e6a180f}
+      - {path: claude-plugin/skills/wiki-manager/references/research-infrastructure.md, sha256: 93484093d69d12893e0ed8d53864a62635ae91bd4e8ad8ca9c492239abfb879f}
+      - {path: scripts/llm-wiki, sha256: fb31fd6daca34ca03b45bc754e531675dedd21c982f981f6996604c3379feffc}
+    decision: borrow-bounded-session-and-multi-lens-orchestration-protocol
+    do_not: [prompt-as-state-machine, nested-workers-writing-vault, auto-accept-verdict, aggressive-ingest]
+
+  - id: github:atomicstrata/llm-wiki-compiler
+    url: https://github.com/atomicstrata/llm-wiki-compiler
+    default_branch: main
+    observed_remote_head: cbd09c6c415f36b6001adf89a02aa805a5a5aba6
+    audited_commit: cbd09c6c415f36b6001adf89a02aa805a5a5aba6
+    tree_sha1: 0cdc782a0390cec3f56929b32a1bc693d5e08e9e
+    source: shallow-public-clone
+    verification: {commit_object: present, tree_object: present, git_fsck_full: passed, listed_file_hashes: passed}
+    license: {spdx: MIT, path: LICENSE, sha256: c6bc84c8d6f6d21fb78a51d1b356746c2401934a297a83967914dd66fa4b85cc}
+    files:
+      - {path: src/connectors/confined-fetch.ts, sha256: 6b0a295a0fab12f9427a781bcdf33a302e51574955e2bb8885cac698e2b9431c}
+      - {path: src/linter/rules-citations.ts, sha256: c683cf21bc3e1f49624509b078128424658ea812e7c27080fc31798cd8bff1e3}
+      - {path: src/freshness/index.ts, sha256: e7bdb3012abab549a898d4108fb9a110c0f0ab17b1fe9e057058f84aedf9fe77}
+    decision: independently-reimplement-observable-security-and-audit-behavior
+    do_not: [embed-typescript-runtime, second-mutable-state, markdown-as-canonical-truth, llm-judge-as-fact]
+
+  - id: github:samuraigpt/llm-wiki-agent
+    url: https://github.com/SamurAIGPT/llm-wiki-agent
+    default_branch: main
+    observed_remote_head: 4ea2c7f916a8f7de6c787d1be014cd392250c161
+    audited_commit: 4ea2c7f916a8f7de6c787d1be014cd392250c161
+    tree_sha1: 29b745b7fbf2d878b4b7c01491e36ee480362ab0
+    source: shallow-public-clone
+    verification: {commit_object: present, tree_object: present, git_fsck_full: passed, listed_file_hashes: passed}
+    license: {spdx: MIT, path: LICENSE, sha256: eacda1b8f62da2f0e8124504dbafbb042bf61339ec8da38d5fb3a91b38581568}
+    files:
+      - {path: AGENTS.md, sha256: 20b68cb912c8acb9addd7e11d0abc41defe75a398481e4d712a7f8961b0e7051}
+      - {path: tools/ingest.py, sha256: d8423bee20d54243cbe5d21d3cbfb44beb2f123bec4cfc2cde9c7a60b05d8114}
+      - {path: tools/build_graph.py, sha256: eae92e9326798e0cff7f6ff8fb41d9b9e60b48eee9004e0e097e4222313a37cc}
+      - {path: tools/query.py, sha256: 1dec789166b67087be3494a47bb5b39853b8049c10b7370669c393d7dcf3a634}
+    decision: borrow-information-architecture-and-user-language-only
+    do_not: [direct-llm-file-write, weak-semantic-lint, lossy-edge-dedup, second-claim-model]
+
+  - id: github:swarmclawai/swarmvault
+    url: https://github.com/swarmclawai/swarmvault
+    default_branch: main
+    observed_remote_head: 815412d24298e59e5073ded1ddd6c0e6aee9b91b
+    audited_commit: 815412d24298e59e5073ded1ddd6c0e6aee9b91b
+    tree_sha1: fa98ccf1579f0c7c5d060e124c9bf08985bc599b
+    source: shallow-public-clone
+    verification: {commit_object: present, tree_object: present, git_fsck_full: passed, listed_file_hashes: passed}
+    license: {spdx: MIT, path: LICENSE, sha256: 190c05a348b19f978c00bb54b83ed23a45b38e7d3e5c46f359e15975669c279d}
+    files:
+      - {path: packages/engine/src/types.ts, sha256: 56df79af67e48e04e85ebcb6d06833c627946278a9be2b80a7aa53c2d4659924}
+      - {path: packages/engine/src/graph-query-core.ts, sha256: 045a89f63073ef9e45f882986c0b53d5dd5f1c502f5f11fca7a58a442c0aad3b}
+      - {path: packages/engine/src/context-packs.ts, sha256: 9cd1befa6ae8e509bf0947fad26624c072dbb4914e519cb63ca785e961527ea4}
+      - {path: packages/engine/src/vault.ts, sha256: cb54b9f192cd439266bf5b11f6ce24028fe76cbf5dcc89b2a5abc25611f8daa5}
+    decision: independently-reimplement-stable-graph-query-context-budget-and-validation
+    do_not: [embed-typescript-daemon, provider-egress, source-id-only-citations, unseeded-community-ids]

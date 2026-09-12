@@ -1,0 +1,333 @@
+﻿2026-09-07T18:18:51.4798464Z Current runner version: '2.337.0'
+2026-09-07T18:18:51.4828767Z ##[group]Runner Image Provisioner
+2026-09-07T18:18:51.4829807Z Hosted Compute Agent
+2026-09-07T18:18:51.4830739Z Version: 20260828.587
+2026-09-07T18:18:51.4831783Z Commit: abac92662cab4cc7352de4f9f9d2e2419aad9c29
+2026-09-07T18:18:51.4832830Z Build Date: 2026-08-28T16:44:25Z
+2026-09-07T18:18:51.4833758Z Worker ID: {03f32556-883d-4ac4-9134-3810b6edd93f}
+2026-09-07T18:18:51.4834700Z Azure Region: westcentralus
+2026-09-07T18:18:51.4835627Z ##[endgroup]
+2026-09-07T18:18:51.4837495Z ##[group]Operating System
+2026-09-07T18:18:51.4838389Z Ubuntu
+2026-09-07T18:18:51.4839112Z 24.04.4
+2026-09-07T18:18:51.4839809Z LTS
+2026-09-07T18:18:51.4840618Z ##[endgroup]
+2026-09-07T18:18:51.4841634Z ##[group]Runner Image
+2026-09-07T18:18:51.4842427Z Image: ubuntu-24.04
+2026-09-07T18:18:51.4843304Z Version: 20260831.293.1
+2026-09-07T18:18:51.4844925Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260831.293/images/ubuntu/Ubuntu2404-Readme.md
+2026-09-07T18:18:51.4847148Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260831.293
+2026-09-07T18:18:51.4848430Z ##[endgroup]
+2026-09-07T18:18:51.4849982Z ##[group]GITHUB_TOKEN Permissions
+2026-09-07T18:18:51.4852315Z Contents: read
+2026-09-07T18:18:51.4853266Z Metadata: read
+2026-09-07T18:18:51.4854081Z ##[endgroup]
+2026-09-07T18:18:51.4856712Z Secret source: Actions
+2026-09-07T18:18:51.4858075Z Prepare workflow directory
+2026-09-07T18:18:51.6590777Z Prepare all required actions
+2026-09-07T18:18:51.6724656Z Getting action download info
+2026-09-07T18:18:52.0038976Z Download action repository 'actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+2026-09-07T18:18:52.3510973Z Download action repository 'astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78' (SHA:37802adc94f370d6bfd71619e3f0bf239e1f3b78)
+2026-09-07T18:18:53.4050681Z Complete job name: ubuntu-24.04 / Python 3.12
+2026-09-07T18:18:53.4703628Z ##[group]Run actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+2026-09-07T18:18:53.4704570Z with:
+2026-09-07T18:18:53.4704965Z   persist-credentials: false
+2026-09-07T18:18:53.4705450Z   repository: RyanHuangNLP/video-paper-wiki
+2026-09-07T18:18:53.4708803Z   token: ***
+2026-09-07T18:18:53.4709182Z   ssh-strict: true
+2026-09-07T18:18:53.4709561Z   ssh-user: git
+2026-09-07T18:18:53.4709923Z   clean: true
+2026-09-07T18:18:53.4710364Z   sparse-checkout-cone-mode: true
+2026-09-07T18:18:53.4710833Z   fetch-depth: 1
+2026-09-07T18:18:53.4711204Z   fetch-tags: false
+2026-09-07T18:18:53.4711752Z   show-progress: true
+2026-09-07T18:18:53.4712140Z   lfs: false
+2026-09-07T18:18:53.4712513Z   submodules: false
+2026-09-07T18:18:53.4712929Z   set-safe-directory: true
+2026-09-07T18:18:53.4713503Z env:
+2026-09-07T18:18:53.4713875Z   PYTEST_DISABLE_PLUGIN_AUTOLOAD: 1
+2026-09-07T18:18:53.4714334Z   UV_NO_PROGRESS: 1
+2026-09-07T18:18:53.4714710Z ##[endgroup]
+2026-09-07T18:18:53.6587973Z Syncing repository: RyanHuangNLP/video-paper-wiki
+2026-09-07T18:18:53.6618108Z ##[group]Getting Git version info
+2026-09-07T18:18:53.6621119Z Working directory is '/home/runner/work/video-paper-wiki/video-paper-wiki'
+2026-09-07T18:18:53.6625355Z [command]/usr/bin/git version
+2026-09-07T18:18:53.6626268Z git version 2.55.0
+2026-09-07T18:18:53.6629313Z ##[endgroup]
+2026-09-07T18:18:53.6636307Z Temporarily overriding HOME='/home/runner/work/_temp/1ea09a28-03b8-4ddb-b5e6-cd08ab044818' before making global git config changes
+2026-09-07T18:18:53.6638384Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-07T18:18:53.6640290Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/video-paper-wiki/video-paper-wiki
+2026-09-07T18:18:53.6644133Z Deleting the contents of '/home/runner/work/video-paper-wiki/video-paper-wiki'
+2026-09-07T18:18:53.6645965Z ##[group]Initializing the repository
+2026-09-07T18:18:53.6647339Z [command]/usr/bin/git init /home/runner/work/video-paper-wiki/video-paper-wiki
+2026-09-07T18:18:53.6649642Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-09-07T18:18:53.6651118Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-09-07T18:18:53.6652969Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-09-07T18:18:53.6654190Z hint: call:
+2026-09-07T18:18:53.6654924Z hint:
+2026-09-07T18:18:53.6655809Z hint: 	git config --global init.defaultBranch <name>
+2026-09-07T18:18:53.6656827Z hint:
+2026-09-07T18:18:53.6657895Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-09-07T18:18:53.6659482Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-09-07T18:18:53.6660838Z hint:
+2026-09-07T18:18:53.6661972Z hint: 	git branch -m <name>
+2026-09-07T18:18:53.6663007Z hint:
+2026-09-07T18:18:53.6664285Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-09-07T18:18:53.6666302Z Initialized empty Git repository in /home/runner/work/video-paper-wiki/video-paper-wiki/.git/
+2026-09-07T18:18:53.6669234Z [command]/usr/bin/git remote add origin https://github.com/RyanHuangNLP/video-paper-wiki
+2026-09-07T18:18:53.6673095Z ##[endgroup]
+2026-09-07T18:18:53.6674855Z ##[group]Disabling automatic garbage collection
+2026-09-07T18:18:53.6676398Z [command]/usr/bin/git config --local gc.auto 0
+2026-09-07T18:18:53.6679145Z ##[endgroup]
+2026-09-07T18:18:53.6680470Z ##[group]Setting up auth
+2026-09-07T18:18:53.6681683Z Removing SSH command configuration
+2026-09-07T18:18:53.6683708Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-07T18:18:53.6756596Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-07T18:18:53.7100362Z Removing HTTP extra header
+2026-09-07T18:18:53.7109203Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-07T18:18:53.7143610Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-07T18:18:53.7366022Z Removing includeIf entries pointing to credentials config files
+2026-09-07T18:18:53.7369004Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-07T18:18:53.7406219Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-07T18:18:53.7627131Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-09-07T18:18:53.7668530Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git.path /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:53.7704319Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:53.7746888Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:53.7786920Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:53.7855850Z ##[endgroup]
+2026-09-07T18:18:53.7857399Z ##[group]Fetching the repository
+2026-09-07T18:18:53.7868953Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +08f7dda118477f929bbaea2748d127b591a4f986:refs/remotes/pull/95/merge
+2026-09-07T18:18:55.2438828Z From https://github.com/RyanHuangNLP/video-paper-wiki
+2026-09-07T18:18:55.2442513Z  * [new ref]         08f7dda118477f929bbaea2748d127b591a4f986 -> pull/95/merge
+2026-09-07T18:18:55.2452956Z ##[endgroup]
+2026-09-07T18:18:55.2455005Z ##[group]Determining the checkout info
+2026-09-07T18:18:55.2456890Z ##[endgroup]
+2026-09-07T18:18:55.2458052Z [command]/usr/bin/git sparse-checkout disable
+2026-09-07T18:18:55.2506028Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-09-07T18:18:55.2536072Z ##[group]Checking out the ref
+2026-09-07T18:18:55.2538241Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/95/merge
+2026-09-07T18:18:55.3083209Z Note: switching to 'refs/remotes/pull/95/merge'.
+2026-09-07T18:18:55.3084618Z 
+2026-09-07T18:18:55.3085874Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-09-07T18:18:55.3088217Z changes and commit them, and you can discard any commits you make in this
+2026-09-07T18:18:55.3090438Z state without impacting any branches by switching back to a branch.
+2026-09-07T18:18:55.3092207Z 
+2026-09-07T18:18:55.3093263Z If you want to create a new branch to retain commits you create, you may
+2026-09-07T18:18:55.3095246Z do so (now or later) by using -c with the switch command. Example:
+2026-09-07T18:18:55.3096374Z 
+2026-09-07T18:18:55.3097109Z   git switch -c <new-branch-name>
+2026-09-07T18:18:55.3097975Z 
+2026-09-07T18:18:55.3098623Z Or undo this operation with:
+2026-09-07T18:18:55.3099514Z 
+2026-09-07T18:18:55.3100163Z   git switch -
+2026-09-07T18:18:55.3101676Z 
+2026-09-07T18:18:55.3102864Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-09-07T18:18:55.3104339Z 
+2026-09-07T18:18:55.3106037Z HEAD is now at 08f7dda Merge 809627bfa0deb8c1b1393f731bf3cb9a3c21ee66 into 08709894adfb20ec07e976783f0ba436d975b74f
+2026-09-07T18:18:55.3112144Z ##[endgroup]
+2026-09-07T18:18:55.3142419Z [command]/usr/bin/git log -1 --format=%H
+2026-09-07T18:18:55.3164878Z 08f7dda118477f929bbaea2748d127b591a4f986
+2026-09-07T18:18:55.3177010Z ##[group]Removing auth
+2026-09-07T18:18:55.3178670Z Removing SSH command configuration
+2026-09-07T18:18:55.3183530Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-07T18:18:55.3221432Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-07T18:18:55.3428633Z Removing HTTP extra header
+2026-09-07T18:18:55.3431489Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-07T18:18:55.3477527Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-07T18:18:55.3680027Z Removing includeIf entries pointing to credentials config files
+2026-09-07T18:18:55.3683596Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-07T18:18:55.3710602Z includeif.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git.path
+2026-09-07T18:18:55.3713606Z includeif.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git/worktrees/*.path
+2026-09-07T18:18:55.3716241Z includeif.gitdir:/github/workspace/.git.path
+2026-09-07T18:18:55.3721897Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-09-07T18:18:55.3735766Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git.path
+2026-09-07T18:18:55.3753380Z /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3763198Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git.path /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3795319Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git/worktrees/*.path
+2026-09-07T18:18:55.3818894Z /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3830162Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/video-paper-wiki/video-paper-wiki/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3861934Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-09-07T18:18:55.3885619Z /github/runner_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3897389Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3956534Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-09-07T18:18:55.3987389Z /github/runner_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.3995318Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config
+2026-09-07T18:18:55.4033147Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-07T18:18:55.4231953Z Removing credentials config '/home/runner/work/_temp/git-credentials-2e6087fd-2b1e-499d-915d-a3656555c08e.config'
+2026-09-07T18:18:55.4239108Z ##[endgroup]
+2026-09-07T18:18:55.4645198Z ##[group]Run astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+2026-09-07T18:18:55.4646353Z with:
+2026-09-07T18:18:55.4646944Z   version: 0.12.7
+2026-09-07T18:18:55.4647603Z   python-version: 3.12
+2026-09-07T18:18:55.4648304Z   enable-cache: false
+2026-09-07T18:18:55.4649015Z   activate-environment: false
+2026-09-07T18:18:55.4650105Z   working-directory: /home/runner/work/video-paper-wiki/video-paper-wiki
+2026-09-07T18:18:55.4657426Z   github-token: ***
+2026-09-07T18:18:55.4659107Z   cache-dependency-glob: **/*requirements*.txt
+**/*requirements*.in
+**/*constraints*.txt
+**/*constraints*.in
+**/pyproject.toml
+**/uv.lock
+**/*.py.lock
+
+2026-09-07T18:18:55.4660967Z   restore-cache: true
+2026-09-07T18:18:55.4661893Z   save-cache: true
+2026-09-07T18:18:55.4662562Z   prune-cache: true
+2026-09-07T18:18:55.4663249Z   cache-python: false
+2026-09-07T18:18:55.4663999Z   ignore-nothing-to-cache: false
+2026-09-07T18:18:55.4664847Z   ignore-empty-workdir: false
+2026-09-07T18:18:55.4665715Z   add-problem-matchers: true
+2026-09-07T18:18:55.4666532Z   resolution-strategy: highest
+2026-09-07T18:18:55.4667296Z env:
+2026-09-07T18:18:55.4667941Z   PYTEST_DISABLE_PLUGIN_AUTOLOAD: 1
+2026-09-07T18:18:55.4668773Z   UV_NO_PROGRESS: 1
+2026-09-07T18:18:55.4669433Z ##[endgroup]
+2026-09-07T18:18:55.6342787Z Fetching version data from https://raw.githubusercontent.com/astral-sh/versions/main/v1/uv.ndjson ...
+2026-09-07T18:18:55.8013713Z Downloading uv from "https://releases.astral.sh/github/uv/releases/download/0.12.7/uv-x86_64-unknown-linux-gnu.tar.gz" ...
+2026-09-07T18:18:56.1511875Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/f5e6163e-5d48-42a6-82c0-7897e307d29c -f /home/runner/work/_temp/e0402aa3-0588-45f6-9211-824cd12eee81
+2026-09-07T18:18:57.0149055Z Added /home/runner/.local/bin to the path
+2026-09-07T18:18:57.0151580Z Added /opt/hostedtoolcache/uv/0.12.7/x86_64 to the path
+2026-09-07T18:18:57.0153108Z Set UV_PYTHON_INSTALL_DIR to /home/runner/work/_temp/uv-python-dir
+2026-09-07T18:18:57.0154009Z Added /home/runner/work/_temp/uv-python-dir to the path
+2026-09-07T18:18:57.0154574Z Set UV_PYTHON to 3.12
+2026-09-07T18:18:57.0175304Z Successfully installed uv version 0.12.7
+2026-09-07T18:18:57.0783444Z ##[group]Run set -euo pipefail
+2026-09-07T18:18:57.0783734Z [36;1mset -euo pipefail[0m
+2026-09-07T18:18:57.0784033Z [36;1mVPKB_UPSTREAM_PIN=9f8c1199047eac2c3828496279fbb7ba9540b90b[0m
+2026-09-07T18:18:57.0784665Z [36;1mtest "$(git ls-tree HEAD vendor/claude-obsidian | awk '{print $3}')" = "$VPKB_UPSTREAM_PIN"[0m
+2026-09-07T18:18:57.0785131Z [36;1mgit submodule update --init --checkout -- vendor/claude-obsidian[0m
+2026-09-07T18:18:57.0785559Z [36;1mtest "$(git -C vendor/claude-obsidian rev-parse HEAD)" = "$VPKB_UPSTREAM_PIN"[0m
+2026-09-07T18:18:57.0785966Z [36;1mif git -C vendor/claude-obsidian symbolic-ref -q HEAD; then[0m
+2026-09-07T18:18:57.0786361Z [36;1m  echo 'Compatibility fixtures require the detached gitlink pin.' >&2[0m
+2026-09-07T18:18:57.0786691Z [36;1m  exit 1[0m
+2026-09-07T18:18:57.0786859Z [36;1mfi[0m
+2026-09-07T18:18:57.0787168Z [36;1mtest -z "$(git -C vendor/claude-obsidian status --porcelain --untracked-files=all)"[0m
+2026-09-07T18:18:57.0826497Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-07T18:18:57.0826795Z env:
+2026-09-07T18:18:57.0826975Z   PYTEST_DISABLE_PLUGIN_AUTOLOAD: 1
+2026-09-07T18:18:57.0827204Z   UV_NO_PROGRESS: 1
+2026-09-07T18:18:57.0827440Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-09-07T18:18:57.0827710Z   UV_PYTHON: 3.12
+2026-09-07T18:18:57.0827881Z ##[endgroup]
+2026-09-07T18:18:57.1113011Z Submodule 'vendor/claude-obsidian' (https://github.com/AgriciDaniel/claude-obsidian.git) registered for path 'vendor/claude-obsidian'
+2026-09-07T18:18:57.1136861Z Cloning into '/home/runner/work/video-paper-wiki/video-paper-wiki/vendor/claude-obsidian'...
+2026-09-07T18:19:00.3320510Z Submodule path 'vendor/claude-obsidian': checked out '9f8c1199047eac2c3828496279fbb7ba9540b90b'
+2026-09-07T18:19:00.4482580Z ##[group]Run uv python install "$UV_PYTHON"
+2026-09-07T18:19:00.4482892Z [36;1muv python install "$UV_PYTHON"[0m
+2026-09-07T18:19:00.4483134Z [36;1muv sync --locked[0m
+2026-09-07T18:19:00.4515299Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-07T18:19:00.4515574Z env:
+2026-09-07T18:19:00.4515750Z   PYTEST_DISABLE_PLUGIN_AUTOLOAD: 1
+2026-09-07T18:19:00.4515976Z   UV_NO_PROGRESS: 1
+2026-09-07T18:19:00.4516211Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-09-07T18:19:00.4516477Z   UV_PYTHON: 3.12
+2026-09-07T18:19:00.4516644Z ##[endgroup]
+2026-09-07T18:19:00.8318585Z Downloading cpython-3.12.14-linux-x86_64-gnu (download) (32.5MiB)
+2026-09-07T18:19:01.7431397Z  Downloaded cpython-3.12.14-linux-x86_64-gnu (download)
+2026-09-07T18:19:01.8039780Z Installed Python 3.12.14 in 1.11s
+2026-09-07T18:19:01.8045396Z  + cpython-3.12.14-linux-x86_64-gnu (python3.12)
+2026-09-07T18:19:01.9243424Z Using CPython 3.12.14
+2026-09-07T18:19:01.9244281Z Creating virtual environment at: .venv
+2026-09-07T18:19:01.9274019Z Resolved 127 packages in 0.55ms
+2026-09-07T18:19:01.9317686Z    Building video-paper-wiki @ file:///home/runner/work/video-paper-wiki/video-paper-wiki
+2026-09-07T18:19:02.0501437Z Downloading pygments (1.2MiB)
+2026-09-07T18:19:02.3016100Z  Downloaded pygments
+2026-09-07T18:19:02.7838330Z       Built video-paper-wiki @ file:///home/runner/work/video-paper-wiki/video-paper-wiki
+2026-09-07T18:19:02.7887981Z Prepared 13 packages in 860ms
+2026-09-07T18:19:02.8000473Z Installed 13 packages in 11ms
+2026-09-07T18:19:02.8001435Z  + attrs==26.1.0
+2026-09-07T18:19:02.8002166Z  + iniconfig==2.3.0
+2026-09-07T18:19:02.8002855Z  + jsonschema==4.26.0
+2026-09-07T18:19:02.8021706Z  + jsonschema-specifications==2025.9.1
+2026-09-07T18:19:02.8023065Z  + packaging==26.3
+2026-09-07T18:19:02.8023883Z  + pluggy==1.6.0
+2026-09-07T18:19:02.8029009Z  + pygments==2.21.0
+2026-09-07T18:19:02.8029288Z  + pypdf==6.16.2
+2026-09-07T18:19:02.8029539Z  + pytest==9.1.1
+2026-09-07T18:19:02.8029834Z  + referencing==0.37.0
+2026-09-07T18:19:02.8030119Z  + rpds-py==2026.6.3
+2026-09-07T18:19:02.8030395Z  + typing-extensions==4.16.0
+2026-09-07T18:19:02.8031162Z  + video-paper-wiki==0.1.0 (from file:///home/runner/work/video-paper-wiki/video-paper-wiki)
+2026-09-07T18:19:02.8114765Z ##[group]Run set -euo pipefail
+2026-09-07T18:19:02.8115038Z [36;1mset -euo pipefail[0m
+2026-09-07T18:19:02.8115436Z [36;1mVPKB_TEST_TMP="$(mktemp -d "${RUNNER_TEMP}/vp.XXXXXX")"[0m
+2026-09-07T18:19:02.8115975Z [36;1mVPKB_TEST_TMP="$(uv run --offline --no-sync python -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).resolve())' "$VPKB_TEST_TMP")"[0m
+2026-09-07T18:19:02.8116457Z [36;1mtrap 'rm -rf "$VPKB_TEST_TMP"' EXIT[0m
+2026-09-07T18:19:02.8116685Z [36;1muv --version[0m
+2026-09-07T18:19:02.8116896Z [36;1muv run --offline --no-sync python --version[0m
+2026-09-07T18:19:02.8117156Z [36;1muv run --offline --no-sync vpwiki doctor[0m
+2026-09-07T18:19:02.8117497Z [36;1m# A short real path accommodates AF_UNIX fixtures and no-follow reads.[0m
+2026-09-07T18:19:02.8117912Z [36;1muv run --offline --no-sync python -m pytest -q --basetemp "$VPKB_TEST_TMP/p"[0m
+2026-09-07T18:19:02.8118352Z [36;1m# --offline constrains uv, not arbitrary test-process network egress.[0m
+2026-09-07T18:19:02.8118695Z [36;1mgit diff --exit-code -- pyproject.toml uv.lock[0m
+2026-09-07T18:19:02.8150925Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-09-07T18:19:02.8151448Z env:
+2026-09-07T18:19:02.8151694Z   PYTEST_DISABLE_PLUGIN_AUTOLOAD: 1
+2026-09-07T18:19:02.8152024Z   UV_NO_PROGRESS: 1
+2026-09-07T18:19:02.8152273Z   UV_PYTHON_INSTALL_DIR: /home/runner/work/_temp/uv-python-dir
+2026-09-07T18:19:02.8152544Z   UV_PYTHON: 3.12
+2026-09-07T18:19:02.8152708Z   UV_OFFLINE: 1
+2026-09-07T18:19:02.8152878Z   UV_PYTHON_DOWNLOADS: never
+2026-09-07T18:19:02.8153069Z ##[endgroup]
+2026-09-07T18:19:02.8855949Z uv 0.12.7 (x86_64-unknown-linux-gnu)
+2026-09-07T18:19:02.8919011Z Python 3.12.14
+2026-09-07T18:19:03.1561724Z {"ok":true,"command":"doctor","data":{"status":"ok","package":"video-paper-wiki","python":"3.12.14","vpwiki_admin_on_path":false}}
+2026-09-07T18:21:08.8557170Z ........................................................................ [  3%]
+2026-09-07T18:21:09.0599095Z ........................................................................ [  6%]
+2026-09-07T18:21:09.1407769Z ........................................................................ [  9%]
+2026-09-07T18:21:09.2098226Z ........................................................................ [ 12%]
+2026-09-07T18:21:09.7158364Z ........................................................................ [ 15%]
+2026-09-07T18:21:09.9456357Z ........................................................................ [ 18%]
+2026-09-07T18:21:10.0781434Z ........................................................................ [ 21%]
+2026-09-07T18:21:10.2061197Z ........................................................................ [ 24%]
+2026-09-07T18:21:10.6060871Z ........................................................................ [ 27%]
+2026-09-07T18:21:12.4595819Z ........................................................................ [ 30%]
+2026-09-07T18:21:39.6183194Z ........................................................................ [ 33%]
+2026-09-07T18:21:51.9824616Z ........................................................................ [ 36%]
+2026-09-07T18:21:52.1728432Z ........................................................................ [ 39%]
+2026-09-07T18:21:54.7015986Z ........................................................................ [ 42%]
+2026-09-07T18:22:02.5809726Z ........................................................................ [ 45%]
+2026-09-07T18:22:14.7966835Z ........................................................................ [ 48%]
+2026-09-07T18:22:15.3987442Z ........................................................................ [ 51%]
+2026-09-07T18:22:15.4741780Z ........................................................................ [ 54%]
+2026-09-07T18:22:17.2090958Z ........................................................................ [ 57%]
+2026-09-07T18:22:20.9147045Z ........................................................................ [ 60%]
+2026-09-07T18:22:22.8089237Z ........................................................................ [ 63%]
+2026-09-07T18:22:24.7284551Z ........................................................................ [ 66%]
+2026-09-07T18:22:24.8801663Z ........................................................................ [ 69%]
+2026-09-07T18:22:26.6063703Z ........................................................................ [ 72%]
+2026-09-07T18:22:28.9024876Z ........................................................................ [ 75%]
+2026-09-07T18:23:38.3560003Z ........................................................................ [ 78%]
+2026-09-07T18:23:40.4480214Z ........................................................................ [ 81%]
+2026-09-07T18:23:45.1565323Z ........................................................................ [ 84%]
+2026-09-07T18:23:48.0705202Z ........................................................................ [ 87%]
+2026-09-07T18:24:19.6254028Z ........................................................................ [ 90%]
+2026-09-07T18:24:19.7405129Z ........................................................................ [ 93%]
+2026-09-07T18:24:20.1901174Z ........................................................................ [ 96%]
+2026-09-07T18:24:43.9735621Z ........................................................................ [ 99%]
+2026-09-07T18:24:45.9570025Z ......                                                                   [100%]
+2026-09-07T18:24:45.9570996Z 2382 passed in 342.24s (0:05:42)
+2026-09-07T18:24:46.7525077Z Post job cleanup.
+2026-09-07T18:24:46.8520837Z UV_PYTHON_INSTALL_DIR is already set to /home/runner/work/_temp/uv-python-dir
+2026-09-07T18:24:46.8752840Z Post job cleanup.
+2026-09-07T18:24:47.0943733Z [command]/usr/bin/git version
+2026-09-07T18:24:47.0981839Z git version 2.55.0
+2026-09-07T18:24:47.1112387Z Temporarily overriding HOME='/home/runner/work/_temp/b91ac695-a194-4b00-98ea-ae4d9591afc0' before making global git config changes
+2026-09-07T18:24:47.1142057Z Adding repository directory to the temporary git global config as a safe directory
+2026-09-07T18:24:47.1186409Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/video-paper-wiki/video-paper-wiki
+2026-09-07T18:24:47.1251894Z Removing SSH command configuration
+2026-09-07T18:24:47.1291943Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-09-07T18:24:47.1392782Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-09-07T18:24:47.1422372Z Entering 'vendor/claude-obsidian'
+2026-09-07T18:24:47.1512092Z Removing HTTP extra header
+2026-09-07T18:24:47.1539321Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-09-07T18:24:47.1621917Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-09-07T18:24:47.1852276Z Entering 'vendor/claude-obsidian'
+2026-09-07T18:24:47.1918982Z Removing includeIf entries pointing to credentials config files
+2026-09-07T18:24:47.1938439Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-07T18:24:47.1966976Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-09-07T18:24:47.2252110Z Entering 'vendor/claude-obsidian'
+2026-09-07T18:24:47.2253739Z file:/home/runner/work/video-paper-wiki/video-paper-wiki/.git/modules/vendor/claude-obsidian/config	remote.origin.url
+2026-09-07T18:24:47.2313161Z [command]/usr/bin/git config --file /home/runner/work/video-paper-wiki/video-paper-wiki/.git/modules/vendor/claude-obsidian/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-09-07T18:24:47.2547677Z Cleaning up orphan processes

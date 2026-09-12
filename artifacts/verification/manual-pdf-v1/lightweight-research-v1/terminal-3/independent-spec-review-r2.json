@@ -1,0 +1,58 @@
+{
+  "schema": "lightweight-research-t3-independent-spec-review-r2.v1",
+  "at_utc": "2026-09-08T13:05:53.825379000Z",
+  "packet": "lightweight-research-v1",
+  "lane": 3,
+  "spec_path": "docs/ai/packets/lightweight-research-v1/FIX-T3-R2-DRAFT.md",
+  "spec_sha256": "bb8be3afffd007abfd7fcc4c0ea39532b0c783c030ee43fc519327c725b25868",
+  "contract_path": "docs/ai/packets/lightweight-research-v1/CONTRACT.md",
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "reviewed_r1_snapshot_sha256": "0e005388e60f104da964d534219148819b4f6c24161b6cf3259eb632428771f2",
+  "architect_probe_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/architect-probes-r1.json",
+  "architect_probe_sha256": "b75e17d4994bbc0594d53d747c86a9551b8dbd1c09788e74537af2e2f0e07999",
+  "scope": "Read-only specification completeness review against the frozen T3 contract and the exact stopped R1 source probe. No source, test, Git, external, Vault, or network mutation; no tests run.",
+  "status": "GO",
+  "decision": "GO_T3_R2_SPEC_COVERS_ALL_FIVE_REPRODUCED_R1_BLOCKERS_WITHIN_TWO_PATH_SCOPE",
+  "coverage": [
+    {
+      "finding_group": "ordinary multiline Markdown and multiline revision instructions",
+      "spec_section": "1",
+      "coverage": "Allows LF/CR/tab in body and instructions while retaining nonblank body, Unicode safety, limits, citation equality, and one-line title/goal rules; requires multisection/list and exact reimport regressions."
+    },
+    {
+      "finding_group": "exact retry after revision-before-HEAD and HEAD authority",
+      "spec_section": "2",
+      "coverage": "Requires exact child identity and original wrapper replay, recognizes only owned interrupted publication, rejects unrelated or deleted/preexisting HEAD recreation, covers each interruption point, preserves prior/unrelated bytes, and closes filesystem errors."
+    },
+    {
+      "finding_group": "managed output parent creation and raw symlink/.. output path",
+      "spec_section": "3",
+      "coverage": "Requires raw-edge validation before lexical normalization, managed-root protection even for missing parents, ancestor symlink/hardlink checks, no mutation on refusal, safe outside reports and fresh nested-parent regressions."
+    },
+    {
+      "finding_group": "rehashed nondeterministic draft accepted by history/backup",
+      "spec_section": "4",
+      "coverage": "Requires replay from validated stored context/document, deterministic draft recomputation, manifest/identity checks, and the same complete replay in history, live export/import/retry and backup, including relocation semantics."
+    },
+    {
+      "finding_group": "self-consistent but invalid parent/section/citation transition",
+      "spec_section": "4",
+      "coverage": "Requires original-evidence citation validation, exact target/instruction checks, one-target-only transition with all other section values byte-equivalent to the parent, and rejection across history/export/import/retry/backup."
+    }
+  ],
+  "scope_checks": {
+    "owned_path_count": 2,
+    "owned_paths_unchanged": true,
+    "owned_paths": [
+      "src/video_paper_wiki_research/light_writing_project.py",
+      "tests/research/test_light_writing_project.py"
+    ],
+    "public_wire_storage_contract_unchanged": true,
+    "other_lanes_excluded": true,
+    "no_concrete_omission_found": true
+  },
+  "limitations": [
+    "This is a specification review only; it does not accept implementation, source bytes, tests, CI, or user confirmation.",
+    "The Builder candidate must demonstrate the listed exact Architect cases, scoped tests, source provenance, and fresh R2 handoff before any acceptance or integration decision."
+  ]
+}

@@ -1,0 +1,312 @@
+{
+  "$schema": "full-todo.code-proof-closure-review-r3.v1",
+  "schema": "full-todo.code-proof-closure-review-r3.v1",
+  "packet": "CODE-PROOF-CLOSURE-R3",
+  "revision": "R3-independent-architecture-closure-review",
+  "recorded_at_utc": "2026-09-09T14:47:45.626356000Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent bounded CODE-PROOF closure and kernel-readiness reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "KERNEL_SEPARABLE_PUBLIC_WIRE_FREEZE_REQUIRED",
+  "verdict": "R3 semantically closes the nine R2 findings at the architecture level: raw bundle persistence and repair identity, disjoint retained roots, separate raw/normalized/config limits, pre-read and atomic-peak accounting, numeric grammar, source coordinates, TOML subset boundaries and successor-only SHA-256 handoff are materially specified. It is not a complete public wire freeze: exact saved-byte identity fields, the full output allowlist and family caps, closed object/target/observation records, config node/span records and successor handoff schema still must be frozen. A pure in-memory Git object kernel can be frozen independently once its exact API, result/error taxonomy, limits and allowed paths are issued.",
+  "scope": "Read-only review of CODE-PROOF-CLOSURE-R3 against CODE-PROOF-DESIGN-R2, the independent R2 findings, retained Git proof advice, configuration/span advice and canonical integration advice. No source, schemas, tests, Git state, provider, network, connector, Vault or implementation mutation.",
+  "frozen_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md",
+      "sha256": "eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57",
+      "size_bytes": 19802
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-design-review-r2.json",
+      "sha256": "122776be42d3d58f19358beec687a3fe7a6795469a31016c0050d09ff60735a9",
+      "size_bytes": 16383
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-io-advice-r2.json",
+      "sha256": "553855718b139b0e031298f2996f21675e21c3fef34cb5836c4a578bd9ee27b4",
+      "size_bytes": 28831
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json",
+      "sha256": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20",
+      "size_bytes": 30794
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-canonical-integration-advice-r2.json",
+      "sha256": "5bbc1eb151c479af0f781eea4d2e04426398bd90dcd864465355d45a674707a2",
+      "size_bytes": 34214
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-observation-host-advice-r3.json",
+      "sha256": "279ac57876a1dab86734c2fc0f1bc41e4020c2bdd4ab3ca0f727d6710e3a8946",
+      "size_bytes": 38817
+    }
+  ],
+  "r2_baseline": {
+    "review_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-design-review-r2.json",
+    "review_sha256": "122776be42d3d58f19358beec687a3fe7a6795469a31016c0050d09ff60735a9",
+    "review_decision": "CHANGES_REQUIRED_BEFORE_CODE_PROOF_FREEZE",
+    "finding_count": 9,
+    "closure_path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+    "closure_sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5"
+  },
+  "semantic_closure_matrix": [
+    {
+      "id": "CPR3-MANIFEST-PATH-001",
+      "r2_title": "code-git-bundle has no persisted output location or family",
+      "r3_status": "CLOSED_AT_ARCHITECTURE_LEVEL_OPEN_PUBLIC_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 18,
+          "end": 32
+        },
+        "points": [
+          "bundle.json is now a fixed raw-mode output file with one terminal LF",
+          "observation binds intent and bundle saved-byte references",
+          "intent binds canonical checkout-relative input spelling and complete saved-byte reference",
+          "normalized-only mode forbids bundle.json and objects; extra/unsafe/derived entries refuse"
+        ]
+      },
+      "residual": "Freeze exact bundle saved-byte reference field and digest/canonicalization formula, bundle.json schema, output root/path identity, object/config/handoff child family schemas, and the complete output allowlist before public implementation."
+    },
+    {
+      "id": "CPR3-BUNDLE-OVERLAP-002",
+      "r2_title": "bundle root containment and output overlap under-specified",
+      "r3_status": "CLOSED_SEMANTICALLY",
+      "evidence": {
+        "lines": {
+          "start": 50,
+          "end": 62
+        },
+        "points": [
+          "canonical relative path below checkout .work",
+          "no symlink, alias, dot/dot-dot component or replaced marker",
+          "input and output roots must be disjoint with no equality or ancestor/descendant relation",
+          "equal descriptor identities refuse; complete input sets captured before classification; named-edge failures override semantic errors"
+        ]
+      },
+      "residual": "Wire schemas still need the exact root descriptor fields and refusal code/details, but the architecture rule itself is closed."
+    },
+    {
+      "id": "CPR3-REPAIR-IDENTITY-003",
+      "r2_title": "deterministic repair lacks persisted external-input identity",
+      "r3_status": "CLOSED_AT_ARCHITECTURE_LEVEL_OPEN_PUBLIC_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 26,
+          "end": 46
+        },
+        "points": [
+          "intent binds request, mode, normalized acquisition metadata and identity",
+          "raw intent binds checkout-relative path spelling, complete bundle saved-byte reference and ordered OID/type/size/body/framed inventory",
+          "repeat observe re-retains and fully revalidates identity before suffix repair",
+          "changed/missing input refuses without writing; normalized-only cannot later add a bundle",
+          "late insertion after first absence is unsafe; observation without dependencies is corrupt"
+        ]
+      },
+      "residual": "Freeze canonical intent/bundle identity field names, ordering, digest domain and repair error details. “Ordered inventory” must state whether canonical order is OID order, manifest order, or both."
+    },
+    {
+      "id": "CPR3-TEXT-CONFIG-CAP-004",
+      "r2_title": "per-target text cap conflicts with configuration source cap",
+      "r3_status": "CLOSED_SEMANTICALLY_OPEN_TARGET_OUTCOME_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 66,
+          "end": 76
+        },
+        "points": [
+          "16 KiB applies only to inline normalized_text input",
+          "raw blobs and normalized hashes from retained raw bytes are not limited by 16 KiB",
+          "raw bodies are capped at 8 MiB each and 32 MiB aggregate",
+          "configuration-role raw blob has a separate 256 KiB parser limit",
+          "larger raw source may retain proof/handoff but emits explicit config limit error and no truncated typed result"
+        ]
+      },
+      "residual": "Public target outcomes must separately encode raw_blob, normalized_text and config_eligible (or equivalent), with raw-byte versus normalized-byte accounting and request-level lower caps. The phrase “raw UTF-8 blob” must not be interpreted as an inline normalized-text result."
+    },
+    {
+      "id": "CPR3-PREFLIGHT-BUDGET-005",
+      "r2_title": "declared object sums and transient atomic-install bytes need explicit proof",
+      "r3_status": "CLOSED_AT_ARCHITECTURE_LEVEL_OPEN_METADATA_CAPS",
+      "evidence": {
+        "lines": {
+          "start": 78,
+          "end": 98
+        },
+        "points": [
+          "manifest/object count/declared body sizes/stat sizes checked before body reads",
+          "declared aggregate body sum is capped at 32 MiB; tree entries are charged incrementally at 32768",
+          "128 MiB peak includes retained files, generated request/intent/bundle/observation/config/handoff bytes and live atomic temps",
+          "current retained bytes plus absent targets plus maximum temp duplicate are charged before install",
+          "orphan/pending/invalid-name bytes count; one temp is retained/verified/cleaned on every exit"
+        ]
+      },
+      "residual": "The final wire freeze must provide explicit caps for every metadata file and family count, define the concrete maximum temp duplicate, and specify the exact formula/units for all retained descriptors and bundle.json bytes. At most 32 config documents of 2 MiB each is a design bound, not a complete file-family schema."
+    },
+    {
+      "id": "CPR3-NUMERIC-GRAMMAR-006",
+      "r2_title": "numeric lexical and Decimal-context rules remain narrative",
+      "r3_status": "CLOSED_SEMANTICALLY_OPEN_CONFIG_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 102,
+          "end": 143
+        },
+        "points": [
+          "JSON number grammar is explicit and classifies dot/exponent as decimal",
+          "TOML decimal-integer and finite-float grammars expand D/I macros with underscore placement",
+          "base integers, nonfinite values, timestamps and other forms refuse",
+          "lexeme/coefficient/exponent bounds and context-free Decimal tuple conversion are specified",
+          "negative zero, leading zeros, plus/underscore/1. and bool-vs-int behavior are explicit",
+          "stdlib cross-check is secondary and cannot expand the subset"
+        ]
+      },
+      "residual": "Freeze scanner token records, canonical numeric value fields, exact Decimal tuple-to-fixed-string algorithm and typed error details in the config packet; add exhaustive vectors for `-0`, `+1`, `1e0`, `01`, `1_000`, `1.`, exponent bounds and nonfinite forms."
+    },
+    {
+      "id": "CPR3-SPAN-COORD-007",
+      "r2_title": "raw/codepoint/line-column coordinate contract needs exact definitions",
+      "r3_status": "CLOSED_SEMANTICALLY_OPEN_CONFIG_NODE_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 147,
+          "end": 168
+        },
+        "points": [
+          "byte/codepoint offsets are zero-based half-open and line/columns one-based exclusive-end",
+          "columns are Unicode codepoints, not UTF-16/graphemes/display cells; tabs count one",
+          "CRLF is two bytes/codepoints with one line advance; split boundary is invalid; bare CR refuses",
+          "raw token spans include source escapes and hash exact bytes; line snippets use physical lines and existing contract",
+          "JSON root/container/key/scalar and TOML root/table/header/key/array/inline-table span cases are defined; implicit map values have no synthetic span"
+        ]
+      },
+      "residual": "Freeze the closed node/span record field names, byte/codepoint/line coordinate consistency checks, escaped-token vectors, Unicode/CRLF fixtures and the exact no-span representation in the config schema."
+    },
+    {
+      "id": "CPR3-TOML-SUBSET-008",
+      "r2_title": "TOML multiline and key-redefinition boundaries not fully frozen",
+      "r3_status": "CLOSED_SEMANTICALLY_OPEN_CONFIG_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 170,
+          "end": 196
+        },
+        "points": [
+          "single-line strings/arrays/inline tables plus ordinary tables/dotted keys are the initial subset",
+          "multiline strings/arrays/inline tables, arrays of tables, dates/times, base integers and unsupported syntax refuse before tomllib cross-check",
+          "comments and same-line array trailing commas are explicitly handled; inline-table trailing comma is refused",
+          "decoded-key equivalence, table/value redefinition, implicit-parent promotion and parent boundary rules are stated",
+          "deterministic node traversal/order and tree limits are stated"
+        ]
+      },
+      "residual": "Promote the implicit-table promotion/redefinition language into a closed allow/reject vector table and exact error codes. Wire must specify decoded-key collision records, declaration/header spans and array/inline-table boundaries."
+    },
+    {
+      "id": "CPR3-HANDOFF-SHA256-009",
+      "r2_title": "SHA-256 handoff compatibility stated but not wire-bound",
+      "r3_status": "CLOSED_AT_ARCHITECTURE_LEVEL_OPEN_SUCCESSOR_WIRE",
+      "evidence": {
+        "lines": {
+          "start": 210,
+          "end": 219
+        },
+        "points": [
+          "handoff is successor_only and cannot enter a legacy adapter",
+          "exact-width object_format/commit/root-tree/blob IDs, body/raw/framed hashes and source ref are required",
+          "path/roles/normalized metadata/walked-edge proof/host assertion/association/config refs are bound",
+          "stored blob refs avoid duplicate/reinterpreted source bytes; body SHA is separate from framed hash",
+          "legacy 40-hex schemas remain unchanged"
+        ]
+      },
+      "residual": "Freeze exact successor handoff schema fields, types, per-file caps, proof-edge record and refusal when object_format is SHA-256. Public implementation cannot begin from this prose alone."
+    }
+  ],
+  "kernel_freeze_assessment": {
+    "status": "READY_FOR_SEPARATE_EXACT_KERNEL_PACKET_NOT_IMPLEMENTATION_AUTHORIZATION",
+    "basis": "R3 explicitly permits an independently frozen pure in-memory verifier before transport/config schema freeze (lines 9-14). Raw object framing, OID widths, object/body limits, tree-entry/path-walk limits, target mode policy and consumed-set safety are sufficiently bounded to design that packet.",
+    "required_kernel_packet_fields": [
+      "exact allowed source/test paths and ownership",
+      "stdlib-only/import boundary with no os/pathlib/subprocess/socket/Git/code-evidence imports",
+      "frame_git_object and git_object_ids signatures and canonical decimal framing",
+      "strict in-memory object record/body mapping and target record shapes",
+      "object_format/commit/root tree width checks and complete object-set rules",
+      "commit/tree parser grammar, tree ordering/name/mode rules and no dereference",
+      "present/missing/unsafe/unavailable target result records with consumed object set",
+      "typed error enum/details and deterministic precedence",
+      "strict integer caps and pre-read declaration checks",
+      "static Git-produced/hand-built vectors including SHA-1/SHA-256, symlink/gitlink, missing/intermediate unavailable and extra-object cases"
+    ],
+    "kernel_must_not_include": [
+      "bundle path safety or retained descriptors",
+      "request/intent/bundle/observation persistence",
+      "provider/hosting assertions",
+      "normalized-only mode, config scanner/spans, source handoff or publication"
+    ],
+    "kernel_result": "A separately frozen kernel can be implemented and reviewed without claiming CODE-PROOF public workflow completion."
+  },
+  "remaining_public_wire_blockers": [
+    {
+      "id": "WIRE-001",
+      "title": "Exact raw output allowlist and family caps",
+      "detail": "R3 names four fixed files and three child families but does not publish the complete 12-path allowlist, per-file byte limits, family file counts, canonical child naming, mode/permission fields or unknown-entry refusal shape."
+    },
+    {
+      "id": "WIRE-002",
+      "title": "Saved-byte identity and repair digest domains",
+      "detail": "“Complete bundle saved-byte reference” and intent identity are semantically required, but exact digest domain, canonical JSON/LF bytes, self-reference exclusion, field order and object-inventory order are not closed."
+    },
+    {
+      "id": "WIRE-003",
+      "title": "Closed observation/target/config node records",
+      "detail": "Target outcome flags, missing versus unavailable versus unsafe details, config eligibility, numeric node records, span records and exact error detail objects remain prose until successor schemas are frozen."
+    },
+    {
+      "id": "WIRE-004",
+      "title": "Concrete peak-accounting constants",
+      "detail": "The 128 MiB peak rule is clear, but the exact temporary duplicate bound, descriptor/stat accounting units and metadata family caps remain to be named."
+    },
+    {
+      "id": "WIRE-005",
+      "title": "SHA-256 successor handoff schema",
+      "detail": "The required semantic fields are listed, but exact field names/types, per-file caps, source-byte refs and legacy-adapter refusal must be schema-bound."
+    }
+  ],
+  "new_or_residual_blockers": [
+    "No contradiction remains among the nine R2 findings after R3; each is materially answered at the design level.",
+    "R3 itself leaves public wire closure explicitly pending. Treating prose such as “ordered inventory,” “saved-byte reference,” “2 MiB config document” or “maximum temporary duplicate” as implementation-ready would create new determinism and accounting ambiguity.",
+    "A pure kernel packet is the appropriate next bounded implementation scope, but it must not silently import R3 public path/transport/config semantics or legacy 40-hex capture adapters.",
+    "The exact code-git-bundle envelope and output root remain a public I/O contract; this review does not authorize implementing them or the config parser."
+  ],
+  "required_next_freezes": [
+    "Freeze the pure in-memory Git kernel packet with exact API, object/target/result/error records, caps, deterministic precedence and allowed paths; then independently review its static vectors.",
+    "Freeze public request/intent/bundle/observation schemas and the complete output allowlist, including saved-byte digest domains, family caps, permissions and repair identities.",
+    "Freeze normalized/raw/config target outcome fields and explicit raw/config accounting, including the 16 KiB inline normalized versus 256 KiB config-role distinction.",
+    "Freeze JSON/TOML scanner, canonical numeric values, node/span records, TOML rejection/promotion vectors and parser cross-check rules.",
+    "Freeze successor-only SHA-256 handoff and CODE-CANONICAL relation/publication bindings before any public workflow implementation."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "publication": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T14:47:45.626356000Z",
+    "note": "Tool-observed current UTC; no retrospective review-start time is asserted."
+  }
+}

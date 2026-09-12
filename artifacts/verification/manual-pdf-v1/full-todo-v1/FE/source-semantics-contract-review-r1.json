@@ -1,0 +1,174 @@
+{
+  "accepted_l1_compatibility": {
+    "assessment_history": "v1 closed event grammar, one complete nonforking chain, v1 fingerprint binding; v2 mixed history must dispatch separately and preserve v1 event bytes.",
+    "canonical_compiler": "v1 compile validates paper-record.v1/assessment-event.v1 and uses v1 claim_id/evidence_fingerprint; preserve exact output bytes for delegated legacy-only compile.",
+    "ledger_locator": "vpwiki-locator-v1 PDF/code wire only; v2 Markdown dispatch must be new and v1 decode must continue to reject v2 wire.",
+    "projection_runtime": "pure bounded record/value comparison; no source association semantics or path I/O; retain exact Markdown byte equality behavior."
+  },
+  "contract": {
+    "allowlist_count": 29,
+    "allowlist_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-allowed-paths-r1.json",
+    "allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "expected_allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "expected_sha256": "d9b1c779b95736d53ce5d9369501953e4aab3e332e8d8baa955bc80af43ad777",
+    "implementation_baseline": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R1.md",
+    "sha256": "d9b1c779b95736d53ce5d9369501953e4aab3e332e8d8baa955bc80af43ad777",
+    "source_checkout": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/terminal-1/source"
+  },
+  "contract_checks": [
+    {
+      "details": "The contract now specifies association_id from JCS(object without association_id), association reference sha256 over the complete object, raw/extraction exact bytes and paths, source_id formula, and no terminal LF. Test both formulas and mutate every field.",
+      "id": "ASSOCIATION-COMPLETE-BYTES",
+      "status": "GO"
+    },
+    {
+      "details": "Registration is complete: prior audited ingest receipt, exact one raw read claim plus one ledger write, canonical receipt sequence/head/reachable graph, no earlier claim/write, exact ledger row/source identity and primary authority, and no capture receipt substitution or self-reference.",
+      "id": "REGISTRATION-HISTORY",
+      "status": "GO"
+    },
+    {
+      "details": "validate_source_inventory requires exact needed raw/extraction/ledger maps, rejects missing/orphan entries, and permits aliases to share one map entry. Add each map omission/orphan and cross-hash mutation case.",
+      "id": "INVENTORY-COMPLETENESS",
+      "status": "GO"
+    },
+    {
+      "details": "Decision/head contract specifies actor/choice provenance, one genesis per selected paper, same-paper edges, consecutive sequences, monotonic UTC time, no branch/cycle/missing/duplicate/unreachable event, rollback as a new event, and exact materialized selected-paper set.",
+      "id": "DISPLAY-COMPLETE-CHAIN",
+      "status": "GO"
+    },
+    {
+      "details": "The contract removes prior ambiguity: charspan is 0 <= start < end <= decoded Unicode character count; no normalization/newline rewriting; exact UTF-8 excerpt hash; page anchor must contain complete span, null allows cross-page/general spans; whitespace-only excerpts refuse.",
+      "id": "MARKDOWN-EXACT-SPAN",
+      "status": "GO"
+    },
+    {
+      "details": "v1 evidence and fingerprint remain untouched; v2 mixed profile hashes sorted unique identity objects with domain separation, association changes identity, and duplicate identity collapse/optional display-field exclusion are explicit.",
+      "id": "V1-V2-EVIDENCE",
+      "status": "GO"
+    },
+    {
+      "details": "v2 event profile and existing event-id formula are explicit; v1 events imply legacy-v1; profile/fingerprint changes require system invalidation to provisional; first v2 successor to v1 must be invalidation; v1 re-entry is refused; display-only switch does not mutate assessment.",
+      "id": "V1-V2-HISTORY",
+      "status": "GO"
+    },
+    {
+      "details": "v2 closed union is explicit. No-v2 delegates exact complete v1 compile with empty source maps; mixed compile validates complete source material, uses unchanged v1 renderer for legacy groups, preserves legacy bytes when related set is unchanged, and renders selected/unselected/assessment/evidence state.",
+      "id": "MIXED-COMPILER",
+      "status": "GO"
+    },
+    {
+      "details": "Shared limits are specified (exact built-in types, no float/surrogate/NUL/cycles, integer +/-9007199254740991, depth 48, 100000 nodes, 8 MiB/string), but the contract does not assign stable ContractError codes/pointer precedence for preflight failures, missing/orphan source maps, receipt-history tampering, locator resolution mismatches, display-chain failures, or v2 compiler graph/path failures.",
+      "id": "HOSTILE-INPUT-BOUNDS",
+      "status": "BLOCKER"
+    }
+  ],
+  "decision": "GO_SOURCE_SEMANTICS_CONTRACT_WITH_ERROR_TABLE_BLOCKER",
+  "evidence_path_check": {
+    "correct_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/FE/source-semantics-design-review-r1.json",
+    "duplicate_FE_path_found": false,
+    "exists": true,
+    "note": "The shared workspace contains the requested FE/source-semantics-design-review-r1.json path directly; no FE/FE duplicate exists to move."
+  },
+  "freeze_blocker_resolution": "Before implementation freeze, publish a small stable error table (code, exit code, pointer precedence and mutation/authority guarantee) for the hostile-input categories in HOSTILE-INPUT-BOUNDS. This is the only blocker found in the exact contract review; source semantics themselves are otherwise GO.",
+  "limitations": [
+    "No implementation candidate was inspected because the new worktree has no added semantic files yet; this review covers the frozen contract and accepted L1 compatibility only."
+  ],
+  "prior_review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/FE/source-semantics-design-review-r1.json",
+    "sha256": "a54eb13d7ecadc112159a70f6f462b7d22f81bf1de211c4eff5c366ce7f3a0da"
+  },
+  "required_matrix_additions": [
+    {
+      "cases": [
+        "missing head/receipt/ledger bytes",
+        "receipt hash or intent hash mismatch",
+        "noncanonical receipt filename",
+        "sequence gap, branch, cycle, orphan, unreachable receipt",
+        "prior raw-path claim/write",
+        "multiple matching source-ledger rows",
+        "ledger row wrong source_id/path/hash/primary authority",
+        "receipt has extra raw read or source-ledger write"
+      ],
+      "id": "REGISTRATION-RECEIPT-GRAPH"
+    },
+    {
+      "cases": [
+        "mutate association field while retaining association_id",
+        "mutate complete object while retaining association reference sha256",
+        "raw bytes not valid exact UTF-8",
+        "raw path/hash/size mismatch",
+        "extraction bytes differ from JCS(observation)",
+        "terminal LF appended to durable JCS bytes"
+      ],
+      "id": "ASSOCIATION-BYTE-FORMULAS"
+    },
+    {
+      "cases": [
+        "missing raw/extraction/ledger map member",
+        "orphan map member",
+        "alias versions sharing a map member",
+        "duplicate association id/key despite same bytes",
+        "page interval/hash mismatch in observation"
+      ],
+      "id": "INVENTORY-MAPS"
+    },
+    {
+      "cases": [
+        "sequence not consecutive",
+        "same timestamp accepted, decreasing UTC timestamp rejected",
+        "decision paper/association mismatch",
+        "head materialization has missing or extra selected paper",
+        "rollback references known older association"
+      ],
+      "id": "DISPLAY-TIMELINE"
+    },
+    {
+      "cases": [
+        "combining mark versus precomposed character",
+        "emoji counts as one decoded Unicode character",
+        "CRLF versus LF remains distinct",
+        "internal U+FEFF remains literal",
+        "start=end/negative/end beyond character count",
+        "whitespace-only exact slice",
+        "page anchor incomplete span versus null cross-page span"
+      ],
+      "id": "MARKDOWN-CHARSPAN"
+    },
+    {
+      "cases": [
+        "reorder identity items",
+        "duplicate exact identity collapses",
+        "same identity with display-only change remains same",
+        "relation/association/span/excerpt change changes digest",
+        "PDF/code-only list returns untouched v1 digest"
+      ],
+      "id": "V2-FINGERPRINT-DUPLICATES"
+    },
+    {
+      "cases": [
+        "no-v2 input requires all source maps empty",
+        "same legacy group with same related set has byte-identical page",
+        "mixed related links update every page deterministically",
+        "v2 older association evidence resolves from supplied maps",
+        "same primary paper/claim owner twice refuses",
+        "hostile frontmatter/link text is escaped and derived filenames only"
+      ],
+      "id": "MIXED-COMPILER-BYTES"
+    },
+    {
+      "cases": [
+        "v1 genesis + v1 human head preserved byte-for-byte",
+        "first v2 successor without invalidation refuses",
+        "v2 invalidation must change profile or fingerprint and target provisional",
+        "v2 human successor retains predecessor profile and fingerprint but changes state",
+        "v2 event then v1 event refuses",
+        "display decision alone leaves claim/head unchanged"
+      ],
+      "id": "V2-HISTORY-PROFILE"
+    }
+  ],
+  "revision": "R1",
+  "schema": "full-todo.source-semantics-contract-review.v1",
+  "scope": "Independent read-only review of the exact SOURCE-SEMANTICS-R1 contract against accepted L1 source semantics and the prior test matrix. No source, schema, Git, Vault, network or external runtime changes."
+}

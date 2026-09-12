@@ -1,0 +1,34 @@
+{
+  "decision": "T2_R7_UNICODE_BACKUP_INTEGRATION_GAP_REPRODUCED",
+  "recorded_at_utc": "2026-09-08T06:18:38.336130+00:00",
+  "accepted_prior_snapshot": "a3d06ca1aeee2673d6057a7bd619562e4a32d9569dba9ee2f50dd41ea81d7f34",
+  "evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-unicode-backup/checks.json",
+      "sha256": "6ea5476d5105588b1a3d01f7b822e0ff2b5e3f67ddf161db6b4012ddc8e0ccc8",
+      "size_bytes": 2188
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-unicode-backup/provenance.json",
+      "sha256": "a1415bf4213359d3af43aedee1e272f5f92ec2ccce60fa5aed0c07db7aa7f214",
+      "size_bytes": 2289
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-unicode-backup/reproduction.json",
+      "sha256": "73ea14599edd3898051a97b6db1339f765f836b8edb202deec38a3ef78877647",
+      "size_bytes": 8359
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-unicode-backup/summary.md",
+      "sha256": "db04467bcdde3d1bd7b265c8b07475159970f43b877e3b5c064a46f1d4382070",
+      "size_bytes": 1666
+    }
+  ],
+  "finding": "Public create_backup accepts a Unicode filename and emits 0x0800, but verify_backup and restore_backup reject that own archive; ASCII and encrypted/unknown controls behave correctly.",
+  "bounded_correction": [
+    "src/video_paper_wiki_research/light_backup.py",
+    "tests/research/test_light_backup.py"
+  ],
+  "note": "Prior R7 regression/local acceptance is preserved for its tested cases; final integrated acceptance remains blocked pending this successor.",
+  "final_acceptance": false
+}

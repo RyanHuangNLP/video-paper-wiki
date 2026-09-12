@@ -1,0 +1,119 @@
+{
+  "architect_decision": "APPROVED_BOUNDED_FUNCTIONAL_IMPLEMENTATION_AT_EXACT_CONTRACT",
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "base_tree": "fc317f13ad781a9121c15503c4f1d945c5fafe2a",
+  "contract_revision": 1,
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "files": [
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/README.md",
+      "sha256": "e34620f3bef32136dea4e9102827c17b18c2a1f0c1a323ec650ef9ec6de8e6fa",
+      "size_bytes": 2707
+    },
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/COMMON.md",
+      "sha256": "d7903d30afbaf5417fa10bf929fdc7bbcbfc16ae3580b8304fa42ab11ba2d65a",
+      "size_bytes": 4610
+    },
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+      "sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+      "size_bytes": 34489
+    },
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/TERMINAL-1.md",
+      "sha256": "a0ba1b6003c7caedda74df25ffe979bb8615fc2d92b6dcc3ead2007b52f86899",
+      "size_bytes": 1771
+    },
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/TERMINAL-2.md",
+      "sha256": "bc1b7454933676a9897eab02fe855039e1e6b1bbc355a705347668917b2f7bf7",
+      "size_bytes": 2063
+    },
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/TERMINAL-3.md",
+      "sha256": "47a9ab7995f2d2430ea6f92ae51f7a4b20063a98553e668932e2dd5f3fa413f7",
+      "size_bytes": 2724
+    },
+    {
+      "path": "docs/ai/packets/lightweight-library-v1/run_cursor.py",
+      "sha256": "99618842259084df26579b484e03a46f11c378f5654a9c876b0d1f55ad0e79a3",
+      "size_bytes": 27306
+    }
+  ],
+  "lanes": {
+    "1": {
+      "allowed_paths": [
+        "src/video_paper_wiki_research/light_knowledge.py",
+        "src/video_paper_wiki_research/light_compare.py",
+        "src/video_paper_wiki_research/light_context.py",
+        "tests/research/test_light_knowledge.py",
+        "tests/research/test_light_compare.py",
+        "tests/research/test_light_library_citations.py"
+      ],
+      "requested_model": "cursor-grok-4.6-xhigh-fast",
+      "runtime": "Cursor CLI",
+      "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-1/source"
+    },
+    "2": {
+      "allowed_paths": [
+        "src/video_paper_wiki_research/light_library.py",
+        "src/video_paper_wiki_research/light_backup.py",
+        "src/video_paper_wiki_research/light_library_state.py",
+        "src/video_paper_wiki_research/light_pdf.py",
+        "src/video_paper_wiki_research/light_index.py",
+        "src/video_paper_wiki_research/light_workspace.py",
+        "tests/research/test_light_library.py",
+        "tests/research/test_light_library_recovery.py",
+        "tests/research/test_light_backup.py"
+      ],
+      "requested_model": "cursor-grok-4.6-xhigh-fast",
+      "runtime": "Cursor CLI",
+      "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-2/source"
+    },
+    "3": {
+      "allowed_paths": [
+        "src/video_paper_wiki_research/cli.py",
+        ".agents/skills/video-paper-read/SKILL.md",
+        ".agents/skills/video-paper-read/agents/openai.yaml",
+        ".agents/skills/video-paper-read/references/workflow.md",
+        ".agents/skills/video-paper-read/references/library.md",
+        "docs/lightweight-library-quickstart.md",
+        "docs/lightweight-pdf-quickstart.md",
+        "README.md",
+        "tests/research/test_light_library_cli.py",
+        "tests/research/test_light_library_pipeline.py",
+        "tests/research/test_light_library_installed.py"
+      ],
+      "requested_model": "cursor-grok-4.6-xhigh-fast",
+      "runtime": "Cursor CLI",
+      "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-3/source"
+    }
+  },
+  "merge_authorized": false,
+  "packet": "lightweight-library-v1",
+  "recorded_at_utc": "2026-09-08T03:09:20.337779+00:00",
+  "review_limits": "This is contract authorization, not source/CI/human acceptance. Preserve original review messages and historic delivery evidence.",
+  "reviews": [
+    {
+      "result": "GO; bounded clarification requests applied; runner profile diff independently checked",
+      "role": "Controller1",
+      "scope": "T1/common and runner"
+    },
+    {
+      "initial_result": "CHANGES_REQUIRED",
+      "result": "GO after detailed shared-lock/archive/replace/backup/history clarification; internal staging must not reacquire live workspace lock",
+      "role": "Controller2",
+      "scope": "T2/common persistence"
+    },
+    {
+      "result": "GO; repeated flags/removal-as-archive already explicit",
+      "role": "Controller3",
+      "scope": "T3 API/CLI/Skill and ownership"
+    }
+  ],
+  "schema": "video-paper-wiki.architect-freeze.v1",
+  "setup_sha256": "ed6228205a13fa7d805f048c6c25388d7f01f143c32b10497b108bb6d8efffa6",
+  "status": "FROZEN_FOR_IMPLEMENTATION",
+  "user_direction": "那继续开发完成吧"
+}

@@ -1,0 +1,22 @@
+{
+  "decision": "T2_R6_REQUIRES_EXACT_REPLACEMENT_SUCCESSOR_BEFORE_FINAL_ACCEPTANCE",
+  "snapshot": "968f1ef3f4cf319d828c2100b482b9f33144af5e71b14d6727120fdf1e1fceda",
+  "root_reproduction": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r6-restore-replace/checks.json",
+    "sha256": "88a8d11d8d37f1b2145285971776815fb990e43019ec676cbf2e0bf37e5f5b90",
+    "size_bytes": 929
+  },
+  "result": {
+    "failed": 2,
+    "passed": 4
+  },
+  "reported_sequence": "archive alpha -> restore alpha -> replace SAME alpha with beta -> recover",
+  "finding": "Unique archive-successor selector excludes completed replace/replaced despite old-archive inventory and existing recursive validation.",
+  "prior_local_acceptance": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r6-local-acceptance.json",
+    "sha256": "a34c73653d4f35df312db986827c24d2399725a29c461c638fe5df1924fcc4cd",
+    "size_bytes": 2647
+  },
+  "preservation": "No lost bytes; completed history is falsely reported needing recovery.",
+  "owner_design_review": "Controller2 independently reproduced and returned bounded GO for two-path selector/test correction retaining all exactness/uniqueness/event proof."
+}

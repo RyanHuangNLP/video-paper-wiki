@@ -1,0 +1,121 @@
+{
+  "schema": "video-paper-wiki.mainline-after-workflow-inventory.v1",
+  "recorded_at_utc": "2026-09-08T00:00:00Z",
+  "scope": "Read-only mainline inventory after the lightweight-workflow-v2 candidate. No source, Git, PR, network, Vault, or human-gate mutation was performed.",
+  "current_scope": {
+    "product_scope": "lightweight-workflow-v2-existing-25-paths",
+    "packet": "docs/ai/packets/lightweight-workflow-v2",
+    "baseline_head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "baseline_sha256": "2f559ff481c2faea3e49899f0b329d9f366958c0374234935a133df757591416",
+    "contract_sha256": "559e2b339c192837fa5d6c47f15ea7688f484155b95b2492f28eeee6d940e5dc",
+    "freeze_sha256": "2128528583787cb10aad69eb1954b424bba10873327885792dce7c7e3ae3099e",
+    "scope_evidence": [
+      "docs/ai/packets/lightweight-workflow-v2/COMMON.md:1-40",
+      "docs/ai/packets/lightweight-workflow-v2/CONTRACT.md:1-32",
+      "docs/ai/packets/lightweight-workflow-v2/freeze.json"
+    ]
+  },
+  "candidate_state": {
+    "lane3": {
+      "status": "architect-local-accepted-for-downstream-integration",
+      "acceptance": "artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane3-r4-acceptance.json",
+      "acceptance_sha256": "e38415480a548de17f76e6648207cbc14d87d856d75763c589f4606915e7ccd9",
+      "handoff_sha256": "4ffcb15a61fefd22dbdb8e88fe29c19bcec805ce7b87454dd61548309e0b263f",
+      "local_tests": "51 own + 94 backend-targeted + 145 combined passed",
+      "remaining": "T4 final integration and exact-head delivery; no fresh CI or merge authorization"
+    },
+    "lane4": {
+      "status": "candidate-pending-fresh-full-suite-and-wheel-after-test-only-correction",
+      "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+      "corrected_path": "tests/research/test_light_workflow_installed.py",
+      "corrected_sha256": "541d2ee195d1eb9ed5aa7948bfae4a56eed431121050d26a4a6e01ced786de4e",
+      "correction": "Removed LW2_INSTALLED_KEEP destination copy/relabel/rmtree branch and retained native executable/prefix observations.",
+      "independent_review": "artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-native-verification-r4/independent-review/review.json",
+      "independent_review_decision": "GO_INDEPENDENT_REVIEW_OF_NARROW_TEST_INTEGRATION_FIX",
+      "independent_review_sha256": "b2b4733a18e28b21e79af4579a7d7a04b4870e82191edcc8093fa792645ff48c",
+      "other_frozen_paths": "24 other T4 candidate paths remain byte exact to the R3 snapshot",
+      "prior_evidence_boundary": "The 2,382-pass Python 3.13 suite and wheel 3b3f08e1e903b1abdfd21a9b141b557ffa237753670739b0e70877044aa08522 were produced before this correction and cannot certify the corrected candidate.",
+      "required_next_evidence": [
+        "fresh locked Python 3.13 full suite on the corrected source",
+        "fresh offline wheel and isolated installed-entry test on that wheel",
+        "new T4 final handoff/ready with byte-identical metadata and source freeze",
+        "independent Architect acceptance bound to the corrected snapshot"
+      ]
+    }
+  },
+  "mainline_status": {
+    "lightweight_workflow_v2": "engineering-candidate-locally-complete; exact-head delivery and fresh CI remain open",
+    "vpkb_002": "executable-validation-complete-external-inputs-open",
+    "vpkb_003": "executable-validation-complete-human-gates-open",
+    "vpkb_004": "implementation-ready-human-gate-blocked",
+    "vpkb_005": "implementation-ready-external-gates-open",
+    "source": "docs/ai/task-index.yaml:245-288"
+  },
+  "required_current_scope_acceptance": [
+    {
+      "step": 1,
+      "action": "Freeze the corrected T4 source and run the official locked Python 3.13 full suite with the packet's offline environment.",
+      "reason": "Existing full-suite evidence predates the corrected installed-test bytes."
+    },
+    {
+      "step": 2,
+      "action": "Build a new offline wheel from the corrected source and run the isolated installed-entry verification without path relabeling or copied-venv reuse.",
+      "reason": "The installed test is the only changed candidate path and its old wheel is historical."
+    },
+    {
+      "step": 3,
+      "action": "Create a new T4 final handoff/ready, record exact source hashes, then have Architect accept the exact snapshot before serialized draft PR to integration and fresh CI.",
+      "reason": "A Builder handoff and local tests do not authorize delivery, CI acceptance, merge, or human-gate closure."
+    }
+  ],
+  "deferred_or_external_gates": [
+    {
+      "gate": "HUMAN-GATE-BASELINE-001",
+      "status": "not-recorded",
+      "blocks": ["VPKB-004", "VPKB-005"],
+      "evidence": "docs/ai/task-index.yaml:118-132"
+    },
+    {
+      "gate": "EXTERNAL-PROVENANCE-LICENSE-001",
+      "status": "not-recorded",
+      "blocks": ["VPKB-002", "VPKB-004", "VPKB-005"],
+      "evidence": "docs/ai/task-index.yaml:133-139"
+    },
+    {
+      "gate": "HUMAN-CLAIM-ASSESSMENT-001",
+      "status": "not-recorded",
+      "blocks": ["VPKB-003", "VPKB-005"],
+      "evidence": "docs/ai/task-index.yaml:140-146"
+    },
+    {
+      "gate": "HUMAN-OBSIDIAN-VISUAL-001",
+      "status": "not-recorded",
+      "blocks": ["VPKB-003", "VPKB-005"],
+      "evidence": "docs/ai/task-index.yaml:147-152"
+    },
+    {
+      "gate": "EXTERNAL-BACKUP-ANCHOR-001",
+      "status": "not-recorded",
+      "blocks": ["VPKB-005"],
+      "evidence": "docs/ai/task-index.yaml:153-159"
+    },
+    {
+      "gate": "HUMAN-READINESS-MERGE-001",
+      "status": "not-recorded",
+      "blocks": ["PR-94-MERGE"],
+      "evidence": "docs/ai/task-index.yaml:160-166"
+    },
+    {
+      "scope": "online discovery/arXiv preview and advanced writing orchestration",
+      "status": "deferred from first-version critical path",
+      "evidence": "docs/ai/packets/RESEARCH-WIKI-MANUAL-PDF-SCOPE.md:7-13"
+    }
+  ],
+  "minimum_bounded_next_step": "Run the fresh corrected-candidate T4 full-suite and offline-wheel checks, then freeze and review that exact snapshot; do not start another product packet until this acceptance boundary is resolved.",
+  "delivery_constraints": [
+    "Keep the catalog and overlays at 67 entries.",
+    "Keep the draft PR targeting integration; do not merge into main.",
+    "Do not run vpwiki-admin or mutate a real Vault.",
+    "Do not close human or external gates from local engineering evidence."
+  ]
+}

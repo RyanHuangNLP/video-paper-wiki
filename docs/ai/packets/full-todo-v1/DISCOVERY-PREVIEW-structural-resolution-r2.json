@@ -1,0 +1,21 @@
+{
+  "schema": "video-paper-wiki.architect-structural-resolution.v1",
+  "packet": "DISCOVERY-PREVIEW",
+  "revision": 2,
+  "implementation_owner": "root",
+  "contract_sha256": "1ac864cc19e8080cba19d98b2157fd8d8ea59f277f361df4851dcfca05c864d3",
+  "scope_unchanged": true,
+  "choices": {
+    "capability_profile_literals": [
+      "normalized-content",
+      "byte-exact"
+    ],
+    "normalized_adapter": "arxiv-abs-normalized-v1",
+    "transport_headers_type": "bounded string-to-string map: maximum64 keys; header name128 chars, value4096 chars",
+    "transport_dns_ips_type": "bounded array of at most32 IPv4/IPv6 address strings",
+    "raw_reference_path": "portable relative path in a future research namespace, never opened by this preview implementation",
+    "metadata_entity_id": "canonical unversioned arXiv ID body, without arxiv: prefix; request URL generation is authoritative; engine identity unchanged",
+    "preview_resource_prefix": "video-paper-wiki-research. with research-schemas URL prefix matching existing research resources; separate preview registry only"
+  },
+  "reason": "The frozen historical contract names capability branches and proper transport types but leaves their concrete literals and map bounds unspecified. These bounded structural choices retain the CAP normalized-content vocabulary and do not claim raw execution capability or change networking behavior."
+}

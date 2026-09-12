@@ -1,0 +1,57 @@
+{
+  "schema": "full-todo.code-config-candidate-rejection.v1",
+  "decision": "REJECTED_R1_CONFIG_PRODUCTION_STDLIB_KEY_TYPE_GAP",
+  "recorded_at_utc": "2026-09-10T05:06:58.369467+00:00",
+  "candidate": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r1.json",
+    "size_bytes": 2526,
+    "sha256": "90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73"
+  },
+  "candidate_snapshot_sha256": "066ab1403b9278f56c5ccae00ee348c3978623d5cc446f254b48cd45af3b55fc",
+  "source_unchanged": true,
+  "probe_script": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.py",
+    "size_bytes": 5395,
+    "sha256": "3cabe6c8daa5f9ad7bfbabfc2e5f53ec791feeea8e6e970a48eb15ecea99dc4c"
+  },
+  "root_replays": [
+    {
+      "runtime": "Python 3.12.14",
+      "result": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-probe-py312-r1.json",
+        "size_bytes": 2978,
+        "sha256": "f6a8b8c02157ce3af5d90fb475956f4d6c7246c6b4fcb27d6a0188a5b655f3fa"
+      }
+    },
+    {
+      "runtime": "Python 3.13.13",
+      "result": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-probe-py313-r1.json",
+        "size_bytes": 2978,
+        "sha256": "f6a8b8c02157ce3af5d90fb475956f4d6c7246c6b4fcb27d6a0188a5b655f3fa"
+      }
+    }
+  ],
+  "production_finding": {
+    "location": "code_config_parser.py _Parser._compare object branch",
+    "contract": "CODE-CONFIG-KERNEL-R1.md full stdlib tree cross-check and unsupported stdlib types, lines 148-157",
+    "ordinary_str_subclass_key": "Incorrectly accepted after instrumenting stdlib output",
+    "hostile_str_subclass_key": "Invoked custom equality and leaked AssertionError",
+    "required": "CODE_CONFIG_PARSER_MISMATCH before callback-prone key operations; preserve all existing comparison semantics"
+  },
+  "separate_test_and_oracle_findings": {
+    "static_r3": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-static-fixture-review-r3.json",
+      "size_bytes": 1446,
+      "sha256": "05e4ccdc9b256330f9432794841cd67e40516f98306114c5694a407fe09bb047"
+    },
+    "static_r4_preparation_accepted": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-static-fixture-acceptance-r4.json",
+      "size_bytes": 2990,
+      "sha256": "a1aac3282867f9aec9200c47c32536dfdf7f86a78d857d91c20a4cb3ad1136cd"
+    },
+    "proposed_test_r3": "Calls legacy snippet helper on invalid BOM/bare-CR source annotations; helper must refuse those inputs. R4 proposed correction exists but has not been applied.",
+    "missing_regressions": "Direct stdlib-key callback/type regression and explicit error source/key/lexeme non-echo assertions requested in Grok repair."
+  },
+  "next_authorized_scope": "One reviewed Grok output-only production branch repair plus bounded tests; mechanical separately reviewed fixture/test integration. No Git or CI acceptance."
+}

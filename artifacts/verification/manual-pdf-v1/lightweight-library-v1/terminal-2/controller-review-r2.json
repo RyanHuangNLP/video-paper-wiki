@@ -1,0 +1,140 @@
+{
+  "accepted_for_integration": false,
+  "architect_replay": {
+    "note": "The immutable R1 replay remains historical input; this review adds independent R2 findings without modifying it.",
+    "script": ".work/acceptance/lightweight-library-v1/architect_t2_regressions.py",
+    "script_sha256": "aa94f8337a6c6cec8312a0d2d6328a8e18722160abc74708eaf7a45437f26e03"
+  },
+  "candidate_snapshot": "2a3ba59afb2a23cfa11c14b6f1e1ecf60bb161d591d675c9eed2964202c36355",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "controller_actions": {
+    "builder_launch": false,
+    "git_mutations": false,
+    "source_edits": false,
+    "t3_import": false,
+    "vault_writes": false
+  },
+  "decision": "REJECTED_T2_R2_REQUIRES_BOUNDED_INPUT_TYPE_COMPLETION_STAGE_MANIFEST_ZIP_AND_CREATE_ONLY_FIXES",
+  "handoff_sha256": "645cee4299e3e8847574b089530c8c85d4b5f6cd1cedd31e1b780c3874ba225c",
+  "independent_checks": {
+    "focused_owned_suite": {
+      "command": "pytest tests/research/test_light_library.py tests/research/test_light_library_recovery.py tests/research/test_light_backup.py",
+      "failed": 0,
+      "passed": 44,
+      "status": "PASS"
+    },
+    "issue_count": 11,
+    "issues": [
+      {
+        "evidence": "A canonical operation journal with kind=[] raised TypeError: unhashable type: list instead of being preserved as a closed malformed/foreign journal result.",
+        "function": "light_library_state.recognized_operation via recover_library",
+        "id": "T2-R2-IND-01",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A canonical operation journal with phase=[] raised TypeError: unhashable type: list instead of being preserved as a closed malformed/foreign journal result.",
+        "function": "light_library_state.recognized_operation via recover_library",
+        "id": "T2-R2-IND-02",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A complete canonical archive journal with outcome=[] raised TypeError: unhashable type: list instead of being preserved as a closed malformed/foreign journal result.",
+        "function": "light_library_state.recognized_operation via recover_library",
+        "id": "T2-R2-IND-03",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A recognized complete archive journal with both live paper and archive payload absent returned ok=true,reused=true; the operation has no validated remaining state.",
+        "function": "light_library._completed_operation_state via recover_library",
+        "id": "T2-R2-IND-04",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A recognized complete restore journal with both live paper and archive payload absent returned ok=true,reused=true; the operation has no validated remaining state.",
+        "function": "light_library._completed_operation_state via recover_library",
+        "id": "T2-R2-IND-05",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A recognized complete replace journal with both new live paper and old archive payload absent returned ok=true,reused=true; the replacement result was not validated.",
+        "function": "light_library._completed_operation_state via recover_library",
+        "id": "T2-R2-IND-06",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "With a valid owner marker, an added foreign workspace/papers/<other-64hex>/source.md and unknown empty workspace/user-empty were classified fully owned and deleted. Directory inventory and payload identity are not checked.",
+        "function": "light_library._stage_is_fully_owned/_discard_owned_stage",
+        "id": "T2-R2-IND-07",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "The validator returned None for a relative/traversing workspace_root ../escape with matching recomputed identity, arbitrary ../../foreign exclusion path/rule, and an extra output whose original basename/location did not match its archive member.",
+        "function": "light_backup._validate_manifest_object",
+        "id": "T2-R2-IND-08",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A synthetic os.rename race placed a sentinel at output immediately before publication; create_backup returned success and overwrote the newly appeared output, violating create-only publication.",
+        "function": "light_backup.create_backup publication",
+        "id": "T2-R2-IND-09",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "A 22-byte container with an EOCD marker at offset 1 raised struct.error from unpack_from; verify_backup propagated the traceback instead of returning a closed result or ResearchError.",
+        "function": "light_backup._inspect_zip_container/verify_backup",
+        "id": "T2-R2-IND-10",
+        "status": "CONFIRMED"
+      },
+      {
+        "evidence": "Mutating only a deterministic archive local-header CRC while retaining the correct central CRC yielded ok=true. Local/central metadata consistency is not verified.",
+        "function": "light_backup._inspect_zip_container/verify_backup",
+        "id": "T2-R2-IND-11",
+        "status": "CONFIRMED"
+      }
+    ],
+    "not_counted": [
+      {
+        "case": "optional restoration metadata parent collision",
+        "reason": "A valid verified archive cannot include a conflicting regular restorations parent under the allowed text-member policy; no blocker counted.",
+        "status": "NOT_REPRODUCED"
+      }
+    ],
+    "related_existing_suite": {
+      "command": "pytest tests/research/test_light_pdf.py tests/research/test_light_pdf_recovery.py tests/research/test_light_workspace.py tests/research/test_light_index.py tests/research/test_light_workflow.py tests/research/test_light_workflow_recovery.py",
+      "failed": 0,
+      "passed": 95,
+      "status": "PASS"
+    },
+    "temporary_root": "/private/tmp (ephemeral synthetic fixtures)"
+  },
+  "lane": 2,
+  "next": "Preserve R2 source/evidence and this review byte-for-byte; authorize a bounded R3 correction packet for the confirmed findings before any T3 import.",
+  "packet": "lightweight-library-v1",
+  "recorded_at_utc": "2026-09-08T04:39:00Z",
+  "revision": "r2",
+  "revision_freeze_sha256": "cc9a07ff43922fe7434d81b224263770d875b74f0aa4c17ce1856821b8219fdf",
+  "schema": "video-paper-wiki.library-controller-review.v1",
+  "scope_verification": {
+    "allowed_path_count": 9,
+    "allowlist": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "src/video_paper_wiki_research/light_index.py",
+      "src/video_paper_wiki_research/light_library.py",
+      "src/video_paper_wiki_research/light_library_state.py",
+      "src/video_paper_wiki_research/light_pdf.py",
+      "src/video_paper_wiki_research/light_workspace.py",
+      "tests/research/test_light_backup.py",
+      "tests/research/test_light_library.py",
+      "tests/research/test_light_library_recovery.py"
+    ],
+    "freeze_inputs_match_recorded_hashes": true,
+    "handoff_ready_byte_identical": true,
+    "r1_handoff_immutable": true,
+    "r1_handoff_sha256": "b96148bf64ca8eed27ff13d47fb4bf3d72da1de830171abe88f59a77e07ded58",
+    "r1_snapshot": "f8b2808ed47394434af430de74c499ab541b66ac859610c5ad550c19f191fb02",
+    "r2_bundle_files_match_source": true,
+    "r2_source_manifest_matches_handoff": true
+  },
+  "source_writer_stopped": true,
+  "status": "R2_REJECTED_PENDING_BOUNDED_R3_FIXES"
+}

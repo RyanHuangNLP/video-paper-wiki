@@ -1,0 +1,14 @@
+{
+  "markdown": "SANA-Video 2.0 与 Stable Video Diffusion 走的是不同路线。[@chk-2de70a6c333fc1bc8f50367c][@chk-eb70fc5d6d3660ae0f95ffa1]\n\nStable Video Diffusion 是面向高分辨率文生视频与图生视频的潜在视频扩散模型。作者给出视频 LDM 训练的三个阶段：文生图预训练、视频预训练，以及高质量视频微调，并强调需要精心筛选的预训练数据，包括配文与过滤策略。[@chk-eb70fc5d6d3660ae0f95ffa1]他们还单独分析这三阶段对最终性能的影响，并指出 SVD 表示可用于图生视频等微调，以及相机控制 LoRA 等多视角相关应用。[@chk-445957a680ec2c7c979f7934]\n\nSANA-Video 2.0 是统一架构下的混合视频扩散 Transformer，规模为 5B 与 14B，目标是在单卡上生成最高 720p 的视频。为避免全程二次复杂度，Hybrid Linear–Softmax Attention 以门控线性注意力做 O(N) 主导混合，并按 3:1 插入周期性门控 softmax 锚点，以补回纯线性注意力缺少的满秩 token 交互；Block Attention Residuals（AttnRes）把块摘要送入后续线性层，据称可将深层有效秩提高约 12%。该模型从零训练完整混合结构，而不是把已有 softmax 模型事后线性化，代理实验将 25% softmax 视为质量与效率折中。40 步采样时，单卡 H100、480p 的 VBench 为 84.30，耗时 13.2 秒。[@chk-2de70a6c333fc1bc8f50367c]\n\n因此，SVD 侧重潜在扩散的数据策展与三阶段训练，SANA-Video 2.0 侧重混合线性注意力，以降低长序列、高分辨率生成的计算代价。",
+  "citations": [
+    {
+      "chunk_id": "chk-2de70a6c333fc1bc8f50367c"
+    },
+    {
+      "chunk_id": "chk-eb70fc5d6d3660ae0f95ffa1"
+    },
+    {
+      "chunk_id": "chk-445957a680ec2c7c979f7934"
+    }
+  ]
+}

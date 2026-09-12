@@ -1,0 +1,128 @@
+{
+  "schema": "full-todo.code-proof-io-foundation-integration-review.v13",
+  "record_type": "io-foundation-integration-review-r13",
+  "reviewed_at_utc": "2026-09-10T16:49:11.169024Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_R13_FREEZE_WITH_REQUIRED_CONCRETE_CLOSURES",
+  "implementation_authority": "not_granted",
+  "scope": "Bounded read-only review of R13 against retained-I/O R6/R8/R9 and the accepted foundation R1/R2 contract boundary. Only contradictions and still-missing concrete decisions are recorded; no implementation, test, runtime, provider, Git, or UI action was performed.",
+  "reviewed_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-FOUNDATION-INTEGRATION-R13.md",
+      "size_bytes": 6544,
+      "sha256": "4ef374733c4bba9824249a5f13e19727d4d3bd5957461bba561c36bc7ef86863",
+      "expected_size_bytes": 6544,
+      "expected_sha256": "4ef374733c4bba9824249a5f13e19727d4d3bd5957461bba561c36bc7ef86863",
+      "pin_match": true
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92",
+      "expected_size_bytes": 15524,
+      "expected_sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92",
+      "pin_match": true
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f",
+      "expected_size_bytes": 15471,
+      "expected_sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f",
+      "pin_match": true
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62",
+      "expected_size_bytes": 12611,
+      "expected_sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62",
+      "pin_match": true
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-R1.md",
+      "size_bytes": 10733,
+      "sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8",
+      "expected_size_bytes": 10733,
+      "expected_sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8",
+      "pin_match": true
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R2.md",
+      "size_bytes": 13634,
+      "sha256": "effd4fa9a8d3f2bd93f1b2154c0e486f21e0441e00836def25fe329329889163",
+      "expected_size_bytes": 13634,
+      "expected_sha256": "effd4fa9a8d3f2bd93f1b2154c0e486f21e0441e00836def25fe329329889163",
+      "pin_match": true
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/I/foundation-contract-review-r2.json",
+      "size_bytes": 9272,
+      "sha256": "bc5b5564400abcc2b870f4115df241b843c94591d026750d510874a03cc73e5c",
+      "expected_size_bytes": 9272,
+      "expected_sha256": "bc5b5564400abcc2b870f4115df241b843c94591d026750d510874a03cc73e5c",
+      "pin_match": true
+    }
+  ],
+  "closed_or_consistent_findings": [
+    {
+      "area": "checkout_selection",
+      "status": "CLOSED_BY_R13",
+      "finding": "R13 resolves the earlier lexical-root ambiguity consistently with R6/R8 and foundation R1/R2: one os.getcwd call, no PWD/parent search/resolve/realpath/normpath/fallback, nested invocation refusal, retained marker/project bytes and descriptor ancestry."
+    },
+    {
+      "area": "initial_resource_policy",
+      "status": "CLOSED_BY_R13",
+      "finding": "R13 closes the previously missing resource file policy: regular, nonsymlink, single-link, no executable/group-other-write/special bits, owner-write allowed, exact eleven size/hash pins, no chmod, and initial-resource versus later-lineage mapping."
+    },
+    {
+      "area": "lock_and_platform_intent",
+      "status": "CONSISTENT_PENDING_MATRIX",
+      "finding": "R13 preserves R6/R8 ordering: capability preflight, checkout lock before resource/work scans, immediate duplicate, directory-fsync probe, no lock-file/procfs fallback, and busy/unavailable precedence."
+    }
+  ],
+  "required_concrete_closures": [
+    {
+      "area": "session_foundation_ownership",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "gap": "R13 names session methods profile_sha256, validate_structure, and materialize_limits, but does not freeze the concrete retained-resource record or the ownership transfer between the eleven descriptor/edge records and the pure compile_code_proof_resources byte mapping.",
+      "why_it_matters": "R1/R2 require the foundation to receive only retained bytes while R6/R8 require one session-owned graph through final verification. Without an explicit private adapter type and lifetime, a compiler context could be detached from the descriptors, mixed across generations, or used after session close.",
+      "required_decision": "Freeze a private retained-resource/compiled-context object containing relative name, origin kind, parent descriptor/name edge, first stamp, mode/link policy, retained bytes, and pinned hash. Define whether open_code_session stores it directly or exposes a private session method, and require the context methods to fail after close while descriptors remain owned until final verification/reverse cleanup."
+    },
+    {
+      "area": "resource_final_stamp_and_initial_syscall_precedence",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "gap": "R13 states retained device/inode/type/full mode and bytes/hash checks, but does not explicitly bind the R6 full resource file stamp (size/mtime/ctime/link count) and resource-directory comparison rule to each final reread. Its initial acquisition syscall paragraph also leaves the exact result open when a resource was observed but could not be opened or revalidated.",
+      "why_it_matters": "R6 distinguishes stable initial resource-invalid states from later changed or uncheckable WORK_PATH_UNSAFE lineage. A partial initial observation must not be reinterpreted as a successful byte snapshot or silently lose the original bounded I/O error.",
+      "required_decision": "Freeze the resource edge record and final check fields exactly: file device/inode/full mode/size/mtime/ctime/link count plus exact same-descriptor bytes; directory device/inode/type/mode with child-induced size/time excluded. Define deterministic precedence for missing, initial unsafe, initial open/stat failure, and post-retention revalidation failure under the R8 group order."
+    },
+    {
+      "area": "primitive_capability_matrix_and_injection_surfaces",
+      "severity": "MEDIUM",
+      "status": "OPEN",
+      "gap": "R13 lists required primitive families but leaves “descriptor enumeration” and the Python capability checks abstract, and names test injection surfaces without naming them. It also specifies busy flock errors and directory-fsync unsupported errors but not flock ENOTSUP/EOPNOTSUPP/EINVAL classification.",
+      "why_it_matters": "R6/R8 require refusal before output creation on unsupported no-follow/descriptor primitives and deterministic CODE_PROOF_BUSY versus unavailable_primitive/syscall_failed results on both macOS and Linux. The legacy secure_io flags conditionally omit O_NOFOLLOW/O_DIRECTORY and cannot be the implicit matrix.",
+      "required_decision": "Freeze the exact supports_dir_fd/supports_follow_symlinks/supports_fd functions and O_* constants, including the bounded os.scandir(fd) API and directory-fsync probe. Name the monkeypatch/injection seams for each syscall and map flock EACCES/EAGAIN/EWOULDBLOCK to busy while classifying unsupported flock errors as unavailable_primitive. Keep procfs optional and never authoritative."
+    }
+  ],
+  "contradictions_found": [],
+  "rejection_lease_archival": {
+    "rejection_record": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/builder-foundation-launch-rejection-r1.json",
+    "rejection_record_sha256": "e135d6ea27872ddd53c4e323ee571ea7951e6e90be133c6659e06199ee6a8a",
+    "active_lease_released": true,
+    "lease_bytes_archived_separately": false,
+    "retained_lease_metadata": "The rejection record retains the former lease path, size, SHA-256, UUID, owner/context-derived invocation fields; the original lease.json bytes are not recoverable as a standalone archive.",
+    "no_fabricated_archive_claim": true
+  },
+  "acceptance_boundary": [
+    "R13 is suitable for a revised exact I/O freeze after the three concrete closures above; it is not an implementation dispatch or acceptance.",
+    "Foundation R1/R2 remains pure and two-file scoped; R13 does not move filesystem authority, public identity/JCS/replay, or resource validation into that module.",
+    "Fresh Linux CI, source/wheel resource checks, and complete retained-I/O adversarial tests remain pending implementation."
+  ],
+  "limitations": [
+    "Architecture preparation only; no product source or tests were run.",
+    "The auto-review launch refusal and non-archived lease-byte limitation are preserved factually above; no retry or workaround was attempted."
+  ]
+}

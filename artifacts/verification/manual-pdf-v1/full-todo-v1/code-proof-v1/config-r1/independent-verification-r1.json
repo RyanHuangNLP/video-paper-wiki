@@ -1,0 +1,264 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-fixture-verification-r1.v1",
+  "fixture_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r1.json",
+  "fixture_sha256": "a835382c7924969ee1d1b12b26e38fae126cc3ee03770ecfc23937b1b5915b24",
+  "fixture_size_bytes": 111287,
+  "verification_method": "Independent stdlib json.loads/tomllib.loads parse_float=Decimal cross-check; independently recomputed UTF-8 byte/codepoint coordinates, raw/snippet SHA-256, metadata, DFS paths and Decimal-context invariance.",
+  "runtime": {
+    "python": "3.13.13",
+    "tomllib": "stdlib",
+    "egress": "none"
+  },
+  "success": {
+    "vectors": [
+      {
+        "id": "json-nested-lf",
+        "format": "json",
+        "nodes": 11,
+        "raw_sha256": "0a9fc14ad0d677374f756c3c4a3884b8ba8d948450e9f33026da50bb1dc38a3a"
+      },
+      {
+        "id": "json-unicode-crlf-tabs",
+        "format": "json",
+        "nodes": 9,
+        "raw_sha256": "c13c4907cd79c417337cb3b815897d40c5631291cd60da1a80790793cd8f54f5"
+      },
+      {
+        "id": "json-pointer-escaping",
+        "format": "json",
+        "nodes": 5,
+        "raw_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+      },
+      {
+        "id": "toml-nested-lf",
+        "format": "toml",
+        "nodes": 11,
+        "raw_sha256": "1f0a33eebefbbe5192e8e569753965f21c5ca525989d95669109ed070ae44beb"
+      },
+      {
+        "id": "toml-unicode-crlf-inline",
+        "format": "toml",
+        "nodes": 10,
+        "raw_sha256": "e5bee949f5384e1ce76ec4ae046c5d06c7a5b5fc486b37208a49a1bf8f9319e8"
+      },
+      {
+        "id": "toml-dotted-promotion",
+        "format": "toml",
+        "nodes": 9,
+        "raw_sha256": "32e4c2332c39f46025aa4d95781ead1f72029ac50394cdddf9e39dd433e2371e"
+      },
+      {
+        "id": "toml-numeric-boundaries",
+        "format": "toml",
+        "nodes": 6,
+        "raw_sha256": "4338b6a5288175c960193158dfb98eb915580f38262b7e51cbfcb453dbcc76c6"
+      }
+    ],
+    "count": 7,
+    "total_nodes": 61
+  },
+  "refusals": {
+    "vectors": [
+      {
+        "id": "json-duplicate-escaped-key",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_DUPLICATE_KEY",
+        "stdlib": "ValueError"
+      },
+      {
+        "id": "json-plus-sign",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "JSONDecodeError"
+      },
+      {
+        "id": "json-leading-zero",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "JSONDecodeError"
+      },
+      {
+        "id": "json-underscore",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "JSONDecodeError"
+      },
+      {
+        "id": "json-trailing-comma",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "JSONDecodeError"
+      },
+      {
+        "id": "json-nonfinite",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "ValueError"
+      },
+      {
+        "id": "json-negative-zero-integer",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_NUMBER_INVALID",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-negative-zero-decimal",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_NUMBER_INVALID",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-explicit-exponent-over",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-tuple-exponent-over",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-coefficient-over",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-lowered-canonical-cap",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-bom",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_BYTES_INVALID",
+        "stdlib": "JSONDecodeError"
+      },
+      {
+        "id": "json-bare-cr",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_BYTES_INVALID",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "json-comment",
+        "format": "json",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "JSONDecodeError"
+      },
+      {
+        "id": "toml-negative-zero-integer",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_NUMBER_INVALID",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-negative-zero-decimal",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_NUMBER_INVALID",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-underscore-leading",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "TOMLDecodeError"
+      },
+      {
+        "id": "toml-base-prefixed",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-date",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-nan",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-multiline-array",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-array-of-tables",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-inline-trailing-comma",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_SYNTAX_INVALID",
+        "stdlib": "TOMLDecodeError"
+      },
+      {
+        "id": "toml-duplicate-header",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_DUPLICATE_KEY",
+        "stdlib": "TOMLDecodeError"
+      },
+      {
+        "id": "toml-inline-extension",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_DUPLICATE_KEY",
+        "stdlib": "TOMLDecodeError"
+      },
+      {
+        "id": "toml-dynamic-interpolation",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-dynamic-callable",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-comment-dynamic-looking",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_EMPTY",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-multiline-string",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_UNSUPPORTED",
+        "stdlib": "accepted"
+      },
+      {
+        "id": "toml-comment-only",
+        "format": "toml",
+        "expected_code": "CODE_CONFIG_EMPTY",
+        "stdlib": "accepted"
+      }
+    ],
+    "count": 31,
+    "stdlib_accepts_expected_for_profile": 19
+  },
+  "checks": {
+    "source_metadata": true,
+    "all_spans_and_hashes": true,
+    "complete_parser_tree_shape": true,
+    "numeric_kind_and_canonical_value": true,
+    "json_pointer_and_dfs_order": true,
+    "toml_null_ordinary_table_spans": true,
+    "decimal_hostile_context_no_rounding": true,
+    "global_decimal_context_unchanged": true,
+    "refusal_anchors": true
+  },
+  "result": "PASS_INDEPENDENT_STATIC_FIXTURE_REPLAY"
+}

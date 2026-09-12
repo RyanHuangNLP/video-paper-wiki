@@ -1,0 +1,181 @@
+{
+  "$schema": "full-todo.discovery-semantic-final-review-r1.v1",
+  "schema": "full-todo.discovery-semantic-final-review-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-final-semantic-probe-review",
+  "reviewed_at_utc": "2026-09-09T10:52:50Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "bounded independent executable Discovery semantic reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "PASS_FOR_CURRENT_THREE_MODULE_SEMANTICS_WITH_EXTERNAL_ACCEPTANCE_GATES_OPEN",
+  "scope": "Read-only executable review of the current frozen discovery_plan.py, discovery_candidates.py and discovery_graph.py against the frozen R2-R7 contracts. Probed conflicted-seed capability handling, depth-2 non-recursion, alias attempt suppression, explicit unseen-neighbor slices, and durable three-lineage merge/no-refund behavior. discovery.py and discovery_storage.py wiring were not modified. No source, test, schema, Git, network, connector, Vault or human-gate mutation.",
+  "scope_controls": {
+    "source_edits": false,
+    "tests_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_mutation": false,
+    "review_artifact_only": true
+  },
+  "inputs": {
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732
+    },
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "r5_wire": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    "r6_rank": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    "r7_final": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    "provider_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    }
+  },
+  "reviewed_sources": [
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_plan.py",
+      "sha256": "51a36f6c011d0cb5ee5b0166a559dbb1abb28b4772a8909b2ab8922f1858da65",
+      "size_bytes": 19504
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_candidates.py",
+      "sha256": "c10a75ef54d2fe06a819b126e5f839abc7bfc7b5d280ac00f9fa6a2124ea4672",
+      "size_bytes": 13267
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_graph.py",
+      "sha256": "043fe04b25b7eead681b9fecb038767ceed5dc61ab0eb3d8cc6462f7cb1513f6",
+      "size_bytes": 24266
+    }
+  ],
+  "external_probe": {
+    "script_path": "/private/tmp/discovery_semantic_final_probe_r1.py",
+    "script_sha256": "80ed0333284da4b26741e68167b072e534b089b7d82fddb71265a8e58f69f760",
+    "output_path": "/private/tmp/discovery_semantic_final_probe_r1.json",
+    "output_sha256": "ed11da41e8ee63299d47ae4fb4797c12a6e3987df2712f8e6931a2d35a5a30ed",
+    "runtime": "project .venv Python 3.13",
+    "method": "One isolated Python probe creates only temporary /private/tmp synthetic documents and calls the current production helpers. It records pass/fail/error for each vector and hashes the three reviewed source files at execution time."
+  },
+  "checks": [
+    {
+      "id": "SEM-FINAL-CONFLICT-001",
+      "status": "PASS",
+      "contract": "R5/R6/R7 conflicted components remain inspectable and are excluded from executable frontier expansion.",
+      "observed": {
+        "available_specs": 0,
+        "capability_entries": 13,
+        "capability_reasons": [
+          "identity_conflicted"
+        ],
+        "all_subjects_conflicted": true
+      },
+      "evidence": "An OpenAlex W1 seed was joined to W2 through an explicit same_work link. frontier() returned no specs and 13 capability entries, all reason identity_conflicted; no DISCOVERY_IDENTITY_UNRESOLVED escaped."
+    },
+    {
+      "id": "SEM-FINAL-DEPTH2-002",
+      "status": "PASS",
+      "contract": "R6/R7 expansion depth is one plus minimum why-found depth, bounded at depth 2, and a depth-2 selection never recurses.",
+      "observed": {
+        "base_attempted_jobs": 11,
+        "first_expansion_specs": 1,
+        "first_expansion_depths": [
+          2
+        ],
+        "second_expansion_specs_after_depth2_attempts": 0
+      },
+      "evidence": "With all 11 base specs marked attempted and a distinct candidate whose why-found depth was 1, frontier() emitted one depth-2 expanded lookup. Replaying with that depth-2 spec attempted emitted no further expanded spec."
+    },
+    {
+      "id": "SEM-FINAL-ALIAS-DEDUPE-003",
+      "status": "PASS",
+      "contract": "R6/R7 logical plain-job suppression ignores alias extension while explicit retry/continuation remain separate paths.",
+      "observed": {
+        "prior_attempted_operations": [
+          "lookup",
+          "citations"
+        ],
+        "current_plain_lookup_or_citation_operations": [],
+        "alias_subject_ids": [
+          {
+            "namespace": "doi",
+            "value": "10.1234/alias",
+            "version": null
+          },
+          {
+            "namespace": "openalex",
+            "value": "W1",
+            "version": null
+          }
+        ]
+      },
+      "evidence": "A committed W1 lookup and citations base spec was followed by an observation joining W1 to a DOI alias. frontier() returned neither a new plain lookup nor a plain citations job for the alias-expanded subject."
+    },
+    {
+      "id": "SEM-FINAL-SLICE-004",
+      "status": "PASS",
+      "contract": "R6 explicit references/related slices use the singleton continuation and exact unseen canonical prefix.",
+      "observed": {
+        "total_neighbor_count": 25,
+        "first_batch_count": 20,
+        "validated_unseen_prefix": [
+          "W5",
+          "W6",
+          "W7",
+          "W8",
+          "W9"
+        ],
+        "overlap_error_code": "DISCOVERY_INPUT_INVALID"
+      },
+      "evidence": "A W123 singleton exposed 25 canonical referenced IDs. The first automatic batch contained 20; validate_explicit accepted exactly the remaining five and rejected a slice that reintroduced an already-used first ID."
+    },
+    {
+      "id": "SEM-FINAL-LINEAGE-MERGE-005",
+      "status": "PASS",
+      "contract": "R7 durable selection history retains three introductions after alias/bridge merge and refuses a fourth distinct introduction.",
+      "observed": {
+        "lineages_before_merge": 3,
+        "lineages_after_alias_bridge_and_reuse": 3,
+        "fourth_distinct_selection_error_code": "DISCOVERY_LIMIT_EXCEEDED"
+      },
+      "evidence": "Three depth-1 origin lineages were created for distinct components. A same_work bridge joined the first two and a later spec reused that component without changing lineage count; a fourth disjoint subject raised DISCOVERY_LIMIT_EXCEEDED."
+    }
+  ],
+  "actual_findings": [],
+  "limitations_and_remaining_gates": [
+    "The probe is focused on the five requested semantic vectors; it does not replace the parent full local, wheel or CI evidence.",
+    "No live provider, real-data, Vault/admin or human scientific gate was exercised.",
+    "The prior R2 control-group concern was withdrawn in discovery-semantic-wip-review-r2-supplement.json after its separate rejection/valid-history probe."
+  ],
+  "conclusion": "All five independently executed semantic vectors passed against the exact current three-module hashes. The previously reported conflicted-seed frontier finding is closed in the current discovery_plan.py; this review reports no remaining actual finding in the requested scope."
+}

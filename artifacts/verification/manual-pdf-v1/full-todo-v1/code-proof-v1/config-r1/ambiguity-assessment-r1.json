@@ -1,0 +1,50 @@
+{
+  "schema": "video-paper-wiki.code-config-kernel-fixture-ambiguity-assessment.v1",
+  "revision": 1,
+  "status": "NO_BLOCKING_AMBIGUITY_FOR_BOUNDED_AUTHORED_SPAN_VECTORS",
+  "scope": "Independent fixture preparation only; no production parser acceptance or dispatch claim",
+  "inputs": {
+    "config_kernel_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4"
+    },
+    "code_proof_closure_r3": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5"
+    },
+    "independent_span_advice_r3": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json",
+      "sha256": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20"
+    }
+  },
+  "resolved_for_fixture": [
+    {
+      "topic": "raw_span",
+      "rule": "Original UTF-8 bytes and decoded Unicode codepoints are indexed independently; byte/codepoint spans are half-open and columns are one-based codepoint columns."
+    },
+    {
+      "topic": "crlf",
+      "rule": "CRLF contributes two bytes and two codepoints, advances one physical line after LF, and no selected token span splits the pair."
+    },
+    {
+      "topic": "snippet_sha256",
+      "rule": "Fixture computes the existing code_snippet_sha256 contract independently: CRLF normalized to LF, selected one-based inclusive physical lines hashed without a terminal LF, with an exclusive end at the next line start excluded."
+    },
+    {
+      "topic": "numeric_values",
+      "rule": "Decimal and integer magnitudes are recorded as strings; 1e-4 remains decimal kind with canonical value 0.0001, and betas retain decimal kind."
+    },
+    {
+      "topic": "toml_promotion",
+      "rule": "Only tomllib-accepted ordinary header/dotted-key examples are authored; promotion evidence is represented as declarations on one logical map node, without asserting untested parser behavior."
+    }
+  ],
+  "bounded_open_edges": [
+    "The fixture does not freeze public error names, node-record wire schema, or all TOML subset behavior beyond the authored examples.",
+    "The fixture records selected exact spans and independent parser values; it does not claim whole-parser acceptance or implementation completeness.",
+    "Any later disagreement about TOML promotion or snippet line selection requires an Architect contract amendment before implementation acceptance."
+  ],
+  "proceed": true,
+  "source_or_test_mutation": false,
+  "network_or_git": false
+}

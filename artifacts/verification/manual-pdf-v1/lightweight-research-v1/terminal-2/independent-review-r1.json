@@ -1,0 +1,69 @@
+{
+  "schema": "lightweight-research-t2-independent-review-r1.v1",
+  "reviewed_at_utc": "2026-09-08T10:51:51.993320000Z",
+  "clock_source": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ' on the review host",
+  "scope": "Bounded read-only review of stopped T2 R1 source, handoff, two Architect preliminary reproduction records, and FIX-T2-R2-DRAFT.md. No source, test, Git, or external-service mutation.",
+  "baseline": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "freeze_sha256": "8b9b257080d01b69b4ea683728acfea9ba559c00a0292f4db034623e8e53c5a8",
+  "candidate_snapshot_sha256": "5abc88dac56fc77f4ecbb9858f1f9c82950266a10558ee4a64842515a26a6181",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-2/source",
+  "handoff": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/r1/handoff.json",
+    "sha256": "247c886af1ce154e9f1eacac0ca31006eead28c7cf7f35ff3f4c6be480eea524",
+    "status": "ready_for_architect",
+    "architect_accepted": false,
+    "stopped_writing": true,
+    "snapshot_matches_recomputed": true,
+    "ready_matches_handoff": true,
+    "eight_source_and_test_copies_match_frozen_bytes": true
+  },
+  "preliminary_records": {
+    "publication": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/architect-preliminary-publication-r1.json",
+      "sha256": "d848dc79ee22f2f16350b98ef14eac1d2ff8e2794d3fe6b7502de0232e906e6f",
+      "source_before_after_hashes_match_stopped_source": true,
+      "reproductions_still_bound": [
+        "interruption after HEAD before completion leaves pending job and exact finalize retry returns LIGHT_BATCH_CONFLICT",
+        "completion.record_id replaced with nonexistent valid-looking ID returns OK/reused with nonexistent page"
+      ]
+    },
+    "provenance": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/architect-preliminary-provenance-r1.json",
+      "sha256": "38681e6cd63eef602cc1fe2a99f4eff3cbc78efda3d187d68c527a5bcd45c548",
+      "source_before_after_hashes_match_stopped_source": true,
+      "reproductions_still_bound": [
+        "completed job with unknown empty directory classified completed/includable",
+        "self-consistently rehashed record whose document diverges from actual final merge accepted by public list"
+      ]
+    }
+  },
+  "stopped_source_hashes": [
+    {"path":"src/video_paper_wiki_research/light_backup.py","sha256":"3f71dbc34bb25b0cfe6866598fa9d5aa38b0de39a6358c2621f27e5061917610","size_bytes":59801,"frozen_copy_equal":true},
+    {"path":"src/video_paper_wiki_research/light_knowledge.py","sha256":"5a51703068a88373feeff746e3fe14a08d95e8539fd21d19322a7e56eaa866b8","size_bytes":103669,"frozen_copy_equal":true},
+    {"path":"src/video_paper_wiki_research/light_knowledge_batch.py","sha256":"4b58e9dc412872a157f1a02b4393b02dd37fe699efcc291d46ca6eb0aa6c4bca","size_bytes":65023,"frozen_copy_equal":true},
+    {"path":"src/video_paper_wiki_research/light_knowledge_refresh.py","sha256":"e30682610d69214f4c6b12dd5f8b1dae0aafdf0dacb292a5a0ee9d197df35ba3","size_bytes":23040,"frozen_copy_equal":true},
+    {"path":"tests/research/test_light_backup.py","sha256":"212a710e4ee3b531020cbf32ad4856dc1d4f17108c5a5ab667794593d00d8eb8","size_bytes":35174,"frozen_copy_equal":true},
+    {"path":"tests/research/test_light_knowledge.py","sha256":"8229e5dfe2737606491d459278ced54bce59b04d3ed893ea829685d1af105ec9","size_bytes":38382,"frozen_copy_equal":true},
+    {"path":"tests/research/test_light_knowledge_batch.py","sha256":"fa202a13416bd53090923cdea3660b1b535f3a25e3eec34a89324fe30b0d4fc8","size_bytes":16908,"frozen_copy_equal":true},
+    {"path":"tests/research/test_light_knowledge_refresh.py","sha256":"a03e86fcb2dbb77c4eebb7754f995a3c5b5acc51bc84c45a9967144576d99260","size_bytes":10118,"frozen_copy_equal":true}
+  ],
+  "draft": {
+    "path": "docs/ai/packets/lightweight-research-v1/FIX-T2-R2-DRAFT.md",
+    "sha256": "92b6f6e0c0915892c6c2ff62a65fb6dc6fa475415aa4a09e936aed87c4b0a4a9",
+    "covers_interruption_exact_retry": true,
+    "covers_completion_to_actual_bundle": true,
+    "covers_complete_directory_file_set": true,
+    "covers_record_to_actual_final_merge": "incomplete wording; requires explicit final-step and document binding"
+  },
+  "source_evidence": {
+    "interruption_retry_gap": "light_knowledge_batch.py:1456-1509 returns conflict for a pending job after its own HEAD moved, with no recognized-own-publication completion path.",
+    "completion_bundle_gap": "light_knowledge_batch.py:471-509 validates only completion shape; 1456-1487 returns OK/page_path from completion.record_id without validating the record bundle.",
+    "directory_set_gap": "light_knowledge_batch.py:563-566 discards dirs from inspection; 598-603 compares only file names, so an unknown empty directory can pass completed classification.",
+    "final_merge_gap": "light_knowledge_batch.py:640-665 validate_job_provenance accepts any accepted merge whose hash equals merge_sha256, rather than requiring the final step; light_knowledge.py:2208-2224 calls that predicate without comparing record document/context to the final merge document."
+  },
+  "decision": "CHANGES_REQUIRED_T2_R2_SPECIFICATION",
+  "required_draft_addendum": "State that a record provenance merge_sha256 must equal the hash of exactly merges/<batch_count-1>.json for every nonzero completed job; validate the final merge step's plan, parent chain, next-batch hash and canonical document, and require the published record document/context/provenance to bind to that exact final merge. A nonzero record must never validate against a pending job; only the specified zero-batch refresh may carry null merge_sha256. Keep the four requested publication/layout repairs and the original eight owner paths unchanged.",
+  "source_acceptance": false,
+  "dispatch_authorization": false
+}

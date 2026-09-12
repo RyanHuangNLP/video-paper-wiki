@@ -1,0 +1,168 @@
+{
+  "schema": "research-wiki-remaining-todo-status.v1",
+  "recorded_at_utc": "2026-09-08T17:51:16.958734+00:00",
+  "user_authorization": "把剩余的TODO都完成了吧，cursor grok的权限我都approve",
+  "baseline_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+  "items": [
+    {
+      "id": "NPDF",
+      "objective": "Remove tracked PDF assets and generate test samples at runtime",
+      "status": "accepted-at-exact-head",
+      "dependencies": [],
+      "implementation_accepted_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "fresh_ci": {
+        "run_id": 34256770949,
+        "attempt": 1,
+        "jobs_passed": 4,
+        "tests_per_job": 2701,
+        "checkout_sha": "fceb3c6a54de3626b1a36fe683591a6ceb1ce813"
+      },
+      "external_human_gates_closed": false,
+      "candidate_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "local_validation": {
+        "python312": 2701,
+        "python313": 2701,
+        "independent_probes": 34,
+        "focused_tests": 16
+      },
+      "acceptance": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/no-pdf-v1/architect-exact-head-acceptance-r2.json",
+        "sha256": "ca45e99405da0e001635e59d3f7452fabfa828e1ad8b07a7a50b3a6e24310171"
+      },
+      "pr_body_verified": "cc5bf299f22cdf5e6682a03021792bbd4155cc659a0c95a06caaaaece0ca93d7"
+    },
+    {
+      "id": "SOURCE",
+      "objective": "Lightweight formal source binding, canonical knowledge publication and versions",
+      "status": "capture-frozen-awaiting-host-runtime-approval",
+      "dependencies": [
+        "NPDF"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "capture": {
+          "packet": "SOURCE-CAPTURE-R1.md",
+          "freeze_sha256": "9daa95f62beadf7256dd09356232c78d3e1f8a3293536aea7b97a618963860d8",
+          "allowed_paths": 24,
+          "controller": "five_agent_config_review",
+          "lane": 1
+        },
+        "version_and_knowledge": {
+          "status": "design-under-independent-review",
+          "design": "SOURCE-CANONICAL-DESIGN-R1.md",
+          "sha256": "e46211baa9bba40f52746748757257ed49dbc3cb5c5801668824a486d900e5af"
+        }
+      }
+    },
+    {
+      "id": "DISCOVERY",
+      "objective": "Online paper preview, observation, version selection and candidate expansion",
+      "status": "preview-frozen-awaiting-host-runtime-approval",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "preview": {
+          "packet": "DISCOVERY-PREVIEW-R1.md",
+          "allowed_paths": 23,
+          "controller": "cursor_lanes34_controller",
+          "lane": 2,
+          "engineering_dependencies": [
+            "NPDF"
+          ]
+        },
+        "expansion": {
+          "status": "design-gap-review-complete-not-frozen",
+          "review": "artifacts/verification/manual-pdf-v1/full-todo-v1/w3-design-gap-review-r1.json",
+          "sha256": "ad216fb75bda7ad0af303eb5325a69ef9dcedb64e304450779cc571ed0c2321d"
+        }
+      }
+    },
+    {
+      "id": "CODE",
+      "objective": "Official repository, commit, code/config evidence and mapping",
+      "status": "design-gap-review-complete-not-frozen",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "design": "CODE-DESIGN-R1.md"
+    },
+    {
+      "id": "DOMAIN",
+      "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "CODE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "SYNTHESIS",
+      "objective": "Cited full articles and source-bound reproduction plans",
+      "status": "pending-contract",
+      "dependencies": [
+        "DOMAIN"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "QUALITY",
+      "objective": "Corpus, independent gold interfaces, model runs and semantic evaluation",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "PRODUCT",
+      "objective": "Obsidian views, status and all-namespace backup/restore integration",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    }
+  ],
+  "constraints": {
+    "zero_egress_python": true,
+    "no_committed_pdfs": true,
+    "no_models_or_ocr_install": true,
+    "catalog_count": 67,
+    "no_real_vault_mutation": true,
+    "no_merge": true
+  },
+  "runtime": {
+    "status": "awaiting-explicit-host-runtime-approval-after-auto-review-rejection",
+    "requested_runtime": "Cursor CLI",
+    "model": "cursor-grok-4.6-xhigh-fast",
+    "root_host_authentication_verified": true,
+    "exact_model_available_verified": true,
+    "source_builder_started": false,
+    "preview_builder_started": false,
+    "question_pending": true,
+    "allowed_independent_work": "read-only code and architecture review; NPDF acceptance/PR metadata completion",
+    "no_workaround_or_further_retry": true
+  }
+}

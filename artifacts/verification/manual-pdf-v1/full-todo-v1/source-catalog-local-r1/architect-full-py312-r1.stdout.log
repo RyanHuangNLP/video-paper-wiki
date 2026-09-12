@@ -1,0 +1,169 @@
+........................................................................ [  2%]
+.....F.................................................................. [  4%]
+........................................................................ [  6%]
+........................................................................ [  8%]
+........................................................................ [ 10%]
+........................................................................ [ 12%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+........................................................................ [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 44%]
+........................................................................ [ 46%]
+........................................................................ [ 48%]
+........................................................................ [ 50%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 65%]
+........................................................................ [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................................................................ [ 81%]
+...............................................F........................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 87%]
+........................................................................ [ 89%]
+........................................................................ [ 91%]
+........................................................................ [ 93%]
+........................................................................ [ 95%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+.......                                                                  [100%]
+=================================== FAILURES ===================================
+_________________ test_every_declared_object_schema_is_closed __________________
+
+schema_paths = [PosixPath('/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-catalog-v1/terminal-1/source/schem...-wiki/.work/parallel/source-catalog-v1/terminal-1/source/schemas/video-paper-wiki.catalog-report.v1.schema.json'), ...]
+
+    def test_every_declared_object_schema_is_closed(schema_paths: list[Path]) -> None:
+        for schema_path in schema_paths:
+            schema = load_json(schema_path)
+            for node, path in _walk(schema):
+                if node.get("type") == "object" or "properties" in node:
+                    if schema_path.name == "video-paper-wiki.cli-envelope.v1.schema.json" and path in ENVELOPE_EXCEPTIONS:
+                        assert node.get("additionalProperties") is True
+                    elif (schema_path.name == "video-paper-wiki.projection-generation.v1.schema.json"
+                          and path in RUNTIME_OVERLAYS):
+                        assert "additionalProperties" not in node
+                    else:
+>                       assert node.get("additionalProperties") is False, f"{schema_path}:{'/'.join(path)}"
+E                       AssertionError: /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-catalog-v1/terminal-1/source/schemas/video-paper-wiki.source-catalog.v1.schema.json:$defs/evidence/properties/resolution/allOf/0/if
+E                       assert None is False
+E                        +  where None = <built-in method get of dict object at 0x10a03fb40>('additionalProperties')
+E                        +    where <built-in method get of dict object at 0x10a03fb40> = {'properties': {'state': {'const': 'RESOLVED'}}}.get
+
+tests/contract/test_additional_properties.py:37: AssertionError
+_______________ test_retrieval_contract_has_no_local_bm25_engine _______________
+
+    def test_retrieval_contract_has_no_local_bm25_engine() -> None:
+        src = ROOT / "src" / "video_paper_wiki"
+        for path in src.rglob("*"):
+            if not path.is_file():
+                continue
+>           assert_projection_source_scope(
+                path.relative_to(src).as_posix(),
+                path.read_text(encoding="utf-8") if path.suffix == ".py" else None,
+            )
+
+tests/unit/test_search.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+relative_path = 'contracts.py'
+source = '"""Production schema registry and in-memory prospective identity validator."""\n\nfrom __future__ import annotations\..._MISMATCH",\n    "SCHEMA_INVALID",\n    "schema_by_title",\n    "validate_document",\n    "validate_prospective",\n]\n'
+
+    def assert_projection_source_scope(relative_path: str, source: str | None = None) -> None:
+        """Check a path relative to src/video_paper_wiki and optional Python text."""
+        lowered_path = relative_path.lower()
+        if relative_path not in _DOMAIN_RETRIEVAL and relative_path not in _CATALOG_COLLECTOR and relative_path not in _CATALOG_STORE:
+            assert not any(marker in lowered_path for marker in _GOLD), relative_path
+        assert "bm25" not in lowered_path, relative_path
+        if source is None:
+            return
+        lowered_source = source.lower()
+        if relative_path not in _DOMAIN_RETRIEVAL and relative_path not in _CATALOG_COLLECTOR and relative_path not in _CATALOG_STORE and relative_path not in {"contracts.py", "domain_cli.py"}:
+            assert not any(marker in lowered_source for marker in _GOLD), relative_path
+        if relative_path in _DOMAIN_RETRIEVAL or relative_path in _CATALOG_COLLECTOR:
+            tree=ast.parse(source,filename=relative_path)
+            for node in ast.walk(tree):
+                if isinstance(node,(ast.Import,ast.ImportFrom)):
+                    names=[x.name for x in node.names] if isinstance(node,ast.Import) else [node.module or ""]
+                    assert not any(name==bad or name.startswith(bad+".") for name in names for bad in ("rank_bm25","claude_obsidian","subprocess","socket")),(relative_path,names)
+                if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+                    assert node.name.lower() not in {"build_index","tokenize","tokenizer","query_index"},(relative_path,node.name)
+            return
+        if relative_path in _CATALOG_STORE:
+            tree=ast.parse(source,filename=relative_path)
+            for node in ast.walk(tree):
+                if isinstance(node,(ast.Import,ast.ImportFrom)):
+                    names=[x.name for x in node.names] if isinstance(node,ast.Import) else [node.module or ""]
+                    assert not any(name==bad or name.startswith(bad+".") for name in names for bad in ("rank_bm25","claude_obsidian","socket")),(relative_path,names)
+                if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef)):
+                    assert node.name.lower() not in {"build_index","tokenize","tokenizer","query_index"},(relative_path,node.name)
+            return
+        if relative_path not in _APPROVED and relative_path not in _THIN_UPSTREAM and relative_path not in _VOLATILE_INVENTORY:
+            assert "bm25" not in lowered_source, relative_path
+        tree = ast.parse(source, filename=relative_path)
+        if relative_path in _VOLATILE_INVENTORY:
+            for node in ast.walk(tree):
+                if isinstance(node,ast.Constant) and isinstance(node.value,str) and "bm25" in node.value.lower():
+                    assert node.value==".vault-meta/bm25",(relative_path,node.value)
+                if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef,ast.Name,ast.Attribute)):
+                    name=getattr(node,"name",getattr(node,"id",getattr(node,"attr","")))
+                    assert "bm25" not in name.lower(),(relative_path,name)
+            return
+        if relative_path in _THIN_UPSTREAM:
+            _assert_thin_upstream_bm25_adapter(relative_path, tree)
+            return
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                imports = [entry.name for entry in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                imports = [node.module or ""] + [
+                    f"{node.module}.{entry.name}" if node.module else entry.name
+                    for entry in node.names
+                ]
+            else:
+                imports = []
+            for imported in imports:
+                forbidden_imports = _FORBIDDEN_IMPORTS if relative_path in _APPROVED else ("claude_obsidian",)
+                assert not any(imported == forbidden or imported.startswith(forbidden + ".")
+                               for forbidden in forbidden_imports), (relative_path, imported)
+                assert "bm25" not in imported.lower(), (relative_path, imported)
+            if relative_path not in _APPROVED:
+                continue
+            if isinstance(node, ast.Constant) and isinstance(node.value, str) and "bm25" in node.value.lower():
+                assert node.value in _PROFILE_LITERALS, (relative_path, node.value)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                name = node.name
+            elif isinstance(node, ast.Call) and isinstance(node.func, (ast.Name, ast.Attribute)):
+                name = node.func.id if isinstance(node.func, ast.Name) else node.func.attr
+            else:
+                name = ""
+            if name:
+>               assert not _ENGINE_ACTION.search(name.lower()), (relative_path, name)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E               AssertionError: ('contracts.py', '_build_registry')
+
+tests/security/_projection_scope_policy.py:141: AssertionError
+=========================== short test summary info ============================
+FAILED tests/contract/test_additional_properties.py::test_every_declared_object_schema_is_closed
+FAILED tests/unit/test_search.py::test_retrieval_contract_has_no_local_bm25_engine
+2 failed, 3533 passed in 570.05s (0:09:30)

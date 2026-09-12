@@ -1,0 +1,68 @@
+{
+  "candidate_snapshot_sha256": "2a3ba59afb2a23cfa11c14b6f1e1ecf60bb161d591d675c9eed2964202c36355",
+  "decision": "R2 remains blocked pending R3 fixes for bounded parsing/read, CRC consistency, snapshot identity, restore cleanup ownership, and no-replace destination publication.",
+  "focused_checks": [
+    {
+      "name": "central_crc_mismatch",
+      "observed": "Central-directory CRC changed while local CRC/payload stayed unchanged; member stream raises at :718.",
+      "result": "UNCaught zipfile.BadZipFile",
+      "severity": "P1"
+    },
+    {
+      "name": "local_crc_mismatch",
+      "observed": "Local-header CRC changed while central CRC/payload stayed unchanged; verify_backup returns ok=True. Local and central CRC are parsed into ignored _crc values at _inspect_zip_container:439 and :469.",
+      "result": "ACCEPTED_INCORRECTLY",
+      "severity": "P1"
+    },
+    {
+      "name": "oversize_read_before_cap",
+      "observed": "A 142606337-byte sparse file (MAX_ZIP_BYTES + 1) causes Path.read_bytes to read all 142606337 bytes at _verify_zip:645; cap is applied only later by _open_zip:611-613.",
+      "result": "FAIL",
+      "severity": "P1"
+    },
+    {
+      "name": "archive_input_toctou",
+      "observed": "Monkeypatched first Path.read_bytes for b.zip to return a.zip bytes; structural check consumed a while _open_zip reopened b. Result reports b workspace_root. _verify_zip:645 then :651 parses different snapshots.",
+      "result": "FAIL",
+      "severity": "P1"
+    },
+    {
+      "name": "restore_stage_unknown_addition_on_publish_failure",
+      "observed": "Injected stage/unexpected.txt and edited payload/notes.md before raising OSError at final publish. restore_backup propagates OSError and finally removes stage at :949-951; _cleanup_stage recursively unlinks regular files at :966-982.",
+      "result": "FAIL",
+      "severity": "P1"
+    },
+    {
+      "name": "restore_empty_destination_race",
+      "observed": "Created an empty destination immediately before final os.rename; rename replaced it, restore returned ok=True and notes were present. Check :946-948 is not a no-replace primitive.",
+      "result": "FAIL",
+      "severity": "P1"
+    },
+    {
+      "name": "normal_roundtrip_control",
+      "observed": "create_backup -> verify_backup -> restore_backup succeeds; owned test_light_backup.py remains 20 passed.",
+      "result": "PASS"
+    }
+  ],
+  "primary_review": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-3/t2-backup-secondary-review-r1.json",
+  "primary_review_sha256": "2ea187bdde0547f91262307cc88492996632d9c8ef1d5fc52189581dbcee8033",
+  "schema": "lightweight-library-v1-t2-backup-secondary-review-supplement-r2.v1",
+  "scope": "Synthetic .work fixtures only; read-only review; no source/test/Git/real-data mutation.",
+  "source_sha256": "d912eb78fcad421fe779ac506a14ddb3f29599638b3d1ee5881ae121bccbce26",
+  "superseded_sha256": "e349ef333e06a9f54804a6c0754581f30dfbf1df95980b1d0a7d01b636cf6623",
+  "supersedes": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-3/t2-backup-secondary-review-r1-supplement.json",
+  "trace_corrections": [
+    {
+      "case": "truncated EOCD",
+      "trace": "verify_backup:839 -> _verify_zip:648 -> _inspect_zip_container:412; struct.unpack_from raises struct.error before a closed result."
+    },
+    {
+      "case": "mutated local-header filename",
+      "trace": "verify_backup:839 -> _verify_zip:686 archive.read(MANIFEST_NAME) -> zipfile.BadZipFile; archive.infolist at :653 returns normally. This corrects the primary review wording."
+    },
+    {
+      "case": "central CRC mismatch",
+      "trace": "verify_backup:839 -> _verify_zip:718 handle.read(65536) -> zipfile.BadZipFile (Bad CRC-32 for file notes.md)."
+    }
+  ]
+}

@@ -1,0 +1,194 @@
+{
+  "schema": "video-paper-wiki.product-backlog-audit.v1",
+  "recorded_at_utc": "2026-09-08T00:00:00Z",
+  "scope": "Read-only comparison of the original R3.3 PRD and plan-r2 with the later manual-PDF/lightweight/simple-draft scope and the accepted integration tree.",
+  "repository_baseline": {
+    "accepted_repository": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+    "integration_head": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "integration_tree": "fc317f13ad781a9121c15503c4f1d945c5fafe2a",
+    "production_source_commit": "809627bfa0deb8c1b1393f731bf3cb9a3c21ee66",
+    "source_relationship": "integration HEAD is the requested accepted coordination tree; the product source diff from 809627b to 3368c643 contains only coordination files (AGENTS/team/controller/task-index), not product implementation files.",
+    "inspection_method": "git ls-tree and read-only source/document inspection; no tests, source edits, Git mutations, model calls, UI actions or network calls"
+  },
+  "current_capability_baseline": {
+    "present_research_layer": [
+      "manual_pdf.py, light_pdf.py, light_context.py, light_workflow.py",
+      "light_qa.py, light_writing.py, source_admission.py, source_context.py",
+      "publication_bridge.py, storage.py, catalog_index.py and CLI/Skills"
+    ],
+    "present_engine_primitives": [
+      "staged_code_capture.py and code_evidence_contracts.py",
+      "canonical_compiler.py and domain.py",
+      "assessment_history.py, retrieval.py and catalog_store.py",
+      "receipt_audit.py, backup_manifest.py and backup_archive.py"
+    ],
+    "observed_product_layer_absences": [
+      "No research request.py, observations/arxiv.py, observations/openalex.py or observations/github.py in the exact accepted research tree.",
+      "No graph/, comparison.py, domain/profiles.py, context_pack.py, synthesis/ or reproduction.py product modules in the exact accepted tree."
+    ],
+    "source_evidence": [
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki_research/light_workflow.py:1401-1810",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki_research/light_context.py:123-559",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki_research/source_admission.py:37-190",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki_research/publication_bridge.py:45-500",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki/canonical_compiler.py:31-205",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki/staged_code_capture.py:58-164",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki/retrieval.py:10-106",
+      "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src/video_paper_wiki/backup_archive.py:27-310"
+    ]
+  },
+  "estimate_assumptions": {
+    "unit": "person-days of engineering effort",
+    "basis": "one experienced engineer, existing engine and lightweight workflow reused, no new default model/dependency, fixture plus one real-scope smoke where allowed",
+    "excludes": "human claim/domain review, provenance/license decisions, real Vault/operator time, external connector availability, CI queue time and user readiness/merge decisions",
+    "range_meaning": "rough planning ranges, not commitments; buckets have dependency overlap and are not summed as calendar time",
+    "net_program_range": "approximately 70-120 engineering person-days after the current lightweight candidate, assuming parallel work and reuse of the accepted engine"
+  },
+  "backlog_buckets": [
+    {
+      "id": "B1",
+      "title": "Full single-paper canonical ingestion, version-aware lifecycle and operator handoff",
+      "classification": "approved-first-version-capability; partially covered by the lightweight/manual candidate",
+      "status": "lower-level engine and lightweight PDF/session pieces exist; the full version-aware canonical path is unimplemented in the research product layer",
+      "estimate_person_days": "12-20",
+      "work": [
+        "connect manual PDF or future source-version associations to canonical Paper/Claim/Method/Concept records",
+        "add parser/extraction artifact handoff, figure/table/equation locators, claim classification proposals, status/next/resume and duplicate-safe publication",
+        "preserve external approval/ref, receipt, audit and index-rebuild boundaries"
+      ],
+      "evidence": [
+        "PRD R3.3:44-48 (research product and full parser/dispatcher gaps; multi-version identity currently rejects coexistence)",
+        "plan-r2:132-147 (explicit gap list and P1 scope)",
+        "plan-r2:513-530 (P1 orchestrator, two-stage compile, locator and recoverable acceptance)",
+        "manual-PDF scope:11,17 (manual intake preserves source evidence but must not manufacture parser/locator/approval/license authority)"
+      ],
+      "gate_note": "Real PDF provenance/license, claim assessment and Vault visual acceptance remain separate gates; they are not counted as engineering days."
+    },
+    {
+      "id": "B2",
+      "title": "Online paper discovery, arXiv preview and version resolution",
+      "classification": "deferred-optional-under-current-manual-PDF-scope; original PRD capability, not a current first-version blocker",
+      "status": "not present in accepted product layer; explicitly deferred from the manual-PDF critical path",
+      "estimate_person_days": "12-20",
+      "work": [
+        "connector capability observation plus arXiv metadata/preview/decision schemas and Skill",
+        "OpenAlex/arXiv/citation/topic/author discovery, deduplication, version merge, ranking explanation and stop policy",
+        "frozen observation replay, bounded cache/rate/error behavior and user choose ingest/skip/later"
+      ],
+      "evidence": [
+        "manual-PDF scope:5,9 (user-selected local PDFs supersede arXiv-first intake; online discovery/fetch/preview/version resolution deferred)",
+        "plan-r2:496-511 (P0 preview entry)",
+        "plan-r2:532-545 (P2 discovery expansion)",
+        "PRD R3.3:113-121 (preview/version contract)",
+        "PRD R3.3:210-216 (discovery session, ranking and replay contract)"
+      ],
+      "gate_note": "FABLE-002/008 remain user decisions in manual-PDF scope:7; do not implement this bucket as an implicit requirement."
+    },
+    {
+      "id": "B3",
+      "title": "Official repository and checkpoint integration",
+      "classification": "approved-v1-capability; candidate generation may precede gates, final officiality remains externally gated",
+      "status": "engine code-capture primitives exist; research discovery, officiality evidence and paper-repo mapping product layer are absent",
+      "estimate_person_days": "8-15",
+      "work": [
+        "GitHub/Hugging Face observation and candidate adapters without downloading repositories, weights or datasets",
+        "paper-linked/author-linked/author-org/community-only signal handling and conservative official/unofficial/unverified mapping",
+        "full commit, license, file/line/config evidence, Paper-Repo-Method edges and five-repository qualification fixtures"
+      ],
+      "evidence": [
+        "plan-r2:547-560 (P3 deliverables and five-repository acceptance)",
+        "PRD R3.3:196-208 (officiality evidence and mismatch rules)",
+        "PRD R3.3:29-36 (REQ-04 and reproduction intent)",
+        "accepted tree: src/video_paper_wiki/staged_code_capture.py and code_evidence_contracts.py (lower-level primitives only); no observations/github.py or research code-discovery module"
+      ],
+      "gate_note": "EXTERNAL-PROVENANCE-LICENSE-001 and HUMAN-GATE-BASELINE-001 can block final claims; candidates may be developed before those gates close."
+    },
+    {
+      "id": "B4",
+      "title": "Knowledge graph, contradiction handling and multidimensional comparison",
+      "classification": "approved-first-version-capability; major unimplemented product layer",
+      "status": "canonical records, claims, assessments, catalog and BM25 exist; typed graph, current profile/head, contradiction candidates and apples-to-apples comparison are absent",
+      "estimate_person_days": "20-35",
+      "work": [
+        "versioned domain/comparison profiles, claim-domain annotations, review events and atomic current heads",
+        "deterministic typed graph projection, predicate/type validation, contradiction groups/candidates and community projection",
+        "comparison facts across model/method/training/dataset/inference/code with condition lint, not-comparable outcomes, RRF/context-pack and rebuild/rollback"
+      ],
+      "evidence": [
+        "manual-PDF scope:11 (comparison and synthesis remain essential first-version scope)",
+        "plan-r2:562-580 (P4 graph, contradictions, profile/head, comparison and Q&A deliverables)",
+        "PRD R3.3:184-194 (typed concepts, accepted annotation/profile and experiment conditions)",
+        "PRD R3.3:218-230 (full retrieval, graph/context pack and stale/current rules)",
+        "accepted tree: no graph/, comparison.py or domain/profile product modules; retrieval.py is lower-level config/ranking/evaluation"
+      ],
+      "gate_note": "Human claim/domain assessment and Obsidian visual acceptance are required for supported/current comparison; engineering fixtures cannot close them."
+    },
+    {
+      "id": "B5",
+      "title": "Advanced synthesis, technical article and reproduction-plan artifacts",
+      "classification": "approved-v1-capability after the simple-draft threshold; advanced refinements are optional",
+      "status": "simple citation-safe QA and Markdown drafting exist; comparison-aware article/reproduction/support-review/publication artifacts are absent",
+      "estimate_person_days": "10-18",
+      "work": [
+        "comparison matrix and consensus/difference/contradiction/unknown sections",
+        "paragraph and factual-unit support review, bibliography/freshness manifests and create-only generated snapshot namespace",
+        "reproduction plan binding repo/commit/config/checkpoint/license/software/hardware/data/verification with explicit unknown/blocked and no-execution semantics"
+      ],
+      "evidence": [
+        "manual-PDF scope:13 (simple current-model draft is allowed now; advanced Skills and full formal publication are not prerequisites)",
+        "plan-r2:582-595 (P5 article/reproduction deliverables and acceptance)",
+        "PRD R3.3:218-236 (support review, article, create-only snapshot and reproduction contract)",
+        "accepted tree: light_qa.py/light_writing.py/light_context.py provide simple draft/context; no synthesis/ or reproduction.py"
+      ],
+      "gate_note": "HUMAN-CLAIM-ASSESSMENT-001 and HUMAN-OBSIDIAN-VISUAL-001 block final published article claims; simple draft output is not canonical publication."
+    },
+    {
+      "id": "B6",
+      "title": "Real corpus, semantic gold and retrieval/model qualification",
+      "classification": "approved-v1 acceptance work; depends on B1/B3/B4/B5 and real external inputs",
+      "status": "synthetic/fixture and local-PDF evidence exist; required real corpus, gold, hard negatives and three-run semantic qualification are not complete",
+      "estimate_person_days": "12-20 engineering days, plus unbounded reviewer/external time",
+      "work": [
+        "assemble versioned real corpus and source/evidence inventory without counting metadata-only seed rows as full text",
+        "freeze answerable/unanswerable and comparison gold, hard negatives, rubrics and independent review records",
+        "implement/qualify evidence-unit Recall@10, answer support/coverage, comparison not-comparable and three independent model runs"
+      ],
+      "evidence": [
+        "manual-PDF scope:11-13 (retrieval/Q&A/comparison/synthesis remain essential; simple draft does not certify factual publication)",
+        "plan-r2:261-311 (quality thresholds, corpus size, gold independence, three-run model qualification and retrieval metrics)",
+        "PRD R3.3:299-309 (30-candidate/20-distractor evaluation conditions and versioned @10 metric)",
+        "PRD R3.3:679-689 (seven real product verticals and no v1 claim from engine tests alone)"
+      ],
+      "gate_note": "Human semantic gold and claim review are outside the estimate; no local fixture result can substitute for them."
+    },
+    {
+      "id": "B7",
+      "title": "Productization, longitudinal recovery, visual views and read-only adapters",
+      "classification": "approved completion hardening with optional subparts; after core product slices",
+      "status": "engine audit/backup/restore primitives and lightweight session recovery exist; cross-namespace research backup, Obsidian Bases/dashboard, queue/recovery UX, MCP and performance closure are absent",
+      "estimate_person_days": "10-18",
+      "work": [
+        "extend status/audit/backup/isolated-restore and immutable session retention across new research namespaces",
+        "provide Obsidian Bases/dashboard, queue/failure recovery views and operator handoff UX",
+        "add read-only/request/status/context MCP adapter, compatibility migrations and performance/corpus regression baselines only where justified"
+      ],
+      "evidence": [
+        "plan-r2:597-611 (P6 productization scope)",
+        "plan-r2:613-639 (W7 dependency and exit conditions)",
+        "PRD R3.3:313-326 (real backup/restore, visual, readiness and seven vertical completion definition)",
+        "accepted tree: backup_archive.py/backup_manifest.py/receipt_audit.py exist; no research namespace migration, dashboard or MCP adapter is present"
+      ],
+      "gate_note": "External backup anchor, isolated restore evidence, visual acceptance and readiness/merge are gates, not engineering subtasks that local code can close. Dense embeddings, AST, watcher and multi-provider work remain optional by plan-r2:97-105, 607-608."
+    }
+  ],
+  "classification_summary": {
+    "approved_or_required_for_full_first_version": ["B1", "B3", "B4", "B5", "B6", "B7"],
+    "deferred_or_user-choice_backlog": ["B2"],
+    "excluded_from_estimate": [
+      "OCR-first/scanned-document support, model/weight/dataset download, YouTube/video ingestion, multi-user service and second desktop client (PRD R3.3:52; plan-r2:97-105)",
+      "human/external provenance, claim, visual, backup-anchor and readiness decisions"
+    ],
+    "planning_total": "B1+B3+B4+B5+B6+B7 gross 72-126 engineering person-days; overlap-adjusted program planning range approximately 60-105 person-days. B2 is an additional 12-20 person-days only if the user re-scopes online discovery into the critical path."
+  },
+  "bottom_line": "The accepted repository is beyond a storage-only MVP but is not the original full research product. The current manual/lightweight/simple-draft slice covers intake, resumable local retrieval, citation-safe QA and basic drafting. The remaining approved product work is chiefly canonical single-paper integration, official code evidence, typed graph/comparison, advanced synthesis/reproduction, real corpus qualification and cross-namespace productization; online discovery/versioning is deliberately deferred until a new user scope decision."
+}

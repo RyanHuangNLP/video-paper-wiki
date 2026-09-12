@@ -1,0 +1,309 @@
+{
+  "schema": "full-todo.code-config-toml-matrix-observation.v1",
+  "runtime": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "matrix_sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+  "matrix_size_bytes": 6831,
+  "case_count": 26,
+  "passed": 26,
+  "production_imported": false,
+  "observations": [
+    {
+      "id": "header_parent_promotion",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "v": 1
+            },
+            "w": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "header_child_descent",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "v": 1,
+            "b": {
+              "w": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "deep_header_parent_promotion",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": {
+                "x": 1
+              },
+              "y": 2
+            },
+            "z": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "root_dotted_siblings",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "dotted_parent_child_header",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": 1,
+            "c": {
+              "x": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "dotted_descendant_child_header",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": 1,
+              "d": {
+                "e": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "implicit_parent_to_current_dotted",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": {
+                "x": 1
+              },
+              "d": 2,
+              "e": 3
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "sealed_dotted_parent_new_child",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": {
+                "x": 1
+              },
+              "d": 2,
+              "f": {
+                "y": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "quoted_components_equivalent",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "x": 1
+            },
+            "c": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "literal_dot_distinct",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a.b": 1,
+          "a": {
+            "b": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "inline_dotted_siblings",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": 1,
+              "d": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "empty_implicit_header_parent",
+      "passed": true,
+      "observed": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "repeated_explicit_header",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "quoted_header_duplicate",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "dotted_parent_header_redefinition",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "dotted_descendant_header_redefinition",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "explicit_child_via_parent_dotted_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "sealed_dotted_parent_reopen_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "scalar_parent_descent_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "scalar_terminal_header_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "inline_table_extension_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "inline_nested_extension_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "inline_header_descent_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "array_header_descent_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "quoted_dotted_key_duplicate",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "id": "dotted_map_to_scalar_refusal",
+      "passed": true,
+      "observed": {
+        "accepted": false,
+        "exception_type": "TOMLDecodeError"
+      }
+    }
+  ]
+}

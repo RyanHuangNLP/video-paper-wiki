@@ -1,0 +1,252 @@
+{
+  "$schema": "full-todo.code-git-kernel-contract-review-r2.v1",
+  "schema": "full-todo.code-git-kernel-contract-review-r2.v1",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "supplement": "CODE-GIT-KERNEL-CLARIFICATIONS-R2",
+  "revision": "R2-independent-read-only-contract-review",
+  "recorded_at_utc": "2026-09-09T14:59:56.846189Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent pure in-memory CODE Git-object kernel contract reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only review of CODE-GIT-KERNEL-R1 together with its R2 clarification supplement. No implementation, test, fixture, Git mutation, CLI launch, network, provider, Vault, or public-wire work was performed.",
+  "decision": "CONDITIONAL_GO_PENDING_EXACT_FIXTURE_AND_CODE_BASELINE_FREEZE",
+  "verdict": "R2 closes all four R1 contract clarifications without changing the kernel algorithm or expanding scope. The pure in-memory kernel contract is ready for an exact implementation freeze once Steward binds the independent static fixture and the new CODE worktree/head. No public request, transport, schema, configuration, or retained-I/O prerequisite is required for this kernel.",
+  "semantic_result": {
+    "status": "PASS_R1_CONTRACT_FINDINGS_CLOSED",
+    "r1_findings_closed": [
+      {
+        "r1_id": "CGK-R1-CONTRACT-001",
+        "status": "CLOSED",
+        "r2_lines": {
+          "start": 7,
+          "end": 19
+        },
+        "resolution": "Both helpers use CodeGitProofError with exit_code=2; validation order is explicit; invalid types/enums map to CODE_PROOF_INPUT_INVALID with exact pointers; over-cap bytes map to CODE_PROOF_LIMIT_EXCEEDED with exact details and the cap check precedes frame/hash work.",
+        "review_check": "The helper contract is deterministic for object_format/object_type/body type/cap errors, accepts empty bytes, and exposes no frame parser."
+      },
+      {
+        "r1_id": "CGK-R1-CONTRACT-002",
+        "status": "CLOSED",
+        "r2_lines": {
+          "start": 21,
+          "end": 39
+        },
+        "resolution": "CODE_GIT_PROFILE_LIMITS is an explicit MappingProxyType around a fresh literal dict with exact insertion order and five values; callers copy it before lowering limits; no exposed mutable backing alias exists.",
+        "review_check": "The profile cannot be mutated through item assignment/deletion or ordinary mutable-map operations, and per-call lowering cannot affect later calls."
+      },
+      {
+        "r1_id": "CGK-R1-CONTRACT-003",
+        "status": "CLOSED",
+        "r2_lines": {
+          "start": 41,
+          "end": 47
+        },
+        "resolution": "Exactly ten fully prefixed CODE_PROOF_* strings are public; shorthand prose such as TYPE_MISMATCH resolves to the table code, specifically CODE_PROOF_OBJECT_TYPE_MISMATCH with oid/expected_type/actual_type.",
+        "review_check": "No extra shorthand error namespace remains."
+      },
+      {
+        "r1_id": "CGK-R1-CONTRACT-004",
+        "status": "CLOSED",
+        "r2_lines": {
+          "start": 49,
+          "end": 74
+        },
+        "resolution": "Success dict, records, blob subrecords, budget, target, edge, stopped_at and list ordering are exact. For missing components, stopped_at preserves the attempted ASCII component as lowercase name_hex while only mode and oid are null.",
+        "review_check": "The specified missing example (src/no.py) retains the matched src edge and records attempted no.py as 6e6f2e7079 at component_index 1."
+      }
+    ],
+    "algorithm_unchanged": true,
+    "algorithm_check": "R2 is an additive clarification supplement to the unchanged R1 packet. It does not alter raw-body-only inputs, canonical framing, validation precedence, complete tree parsing, target safety outcomes, consumed-set equality, or the ten-code refusal surface.",
+    "supporting_ranges": [
+      {
+        "topic": "R1 scope and implementation boundary",
+        "packet": "CODE-GIT-KERNEL-R1.md",
+        "lines": {
+          "start": 7,
+          "end": 36
+        }
+      },
+      {
+        "topic": "R1 API, limits and verification order",
+        "packet": "CODE-GIT-KERNEL-R1.md",
+        "lines": {
+          "start": 38,
+          "end": 173
+        }
+      },
+      {
+        "topic": "R1 framing/commit/tree/result/error contract",
+        "packet": "CODE-GIT-KERNEL-R1.md",
+        "lines": {
+          "start": 175,
+          "end": 305
+        }
+      },
+      {
+        "topic": "R1 required static verification",
+        "packet": "CODE-GIT-KERNEL-R1.md",
+        "lines": {
+          "start": 307,
+          "end": 331
+        }
+      },
+      {
+        "topic": "R2 helper rules",
+        "packet": "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+        "lines": {
+          "start": 7,
+          "end": 19
+        }
+      },
+      {
+        "topic": "R2 profile rules",
+        "packet": "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+        "lines": {
+          "start": 21,
+          "end": 39
+        }
+      },
+      {
+        "topic": "R2 closed errors/result order/stopped_at",
+        "packet": "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+        "lines": {
+          "start": 41,
+          "end": 74
+        }
+      },
+      {
+        "topic": "R2 remaining freeze gates and no scope expansion",
+        "packet": "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+        "lines": {
+          "start": 76,
+          "end": 78
+        }
+      }
+    ]
+  },
+  "remaining_gates": [
+    {
+      "id": "CGK-R2-PROC-001",
+      "severity": "BLOCKER_BEFORE_IMPLEMENTATION_FREEZE",
+      "status": "OPEN",
+      "title": "Independent static fixture still requires exact delivery and binding",
+      "evidence": {
+        "r2_lines": {
+          "start": 76,
+          "end": 78
+        },
+        "r1_lines": {
+          "start": 20,
+          "end": 31
+        },
+        "observation": "tests/fixtures/code-git-objects-v1.json is still absent from this checkout. R2 preserves the requirement that Steward deliver and bind exact fixture bytes in the separate implementation freeze."
+      },
+      "required_resolution": "Record fixture path, exact byte size, SHA-256, and independent Git-produced provenance in the freeze record; copy byte-for-byte into the allowed test path. Do not start implementation before this record exists."
+    },
+    {
+      "id": "CGK-R2-PROC-002",
+      "severity": "BLOCKER_BEFORE_IMPLEMENTATION_FREEZE",
+      "status": "OPEN",
+      "title": "Exact new CODE worktree baseline/head still requires binding",
+      "evidence": {
+        "r2_lines": {
+          "start": 3,
+          "end": 5
+        },
+        "r1_lines": {
+          "start": 13,
+          "end": 16
+        },
+        "observation": "R2 states that the exact workspace and immutable fixture remain bound by a separate freeze record; no new CODE worktree/head binding is present in the checked root."
+      },
+      "required_resolution": "Record the CODE source root, baseline commit and tree, and ensure the eventual Grok Build implementation/test run uses that worktree. The older root checkout remains disallowed as the implementation baseline."
+    }
+  ],
+  "freeze_readiness": {
+    "status": "READY_FOR_CONDITIONAL_GO_ONCE_TWO_PROCEDURAL_GATES_CLOSE",
+    "conditional_go_basis": [
+      "R1 algorithm and API are executable and internally consistent.",
+      "R2 closes every R1 contract ambiguity raised by this reviewer.",
+      "R2 explicitly keeps public wire/schema/config/I-O outside this packet.",
+      "No implementation or CLI launch is authorized by this review alone."
+    ],
+    "before_builder_dispatch": [
+      "bind exact static fixture path/size/SHA-256/provenance",
+      "bind exact new CODE worktree/source root and baseline commit/tree",
+      "restate the three allowed implementation paths and no additional source writes",
+      "restate Grok Build executable/model/reasoning/session ownership in the separate freeze/prompt record"
+    ],
+    "not_required_before_kernel": [
+      "public request/intent/bundle/observation schemas",
+      "retained descriptor or filesystem staging implementation",
+      "JSON/TOML parsing or normalized source handling",
+      "provider/repository acquisition, network or Git process execution",
+      "CODE-RELATION, CODE-CANONICAL, catalog, publication or final handoff wire work"
+    ]
+  },
+  "implementation_observation": {
+    "status": "PRE_IMPLEMENTATION_EXPECTED",
+    "paths_checked": [
+      {
+        "path": "src/video_paper_wiki/code_git_objects.py",
+        "exists": false
+      },
+      {
+        "path": "tests/unit/test_code_git_objects.py",
+        "exists": false
+      },
+      {
+        "path": "tests/fixtures/code-git-objects-v1.json",
+        "exists": false
+      }
+    ],
+    "interpretation": "The absent paths are consistent with the still-open fixture/baseline freeze gates and do not constitute an implementation defect."
+  },
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe",
+      "size_bytes": 17862
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568",
+      "size_bytes": 3659
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-git-kernel-contract-review-r1.json",
+      "sha256": "1f946f340c97bb8bc75f60cc90da06a2e75428bcedde5dbf2cd7704efedfd68e",
+      "size_bytes": 14584
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-closure-review-r3.json",
+      "sha256": "3d0d46221ae65e63a75118d3e16fc229d1e2506ac39fce954c788b6e33903713",
+      "size_bytes": 18700
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-READINESS-R1.md",
+      "sha256": "e3f945249568f3aa9f251643e047ff5f6c12a71a7b6dc150ac7500c2b4bbc45e",
+      "size_bytes": 2758
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CLI-OWNERSHIP-R3.json",
+      "sha256": "0e50345e3deceeb25d7ac3a340b2b3bb13adde23899aeb39f5a377b1d2cf12dd",
+      "size_bytes": 2242
+    }
+  ],
+  "evidence_integrity": {
+    "no_source_or_git_mutation": true,
+    "no_network_or_external_connector": true,
+    "no_cli_launch": true,
+    "no_implementation_authority_granted": true,
+    "prior_readiness_result": "KERNEL_PACKET_FEASIBLE_AFTER_KERNEL_CONTRACT_FREEZE; PUBLIC_CODE_PROOF_STILL_CHANGES_REQUIRED",
+    "prior_readiness_stdout_sha256": "806c1b38cbeaedc9f18be461895b7f1ea36d57ade3b1c5648b7aa828b7eb1b87"
+  }
+}

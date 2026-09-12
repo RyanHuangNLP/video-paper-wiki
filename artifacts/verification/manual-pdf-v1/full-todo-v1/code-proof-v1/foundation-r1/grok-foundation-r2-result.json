@@ -1,0 +1,82 @@
+{
+  "schema": "full-todo.grok-foundation-direct-call-result.v1",
+  "recorded_at_utc": "2026-09-10T17:20:00.624475+00:00",
+  "decision": "FAILED_SANDBOX_DEFAULT_SESSION_CREATION",
+  "session_handle": 22220,
+  "session_uuid": "c61edfa3-32b9-4f21-a4b3-770e2f307bf5",
+  "exit_code": 1,
+  "launched_once": true,
+  "completed_without_model_inference": true,
+  "source_changes_by_call": false,
+  "prompt": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R2.md",
+    "size_bytes": 13634,
+    "sha256": "effd4fa9a8d3f2bd93f1b2154c0e486f21e0441e00836def25fe329329889163",
+    "argument_construction": "shell read exact UTF-8 file bytes with trailing sentinel, removed sentinel, then passed as one double-quoted variable argument; actual invocation record retained honestly rather than relabelled as a literal source argument"
+  },
+  "invocation": {
+    "workdir": "/private/tmp/grok-foundation-r2-auop135c",
+    "argv_before_single": [
+      "/Users/huangzhanpeng/.local/bin/grok",
+      "--no-auto-update",
+      "--no-memory",
+      "--no-subagents",
+      "--no-plan",
+      "--disable-web-search",
+      "--verbatim",
+      "--permission-mode",
+      "default",
+      "--model",
+      "grok-4.6",
+      "--reasoning-effort",
+      "xhigh",
+      "--tools",
+      "",
+      "--disallowed-tools",
+      "read_file,grep,list_dir,search_replace,write,run_terminal_command,run_terminal_cmd,todo_write,web_search,web_fetch,Agent",
+      "--deny",
+      "Read",
+      "--deny",
+      "Grep",
+      "--deny",
+      "Edit",
+      "--deny",
+      "Write",
+      "--deny",
+      "Bash",
+      "--deny",
+      "MCPTool(*)",
+      "--deny",
+      "WebFetch(*)",
+      "--deny",
+      "WebSearch(*)",
+      "--session-id",
+      "c61edfa3-32b9-4f21-a4b3-770e2f307bf5",
+      "--output-format",
+      "plain"
+    ],
+    "single_argument_source": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R2.md",
+    "env": {
+      "GROK_MEMORY": "0",
+      "GROK_SUBAGENTS": "0",
+      "GROK_DISABLE_AUTOUPDATER": "1",
+      "GROK_WRITE_FILE": "0"
+    },
+    "permission_mode": "default",
+    "attachments": [],
+    "model_tools": []
+  },
+  "stdout": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r2.stdout.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r2.stderr.log",
+    "size_bytes": 3909,
+    "sha256": "1ed56668230bb29d0a56efea307e6a7575b6b5dfabda7a5cb829d72fa875a42e",
+    "raw_tail": "Error: Couldn't create session: Permission denied.: {\"detail\": \"Operation not permitted (os error 1)\", \"code\": \"FS_PERMISSION_DENIED\"}"
+  },
+  "failure_reason": "Grok could not create its session because the sandbox denied access to /Users/huangzhanpeng/.grok/installed-plugins/registry.lock and local session database writes; raw stderr also records unavailable DNS for cli-chat-proxy.grok.com and api.mixpanel.com.",
+  "retry_policy": "No retry, resume, account substitution, or permission bypass in this controller attempt; preserve exact failure for Architect."
+}

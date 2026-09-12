@@ -1,0 +1,115 @@
+{
+  "schema": "full-todo.code-proof-foundation-correction-instruction-review.v1",
+  "recorded_at_utc": "2026-09-11T01:50:49.037669Z",
+  "decision": "GO_FOR_CORRECTION_DISPATCH",
+  "instruction": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-CORRECTIONS-R3.md",
+    "size_bytes": 14266,
+    "sha256": "1a40c472323feb2f80ea05c7cc88dd75c31d24d0d5f1d4bac1a671c05f745bde",
+    "frozen": false,
+    "input_mode": "natural_language_only_no_attachments_tools_or_source_access"
+  },
+  "review_basis": {
+    "prior_source_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/independent-returned-source-review-r4.json",
+      "sha256": "dc6fd167c223c7640a55339834892d882c7428f59f2d8b98b0898e6b68b6d3d9"
+    },
+    "archived_production_source": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/returned-r4-code_proof_resources.py",
+      "size_bytes": 28080,
+      "sha256": "3baa70b3867a71611215dc51a303ff63d2fe8c0c564247fe69d72cead7aae21f"
+    },
+    "archived_test_source": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/returned-r4-test_code_proof_resources.py",
+      "size_bytes": 33305,
+      "sha256": "a38b8b81b5ec3f1877b7a01a97fe457136eb7b0e704edd58e6e8e6779fd07a71"
+    }
+  },
+  "production_replacement_assessment": {
+    "required_definition_count": 7,
+    "required_definitions": [
+      "_require_plain_json_tree",
+      "_canonical_list_index",
+      "_validate_schema_references",
+      "_require_exact_mapping",
+      "CodeProofResources",
+      "compile_code_proof_resources",
+      "_walk_schema_document"
+    ],
+    "all_names_present_exactly": true,
+    "mechanical_feasibility": "GO",
+    "checks": [
+      {
+        "name": "_require_plain_json_tree",
+        "result": "Sufficient iterative entry/exit graph preflight; exact builtin checks, surrogate rejection, ancestor/completed cycle handling, and shared-container allowance are explicit."
+      },
+      {
+        "name": "_canonical_list_index",
+        "result": "Sufficient exact ASCII canonical spelling and conversion-failure mapping to resource_shape; works whether the interpreter digit limit rejects or allows the conversion."
+      },
+      {
+        "name": "_validate_schema_references",
+        "result": "Sufficient preflight-before-set/lookup, exact IDs/keys/roots, and sorted traversal; no new registry or inventory authority."
+      },
+      {
+        "name": "_require_exact_mapping",
+        "result": "Sufficient key-type checks before set construction or lookup, closing subclass and armed-hash/equality cases."
+      },
+      {
+        "name": "CodeProofResources",
+        "result": "Sufficient zero-argument refusing constructor plus read-only properties, with direct compiler allocation through object.__new__ explicitly specified."
+      },
+      {
+        "name": "compile_code_proof_resources",
+        "result": "Sufficient unchanged pin-before-parse sequence, existing registry/validator helpers, and private slot assignment only after all validation."
+      },
+      {
+        "name": "_walk_schema_document",
+        "result": "Sufficient iterative visited-container traversal with node-is-document root privilege, nested $id rejection, forbidden-keyword rejection, and existing resolver use."
+      }
+    ]
+  },
+  "test_replacement_assessment": {
+    "required_function_count": 5,
+    "required_functions": [
+      "test_structure_preflight_and_titles",
+      "test_limit_exact_key_and_value_types",
+      "test_profile_exact_builtin_keys",
+      "test_schema_reference_malformed_graphs",
+      "test_context_rejects_external_configuration"
+    ],
+    "all_names_present_exactly": true,
+    "mechanical_feasibility": "GO",
+    "checks": [
+      "The common definitions-only title explicitly accepts [] and shared acyclic JSON, while an actual wire title supplies the shape-failure control.",
+      "Limits and profile tests use existing subclasses, fixtures, helpers, and imports; armed object-key checks can be constructed before arming and rejected before set/hash operations.",
+      "Schema tests cover huge indices, anonymous dict/list cycles, subclass keys, surrogates, shared graphs, and escaped pointer controls through the named helper.",
+      "Context tests can use cpr.CodeProofResources() refusal and unsupported-argument TypeError without introducing imports, fixtures, helpers, or object.__new__ tampering claims.",
+      "The requested output format and final Tests not run sentence are explicit."
+    ]
+  },
+  "contract_notes": [
+    "The opening request to keep public signatures is intentionally resolved by the later explicit constructor-closure requirement: __init__(self) refuses direct construction, while compile_code_proof_resources remains the supported creator.",
+    "The first block's no-extra-definition rule is mechanically compatible because all referenced constants, exceptions, pure helpers, and imports already exist in the archived module.",
+    "Graph root privilege is specified by node identity relative to the current document, preventing a previously visited nested node from gaining root status.",
+    "No residual blocker was found in the correction instruction for the four source defects or the common-root test repair."
+  ],
+  "prior_timestamp_correction": {
+    "record_type": "metadata_only_correction",
+    "prior_record_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/independent-returned-source-review-r4.json",
+    "prior_record_sha256": "dc6fd167c223c7640a55339834892d882c7428f59f2d8b98b0898e6b68b6d3d9",
+    "erroneous_field": "recorded_at_utc",
+    "erroneous_value": "2026-09-11T02:10:00Z",
+    "actual_clock_observation_utc": "2026-09-11T01:48:51Z",
+    "effect": "The prior review file remains immutable; this correction identifies only its timestamp metadata and does not alter findings or invent execution times."
+  },
+  "scope_guard": {
+    "model_launched": false,
+    "product_source_edited": false,
+    "tests_executed": false,
+    "build_or_install_run": false,
+    "git_mutated": false,
+    "grok_process_or_lease_touched": false
+  },
+  "accepted": true
+}

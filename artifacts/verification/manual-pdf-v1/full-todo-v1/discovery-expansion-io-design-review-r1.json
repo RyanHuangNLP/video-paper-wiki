@@ -1,0 +1,140 @@
+{
+  "$schema": "full-todo.discovery-expansion-io-design-review-r1.v1",
+  "schema": "full-todo.discovery-expansion-io-design-review-r1.v1",
+  "reviewed_at_utc": "2026-09-09T08:58:38.746148Z",
+  "scope": "Read-only design review of DISCOVERY-EXPANSION-DESIGN-R1. No source, schema, test, Git, connector, Vault, or network mutation.",
+  "decision": "DESIGN_PROPOSAL_READY_WITH_BLOCKING_FREEZE_DECISIONS",
+  "status": "READ_ONLY_DESIGN_REVIEW",
+  "inputs": {
+    "packet": {"path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R1.md", "sha256": "2e255f9d9acd928fb26086b30422e7d9e8796b20f064beff5567bb225c9fb6c1"},
+    "prior_w3": {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/w3-design-gap-review-r1.json", "sha256": "ad216fb75bda7ad0af303eb5325a69ef9dcedb64e304450779cc571ed0c2321d"},
+    "prior_discovery_scope": {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-code-scope-review-r1.json", "sha256": "2b60f8d0222ef2664909081d6710172f33426a179626f48b15dcb0fafa24e2b5"},
+    "preview_storage": {"path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_storage.py", "sha256": "f44ce4e39950dfaf72c7ef38a9a0c430dc7a6b21ba25109458c23e25971eed31"},
+    "preview_contracts": {"path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_contracts.py", "sha256": "8aca06c277e8a47f2499033c36912780dad6e35e47c0bc42a347dfbeb8ad79ff"},
+    "research_contracts": {"path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/contracts.py", "sha256": "22409784bca848ae7969d57f882fe8e9119d59bd3e29303f15ae75697a2d7658"}
+  },
+  "observed_api_constraints": {
+    "preview_storage": {
+      "root": ".work/research/<session>/preview-v1",
+      "families": {"request": "requests", "observation": "observations", "metadata": "metadata", "preview": "proposals", "decision": "decisions"},
+      "operations": ["open_preview_session", "PreviewStore.initialize", "PreviewStore.write", "PreviewStore.validate_all", "PreviewStore.verify", "read_input"],
+      "safety": "Retained no-follow descriptors, complete family scans, create-only atomic install, exact bytes/inode/link checks, and final verification on normal and exception exits."
+    },
+    "preview_contracts": {
+      "operations": ["seal", "validate", "saved_bytes", "reference", "validate_graph"],
+      "identity": "rw1:<kind>:SHA256(JCS({schema_version,kind,data})); reference sha256 is SHA256(complete document plus one LF).",
+      "graph": "Observation->request, metadata->request+observation, preview->metadata, decision->preview+previous decision; discovery uses a separate rw3 registry."
+    },
+    "research_contracts": {"error_surface": "ResearchError(code,message,details,exit_code)", "reuse": "Bounded strict JSON, UTF-8, duplicate-key/non-finite rejection, exact integer handling, JCS/LF serialization, and video_paper_wiki.staging helpers."}
+  },
+  "proposed_storage": {
+    "root": ".work/research/<session>/discovery-v1/",
+    "boundary": "A sibling of W1 preview-v1; never reuse W1/manual-PDF/source-catalog/Vault/CWD paths.",
+    "families": {
+      "requests": ["discovery-request.v1"],
+      "observations": ["discovery-observation.v1"],
+      "metadata": ["research-config.v1", "research-session.v1", "research-round-plan.v1", "research-round-event.v1"],
+      "proposals": ["paper-candidate.v1", "paper-rank.v1", "research-stop-decision.v1"],
+      "decisions": ["candidate-decision.v1", "research-control-event.v1"]
+    },
+    "serialization": {
+      "document": "{schema_version,kind,id,content_sha256,data}",
+      "namespace": "rw3:<kind>:<content_sha256>",
+      "content_hash": "SHA256(JCS({schema_version,kind,data}))",
+      "file_hash": "SHA256(complete UTF-8 canonical document plus exactly one LF)",
+      "reference": "{id,sha256}, typed and resolved only inside the declared session",
+      "filename": "<content_sha256>.json for every discovery kind; sequence is a data field, avoiding W1's single decision filename chain.",
+      "limits": "max family files 256; seeds 3; round plans 8; requests 32; observations 32; results per observation 256; candidates 256; one normalized payload 1 MiB; total normalized payload 16 MiB; JSON depth 32. Limits include pending/orphan artifacts and are checked before install."
+    }
+  },
+  "proposed_graph": {
+    "layers": ["research-config", "research-session", "research-round-plan", "discovery-request", "discovery-observation", "paper-candidate", "paper-rank", "research-stop-decision", "research-round-event", "candidate-decision or research-control-event"],
+    "object_rules": {
+      "config": "Immutable query decomposition, five lenses, provider profiles, rank/RRF parameters, caps, stop thresholds and precedence; no round/session refs.",
+      "session": "Immutable safe session identity, config_ref, one-to-three canonical seed descriptors and bounded topic facts; no first/last round ref or mutable HEAD.",
+      "round_plan": "Session/config binding, sequence, previous completed event (null only for first), and sorted complete request_specs with request_key commitments.",
+      "request": "Canonical connector/operation/seed/query/page/cursor/select fields plus session_id, plan_id and request_key. Retry carries exact predecessor observation ref and reason.",
+      "observation": "One terminal outcome for one request ref with executor/profile/outcome, normalized payload, visible locator, ordinal results, completeness and unavailable transport facts.",
+      "candidate": "Deterministic one-round identity proposal with complete why-found tuples, stable IDs/crosswalk facts, relation/version/mirror data and request/observation refs; no user decision.",
+      "rank": "Deterministic provider-local lists and rational RRF projection with rank config, candidate refs, explanations and canonical tie-break.",
+      "stop": "Deterministic complete-input projection with candidate/rank/observation refs, all matched reasons, metrics and precedence-selected primary reason.",
+      "round_event": "Last committed object: exact plan, previous event, request refs, one terminal observation per request, candidate/rank/stop refs, cumulative budget_after and next_action. No child points to this current event.",
+      "candidate_decision": "Append-only explicit choice/refusal after a completed round; never included in that round event.",
+      "control_event": "Append-only user_stop/resume event with supplied event_id, exact instruction text/reference, prior control ref and optional completed round ref; separate from calculated stop."
+    },
+    "cycle_break": {
+      "problem": "A plan containing exact request refs while requests contain full plan refs is a content-hash cycle before either is sealed.",
+      "rule": "The plan commits canonical request_specs and request_key values. plan_id is computed from those specs; requests carry plan_id and request_key, not a full plan ref. The validator recomputes exact spec equality. The round event is the first exact request-ref set.",
+      "membership_proof": "Every derived child carries plan_id, sequence and input_set_sha256 over sorted exact refs. The event repeats and verifies those sets. A valid orphan child without an event remains pending and cannot authorize a successor."
+    },
+    "edges": [
+      "Only a plan points to a previous completed event; only the event points to the current plan and complete child set.",
+      "Observation->request; candidate->request/observation; rank->candidate; stop->complete input set. No lower layer points upward.",
+      "Exactly one first plan and one successor per completed predecessor. Multiple plans, outcomes or projections are conflicts.",
+      "Cross-session refs, wrong typed IDs, mismatched file hashes and aliases refuse. W1 handoff is a separate explicit operation."
+    ]
+  },
+  "interrupted_write_and_resume": {
+    "writer_model": "Create-only immutable objects; no mutable HEAD, database, overwrite, rename repair or automatic deletion.",
+    "install_order": [
+      "Install config/session if absent or byte-identical.",
+      "Install one round plan with all request_specs and plan_id.",
+      "Install exact requests; each staged request consumes a slot even if never executed.",
+      "Accept terminal observations; each binds one request and consumes an observation slot. Missing observation is pending, never empty success.",
+      "After every request has one terminal observation, derive/install candidate/rank/stop projections; existing bytes must equal deterministic re-derivation.",
+      "Verify complete sets, budget, graph and retained edges; install round event last atomically.",
+      "Re-scan and verify every family/descriptors on normal and exception exits."
+    ],
+    "resume_rules": [
+      "Read-only status creates no missing ancestor and reports absent, pending, complete, conflict or unsafe.",
+      "Resume validates the entire graph and finds at most one pending plan. It fills only missing deterministic artifacts and never edits bytes or chooses between competing plans/results.",
+      "A pending request is connector work. Failure/timeout/rate-limited observations remain terminal evidence; no hidden retry or cursor walk.",
+      "A retry is a new request in a later explicit plan with predecessor observation ref and reason; it consumes a fresh slot and cannot mutate the predecessor.",
+      "Before-event interruption leaves pending. Atomic event install leaves either no event or a complete event. Event-present/input-missing is integrity refusal.",
+      "Foreign siblings, extra plans, duplicate outcomes, reordered sets, stale bytes, symlinks, special files and replacements dominate ordinary errors and are never cleaned.",
+      "Identical bytes are idempotent; competing plans/outcomes/projections are explicit conflicts."
+    ],
+    "retention": "Hold checkout/.work/research/session/discovery-v1, every family descriptor, first classifier observation, complete family set and each originally absent target through cleanup."
+  },
+  "budget_accounting": {
+    "principle": "Derive counters from the immutable graph and repeat them as budget_after in each event; mismatch refuses. No refund for failure, interruption, retry or orphan work.",
+    "counters": {
+      "rounds_planned": "Every round plan including pending; rounds_completed counts events only.",
+      "requests_planned": "Every request artifact including pending and retries.",
+      "pending_requests": "requests_planned minus requests with exactly one terminal observation.",
+      "observations_recorded": "Every terminal observation, including failure, timeout, rate_limited and partial.",
+      "retries": "Requests with retry_of_observation_ref; each consumes a fresh request slot.",
+      "normalized_bytes": "Exact UTF-8 payload bytes across all stored payloads, including partial and retry observations; unavailable/failed payloads contribute zero.",
+      "results": "All result records; enforce per-observation and total caps before installation.",
+      "candidates_materialized": "All candidate artifacts including pending orphan projections; separately dedupe identities for ranking.",
+      "family_files_and_bytes": "Every named entry and serialized byte, including pending artifacts."
+    },
+    "eligibility": "A round event requires one terminal observation per planned request and matching candidate/rank/stop complete input sets. A pending plan cannot consume completed-round metrics or authorize a successor.",
+    "check": "Before staging request/retry/observation, recompute prior usage plus prospective artifact. Provider per_page and cursor rules are checked before handoff."
+  },
+  "provider_and_identity_freeze": {
+    "request": "Generate HTTPS api.openalex.org targets only from structured fields; one search mode, bounded ASCII URL <=4094 after encoding, per_page <=100, no arbitrary URL, credentials, authorization or account fields.",
+    "cursor": "Continuation carries exact predecessor observation ref and canonical query/filter/seed/field fingerprint. New cursor must equal prior next_cursor; mismatch, reuse, changed query or absent cursor refuses.",
+    "outcome": "At most one terminal observation per request. Missing capability is stored failure, never empty success. Retry-after is evidence only; no process retry.",
+    "identity": "Order-independent components use exact OpenAlex/arXiv/DOI IDs and explicit crosswalk edges. Title similarity cannot merge. Conflicting same-namespace IDs stay visible and block W1 handoff until resolved.",
+    "independence": "Freeze canonical mirror/independence keys and an explicit unknown state before ranking; mirrors add no independent-source weight."
+  },
+  "blocking_freeze_decisions": [
+    {"id": "DISCOVERY-FREEZE-001", "issue": "The prior schema list has research-round-event but no round-plan object.", "required": "Add research-round-plan.v1 or explicitly define its sealed commitment in session; this review recommends the new schema."},
+    {"id": "DISCOVERY-FREEZE-002", "issue": "User stop/resume controls require durable events but no control schema is listed.", "required": "Add research-control-event.v1 and keep it separate from calculated research-stop-decision.v1."},
+    {"id": "DISCOVERY-FREEZE-003", "issue": "Plan/request exact refs are circular.", "required": "Freeze request-spec/request_key/plan_id commitments and prohibit plan request refs; event is first exact request-ref set."},
+    {"id": "DISCOVERY-FREEZE-004", "issue": "Pending request and retry accounting is underspecified.", "required": "Freeze staged reservation, terminal observation count, no refunds, retry predecessor/reason, orphan consumption and later-plan-only retries."},
+    {"id": "DISCOVERY-FREEZE-005", "issue": "Derived pending-child membership is underspecified.", "required": "Freeze plan_id, sequence and complete input_set_sha256 on candidate/rank/stop; orphans remain pending until event."},
+    {"id": "DISCOVERY-FREEZE-006", "issue": "Discovery control/candidate streams cannot reuse W1's single decision chain.", "required": "Use separate discovery-v1 storage and content-hash filenames for every discovery kind; validate streams by data fields."},
+    {"id": "DISCOVERY-FREEZE-007", "issue": "Identity conflict and source-independence representations remain semantic.", "required": "Freeze component IDs, crosswalk evidence, conflict details, version relations, mirror keys and unknown independence."},
+    {"id": "DISCOVERY-FREEZE-008", "issue": "W1 handoff is not an artifact edge in the discovery graph.", "required": "Freeze whether candidate-decision stores only selected identity or optional exact rw1 ref; never auto-create W1 selection from ranking."}
+  ],
+  "acceptance_vectors": {
+    "storage_recovery": ["Interruption after every install step; resume gives identical bytes and one event.", "Missing event, foreign orphan, duplicate outcome, competing plan and stale/reordered sets refuse without deletion.", "Parent/family replacement, symlink, hardlink, FIFO, permissions, byte, set and exception races fail closed."],
+    "graph_semantics": ["Three seeds, references/citations/related/topic/project, cursor continuation and retry across rounds.", "Conflicting OpenAlex/arXiv/DOI IDs, versions, crosswalks, mirrors and unknown independence.", "Parallelism 1/N and observation permutations give byte-identical projections."],
+    "budget_stop": ["Pending/failed/partial/retry/zero-result and byte-cap vectors with no refunds or divide-by-zero.", "All stop reasons/precedence, consecutive metrics, user_stop then explicit resume, status around interruption."],
+    "boundary": ["Malformed/oversized/deep/duplicate-key/non-finite JSON, arbitrary URLs, cursor mismatch, unknown names, cross-session refs, no egress and no Vault/catalog writes.", "Installed resource parity and held-out host observation; no live payload copied into fixtures."]
+  },
+  "remaining_gates": ["Architect must freeze successor schemas, enums, IDs, limits, CLI/API and allowlist.", "OpenAlex/platform access, transport facts, authentication, completeness and semantic relevance remain external or human gates.", "No builder dispatch or source implementation is authorized by this review alone."],
+  "mutations": {"source": false, "schemas": false, "tests": false, "catalog": false, "git": false, "connector": false, "Vault": false, "network": false, "review_artifact_only": true}
+}

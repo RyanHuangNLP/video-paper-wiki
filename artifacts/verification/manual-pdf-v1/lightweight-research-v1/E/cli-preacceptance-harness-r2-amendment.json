@@ -1,0 +1,44 @@
+{
+  "schema": "lightweight-research-v1-cli-preacceptance-harness-amendment-r2.v1",
+  "reviewed_at_utc": "2026-09-08T14:37:15.130339+00:00",
+  "clock_source": "datetime.now(timezone.utc) on the review host",
+  "scope": "Bounded amendment to the independent CLI pre-acceptance harness. No product/test/Git/external mutation and no stopped-candidate acceptance.",
+  "supersession": {
+    "original_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/probes/cli_preacceptance_harness.py",
+    "original_sha256": "e95aadd25404f3da49d3436b332dd9c84ac5da8e4c62e21239b9b8b2d39e3973",
+    "original_preserved_byte_identical": true,
+    "successor_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/probes/cli_preacceptance_harness_r2.py",
+    "successor_sha256": "753ce4a085e5309a1a10ed5134f7f2959cd224790b24a0a828f83e4b9c6d7f7b"
+  },
+  "corrections": [
+    {
+      "id": "R2-ENTRYPOINT-001",
+      "issue": "The R1 harness launched `python -m video_paper_wiki_research.cli`, but cli.py has no __main__ invocation and therefore does not emit the public CLI JSON.",
+      "correction": "R2 launches `python -m video_paper_wiki_research`, whose __main__.py calls cli.main().",
+      "successor_evidence": "cli_preacceptance_harness_r2.py:run_cli"
+    },
+    {
+      "id": "R2-WRITING-OUTPUT-001",
+      "issue": "The R1 harness did not probe writing project-export output path laundering through a parent symlink plus raw .. component.",
+      "correction": "R2 creates a real outline project through light_writing_project, then calls writing project-export with `.work/symlink/../output.md`; it requires WORKSPACE_INVALID and asserts the canonical output is not materialized.",
+      "successor_evidence": "cli_preacceptance_harness_r2.py:_seed_real_writing_project and raw_writing_project_export_output"
+    }
+  ],
+  "unchanged_probe_scope": [
+    "knowledge batch-status raw workspace symlink/..",
+    "QA/writing --rewrite raw workspace symlink/..",
+    "secure QA/writing import duplicate/symlink/hardlink/UTF-8/deep/nonfinite/unknown transport",
+    "duplicate explicit paper IDs",
+    "required and mutually exclusive knowledge apply choices"
+  ],
+  "validation": {
+    "r2_compile": "PASS",
+    "r2_static_only": "PASS",
+    "r2_static_run_at_utc": "2026-09-08T14:37:15.130449+00:00",
+    "dynamic_run": "DEFERRED_UNTIL_STOPPED_CANDIDATE",
+    "source_imported_or_executed": false,
+    "r2_static_run": "PASS",
+    "compile": "PASS_IN_MEMORY"
+  },
+  "decision": "R2_HARNESS_CORRECTION_READY_DYNAMIC_PROBES_DEFERRED"
+}

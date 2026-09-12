@@ -1,0 +1,174 @@
+{
+  "$schema": "full-todo.discovery-expansion-wire-r5-io-review.v1",
+  "schema": "full-todo.discovery-expansion-wire-r5-io-review.v1",
+  "reviewed_at_utc": "2026-09-09T09:45:24Z",
+  "scope": "Bounded independent read-only follow-up review of the R5 wire/capacity amendment together with R2 design, R3 recovery, R4 bounds and provider target notes. Focused on feasible automatic prefix selection, explicit all-or-reject membership, permanent versus prospective candidate charging, canonical identifier/executor/mirror wire types and regenerated target encoding. No source, schema, test, Git, connector, Vault or network mutation.",
+  "decision": "CONDITIONAL_GO_WITH_CANDIDATE_ADMISSION_CLARIFICATION_AND_IMPLEMENTATION_ACCEPTANCE_OPEN",
+  "status": "READ_ONLY_R5_WIRE_REVIEW",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "r5_wire": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    "provider_target_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    },
+    "r4_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-bounds-r4-io-review.json",
+      "sha256": "03d8f27e22253edc93b9d8b63aeaa30cc871e00b74e23347ff3e82a7ea2f90b9"
+    }
+  },
+  "amendment_effect": "R5 closes the R4 default-prefix clarification by selecting the largest feasible automatic prefix, preserves canonical request_key sorting for stored plans, makes explicit specs all-or-reject, declares the fixed 14 MiB conservative policy intentional, separates permanent completed candidate charges from pending estimates, and fixes identifier/executor/mirror/target wire representations.",
+  "checks": [
+    {
+      "id": "DISC-R5-AUTOMATIC-FEASIBLE-PREFIX",
+      "status": "CLOSED_DESIGN_PENDING_PLANNER_TESTS",
+      "evidence": "R5 lines 7-26 constructs the complete R4 round-robin frontier, checks N in descending order from 1 through the configured/remaining bounds, chooses the largest prefix that passes exact serialized plan/request, family byte/count and total reservation checks, persists that membership sorted by request_key, and never skips an earlier item to fit a later one. Explicit specs are canonicalized as a set and all-or-reject.",
+      "closure": "This closes the R4 starvation ambiguity for per-family/count/plan-size limits while preserving deterministic membership. A default plan now shrinks only through a deterministic frontier prefix; an explicit plan cannot be silently reordered, shrunk or repaired into a different request set.",
+      "remaining_acceptance": [
+        "Test an N=8 frontier whose plan/family limit fails while N=7 or N=1 fits, and assert the selected largest feasible prefix and omitted/limiting status fields.",
+        "Test explicit specs in different input orders, duplicate request keys, unavailable subjects and oversized membership; assert canonical storage order plus all-or-reject behavior.",
+        "Keep the fixed 14 MiB total boundary as intentional conservative policy and report budget_exhausted before plan installation when that boundary fails, even if a smaller N would use less actual space."
+      ]
+    },
+    {
+      "id": "DISC-R5-CONSERVATIVE-TOTAL-RESERVE",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R5 lines 19-24 fixes the 14 MiB total reservation for N1 through N8, explicitly labels early budget_exhausted at that boundary as bounded storage policy, and says no feasible prefix writes a plan. R4 supplies the per-family formula and 1441792-byte slack.",
+      "assessment": "The prior R4 question about whether fixed total reserve was intentional is answered. This is conservative by design, not an assertion that the underlying filesystem is full; the behavior is deterministic and visible as budget_exhausted.",
+      "implementation_requirement": "Do not silently replace the fixed policy with an N-aware total reserve during implementation; if product scope later changes, it requires a new contract revision."
+    },
+    {
+      "id": "DISC-R5-CANDIDATE-PERMANENT-VS-PROSPECTIVE",
+      "status": "CLOSED_DESIGN_PENDING_ORDER-EDGE-CLARIFICATION",
+      "evidence": "R5 lines 28-46 makes completed-round component introductions the only permanently charged candidate_slots_reserved, names pending_candidate_introductions as a separate estimate, permits that estimate to change after a same_work bridge, charges it once at completion, and never refunds completed charges. R3 disjoint-from-prior-identifiers semantics remain the definition.",
+      "closure": "The ambiguous R3/R4 phrase pending candidate reservations is removed. A bridge can reduce a current incomplete estimate without refunding earlier completed rounds; event budget_after records only the permanent completed count, while pending status exposes the transient estimate separately.",
+      "remaining_issue": "R5 also requires completed charges plus the current estimate and current component count to stay <=unique_candidates before every observation install. If one accepted observation transiently exceeds that cap but a later same_work bridge would merge it back below the cap, the first observation is rejected and the bridge cannot arrive, making acceptance dependent on observation order. The contract must explicitly choose strict admission (a transiently over-cap observation is invalid and cannot be rescued) or allow a bounded over-cap pending graph with a separate storage/accounting rule.",
+      "required_freeze": [
+        "State whether unique_candidates is a strict per-observation admission invariant. If yes, say future bridges cannot rescue an observation rejected for transient over-cap components and scope arrival-order byte identity to admitted inputs.",
+        "If order-independent rescue is required, define the maximum provisional over-cap graph and its bytes/result reservation before allowing such an observation; do not imply that an unbounded temporary graph is safe.",
+        "Test disjoint introductions, same_work bridges joining current components, bridges joining prior components, aliases, conflicts and the 257th transient component."
+      ]
+    },
+    {
+      "id": "DISC-R5-CANONICAL-IDENTIFIERS",
+      "status": "PASS_DESIGN_PENDING_SCHEMA_TESTS",
+      "evidence": "R5 lines 48-70 defines the closed {namespace,value,version} identifier object, DOI/arXiv/OpenAlex normalization, seed namespace cardinality, JCS byte sorting/deduplication, explicit identity_link endpoints, directed non-joining relations and lowercase SHA256 candidate keys over sorted unversioned namespace/value objects.",
+      "assessment": "This closes the prior wire-level ambiguity around IDs and candidate-key input. Co-occurrence does not silently merge namespaces; same_work is the only joining relation, while preprint_of/published_as and versions remain visible facts.",
+      "implementation_requirements": [
+        "Reject unknown identifier namespaces, wrong version nullability, malformed OpenAlex leading/zero IDs, noncanonical DOI/arXiv forms and identity_link endpoints absent from the same result.",
+        "Keep seed declarations separate from provider observations and preserve all observed arXiv versions in why-found facts.",
+        "Compute candidate keys from the exact JCS-sorted unversioned objects and keep conflicting same-namespace IDs visible in the component."
+      ]
+    },
+    {
+      "id": "DISC-R5-EXECUTOR-MIRROR-WIRE",
+      "status": "PASS_DESIGN_PENDING_SCHEMA_TESTS",
+      "evidence": "R5 lines 71-84 closes executor identity/capability/locator/reason consistency and mirror group/provenance/reason rules, including unknown identity/provenance branches, URL scheme/host/default-port normalization for grouping, fragment removal only for grouping and preservation of exact visible locators.",
+      "assessment": "The executor and mirror fields now have closed known/unknown branches and cannot imply authentication, raw transport evidence or independent publication confirmation from a caller string. Unknown independence remains explicit.",
+      "implementation_requirements": [
+        "Apply the provider capability profile exactly to executor.capability_profile and require tool_name=\"unknown\" plus reason for unknown identity.",
+        "Use a bounded canonical group grammar inherited from the common string/identifier limits; reject empty known groups and unknown provenance without a reason.",
+        "Keep exact visible HTTPS locators in provenance while using normalized grouping keys only for duplicate-mirror suppression; never infer redirect equivalence."
+      ]
+    },
+    {
+      "id": "DISC-R5-FIXED-TARGET-ENCODING",
+      "status": "PASS_DESIGN_PENDING_PROVIDER-IMPLEMENTATION",
+      "evidence": "R5 lines 86-116 defines OpenAlex targets as regenerated {kind:http_get,url} with no caller headers/credentials/payload/redirect controls, Web targets as closed web_search requests, and exact UTF-8 percent encoding/order rules. It fixes singleton DOI/OpenAlex forms, citations/ID-batch/topic sorts, the nine-field select string, exact Web query construction, bounded decimal/count/date normalization and local_normalization_failed.",
+      "assessment": "Combined with provider target notes, this removes arbitrary URLs, guessed response links and uncontrolled tool/method names. Python remains offline; capability gaps are typed outcomes rather than fabricated empty success.",
+      "implementation_requirements": [
+        "Bind exact target regeneration to the canonical request spec and compare byte-for-byte before host handoff.",
+        "Use filter/search, per_page, select, sort, cursor query order; percent-encode UTF-8 values with %20 spaces and no plus substitution; preserve only the specified DOI slash and escape other reserved value bytes.",
+        "Verify the fixed select string, cites/openalex batch filters and relevance/cited_by sorts against the provider notes resource; retain requested versus observed batch IDs without manufacturing omitted metadata.",
+        "Keep raw bytes, HTTP status and unseen headers unavailable in normalized observations; require bounded canonical decimal score text and calendar-valid publication dates."
+      ]
+    },
+    {
+      "id": "DISC-R5-ALL-EXITS-INHERITED",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R5 is explicitly subordinate only where it adds wire/capacity rules and leaves R3 shared checkout-root flock, retained named-edge/set/byte checks, config/seeds reconstruction, event.control_head grouping and complete-set validation in force. R4 still requires each saved-byte/count reservation to be recomputed under the held lock.",
+      "assessment": "No R5 rule reopens the R2/R3 all-exits, control-head, init, pending-membership or physical-capacity gaps. A request/observation wire refusal remains a pending slot or explicit local normalization failure, not a hidden refund or fabricated result.",
+      "remaining_acceptance": [
+        "Exercise ordinary parser, target, limit, candidate projection and cleanup errors with path replacement/set mutation and assert final WORK_PATH_UNSAFE/conflict precedence.",
+        "Run implementation/CI flock tests on macOS and Linux; this design review does not claim cross-platform lock behavior."
+      ]
+    }
+  ],
+  "capacity_reconciliation": {
+    "fixed_per_plan_total_reserve_bytes": 14680064,
+    "n8_actual_kind_reserve_bytes": 13238272,
+    "slack_bytes": 1441792,
+    "policy": "The fixed 14 MiB reservation applies equally to N1..N8 and is intentionally conservative. Per-family largest-prefix fitting still applies; no filesystem-full claim is implied by early budget_exhausted.",
+    "semantic_candidate_rule": "Permanent completed introductions never refund. Current incomplete observations use a separately named estimate and do not become permanent until the round is complete.",
+    "non_reserved_writes": "Controls and candidate decisions remain in U and must fit family/total inequalities without consuming pending finalization reserve."
+  },
+  "planner_wire_review": {
+    "automatic": "Build full R4 round-robin frontier, test N descending, choose largest feasible prefix without skipping earlier items, then persist selected specs sorted by request_key.",
+    "explicit": "Treat supplied specs as a set, canonicalize storage order, reject any invalid/unavailable/oversized/duplicate member set as a whole and never silently shrink.",
+    "status_fields": [
+      "available_frontier_count",
+      "chosen_count",
+      "omitted_count",
+      "limiting_bounds",
+      "base_state",
+      "effective_state"
+    ],
+    "starvation_result": "Citation/reference/related jobs are protected by R4 family round-robin; R5 prevents capacity-induced failure when a smaller prefix fits."
+  },
+  "wire_type_review": {
+    "identifier": "{namespace,value,version}; namespace in doi/arxiv/openalex; canonical value; arXiv version null or positive integer; JCS sorted/deduped.",
+    "candidate_key": "lowercase SHA256(JCS(sorted unique unversioned {namespace,value} objects)).",
+    "executor": "{tool_name,identity_source,capability_profile,locator,reason}; unknown tool identity requires tool_name=unknown and nonempty reason; known reason=null.",
+    "mirror": "{group,provenance,reason}; unknown provenance requires null group/nonempty reason; known grouping requires bounded group/non-null HTTPS grouping semantics and reason=null.",
+    "target": "OpenAlex {kind:http_get,url} or Web {kind:web_search,query,max_results}; regenerated, closed, no arbitrary transport controls."
+  },
+  "remaining_blockers": [
+    "Clarify whether the unique_candidates check is a strict admission invariant for a transiently over-cap incomplete graph or define a bounded provisional-over-cap rule; otherwise later same_work bridges can make observation acceptance order-dependent.",
+    "Implement and test the R5 prefix/capacity/wire rules, all-exits retained checks and canonical target regeneration; Linux flock remains an explicit future implementation/CI gate.",
+    "Keep the provider target notes and final installed schema/resource bytes in the exact freeze/allowlist; this review does not claim live provider execution or current API success."
+  ],
+  "acceptance_vectors": [
+    "Automatic frontier with N=8 failing plan/family bounds and N=7/N=1 fitting; assert largest feasible prefix, canonical request_key storage order and omitted/limiting status.",
+    "Explicit specs in permuted order, duplicate key, unavailable identity, oversized plan and invalid target; assert all-or-reject with no silent shrink or slot debit.",
+    "Completed candidate charge followed by current-round disjoint introductions, same_work bridges, aliases, conflicts and transient 257th component; verify permanent count never refunds and strict-admission policy is explicit.",
+    "Identifier normalization for DOI/arXiv/OpenAlex aliases and versions, cross-namespace co-occurrence without a link, explicit same_work/preprint_of/published_as and candidate-key byte stability.",
+    "Known/unknown executor and mirror branches, locator normalization/grouping with fragments, capability-unavailable/local-normalization_failed outcomes and no fabricated empty page.",
+    "OpenAlex singleton/cites/batch/topic targets and Web targets: exact URL encoding, query parameter order, sort/select bytes, no arbitrary response URL, and byte-for-byte regeneration refusal.",
+    "All R3/R4 interruption, U/U_f reservation, control-head and retained path replacement vectors under the shared lock on macOS and Linux."
+  ],
+  "remaining_gates": [
+    "Architect must add one explicit strict-admission/order-independence sentence or bounded provisional-over-cap contract before final wire freeze.",
+    "Implementation/CI must prove the exact capacity formulas and wire validation; no Linux flock result is inferred from design or local macOS feasibility.",
+    "No source implementation, Git mutation, connector/Vault access or scientific/human acceptance follows from this review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

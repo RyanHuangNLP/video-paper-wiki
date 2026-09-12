@@ -1,0 +1,108 @@
+{
+  "scenario": "Insert an introductory line before all PDF page anchors; all extracted page text remains unchanged.",
+  "inserted_codepoints": 77,
+  "before": {
+    "quasar": {
+      "ok": true,
+      "status": "OK",
+      "query": "quasar",
+      "index_id": "5ff6e8b6d882701252304b2b229655c956193109a346eab5a160e0785b14e82b",
+      "evidence": [
+        {
+          "chunk_id": "chk-706b9ca1f30579ca88f351bd",
+          "paper_id": "sha256:670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb",
+          "title": "two-pages",
+          "source_sha256": "670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb",
+          "page": 1,
+          "markdown_path": "papers/670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb/source.md",
+          "markdown_sha256": "b3acefb2275cb200ec2a9539d9913eb9101c5f72f0cdf05617a0a33e77c16ce6",
+          "text_start": 261,
+          "text_end": 302,
+          "text_sha256": "3d35288c75ca3d4626089a872ebb9535625db5e5508498a7f2ab87c3d9f5f808",
+          "text": "quasar describes the first PDF page only.",
+          "score": 0.6931471805599453
+        }
+      ],
+      "message": "retrieved lexical evidence from the workspace index"
+    },
+    "nebula": {
+      "ok": true,
+      "status": "OK",
+      "query": "nebula",
+      "index_id": "5ff6e8b6d882701252304b2b229655c956193109a346eab5a160e0785b14e82b",
+      "evidence": [
+        {
+          "chunk_id": "chk-15a0fca44d7a2ce677ae97e4",
+          "paper_id": "sha256:670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb",
+          "title": "two-pages",
+          "source_sha256": "670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb",
+          "page": 2,
+          "markdown_path": "papers/670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb/source.md",
+          "markdown_sha256": "b3acefb2275cb200ec2a9539d9913eb9101c5f72f0cdf05617a0a33e77c16ce6",
+          "text_start": 338,
+          "text_end": 380,
+          "text_sha256": "04958e70897d50dfdb553389055f12de57567467b8517e399f81559748dcfc10",
+          "text": "nebula describes the second PDF page only.",
+          "score": 0.6931471805599453
+        }
+      ],
+      "message": "retrieved lexical evidence from the workspace index"
+    }
+  },
+  "after_edit_before_rebuild": {
+    "ok": false,
+    "status": "INDEX_STALE",
+    "query": "quasar",
+    "index_id": "5ff6e8b6d882701252304b2b229655c956193109a346eab5a160e0785b14e82b",
+    "evidence": [],
+    "message": "workspace Markdown or paper set disagrees with the stored index"
+  },
+  "rebuild": {
+    "ok": true,
+    "status": "OK",
+    "index_id": "f3e7b2fcd191c5f70f148ea72888ddaa3849dbd96c93445428733dd1aa251645",
+    "paper_count": 1,
+    "chunk_count": 2,
+    "index_path": "/private/tmp/vp.r05.rebuild.jdgottre/.work/workspace/.light-index/index.v1.json",
+    "size_bytes": 3426,
+    "message": "built workspace lexical index"
+  },
+  "after_rebuild": {
+    "quasar": {
+      "ok": true,
+      "status": "OK",
+      "query": "quasar",
+      "index_id": "f3e7b2fcd191c5f70f148ea72888ddaa3849dbd96c93445428733dd1aa251645",
+      "evidence": [
+        {
+          "chunk_id": "chk-1683306046c5ec24bda03ef1",
+          "paper_id": "sha256:670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb",
+          "title": "two-pages",
+          "source_sha256": "670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb",
+          "page": 2,
+          "markdown_path": "papers/670c70b59a0fa748f4a3c123458d4928e8813f6358ae1f4403f0a01cbaa3e3bb/source.md",
+          "markdown_sha256": "636e36cea81a81a56a80d03d4681594fbe5813e27497d9395c1f12167421fc4e",
+          "text_start": 338,
+          "text_end": 380,
+          "text_sha256": "0853eed7000aa3ec73a2e3f75da84f9f024bfaed9fb71a9b2e03114f462dbbef",
+          "text": "quasar describes the first PDF page only.\n",
+          "score": 1.0436148561239627
+        }
+      ],
+      "message": "retrieved lexical evidence from the workspace index"
+    },
+    "nebula": {
+      "ok": false,
+      "status": "NO_RESULTS",
+      "query": "nebula",
+      "index_id": "f3e7b2fcd191c5f70f148ea72888ddaa3849dbd96c93445428733dd1aa251645",
+      "evidence": [],
+      "message": "query produced no lexical matches"
+    }
+  },
+  "all_original_page_text_still_present": true,
+  "page_offsets_unchanged": true,
+  "metadata_digest_updated": true,
+  "reproduced_wrong_page": true,
+  "reproduced_lost_page": true
+}

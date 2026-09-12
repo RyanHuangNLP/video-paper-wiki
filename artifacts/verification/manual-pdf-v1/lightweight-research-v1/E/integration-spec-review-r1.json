@@ -1,0 +1,123 @@
+{
+  "schema": "lightweight-research-v1-integration-spec-review-r1.v1",
+  "reviewed_at_utc": "2026-09-08T14:00:52.261344+00:00",
+  "clock_source": "datetime.now(timezone.utc) on the review host",
+  "packet": "lightweight-research-v1",
+  "scope": "Read-only semantic review of INTEGRATION-R1.md against INTEGRATION-DRAFT.md, CONTRACT.md, and the required skill-creator guidance. No source import, product/CLI/test/Git mutation, Builder dispatch, external/Vault/admin action, or network action.",
+  "sources": {
+    "draft": {
+      "path": "docs/ai/packets/lightweight-research-v1/INTEGRATION-DRAFT.md",
+      "sha256": "c5d4e5b5e57342953f634b7d2f465aa7df12e400d5bec7cd68046e768e337c2f"
+    },
+    "revision": {
+      "path": "docs/ai/packets/lightweight-research-v1/INTEGRATION-R1.md",
+      "sha256": "fa47cbe8964d890a64ebd7d34234607cad33a15016a2141233b8dacab38e9941"
+    },
+    "contract": {
+      "path": "docs/ai/packets/lightweight-research-v1/CONTRACT.md",
+      "sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab"
+    },
+    "required_skill": {
+      "path": "/Users/huangzhanpeng/.codex/skills/.system/skill-creator/SKILL.md",
+      "sha256": "6656e54755638e8efcf275a472b9672eaa8a9a1b9e59dc210e275b03b59e1e66"
+    },
+    "quick_validate": {
+      "path": "/Users/huangzhanpeng/.codex/skills/.system/skill-creator/scripts/quick_validate.py",
+      "sha256": "ee6dba90f44d37171c5a6edb8095979c54919ff6822c1a907afca2e78c48738c"
+    }
+  },
+  "comparison": {
+    "draft_to_revision_diff_is_bounded": true,
+    "ownership": {
+      "draft_heading": "Proposed integration ownership (12 paths)",
+      "revision_heading": "Exclusive integration ownership (12 paths)",
+      "draft_path_count": 12,
+      "revision_path_count": 12,
+      "paths_equal": true,
+      "paths": [
+        "src/video_paper_wiki_research/cli.py",
+        "src/video_paper_wiki_research/light_backup.py",
+        "tests/research/test_light_backup.py",
+        "tests/research/test_light_research_cli.py",
+        "tests/research/test_light_research_pipeline.py",
+        "tests/research/test_light_research_installed.py",
+        "README.md",
+        "docs/lightweight-pdf-quickstart.md",
+        "docs/lightweight-library-quickstart.md",
+        "docs/lightweight-research-quickstart.md",
+        ".agents/skills/video-paper-read/SKILL.md",
+        ".agents/skills/video-paper-read/references/research.md"
+      ]
+    },
+    "changed_scope": [
+      {
+        "id": "freeze-gating",
+        "revision_lines": "3-7",
+        "assessment": "Adds the actionable gate: freeze-integration-r1.json plus explicit Root controller dispatch, stopped/local acceptance of all three owners, and assembled-manifest byte authority. It narrows dispatch timing and does not add a product route or interface."
+      },
+      {
+        "id": "exclusive-ownership-label",
+        "revision_lines": "19",
+        "assessment": "Clarifies the existing 12-path proposed list as exclusive integration ownership. The path set and count are unchanged."
+      },
+      {
+        "id": "approval-refusal-recovery",
+        "revision_lines": "82-92",
+        "assessment": "Requires stopping the denied external evidence write, forbids retry through another tool/Python/shell/cp/symlink/encoding/path alias, permits ordinary source evidence under SOURCE/.work/integration-r1-evidence only if allowed, and allows later controller transfer with authorship/hash recording. It preserves refusal if either boundary refuses and requires actual UTC runtime timestamps."
+      },
+      {
+        "id": "skill-guidance",
+        "revision_lines": "94-98",
+        "assessment": "Pins the required skill-creator SKILL.md, requires its quick_validate.py, preserves agents/openai.yaml and implicit invocation settings, and keeps owner files/tests read-only and present."
+      }
+    ],
+    "unchanged_integration_body": true,
+    "contract_cli_reference": {
+      "revision_uses_existing_surface_only": true,
+      "contract_contains_referenced_surface": true,
+      "no_new_workflow_request_or_session_kinds": true,
+      "no_new_public_schema_fields": true,
+      "no_new_statuses_or_routes": true
+    }
+  },
+  "requirements_review": [
+    {
+      "id": "R1-INT-001",
+      "requirement": "Freeze flow is explicit and dispatch is gated on stopped, locally accepted owner inputs plus the actual assembled source.",
+      "evidence": "INTEGRATION-R1.md:3-17",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R1-INT-002",
+      "requirement": "Integration ownership remains exactly the approved 12 paths, with accepted owner inputs separately represented.",
+      "evidence": "INTEGRATION-R1.md:9-32; draft/revision ownership extraction",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R1-INT-003",
+      "requirement": "The existing CONTRACT Integration and acceptance CLI surface is reused without product interface expansion.",
+      "evidence": "INTEGRATION-R1.md:34-45; CONTRACT.md:470-512; unchanged contract hash",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R1-INT-004",
+      "requirement": "After approval refusal, the Builder stops the denied action and cannot bypass refusal through alternate transports or aliases; permitted ordinary evidence has a controlled handoff.",
+      "evidence": "INTEGRATION-R1.md:82-92",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R1-INT-005",
+      "requirement": "Skill guidance follows the required skill-creator source and preserves invocation/configuration boundaries.",
+      "evidence": "INTEGRATION-R1.md:53-63,94-98; skill-creator SKILL.md validation and preservation guidance",
+      "verdict": "PASS"
+    }
+  ],
+  "decision": "PASS_FREEZE_FLOW_OWNERSHIP_REFUSAL_HANDLING_AND_SKILL_GUIDANCE_WITH_NO_PRODUCT_INTERFACE_EXPANSION",
+  "limitations": [
+    "This is a specification review only; it does not freeze, dispatch, accept implementation, run quick_validate.py, accept tests/CI, or authorize integration/real-data/human gates.",
+    "The referenced freeze-integration-r1.json and exact assembled source must be independently bound before implementation dispatch."
+  ],
+  "source_imported_or_executed": false,
+  "product_mutated": false,
+  "git_mutated": false
+}

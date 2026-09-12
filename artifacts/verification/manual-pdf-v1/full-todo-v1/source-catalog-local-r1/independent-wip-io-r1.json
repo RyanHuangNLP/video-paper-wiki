@@ -1,0 +1,125 @@
+{
+  "$schema": "full-todo.source-catalog-wip-io-review-r1.v1",
+  "schema": "full-todo.source-catalog-wip-io-review-r1.v1",
+  "reviewed_at_utc": "2026-09-09T09:20:00Z",
+  "scope": "Independent read-only WIP review of fixed cache-slot acquisition, retained generation inputs, captured resource views and registry dispatch. The review is limited to source_catalog_io.py, resources.py, contracts.py and source_catalog.py; no source, test, catalog-resource, Git, Vault, network or human-gate mutation was performed.",
+  "decision": "BLOCKED_PENDING_RESOURCE_CONTEXT_ISOLATION",
+  "status": "FAIL_WIP_IO_REVIEW",
+  "inputs": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "candidate_head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "candidate_tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "wip_snapshot": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/wip-io-snapshot-r1.json",
+      "sha256": "a2a7e693fd3330be76d3a7cd0144d2272912fcfda03b982d5450492b2d0e9080",
+      "status": "WIP_REVIEW_ONLY_NOT_ACCEPTANCE"
+    },
+    "packets": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md",
+        "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md",
+        "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R5-RESOURCE-VIEW.md",
+        "sha256": "f71ff416a93e277fd24c8fac1021174474119111a8e5993c06b548a05050275d"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+        "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+        "size_bytes": 4376
+      }
+    ],
+    "leased_files": [
+      {
+        "path": "src/video_paper_wiki/source_catalog_io.py",
+        "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+        "size_bytes": 15411
+      },
+      {
+        "path": "src/video_paper_wiki/resources.py",
+        "sha256": "a099c2da2ddec398f1149613789a1d0789fde4eb74340395961b033144550a48",
+        "size_bytes": 7591
+      },
+      {
+        "path": "src/video_paper_wiki/contracts.py",
+        "sha256": "947bed8f62a88813abefa6a2f73d24163cb090d7a03e40de2aff4b8c42627b51",
+        "size_bytes": 81845
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog.py",
+        "sha256": "25b8cbbbe04569cf3e74eac453dae820d976813539f3acd30a4d77376a7b49bd",
+        "size_bytes": 7072
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "WIP-IO-CACHE-SLOT",
+      "status": "PASS",
+      "evidence": "catalog_slot(create=False) retains the first missing cache ancestor without creating .work/batch/source-catalog; create=True delegates fixed .work/batch creation to the retained batch session, uses exclusive source-catalog mkdir and _atomic_install, rejects foreign post-absence appearance including byte-identical content, checks mode 0600/regular one-link files, retains the complete catalog-directory set and verifies the installed descriptor after temporary cleanup. The focused upstream cache smoke cases for absent status, create/reuse, forged/stale/corrupt cache and no Vault mutation passed in this WIP clone."
+    },
+    {
+      "id": "WIP-IO-GENERATION-RETENTION",
+      "status": "PASS_WITH_ACCEPTANCE_REQUIRED",
+      "evidence": "Generation captures recursive .py sets, schema-resource sets, traversed directory identities and exact bytes through one retained _Tree; final verify rechecks named edges, complete scoped sets and file bytes. The active resource view spans audit, source collection, projection and cache installation, and retained-tree finalization preserves safety-error precedence. Acceptance still needs the specified add/remove/replace and exception-path race vectors."
+    },
+    {
+      "id": "WIP-RESOURCE-FALLBACK-CLOSURE",
+      "status": "PASS",
+      "evidence": "When _RESOURCE_VIEW is active, schema_resource_names, load_schema_json, read_schema_text and read_projection_resource_bytes use only the copied captured bytes/names and do not fall through to package, repository or CWD resources. The focused nested/exception/resource-missing checks and independent two-thread view checks passed."
+    },
+    {
+      "id": "WIP-IO-LEGACY-CACHE-COMPATIBILITY",
+      "status": "PASS_WITH_SEPARATE_SEMANTIC_GATES",
+      "evidence": "source_catalog._boundary preserves typed ContractError codes/details while mapping AUDIT_RACE to WORK_PATH_UNSAFE; status reconstructs before classifying absent/current/stale and read-only paths never install cache bytes. Semantic projection and tokenizer tests have separate WIP failures outside the four-file IO lease and are not treated as IO evidence."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CAT-WIP-RESOURCE-CONTEXT-001",
+      "severity": "P1",
+      "status": "OPEN_BLOCKER",
+      "title": "Copied execution contexts share the parsed schema Registry",
+      "problem": "R5 requires the captured resource view's registry to be private to its execution context and explicitly forbids independent contexts from sharing a cached Registry. resources._ResourceView stores a mutable registry field, and contracts._registry writes the parsed Registry tuple into that field. ContextVar copy_context() copies the view object reference, so a copied execution context inherits and returns the same mutable Registry object. This defeats the required context isolation and can share parsed schema objects across concurrent validation contexts.",
+      "evidence": [
+        "resources.py:26-33 defines _ResourceView(material, schema_names, registry=None) and stores it directly in the ContextVar.",
+        "contracts.py:186-192 reads/writes view.registry as the active-view cache.",
+        "SOURCE-CATALOG-R5-RESOURCE-VIEW.md requires that two independent contexts cannot share a cached registry and that parsed schemas remain private to each registry."
+      ],
+      "minimal_failing_probe": {
+        "setup": "Enter _retained_resource_view with the exact captured 71-schema material from the WIP source clone, call contracts._registry() in the parent, then call contracts._registry() in contextvars.copy_context().run(...).",
+        "observed": {
+          "schema_count": 71,
+          "same_registry": true
+        },
+        "command": "PYTHONPATH=.work/parallel/source-catalog-v1/terminal-1/source/src .venv/bin/python - <<'PY'\nfrom contextvars import copy_context\nfrom pathlib import Path\nfrom video_paper_wiki.resources import _retained_resource_view\nfrom video_paper_wiki.contracts import _registry\nroot=Path('.work/parallel/source-catalog-v1/terminal-1/source')\nmaterial={}; names=[]\nfor p in sorted((root/'schemas').glob('*.schema.json')):\n    names.append(p.name); material[('schema',p.name)]=p.read_bytes()\nmaterial[('taxonomy','v1.json')]=(root/'taxonomy'/'v1.json').read_bytes()\nmaterial[('catalog','source-catalog-v1.json')]=(root/'catalog'/'source-catalog-v1.json').read_bytes()\nwith _retained_resource_view(material, tuple(names)):\n    first=_registry()[0]\n    second=copy_context().run(lambda: _registry()[0])\n    print({'schema_count':len(names), 'same_registry': first is second})\nPY"
+      },
+      "required_fix_and_acceptance": "Remove the mutable per-view Registry cache or replace it with a cache whose value is set in a separate ContextVar for each execution context. Add a copy_context() regression that asserts distinct Registry identities and no parsed-schema sharing, while retaining nested-view restoration, exception cleanup and unchanged default lru_cache behavior."
+    }
+  ],
+  "known_non_io_observations": [
+    {
+      "path": "src/video_paper_wiki/source_catalog.py",
+      "line": 126,
+      "observation": "resolve_source_catalog currently bounds exact integer evidence_ordinal to 0..1000000. R1 requires exact integer validation and treats an unknown ordinal, including a large or negative integer, as SOURCE_CATALOG_NOT_FOUND; this is a separate semantic API issue for the coordinator to repair after the IO lease."
+    }
+  ],
+  "acceptance_gates_remaining": [
+    "Re-run the full cache race matrix: missing .work/batch/source-catalog/leaf, foreign post-absence identical file or empty directory, sibling additions, target replacement, mode/hardlink/symlink/nonregular changes and ordinary-error plus exception-path final safety precedence.",
+    "Re-run generation/resource races: package .py/schema sibling add/remove, ancestor replacement, fixed taxonomy/profile replacement, exact captured bytes, no CWD fallback and ignored __pycache__ activity.",
+    "Add and pass the copied-execution-context Registry isolation regression before any exact-head acceptance; this WIP review does not authorize delivery or CI claims."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "catalog_resources": false,
+    "git": false,
+    "vault": false,
+    "network": false,
+    "human_gates": false
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "$schema": "full-todo.grok-code-git-kernel-interactive-invocation-review-r3.v1",
+  "schema": "full-todo.grok-code-git-kernel-interactive-invocation-review-r3.v1",
+  "revision": 3,
+  "recorded_at_utc": "2026-09-09T16:31:36.142164000Z",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "phase": "pre_dispatch_invocation_review",
+  "decision": "GO_CONDITIONED_ON_ROOT_FINAL_HASH_AND_BASELINE_RECHECK",
+  "scope": "Bounded read-only review of the R3 interactive Grok Build invocation, its amendment, embedded frozen contracts and current CODE worktree preflight. No CLI launch, source/test/fixture/brief write, Git mutation, network action or candidate import/run.",
+  "reviewed_inputs": {
+    "amendment": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-dispatch-amendment-r3.json",
+      "size_bytes": 4537,
+      "sha256": "3d13d23d363b6b3a2630323428e2023344886da545c89063e910c1df47407cd7",
+      "decision_field": "READY_FOR_INDEPENDENT_INVOCATION_REVIEW_BEFORE_INTERACTIVE_DISPATCH"
+    },
+    "prompt": {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-IMPLEMENT-R3.md",
+      "size_bytes": 28879,
+      "sha256": "8bc8d3b3c817da3924a24ec62993f61ff1889dca9a287ee73c6d7d904cd89020"
+    },
+    "launcher": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/launch-interactive-r3.py",
+      "size_bytes": 1065,
+      "sha256": "962604ada6bfad316457c762304720d9e1b9caca097b1907635657d1fb27dfc1",
+      "ast_parse": true
+    },
+    "prior_runtime_diagnostic": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-diagnostic-r2.json",
+      "size_bytes": 3926,
+      "sha256": "6aa21a3be1767426f8e4e36eea1b647b368f26aa1711424787585031985e6177",
+      "effect": "prior headless run cancelled before first mutation; source and Git remained unchanged"
+    },
+    "user_egress_authorization": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/user-egress-authorization-r2.json",
+      "size_bytes": 2027,
+      "sha256": "6eee52a8aad2c568a154ddee252cd7f2623522e44c0eeb984af0a6ecddfdf475",
+      "decision": "USER_CONFIRMED_INFORMED_EXTERNAL_GROK_RETRY",
+      "endpoint": "cli-chat-proxy.grok.com",
+      "user_answer_verbatim": "确认"
+    }
+  },
+  "verified_input_bindings": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-freeze-r1.json",
+      "size_bytes": 5542,
+      "sha256": "0ad3c58f2704caa0c0c2aee1aeb763c9a53c85cf2c592f8545d45b81b0664129"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "size_bytes": 17862,
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "size_bytes": 3659,
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/independent-git-fixture-v1.json",
+      "size_bytes": 52532,
+      "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0"
+    }
+  ],
+  "contract_integrity": {
+    "embedded_r1_contract_normalized_content_equal": true,
+    "embedded_r2_clarification_normalized_content_equal": true,
+    "difference": "Only the Markdown section wrapper contributes framing blank lines; contract content is unchanged after removing wrapper framing.",
+    "source_allowlist_exact_match_to_freeze": true,
+    "allowed_source_paths": [
+      "src/video_paper_wiki/code_git_objects.py",
+      "tests/unit/test_code_git_objects.py",
+      "tests/fixtures/code-git-objects-v1.json"
+    ],
+    "allowed_paths_are_relative_and_no_dotdot": true
+  },
+  "runtime_and_session": {
+    "runtime": "grok-build-cli",
+    "executable": "/Users/huangzhanpeng/.local/bin/grok",
+    "model": "grok-4.6",
+    "reasoning_effort": "xhigh",
+    "permission_mode": "default",
+    "new_session_id": "5d4c5429-9a91-4ba9-bdcb-aa34fb63abaf",
+    "prior_session_id": "0b9f91ae-8729-4e09-b457-7c26d7218a73",
+    "new_session_is_fresh_uuid4": true,
+    "new_session_differs_from_prior": true,
+    "max_turns": 40,
+    "normal_permission_model_effort_unchanged": true,
+    "optional_version_probe": "omitted; root separately verified executable version"
+  },
+  "launcher_safety": {
+    "mechanism": "os.execv",
+    "shell_interpolation": false,
+    "prompt_transport": "one final positional argv element read from the hash-bound prompt file",
+    "argv_options": [
+      "--model grok-4.6",
+      "--reasoning-effort xhigh",
+      "--permission-mode default",
+      "--no-plan",
+      "--no-subagents",
+      "--disable-web-search",
+      "--session-id 5d4c5429-9a91-4ba9-bdcb-aa34fb63abaf",
+      "--max-turns 40",
+      "--no-alt-screen",
+      "--minimal"
+    ],
+    "bypass_or_always_approve_flags": false,
+    "argv_injection_risk": "No shell or command-string interpolation is present; fixed options precede one positional prompt argument. The amendment and prompt hashes must be rechecked immediately before launch because the launcher reads amendment fields rather than hardcoding its digest.",
+    "source_root_change": "os.chdir to the hash-bound amendment source_root before execv"
+  },
+  "current_preflight": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "git_status_short": "",
+    "allowed_source_paths_absent": 3,
+    "baseline_matches_amendment": true,
+    "note": "Root must repeat exact amendment hash and clean head/tree/status immediately before launch; launcher absence checks do not replace Git preflight."
+  },
+  "permission_scope_review": {
+    "user_authorization_matches": true,
+    "authorized_material": "work packet, frozen contracts, synthetic fixture, development-required project code/tests/logs",
+    "allow_once_only": true,
+    "allowed_requests": [
+      "named packet and contract reads",
+      "byte-exact frozen fixture copy",
+      "edits confined to the three allowed source/test/fixture paths",
+      "named builder-development-brief-r3.json write",
+      "scoped locked-Python pytest using approved disposable /private/tmp paths"
+    ],
+    "must_wait_for_architect_review": [
+      "any other root mutation",
+      "Git mutation/publication",
+      "network/provider acquisition",
+      "dependency/model installation",
+      "real Vault/admin operation",
+      "permission bypass or always-grant request"
+    ],
+    "scope_result": "Interactive allow-once handling remains within the user's confirmed current work when the monitor applies the listed per-request boundaries."
+  },
+  "required_launch_gate": {
+    "root_recheck_amendment_sha256": "3d13d23d363b6b3a2630323428e2023344886da545c89063e910c1df47407cd7",
+    "root_recheck_prompt_sha256": "8bc8d3b3c817da3924a24ec62993f61ff1889dca9a287ee73c6d7d904cd89020",
+    "root_recheck_launcher_sha256": "962604ada6bfad316457c762304720d9e1b9caca097b1907635657d1fb27dfc1",
+    "root_recheck_clean_baseline": true,
+    "launch_authorized_by_this_review": "conditioned GO only; no launch performed by reviewer"
+  },
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixture": false,
+    "brief": false,
+    "git": false,
+    "network": false,
+    "provider": false,
+    "publication": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

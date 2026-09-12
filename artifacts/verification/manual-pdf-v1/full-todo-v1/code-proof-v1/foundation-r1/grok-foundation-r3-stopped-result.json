@@ -1,0 +1,100 @@
+{
+  "schema": "full-todo.grok-foundation-direct-call-result.v1",
+  "recorded_at_utc": "2026-09-10T17:25:26.093684+00:00",
+  "decision": "STOPPED_BY_USER_REQUEST_FOR_COMPUTER_USE_SWITCH",
+  "session_handle": 82811,
+  "process": {
+    "pid": 67454,
+    "parent_pid": 15975,
+    "session_uuid": "2a2a448e-cc0e-4990-af78-75401bbc1ae4",
+    "termination_signal": "SIGTERM",
+    "exit_code": 143
+  },
+  "first_tool_return": {
+    "chunk_id": "883532",
+    "observed_by": "root originating context"
+  },
+  "stopped_tool_return": {
+    "chunk_id": "dfb9e2",
+    "observed_by": "root originating context",
+    "exit_code": 143
+  },
+  "launched_once": true,
+  "model_inference_result_available": false,
+  "code_returned_or_applied": false,
+  "source_changes_by_call": false,
+  "prompt": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R2.md",
+    "size_bytes": 13634,
+    "sha256": "effd4fa9a8d3f2bd93f1b2154c0e486f21e0441e00836def25fe329329889163"
+  },
+  "invocation": {
+    "workdir": "/private/tmp/grok-foundation-r3-h2t69ve3",
+    "argv_before_single": [
+      "/Users/huangzhanpeng/.local/bin/grok",
+      "--no-auto-update",
+      "--no-memory",
+      "--no-subagents",
+      "--no-plan",
+      "--disable-web-search",
+      "--verbatim",
+      "--permission-mode",
+      "default",
+      "--model",
+      "grok-4.6",
+      "--reasoning-effort",
+      "xhigh",
+      "--tools",
+      "",
+      "--disallowed-tools",
+      "read_file,grep,list_dir,search_replace,write,run_terminal_command,run_terminal_cmd,todo_write,web_search,web_fetch,Agent",
+      "--deny",
+      "Read",
+      "--deny",
+      "Grep",
+      "--deny",
+      "Edit",
+      "--deny",
+      "Write",
+      "--deny",
+      "Bash",
+      "--deny",
+      "MCPTool(*)",
+      "--deny",
+      "WebFetch(*)",
+      "--deny",
+      "WebSearch(*)",
+      "--session-id",
+      "2a2a448e-cc0e-4990-af78-75401bbc1ae4",
+      "--output-format",
+      "plain"
+    ],
+    "permission_mode": "default",
+    "sandbox_permissions": "require_escalated",
+    "argument_construction": "root reports direct executable invocation with shlex.join-generated literal --single argument; no cat, command substitution, or launcher",
+    "attachments": [],
+    "model_tools": [],
+    "environment": {
+      "GROK_MEMORY": "0",
+      "GROK_SUBAGENTS": "0",
+      "GROK_DISABLE_AUTOUPDATER": "1",
+      "GROK_WRITE_FILE": "0"
+    }
+  },
+  "logs": {
+    "stdout": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r3.stdout.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r3.stderr.log",
+      "size_bytes": 640,
+      "sha256": "a3aa6069804d8adc25c3b0c97daa9652870e70634949049dbfe00d7ab90e9213"
+    }
+  },
+  "raw_stderr_observation": "Final stderr is preserved byte-for-byte in the referenced log; it contains only Grok disallowedTools warnings and no model response.",
+  "stop_reason": "User explicitly requested switching to Computer Use in the right-hand Grok Build terminal; root sent SIGTERM and recorded exit 143.",
+  "monitoring_limitation": "The originating root terminal handle was not accessible from this controller context; one bounded write_stdin poll returned Unknown process id 82811. No second poll, launch, retry, or UI action was attempted here.",
+  "next_owner": "root owns the separate Computer Use path and any subsequent evidence."
+}

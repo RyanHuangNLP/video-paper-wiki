@@ -1,0 +1,115 @@
+{
+  "$schema": "full-todo.code-proof-resource-steward-architect-audit-review.v1",
+  "schema": "full-todo.code-proof-resource-steward-architect-audit-review.v1",
+  "revision": 1,
+  "reviewed_at_utc": "2026-09-10T12:42:05Z",
+  "decision": "GO_FOR_BOUNDED_AUDIT_WITH_REQUIRED_EXTERNAL_FREEZE",
+  "scope": "Read-only review of the named R12 resource audit script and corrected public integration notes. No generator, product test, resource, source, Git or runtime mutation was performed.",
+  "inputs": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-audit-r1.py",
+      "size_bytes": 9459,
+      "sha256": "356a6d261285a0c5f056178bfa87b4767812e31970470a56778f32dc760b0591"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-public-integration-map-notes-r1.json",
+      "size_bytes": 3724,
+      "sha256": "90a102c330a3b8b7df6d9ee0d846fb0ae3509043744d6eeee15efbab52b721cc"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-OUTPUT-CONTRACT-R1.md",
+      "sha256": "c3ad66ebf4201e8701bd71b6787a5420006ff9e107583b989bc60182fe1a3c5b",
+      "size_bytes": 7854
+    }
+  ],
+  "checks": [
+    {
+      "id": "READ_ONLY",
+      "result": "PASS",
+      "evidence": "The script only traverses and reads the supplied root/fixture, parses in memory, constructs validators/registries and prints JSON. Static inspection found no filesystem mutation calls; it does not import the project, invoke subprocesses, Git or network."
+    },
+    {
+      "id": "RESOURCE_MANIFEST_AND_BYTE_FORMAT",
+      "result": "PASS_BOUNDED",
+      "evidence": "The ten exact R12 filenames, profile path, directory set and no-symlink/no-extra-file set are enforced. Each resource/profile must decode as UTF-8, reject duplicate keys/floats/constants, reproduce json.dumps(indent=2, ensure_ascii=False, allow_nan=False) plus one LF, and pass Draft 2020-12 root metadata checks."
+    },
+    {
+      "id": "REFERENCE_CLOSURE",
+      "result": "PASS_BOUNDED",
+      "evidence": "Every schema $ref is checked against the ten exact $ids and JSON Pointer lookup; nested ids, anchors and dynamic/recursive references are rejected. The explicit Registry denies undeclared retrieval. This matches R12, while not claiming semantic replay."
+    },
+    {
+      "id": "PROFILE_CONSTANTS_AND_HASHES",
+      "result": "PASS_SELF_CONSISTENCY_ONLY",
+      "evidence": "All R12 LIMITS/ADMISSION values, exact profile shape, sorted ten-row inventory, positive sizes and schema-byte hashes are checked. The profile SHA-256 is computed and matched to the fixture. No independent expected profile/schema hash manifest is supplied, so this cannot establish the R12 trust root by itself."
+    },
+    {
+      "id": "STRICT_INTEGER",
+      "result": "PASS",
+      "evidence": "The extended Draft validator uses type(value) is int and rejects True, 1.0 and an int subclass; the same strict validator validates the profile definition and every positive instance."
+    },
+    {
+      "id": "POSITIVE_264",
+      "result": "PASS_BOUNDED",
+      "evidence": "With a fixture, it requires the closed top-level/case shapes, 264 unique ASCII names in sorted order, all nine instance-schema titles and successful strict validation of every instance. It does not independently prove the prepared category inventory or fixture canonical byte formatting."
+    },
+    {
+      "id": "MAP_CORRECTIONS_R4_R7_R9",
+      "result": "PASS",
+      "evidence": "The notes correctly restore bundle.json as a direct slot and byte-identical raw manifest copy, use SHA-256(logical ASCII target path) path keys, keep only handoff JSON files with source_body_path pointing to retained objects, use exact handoffs spelling, separate the fourteen-path resource increment from later public code, and require retained-I/O/adversarial tests. These agree with R4 lines 65-149, R7 lines 249-319 and R9 lines 1-12/122-189."
+    }
+  ],
+  "required_followups": [
+    {
+      "id": "PIN_EXTERNAL_RESOURCE_HASHES",
+      "severity": "required_before_resource_acceptance",
+      "finding": "Freeze an external manifest of the reviewed eleven resource bytes and compare against it; otherwise mutually replaced profile/schema bytes with internally consistent inventory hashes could pass this script."
+    },
+    {
+      "id": "AVOID_ASSERT_OPTIMIZATION",
+      "severity": "required_invocation_constraint",
+      "finding": "All acceptance checks use assert. Running with python -O disables them and can overclaim success. Pin a non-optimized interpreter or convert checks to explicit exceptions before treating output as acceptance."
+    },
+    {
+      "id": "COVERAGE_AND_SHAPE_BOUNDARY",
+      "severity": "follow_up",
+      "finding": "Keep nested closed-shape negatives, unknown/omitted fields, profile-bound fixture inventory/category coverage and wheel byte parity in the separate resource tests; this script must remain bounded and must not be cited as proving them."
+    },
+    {
+      "id": "ROOT_PATH_GUARD",
+      "severity": "minor",
+      "finding": "The exact-tree walk does not explicitly reject a symlink supplied as the root itself. The generator contract supplies an absent fresh root; if this audit is reused independently, add a root is_dir/non-symlink check."
+    }
+  ],
+  "mutations": {
+    "audit_script": false,
+    "map_notes": false,
+    "source": false,
+    "schemas": false,
+    "profiles": false,
+    "fixtures": false,
+    "tests": false,
+    "git": false,
+    "runtime": false
+  },
+  "limitations": [
+    "No resource root or fixture was executed because none was supplied and product tests were out of scope.",
+    "This is a bounded audit review, not resource generation or public CODE acceptance."
+  ]
+}

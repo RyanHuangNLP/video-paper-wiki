@@ -1,0 +1,73 @@
+{
+  "all_checks_passed": true,
+  "checks": {
+    "agent_tomls_parse_and_schema": true,
+    "bundled_strict_config_load": "PASS: bundled Codex 0.153.4 config.load status=ok (doctor overall exit 1 reflects unrelated health checks; no model inference)",
+    "config_toml_parse": true,
+    "helper_and_generated_bytes_unbound": true,
+    "primary_model_effort_service": true,
+    "role_instructions_pin_cli_lease_logs": true,
+    "role_instructions_single_cli_and_no_self_accept": true,
+    "role_models_efforts": true,
+    "role_names_unique_and_expected": true,
+    "three_child_limit": true
+  },
+  "config_summary": {
+    "agents": {
+      "default_subagent_model": "gpt-5.6-luna",
+      "default_subagent_reasoning_effort": "xhigh",
+      "enabled": true,
+      "max_concurrent_threads_per_session": 3
+    },
+    "primary": {
+      "model": "gpt-6-astra",
+      "model_reasoning_effort": "ultra",
+      "service_tier": "priority"
+    }
+  },
+  "decision": "GO_FOR_CONFIG_INSTALL",
+  "doctor_probe_note": "The read-only bundled doctor reported config.load=ok for the requested overrides; its overall exit was 1 due unrelated checks, so acceptance binds config.load rather than overall doctor exit.",
+  "files": {
+    "docs/ai/packets/four-agent-cursor-cli-v1/config-candidates/agents/lw_cursor_1.toml": {
+      "sha256": "3381dc545c350878f795e9990fc5a183c27ba62004681ed816cc057ff9180a9a",
+      "size_bytes": 1051
+    },
+    "docs/ai/packets/four-agent-cursor-cli-v1/config-candidates/agents/lw_cursor_2.toml": {
+      "sha256": "8dc3c57468c18368abef6d168b062b51c7825e99d7701e6588b1ec25b05f4e19",
+      "size_bytes": 1051
+    },
+    "docs/ai/packets/four-agent-cursor-cli-v1/config-candidates/agents/lw_cursor_3.toml": {
+      "sha256": "82f7b54d88f53235b08fdf1f1abf1eddce526d523fa1ab5eabeadb24971106f4",
+      "size_bytes": 1092
+    },
+    "docs/ai/packets/four-agent-cursor-cli-v1/config-candidates/config.toml": {
+      "sha256": "5b8db684ca075775eebf746eb46c76424435d0004b28e94544cfa465908186c4",
+      "size_bytes": 229
+    }
+  },
+  "installation_scope": "Install exactly config.toml and agents/lw_cursor_1.toml, agents/lw_cursor_2.toml, agents/lw_cursor_3.toml after standard approval; do not install helper or generated pyc as config.",
+  "prior_packaging_finding": "The earlier preparation-r2 manifest stale pyc and omitted helper finding remains immutable and is not used for this config-only decision.",
+  "recorded_at_utc": "2026-09-07T16:42:04.146326+00:00",
+  "roles": [
+    {
+      "description": "Cursor CLI controller for lanes [1]",
+      "model": "gpt-5.6-luna",
+      "model_reasoning_effort": "xhigh",
+      "name": "lw_cursor_1"
+    },
+    {
+      "description": "Cursor CLI controller for lanes [2]",
+      "model": "gpt-5.6-luna",
+      "model_reasoning_effort": "xhigh",
+      "name": "lw_cursor_2"
+    },
+    {
+      "description": "Cursor CLI controller for one assigned lane at a time",
+      "model": "gpt-5.6-luna",
+      "model_reasoning_effort": "xhigh",
+      "name": "lw_cursor_3"
+    }
+  ],
+  "schema": "four-agent-cursor-cli-config-only-review.v1",
+  "scope": "Exact four TOML files only; helper run_cursor.py, generated __pycache__, packet docs, source, and Git state are intentionally unbound. No model inference or external process launch."
+}

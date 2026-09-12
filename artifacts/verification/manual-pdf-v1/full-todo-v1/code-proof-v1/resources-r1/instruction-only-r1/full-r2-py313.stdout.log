@@ -1,0 +1,143 @@
+........................................................................ [  1%]
+........................................................................ [  3%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+........................................................................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 13%]
+........................................................................ [ 15%]
+........................................................................ [ 17%]
+........................................................................ [ 19%]
+........................................................................ [ 20%]
+........................................................................ [ 22%]
+........................................................................ [ 24%]
+........................................................................ [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 34%]
+.....................F.................................................. [ 36%]
+........................................................................ [ 38%]
+........................................................................ [ 39%]
+........................................................................ [ 41%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 51%]
+........................................................................ [ 53%]
+........................................................................ [ 55%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 62%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+.................................... [ 67%]
+........................................................................ [ 69%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 79%]
+........................................................................ [ 80%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 86%]
+........................................................................ [ 88%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 96%]
+........................................................................ [ 98%]
+........................................................................ [ 99%]
+..                                                                       [100%]
+=================================== FAILURES ===================================
+________ test_fresh_wheel_exposes_equivalent_entries_and_workflow_help _________
+
+tmp_path = PosixPath('/private/tmp/cr2313-w8zcdaof/p/test_fresh_wheel_exposes_equiv0')
+
+    def test_fresh_wheel_exposes_equivalent_entries_and_workflow_help(tmp_path: Path) -> None:
+        python = _runtime_python()
+>       wheel = _build_wheel(python, tmp_path)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/research/test_light_workflow_installed.py:293: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+python = PosixPath('/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python')
+tmp_path = PosixPath('/private/tmp/cr2313-w8zcdaof/p/test_fresh_wheel_exposes_equiv0')
+
+    def _build_wheel(python: Path, tmp_path: Path) -> Path:
+        preset = os.environ.get("LW2_INSTALLED_WHEEL", "").strip()
+        if preset:
+            wheel = Path(preset)
+            if not wheel.is_file():
+                pytest.fail(f"LW2_INSTALLED_WHEEL does not exist: {wheel}")
+            return wheel.resolve()
+    
+        out_dir = tmp_path / "dist"
+        out_dir.mkdir()
+        uv = _uv_program()
+        if uv is not None:
+            built = _run(
+                [str(uv), "build", "--offline", "--wheel", "--out-dir", str(out_dir)],
+                cwd=ROOT,
+                env=_build_env(),
+            )
+            wheels = sorted(out_dir.glob("*.whl"))
+            if built.returncode != 0 or not wheels:
+>               pytest.fail(
+                    "offline uv wheel build failed\n"
+                    f"exit={built.returncode}\nstdout={built.stdout}\nstderr={built.stderr}"
+                )
+E               Failed: offline uv wheel build failed
+E               exit=2
+E               stdout=
+E               stderr=Building wheel...
+E               Could not find platform independent libraries <prefix>
+E               Could not find platform dependent libraries <exec_prefix>
+E               Python path configuration:
+E                 PYTHONHOME = (not set)
+E                 PYTHONPATH = (not set)
+E                 program name = '/Users/huangzhanpeng/.cache/uv/builds-v0/.tmpLcsHHT/bin/python'
+E                 isolated = 0
+E                 environment = 1
+E                 user site = 1
+E                 safe_path = 0
+E                 import site = 1
+E                 is in build tree = 0
+E                 stdlib dir = '/install/lib/python3.12'
+E                 sys._base_executable = '/private/tmp/vpw-python/cpython-3.12.14-macos-aarch64-none/bin/python3.12'
+E                 sys.base_prefix = '/install'
+E                 sys.base_exec_prefix = '/install'
+E                 sys.platlibdir = 'lib'
+E                 sys.executable = '/Users/huangzhanpeng/.cache/uv/builds-v0/.tmpLcsHHT/bin/python'
+E                 sys.prefix = '/install'
+E                 sys.exec_prefix = '/install'
+E                 sys.path = [
+E                   '/install/lib/python312.zip',
+E                   '/install/lib/python3.12',
+E                   '/install/lib/python3.12/lib-dynload',
+E                 ]
+E               Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding
+E               Python runtime state: core initialized
+E               ModuleNotFoundError: No module named 'encodings'
+E               
+E               Current thread 0x00000001ee043100 (most recent call first):
+E                 <no Python frame>
+E               error: Failed to build `/private/tmp/cr1.lQxPNM/source`
+E                 Caused by: The build backend returned an error
+E                 Caused by: Call to `hatchling.build.build_wheel` failed (exit status: 1)
+E               
+E               hint: This error likely indicates that `video-paper-wiki@0.1.0` depends on `encodings`, but doesn't declare it as a build dependency. If `video-paper-wiki` is a first-party package, consider adding `encodings` to its `build-system.requires`. Otherwise, either add it to your `pyproject.toml` under:
+E               
+E               [tool.uv.extra-build-dependencies]
+E               video-paper-wiki = ["encodings"]
+E               
+E               or `uv pip install encodings` into the environment and re-run with `--no-build-isolation`.
+
+tests/research/test_light_workflow_installed.py:162: Failed
+=========================== short test summary info ============================
+FAILED tests/research/test_light_workflow_installed.py::test_fresh_wheel_exposes_equivalent_entries_and_workflow_help
+1 failed, 3781 passed, 108 subtests passed in 728.70s (0:12:08)

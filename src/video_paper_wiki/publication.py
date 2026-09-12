@@ -14,6 +14,7 @@ from video_paper_wiki.contracts import ContractError, validate_document, validat
 from video_paper_wiki.identity import receipt_intent_sha256
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.receipt_audit import _Snapshot, audit_integrity
+from video_paper_wiki.projection_runtime import parse_projection_json
 from video_paper_wiki.secure_io import parse_strict_json, read_regular_file, stamp
 from video_paper_wiki.staging import (WORK_DIRNAME, _atomic_install, _close_fd, _ensure_dir_at,
     _existing_same_bytes, _open_batch_session, _open_dir_at, _require_exact_staged_file,
@@ -29,10 +30,25 @@ AUTHORITY_SCHEMA = "video-paper-wiki.publication-authority.v1"
 REQUEST_NAME = "knowledge-publication-request.v1.json"
 REQUEST_RELATIVE = "publication-input/" + REQUEST_NAME
 _ID = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
+_DOCLING_DOCUMENT = re.compile(
+    r"^\.raw/derived/[0-9a-f]{64}/docling/[0-9a-f]{64}/document\.json$"
+)
 
 
 def _fail(code: str, message: str, pointer: str = "") -> None:
     raise ContractError(code, message, {"instance_pointer": pointer})
+
+
+def _decode_publication_json(path: str, data: bytes) -> Any:
+    """Parse one publication JSON payload.
+
+    Derived Docling ``document.json`` is a float-capable original-document
+    artifact. Integer-JCS envelopes (requests, receipts, heads, ledgers) stay
+    on ``parse_strict_json``.
+    """
+    if _DOCLING_DOCUMENT.fullmatch(path):
+        return parse_projection_json(data)
+    return parse_strict_json(data, invalid_code="SCHEMA_INVALID")
 
 
 def validate_publication_request(value: object) -> dict[str, Any]:
@@ -332,7 +348,7 @@ def _inspect_publication_core(*, prepared: Path | str, operation_id: object,
             _fail("PUBLICATION_REQUEST_INVALID", "payload descriptor differs")
         payload_bytes[item["path"]] = data; retained.append((content, st))
         if item["path"].endswith(".json"):
-            decoded[item["path"]] = parse_strict_json(data, invalid_code="SCHEMA_INVALID")
+            decoded[item["path"]] = _decode_publication_json(item["path"], data)
     vault = Path(vault_root)
     try:
         audit = audit_integrity(vault, _snapshot=_vault_snapshot)
@@ -355,7 +371,7 @@ def _inspect_publication_core(*, prepared: Path | str, operation_id: object,
         data=_vault_snapshot.read(path);read_stat=_vault_snapshot.files[path][0]
         read_bytes[path] = data; read_stats[path] = read_stat
         if path.endswith(".json"):
-            decoded[path]=parse_strict_json(data,invalid_code="SCHEMA_INVALID")
+            decoded[path]=_decode_publication_json(path, data)
     _prospective(request,decoded,payload_bytes,_vault_snapshot)
     business = []
     original: dict[str, bytes | None] = {}

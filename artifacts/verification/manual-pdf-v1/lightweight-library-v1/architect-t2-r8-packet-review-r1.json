@@ -1,0 +1,75 @@
+{
+  "schema": "video-paper-wiki.architect-t2-r8-packet-review.v1",
+  "reviewed_at_utc": "2026-09-08T06:20:27Z",
+  "status": "GO_CONDITIONAL_PENDING_EXACT_R8_FREEZE",
+  "architect_dispatch_authorized": false,
+  "builder_started": false,
+  "source_mutation": false,
+  "input": {
+    "fix_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-library-v1/FIX-T2-R8.md",
+    "fix_sha256": "2b8fc9a66364107dd1e3cad1a7341125e20e809b20cb9ec8c5ad31a97c4779eb",
+    "prompt_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-library-v1/prompts/T2-r8.md",
+    "prompt_sha256": "07ea299ac15bc2dc3397db67d2c175b7baedfb2203c0f7f89240ff53dc0b14a2",
+    "contract_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+    "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "r8_freeze_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-library-v1/t2-r8-freeze.json",
+    "r8_freeze_present_at_review": false
+  },
+  "scope_review": {
+    "allowed_paths_relative_to_r7": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "tests/research/test_light_backup.py"
+    ],
+    "allowed_path_count": 2,
+    "r7_owner_file_count": 9,
+    "r7_owner_paths": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "src/video_paper_wiki_research/light_index.py",
+      "src/video_paper_wiki_research/light_library.py",
+      "src/video_paper_wiki_research/light_library_state.py",
+      "src/video_paper_wiki_research/light_pdf.py",
+      "src/video_paper_wiki_research/light_workspace.py",
+      "tests/research/test_light_backup.py",
+      "tests/research/test_light_library.py",
+      "tests/research/test_light_library_recovery.py"
+    ],
+    "no_other_product_path_authorized": true,
+    "writer_unchanged": true,
+    "contract_unchanged": true
+  },
+  "semantic_review": {
+    "decision": "GO",
+    "reason": "The packet directly closes the reproduced product blocker with the existing stdlib writer convention: ASCII member names use 0x0000 and non-ASCII UTF-8 member names use exactly 0x0800 in both local and central headers.",
+    "required_checks_aligned": [
+      "decoded UTF-8 name and filename flag convention are checked together",
+      "local and central flags must match",
+      "encryption, data descriptor, compression, ZIP64 and unknown bits remain refused",
+      "malformed UTF-8, missing/noncanonical UTF-8 marker and mismatched headers remain refused",
+      "writer, archive schema, filename policy and size limits remain unchanged",
+      "Unicode nested Markdown, Greek code-note and explicit outside-workspace report roundtrip coverage is added",
+      "existing negative assertions and ASCII behavior remain covered"
+    ],
+    "specific_conflicts_found": []
+  },
+  "reproduction_binding": {
+    "blocker_evidence": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-unicode-backup",
+    "r7_snapshot_sha256": "a3d06ca1aeee2673d6057a7bd619562e4a32d9569dba9ee2f50dd41ea81d7f34",
+    "r7_light_backup_sha256": "d0142126b09f600dbe34dc98e67830f800bcaa33f3cc4c1240bf54eb127af540",
+    "harness_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/acceptance/lightweight-library-v1/architect_t2_unicode_backup.py",
+    "harness_sha256": "72ce013af27814be0e9cd45d1987769688d7602155a6f3c8266ff2c52ea27a2c",
+    "harness_r7_replay": "passed with --expect r7; Unicode core refusal, ASCII roundtrip, 13 flag/name refusals, and documented missing-UTF8-marker R7 loophole observed",
+    "harness_post_r8_expectation": "default --expect fixed requires Unicode create/verify/restore/reuse and exact bytes, ASCII control, all flag/name refusals"
+  },
+  "delivery_constraints": {
+    "fresh_r8_freeze_required_before_dispatch": true,
+    "complete_nine_file_r8_handoff_required": true,
+    "handoff_and_ready_byte_identical_required": true,
+    "architect_accepted_must_remain_false_until_independent_review": true,
+    "no_t3_git_pr_ci_vault_merge_or_extra_agents": true
+  },
+  "limitations": [
+    "This is a packet review only; no R8 freeze exists at review time and no dispatch is authorized by this record.",
+    "No R8 implementation or full R8 suite was run.",
+    "The replay harness uses only synthetic temporary workspaces and the immutable stopped R7 source."
+  ]
+}

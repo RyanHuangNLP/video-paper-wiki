@@ -1,0 +1,298 @@
+{
+  "schema": "runner-model-alias-r3-independent-review.v1",
+  "review": "candidate-only-runner-model-alias-r3",
+  "observed_at_utc": "2026-09-07T17:05:19Z",
+  "decision": "GO_FOR_ARCHITECT_RUNNER_ALIAS_R3_REVIEW",
+  "scope": "Read-only candidate diff review with offline stub Popen; no real Cursor, network, CLI start, product edit, helper edit, or Git mutation.",
+  "candidate": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/runner-model-alias-r3/candidate.py",
+    "sha256_before": "e6a8510514889bebbee5bb4112ef5c58322ecaff1cd5a8445cec30badd8b3f75",
+    "sha256_after": "e6a8510514889bebbee5bb4112ef5c58322ecaff1cd5a8445cec30badd8b3f75",
+    "sha256_expected": "e6a8510514889bebbee5bb4112ef5c58322ecaff1cd5a8445cec30badd8b3f75",
+    "hash_matches_metadata": true,
+    "candidate_status": "CANDIDATE_ONLY_NOT_INSTALLED_ACTIVE_RUNNERS_UNCHANGED",
+    "baseline_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/runner-model-alias-r3/baseline.py",
+    "baseline_sha256": "66b8dbac8150ea2628605ca1749f5e03640e1c7076dc99563a6ff2f874e4b115",
+    "baseline_sha256_expected": "66b8dbac8150ea2628605ca1749f5e03640e1c7076dc99563a6ff2f874e4b115",
+    "baseline_matches_metadata": true,
+    "metadata_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/runner-model-alias-r3/candidate.json",
+    "metadata_sha256": "5b433f1b4c6328c7e9432789cc79d849cd9ba457dc01e5ae497e5b13b2f7a3c7"
+  },
+  "active_runner_guard": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/four-agent-cursor-cli-v1/run_cursor.py",
+    "sha256_before": "66b8dbac8150ea2628605ca1749f5e03640e1c7076dc99563a6ff2f874e4b115",
+    "sha256_after": "66b8dbac8150ea2628605ca1749f5e03640e1c7076dc99563a6ff2f874e4b115",
+    "expected_baseline_sha256": "66b8dbac8150ea2628605ca1749f5e03640e1c7076dc99563a6ff2f874e4b115",
+    "unchanged_during_review": true,
+    "matches_baseline": true,
+    "real_cli_started": false,
+    "network_used": false
+  },
+  "mapping_evidence": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/cursor-model-alias-observation.json",
+    "sha256": "feee295b97c8ae502753fe2c095a83df90fac3d0cc5f7a36b9d9d268e19db04f",
+    "declared_relative_path": "../cursor-model-alias-observation.json",
+    "catalog_id": "cursor-grok-4.6-xhigh-fast",
+    "catalog_display_name": "Cursor Grok 4.6 Extra High Fast",
+    "runtime_model": "Cursor Grok 4.6 Extra High Fast",
+    "requested_model_verified": true,
+    "do_not_modify_running_helper": true,
+    "exact_pair_matches_candidate": true
+  },
+  "diff_review": {
+    "baseline_and_candidate_byte_hashes": {
+      "baseline": "66b8dbac8150ea2628605ca1749f5e03640e1c7076dc99563a6ff2f874e4b115",
+      "candidate": "e6a8510514889bebbee5bb4112ef5c58322ecaff1cd5a8445cec30badd8b3f75"
+    },
+    "only_expected_alias_delta": true,
+    "added_lines": [
+      "+# Exact ID/display-name pair observed in this account catalog and runtime init.",
+      "+# Do not normalize or accept partial/generic model names. Raw observations stay intact.",
+      "+VERIFIED_MODEL_NAMES = frozenset({REQUESTED_MODEL, \"Cursor Grok 4.6 Extra High Fast\"})",
+      "+    model_mismatch = bool(observations.models) and any(model not in VERIFIED_MODEL_NAMES for model in observations.models)",
+      "+        and observed_model in VERIFIED_MODEL_NAMES"
+    ],
+    "removed_lines": [
+      "-    model_mismatch = bool(observations.models) and any(model != REQUESTED_MODEL for model in observations.models)",
+      "-        and observed_model == REQUESTED_MODEL"
+    ],
+    "diff_hunk_count": 2
+  },
+  "offline_probe": {
+    "script": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/runner-model-alias-r3/alias_probe.py",
+    "script_sha256": "4c07b97daa4d21bc9aedc1752d12ee4ce87855e847fc238e3adaccc43dfd398e",
+    "results": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/runner-model-alias-r3/alias-probe-results.json",
+    "results_sha256": "659c85fe4abf3d662c52d8dbb8ccc7812a33dd960d028f4e26784e077dc9df78",
+    "stdout": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/runner-model-alias-r3/alias-probe.stdout.json",
+    "stdout_sha256": "68a4b33116817db628102797fcedfe6ea46178e07601aa6730675a26cdc8474a",
+    "synthetic_only": true,
+    "network_used": false,
+    "cursor_started": false,
+    "all_assertions_passed": true,
+    "allowed_cases": [
+      "exact_display_name",
+      "exact_id",
+      "mixed_verified_aliases",
+      "verified_top_level_nested_other_ignored"
+    ],
+    "rejected_cases": [
+      "generic_grok",
+      "mixed_other_model",
+      "nested_tool_model_ignored",
+      "unknown_model",
+      "wrong_effort",
+      "wrong_speed"
+    ],
+    "raw_observed_models_preserved": {
+      "mixed_verified_aliases": [
+        "cursor-grok-4.6-xhigh-fast",
+        "Cursor Grok 4.6 Extra High Fast"
+      ],
+      "mixed_other_model": [
+        "cursor-grok-4.6-xhigh-fast",
+        "grok-4.6"
+      ]
+    },
+    "nested_tool_payload_not_observed": true,
+    "all_architect_accepted_false": true,
+    "case_rows": [
+      {
+        "case": "exact_id",
+        "expected_run_verified": true,
+        "run_verified": true,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_models": [
+          "cursor-grok-4.6-xhigh-fast"
+        ],
+        "model_mismatch": false,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-b35e491f0679446197ac316e867505a2"
+      },
+      {
+        "case": "exact_display_name",
+        "expected_run_verified": true,
+        "run_verified": true,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "Cursor Grok 4.6 Extra High Fast",
+        "observed_models": [
+          "Cursor Grok 4.6 Extra High Fast"
+        ],
+        "model_mismatch": false,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-51f26b1959164c98be4eb7183d4d81e6"
+      },
+      {
+        "case": "mixed_verified_aliases",
+        "expected_run_verified": true,
+        "run_verified": true,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_models": [
+          "cursor-grok-4.6-xhigh-fast",
+          "Cursor Grok 4.6 Extra High Fast"
+        ],
+        "model_mismatch": false,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-9cd92d120af7482996917094bd0429e2"
+      },
+      {
+        "case": "unknown_model",
+        "expected_run_verified": false,
+        "run_verified": false,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "Cursor Grok 4.6 Unknown",
+        "observed_models": [
+          "Cursor Grok 4.6 Unknown"
+        ],
+        "model_mismatch": true,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [
+          "model_mismatch"
+        ],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-aa798df1f28044c3b385304761cf933a"
+      },
+      {
+        "case": "generic_grok",
+        "expected_run_verified": false,
+        "run_verified": false,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "grok-4.6",
+        "observed_models": [
+          "grok-4.6"
+        ],
+        "model_mismatch": true,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [
+          "model_mismatch"
+        ],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-21404e9d0b1a42689c556987ff5b4956"
+      },
+      {
+        "case": "wrong_effort",
+        "expected_run_verified": false,
+        "run_verified": false,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "Cursor Grok 4.6 High Fast",
+        "observed_models": [
+          "Cursor Grok 4.6 High Fast"
+        ],
+        "model_mismatch": true,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [
+          "model_mismatch"
+        ],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-4b0b9bbf0c5d4a95a8a217dcfc8bf93d"
+      },
+      {
+        "case": "wrong_speed",
+        "expected_run_verified": false,
+        "run_verified": false,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "Cursor Grok 4.6 Extra High",
+        "observed_models": [
+          "Cursor Grok 4.6 Extra High"
+        ],
+        "model_mismatch": true,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [
+          "model_mismatch"
+        ],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-dbf8c2751c8d46f287645e7fa84b399e"
+      },
+      {
+        "case": "mixed_other_model",
+        "expected_run_verified": false,
+        "run_verified": false,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_models": [
+          "cursor-grok-4.6-xhigh-fast",
+          "grok-4.6"
+        ],
+        "model_mismatch": true,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [
+          "model_mismatch"
+        ],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-1c961c88edf8428c97b3afb9a4473135"
+      },
+      {
+        "case": "nested_tool_model_ignored",
+        "expected_run_verified": false,
+        "run_verified": false,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": null,
+        "observed_models": [],
+        "model_mismatch": false,
+        "model_observation": "unknown",
+        "architect_accepted": false,
+        "verification_blockers": [
+          "model_not_observed"
+        ],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-72edb745790e4a3797bac0fbf3b97384"
+      },
+      {
+        "case": "verified_top_level_nested_other_ignored",
+        "expected_run_verified": true,
+        "run_verified": true,
+        "status": "succeeded",
+        "exit_code": 0,
+        "requested_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_model": "cursor-grok-4.6-xhigh-fast",
+        "observed_models": [
+          "cursor-grok-4.6-xhigh-fast"
+        ],
+        "model_mismatch": false,
+        "model_observation": "observed",
+        "architect_accepted": false,
+        "verification_blockers": [],
+        "argv_model": "cursor-grok-4.6-xhigh-fast",
+        "attempt_dir": "/private/tmp/runner-alias-r3-hdudco04/evidence/terminal-1/controller/20260907T170408Z-fa7d9773738e4e8d8be879464859b9ec"
+      }
+    ]
+  },
+  "known_limits": [
+    "Candidate-only evidence; no installation or real current-session run is claimed.",
+    "Install remains gated by runner shutdown/lease release and the parent coordination process."
+  ],
+  "stop_writing": true
+}

@@ -1,0 +1,93 @@
+{
+  "candidate_snapshot": "59a62f696bc75b5b4ff0346612dbd380ec45b68f16f73fc7f5546e407123851e",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "controller_actions": {
+    "builder_launch": false,
+    "git_mutations": false,
+    "source_edits": false,
+    "vault_writes": false
+  },
+  "decision": "REJECTED_T2_R3_REQUIRES_BOUNDED_PRECAPTURE_STAGE_OWNERSHIP_FIX",
+  "handoff_sha256": "dd8768cb9328f5c966d8414ddbdecdb73ee538ed68d06ea72b5acb1879db09d6",
+  "independent_checks": {
+    "issue_count": 1,
+    "issues": [
+      {
+        "evidence": "A non-throwing after_intent hook can add staging/<operation_id>/workspace/user-note.md or an empty user directory before extraction. phase=intent then calls extract_pdf and inventories every regular file/directory under the stage at light_library.py:1178-1207 without a native-layout or producer-path allowlist. The additions become stage_file_inventory/stage_directories and are later treated as owned; successful recovery/publication cleanup can delete the foreign file and empty directory. The fix must validate the pre-staging owner marker and exact intent inventory before extraction and preserve the stage on mismatch.",
+        "function": "light_library.replace_paper/_replace_forward/_scan_stage_tree/_discard_owned_stage",
+        "id": "T2-R3-IND-01",
+        "severity": "BLOCKER",
+        "status": "CONFIRMED"
+      }
+    ],
+    "not_counted": [
+      {
+        "case": "precreated prior-paper-notes.md before extraction",
+        "reason": "Exact R3 native extraction refused the precreated malformed native paper path before overwrite; root dynamic replay recorded no overwrite. Keep as a regression case, but do not count as a separate blocker.",
+        "status": "NOT_REPRODUCED"
+      },
+      {
+        "case": "64-hex forged duplicate successor id",
+        "reason": "The independent history replay used a contract-valid flexible hexadecimal identifier; root corrected the duplicate-successor check to the actual generated 32-hex operation-id shape. Do not use the old variant as acceptance evidence.",
+        "status": "NOT_COUNTED"
+      }
+    ],
+    "positive_or_refusal_check_count": 76,
+    "temporary_roots": [
+      "/private/tmp/t2-r3-controller-history",
+      "/private/tmp/t2-r3-controller-regressions",
+      "/private/tmp/t2-r3-controller-r2add",
+      "/private/tmp/t2-r3-controller-backup-r3"
+    ],
+    "test_runs": [
+      {
+        "command": "pytest -q .work/acceptance/lightweight-library-v1/architect_t2_history_checks.py",
+        "failed": 0,
+        "passed": 7,
+        "status": "PASS"
+      },
+      {
+        "command": "pytest -q .work/acceptance/lightweight-library-v1/architect_t2_regressions.py",
+        "failed": 0,
+        "passed": 23,
+        "status": "PASS"
+      },
+      {
+        "command": "pytest -q .work/acceptance/lightweight-library-v1/architect_t2_r2_additional.py",
+        "failed": 0,
+        "passed": 25,
+        "status": "PASS"
+      },
+      {
+        "command": "pytest -q .work/acceptance/lightweight-library-v1/architect_t2_backup_r3_checks.py",
+        "failed": 0,
+        "passed": 21,
+        "status": "PASS"
+      }
+    ]
+  },
+  "lane": 2,
+  "next": "Preserve this review, R3 source bundle and all R3 test evidence byte-for-byte. Add only a bounded pre-extraction exact-owner/inventory gate and new R4 evidence before T3 import.",
+  "packet": "lightweight-library-v1",
+  "recorded_at_utc": "2026-09-08T05:11:00Z",
+  "revision": "r3",
+  "schema": "video-paper-wiki.library-controller-review.v1",
+  "scope_verification": {
+    "allowlist": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "src/video_paper_wiki_research/light_index.py",
+      "src/video_paper_wiki_research/light_library.py",
+      "src/video_paper_wiki_research/light_library_state.py",
+      "src/video_paper_wiki_research/light_pdf.py",
+      "src/video_paper_wiki_research/light_workspace.py",
+      "tests/research/test_light_backup.py",
+      "tests/research/test_light_library.py",
+      "tests/research/test_light_library_recovery.py"
+    ],
+    "handoff_file_hashes_match": true,
+    "source_local_bundle": ".work/parallel/lightweight-library-v1/terminal-2/source/.work/verification/lightweight-library-v1/terminal-2/r3",
+    "source_snapshot_recomputed": true,
+    "source_writer_stopped": true
+  },
+  "status": "R3_REJECTED_PENDING_BOUNDED_R4_FIX"
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "lightweight-workflow-v2-architect-lane-review.v1",
+  "review": "lane-1-r3-independent-acceptance-prep",
+  "observed_at_utc": "2026-09-07T16:38:12Z",
+  "decision": "GO_FOR_ARCHITECT_R3_LOCAL_ACCEPTANCE_PREP",
+  "scope": "read-only replay of lane 1 r3 focused/compatibility tests and original architect probes; no product, Git, or contract edits",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+  "source_git": {
+    "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "branch": "codex/lightweight-workflow-v2-t1",
+    "status_observation": [
+      " M src/video_paper_wiki_research/light_pdf.py",
+      " M tests/research/test_light_pdf.py",
+      "?? src/video_paper_wiki_research/light_workspace.py",
+      "?? tests/research/test_light_pdf_recovery.py",
+      "?? tests/research/test_light_workspace.py"
+    ],
+    "status_note": "matches the pre-existing r3 working-tree candidate; no Git mutation performed"
+  },
+  "binding": {
+    "baseline_head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "baseline_sha256": "2f559ff481c2faea3e49899f0b329d9f366958c0374234935a133df757591416",
+    "contract_sha256": "559e2b339c192837fa5d6c47f15ea7688f484155b95b2492f28eeee6d940e5dc",
+    "freeze_sha256": "2128528583787cb10aad69eb1954b424bba10873327885792dce7c7e3ae3099e",
+    "dispatch_sha256": "0f1f3f2ff3f20cded965eb88ecb17c56b92a4ac8b5e28683b44cf196043b62d6",
+    "handoff_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r3/handoff.json",
+    "handoff_sha256": "ac1aadc2e57b28db5359b655a2ac6ac1d4b5db1ca5dd114a414a0f143daaca89",
+    "ready_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r3/ready.json",
+    "ready_sha256": "ac1aadc2e57b28db5359b655a2ac6ac1d4b5db1ca5dd114a414a0f143daaca89",
+    "handoff_ready_byte_identical": true,
+    "requested_model": "grok-4.6",
+    "requested_effort": "xhigh",
+    "observed_model": "grok-4.6",
+    "observed_effort": null,
+    "snapshot_stopped_writing": true
+  },
+  "five_path_hash_check": {
+    "source_hashes_before": {
+      "src/video_paper_wiki_research/light_pdf.py": "6a50fbf237a1f28b3f0a58834a05cbfac3c38da02c0db2abbe4e1a1949f1ca80",
+      "src/video_paper_wiki_research/light_workspace.py": "96330683f89ad1d8ec4549eb170d5b130c5b9eeb625b985db9390def21623fd2",
+      "tests/research/test_light_pdf.py": "fb33831031f8962b9f8d2cb227923e91d0b9916fd71052d313694e9a4ea4d1e2",
+      "tests/research/test_light_pdf_recovery.py": "e44557b9f84824db4b3996a8fc50bddce2f4dbab93a15905af1dc0c40c1b2e12",
+      "tests/research/test_light_workspace.py": "82dcc742754a76a1bd266a72f880789967a490e969eaf949ffbd521aadf6c14a"
+    },
+    "source_hashes_after": {
+      "src/video_paper_wiki_research/light_pdf.py": "6a50fbf237a1f28b3f0a58834a05cbfac3c38da02c0db2abbe4e1a1949f1ca80",
+      "src/video_paper_wiki_research/light_workspace.py": "96330683f89ad1d8ec4549eb170d5b130c5b9eeb625b985db9390def21623fd2",
+      "tests/research/test_light_pdf.py": "fb33831031f8962b9f8d2cb227923e91d0b9916fd71052d313694e9a4ea4d1e2",
+      "tests/research/test_light_pdf_recovery.py": "e44557b9f84824db4b3996a8fc50bddce2f4dbab93a15905af1dc0c40c1b2e12",
+      "tests/research/test_light_workspace.py": "82dcc742754a76a1bd266a72f880789967a490e969eaf949ffbd521aadf6c14a"
+    },
+    "stable_before_after": true,
+    "handoff_file_hashes_match_source": true
+  },
+  "test_replay": {
+    "environment": {
+      "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "pythonpath": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source/src",
+      "flags": ["-B", "PYTHONDONTWRITEBYTECODE=1", "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1", "UV_OFFLINE=1", "-p no:cacheprovider"]
+    },
+    "focused": {
+      "result": "35 passed",
+      "exit_code": 0,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/logs/lane1-focused-pytest.log"
+    },
+    "compatibility": {
+      "result": "54 passed",
+      "exit_code": 0,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/logs/lane1-compatibility-pytest.log"
+    },
+    "portable_subprocess_interpreter": {
+      "test_path": "tests/research/test_light_pdf_recovery.py",
+      "observed_source": "PYTHON = sys.executable",
+      "portable": true
+    }
+  },
+  "original_architect_probe_replay": {
+    "probe_source_original": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r1/probe_pdf.py",
+    "probe_source_copy": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane1-probe/probe_pdf.py",
+    "probe_copy_sha256": "5cac11bff50281a1015f6607aa01bd9605bb35590ebbb19a4d317ef2e44cae23",
+    "probe_copy_matches_original": true,
+    "original_result_preserved_copy": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane1-probe/original-probe-pdf-results.json",
+    "replay_result": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane1-probe/probe-pdf-results.json",
+    "synthetic_only": true,
+    "cases": {
+      "invalid_utf8_extract": {"status": "SOURCE_INVALID", "bad_source_preserved": true, "exception": null},
+      "invalid_utf8_inspect": {"status": "OK", "state": "needs_attention", "diagnostic_code": "SOURCE_INVALID", "exception": null},
+      "invalid_recognized_staging_public_api": {"status": "SOURCE_INVALID", "invalid_final_pair_published": false, "exception": null},
+      "transaction_symlink": {"code": "WORKSPACE_INVALID", "outside_files": [], "exception_type": "ResearchError"},
+      "empty_current_index": {"state": "empty", "index_state": "current", "exception": null}
+    },
+    "all_known_r3_findings_closed": true
+  },
+  "blockers": [],
+  "architect_note": "Independent replay supports GO for Architect's local r3 acceptance review. This is not Architect acceptance, full-suite/wheel/CI evidence, or a merge authorization.",
+  "stop_writing": true
+}

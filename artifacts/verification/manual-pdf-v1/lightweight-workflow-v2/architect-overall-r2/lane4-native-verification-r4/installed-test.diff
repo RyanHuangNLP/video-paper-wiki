@@ -1,0 +1,36 @@
+--- r3/test_light_workflow_installed.py
++++ r4/test_light_workflow_installed.py
+@@ -391,31 +391,13 @@
+         "runtime_python": str(python),
+         "venv_python": str(venv_python),
+         "venv": str(venv),
++        "observed_executable": payload["executable"],
++        "observed_prefix": payload["prefix"],
+         "console_script": str(script),
+         "modules": payload["modules"],
+         "schema_count": len(installed_schemas),
+         "schemas": installed_schemas,
+     }
+     record.write_text(json.dumps(observation, indent=2) + "\n", encoding="utf-8")
+-    keep = os.environ.get("LW2_INSTALLED_KEEP", "").strip()
+-    if keep:
+-        dest = Path(keep)
+-        dest.mkdir(parents=True, exist_ok=True)
+-        kept_record = dest / "installed-observation.json"
+-        kept_venv = dest / "isolated-venv"
+-        if kept_venv.exists():
+-            shutil.rmtree(kept_venv)
+-        shutil.copytree(venv, kept_venv, symlinks=True)
+-        kept_observation = dict(observation)
+-        kept_python = kept_venv / "bin" / "python"
+-        if not kept_python.is_file():
+-            kept_python = kept_venv / "Scripts" / "python.exe"
+-        kept_script = kept_venv / "bin" / "vpwiki-research"
+-        if not kept_script.is_file():
+-            kept_script = kept_venv / "Scripts" / "vpwiki-research.exe"
+-        kept_observation["venv"] = str(kept_venv)
+-        kept_observation["venv_python"] = str(kept_python)
+-        kept_observation["console_script"] = str(kept_script)
+-        kept_record.write_text(json.dumps(kept_observation, indent=2) + "\n", encoding="utf-8")
+     assert json.loads(record.read_text(encoding="utf-8"))["schema_count"] == len(checkout_schemas)
+     assert OWNED_CLI.as_posix()

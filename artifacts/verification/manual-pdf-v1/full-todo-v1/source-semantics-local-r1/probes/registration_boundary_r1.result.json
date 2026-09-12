@@ -1,0 +1,125 @@
+{
+  "checkout": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/terminal-1/source",
+  "historical_optional_fields_absent": {
+    "status": "ok",
+    "value": {
+      "generated_at": "2026-09-09T00:00:00Z",
+      "schema": "claude-obsidian.source-ledger.v1",
+      "sources": {
+        "src-probe": {
+          "authority": "primary",
+          "content_kind": "document",
+          "origin": {
+            "kind": "manual",
+            "locator": "fixture"
+          },
+          "pages": [],
+          "review_status": "unreviewed",
+          "title": "Probe"
+        }
+      }
+    }
+  },
+  "malformed_head_json": {
+    "code": "SOURCE_REGISTRATION_INVALID",
+    "details": {
+      "reason": "syntax"
+    },
+    "exception": "SecureIOError",
+    "status": "error"
+  },
+  "malformed_historical_json": {
+    "code": "SOURCE_REGISTRATION_INVALID",
+    "details": {
+      "reason": "syntax"
+    },
+    "exception": "SecureIOError",
+    "status": "error"
+  },
+  "malformed_receipt_map": {
+    "code": "SOURCE_REGISTRATION_INVALID",
+    "details": {
+      "instance_pointer": "/receipt_bytes"
+    },
+    "exception": "ContractError",
+    "status": "error"
+  },
+  "parser_depth_over_secure_bound": {
+    "code": "SOURCE_REGISTRATION_INVALID",
+    "details": {
+      "max_depth": 64,
+      "reason": "depth"
+    },
+    "exception": "SecureIOError",
+    "status": "error"
+  },
+  "valid_receipt_chain": {
+    "status": "ok",
+    "value": [
+      [
+        "wiki/meta/operations/000000000001-genesis.json",
+        {
+          "claimed_inputs": [],
+          "intent_sha256": "9a7cbe2230e7c4997c512648a085138bd3cf22f6797361ea4248b8db8f429532",
+          "operation_id": "genesis",
+          "operation_type": "generic",
+          "previous": null,
+          "schema": "video-paper-wiki.operation-receipt.v1",
+          "sequence": 1,
+          "writes": [
+            {
+              "after_sha256": "67fb1673adba8159663819a75f5f97172ff12bb5954b1fb51fbf4a1f4c77331d",
+              "before_sha256": null,
+              "mode": "create",
+              "path": "wiki/meta/ledgers/source-ledger.json"
+            },
+            {
+              "after_sha256": "70668ccb9f199d031816459d298c8b5c89af7c3b52ce05433d4e59548459bc1b",
+              "before_sha256": null,
+              "mode": "create",
+              "path": "wiki/meta/ledgers/claim-ledger.json"
+            }
+          ]
+        }
+      ],
+      [
+        "wiki/meta/operations/000000000002-register.json",
+        {
+          "claimed_inputs": [
+            {
+              "mode": "read",
+              "path": ".raw/captured/bd622a9dd1244213806fa22678f5bf10460556fd7ea6f5db783a9cd25923f7a0.md",
+              "sha256": "bd622a9dd1244213806fa22678f5bf10460556fd7ea6f5db783a9cd25923f7a0"
+            }
+          ],
+          "intent_sha256": "c0d91a2a3fc7abc5ce501ea63894646ad17ed5fb8bf38e0b5a0dab4c55d068b8",
+          "operation_id": "register",
+          "operation_type": "ingest",
+          "previous": {
+            "path": "wiki/meta/operations/000000000001-genesis.json",
+            "sha256": "66cf39b36a00d21a6a8400fdf4db04fbc5ffb78a6c9a975fbee5534d6160ca8d"
+          },
+          "schema": "video-paper-wiki.operation-receipt.v1",
+          "sequence": 2,
+          "writes": [
+            {
+              "after_sha256": "5df98a533519c53d40a2b72bf35a891950338e6b2ce4711a8b7a6b810da2e9ea",
+              "before_sha256": "67fb1673adba8159663819a75f5f97172ff12bb5954b1fb51fbf4a1f4c77331d",
+              "mode": "replace",
+              "path": "wiki/meta/ledgers/source-ledger.json"
+            }
+          ]
+        }
+      ]
+    ]
+  },
+  "valid_registration_proof": {
+    "status": "ok",
+    "value": {
+      "receipt_path": "wiki/meta/operations/000000000002-register.json",
+      "receipt_sha256": "175fcf63811407cd0c347dfd4b1f705bcb966f89123ea3e80329d6c660fe8328",
+      "source_ledger_path": ".raw/derived/source-ledgers/5df98a533519c53d40a2b72bf35a891950338e6b2ce4711a8b7a6b810da2e9ea.json",
+      "source_ledger_sha256": "5df98a533519c53d40a2b72bf35a891950338e6b2ce4711a8b7a6b810da2e9ea"
+    }
+  }
+}

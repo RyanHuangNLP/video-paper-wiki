@@ -1,0 +1,50 @@
+{
+  "$schema": "full-todo.code-resource-steward-patch-applier-review-r2.v1",
+  "schema": "full-todo.code-resource-steward-patch-applier-review-r2.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T13:04:18.715424Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "NO_GO_CONCRETE_HELPER_BLOCKER",
+  "reviewed": {
+    "helper": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/apply_exact_resource_patch.py",
+      "size_bytes": 6001,
+      "sha256": "b098cdcbbec3b7976295663cf55eba13a4d57b6794f185043c901d1ce8ca51cb"
+    },
+    "repair_mechanism": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-REPAIR-R2.md",
+      "size_bytes": 7209,
+      "sha256": "15d85b2b767938eec0e3fcf293064436f0051eb65bc0e672540d2e36bf64d7d6"
+    }
+  },
+  "method": "Read-only stdlib/AST inspection only. The helper, repair mechanism, and referenced base-hash contract were read; no helper, model, generator, product, test, Git, or network operation was run.",
+  "blockers": [
+    {
+      "id": "APPLIER-OVERLAP-001",
+      "priority": "P1",
+      "location": "apply_exact_resource_patch.py:89-90",
+      "finding": "The uniqueness guard uses str.count(old) == 1, but str.count counts non-overlapping matches. A literal old string can occur twice with overlap and still pass. For example, old='aa' in a current string containing 'aaa' returns count 1 although matches begin at offsets 0 and 1; replace(old, new, 1) then silently selects the first ambiguous occurrence. The R2 mechanism requires old to occur exactly once after each preceding edit, so this can apply a non-unique patch.",
+      "minimal_repair": "Replace the count check with an overlapping occurrence check: find the first index, then search from first_index + 1 (or equivalent startswith scan), and require exactly one start position before replace. Preserve sequential edits and the existing literal replacement behavior."
+    }
+  ],
+  "static_checks_passed": {
+    "closed_patch_root_and_brief": true,
+    "duplicate_json_keys_rejected": true,
+    "noninteger_json_numbers_rejected": true,
+    "two_exact_base_hashes_and_only_two_file_names": true,
+    "ordered_sequential_edits": true,
+    "both_files_must_be_touched": true,
+    "fresh_output_directory_required": true,
+    "output_paths_hardcoded_to_owned_names": true,
+    "one_final_lf_and_size_cap": true,
+    "ast_syntax_only_no_returned_code_execution": true,
+    "base_and_response_rechecked_before_output": true,
+    "no_normalization_or_schema_byte_editing": true
+  },
+  "external_obligations_not_reaudited": [
+    "parent ownership and ancestor freezing",
+    "fresh evidence-copy preparation",
+    "later independent generator review and resource acceptance"
+  ],
+  "repair_recommendation": "Correct the overlapping-match guard, then repeat this bounded static review against the revised helper. No other helper blocker was found in this pass."
+}

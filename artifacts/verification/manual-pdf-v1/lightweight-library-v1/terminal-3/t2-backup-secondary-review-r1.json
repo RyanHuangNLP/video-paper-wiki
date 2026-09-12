@@ -1,0 +1,65 @@
+{
+  "candidate_snapshot_sha256": "2a3ba59afb2a23cfa11c14b6f1e1ecf60bb161d591d675c9eed2964202c36355",
+  "checks": [
+    {
+      "command": "PYTHONPATH=.work/parallel/lightweight-library-v1/terminal-2/source/src .venv/bin/pytest -q .work/parallel/lightweight-library-v1/terminal-2/source/tests/research/test_light_backup.py",
+      "fixture_policy": "synthetic .work only",
+      "name": "owned_backup_tests",
+      "result": "PASS",
+      "summary": "20 passed in 0.20s"
+    },
+    {
+      "archive_bytes": 908,
+      "cases": {
+        "mutations": 150,
+        "truncations": 302
+      },
+      "command": "synthetic deterministic backup; 302 truncations and 150 one-byte mutations; verify_backup on each",
+      "name": "malformed_zip_fuzz",
+      "relevant_lines": {
+        "local_header_unpack": "src/video_paper_wiki_research/light_backup.py:467-470",
+        "zip_infolist_without_catch": "src/video_paper_wiki_research/light_backup.py:651-653"
+      },
+      "reproduction": [
+        "Truncate the valid archive to 907 bytes (one byte before EOCD) or 906 bytes; verify_backup raises struct.error from _inspect_zip_container local-header unpacking.",
+        "Flip one byte in the manifest local-header name (offsets 26..97 in this fixture); verify_backup raises zipfile.BadZipFile from archive.infolist() instead of returning LIGHT_BACKUP_INVALID."
+      ],
+      "result": "FAIL_CLOSED_HANDLING",
+      "structured_returns": 380,
+      "uncaught_exceptions": {
+        "struct.error": 2,
+        "zipfile.BadZipFile": 72
+      }
+    }
+  ],
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "decision": "BLOCKED_PENDING_T2_BACKUP_MALFORMED_INPUT_FIX",
+  "findings": [
+    {
+      "evidence": "Truncated deterministic archive reaches local-header struct.unpack_from after only local_off + 30 is checked; a 907-byte archive raises struct.error instead of a closed LIGHT_BACKUP_INVALID result.",
+      "id": "T2-BACKUP-001",
+      "required_fix": "Bounds-check local-header name/extra spans and catch malformed struct/bounds paths so every malformed container closes with LIGHT_BACKUP_INVALID or documented ResearchError.",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "Malformed ZIP inputs can escape as struct.error"
+    },
+    {
+      "evidence": "A one-byte mutation of a valid local-header member name passes _inspect_zip_container, then archive.infolist() raises zipfile.BadZipFile; _open_zip catches only constructor-time BadZipFile.",
+      "id": "T2-BACKUP-002",
+      "required_fix": "Treat infolist/open/read BadZipFile and malformed metadata as closed LIGHT_BACKUP_INVALID results; retain bounded reads and no partial restore.",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "zipfile.BadZipFile escapes during infolist parsing"
+    }
+  ],
+  "lane": 2,
+  "reviewer": "terminal-3",
+  "revision": "r2",
+  "schema": "lightweight-library-v1-t2-backup-secondary-review.v1",
+  "scope_statement": "Read-only review; no production source, tests, Git state, real PDFs, real Vault, or external data were mutated.",
+  "source": {
+    "path": ".work/parallel/lightweight-library-v1/terminal-2/source/src/video_paper_wiki_research/light_backup.py",
+    "read_only": true,
+    "sha256": "d912eb78fcad421fe779ac506a14ddb3f29599638b3d1ee5881ae121bccbce26"
+  }
+}

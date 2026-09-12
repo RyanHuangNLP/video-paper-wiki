@@ -1,0 +1,381 @@
+{
+  "schema": "video-paper-wiki.discovery-code-scope-review.v1",
+  "review": "remaining-discovery-expansion-and-code-scope",
+  "reviewed_on": "2026-09-09",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "read-only scope and interface audit",
+    "parent_authority": "Architect/root"
+  },
+  "verdict": "DESIGN_GAPS_CONFIRMED",
+  "scope": {
+    "purpose": "Identify engineering still required after accepted W1 paper preview and existing code capture/retrieval, and bound successor contracts without implementing them.",
+    "read_only": true,
+    "source_tree_reviewed": ".work/parallel/source-conversion-v1/terminal-1/source",
+    "writes": [
+      "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-code-scope-review-r1.json"
+    ],
+    "no_implementation": true,
+    "no_live_connector": true,
+    "no_real_vault": true,
+    "no_git_mutation": true,
+    "no_new_workers": true
+  },
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/README.md",
+      "sha256": "7863876b46d193cec03f93469cc28b7d6f42f396c8e8487a7d565b8c5a86d6b4",
+      "size_bytes": 5027
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/status.json",
+      "sha256": "37dce9fd4b6c3168f09592c6bc64f05fa1fb9be883b727f7e617c6de761bf667",
+      "size_bytes": 14351
+    },
+    {
+      "path": "docs/ai/TODO-manual-pdf-v1.md",
+      "sha256": "92e650ed6651ecdfa8985c093c2429dc9162f236d27ef8a9f4bdfd79fa4f81f7",
+      "size_bytes": 2528
+    },
+    {
+      "path": "docs/ai/development-inventory-2026-09-08.md",
+      "sha256": "d1ed50068cadd35cb2f2e052226198013303e48e079ecca211ef9499b57378d5",
+      "size_bytes": 9358
+    },
+    {
+      "path": "docs/ai/video-generation-research-wiki-v1-prd-r3.3.md",
+      "sha256": "8f70a7e845e0cb3cd61b6d2ddbe12b36816c934ba3e4ea4eb370c05a62c3d8ff",
+      "size_bytes": 58066
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/w3-design-gap-review-r1.json",
+      "sha256": "ad216fb75bda7ad0af303eb5325a69ef9dcedb64e304450779cc571ed0c2321d",
+      "size_bytes": 18461
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90",
+      "size_bytes": 5206
+    },
+    {
+      "path": "docs/ai/contracts/research-wiki-w1-preview-v1.md",
+      "sha256": "1ac864cc19e8080cba19d98b2157fd8d8ea59f277f361df4851dcfca05c864d3",
+      "size_bytes": 25119
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-freeze-r1.json",
+      "sha256": "6a07450b23f8714ddc40dfb829b561a010396cca94365e98067635bef0a36d2b",
+      "size_bytes": 5364
+    }
+  ],
+  "baselines": {
+    "discovery_preview": {
+      "accepted_head": "97a533a08222d59d46a8de5dfd4047050cd945c5",
+      "status": "accepted-at-exact-head",
+      "fresh_ci_run": 34306674801,
+      "scope": "arXiv abstract-page request/observation/metadata/preview/decision/list"
+    },
+    "code_capture_and_retrieval_design": {
+      "design_baseline": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "source_boundary": "caller supplies source-path bytes to code-map prepare; staged capture inspects a content-addressed text payload",
+      "retrieval_boundary": "deterministic ranking/evaluation over validated published catalog evidence mapping"
+    },
+    "source_publication": {
+      "accepted_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+      "status": "semantics/publication accepted; conversion and catalog integration remain separate"
+    },
+    "source_conversion": {
+      "status_json_state": "r1-rejected-boundary-code-r2-repair-pending",
+      "freeze_baseline": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+      "interface_status": "a terminal source clone contains conversion work and R3 review evidence, but status.json has no exact repository head acceptance; new discovery/code packets must not silently depend on an unaccepted interface"
+    }
+  },
+  "accepted_surface_review": {
+    "discovery_preview": {
+      "evidence_paths": [
+        "src/video_paper_wiki_research/arxiv_preview.py",
+        "src/video_paper_wiki_research/paper_preview.py",
+        "src/video_paper_wiki_research/preview_contracts.py",
+        "src/video_paper_wiki_research/preview_storage.py",
+        "src/video_paper_wiki_research/schemas/connector-request.v1.schema.json",
+        "src/video_paper_wiki_research/schemas/connector-observation.v1.schema.json",
+        "src/video_paper_wiki_research/schemas/paper-preview.v1.schema.json",
+        "src/video_paper_wiki_research/schemas/preview-decision.v1.schema.json"
+      ],
+      "observed_contract": [
+        "adapter is arxiv-abs-normalized-v1 and origin is one arxiv.org/abs page",
+        "one bounded request and one observation produce resolved arXiv metadata and an abstract-only preview",
+        "five preview artifact families use exact references and create-only .work session storage",
+        "the decision is append-only and preview/decision explicitly remain ingest_authorized=false",
+        "the accepted package has no provider-neutral search, citation traversal, cursor continuation, candidate set, round checkpoint, deterministic RRF, or stop/resume graph"
+      ],
+      "closed_boundary": [
+        "W1 connector request/observation schemas must remain byte-compatible and are not a general OpenAlex schema",
+        "W1 request budget and arXiv pacing are not provider-query or multi-round research semantics",
+        "candidate identity must resolve before invoking W1 paper request/preview/decide"
+      ]
+    },
+    "source_conversion_and_versions": {
+      "observed_apis": [
+        "source_versions.associate_source creates/reuses immutable source associations from exact raw/registration material",
+        "source_versions.make_display_decision and derive_display_heads keep display selection append-only",
+        "formal_source and source_conversion prepare a lightweight-to-formal publication request without agent-side apply"
+      ],
+      "integration_limit": [
+        "the active status row is not an exact-head accepted delivery",
+        "the APIs bind paper/source evidence but do not define discovery candidate handoff or paper-to-repository code relation semantics",
+        "code observations must bind an exact source association/version reference when one is selected and must never retarget a relation merely because display head changes"
+      ]
+    },
+    "code_capture_and_retrieval": {
+      "evidence_paths": [
+        "src/video_paper_wiki/code_evidence_contracts.py",
+        "src/video_paper_wiki/staged_code_capture.py",
+        "src/video_paper_wiki/commands/plan.py",
+        "src/video_paper_wiki/commands/prepare.py",
+        "schemas/video-paper-wiki.code-evidence-manifest.v1.schema.json",
+        "schemas/video-paper-wiki.repo-record.v1.schema.json",
+        "schemas/video-paper-wiki.paper-code-alignment.v1.schema.json",
+        "src/video_paper_wiki/catalog_collector.py",
+        "src/video_paper_wiki/retrieval.py",
+        ".agents/skills/video-paper-code-map/SKILL.md"
+      ],
+      "implemented": [
+        "strict UTF-8 and line/newline normalization with raw and normalized hashes",
+        "repository/full-commit/path declaration and code line locators",
+        "retained staged capture with create/reuse transaction inspection and no agent-side Vault apply",
+        "published catalog collection of existing repo/code/alignment records and deterministic evidence-mapping retrieval"
+      ],
+      "missing": [
+        "the origin commit is caller-declared; code-map prepare accepts caller source-path bytes and does not prove they are the Git blob at that commit",
+        "no bounded repository/commit/tree/blob observation request or host connector observation schema exists",
+        "no multi-file same-commit collection with explicit roles, partial/missing semantics, or source-capability provenance exists",
+        "officiality is not an observation result plus independent relation review; repo-record/alignment v1 cannot express the proposed web/README/CITATION evidence without PDF locators",
+        "configuration evidence has no closed data-only parser contract for supported formats and hostile constructors/imports/scripts",
+        "no source-version-aware paper↔repository relation publication flow joins an inspected manifest, source association, relation review and a receipt-backed transaction",
+        "catalog/compiler/backup branches have no successor namespace for those relation records; adding them without explicit projection and restore coverage would make the new evidence non-rebuildable"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "DISCOVERY-EXPANSION-GAP",
+      "severity": "blocking-successor-contract",
+      "statement": "The accepted preview package does not implement bounded online discovery, multi-provider observations, research rounds, candidate ranking, or resumable stopping.",
+      "required_behavior": [
+        "OpenAlex read-only request/observation normalization for works search, references, citations and related works; provider limits and incomplete indexed references remain explicit",
+        "session/config/round-event graph with immutable exact refs, bounded budgets and complete-set verification on success and failure paths",
+        "stable identity resolution by OpenAlex/arXiv/DOI/crosswalk evidence; title similarity never merges entities and conflicts remain visible",
+        "candidate dedupe with why-found evidence, source-version visibility and no user-decision field",
+        "provider-local source ranks followed by deterministic integer-k RRF and canonical identity tie-break",
+        "stop decision with frozen precedence, consecutive-round metrics, explicit user stop and resume from the last complete immutable round",
+        "selected candidate handoff to W1 request/preview/decide only after exact identity validation; no implicit preview or catalog/Vault write"
+      ],
+      "design_reference": "artifacts/verification/manual-pdf-v1/full-todo-v1/w3-design-gap-review-r1.json",
+      "proposed_package": {
+        "id": "DISCOVERY-EXPANSION-R1",
+        "depends_on": [
+          "SOURCE exact-head conversion/version interface",
+          "accepted W1 preview at 97a533a"
+        ],
+        "new_schemas": [
+          "discovery-common.v1.schema.json",
+          "discovery-request.v1.schema.json",
+          "discovery-observation.v1.schema.json",
+          "research-config.v1.schema.json",
+          "research-session.v1.schema.json",
+          "research-round-event.v1.schema.json",
+          "paper-candidate.v1.schema.json",
+          "paper-rank.v1.schema.json",
+          "research-stop-decision.v1.schema.json",
+          "candidate-decision.v1.schema.json"
+        ],
+        "implementation_paths": [
+          ".agents/skills/video-paper-expand/SKILL.md",
+          ".agents/skills/video-paper-expand/skill-contract.v1.json",
+          "src/video_paper_wiki_research/observations/openalex.py",
+          "src/video_paper_wiki_research/discovery/dedupe.py",
+          "src/video_paper_wiki_research/discovery/rank.py",
+          "src/video_paper_wiki_research/research_session.py",
+          "src/video_paper_wiki_research/research_stop.py"
+        ],
+        "schema_paths": [
+          "src/video_paper_wiki_research/schemas/discovery-common.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/discovery-request.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/discovery-observation.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/research-config.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/research-session.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/research-round-event.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/paper-candidate.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/paper-rank.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/research-stop-decision.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/candidate-decision.v1.schema.json"
+        ],
+        "test_paths": [
+          "tests/research/test_discovery_request.py",
+          "tests/research/test_discovery_observation.py",
+          "tests/research/test_discovery_dedupe_rank.py",
+          "tests/research/test_research_session_resume.py",
+          "tests/research/test_research_stop_determinism.py",
+          "tests/security/test_discovery_boundary.py",
+          "tests/fixtures/research-discovery/"
+        ],
+        "acceptance": [
+          "parallelism 1 and N over the same frozen observations/config emit byte-identical candidates, ranks and stop decisions",
+          "stable duplicate IDs merge only with explicit identity evidence; conflicting IDs remain separate",
+          "cursor, per_page=100, approximate 4094-byte query, 429, missing capability and indexed-reference incompleteness produce stable bounded outcomes",
+          "malformed/oversized/duplicate-key/non-finite/deep JSON, symlink, stale, reordered and cross-session artifacts refuse without overwrite",
+          "candidate preview and append-only decision create only exact W1 references and never mutate Vault/catalog/index",
+          "no live OpenAlex payload is copied into checked-in fixtures; a separate held-out observation is required for access claims"
+        ],
+        "non_goals": [
+          "direct Python HTTP/socket client",
+          "API-key reads or storage",
+          "automatic retry or implicit cursor walk",
+          "PDF/fulltext/weight/data download",
+          "automatic formal admission"
+        ]
+      }
+    },
+    {
+      "id": "CODE-OBSERVATION-OFFICIALITY-GAP",
+      "severity": "blocking-successor-contract",
+      "statement": "Existing code capture proves text bytes and declared origin syntax but does not prove Git provenance, official repository status, capability evidence, or relation semantics.",
+      "required_behavior": [
+        "bounded request binds canonical repository, paper ID and optional exact source-association/version reference, full commit and role-grouped explicit paths; no clone/archive/recursive traversal",
+        "immutable observation records exact repository/commit/tree/blob facts, requested versus observed transport, file inventory, per-file bytes or normalized-only capability, and missing/partial outcomes",
+        "same-commit multi-file evidence preserves logical paths even when bytes duplicate; a partial collection never becomes complete",
+        "capability proposal covers training, inference, preprocessing/data, evaluation and checkpoints with exact code/config/README locators or bounded absence search scope",
+        "config inspection is data-only, closed-format and refusal-safe; no imports, YAML object constructors, scripts or model loading",
+        "officiality remains an independent relation review with official/unofficial/unverified_candidate status and A/B/C/D evidence, not a model or discovery score"
+      ],
+      "design_reference": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "existing_reuse": [
+        "code_evidence_manifest.v1 bytes/hash/locator validation",
+        "staged-code-capture-v1 transaction inspect",
+        "existing source association and display-head references after exact SOURCE acceptance"
+      ],
+      "proposed_package": {
+        "id": "CODE-OBSERVATION-R1",
+        "depends_on": [
+          "SOURCE exact-head conversion/version interface",
+          "existing code capture at 62e05c0-compatible baseline"
+        ],
+        "research_contract_paths": [
+          ".agents/skills/video-paper-code-observe/SKILL.md",
+          ".agents/skills/video-paper-code-observe/skill-contract.v1.json",
+          "src/video_paper_wiki_research/code_observation.py",
+          "src/video_paper_wiki_research/code_observation_storage.py",
+          "src/video_paper_wiki_research/schemas/code-observation-common.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/code-observation-request.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/code-observation.v1.schema.json",
+          "src/video_paper_wiki_research/schemas/code-capability-proposal.v1.schema.json"
+        ],
+        "test_paths": [
+          "tests/research/test_code_observation.py",
+          "tests/research/test_code_capability_proposal.py",
+          "tests/security/test_code_observation_boundary.py",
+          "tests/fixtures/research-code-observation/"
+        ],
+        "acceptance": [
+          "repository/commit/tree/blob/path mismatch and caller-byte-versus-declared-commit mismatch refuse with stable errors",
+          "raw bytes, normalized bytes, CRLF and duplicate-content-at-distinct-path identities remain distinct and correctly labeled",
+          "partial/missing files, bounded absence scans and same-commit role sets are deterministic and never upgraded to complete by ranking",
+          "hostile paths, symlinks, special files, duplicate-key/non-finite/deep JSON and oversized payloads refuse without egress or overwrite",
+          "config fixtures prove supported data-only formats while rejecting imports, constructors, scripts, executable expressions and model loads",
+          "fake officiality shortcuts are rejected; direct-release-without-backlink can remain official only with its recorded evidence gap; insufficient evidence remains unverified_candidate",
+          "observation emits a source-file handoff that reuses existing code-map prepare/inspect and never runs admin/apply or writes a Vault"
+        ],
+        "non_goals": [
+          "live GitHub fetcher in Python",
+          "repository clone/archive download",
+          "checkpoint/weight/data download",
+          "automatic officiality or human review",
+          "mutation of code-evidence-manifest.v1 bytes"
+        ]
+      }
+    },
+    {
+      "id": "CODE-CANONICAL-INTEGRATION-GAP",
+      "severity": "required-follow-on",
+      "statement": "Even a verified observation would remain disposable until an independent relation review and receipt-backed canonical publication can join it to the selected paper/source version and remain visible to catalog, retrieval, audit and backup.",
+      "missing_surfaces": [
+        "successor alignment/relation schema that accepts web/README/CITATION/config evidence without manufacturing PDF locators",
+        "append-only relation review and capability proposal handoff with review actor/status/reason/evidence hashes",
+        "prospective publication transaction that binds inspected code manifests, source association, relation review, current Vault snapshot and source-version/display-head policy",
+        "successor compile/catalog inputs for relation namespaces, deterministic code page output and retrieval eligibility",
+        "integrity-audit and backup/restore inventory/restore coverage for every new canonical relation and evidence object",
+        "deliberate legacy refusal/read-only policy for old paper-code-alignment.v1 and compile-input.v1"
+      ],
+      "proposed_package": {
+        "id": "CODE-PUBLICATION-INTEGRATION-R1",
+        "depends_on": [
+          "CODE-OBSERVATION-R1",
+          "SOURCE exact-head conversion/version interface",
+          "existing publication/transaction and catalog/backup contracts"
+        ],
+        "contract_paths": [
+          "docs/ai/packets/full-todo-v1/CODE-PUBLICATION-INTEGRATION-R1.md",
+          "docs/ai/packets/full-todo-v1/CODE-PUBLICATION-INTEGRATION-allowed-paths-r1.json",
+          "schemas/video-paper-wiki.paper-code-alignment.v2.schema.json",
+          "schemas/video-paper-wiki.code-relation-review.v1.schema.json",
+          "schemas/video-paper-wiki.code-publication-request.v1.schema.json",
+          "schemas/video-paper-wiki.compile-input.v2.schema.json"
+        ],
+        "implementation_paths": [
+          "src/video_paper_wiki/code_relation.py",
+          "src/video_paper_wiki/code_publication.py",
+          "src/video_paper_wiki/canonical_compiler.py",
+          "src/video_paper_wiki/projection_input.py",
+          "src/video_paper_wiki/catalog_collector.py",
+          "src/video_paper_wiki/catalog_store.py",
+          "src/video_paper_wiki/backup_manifest.py",
+          "src/video_paper_wiki/cli.py"
+        ],
+        "test_paths": [
+          "tests/contract/test_code_relation_contracts.py",
+          "tests/contract/test_code_publication_contracts.py",
+          "tests/security/test_code_publication_boundary.py",
+          "tests/unit/test_code_catalog_projection.py",
+          "tests/unit/test_code_backup_restore.py",
+          "tests/fixtures/code-publication/"
+        ],
+        "acceptance": [
+          "independent relation review is append-only, exact-hash-bound and cannot be synthesized by the model or discovery ranker",
+          "paper/source-association/version, repository, commit and inspected code manifest must all agree; display-head change cannot retarget old evidence",
+          "old v1 alignment/compile inputs remain byte-compatible and explicitly refuse unsupported v2 data rather than silently coercing PDF locators",
+          "publication prepare/inspect binds complete read set and prospective inventory; no partial Vault/catalog writes occur on refusal or stale snapshot",
+          "catalog, retrieval mapping, integrity audit and backup/isolated restore round-trip all new relation namespaces with deterministic bytes",
+          "real Vault/operator apply, official repository selection and human relation judgment remain externally recorded gates"
+        ],
+        "non_goals": [
+          "domain graph/comparison/synthesis",
+          "automatic acceptance of claims",
+          "real Vault mutation by agent",
+          "closing source/license/human gates"
+        ]
+      }
+    }
+  ],
+  "cross_package_invariants": [
+    "Python agent/research code remains zero-egress; network access, if any, is platform connector or external operator evidence only",
+    "all new artifacts use closed versioned schemas, exact JCS/reference hashes, bounded bytes/depth/counts and no symlink/special-file/traversal inputs",
+    "candidate, observation, capability and relation proposals remain disposable until explicit decision/review and receipt-backed publication",
+    "the managed 67-entry catalog seed/overlay remains unchanged",
+    "no W1 schema bytes, legacy v1 alignment semantics, source ledger, user notes, real Vault or operator authority are mutated",
+    "source-version associations and display heads are immutable evidence references; adding a new version does not supersede claims or retarget code relations",
+    "local fixtures and dual-Python results are engineering evidence only; actual connector capability, real repositories, licenses, human judgments and semantic quality remain separate gates"
+  ],
+  "external_and_human_gates": [
+    "held-out live OpenAlex/platform observation before claiming access, transport headers, authentication mode, rate-limit behavior or response completeness",
+    "real paper/repository trials with licenses and explicit officiality relation review",
+    "real captured source/Vault/operator apply and receipt-backed publication",
+    "human claim/support review, visual Obsidian review, backup anchor and merge/PR acceptance"
+  ],
+  "builder_status": "not_dispatchable_from_this review alone; Architect must freeze one successor packet after SOURCE exact-head interface and path ownership are recorded",
+  "blockers": [
+    "SOURCE conversion is still marked in progress in status.json and lacks exact-head acceptance for a stable source-association handoff",
+    "OpenAlex live connector capability is documented-only in the W3 design review; no checked-in live payload may be promoted",
+    "code officiality is a semantic relation judgment and cannot be closed by schema validation or model ranking"
+  ]
+}

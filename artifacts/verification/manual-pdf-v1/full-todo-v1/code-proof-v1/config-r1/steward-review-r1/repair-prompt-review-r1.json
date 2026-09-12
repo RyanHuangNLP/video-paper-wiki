@@ -1,0 +1,67 @@
+{
+  "$schema": "video-paper-wiki.code-config-repair-prompt-review-r1.v1",
+  "schema": "video-paper-wiki.code-config-repair-prompt-review-r1.v1",
+  "revision": 1,
+  "packet": "GROK-CODE-CONFIG-KERNEL-PATCH-R4",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded repair-prompt reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "GO_NARROW_REPAIR_PROMPT",
+  "verdict": "The R4 prompt is sufficient for a single minimal repair: one exact-key guard in the stdlib object cross-check plus two focused regression methods. It supplies the allowed paths, exact insertion anchors, existing helper/API names, expected mismatch shape, callback-safety constraints, no-echo cases, and explicit exclusions. It does not authorize or perform a dispatch, source mutation, fixture correction, or broad parser redesign.",
+  "prompt": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-PATCH-R4.md",
+    "size_bytes": 5915,
+    "sha256": "bc0112b679e2c782e1b30fe79293f7988e70488b320cc9681551145657095f6d"
+  },
+  "scope_review": [
+    {
+      "check": "allowed_paths",
+      "result": "PASS",
+      "detail": "Exactly the candidate production module and its unit test are writable."
+    },
+    {
+      "check": "production_scope",
+      "result": "PASS",
+      "detail": "Guard only the _compare object branch after exact dict validation and before set/membership/equality/lookup/formatting; preserve all later comparisons."
+    },
+    {
+      "check": "type_safety",
+      "result": "PASS",
+      "detail": "Iterating an exact dict and checking type(key) is str is enough to reject non-exact keys without invoking custom key methods; existing _mismatch supplies closed PARSER_MISMATCH details."
+    },
+    {
+      "check": "regression_scope",
+      "result": "PASS",
+      "detail": "Covers JSON and TOML, root and nested objects, ordinary and hostile str subclasses, plain non-string keys, exact closed details and zero callbacks."
+    },
+    {
+      "check": "no_echo_regression",
+      "result": "PASS",
+      "detail": "Uses independent sentinels across duplicate, syntax, dynamic and negative-zero scanner refusals and checks message, str(error) and serialized details."
+    },
+    {
+      "check": "context_completeness",
+      "result": "PASS",
+      "detail": "Prompt names exact APIs, imports, class/method anchor, expected code/exit/pointer/details and dynamic reason; no placeholder or implementation guess is required."
+    },
+    {
+      "check": "scope_exclusions",
+      "result": "PASS",
+      "detail": "Explicitly excludes parsing/limits/API/output changes, fixture edits, skips/xfails, broad callback catching, prose, execution claims and Git mutations."
+    }
+  ],
+  "residuals": [
+    "This prompt does not address the separate R3/R4 fixture oracle corrections, as explicitly required by its scope.",
+    "Acceptance still requires independent review of the returned diff and tests; no Grok dispatch was started."
+  ],
+  "scope_controls": {
+    "prompt_only_review": true,
+    "source_modified": false,
+    "tests_modified": false,
+    "fixture_modified": false,
+    "git_mutation": false,
+    "network_or_provider": false
+  }
+}

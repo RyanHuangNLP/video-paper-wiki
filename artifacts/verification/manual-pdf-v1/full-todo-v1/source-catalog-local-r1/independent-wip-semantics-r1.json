@@ -1,0 +1,229 @@
+{
+  "$schema": "full-todo.source-catalog-independent-wip-semantics-r1.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R1-independent-wip-semantic-review-read-only",
+  "reviewed_at_utc": "2026-09-09T08:18:00Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent read-only source-catalog semantic reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Bounded review of the isolated source-catalog WIP against frozen SOURCE-CATALOG R1-R5 and actual source_state fields. No production source, tests, catalog resource, Git mutation, real Vault write, network, connector, or human-gate action was performed.",
+  "decision": "BLOCKED_PENDING_CACHE_SHAPE_VALIDATION",
+  "status": "WIP_REVIEW_ONLY_NOT_ACCEPTANCE",
+  "inputs": {
+    "frozen_packets": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md",
+        "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46",
+        "size_bytes": 17546
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md",
+        "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c",
+        "size_bytes": 4579
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R3.md",
+        "sha256": "c4b7cadcf83a427be690470adcf6c2b7709a8c4a6b493197106ec98ab95af7f4",
+        "size_bytes": 4540
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R4-PARALLEL-START.md",
+        "sha256": "aab6dd8c33ba2d28847e2d0b43b78160c5cd57568162b713747c2ae566be6c1d",
+        "size_bytes": 1386
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R5-RESOURCE-VIEW.md",
+        "sha256": "f71ff416a93e277fd24c8fac1021174474119111a8e5993c06b548a05050275d",
+        "size_bytes": 4194
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+        "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+        "size_bytes": 4376
+      }
+    ],
+    "wip_snapshot": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/wip-semantics-snapshot-r1.json",
+      "sha256": "e22441893a301d6dff4541ea4529b73577888b242ea3e855651eb0a97b24fa2c",
+      "size_bytes": 944
+    },
+    "source_files": [
+      {
+        "path": "src/video_paper_wiki/source_catalog_projection.py",
+        "sha256": "7086a93f119eeb030f93d46a34ee9b850571be7ce03cb9c62e3acb0a101c9341",
+        "size_bytes": 25623
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog_query.py",
+        "sha256": "395f12192248a6ab71ad492696f0e7c4d57f3f8f764993a30c174ff44cb7fd7d",
+        "size_bytes": 6649
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog_contracts.py",
+        "sha256": "299029e2f9ec7196b8ca918e6119145ec999bc07660d72135095aa8679742d36",
+        "size_bytes": 5684
+      },
+      {
+        "path": "schemas/video-paper-wiki.source-catalog.v1.schema.json",
+        "sha256": "75853ae6a344182be7fb659179ffb903d70814735910977c90386d0a022c8cd5",
+        "size_bytes": 41266
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d",
+        "size_bytes": 34412
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog_io.py",
+        "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+        "size_bytes": 15411
+      }
+    ]
+  },
+  "baseline": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "status": "isolated WIP with uncommitted source-catalog files and unrelated WIP edits; no exact-head acceptance",
+    "wip_files_reviewed": [
+      "src/video_paper_wiki/source_catalog_projection.py",
+      "src/video_paper_wiki/source_catalog_query.py",
+      "src/video_paper_wiki/source_catalog_contracts.py",
+      "schemas/video-paper-wiki.source-catalog.v1.schema.json"
+    ]
+  },
+  "source_state_mapping": {
+    "status": "PASS_WITH_REQUIRED_ASSERTIONS",
+    "observed": [
+      "snapshot_material returns complete current_inventory and bytes from the retained audited snapshot, including HEAD, receipts, raw captures, parser/run artifacts, records, ledgers, historical source-ledger snapshots and pages.",
+      "collect_source_state(require_rendered=True) returns basis, inventory, bytes, current_inventory, source/claim ledgers, owners, claims, documents, assessment_heads, display_heads, pages and ledger_snapshots; the projection consumes these actual fields.",
+      "modern and legacy profile validation, canonical rendered-page comparison, derived-head comparison, source/file bindings, parser ancestry, code-manifest ownership and locator ownership occur before reconstruct returns.",
+      "The producer's assert_projection checks exact identity sets, claim owner/reference/head values, original evidence count and ordinals, foreign keys, exact document bytes, compiled pages, artifact ancestry and one coverage row per source/artifact."
+    ],
+    "required_boundary": "Keep collect_source_state and audit errors typed. A catalog must not convert missing source/history/parser/code ancestry into an unsupported success row."
+  },
+  "semantic_checks": [
+    {
+      "id": "SEM-PDF-CODE-01",
+      "status": "PASS",
+      "assessment": "Legacy PDF resolution checks retained parser bytes and artifact hash, standard JSON pointer decoding, text object, page provenance, optional exact charspan and text hash; missing charspan and unreconstructable positions produce the frozen explicit unsupported reasons. Code resolution uses one unique actual manifest, validates the locator against retained capture bytes and returns the established normalized line slice."
+    },
+    {
+      "id": "SEM-WIRE-DOCUMENT-02",
+      "status": "PASS",
+      "assessment": "Evidence rows retain the original three-field wire object while decoded locators are transient. Semantic documents use raw UTF-8 json_text and sha256 from retained bytes, preserving optional-key presence, whitespace and historical JSON spelling."
+    },
+    {
+      "id": "SEM-ANCESTRY-COVERAGE-03",
+      "status": "PASS_WITH_REQUIRED_ASSERTIONS",
+      "assessment": "Artifact attribution is derived from source origins, ledger snapshots, association paths, legacy run/parser ancestry and code manifest/alignment ancestry. Coverage retains every source and every .raw artifact, including registered-unclaimed and derived-unreferenced states. Keep these derived sets authoritative only after source_state validation; do not accept caller-supplied attribution."
+    },
+    {
+      "id": "SEM-QUERY-UNICODE-04",
+      "status": "PASS",
+      "assessment": "The query path applies exact UTF-8/raw and NFKC-casefold limits, frozen ASCII/Han/other tokenization with Han singles/bigrams and multiplicity, integer Dice scoring, positive-only hits and deterministic claim-before-excerpt identity ordering. Assessment/lifecycle filters are inherited by excerpts from their owning claim, and paper filters include explicit repository paper_ids."
+    }
+  ],
+  "findings": [
+    {
+      "id": "SEM-CACHE-SHAPE-001",
+      "severity": "P1",
+      "status": "REPRODUCED_OPEN",
+      "title": "parse_cache accepts duplicate and unsorted closed arrays",
+      "problem": "source_catalog_contracts.encode validates the JSON schema, size limits and self-digests but does not validate the R1/R3 exact UTF-8 key ordering and duplicate refusal for retained cache arrays. The schema declares arrays/items but no uniqueItems or ordering constraint. ordered() enforces these rules only while producing fresh rows and is not called by encode or parse_cache. Consequently a self-consistent cache with duplicate identities or unsorted keys is accepted by parse_cache; status subsequently reports stale rather than SOURCE_CATALOG_INVALID.",
+      "contract_basis": [
+        "SOURCE-CATALOG-R1: rows groups are sorted by declared key and duplicate group keys refuse.",
+        "SOURCE-CATALOG-R3: cache parsing applies the closed artifact schema, canonical byte spelling and self-digest check; malformed shape is invalid while a well-shaped self-consistent old/forged cache is stale.",
+        "source_catalog_contracts.py:86-96 ordered() checks fresh row groups, while 103-128 encode() omits that check and 131-142 parse_cache() only calls encode().",
+        "source-catalog.v1.schema.json:187-284 arrays define type/items but no array-level uniqueness/order assertion."
+      ],
+      "reproduction": {
+        "environment": "Python 3.13.13 locked project environment; no network; generated by one existing upstream synthetic publication test in an isolated /private/tmp directory.",
+        "fixture_cache": "/private/tmp/source-catalog-probe/test_actual_markdown_publicati0/.work/catalog/source-catalog/catalog.json",
+        "fixture_sha256": "fa3ff67d65a1caa121489e0428b856074094e5b1692fc72e05fd124bf305dd1c",
+        "fixture_size_bytes": 49248,
+        "mutations": [
+          {
+            "name": "duplicate_rows_documents",
+            "operation": "append a deep copy of rows.documents[0], recompute generation.rows_sha256 and catalog_sha256",
+            "mutated_sha256": "be21a720e59092e5437045ea7b53945fe1d61b93d6f78b8ad61560136a6360ca",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "stale"
+          },
+          {
+            "name": "reverse_rows_documents",
+            "operation": "reverse rows.documents, recompute catalog_sha256",
+            "mutated_sha256": "92435f264e95988693f54d89106979814c355e212a4d0b5f71ee5a99e0272515",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "stale"
+          },
+          {
+            "name": "duplicate_basis_inventory",
+            "operation": "append a deep copy of basis.inventory[0], recompute catalog_sha256",
+            "mutated_sha256": "d2f63eb836f0f66bfee0494f49429420dd7beb8b14f44466f392e0eed050f11f",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "not separately invoked; same parser path and reconstructed-byte comparison apply"
+          },
+          {
+            "name": "reverse_basis_inventory",
+            "operation": "reverse basis.inventory, recompute catalog_sha256",
+            "mutated_sha256": "12bf313c744245a2a13210a3abc0c9dafca9cfe0b7b281b136e12bd2361f111a",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "not separately invoked; same parser path and reconstructed-byte comparison apply"
+          },
+          {
+            "name": "duplicate_generation_implementation",
+            "operation": "append a deep copy of generation.implementation[0], recompute catalog_sha256",
+            "mutated_sha256": "8c4aa3858192c4fa6645b8b7a5611e315be32c387b1ffff94be929c6c6129185",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "stale"
+          },
+          {
+            "name": "reverse_generation_implementation",
+            "operation": "reverse generation.implementation, recompute catalog_sha256",
+            "mutated_sha256": "ac46ee3fd96ac72ca59d2dd23bdd11791d2a099ce138425709de893b0e9cd859",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "stale"
+          },
+          {
+            "name": "duplicate_generation_resources",
+            "operation": "append a deep copy of generation.resources[0], recompute catalog_sha256",
+            "mutated_sha256": "abe1b26753d6e5cd21a4380b3cb9d1cd85ac32bae76b2602e967b4a15708122f",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "not separately invoked; same parser path and reconstructed-byte comparison apply"
+          },
+          {
+            "name": "reverse_generation_resources",
+            "operation": "reverse generation.resources, recompute catalog_sha256",
+            "mutated_sha256": "82e16bab1c6462f482b60b466582776a45c3f5116a43aa597732eaf87c1f2748",
+            "parse_cache_result": "ACCEPTED_BY_PARSE_CACHE",
+            "status_result": "not separately invoked; same parser path and reconstructed-byte comparison apply"
+          }
+        ],
+        "interpretation": "Self-recomputing the digest is deliberate: it distinguishes malformed array shape from a well-shaped semantic forgery. The parser accepted every malformed mutation. On the rows.documents and generation.implementation mutations, the full status path reconstructed the current catalog and returned stale, confirming the malformed-versus-stale distinction is currently lost."
+      },
+      "required_fix": "Add a non-mutating cache-shape validator invoked by encode/parse_cache before self-digest acceptance. For every KEYS group require exact declared key tuples, UTF-8 byte sorting and uniqueness; require basis.inventory, generation.resources and generation.implementation path lists to be unique and exact UTF-8 byte sorted. Do not call ordered() on retained input because it sorts and repairs foreign bytes; reject instead. Keep fresh producer ordered() plus assert_projection, and preserve the intended stale result for well-shaped self-consistent row-content forgery. Add direct parser/status tests for duplicate and reverse mutations."
+    }
+  ],
+  "required_tests": [
+    "Duplicate and reverse every nonempty rows group; recomputed self-digest must yield SOURCE_CATALOG_INVALID before stale comparison.",
+    "Duplicate and reverse basis.inventory, generation.resources and generation.implementation; parser must reject shape/order while fresh Generation remains sorted.",
+    "Self-consistent changed claim text or other well-shaped row content must continue to parse and produce status=stale/query SOURCE_CATALOG_STALE after complete reconstruction.",
+    "Fresh projection must continue to reject duplicate or unsorted producer rows through assert_projection and must preserve original nested array order.",
+    "Re-run exact PDF/code resolution, mixed source attribution, all query history states and resource-view isolation after the parser fix."
+  ],
+  "implementation_watchpoints": [
+    "Do not add JSON Schema uniqueItems as the only fix: it cannot express identity-key uniqueness or byte sort order and would incorrectly treat different rows with the same non-key payload as duplicates.",
+    "Do not sort arrays during parsing; sorting a foreign cache would turn an invalid cache into accepted bytes or alter its digest semantics.",
+    "Keep complete generation path sets and retained resource provenance bound by source_catalog_io.Generation and R5 resource view; cache-shape checks cannot replace retained filesystem verification.",
+    "Keep source_state's legacy parser/code ancestry and exact unsupported policy before projection; this review found no PDF/code resolution blocker."
+  ],
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false,
+  "catalog_resource_edited": false,
+  "real_vault_touched": false,
+  "network_used": false
+}

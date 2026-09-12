@@ -1,0 +1,1 @@
+vpwiki source-catalog query --vault-root /private/tmp/vpwiki-source-catalog-cli-r2/fixture-checkout/fixture-vault --batch-id cli-catalog --text temporal attention --catalog-sha256 b50d779e8592957085c34708b0b8284a813634634a32d08e45da67dcf161ca65

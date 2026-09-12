@@ -1,0 +1,83 @@
+{
+  "schema": "video-paper-wiki.light-trial-cases.v1",
+  "written_before_model_json": true,
+  "workspace": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-2/workspace",
+  "papers": {
+    "svd": {
+      "paper_id": "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e",
+      "title": "arxiv-2311.15127",
+      "note": "Stable Video Diffusion"
+    },
+    "vdm": {
+      "paper_id": "sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f",
+      "title": "arxiv-2204.03458",
+      "note": "Video Diffusion Models"
+    },
+    "vbench": {
+      "paper_id": "sha256:6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235",
+      "title": "arxiv-2311.17982",
+      "note": "VBench"
+    },
+    "sana": {
+      "paper_id": "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "title": "SANA-Video 2.0- Hybrid Linear Attention with Attention Residuals for Efficient Video Generation"
+    }
+  },
+  "cases": [
+    {
+      "id": "qa-svd-stages",
+      "kind": "qa-single",
+      "question": "What three stages does Stable Video Diffusion identify for training video latent diffusion models?",
+      "expected_paper_ids": ["sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e"],
+      "expected_evidence_scope": "single-paper SVD; native-text pages describing text-to-image pretraining, video pretraining, and high-quality video finetuning",
+      "pass_condition": "qa export status OK with evidence whose paper_id is SVD; imported answer cites those chunks; claims about the three stages are checked against exact slices"
+    },
+    {
+      "id": "qa-vbench-what",
+      "kind": "qa-single",
+      "question": "What is VBench and what kind of evaluation does it provide for video generative models?",
+      "expected_paper_ids": ["sha256:6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235"],
+      "expected_evidence_scope": "single-paper VBench; title/abstract describing a comprehensive hierarchical benchmark suite",
+      "pass_condition": "qa export status OK with VBench paper_id in evidence; answer claims about the benchmark purpose match cited slices"
+    },
+    {
+      "id": "qa-sana-hybrid",
+      "kind": "qa-single",
+      "question": "How does SANA-Video 2.0 combine linear attention and softmax attention, including the reported ratio?",
+      "expected_paper_ids": ["sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b"],
+      "expected_evidence_scope": "single-paper SANA-Video 2.0; hybrid linear-softmax attention and 3:1 ratio",
+      "pass_condition": "qa export status OK with SANA paper_id in evidence; numeric ratio and method name checked against cited slices"
+    },
+    {
+      "id": "qa-compare-sana-svd",
+      "kind": "qa-compare",
+      "question": "How do SANA-Video 2.0 hybrid linear attention and Stable Video Diffusion latent video diffusion models differ as approaches to video generation?",
+      "expected_paper_ids": [
+        "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+        "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e"
+      ],
+      "expected_evidence_scope": "at least two papers (SANA and SVD). If one retrieval is short, record shortage or narrow the conclusion; do not invent missing context. One labeled query rewrite is allowed only if the first result is kept.",
+      "pass_condition": "first qa export retained; comparison claims only use returned evidence; if fewer than two papers appear, mark insufficient rather than stitching"
+    },
+    {
+      "id": "qa-unrelated-lexical",
+      "kind": "qa-unrelated",
+      "question": "xyzzyplugh quxzymorphic tungstenbeetle 91827364",
+      "expected_paper_ids": [],
+      "expected_evidence_scope": "fixed reproducible nonsense tokens that should miss the lexical index",
+      "pass_condition": "export status is NO_RESULTS or INSUFFICIENT_EVIDENCE with empty evidence; no scripted fake model refusal; not a claim that every natural-language query must miss"
+    },
+    {
+      "id": "writing-two-papers-zh",
+      "kind": "writing-two-paper-ids",
+      "topic": "高效视频生成：混合线性注意力与潜在视频扩散训练",
+      "requirements": "用中文写一篇 300 到 600 字的短草稿，只根据给定证据比较 SANA-Video 2.0 的混合线性注意力与 Stable Video Diffusion 的潜在视频扩散训练阶段。必须引用至少两篇论文的 chunk。不要编造未给出的数字或方法。",
+      "expected_paper_ids": [
+        "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+        "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e"
+      ],
+      "expected_evidence_scope": "writing export with exactly these two paper_id filters; evidence from other workspace papers must be dropped",
+      "pass_condition": "writing export evidence paper_ids ⊆ the two listed ids and exclude VBench and Video Diffusion Models; draft 300–600 Chinese characters citing at least two papers. If evidence is insufficient, keep the under-bar result."
+    }
+  ]
+}

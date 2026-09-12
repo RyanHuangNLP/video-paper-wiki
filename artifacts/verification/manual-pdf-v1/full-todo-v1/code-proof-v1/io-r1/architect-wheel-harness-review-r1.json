@@ -1,0 +1,47 @@
+{
+  "schema": "full-todo.code-io-wheel-harness-review.v1",
+  "recorded_at_utc": "2026-09-11T03:37:15.289272+00:00",
+  "reviewer": "Architect",
+  "decision": "CORRECTIONS_REQUIRED_BEFORE_EXECUTION",
+  "inputs": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/build_io_wheel_r1.py",
+      "size_bytes": 20816,
+      "sha256": "05859e7ec844d901f8c599a4bb5b47179d1f503c42a9bca99bc96c9da2d19649"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/io_wheel_probe_r1.py",
+      "size_bytes": 20890,
+      "sha256": "68c048fd1b46b49ab4f05ddc379889cb905f2f8915d86a51124cb0a6d5689227"
+    }
+  ],
+  "findings": [
+    {
+      "id": "W1",
+      "problem": "Probe _run has no stdin input, so python -I -B - never receives CHILD_SOURCE.",
+      "required": "Pass exact CHILD_SOURCE encoded UTF-8 to subprocess.run input on child invocation; retain no-input mode for installer."
+    },
+    {
+      "id": "W2",
+      "problem": "Child filters every path underneath repo_root, removing the locked Python 3.13 .venv site-packages and jsonschema/referencing dependencies.",
+      "required": "Filter exact project roots and their src trees, checkout/build copies and known editable source paths; preserve locked runtime dependency site-packages. Require all imported video_paper_wiki origins under the fresh install target."
+    },
+    {
+      "id": "W3",
+      "problem": "Probe failure raises before saving run records; stdout/stderr are hashed but neither their bytes nor child source pin are preserved.",
+      "required": "Reject existing evidence/log output paths before installations; preserve separate actual install/probe stdout/stderr and execution records on failure, attempt both bounded runtimes independently, finally fail if any failed. Record exact CHILD_SOURCE size/hash and runner pin."
+    },
+    {
+      "id": "W4",
+      "problem": "Probe does not recheck frozen source manifest before and after actual wheel runs.",
+      "required": "Reuse manifest_guard before/after and recheck candidate/wheel/RECORD pins after both runs; do not mutate candidate or baseline."
+    }
+  ],
+  "execution_performed": false,
+  "product_changes": false,
+  "requested_successors": [
+    "build_io_wheel_r2.py",
+    "io_wheel_probe_r2.py"
+  ],
+  "preserve_r1": true
+}

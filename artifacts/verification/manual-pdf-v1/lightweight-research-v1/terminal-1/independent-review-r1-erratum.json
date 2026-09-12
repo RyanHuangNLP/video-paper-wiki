@@ -1,0 +1,98 @@
+{
+  "schema": "lightweight-research-independent-review-r1-erratum.v1",
+  "recorded_at_utc": "2026-09-08T10:45:54.150897000Z",
+  "clock_source": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ' on the review host",
+  "original_record": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-1/independent-review-r1.json",
+    "sha256": "edbb3e9f5b71f46108ec49b181a65006e49ce8be425086ec9a84dbb4eea499d2",
+    "timestamp_status": "The original at_utc value 2026-09-08T11:05:00Z is not a reliable measurement and must not be used as the review completion time. The original record remains unchanged history."
+  },
+  "corrections": {
+    "candidate_snapshot_sha256": {
+      "original_value": "b7554d0e8542d779de1a2b0fa4ed4b113fc2c1853627648d5873dcf4b53f39e",
+      "corrected_value": "b7554d0e8542d779de1a2b0fa4ed4b113fc2c1853627648d5873dcf4b53f39e0",
+      "reason": "The original review value had 63 hex characters; the independently recomputed six-file canonical snapshot has 64 hex characters."
+    },
+    "completion_time": {
+      "original_value": "2026-09-08T11:05:00Z",
+      "corrected_value": "2026-09-08T10:45:54.150897000Z",
+      "reason": "This is the actual host clock reading captured while issuing this erratum; the original timestamp is marked unreliable rather than backdated or rewritten."
+    }
+  },
+  "revalidation": {
+    "candidate_source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source",
+    "evidence_copy_root": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-1/r1/files",
+    "base": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+    "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+    "freeze_sha256": "8b9b257080d01b69b4ea683728acfea9ba559c00a0292f4db034623e8e53c5a8",
+    "snapshot_sha256": "b7554d0e8542d779de1a2b0fa4ed4b113fc2c1853627648d5873dcf4b53f39e0",
+    "handoff": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-1/r1/handoff.json",
+      "snapshot_matches_recomputed": true,
+      "ready_matches_handoff_bytes": true,
+      "status": "ready_for_architect",
+      "architect_accepted": false,
+      "stopped_writing": true
+    },
+    "files": [
+      {
+        "path": "src/video_paper_wiki_research/light_context.py",
+        "sha256": "ce58b1f83067ccea40fd01b647ff533cf328b10dcf8bd78fee5c5512cef53259",
+        "size_bytes": 22349,
+        "source_equals_frozen_copy": true
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_index.py",
+        "sha256": "ce6acbc04a5b3c9ef151838cb3d079b9ba250240afc08ec90fd3e36bfb537e36",
+        "size_bytes": 35415,
+        "source_equals_frozen_copy": true
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_query.py",
+        "sha256": "885029548344196847ca8bf387ee0dbd89f96ed83ed4ab7c8ec0338d2cdb3980",
+        "size_bytes": 36343,
+        "source_equals_frozen_copy": true
+      },
+      {
+        "path": "tests/research/test_light_context.py",
+        "sha256": "95f7854ffd900f7186f0612ac823531016b9958f4eaa4e74b64fe87fd20df883",
+        "size_bytes": 33692,
+        "source_equals_frozen_copy": true
+      },
+      {
+        "path": "tests/research/test_light_index.py",
+        "sha256": "bbfedea4f196738bc54ac53d4ca3f8b51acdc961e58aa049d440b458ef46025b",
+        "size_bytes": 25920,
+        "source_equals_frozen_copy": true
+      },
+      {
+        "path": "tests/research/test_light_query.py",
+        "sha256": "6047ba4c000d76be4aef488aaa3a822032529d47e445245bd501d729104d1ff1",
+        "size_bytes": 16941,
+        "source_equals_frozen_copy": true
+      }
+    ],
+    "review_findings_preserved": true,
+    "source_or_git_mutation": false,
+    "external_calls": false
+  },
+  "r2_specification_review": {
+    "path": "docs/ai/packets/lightweight-research-v1/FIX-T1-R2.md",
+    "sha256": "2f27c1c5ae06b5628dd08ef76ccc805be28cfa50f6135650813c21a3f02efcca",
+    "decision": "GO_FOR_R2_SPECIFICATION",
+    "source_acceptance_or_dispatch": false,
+    "scope_check": "The seven bounded repair groups cover all eight Architect R1 reproductions plus both independent findings: (1) route enum/type safety; (2) oversized numeric conversion; (3) duplicate paper IDs; (4) given/resolved workspace path and symlink-parent safety; (5) occupied workspace lock; (6) papers/, paper-directory, source.md/source.json symlink and hardlink safety; (7) strict UTF-8/surrogate rejection.",
+    "ownership_check": {
+      "exact_six_paths": [
+        "src/video_paper_wiki_research/light_query.py",
+        "src/video_paper_wiki_research/light_context.py",
+        "src/video_paper_wiki_research/light_index.py",
+        "tests/research/test_light_query.py",
+        "tests/research/test_light_context.py",
+        "tests/research/test_light_index.py"
+      ],
+      "no_extra_owner_paths": true
+    },
+    "review_basis": "Read the full specification and compared each repair group against architect-review-r1.json and independent-review-r1.json. This is specification review only; it does not accept source, authorize dispatch, or replace the pending user confirmation."
+  }
+}

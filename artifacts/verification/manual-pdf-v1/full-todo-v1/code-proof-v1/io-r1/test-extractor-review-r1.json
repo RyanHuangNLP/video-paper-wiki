@@ -1,0 +1,46 @@
+{
+  "schema": "full-todo.code-io-test-extractor-review-r1.v1",
+  "recorded_at_utc": "2026-09-11T04:17:37.059728+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO",
+  "scope": "AST and diff-only review of the test extractor against the already reviewed production extractor. Neither extractor was executed or imported.",
+  "inputs": {
+    "production_extractor_r2": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/assemble_returned_io_production_r2.py",
+      "size_bytes": 2148,
+      "sha256": "21769898343674a2a167195e47cffd4d200d17c777316c511dfd1fb2eab4504e"
+    },
+    "test_extractor_r1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/assemble_returned_io_tests_r1.py",
+      "size_bytes": 2131,
+      "sha256": "4aa2578d126c999f1601c3a3800c91185129fa5d87665b49d3481c50b1699add"
+    }
+  },
+  "ast_review": {
+    "both_ast_parse_passed": true,
+    "normalized_ast_equal_after_expected_literals": true,
+    "main_statement_count_equal": true,
+    "main_statement_type_order_equal": true,
+    "target_creation_index": 13,
+    "ast_validation_loop_index": 12,
+    "refusal_before_target_creation": "PASS: target.mkdir occurs only after exact one-block check, outside-text check, payload extraction, and ast.parse of the returned block."
+  },
+  "expected_changes_only": [
+    "Docstring changes production block to test block.",
+    "Usage error names assemble_returned_io_tests_r1.py.",
+    "Outside-text refusal names the complete test block.",
+    "Output filename changes from code_proof_io.py to test_code_proof_io.py.",
+    "Extraction schema changes from full-todo.code-io-returned-production-extraction.v1 to full-todo.code-io-returned-tests-extraction.v1."
+  ],
+  "safety_and_truthfulness": {
+    "single_fence_parser": "PASS: the original anchored regex and exactly-one-block refusal are unchanged.",
+    "sentinel_text": "PASS: the exact outside-text sentinel remains Tests not run..",
+    "ast_only_validation": "PASS: returned payload is checked with ast.parse; no import, pytest invocation, or test execution is introduced.",
+    "byte_preservation": "PASS: block.group(1) is UTF-8 encoded and written with xb; byte_transformations remains an empty list.",
+    "target_scope": "PASS: one test_code_proof_io.py output and extraction.json are created only after validation; product_paths_written, tests_run, and acceptance remain false."
+  },
+  "blocking_findings": [],
+  "candidate_accepted": false,
+  "extractor_executed": false,
+  "execution_boundary": "Static AST parsing and diff comparison only; no extractor, test, production source, Git, model, status, lease, or process action."
+}

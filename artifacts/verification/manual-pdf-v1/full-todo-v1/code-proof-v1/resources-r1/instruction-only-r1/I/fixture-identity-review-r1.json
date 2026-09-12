@@ -1,0 +1,100 @@
+{
+  "record_type": "fixture-identity-review-r1",
+  "reviewed_at_utc": "2026-09-10T15:33:31.305081+00:00",
+  "decision": "GO_FOR_PACKED_FIXTURE_IDENTITY_ORIGIN_AND_INPUT_REVIEW",
+  "scope": "Independent read-only review of the freshly packed synthetic fixture transport; no product code, schemas, manifests, fixture files, Git state, model, provider, network, or public workflow was executed or changed.",
+  "inputs": {
+    "packed": {
+      "path": "/private/tmp/cri1-rpdu1g92/packed-r1.json",
+      "size_bytes": 726503,
+      "sha256": "712de225878c1dbfb83743a38be4a0cfdf883cae1a377d63b8b241933d39c52f",
+      "profile_sha256": "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    },
+    "base_manifest": {
+      "path": "/private/tmp/cri1-rpdu1g92/base-fixtures-r1/manifest.json",
+      "size_bytes": 31559,
+      "sha256": "e3af3f611d030e3d262d5a59d090463ca20d1fda863e04c6c89d6e35e468b598"
+    },
+    "typed_manifest": {
+      "path": "/private/tmp/cri1-rpdu1g92/typed-fixtures-r1/manifest.json",
+      "size_bytes": 55711,
+      "sha256": "c1db402418b49f6201c9022cc2c12fcf149d55dc529866e94006d4938c72b618"
+    },
+    "packing_execution": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/packing-r1.execution.json",
+      "size_bytes": 1428,
+      "sha256": "f67860c0561ccc121e1335bb547545868a747a0096e7eb13fa6dbabe3cd22b52"
+    },
+    "jcs_helper": {
+      "path": "src/video_paper_wiki/jcs.py",
+      "size_bytes": 2255,
+      "sha256": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6"
+    },
+    "packer": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/pack_resource_fixtures.py",
+      "size_bytes": 12982,
+      "sha256": "a40772cd0498e3be91118d812c05ab986bc96e0e63422959141803ec538657d7"
+    }
+  },
+  "source_profile_sha256": "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32",
+  "counts": {
+    "packed_cases": 264,
+    "base_packed_cases": 82,
+    "typed_packed_cases": 182,
+    "base_manifest_cases": 13,
+    "typed_manifest_cases": 14,
+    "manifest_json_positive_files": 227,
+    "manifest_ordinary_input_files": 37,
+    "manifest_raw_body_files_checked_but_excluded": 56,
+    "base_positive_json_files": 73,
+    "typed_positive_json_files": 154,
+    "base_ordinary_input_files": 9,
+    "typed_ordinary_input_files": 28
+  },
+  "origin_checks": {
+    "packed_case_names_unique": true,
+    "packed_case_names_ascii_and_sorted": true,
+    "base_case_names_exact_manifest_origin": true,
+    "typed_case_names_exact_manifest_origin": true,
+    "all_manifest_listed_json_files_have_one_packed_case": true,
+    "all_packed_cases_have_one_manifest_source_file": true,
+    "source_json_values_equal_packed_instances": true,
+    "source_json_value_mismatches": [],
+    "missing_packed_cases": [],
+    "extra_packed_cases": [],
+    "packed_title_bindings_match_source_kind": true,
+    "raw_body_cases_present": false,
+    "manifest_pins_replayed": true
+  },
+  "identity_checks": {
+    "jcs_helper": "src/video_paper_wiki/jcs.py",
+    "envelope_objects_checked": 124,
+    "unique_envelope_ids": 112,
+    "envelope_ids_recomputed_as_ce1_kind_sha256_jcs": true,
+    "identity_mismatches": [],
+    "duplicate_identity_ids_with_conflicting_source_file_bytes": [],
+    "references_checked": 530,
+    "reference_ids_all_known": true,
+    "reference_sha256_matches_exact_source_file_bytes": true,
+    "reference_mismatches": [],
+    "profile_binding_on_saved_requests": true,
+    "profile_binding_value": "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+  },
+  "ordinary_input_checks": {
+    "ordinary_inputs_checked": 37,
+    "ordinary_request_and_observe_inputs_have_no_recursive_profile_sha256": true,
+    "profile_sha256_hits": [],
+    "ordinary_input_origin_exact": true
+  },
+  "method": [
+    "Read both pinned manifests and every manifest-listed file; recomputed each listed size and SHA-256 before parsing JSON.",
+    "Mapped each packed base/<relative-path> and typed/<relative-path> case to its manifest source and compared parsed instance values and title bindings.",
+    "Recomputed each closed envelope id as ce1:<kind>:SHA-256(JCS({schema,kind,data})) using the accepted pure JCS helper.",
+    "Collected every exact {id,sha256} reference and compared its sha256 to the source file bytes of the referenced envelope.",
+    "Scanned every ordinary request-input and observe-input recursively for a caller profile_sha256 field."
+  ],
+  "limitations": [
+    "This is a fixture transport identity/origin review only; it does not claim schema or public workflow acceptance.",
+    "The sources are synthetic preparation fixtures and no provider, Git service, real Vault, or network was contacted."
+  ]
+}

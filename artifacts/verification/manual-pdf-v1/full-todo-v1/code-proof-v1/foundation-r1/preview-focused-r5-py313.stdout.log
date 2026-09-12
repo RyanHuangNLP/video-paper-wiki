@@ -1,0 +1,168 @@
+..................................................F..................... [ 27%]
+........................................................................ [ 54%]
+........................................................................ [ 81%]
+..............................................FFFF                       [100%]
+=================================== FAILURES ===================================
+_____________________ test_structure_preflight_and_titles ______________________
+
+resources = <video_paper_wiki.code_proof_resources.CodeProofResources object at 0x103e02b00>
+
+    def test_structure_preflight_and_titles(resources):
+        with pytest.raises(CodeProofStructureError) as exc:
+            resources.validate_structure(_COMMON_SCHEMA_ID, [])
+>       _assert_structure(exc, "shape")
+
+tests/unit/test_code_proof_resources.py:685: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = <ExceptionInfo CodeProofStructureError('CODE proof structure: shape') tblen=2>
+reason = 'shape'
+
+    def _assert_structure(exc: BaseException, reason: str) -> None:
+>       assert type(exc) is CodeProofStructureError
+E       AssertionError: assert <class '_pytest._code.code.ExceptionInfo'> is CodeProofStructureError
+E        +  where <class '_pytest._code.code.ExceptionInfo'> = type(<ExceptionInfo CodeProofStructureError('CODE proof structure: shape') tblen=2>)
+
+tests/unit/test_code_proof_resources.py:163: AssertionError
+_________________ test_context_rejects_external_configuration __________________
+
+retained_bytes = {'schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json': b'{\n  "$schema": "https://json-schema.org/draft/2...tps://video-paper-wiki.dev/schemas/video-paper-wiki.code-proof-common.v1.schema.json#/$defs/command_result"\n}\n', ...}
+
+    def test_context_rejects_external_configuration(retained_bytes):
+        def _external(*args, **kwargs):
+            raise AssertionError(_MARKER)
+    
+        with pytest.raises(CodeProofResourceError) as exc:
+            cpr.CodeProofResources()
+>       _assert_resource(exc, "resource_shape")
+
+tests/unit/test_code_proof_resources.py:927: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = <ExceptionInfo CodeProofResourceError('CODE proof resource: resource_shape') tblen=2>
+reason = 'resource_shape'
+
+    def _assert_resource(exc: BaseException, reason: str) -> None:
+>       assert type(exc) is CodeProofResourceError
+E       AssertionError: assert <class '_pytest._code.code.ExceptionInfo'> is CodeProofResourceError
+E        +  where <class '_pytest._code.code.ExceptionInfo'> = type(<ExceptionInfo CodeProofResourceError('CODE proof resource: resource_shape') tblen=2>)
+
+tests/unit/test_code_proof_resources.py:153: AssertionError
+_____________________ test_limit_exact_key_and_value_types _____________________
+
+resources = <video_paper_wiki.code_proof_resources.CodeProofResources object at 0x103e02b00>
+
+    def test_limit_exact_key_and_value_types(resources):
+        class _Armed:
+            def __init__(self):
+                self._live = False
+    
+            def arm(self):
+                self._live = True
+    
+            def __hash__(self):
+                if self._live:
+                    raise RuntimeError(_MARKER)
+                return id(self)
+    
+            def __eq__(self, other):
+                if self._live:
+                    raise RuntimeError(_MARKER)
+                return self is other
+    
+        full = _full_limits(resources)
+        omitted = resources.materialize_limits(None)
+        assert omitted == full
+        got = resources.materialize_limits(full)
+        assert got == full
+        assert got is not full
+        for group in full:
+            assert got[group] is not full[group]
+        bad = _full_limits(resources)
+        group = next(iter(bad))
+        bad[_Str(group)] = bad.pop(group)
+        with pytest.raises(CodeProofStructureError) as exc:
+            resources.materialize_limits(bad)
+>       _assert_structure(exc, "limits")
+
+tests/unit/test_code_proof_resources.py:990: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = <ExceptionInfo CodeProofStructureError('CODE proof structure: limits') tblen=2>
+reason = 'limits'
+
+    def _assert_structure(exc: BaseException, reason: str) -> None:
+>       assert type(exc) is CodeProofStructureError
+E       AssertionError: assert <class '_pytest._code.code.ExceptionInfo'> is CodeProofStructureError
+E        +  where <class '_pytest._code.code.ExceptionInfo'> = type(<ExceptionInfo CodeProofStructureError('CODE proof structure: limits') tblen=2>)
+
+tests/unit/test_code_proof_resources.py:163: AssertionError
+_______________________ test_profile_exact_builtin_keys ________________________
+
+profile_document = {'schema': 'video-paper-wiki.code-proof-profile.v1', 'profile': 'code-proof-v1', 'revision': 1, 'limits': {'git': {'ma...s': 1048576, 'max_inline_normalized_bytes': 16384, 'max_request_bytes': 65536, 'max_intent_bytes': 1048576, ...}}, ...}
+
+    def test_profile_exact_builtin_keys(profile_document):
+        _validate_profile_inventory(profile_document)
+        mutated = copy.deepcopy(profile_document)
+        key = next(iter(mutated))
+        mutated[_Str(key)] = mutated.pop(key)
+        with pytest.raises(CodeProofResourceError) as exc:
+            _validate_profile_inventory(mutated)
+>       _assert_resource(exc, "resource_shape")
+
+tests/unit/test_code_proof_resources.py:1075: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = <ExceptionInfo CodeProofResourceError('CODE proof resource: resource_shape') tblen=3>
+reason = 'resource_shape'
+
+    def _assert_resource(exc: BaseException, reason: str) -> None:
+>       assert type(exc) is CodeProofResourceError
+E       AssertionError: assert <class '_pytest._code.code.ExceptionInfo'> is CodeProofResourceError
+E        +  where <class '_pytest._code.code.ExceptionInfo'> = type(<ExceptionInfo CodeProofResourceError('CODE proof resource: resource_shape') tblen=3>)
+
+tests/unit/test_code_proof_resources.py:153: AssertionError
+____________________ test_schema_reference_malformed_graphs ____________________
+
+schema_map = {'https://video-paper-wiki.dev/schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json': {'$schema': 'https://...: 'https://video-paper-wiki.dev/schemas/video-paper-wiki.code-proof-common.v1.schema.json#/$defs/command_result'}, ...}
+
+    def test_schema_reference_malformed_graphs(schema_map):
+        _validate_schema_references(copy.deepcopy(schema_map))
+        shared = copy.deepcopy(schema_map)
+        shared_node = {"description": "shared"}
+        shared_list = [shared_node]
+        shared[_COMMON_SCHEMA_ID]["codeProofSharedA"] = shared_node
+        shared[_COMMON_SCHEMA_ID]["codeProofSharedB"] = shared_node
+        shared[_COMMON_SCHEMA_ID]["codeProofSharedC"] = shared_list
+        shared[_COMMON_SCHEMA_ID]["codeProofSharedD"] = shared_list
+        _validate_schema_references(shared)
+        escaped = copy.deepcopy(schema_map)
+        escaped[_COMMON_SCHEMA_ID]["~"] = {"a/b": {"type": "null"}}
+        escaped[_COMMON_SCHEMA_ID]["codeProofEscapedRef"] = {"$ref": "#/~0/a~1b"}
+        _validate_schema_references(escaped)
+        huge = copy.deepcopy(schema_map)
+        huge[_COMMON_SCHEMA_ID]["codeProofList"] = [{"type": "null"}]
+        huge[_COMMON_SCHEMA_ID]["codeProofHugeRef"] = {"$ref": "#/codeProofList/" + ("1" * 4301)}
+        with pytest.raises(CodeProofResourceError) as exc:
+            _validate_schema_references(huge)
+>       _assert_resource(exc, "resource_shape")
+
+tests/unit/test_code_proof_resources.py:1127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = <ExceptionInfo CodeProofResourceError('CODE proof resource: resource_shape') tblen=6>
+reason = 'resource_shape'
+
+    def _assert_resource(exc: BaseException, reason: str) -> None:
+>       assert type(exc) is CodeProofResourceError
+E       AssertionError: assert <class '_pytest._code.code.ExceptionInfo'> is CodeProofResourceError
+E        +  where <class '_pytest._code.code.ExceptionInfo'> = type(<ExceptionInfo CodeProofResourceError('CODE proof resource: resource_shape') tblen=6>)
+
+tests/unit/test_code_proof_resources.py:153: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_code_proof_resources.py::test_structure_preflight_and_titles
+FAILED tests/unit/test_code_proof_resources.py::test_context_rejects_external_configuration
+FAILED tests/unit/test_code_proof_resources.py::test_limit_exact_key_and_value_types
+FAILED tests/unit/test_code_proof_resources.py::test_profile_exact_builtin_keys
+FAILED tests/unit/test_code_proof_resources.py::test_schema_reference_malformed_graphs
+5 failed, 261 passed in 0.92s

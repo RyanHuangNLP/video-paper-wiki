@@ -1,0 +1,79 @@
+{
+  "$schema": "video-paper-wiki.code-config-stdlib-key-probe-r1.v1",
+  "revision": 1,
+  "candidate_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+  "candidate_tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+  "contract": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+    "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+    "requirement": "scanner-accepted stdlib mismatch, including unsupported stdlib types, is PARSER_MISMATCH",
+    "lines": "148-156"
+  },
+  "production": {
+    "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py",
+    "size_bytes": 61224,
+    "sha256": "b46fbd198dc8a4fcbe25a58443d24c460ec00dcb4a75609b94858efc5f835b21"
+  },
+  "probes": {
+    "str_subclass_object_key": {
+      "outcome": "ACCEPTED"
+    },
+    "str_subclass_callback": {
+      "outcome": "RAW_EXCEPTION",
+      "exception_type": "AssertionError",
+      "exception": "eq callback",
+      "callbacks": [
+        "eq"
+      ]
+    }
+  },
+  "expected_contract_outcome": {
+    "str_subclass_object_key": "CODE_CONFIG_PARSER_MISMATCH",
+    "str_subclass_callback": "bounded CodeConfigError without invoking subclass callbacks"
+  },
+  "integrity": {
+    "before": [
+      {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py",
+        "size_bytes": 61224,
+        "sha256": "b46fbd198dc8a4fcbe25a58443d24c460ec00dcb4a75609b94858efc5f835b21"
+      },
+      {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/fixtures/code-config-vectors-v1.json",
+        "size_bytes": 125029,
+        "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37"
+      },
+      {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_config_parser.py",
+        "size_bytes": 32993,
+        "sha256": "0c58af204300850125f1a52e40461019ca0488334e7ce5e95926a2e86f9a5491"
+      }
+    ],
+    "after": [
+      {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py",
+        "size_bytes": 61224,
+        "sha256": "b46fbd198dc8a4fcbe25a58443d24c460ec00dcb4a75609b94858efc5f835b21"
+      },
+      {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/fixtures/code-config-vectors-v1.json",
+        "size_bytes": 125029,
+        "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37"
+      },
+      {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_config_parser.py",
+        "size_bytes": 32993,
+        "sha256": "0c58af204300850125f1a52e40461019ca0488334e7ce5e95926a2e86f9a5491"
+      }
+    ],
+    "unchanged": true
+  },
+  "scope_controls": {
+    "source_modified": false,
+    "tests_modified": false,
+    "fixture_modified": false,
+    "git_mutation": false,
+    "network_or_provider": false,
+    "candidate_only_read_and_patched_stdlib_return": true
+  }
+}

@@ -1,0 +1,122 @@
+```json
+{
+  "schema": "foundation.integration-correction.v1",
+  "edits": [
+    {
+      "kind": "suppress_private_raise_context",
+      "path": "src/video_paper_wiki/code_proof_resources.py",
+      "symbols": [
+        "_require_plain_json_tree",
+        "_canonical_list_index",
+        "_require_exact_mapping",
+        "_walk_schema_document",
+        "_validate_schema_references",
+        "CodeProofResources",
+        "compile_code_proof_resources"
+      ],
+      "exceptions": [
+        "CodeProofResourceError",
+        "CodeProofStructureError"
+      ]
+    },
+    {
+      "kind": "pytest_exception_value",
+      "path": "tests/unit/test_code_proof_resources.py",
+      "symbols": [
+        "test_structure_preflight_and_titles",
+        "test_limit_exact_key_and_value_types",
+        "test_profile_exact_builtin_keys",
+        "test_schema_reference_malformed_graphs",
+        "test_context_rejects_external_configuration"
+      ],
+      "helpers": [
+        "_assert_resource",
+        "_assert_structure"
+      ],
+      "variable": "exc"
+    },
+    {
+      "kind": "profile_inventory_key",
+      "path": "tests/unit/test_code_proof_resources.py",
+      "symbol": "test_profile_exact_builtin_keys",
+      "old_key": "inventory",
+      "new_key": "schemas"
+    }
+  ]
+}
+```
+
+```python
+def test_private_errors_suppress_outer_exception_context(resources):
+    import traceback
+
+    def _assert_outer_context_suppressed(caught, outer_marker):
+        assert caught.value.__suppress_context__ is True
+        assert caught.value.__cause__ is None
+        assert outer_marker not in "".join(traceback.format_exception(caught.value))
+
+    outer_unknown_title = f"{_MARKER}:active-outer:unknown-title:{id(object())}"
+    try:
+        raise RuntimeError(outer_unknown_title)
+    except RuntimeError:
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(0, 0)
+        _assert_structure(caught.value, "shape")
+        _assert_outer_context_suppressed(caught, outer_unknown_title)
+
+    outer_malformed_limits = f"{_MARKER}:active-outer:malformed-limits:{id(object())}"
+    try:
+        raise RuntimeError(outer_malformed_limits)
+    except RuntimeError:
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.materialize_limits(0)
+        _assert_structure(caught.value, "limits")
+        _assert_outer_context_suppressed(caught, outer_malformed_limits)
+
+    outer_direct_construction = f"{_MARKER}:active-outer:direct-construction:{id(object())}"
+    try:
+        raise RuntimeError(outer_direct_construction)
+    except RuntimeError:
+        with pytest.raises(CodeProofResourceError) as caught:
+            cpr.CodeProofResources()
+        _assert_resource(caught.value, "resource_shape")
+        _assert_outer_context_suppressed(caught, outer_direct_construction)
+
+    outer_retained_bytes = f"{_MARKER}:active-outer:retained-bytes:{id(object())}"
+    try:
+        raise RuntimeError(outer_retained_bytes)
+    except RuntimeError:
+        with pytest.raises(CodeProofResourceError) as caught:
+            compile_code_proof_resources(0)
+        _assert_resource(caught.value, "resource_shape")
+        _assert_outer_context_suppressed(caught, outer_retained_bytes)
+
+    outer_private_parser = f"{_MARKER}:active-outer:private-parser:{id(object())}"
+    try:
+        raise RuntimeError(outer_private_parser)
+    except RuntimeError:
+        with pytest.raises(CodeProofResourceError) as caught:
+            _parse_resource_bytes(b"0")
+        _assert_resource(caught.value, "resource_shape")
+        _assert_outer_context_suppressed(caught, outer_private_parser)
+
+    outer_profile_inventory = f"{_MARKER}:active-outer:profile-inventory:{id(object())}"
+    try:
+        raise RuntimeError(outer_profile_inventory)
+    except RuntimeError:
+        with pytest.raises(CodeProofResourceError) as caught:
+            _validate_profile_inventory(0)
+        _assert_resource(caught.value, "resource_shape")
+        _assert_outer_context_suppressed(caught, outer_profile_inventory)
+
+    outer_schema_references = f"{_MARKER}:active-outer:schema-references:{id(object())}"
+    try:
+        raise RuntimeError(outer_schema_references)
+    except RuntimeError:
+        with pytest.raises(CodeProofResourceError) as caught:
+            _validate_schema_references(0)
+        _assert_resource(caught.value, "resource_shape")
+        _assert_outer_context_suppressed(caught, outer_schema_references)
+```
+
+Tests not run.

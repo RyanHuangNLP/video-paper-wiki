@@ -1,0 +1,62 @@
+{
+  "$schema": "full-todo.grok-code-git-kernel-dispatch-rejection.v1",
+  "schema": "full-todo.grok-code-git-kernel-dispatch-rejection.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-09T15:16:55.849881Z",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "phase": "implementation",
+  "runtime": "grok-build-cli",
+  "executable": "/Users/huangzhanpeng/.local/bin/grok",
+  "model": "grok-4.6",
+  "reasoning_effort": "xhigh",
+  "permission_mode": "default",
+  "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+  "requested_grok_session_id": "0b9f91ae-8729-4e09-b457-7c26d7218a73",
+  "max_turns": 40,
+  "argv": [
+    "/Users/huangzhanpeng/.local/bin/grok",
+    "--model",
+    "grok-4.6",
+    "--reasoning-effort",
+    "xhigh",
+    "--permission-mode",
+    "default",
+    "--no-subagents",
+    "--disable-web-search",
+    "--session-id",
+    "0b9f91ae-8729-4e09-b457-7c26d7218a73",
+    "--prompt-file",
+    "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-IMPLEMENT-R1.md",
+    "--max-turns",
+    "40",
+    "--output-format",
+    "plain"
+  ],
+  "freeze": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-freeze-r1.json",
+    "sha256": "0ad3c58f2704caa0c0c2aee1aeb763c9a53c85cf2c592f8545d45b81b0664129",
+    "size_bytes": 5542
+  },
+  "prompt": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-IMPLEMENT-R1.md",
+    "sha256": "143b9b1e00738923abd2ec46ff65050d9f2657056be109fa4a400a9346c41c7d",
+    "size_bytes": 4969
+  },
+  "baseline": {
+    "head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "clean": true,
+    "status_short": ""
+  },
+  "automatic_review": {
+    "decision": "rejected",
+    "reason": "This action was rejected due to unacceptable risk. Reason: Although the user-authorized Grok implementation is narrowly scoped to the frozen worktree, retrying the authenticated external Grok service can transmit private project/prompt contents to an untrusted destination, and that specific sensitive egress is not explicitly authorized. The agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.",
+    "sandbox_permissions": "require_escalated"
+  },
+  "process_started": false,
+  "source_mutated": false,
+  "git_mutated": false,
+  "normal_attempt_record": "builder-completion-exit-observation-r1.json",
+  "next_action": "Stop and request fresh explicit user approval for this exact external endpoint/payload/destination; no alternate dispatch permitted."
+}

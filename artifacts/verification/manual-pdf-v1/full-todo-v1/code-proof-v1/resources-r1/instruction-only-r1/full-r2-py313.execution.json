@@ -1,0 +1,41 @@
+{
+  "schema": "full-todo.code-resource-local-full-regression.v1",
+  "started_at_utc": "2026-09-10T15:55:17.639747+00:00",
+  "completed_at_utc": "2026-09-10T16:07:26.586787+00:00",
+  "command": [
+    "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp",
+    "/private/tmp/cr2313-w8zcdaof/p",
+    "-o",
+    "cache_dir=/private/tmp/cr2313-w8zcdaof/cache"
+  ],
+  "uv": "/Users/huangzhanpeng/.hermes/bin/uv",
+  "uv_version": "uv 0.12.7 (61291a8ca 2026-08-27 aarch64-apple-darwin)",
+  "cwd": "/private/tmp/cr1.lQxPNM/source",
+  "snapshot_sha256": "0499b45b6b4f40a3bb330dd6fa63687d1182db7dfebce3136f9e3f814aa6654f",
+  "exit_code": 1,
+  "before": {
+    "all_expected_files_equal": 1376,
+    "source_and_mirror_unchanged": true
+  },
+  "after": {
+    "all_expected_files_equal": 1376,
+    "source_and_mirror_unchanged": true
+  },
+  "stdout": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/full-r2-py313.stdout.log",
+    "size_bytes": 8910,
+    "sha256": "b1c8cd796bce5ba2247bb450fcbe10ceb00ce968a3a8472f726a08d05b4e82a3"
+  },
+  "stderr": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/full-r2-py313.stderr.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "tail": "...... [ 69%]\n........................................................................ [ 71%]\n........................................................................ [ 73%]\n........................................................................ [ 75%]\n........................................................................ [ 77%]\n........................................................................ [ 79%]\n........................................................................ [ 80%]\n........................................................................ [ 82%]\n........................................................................ [ 84%]\n........................................................................ [ 86%]\n........................................................................ [ 88%]\n........................................................................ [ 90%]\n........................................................................ [ 92%]\n........................................................................ [ 94%]\n........................................................................ [ 96%]\n........................................................................ [ 98%]\n........................................................................ [ 99%]\n..                                                                       [100%]\n=================================== FAILURES ===================================\n________ test_fresh_wheel_exposes_equivalent_entries_and_workflow_help _________\n\ntmp_path = PosixPath('/private/tmp/cr2313-w8zcdaof/p/test_fresh_wheel_exposes_equiv0')\n\n    def test_fresh_wheel_exposes_equivalent_entries_and_workflow_help(tmp_path: Path) -> None:\n        python = _runtime_python()\n>       wheel = _build_wheel(python, tmp_path)\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/research/test_light_workflow_installed.py:293: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npython = PosixPath('/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python')\ntmp_path = PosixPath('/private/tmp/cr2313-w8zcdaof/p/test_fresh_wheel_exposes_equiv0')\n\n    def _build_wheel(python: Path, tmp_path: Path) -> Path:\n        preset = os.environ.get(\"LW2_INSTALLED_WHEEL\", \"\").strip()\n        if preset:\n            wheel = Path(preset)\n            if not wheel.is_file():\n                pytest.fail(f\"LW2_INSTALLED_WHEEL does not exist: {wheel}\")\n            return wheel.resolve()\n    \n        out_dir = tmp_path / \"dist\"\n        out_dir.mkdir()\n        uv = _uv_program()\n        if uv is not None:\n            built = _run(\n                [str(uv), \"build\", \"--offline\", \"--wheel\", \"--out-dir\", str(out_dir)],\n                cwd=ROOT,\n                env=_build_env(),\n            )\n            wheels = sorted(out_dir.glob(\"*.whl\"))\n            if built.returncode != 0 or not wheels:\n>               pytest.fail(\n                    \"offline uv wheel build failed\\n\"\n                    f\"exit={built.returncode}\\nstdout={built.stdout}\\nstderr={built.stderr}\"\n                )\nE               Failed: offline uv wheel build failed\nE               exit=2\nE               stdout=\nE               stderr=Building wheel...\nE               Could not find platform independent libraries <prefix>\nE               Could not find platform dependent libraries <exec_prefix>\nE               Python path configuration:\nE                 PYTHONHOME = (not set)\nE                 PYTHONPATH = (not set)\nE                 program name = '/Users/huangzhanpeng/.cache/uv/builds-v0/.tmpLcsHHT/bin/python'\nE                 isolated = 0\nE                 environment = 1\nE                 user site = 1\nE                 safe_path = 0\nE                 import site = 1\nE                 is in build tree = 0\nE                 stdlib dir = '/install/lib/python3.12'\nE                 sys._base_executable = '/private/tmp/vpw-python/cpython-3.12.14-macos-aarch64-none/bin/python3.12'\nE                 sys.base_prefix = '/install'\nE                 sys.base_exec_prefix = '/install'\nE                 sys.platlibdir = 'lib'\nE                 sys.executable = '/Users/huangzhanpeng/.cache/uv/builds-v0/.tmpLcsHHT/bin/python'\nE                 sys.prefix = '/install'\nE                 sys.exec_prefix = '/install'\nE                 sys.path = [\nE                   '/install/lib/python312.zip',\nE                   '/install/lib/python3.12',\nE                   '/install/lib/python3.12/lib-dynload',\nE                 ]\nE               Fatal Python error: init_fs_encoding: failed to get the Python codec of the filesystem encoding\nE               Python runtime state: core initialized\nE               ModuleNotFoundError: No module named 'encodings'\nE               \nE               Current thread 0x00000001ee043100 (most recent call first):\nE                 <no Python frame>\nE               error: Failed to build `/private/tmp/cr1.lQxPNM/source`\nE                 Caused by: The build backend returned an error\nE                 Caused by: Call to `hatchling.build.build_wheel` failed (exit status: 1)\nE               \nE               hint: This error likely indicates that `video-paper-wiki@0.1.0` depends on `encodings`, but doesn't declare it as a build dependency. If `video-paper-wiki` is a first-party package, consider adding `encodings` to its `build-system.requires`. Otherwise, either add it to your `pyproject.toml` under:\nE               \nE               [tool.uv.extra-build-dependencies]\nE               video-paper-wiki = [\"encodings\"]\nE               \nE               or `uv pip install encodings` into the environment and re-run with `--no-build-isolation`.\n\ntests/research/test_light_workflow_installed.py:162: Failed\n=========================== short test summary info ============================\nFAILED tests/research/test_light_workflow_installed.py::test_fresh_wheel_exposes_equivalent_entries_and_workflow_help\n1 failed, 3781 passed, 108 subtests passed in 728.70s (0:12:08)\n",
+  "remote_ci": false
+}

@@ -1,0 +1,13 @@
+--- architect-generated-json-r1.py
++++ architect-generated-json-r2.py
+@@ -123,7 +123,9 @@
+                   max_depth_observed=max(n[6] for n in marks.values()), declaration_count=len(declarations),
+                   max_array_items_observed=max((len(n[5]) for n in marks.values() if n[2] == "array"), default=0),
+                   max_object_keys_observed=max((len(n[5]) for n in marks.values() if n[2] == "object"), default=0))
+-    expected = dict(config_format="json", source=dict(body_size_bytes=len(body), body_sha256=sha(body), **text_metadata(body)),
++    expected = dict(config_format="json", source=dict(body_size_bytes=len(body), body_sha256=sha(body), normalized_sha256=text_metadata(body)["normalized_sha256"],
++                                                          newline_style=text_metadata(body)["newline_style"], ends_with_newline=text_metadata(body)["ends_with_newline"],
++                                                          line_count=text_metadata(body)["line_count"]),
+                     budget=budget, nodes=nodes)
+     return body, expected
+ 

@@ -1,0 +1,88 @@
+{
+  "$schema": "full-todo.code-resource-steward-test-review-r1.v1",
+  "schema": "full-todo.code-resource-steward-test-review-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T13:05:00Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "NO_GO_PENDING_R2_TEST_REPAIR",
+  "scope": {
+    "test_output": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/output-r1/test_code_proof_resources.py",
+      "size_bytes": 40734,
+      "sha256": "19c8d6355bfe8db22c37ec7abce96409bf9d8cef989443ef560ece1af1def74f"
+    },
+    "fixture_bundle": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/packed-zero-r1.json",
+      "size_bytes": 726503,
+      "sha256": "a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2"
+    },
+    "fixture_case_count": 264,
+    "output_contract": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-OUTPUT-CONTRACT-R1.md",
+      "size_bytes": 7854,
+      "sha256": "c3ad66ebf4201e8701bd71b6787a5420006ff9e107583b989bc60182fe1a3c5b"
+    },
+    "r12_contract": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "size_bytes": 10225,
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    }
+  },
+  "method": "Read-only stdlib JSON/AST inspection of the complete 40734-byte test module and all 264 packed cases; no pytest, generator, product code, Git, network, or source mutation was performed.",
+  "findings": [
+    {
+      "id": "T1",
+      "priority": "P1",
+      "location": "test_code_proof_resources.py:687-711",
+      "finding": "test_unknown_and_missing_fields deduplicates by (title, pointer). The fixture has multiple object shapes at the same pointer, but only the first shape receives omission testing. At command-result root this skips request, status, config, and handoff required-field omissions after the first observe shape; analogous collisions occur at acquisition/observe roots and targets/0, and at handoffs/0 between handoff rows and status references.",
+      "evidence": "Fixture shape collisions are present at command root (5 shapes), acquisition root and targets/0, observe root and targets/0, and command-result handoffs/0.",
+      "minimal_repair": "Use a marker including the branch shape, such as (title, pointer, tuple(sorted(node))), or remove the deduplication while retaining per-case paths. Keep the request-input root limits exception explicit."
+    },
+    {
+      "id": "T2",
+      "priority": "P1",
+      "location": "test_code_proof_resources.py:895-901",
+      "finding": "The typed-config impossible-null negative changes two fields at once: result is set to null and source_only_reason is added as explicit_source_only. The latter is invalid for the JSON/TOML branch (it must be null), so a failure does not prove that result=null is the rejecting condition.",
+      "minimal_repair": "Assert the typed fixture with only result=None is invalid. Add a separate source-only mutation if source_only_reason itself needs coverage."
+    },
+    {
+      "id": "T3",
+      "priority": "P2",
+      "location": "test_code_proof_resources.py:723-729",
+      "finding": "The strict-integer mutator converts every pointer segment satisfying isdigit() to int. That is correct for list indices but wrong for a dictionary key named \"0\"; such a legal JSON/TOML key would cause _set_path to index a dict with integer 0 and raise instead of testing validation. The current 264 cases happen to contain no digit-only object keys, so this is latent rather than a present failure.",
+      "minimal_repair": "Build mutation paths during typed traversal, preserving whether each segment came from a list or dict, or use a tokenized path carrying container kind. Add a numeric-key fixture regression."
+    },
+    {
+      "id": "T4",
+      "priority": "P2",
+      "location": "test_code_proof_resources.py:735-953",
+      "finding": "R12 asks for malformed IDs/hashes and malformed declarations, spans, Git targets and walks. The suite has wrong-ref and lexical-suffix checks, typed node/span deletion, and a walk length cap, but no field-targeted malformed declaration, Git target, or walk-edge value negative. The deduplicated omission loop cannot substitute for all branch-specific checks, and structurally_valid_semantic_forgeries intentionally validates shape-valid wrong IDs/hashes.",
+      "minimal_repair": "Add one-field mutations for a declaration kind/path/span, each Git target outcome/reason/walk edge, and malformed-length/nonhex ID/hash values, always starting from a validated fixture."
+    }
+  ],
+  "coverage_confirmed": {
+    "all_case_transport_shapes": true,
+    "all_six_saved_kinds_present": true,
+    "five_command_branches_present": true,
+    "six_states_and_two_pending_raw_body_cases_present": true,
+    "normalized_four_outcomes_present": true,
+    "mixed_raw_targets_present": true,
+    "both_git_object_formats_present": true,
+    "source_only_and_all_seven_typed_markers_present": true,
+    "strict_integer_mutations_exist": true,
+    "profile_hash_and_one_lf_checks_exist": true
+  },
+  "fixture_assumption_checks": {
+    "typed_seed_has_nodes_and_integer_node": true,
+    "git_walk_cap_seed_has_nonempty_first_walk": true,
+    "digit_only_object_keys_present": false,
+    "source_worktree_or_product_files_read": false
+  },
+  "test_execution": {
+    "pytest_run": false,
+    "generator_run": false,
+    "product_code_run": false,
+    "git_or_network_used": false
+  },
+  "review_conclusion": "The test module has broad positive and structural coverage, but T1 and T2 make required negative assertions incomplete or non-diagnostic. T3 is a latent path bug and T4 leaves named R12 malformed-shape families untested. Repair these cases in a new bounded R2 test output, then repeat this independent review before integration."
+}

@@ -1,0 +1,497 @@
+{
+  "at_utc": "2026-09-08T12:55:00.440879+00:00",
+  "cases": [
+    {
+      "case": "normal_rewritten_export",
+      "expected_status": "OK",
+      "expected_success": true,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "exported local context for the current conversation model",
+        "ok": true,
+        "status": "OK"
+      }
+    },
+    {
+      "case": "normal_rewritten_import",
+      "expected_status": "OK",
+      "expected_success": true,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "Citations jointly match the provided evidence items. This is a structural citation check, not a factual-correctness review.",
+        "ok": true,
+        "status": "OK"
+      }
+    },
+    {
+      "case": "list_route_status:validate_live_context",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "route status must be OK or NO_RESULTS",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "list_route_status:render_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "route status must be OK or NO_RESULTS",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "list_route_status:import_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "route status must be OK or NO_RESULTS",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "object_route_status:validate_live_context",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "route status must be OK or NO_RESULTS",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "object_route_status:render_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "route status must be OK or NO_RESULTS",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "object_route_status:import_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "route status must be OK or NO_RESULTS",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_route_score:validate_live_context",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "candidate score must be the finite original BM25 score",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_route_score:render_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "candidate score must be the finite original BM25 score",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_route_score:import_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "candidate score must be the finite original BM25 score",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_fused_score:validate_live_context",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "fused score must be the prescribed reciprocal-rank sum",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_fused_score:render_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "fused score must be the prescribed reciprocal-rank sum",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_fused_score:import_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "fused score must be the prescribed reciprocal-rank sum",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "huge_evidence_score:validate_live_context",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": false,
+      "preexisting_output_preserved": true,
+      "result": {
+        "exception": "OverflowError",
+        "message": "int too large to convert to float",
+        "ok": false
+      }
+    },
+    {
+      "case": "huge_evidence_score:render_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": false,
+      "preexisting_output_preserved": true,
+      "result": {
+        "exception": "OverflowError",
+        "message": "int too large to convert to float",
+        "ok": false
+      }
+    },
+    {
+      "case": "huge_evidence_score:import_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": false,
+      "preexisting_output_preserved": true,
+      "result": {
+        "exception": "OverflowError",
+        "message": "int too large to convert to float",
+        "ok": false
+      }
+    },
+    {
+      "case": "surrogate_trace_query:validate_live_context",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "query_plan strings must be strict UTF-8",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "surrogate_trace_query:render_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "query_plan strings must be strict UTF-8",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "surrogate_trace_query:import_document",
+      "expected_status": "LIGHT_CONTEXT_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "query_plan strings must be strict UTF-8",
+        "ok": false,
+        "status": "LIGHT_CONTEXT_INVALID"
+      }
+    },
+    {
+      "case": "symlink_parent_export",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "closed_research_error": true,
+        "message": "workspace path must not traverse a symlink",
+        "ok": false,
+        "status": "WORKSPACE_INVALID"
+      }
+    },
+    {
+      "case": "symlink_parent:validate_live_context",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "closed_research_error": true,
+        "message": "workspace path must not traverse a symlink",
+        "ok": false,
+        "status": "WORKSPACE_INVALID"
+      }
+    },
+    {
+      "case": "symlink_parent:render_document",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "closed_research_error": true,
+        "message": "workspace path must not traverse a symlink",
+        "ok": false,
+        "status": "WORKSPACE_INVALID"
+      }
+    },
+    {
+      "case": "symlink_parent:import_document",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "closed_research_error": true,
+        "message": "workspace path must not traverse a symlink",
+        "ok": false,
+        "status": "WORKSPACE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.md:export",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.md:validate_live_context",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.md:render_document",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.md:import_document",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.json:export",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.json:validate_live_context",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.json:render_document",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "hardlinked_source.json:import_document",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "source.md and source.json must not be hardlinked",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "duplicate_selection",
+      "expected_status": "LIGHT_SELECTION_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "selected paper_ids must not contain duplicates",
+        "ok": false,
+        "status": "LIGHT_SELECTION_INVALID"
+      }
+    },
+    {
+      "case": "surrogate_original_query",
+      "expected_status": "QUERY_REWRITE_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "query must be a strict UTF-8 string",
+        "ok": false,
+        "status": "QUERY_REWRITE_INVALID"
+      }
+    },
+    {
+      "case": "surrogate_rewritten_query",
+      "expected_status": "QUERY_REWRITE_INVALID",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "rewrite fields must be strict UTF-8",
+        "ok": false,
+        "status": "QUERY_REWRITE_INVALID"
+      }
+    },
+    {
+      "case": "occupied_workspace_lock",
+      "expected_status": "LIGHT_WORKSPACE_BUSY",
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "another cooperating operation currently owns this workspace",
+        "ok": false,
+        "status": "LIGHT_WORKSPACE_BUSY"
+      }
+    },
+    {
+      "case": "workspace_without_work_component",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "closed_research_error": true,
+        "message": "workspace must be under .work/**",
+        "ok": false,
+        "status": "WORKSPACE_INVALID"
+      }
+    },
+    {
+      "case": "untraced_legacy_export",
+      "expected_status": "OK",
+      "expected_success": true,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "exported local context for the current conversation model",
+        "ok": true,
+        "status": "OK"
+      }
+    },
+    {
+      "case": "papers_root_symlink_no_results",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "papers/ must be a regular directory",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    },
+    {
+      "case": "paper_directory_symlink_no_results",
+      "expected_status": null,
+      "expected_success": false,
+      "passed": true,
+      "preexisting_output_preserved": true,
+      "result": {
+        "message": "paper directory must be a regular directory",
+        "ok": false,
+        "status": "SOURCE_INVALID"
+      }
+    }
+  ],
+  "note": "Synthetic disposable fixtures only; no source/Git/external edits.",
+  "passed": 37,
+  "schema": "lightweight-research-t1-independent-acceptance.v1",
+  "snapshot_sha256": "7c2aea0be5b74eb394670625d4839381c444c471ccb9a8188fcad702ebee1992",
+  "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source",
+  "total": 40,
+  "verified_source_and_copies_before_after": true
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "full-todo.discovery-capacity-wip-review-r1.v1",
+  "schema": "full-todo.discovery-capacity-wip-review-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-WIP-capacity-and-package-static-review",
+  "recorded_at_utc": "2026-09-09T10:15:57Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "bounded independent read-only WIP capacity/package reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only inspection of the prepared Discovery WIP clone, Hatch wheel package selection configuration, frozen R4 physical reservation formulas, and DiscoveryStore.capacity arithmetic. No source, schema, test, Git, network, connector, Vault, or human-gate mutation.",
+  "decision": "WIP_CAPACITY_FORMULA_PROBE_PASS_PACKAGE_PROFILES_STATICALLY_INCLUDED_ACCEPTANCE_PENDING",
+  "scope_controls": {
+    "source_edits": false,
+    "tests_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_mutation": false,
+    "wheel_built": false,
+    "real_provider_used": false
+  },
+  "inputs": {
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "profile_contract": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951
+    },
+    "wip_pyproject": {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/pyproject.toml",
+      "sha256": "da3765ef066d5e431862ad1854aa018d54db0574102823502e940b89fa87c9f6",
+      "size_bytes": 938
+    },
+    "wip_discovery_storage": {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_storage.py",
+      "sha256": "aa2369fc92c91f3f83a8063b677bbfce140e8133e1ee81a775e8d8bec303186b",
+      "size_bytes": 19966
+    },
+    "wip_discovery_contracts": {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_contracts.py",
+      "sha256": "50cb52980a2abc983330b5a01d5f56d73a355341654d3ed480ca26ee4482305b",
+      "size_bytes": 18336
+    },
+    "wip_profile_resource": {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/profiles/discovery-v1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951
+    },
+    "wip_assessment_prompt": {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/prompts/discovery-assessment-v1.md",
+      "sha256": "8991b8af8b047d7d79df224f192f0d687c9ab4772ce2ed275180fa0c176ae588",
+      "size_bytes": 981
+    },
+    "hatchling_config_source_observed": {
+      "path": ".work/cache/uv-tests/archive-v0/vhPyNI5j0JSghFIC/hatchling/builders/config.py",
+      "sha256": "f4ed3f77be8c7b01bd6ae0baaada25f317a2c391879ebf77a3351795babf7b34",
+      "size_bytes": 35662
+    },
+    "hatchling_selection_source_observed": {
+      "path": ".work/cache/uv-tests/archive-v0/vhPyNI5j0JSghFIC/hatchling/builders/plugin/interface.py",
+      "sha256": "ce68735742a5132e6a4e886138c2cc6af06557f0d4cccab8b98f9272662cd450",
+      "size_bytes": 16217
+    }
+  },
+  "package_configuration_finding": {
+    "status": "PASS_STATIC_CONFIGURATION",
+    "claim": "The default Hatch wheel selection includes src/video_paper_wiki_research/profiles/discovery-v1.json automatically; no explicit force-include entry for profiles is required.",
+    "evidence": [
+      {
+        "path": "pyproject.toml",
+        "lines": "28-29",
+        "observation": "wheel packages includes src/video_paper_wiki_research"
+      },
+      {
+        "path": ".work/cache/uv-tests/archive-v0/vhPyNI5j0JSghFIC/hatchling/builders/config.py",
+        "lines": "65-80,118-150,361-376",
+        "observation": "packages are added to the include spec as a root directory pattern; include_path defaults only-packages to false and accepts non-excluded matched descendants"
+      },
+      {
+        "path": ".work/cache/uv-tests/archive-v0/vhPyNI5j0JSghFIC/hatchling/builders/plugin/interface.py",
+        "lines": "181-207",
+        "observation": "wheel project-file traversal recursively walks package descendants and applies include_path to each file"
+      }
+    ],
+    "observed_resources": [
+      "src/video_paper_wiki_research/profiles/discovery-v1.json",
+      "src/video_paper_wiki_research/prompts/discovery-assessment-v1.md",
+      "src/video_paper_wiki_research/schemas/discovery-common.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-round-plan.v1.schema.json"
+    ],
+    "caveat": "This is a static packaging-configuration result. The requested wheel build/install parity check remains a later acceptance gate."
+  },
+  "r4_formula_observations": {
+    "serialized_size_caps": "discovery_storage imports CAPS/profile-aligned constants; capacity reserves request N*65536, observation N*1114112, metadata 131072, proposals 3407872, decisions 262144",
+    "pending_total_bytes": 14680064,
+    "n8_family_reservation_sum": 13238272,
+    "n8_reserve_headroom": 1441792,
+    "family_bytes": 33554432,
+    "total_bytes": 67108864,
+    "family_file_counts": {
+      "requests": 256,
+      "observations": 256,
+      "metadata": 256,
+      "proposals": 256,
+      "decisions": 512
+    },
+    "algorithm_observed": [
+      "Nonpending bytes/files are accumulated in base U_f; documents owned by the pending plan are accumulated separately.",
+      "Charged family usage is U_f plus max(plan reservation, actual pending usage), preserving the pending reserve while allowing actual pending artifacts.",
+      "Charged total is U plus max(14 MiB, actual pending total), and limiting bounds are reported for family bytes/files, pending reservation overrun, and total bytes.",
+      "Control/candidate decision documents without pending-plan ownership are classified as base usage, so they add to U while the pending reservation remains intact."
+    ]
+  },
+  "external_probe": {
+    "script": {
+      "path": "/private/tmp/discovery_capacity_probe_r1.py",
+      "sha256": "f473910d3990dc65abfb230948a68a892365251868983cd6bf342fa10e681dbf",
+      "size_bytes": 6427
+    },
+    "output": {
+      "path": "/private/tmp/discovery_capacity_probe_r1.json",
+      "sha256": "865e421d7f1a3f20d89430a996ebe3b0034ad95f33e6d945faec6625c54feddb",
+      "size_bytes": 23182
+    },
+    "runtime": "project .venv Python 3.13",
+    "method": "External arithmetic probe imported the WIP DiscoveryStore.capacity method and replaced only its schema validator/saved-byte providers in the probe process to synthesize exact byte/count cases. No production file was modified.",
+    "checks": 43,
+    "passed": true,
+    "categories": {
+      "empty_pending_N1_and_N8_reservation": "pass",
+      "all_five_family_byte_exact_and_plus_one": "pass",
+      "all_five_family_file_count_exact_and_plus_one": "pass",
+      "global_total_exact_and_plus_one": "pass",
+      "unreserved_control_preserves_pending_reservation": "pass"
+    },
+    "key_results": {
+      "N1_charged_total_bytes": 14680064,
+      "N8_charged_total_bytes": 14680064,
+      "family_exact_boundary": "fits at 33554432 charged bytes for every family; +1 reports family:bytes",
+      "file_exact_boundary": "fits at 256 files (decisions 512); +1 reports family:files",
+      "total_exact_boundary": "fits at 67108864 charged bytes; +1 reports total:bytes",
+      "unreserved_control": "one 65536-byte decision increases base/charged decision and total usage by 65536 while pending_reservation is byte-identical"
+    }
+  },
+  "limitations_and_remaining_gates": [
+    "The probe isolates capacity arithmetic and does not claim schema-valid artifact construction, retained-descriptor lineage, atomic installation, graph admission, or CLI behavior.",
+    "The probe does not prove candidate/rank upper-bound preflight, plan lifecycle, interruption cleanup, or cross-platform filesystem behavior.",
+    "The WIP implementation remains unaccepted until its full focused/adversarial, dual-Python, installed-wheel, and fresh CI evidence is independently reviewed.",
+    "Static Hatch selection evidence does not substitute for the later installed-wheel resource parity check."
+  ],
+  "conclusion": "The inspected WIP capacity method matches the frozen R4 byte/count formulas on N=1/N=8, all exact family and global boundaries, and one unreserved decision while preserving the pending reservation. The default Hatch package configuration statically includes the new profiles directory through recursive package selection. This record is read-only WIP evidence and grants no implementation or acceptance approval."
+}

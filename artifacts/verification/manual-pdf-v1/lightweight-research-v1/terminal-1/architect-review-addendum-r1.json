@@ -1,0 +1,52 @@
+{
+  "at_utc": "2026-09-08T10:47:29.597147+00:00",
+  "decision": "ADDITIONAL_CHANGES_REQUIRED_AT_STOPPED_T1_R1",
+  "note": "Architect independently replayed new cases from independent review on exact stopped R1. Synthetic temporary fixtures only; no source/Git/external writes.",
+  "observations": [
+    {
+      "case": "surrogate_original_query",
+      "result": {
+        "exception": "UnicodeEncodeError",
+        "message": "'utf-8' codec can't encode character '\\ud800' in position 35: surrogates not allowed"
+      }
+    },
+    {
+      "case": "surrogate_rewritten_query",
+      "result": {
+        "exception": "UnicodeEncodeError",
+        "message": "'utf-8' codec can't encode character '\\ud800' in position 64: surrogates not allowed"
+      }
+    },
+    {
+      "build_index": {
+        "ok": true,
+        "paper_count": 0,
+        "status": "OK"
+      },
+      "case": "papers_root_symlink",
+      "result": {
+        "has_query_plan": true,
+        "message": "query produced no lexical matches",
+        "ok": false,
+        "status": "NO_RESULTS"
+      }
+    },
+    {
+      "build_index": {
+        "ok": true,
+        "paper_count": 0,
+        "status": "OK"
+      },
+      "case": "paper_directory_symlink",
+      "result": {
+        "has_query_plan": true,
+        "message": "query produced no lexical matches",
+        "ok": false,
+        "status": "NO_RESULTS"
+      }
+    }
+  ],
+  "schema": "lightweight-research-architect-t1-r1-addendum.v1",
+  "snapshot_sha256": "b7554d0e8542d779de1a2b0fa4ed4b113fc2c1853627648d5873dcf4b53f39e0",
+  "source_and_immutable_copies_verified_before_after": true
+}

@@ -1,0 +1,17 @@
+{
+  "text": "SANA-Video 2.0 是 5B/14B 统一架构的视频扩散 Transformer：用 Hybrid Linear–Softmax Attention 把门控线性注意力（主导 O(N) 混合）和周期性门控 softmax 锚点按 3:1 交错，从而避免全程二次注意力，同时补回纯线性注意力缺少的满秩 token 交互。[@chk-196a88c90113505c95ba40f3] 具体布局是每四层放一个 softmax 锚点（约 75% 线性、25% softmax）；线性层控制序列混合成本，均匀间隔的锚点周期性刷新压缩线性状态无法表示的交互。[@chk-21851a9eb546fd6a84ed8417] Block Attention Residuals（AttnRes）再把已完成 block 的摘要和块内 running residual 路由到后续层：每个深度先把表示送入 self/cross-attention 分支，再送入 SwiGLU FFN，并在输出头前做聚合，让稀疏 softmax 刷新过的特征能被后面的线性层复用。[@chk-ff4524f9fdb8ecfe867b9289] 视频适配里路由 query 跨深度共享，而不是为每个 sublayer 单独参数化；层按 S=8 组成 block，路由器只保存每个完成 block 的一份摘要，把历史从 O(NLd) 降到约 O(N⌈L/S⌉d)。[@chk-1a4a582534aac5622fec20cc] 效率上，文中给出 40-step 采样在单卡 H100、480p 约 13.2s、VBench 84.30；编译后的 DiT 前向在 720p/60s 相对匹配的全 softmax 基线约 3.2×，再叠加 Sol-Engine 可再加速约 3.58×。[@chk-196a88c90113505c95ba40f3]",
+  "citations": [
+    {
+      "chunk_id": "chk-196a88c90113505c95ba40f3"
+    },
+    {
+      "chunk_id": "chk-21851a9eb546fd6a84ed8417"
+    },
+    {
+      "chunk_id": "chk-ff4524f9fdb8ecfe867b9289"
+    },
+    {
+      "chunk_id": "chk-1a4a582534aac5622fec20cc"
+    }
+  ]
+}

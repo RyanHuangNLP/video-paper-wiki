@@ -1,0 +1,52 @@
+{
+  "schema": "video-paper-wiki.library-preliminary-review.v1",
+  "recorded_at_utc": "2026-09-08T04:02:00.936908+00:00",
+  "status": "UNFROZEN_SOURCE_OBSERVATIONS_NOT_ACCEPTANCE_OR_FINAL_FINDINGS",
+  "lane": 1,
+  "source_hashes": {
+    "src/video_paper_wiki_research/light_knowledge.py": "dfad2c978737e729d2d21c6d6e481ec13801078311ed7da1459fffedfb79f402",
+    "src/video_paper_wiki_research/light_compare.py": "3e1f5fc6f00d0170469e33c71a93c6feacbdd8998e89d76df74ddf483a9b4aba"
+  },
+  "observations": [
+    {
+      "id": "T1-PRE-01",
+      "function": "_cleanup_empty_staging/_publish_json_pointer",
+      "observation": "Pointer os.replace moves one file but leaves payload/ empty; cleanup only removes completely empty stage or ownership-only stage. Normal successful knowledge import/build may leave nonempty staging that causes backup refusal. Reproduce on frozen source."
+    },
+    {
+      "id": "T1-PRE-02",
+      "function": "_inventory_bytes",
+      "observation": "os.walk dirnames silently removes symlink directories and inventories only files; exact-reuse can ignore symlink/empty extra directory entries. Frozen contract requires unsafe/unknown complete-set refusal."
+    },
+    {
+      "id": "T1-PRE-03",
+      "function": "_record_source_status/_view_payload",
+      "observation": "Stored record manifest file hashes/schema/record-id/document citation shape are not checked before returning current and consuming concepts. A canonical edited document may be treated as current despite manifest mismatch."
+    },
+    {
+      "id": "T1-PRE-04",
+      "function": "_view_payload",
+      "observation": "Related-paper link inside papers/<id>.md uses papers/<other>.md rather than sibling <other>.md, likely resolves to papers/papers/<other>.md."
+    },
+    {
+      "id": "T1-PRE-05",
+      "function": "_publish_json_pointer/_build_views_locked",
+      "observation": "Existing knowledge/CURRENT.json only checked regular file, not schema/identity, before os.replace. Unknown user bytes risk overwrite. Source/heads also lack final revalidation before pointer switch."
+    },
+    {
+      "id": "T1-PRE-06",
+      "function": "_wrapper_identity/import functions",
+      "observation": "Wrapper required fields accessed with [] after partial validation; missing coverage/paper_snapshot/prompt can raise KeyError instead of expected closed result. Reproduce complete exported wrapper with one key removed."
+    },
+    {
+      "id": "T1-PRE-07",
+      "function": "_owned_staging_dirs/_remove_owned_partial",
+      "observation": "Cleanup trusts limited ownership marker fields and allowed filenames, without validating intended destination/full marker/payload-byte ownership. Edited partial recognized filenames could be deleted. Need test with owned interrupted stage edited before retry."
+    },
+    {
+      "id": "T1-PRE-08",
+      "function": "_load_live_papers",
+      "observation": "Uses legacy _load_paper without new hardlink checks on source.md/source.json; new path policy must reject hardlinked inputs."
+    }
+  ]
+}

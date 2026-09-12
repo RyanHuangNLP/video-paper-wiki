@@ -1,0 +1,26 @@
+{
+  "observed_at_utc": "2026-09-07T17:15:49.968218+00:00",
+  "decision": "CHANGES_REQUIRED_FOR_COPIED_VENV_EVIDENCE",
+  "source_file": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/research/test_light_workflow_installed.py",
+  "source_sha256": "5ae026600276b843703615467a8dbef399a58aef5043478bfc8599b34c9e03e4",
+  "current_run_not_final": true,
+  "observation_file": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/scratch/r3-isolated/installed-observation.json",
+  "observation_sha256": "224b25f1b4b552014a73c360be37468a648b9116e771aa1b8bae088d360a0833",
+  "kept_venv": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/scratch/r3-isolated/isolated-venv",
+  "console_script": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/scratch/r3-isolated/isolated-venv/bin/vpwiki-research",
+  "console_shebang": "#!/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/bin/python",
+  "recorded_module_files": {
+    "video_paper_wiki_research.cli": "/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.13/site-packages/video_paper_wiki_research/cli.py",
+    "video_paper_wiki_research.light_pdf": "/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.13/site-packages/video_paper_wiki_research/light_pdf.py",
+    "video_paper_wiki_research.light_workspace": "/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.13/site-packages/video_paper_wiki_research/light_workspace.py",
+    "video_paper_wiki_research.light_index": "/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.13/site-packages/video_paper_wiki_research/light_index.py",
+    "video_paper_wiki_research.light_context": "/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.13/site-packages/video_paper_wiki_research/light_context.py",
+    "video_paper_wiki_research.light_workflow": "/private/tmp/lw2-r3-full.pxOW6S/base/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.13/site-packages/video_paper_wiki_research/light_workflow.py"
+  },
+  "findings": [
+    "Copying venv does not rewrite console interpreter shebang; rewriting record fields is not verification of the copied environment.",
+    "Existing kept_venv is recursively deleted without this-run ownership."
+  ],
+  "minimal_fix": "Preserve and verify the actual original once-installed venv at its original unique short path. Copy only observation data without rewriting provenance. Do not copy/relocate virtual environments or delete old keep destinations.",
+  "no_product_runtime_issue_claimed": true
+}

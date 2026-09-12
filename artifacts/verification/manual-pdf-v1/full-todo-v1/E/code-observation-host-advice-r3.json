@@ -1,0 +1,983 @@
+{
+  "$schema": "full-todo.code-observation-host-advice-r3.v1",
+  "packet": "CODE-OBSERVATION-HOST",
+  "revision": "R3-provider-target-profile-read-only",
+  "recorded_at_utc": "2026-09-09T11:24:45.966103000Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent host/provider target and code-observation design reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Design advice only. No production source, tests, Git state, network, connector, public-repository acquisition, real Vault, model, or human relation review was mutated or claimed. This artifact proposes a host boundary and trial recipe; it is not an observation.",
+  "verdict": "DESIGN_ADVICE_READY_PENDING_ARCHITECT_FREEZE",
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90",
+      "size_bytes": 5206
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-observation-contract-advice-r1.json",
+      "sha256": "cd75bbca34cb14d43b177b46bd4c34fbae53c6119028fd3c5fa080de9bb45597",
+      "size_bytes": 23497
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-io-advice-r2.json",
+      "sha256": "553855718b139b0e031298f2996f21675e21c3fef34cb5836c4a578bd9ee27b4",
+      "size_bytes": 28831
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json",
+      "sha256": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20",
+      "size_bytes": 30794
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-canonical-integration-advice-r2.json",
+      "sha256": "5bbc1eb151c479af0f781eea4d2e04426398bd90dcd864465355d45a674707a2",
+      "size_bytes": 34214
+    },
+    {
+      "path": "src/video_paper_wiki/code_evidence_contracts.py",
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "size_bytes": 10125
+    },
+    {
+      "path": "src/video_paper_wiki/staged_code_capture.py",
+      "sha256": "f3f713c47740c8ddf83168a777c6e8bed71dde017d2a60c2c32be222de0530bb",
+      "size_bytes": 15134
+    },
+    {
+      "path": "src/video_paper_wiki/secure_io.py",
+      "sha256": "2fa1674354ab57ef7e90d20303aa5739c232f6e0b039598c51237a8879fec03b",
+      "size_bytes": 15126
+    }
+  ],
+  "observed_boundary": {
+    "source_root": ".",
+    "working_tree": "dirty shared workspace; design artifact is the only intended write",
+    "head": "bcff631ce12fe777ab6db7a4dd6531db3bbaea3f",
+    "tree": "21165f21c3cb079af0e0f55befe9ae60d3c45df0",
+    "legacy_boundary": "Existing code_evidence_contracts.py/staged_code_capture.py accept caller source-path bytes and caller-declared repository/commit/path; they do not prove Git blob membership or one multi-file same-commit observation.",
+    "host_boundary": "The host/connector or operator may acquire public-repository data outside public Python and provide a frozen data bundle plus assertion. Public Python validates data only, performs no network/process/Git/Vault operation, and never treats an assertion as officiality."
+  },
+  "design_decision": {
+    "purpose": "Freeze a host-facing profile for one bounded code observation: one paper/source association, one canonical repository, one full commit/object format, one retained bundle snapshot and an explicit complete target set.",
+    "recommended_provider": "operator_supplied_local_git_bundle_v1",
+    "fallback_providers": [
+      "github_contents_at_commit_host_v1",
+      "gitlab_repository_file_at_commit_host_v1",
+      "web_text_normalized_only_v1"
+    ],
+    "recommendation": "Raw source authority comes only from the retained uncompressed Git proof bundle or an equivalent host-produced bundle whose object/tree/path proof is complete. Web/API snippets can supply bounded normalized text or an assertion, never exact Git source authority by themselves.",
+    "trust_split": [
+      "host proves acquisition/session and records provider assertion",
+      "public verifier proves supplied object self-consistency, target membership and retained snapshot",
+      "independent relation reviewer decides officiality and publication"
+    ],
+    "non_goals": [
+      "agent-side GitHub/Git fetcher, clone, archive, recursive traversal or shell command",
+      "automatic officiality or source-version retargeting",
+      "weights/model download or executable configuration",
+      "real Vault mutation or publication from a partial observation"
+    ]
+  },
+  "request_contract": {
+    "schema": "video-paper-wiki.code-observation-request.v1",
+    "required_binding": [
+      "paper_id",
+      "optional exact source_association",
+      "repository owner/name",
+      "commit.git_object_format",
+      "commit.oid",
+      "explicit targets",
+      "budgets",
+      "transport"
+    ],
+    "repository_rule": "Canonical lowercase owner/name is selected once. A provider URL, fork, mirror, branch, tag or display head cannot replace it. Host assertion repository must equal this value.",
+    "commit_rule": "Full lowercase SHA-1 (40 hex) or SHA-256 (64 hex), selected explicitly. A branch/tag is acquisition metadata only and cannot be the identity.",
+    "association_rule": "If present, association_id and association_sha256 resolve to one immutable source-version record. Display-head changes create a new request; they do not retarget this request.",
+    "target_rule": "Every target is one explicit relative POSIX path and role. The complete set is hashed before host invocation; duplicates, traversal, wildcard, URL query/fragment, backslash, symlink-following or recursive path fields refuse.",
+    "role_policy": {
+      "readme": "context/source statement; 100644 only",
+      "citation": "paper/license metadata; 100644 only",
+      "license": "license text; 100644 only",
+      "implementation": "source implementation; 100644 or explicitly permitted 100755",
+      "configuration": "closed JSON/TOML data-only evidence; 100644 only",
+      "entrypoint": "bounded runnable/source entrypoint; 100644 or explicitly permitted 100755"
+    },
+    "capability_enum": [
+      "raw_bytes",
+      "normalized_text",
+      "metadata_only"
+    ],
+    "budget_profile": {
+      "max_targets": 32,
+      "max_requests": 40,
+      "max_bytes_per_file": 67108864,
+      "max_total_bytes": 134217728,
+      "max_excerpt_bytes": 1048576,
+      "max_config_nodes": 4096,
+      "max_path_bytes": 512,
+      "max_path_components": 64,
+      "max_objects": 4096,
+      "max_tree_entries_parsed": 65536,
+      "max_object_body_bytes": 67108864,
+      "max_total_object_body_bytes": 134217728,
+      "max_manifest_bytes": 1048576,
+      "max_config_bytes": 1048576,
+      "max_config_depth": 64,
+      "max_config_string_bytes": 65536,
+      "max_span_records": 256,
+      "max_span_bytes": 1048576
+    },
+    "transport_rule": "Transport constraints are requested hints, not proof. Public agent accepts materialized offline data only; allowed_hosts is an allowlist and empty for operator bundles. No arbitrary URL, archive, clone, command or recursive search field.",
+    "identity": "request_sha256 = SHA-256(\"video-paper-wiki.code-observation-request.v1\\0\" + canonical UTF-8 JSON). target_set_sha256 uses the canonical sorted {ordinal,role,path,capability} records. Every target, limit, commit and association participates."
+  },
+  "request_example": {
+    "status": "illustrative_wire_shape_only",
+    "warning": "The all-zero commit OID is deliberately inadmissible as repository evidence. Host must replace it with an acquired exact full commit and recompute request_sha256 before submission.",
+    "request": {
+      "$schema": "video-paper-wiki.code-observation-request.v1.schema.json",
+      "state": "request",
+      "request_id": "example-diffusers-host-trial-001",
+      "paper_id": "paper-example-diffusers-001",
+      "source_association": {
+        "association_id": "source-association-example-001",
+        "association_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+        "version_label": "host-must-resolve-before-submit"
+      },
+      "repository": {
+        "host": "github.com",
+        "owner": "huggingface",
+        "name": "diffusers",
+        "canonical": "huggingface/diffusers"
+      },
+      "commit": {
+        "git_object_format": "sha1",
+        "oid": "0000000000000000000000000000000000000000"
+      },
+      "targets": [
+        {
+          "ordinal": 1,
+          "role": "readme",
+          "path": "README.md",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 2,
+          "role": "readme",
+          "path": "docs/source/en/index.md",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 3,
+          "role": "citation",
+          "path": "CITATION.cff",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 4,
+          "role": "citation",
+          "path": "CITATION.md",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 5,
+          "role": "license",
+          "path": "LICENSE",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 6,
+          "role": "license",
+          "path": "LICENSE.txt",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 7,
+          "role": "implementation",
+          "path": "src/diffusers/__init__.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 8,
+          "role": "implementation",
+          "path": "src/diffusers/configuration_utils.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 9,
+          "role": "implementation",
+          "path": "src/diffusers/utils/constants.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 10,
+          "role": "implementation",
+          "path": "src/diffusers/pipelines/pipeline_utils.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 11,
+          "role": "implementation",
+          "path": "src/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 12,
+          "role": "implementation",
+          "path": "src/diffusers/pipelines/stable_diffusion/pipeline_stable_diffusion_img2img.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 13,
+          "role": "implementation",
+          "path": "src/diffusers/models/modeling_utils.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 14,
+          "role": "implementation",
+          "path": "src/diffusers/models/embeddings.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 15,
+          "role": "implementation",
+          "path": "src/diffusers/schedulers/scheduling_utils.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 16,
+          "role": "implementation",
+          "path": "src/diffusers/loaders/lora_pipeline_loader_mixin.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 17,
+          "role": "implementation",
+          "path": "src/diffusers/training_utils.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 18,
+          "role": "implementation",
+          "path": "examples/text_to_image/train_text_to_image.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 19,
+          "role": "implementation",
+          "path": "examples/controlnet/train_controlnet.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 20,
+          "role": "implementation",
+          "path": "tests/pipelines/stable_diffusion/test_stable_diffusion.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 21,
+          "role": "configuration",
+          "path": "pyproject.toml",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 22,
+          "role": "configuration",
+          "path": "setup.py",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 23,
+          "role": "configuration",
+          "path": "setup.cfg",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 24,
+          "role": "configuration",
+          "path": ".pre-commit-config.yaml",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 25,
+          "role": "configuration",
+          "path": ".github/workflows/ci.yml",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 26,
+          "role": "configuration",
+          "path": "configs/default.json",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 27,
+          "role": "configuration",
+          "path": "docs/source/en/using-diffusers/loading.md",
+          "capability": "raw_bytes",
+          "allow_executable": false,
+          "allowed_git_modes": [
+            "100644"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 28,
+          "role": "entrypoint",
+          "path": "scripts/convert_diffusers_to_original_sd.py",
+          "capability": "raw_bytes",
+          "allow_executable": true,
+          "allowed_git_modes": [
+            "100644",
+            "100755"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 29,
+          "role": "entrypoint",
+          "path": "examples/inference/text_to_image.py",
+          "capability": "raw_bytes",
+          "allow_executable": true,
+          "allowed_git_modes": [
+            "100644",
+            "100755"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 30,
+          "role": "entrypoint",
+          "path": "examples/inference/image_to_image.py",
+          "capability": "raw_bytes",
+          "allow_executable": true,
+          "allowed_git_modes": [
+            "100644",
+            "100755"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 31,
+          "role": "entrypoint",
+          "path": "src/diffusers/commands/diffusers_cli.py",
+          "capability": "raw_bytes",
+          "allow_executable": true,
+          "allowed_git_modes": [
+            "100644",
+            "100755"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        },
+        {
+          "ordinal": 32,
+          "role": "entrypoint",
+          "path": "src/diffusers/commands/__init__.py",
+          "capability": "raw_bytes",
+          "allow_executable": true,
+          "allowed_git_modes": [
+            "100644",
+            "100755"
+          ],
+          "expected_media_type": "text/plain",
+          "expected_encoding": "utf-8"
+        }
+      ],
+      "budgets": {
+        "max_targets": 32,
+        "max_requests": 40,
+        "max_bytes_per_file": 67108864,
+        "max_total_bytes": 134217728,
+        "max_excerpt_bytes": 1048576,
+        "max_config_nodes": 4096,
+        "max_path_bytes": 512,
+        "max_path_components": 64,
+        "max_objects": 4096,
+        "max_tree_entries_parsed": 65536,
+        "max_object_body_bytes": 67108864,
+        "max_total_object_body_bytes": 134217728,
+        "max_manifest_bytes": 1048576,
+        "max_config_bytes": 1048576,
+        "max_config_depth": 64,
+        "max_config_string_bytes": 65536,
+        "max_span_records": 256,
+        "max_span_bytes": 1048576
+      },
+      "transport": {
+        "provider": "operator_supplied_local_git_bundle_v1",
+        "api_version": "LOCAL_DIRECTORY_UNCOMPRESSED_V1",
+        "allowed_hosts": [],
+        "read_only": true,
+        "offline_connector": true,
+        "bundle_transport": "LOCAL_DIRECTORY_UNCOMPRESSED_V1",
+        "web_fallback": "normalized_only_unverified"
+      }
+    },
+    "request_sha256": "dcfdce981962a5a62004fb85739ebc16efc5724da8e60869ea4b593fa0c060a6",
+    "target_set_sha256": "60918917d089d292b6c8286c273f6b5679b3cffdccfaff97237ac41935c57ceb",
+    "target_profile_basis": "Actual public repository name huggingface/diffusers; paths are an explicit 32-slot bounded trial profile. Presence is not asserted; missing/inaccessible/unsafe results must remain in the observation.",
+    "target_count": 32
+  },
+  "observation_contract": {
+    "schema": "video-paper-wiki.code-observation.v1",
+    "one_session": "One request, one bundle_sha256, one repository, one object format, one commit/root tree and one retained source snapshot. Per-file calls may be used by the host only to populate one frozen observation; the agent never installs a mixed-generation set.",
+    "required_identity": [
+      "request_sha256",
+      "bundle_sha256",
+      "repository",
+      "object_format",
+      "commit_oid",
+      "root_tree_oid",
+      "target_set_sha256",
+      "hosting_assertion_sha256"
+    ],
+    "target_statuses": {
+      "present": "exact path/tree/blob/mode and requested raw capability proven",
+      "missing": "deepest parent tree proven, exact path absent; no blob handoff",
+      "inaccessible": "bounded read failed; requested target and refusal retained",
+      "mismatch": "requested and observed repository/commit/tree/path/type/mode/OID/digest retained",
+      "unsafe": "symlink, submodule, tree target, unsupported mode, changed retained input or unsafe bundle"
+    },
+    "complete_rule": "OBSERVED_COMPLETE requires all 32 requested targets present with required proof/capability. Any missing, inaccessible, mismatch, unsafe, normalized-only, invalid UTF-8 or limit overflow yields explicit partial/refusal and forbids complete publication.",
+    "proof_binding": "For raw target, commit/root/intermediate tree/path walk, mode/type, blob OID, body size, body_sha256 and selected-format Git OID must agree. raw_sha256, normalized_sha256, framed_sha256 and Git OID remain separate.",
+    "web_rule": "Normalized HTML/README/API text is retained with provider URL, response digest and locator as normalized-only or metadata evidence; it cannot produce blob_oid proof, exact source handoff or a legacy source manifest.",
+    "observation_hash": "Hash the canonical complete observation including every target result, including failures/refusals, provider/session facts, excerpts and config evidence. Omitted failures invalidate the observation."
+  },
+  "observation_example": {
+    "$schema": "video-paper-wiki.code-observation.v1.schema.json",
+    "state": "partial",
+    "observation_id": "example-observation-not-installed",
+    "request_sha256": "dcfdce981962a5a62004fb85739ebc16efc5724da8e60869ea4b593fa0c060a6",
+    "bundle_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "observed_at": "2026-09-09T00:00:00Z",
+    "connector": {
+      "provider": "operator_supplied_local_git_bundle_v1",
+      "session_id": "example-session",
+      "assertion_status": "unbound"
+    },
+    "repository": {
+      "host": "github.com",
+      "owner": "huggingface",
+      "name": "diffusers",
+      "canonical": "huggingface/diffusers"
+    },
+    "commit": {
+      "git_object_format": "sha1",
+      "commit_oid": "0000000000000000000000000000000000000000",
+      "root_tree_oid": "0000000000000000000000000000000000000000",
+      "parent_oids": []
+    },
+    "target_set_sha256": "60918917d089d292b6c8286c273f6b5679b3cffdccfaff97237ac41935c57ceb",
+    "targets": [
+      {
+        "ordinal": 1,
+        "role": "readme",
+        "requested_path": "README.md",
+        "status": "present",
+        "observed_path": "README.md",
+        "git_type": "blob",
+        "mode": "100644",
+        "blob_oid": "0000000000000000000000000000000000000000",
+        "raw_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "normalized_sha256": "4444444444444444444444444444444444444444444444444444444444444444",
+        "size_bytes": 1234,
+        "line_count": 42,
+        "evidence": {
+          "capability": "raw_bytes",
+          "proof": "example_only"
+        }
+      },
+      {
+        "ordinal": 4,
+        "role": "citation",
+        "requested_path": "CITATION.md",
+        "status": "missing",
+        "observed_path": null,
+        "git_type": null,
+        "mode": null,
+        "blob_oid": null,
+        "raw_sha256": null,
+        "normalized_sha256": null,
+        "size_bytes": null,
+        "line_count": null,
+        "reason_code": "CODE_OBSERVATION_TARGET_MISSING",
+        "evidence": {
+          "proven_parent_tree_oid": "0000000000000000000000000000000000000000",
+          "scope": "exact_path_only"
+        }
+      }
+    ],
+    "coverage": {
+      "requested_target_count": 32,
+      "returned_target_count": 2,
+      "complete": false,
+      "partial": true,
+      "reason_codes": [
+        "CODE_OBSERVATION_COMPLETE_SET_REQUIRED"
+      ]
+    },
+    "capability": {
+      "raw_bytes_proven": false,
+      "normalized_only": false,
+      "handoff_allowed": false
+    },
+    "officiality_signals": {
+      "status": "not_reviewed",
+      "signals": []
+    },
+    "config_evidence": [],
+    "observation_sha256": "5555555555555555555555555555555555555555555555555555555555555555",
+    "example_only": true
+  },
+  "provider_profiles": [
+    {
+      "provider": "operator_supplied_local_git_bundle_v1",
+      "transport": "LOCAL_DIRECTORY_UNCOMPRESSED_V1",
+      "raw_capability": "eligible",
+      "host_operation": [
+        "Acquire exact commit and explicit target object closure outside public Python.",
+        "Write manifest.v1.json and uncompressed objects/<lowercase_oid>.body under approved staging.",
+        "Add one host assertion with repository/commit/ref if available; assertion is evidence only.",
+        "Freeze root and component identities, then hand one bundle reference to the verifier."
+      ],
+      "required_proof": [
+        "commit object",
+        "root/intermediate tree objects for every target path",
+        "blob object for every present raw target",
+        "exact target set including missing/inaccessible/unsafe",
+        "complete-set and final retained-snapshot checks"
+      ],
+      "refusals": [
+        "pack/index/archive/compression/zlib/zip/tar",
+        "symlinked component or nested bundle root",
+        "unreferenced or omitted required objects",
+        "directory replacement or byte drift"
+      ]
+    },
+    {
+      "provider": "github_contents_at_commit_host_v1",
+      "transport": "host-only read-only connector",
+      "raw_capability": "conditional",
+      "allowed_hosts": [
+        "api.github.com"
+      ],
+      "request_pattern": "GET /repos/{owner}/{repo}/contents/{explicit_path}?ref={full_commit}",
+      "host_operation": [
+        "Use only the exact commit and explicit paths; no archive, clone or recursive tree endpoint.",
+        "Retain raw API response bytes and provider assertion.",
+        "Raw handoff is eligible only after host produces a complete LOCAL_DIRECTORY_UNCOMPRESSED_V1 object bundle or equivalent accepted object proof; API JSON/base64 alone is not Git tree proof.",
+        "If only text/HTML is retained, return normalized_text/metadata_only with explicit insufficiency."
+      ],
+      "refusals": [
+        "branch/tag substituted for commit",
+        "URL host/path outside allowlist",
+        "response does not bind repository+commit+path",
+        "web text presented as raw Git authority"
+      ]
+    },
+    {
+      "provider": "gitlab_repository_file_at_commit_host_v1",
+      "transport": "host-only read-only connector",
+      "raw_capability": "conditional",
+      "allowed_hosts": [
+        "gitlab.com"
+      ],
+      "request_pattern": "GET /api/v4/projects/{encoded_project}/repository/files/{encoded_path}?ref={full_commit}",
+      "host_operation": [
+        "Same fixed commit, explicit path and one retained bundle/session rule as GitHub profile.",
+        "A GitLab file response or SHA alone does not prove full commit/tree closure; materialize accepted object proof or report normalized-only."
+      ],
+      "refusals": [
+        "project/ref/path mismatch",
+        "recursive/tree/archive response",
+        "unbound or changed session"
+      ]
+    },
+    {
+      "provider": "web_text_normalized_only_v1",
+      "transport": "host-only bounded page capture",
+      "raw_capability": "ineligible",
+      "host_operation": [
+        "Capture bounded UTF-8 text/HTML, URL, response digest, locator and observed timestamp.",
+        "Mark target normalized_text or metadata_only and retain source-text-only evidence."
+      ],
+      "refusals": [
+        "raw_bytes claim",
+        "blob/tree/commit proof claim",
+        "source-file handoff or officiality upgrade"
+      ]
+    }
+  ],
+  "host_operation_mapping": [
+    {
+      "step": "1_validate",
+      "owner": "public boundary",
+      "input": "request bytes",
+      "output": "canonical request or typed request refusal",
+      "must_check": [
+        "association resolves locally if supplied",
+        "repository/commit/paths/roles/budgets",
+        "transport allowlist and offline boundary"
+      ]
+    },
+    {
+      "step": "2_acquire",
+      "owner": "approved host/operator",
+      "input": "request reference only",
+      "output": "one provider session/bundle snapshot",
+      "must_check": [
+        "exact full commit",
+        "explicit path set",
+        "no archive/clone/recursive traversal",
+        "read-only"
+      ]
+    },
+    {
+      "step": "3_freeze",
+      "owner": "host + verifier",
+      "input": "bundle root and manifest",
+      "output": "bundle_sha256 and retained descriptor",
+      "must_check": [
+        "no-follow regular components",
+        "manifest/object complete set",
+        "body size/hash and generation stability"
+      ]
+    },
+    {
+      "step": "4_observe",
+      "owner": "verifier",
+      "input": "bundle/session",
+      "output": "one observation with every target status",
+      "must_check": [
+        "same repository/format/commit/tree",
+        "exact target set",
+        "path walk/mode/type/blob proof",
+        "bounded excerpts/config spans"
+      ]
+    },
+    {
+      "step": "5_handoff",
+      "owner": "verifier then capture transaction",
+      "input": "present raw targets only",
+      "output": "one handoff per logical path",
+      "must_check": [
+        "raw bytes equal proven blob",
+        "distinct paths remain distinct",
+        "sha256 commit uses successor binding; legacy v1 only when representable"
+      ]
+    },
+    {
+      "step": "6_review_publish",
+      "owner": "independent reviewer + receipt transaction",
+      "input": "observation/handoffs/config/relation evidence",
+      "output": "reviewed relation and prospective publication",
+      "must_check": [
+        "officiality is separate",
+        "complete target set",
+        "source/version unchanged",
+        "receipt/catalog/backup gates"
+      ]
+    }
+  ],
+  "trial_recipe": {
+    "status": "PLANNED_NOT_RUN_NO_NETWORK_IN_THIS_REVIEW",
+    "repository": "huggingface/diffusers",
+    "selection_basis": "A known public repository name used only to exercise the host profile; no URL lookup, commit lookup, raw-byte acquisition, provider assertion or officiality claim was performed.",
+    "host_steps": [
+      "Operator or approved host acquires a public immutable commit out of band and records the exact full OID and object format.",
+      "Host materializes the 32-slot profile into one retained uncompressed proof bundle, allowing missing paths to remain explicit.",
+      "Host emits one assertion if available, then runs the complete observation and records all target statuses/refusals.",
+      "Verifier replays bundle hashes and target/path closure; no public Python network, Git, process or Vault write is allowed.",
+      "Independent reviewer separately assesses paper/repository signals A-D; a passing source observation does not decide officiality."
+    ],
+    "required_records": [
+      "request_sha256",
+      "target_set_sha256",
+      "bundle_sha256",
+      "observation_sha256",
+      "provider/session assertion digest",
+      "per-target status/reason",
+      "raw/blob/normalized digests",
+      "exact commit/tree/object format",
+      "human relation review if later attempted"
+    ],
+    "expected_non_success_cases": [
+      "CITATION.md or setup.cfg may be missing and must yield partial coverage if requested",
+      "web-only fallback must be normalized-only",
+      "a SHA-256 commit cannot enter legacy 40-hex manifest",
+      "a replacement bundle generation must yield CODE_PROOF_LOCAL_BUNDLE_UNSAFE"
+    ],
+    "not_evidence": [
+      "This design artifact",
+      "the repository name alone",
+      "provider URL/HTML snippets",
+      "model suggestion, same organization, dependency or baseline link"
+    ]
+  },
+  "error_taxonomy": [
+    {
+      "code": "CODE_OBSERVATION_REQUEST_INVALID",
+      "meaning": "identity/path/role/budget/transport malformed or duplicate"
+    },
+    {
+      "code": "CODE_OBSERVATION_REQUEST_STALE",
+      "meaning": "association/version basis changed; no silent retarget"
+    },
+    {
+      "code": "CODE_OBSERVATION_PROVIDER_UNAVAILABLE",
+      "meaning": "host cannot supply a bounded retained snapshot"
+    },
+    {
+      "code": "CODE_PROOF_BUNDLE_INVALID",
+      "meaning": "noncanonical manifest, unsafe component, archive/compression or digest mismatch"
+    },
+    {
+      "code": "CODE_PROOF_OBJECT_HASH_MISMATCH",
+      "meaning": "body/header/selected Git OID disagreement"
+    },
+    {
+      "code": "CODE_PROOF_LINEAGE_MISMATCH",
+      "meaning": "repository/format/commit/tree/request/bundle generation split"
+    },
+    {
+      "code": "CODE_PROOF_TARGET_SET_MISMATCH",
+      "meaning": "omitted/extra/duplicate/different target set"
+    },
+    {
+      "code": "CODE_PROOF_TARGET_UNSAFE",
+      "meaning": "symlink/submodule/tree/unsupported mode/path"
+    },
+    {
+      "code": "CODE_OBSERVATION_CAPABILITY_INSUFFICIENT",
+      "meaning": "normalized-only/metadata-only/raw mismatch/invalid UTF-8"
+    },
+    {
+      "code": "CODE_PROOF_COMPLETE_SET_REQUIRED",
+      "meaning": "partial set is handed off or published as complete"
+    },
+    {
+      "code": "CODE_PROOF_REPOSITORY_ASSERTION_MISMATCH",
+      "meaning": "host assertion disagrees with self-consistent bundle; no officiality"
+    },
+    {
+      "code": "CODE_PROOF_LEGACY_COMMIT_UNREPRESENTABLE",
+      "meaning": "SHA-256 source forced into legacy 40-hex manifest"
+    }
+  ],
+  "acceptance_cases": [
+    "A complete SHA-1 local bundle with one retained commit/tree and all 32 statuses validates; duplicate bytes at distinct paths remain distinct logical targets.",
+    "A SHA-256 bundle preserves 64-hex IDs and refuses legacy 40-hex manifest construction.",
+    "A host/provider assertion mutation changes assertion binding only; it never changes Git self-consistency or officiality.",
+    "Directory/object replacement between target scans fails closed with lineage/local-bundle unsafe.",
+    "Missing, inaccessible, unsafe, mode-100755 role violation, symlink, submodule, tree target and path mismatch remain explicit refusals.",
+    "A normalized web/API response cannot create blob proof, source handoff, config exact-span evidence or complete coverage.",
+    "Public boundary tests prove no subprocess/socket/urllib/Git invocation, no real Vault write and no installation from partial observation.",
+    "A source association, commit or display head change creates a new request/observation/relation lineage."
+  ],
+  "open_gates": [
+    "Architect must freeze exact successor schemas, digest canonicalization, host connector interface and ownership paths before implementation.",
+    "Actual host acquisition of one public repository commit and independent human officiality relation review remain open; this record intentionally does not claim either.",
+    "Decide the SHA-256-capable successor manifest/binding and receipt/catalog/backup/restore coverage before publication."
+  ],
+  "proposed_files": {
+    "schemas": [
+      "schemas/video-paper-wiki.code-git-proof-bundle.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation-common.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation-request.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation.v1.schema.json",
+      "schemas/video-paper-wiki.code-source-file-handoff.v1.schema.json"
+    ],
+    "implementation": [
+      "src/video_paper_wiki/code_git_proof.py",
+      "src/video_paper_wiki/code_observation_contracts.py",
+      "src/video_paper_wiki/code_observation.py"
+    ],
+    "host_owned": [
+      "approved connector/operator acquisition and assertion adapter; outside public Python"
+    ],
+    "tests": [
+      "tests/contract/test_code_git_proof_contracts.py",
+      "tests/contract/test_code_observation_contracts.py",
+      "tests/unit/test_code_git_proof.py",
+      "tests/unit/test_code_observation.py",
+      "tests/security/test_code_observation_boundary.py"
+    ],
+    "ownership_note": "Prospective paths only. This review created no schema, source, test, connector, Git or publication implementation."
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T11:24:45.966103000Z",
+    "note": "Tool-observed current UTC; no retrospective start time is asserted."
+  },
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false,
+  "network_used": false,
+  "connector_used": false,
+  "real_vault_touched": false,
+  "human_relation_reviewed": false
+}

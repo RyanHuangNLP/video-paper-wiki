@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="13" skipped="0" tests="14" time="2.971" timestamp="2026-09-08T12:05:17.210219+08:00" hostname="HuangzhanpengdeMacBook-Pro.local"><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_successful_publication_leaves_no_pending_stage" time="0.190"><failure message="AssertionError: successful pointer publication left pending staging&#10;assert not [PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_successful_publication_le0/.work/library/.light-knowledge/staging/hea...y/.light-knowledge/staging/current-0c6a5d98b7ecdb2cb558c06f6218a104870282510d88b27dc7b0dfb91e634652-908667e6e4d7b338')]&#10; +  where [PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_successful_publication_le0/.work/library/.light-knowledge/staging/hea...y/.light-knowledge/staging/current-0c6a5d98b7ecdb2cb558c06f6218a104870282510d88b27dc7b0dfb91e634652-908667e6e4d7b338')] = list(&lt;map object at 0x104e525c0&gt;)&#10; +    where &lt;map object at 0x104e525c0&gt; = iterdir()&#10; +      where iterdir = PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_successful_publication_le0/.work/library/.light-knowledge/staging').iterdir">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:72: in test_successful_publication_leaves_no_pending_stage
+    assert not list(staging.iterdir()), 'successful pointer publication left pending staging'
+E   AssertionError: successful pointer publication left pending staging
+E   assert not [PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_successful_publication_le0/.work/library/.light-knowledge/staging/hea...y/.light-knowledge/staging/current-0c6a5d98b7ecdb2cb558c06f6218a104870282510d88b27dc7b0dfb91e634652-908667e6e4d7b338')]
+E    +  where [PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_successful_publication_le0/.work/library/.light-knowledge/staging/hea...y/.light-knowledge/staging/current-0c6a5d98b7ecdb2cb558c06f6218a104870282510d88b27dc7b0dfb91e634652-908667e6e4d7b338')] = list(&lt;map object at 0x104e525c0&gt;)
+E    +    where &lt;map object at 0x104e525c0&gt; = iterdir()
+E    +      where iterdir = PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_successful_publication_le0/.work/library/.light-knowledge/staging').iterdir</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_record_reuse_refuses_unrecognized_directory_entries[symlink-dir]" time="0.247"><failure message="AssertionError: {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '13b117e085e2bd06ee8a4e1b2337be208f5bca3f008058bd7a62871cce7c37c5', ...}&#10;assert True is False&#10; +  where True = &lt;built-in method get of dict object at 0x1049f68c0&gt;('ok')&#10; +    where &lt;built-in method get of dict object at 0x1049f68c0&gt; = {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '13b117e085e2bd06ee8a4e1b2337be208f5bca3f008058bd7a62871cce7c37c5', ...}.get">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:84: in test_record_reuse_refuses_unrecognized_directory_entries
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '13b117e085e2bd06ee8a4e1b2337be208f5bca3f008058bd7a62871cce7c37c5', ...}
+E   assert True is False
+E    +  where True = &lt;built-in method get of dict object at 0x1049f68c0&gt;('ok')
+E    +    where &lt;built-in method get of dict object at 0x1049f68c0&gt; = {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '13b117e085e2bd06ee8a4e1b2337be208f5bca3f008058bd7a62871cce7c37c5', ...}.get</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_record_reuse_refuses_unrecognized_directory_entries[empty-dir]" time="0.247"><failure message="AssertionError: {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '7999486f272513fb0fc9fdbf1e16f96dc5fd83027ebf919d383edcbd7790fd2a', ...}&#10;assert True is False&#10; +  where True = &lt;built-in method get of dict object at 0x1050f8e40&gt;('ok')&#10; +    where &lt;built-in method get of dict object at 0x1050f8e40&gt; = {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '7999486f272513fb0fc9fdbf1e16f96dc5fd83027ebf919d383edcbd7790fd2a', ...}.get">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:84: in test_record_reuse_refuses_unrecognized_directory_entries
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '7999486f272513fb0fc9fdbf1e16f96dc5fd83027ebf919d383edcbd7790fd2a', ...}
+E   assert True is False
+E    +  where True = &lt;built-in method get of dict object at 0x1050f8e40&gt;('ok')
+E    +    where &lt;built-in method get of dict object at 0x1050f8e40&gt; = {'ok': True, 'status': 'OK', 'message': 'reused structured knowledge record', 'record_id': '7999486f272513fb0fc9fdbf1e16f96dc5fd83027ebf919d383edcbd7790fd2a', ...}.get</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_edited_record_cannot_be_current_or_supply_new_concepts" time="0.171"><failure message="AssertionError: {'is_head': True, 'page_path': '/private/tmp/ll-t1r1-4elp8df9/b/test_edited_record_cannot_be_c0/.work/library/.light-k...cc3378b82f32c5b042ce861679da96f', 'record_id': '53d23290f1f6fa1bc7e971dbcd651710a888d19b6badcd1fd7ab38e01bea98a6', ...}&#10;assert 'current' == 'conflict'&#10;  &#10;  - conflict&#10;  + current">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:97: in test_edited_record_cannot_be_current_or_supply_new_concepts
+    assert row['source_status'] == 'conflict', row
+E   AssertionError: {'is_head': True, 'page_path': '/private/tmp/ll-t1r1-4elp8df9/b/test_edited_record_cannot_be_c0/.work/library/.light-k...cc3378b82f32c5b042ce861679da96f', 'record_id': '53d23290f1f6fa1bc7e971dbcd651710a888d19b6badcd1fd7ab38e01bea98a6', ...}
+E   assert 'current' == 'conflict'
+E     
+E     - conflict
+E     + current</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_related_paper_links_resolve_to_existing_siblings" time="0.382"><failure message="AssertionError: (PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133c...8e1fcc3378b82f32c5b042ce861679da96f.md'), 'papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md')&#10;assert False&#10; +  where False = is_file()&#10; +    where is_file = PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf...797c24fd3f808363bae68c4be4c2719ca41/papers/papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md').is_file&#10; +      where PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf...797c24fd3f808363bae68c4be4c2719ca41/papers/papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md') = resolve()&#10; +        where resolve = (PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf19402e593fdefe3b797c24fd3f808363bae68c4be4c2719ca41/papers') / 'papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md').resolve&#10; +          where PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf19402e593fdefe3b797c24fd3f808363bae68c4be4c2719ca41/papers') = PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf...fdefe3b797c24fd3f808363bae68c4be4c2719ca41/papers/564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f.md').parent">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:113: in test_related_paper_links_resolve_to_existing_siblings
+    assert (page.parent / href).resolve().is_file(), (page, href)
+E   AssertionError: (PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133c...8e1fcc3378b82f32c5b042ce861679da96f.md'), 'papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md')
+E   assert False
+E    +  where False = is_file()
+E    +    where is_file = PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf...797c24fd3f808363bae68c4be4c2719ca41/papers/papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md').is_file
+E    +      where PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf...797c24fd3f808363bae68c4be4c2719ca41/papers/papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md') = resolve()
+E    +        where resolve = (PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf19402e593fdefe3b797c24fd3f808363bae68c4be4c2719ca41/papers') / 'papers/6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235.md').resolve
+E    +          where PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf19402e593fdefe3b797c24fd3f808363bae68c4be4c2719ca41/papers') = PosixPath('/private/tmp/ll-t1r1-4elp8df9/b/test_related_paper_links_resol0/.work/library/knowledge/views/103277ef133cf...fdefe3b797c24fd3f808363bae68c4be4c2719ca41/papers/564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f.md').parent</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_unknown_current_pointer_is_preserved" time="0.209" /><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_missing_knowledge_wrapper_field_closes_without_traceback[coverage]" time="0.131"><failure message="KeyError: 'coverage'">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:133: in test_missing_knowledge_wrapper_field_closes_without_traceback
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:31: in refused
+    result = call()
+             ^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:133: in &lt;lambda&gt;
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:1282: in import_knowledge
+    return _import_knowledge_locked(workspace, context, document)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:1226: in _import_knowledge_locked
+    if canonical_bytes(_wrapper_identity(wrapper)) != canonical_bytes(_wrapper_identity(fresh)):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:477: in _wrapper_identity
+    "coverage": payload["coverage"],
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'coverage'</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_missing_knowledge_wrapper_field_closes_without_traceback[paper_snapshot]" time="0.129"><failure message="KeyError: 'paper_snapshot'">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:133: in test_missing_knowledge_wrapper_field_closes_without_traceback
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:31: in refused
+    result = call()
+             ^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:133: in &lt;lambda&gt;
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:1282: in import_knowledge
+    return _import_knowledge_locked(workspace, context, document)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:1226: in _import_knowledge_locked
+    if canonical_bytes(_wrapper_identity(wrapper)) != canonical_bytes(_wrapper_identity(fresh)):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:479: in _wrapper_identity
+    "paper_snapshot": payload["paper_snapshot"],
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'paper_snapshot'</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_missing_knowledge_wrapper_field_closes_without_traceback[prompt]" time="0.131"><failure message="KeyError: 'prompt'">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:133: in test_missing_knowledge_wrapper_field_closes_without_traceback
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:31: in refused
+    result = call()
+             ^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:133: in &lt;lambda&gt;
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:1282: in import_knowledge
+    return _import_knowledge_locked(workspace, context, document)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:1226: in _import_knowledge_locked
+    if canonical_bytes(_wrapper_identity(wrapper)) != canonical_bytes(_wrapper_identity(fresh)):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_knowledge.py:480: in _wrapper_identity
+    "prompt": payload["prompt"],
+              ^^^^^^^^^^^^^^^^^
+E   KeyError: 'prompt'</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_missing_comparison_wrapper_field_closes_without_traceback" time="0.211"><failure message="KeyError: 'coverage'">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:140: in test_missing_comparison_wrapper_field_closes_without_traceback
+    refused(lambda: compare.import_comparison(workspace, wrapper, {}, output=workspace / 'reports/bad.md'))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:31: in refused
+    result = call()
+             ^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:140: in &lt;lambda&gt;
+    refused(lambda: compare.import_comparison(workspace, wrapper, {}, output=workspace / 'reports/bad.md'))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_compare.py:544: in import_comparison
+    return _import_comparison_locked(workspace, context, document, target)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_compare.py:451: in _import_comparison_locked
+    if canonical_bytes(_wrapper_identity(wrapper)) != canonical_bytes(_wrapper_identity(fresh)):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/video_paper_wiki_research/light_compare.py:136: in _wrapper_identity
+    "coverage": payload["coverage"],
+                ^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'coverage'</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_hardlinked_source_is_refused" time="0.073"><failure message="AssertionError: {'ok': True, 'status': 'OK', 'message': 'exported structured knowledge context for the current conversation model', 'schema': 'video-paper-wiki.light-knowledge-context.v1', ...}&#10;assert True is False&#10; +  where True = &lt;built-in method get of dict object at 0x104ea2780&gt;('ok')&#10; +    where &lt;built-in method get of dict object at 0x104ea2780&gt; = {'ok': True, 'status': 'OK', 'message': 'exported structured knowledge context for the current conversation model', 'schema': 'video-paper-wiki.light-knowledge-context.v1', ...}.get">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:147: in test_hardlinked_source_is_refused
+    refused(lambda: knowledge.export_knowledge_context(workspace, paper_id='sha256:' + source.parent.name))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'exported structured knowledge context for the current conversation model', 'schema': 'video-paper-wiki.light-knowledge-context.v1', ...}
+E   assert True is False
+E    +  where True = &lt;built-in method get of dict object at 0x104ea2780&gt;('ok')
+E    +    where &lt;built-in method get of dict object at 0x104ea2780&gt; = {'ok': True, 'status': 'OK', 'message': 'exported structured knowledge context for the current conversation model', 'schema': 'video-paper-wiki.light-knowledge-context.v1', ...}.get</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_interrupted_staging_does_not_discard_unknown_edits[payload]" time="0.248"><failure message="AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': '9325f909f5b2b6f91de4d69180679f6f3c3aa4ce155b781d6aa0a095f7f3b6a4', ...}&#10;assert True is False&#10; +  where True = &lt;built-in method get of dict object at 0x104ea10c0&gt;('ok')&#10; +    where &lt;built-in method get of dict object at 0x104ea10c0&gt; = {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': '9325f909f5b2b6f91de4d69180679f6f3c3aa4ce155b781d6aa0a095f7f3b6a4', ...}.get">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:174: in test_interrupted_staging_does_not_discard_unknown_edits
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': '9325f909f5b2b6f91de4d69180679f6f3c3aa4ce155b781d6aa0a095f7f3b6a4', ...}
+E   assert True is False
+E    +  where True = &lt;built-in method get of dict object at 0x104ea10c0&gt;('ok')
+E    +    where &lt;built-in method get of dict object at 0x104ea10c0&gt; = {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': '9325f909f5b2b6f91de4d69180679f6f3c3aa4ce155b781d6aa0a095f7f3b6a4', ...}.get</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_interrupted_staging_does_not_discard_unknown_edits[ownership-target]" time="0.251"><failure message="AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b9bcec634177769f8f77471b45bd71cb4b3fc6412087c569cf8bc0d2582e31fd', ...}&#10;assert True is False&#10; +  where True = &lt;built-in method get of dict object at 0x1050d6e80&gt;('ok')&#10; +    where &lt;built-in method get of dict object at 0x1050d6e80&gt; = {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b9bcec634177769f8f77471b45bd71cb4b3fc6412087c569cf8bc0d2582e31fd', ...}.get">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:174: in test_interrupted_staging_does_not_discard_unknown_edits
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b9bcec634177769f8f77471b45bd71cb4b3fc6412087c569cf8bc0d2582e31fd', ...}
+E   assert True is False
+E    +  where True = &lt;built-in method get of dict object at 0x1050d6e80&gt;('ok')
+E    +    where &lt;built-in method get of dict object at 0x1050d6e80&gt; = {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b9bcec634177769f8f77471b45bd71cb4b3fc6412087c569cf8bc0d2582e31fd', ...}.get</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t1_regressions" name="test_source_change_during_render_refuses_publication" time="0.166"><failure message="AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b051720f68944d6961ce8f95caec0d9e470dd8817787db8af8601dfd4ebc22ab', ...}&#10;assert True is False&#10; +  where True = &lt;built-in method get of dict object at 0x1050cf040&gt;('ok')&#10; +    where &lt;built-in method get of dict object at 0x1050cf040&gt; = {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b051720f68944d6961ce8f95caec0d9e470dd8817787db8af8601dfd4ebc22ab', ...}.get">../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:190: in test_source_change_during_render_refuses_publication
+    refused(lambda: knowledge.import_knowledge(workspace, wrapper, doc))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b051720f68944d6961ce8f95caec0d9e470dd8817787db8af8601dfd4ebc22ab', ...}
+E   assert True is False
+E    +  where True = &lt;built-in method get of dict object at 0x1050cf040&gt;('ok')
+E    +    where &lt;built-in method get of dict object at 0x1050cf040&gt; = {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'b051720f68944d6961ce8f95caec0d9e470dd8817787db8af8601dfd4ebc22ab', ...}.get</failure></testcase></testsuite></testsuites>

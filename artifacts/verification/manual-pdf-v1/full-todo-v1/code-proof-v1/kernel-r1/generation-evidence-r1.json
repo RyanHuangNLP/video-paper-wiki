@@ -1,0 +1,85 @@
+{
+  "schema": "video-paper-wiki.code-git-objects-fixture-generation-evidence.v1",
+  "revision": 1,
+  "fixture_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/independent-git-fixture-v1.json",
+  "fixture_sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0",
+  "fixture_size_bytes": 52532,
+  "worktree_preflight_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/worktree-preflight-r1.json",
+  "commands": [
+    "git worktree add -b codex/code-proof-v1 <root>/.work/parallel/code-proof-v1/terminal-1/source 8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "git init --quiet --object-format=sha1",
+    "git init --quiet --object-format=sha256",
+    "git hash-object -t blob -w --stdin",
+    "git mktree --missing",
+    "git hash-object -t tree -w --stdin",
+    "git commit-tree <empty-tree> -m <fixed-parent-message>",
+    "git hash-object -t commit -w --stdin",
+    "git cat-file -t/-s/<type>"
+  ],
+  "command_policy": {
+    "temporary_repositories": "private /private/tmp only",
+    "network": false,
+    "signing": false,
+    "hooks": false,
+    "global_config_write": false,
+    "temporary_repositories_removed": true
+  },
+  "worktree": {
+    "schema": "video-paper-wiki.code-proof-v1.worktree-preflight.v1",
+    "revision": 1,
+    "worktree_relative": ".work/parallel/code-proof-v1/terminal-1/source",
+    "branch": "codex/code-proof-v1",
+    "head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "created_from_discovery_commit": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "discovery_parent": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "discovery_parent_tree": "04fd8375510d73a9633cadd66c54f80d253e28ba",
+    "clean": true,
+    "seed_catalog_path": "docs/seed/engine-mvp.json",
+    "seed_entry_count": 67,
+    "source_writes_before_fixture": false,
+    "other_worktrees_or_pr_mutated": false
+  },
+  "variants": {
+    "sha1": {
+      "object_format_reported_by_git": "sha1",
+      "commit_oid": "a15a4626d79604772896e10ef0dd7c6318548fce",
+      "root_tree_oid": "b67830bb5312c3c6fedcd70398bec91ec4b328b6",
+      "parent_oids": [
+        "ab5b24078809af577b2c7a7488762b22959862e1",
+        "0dff4e5eb0e5fa273d24e60486e2eb84099b2ada"
+      ],
+      "stored_object_count": 22,
+      "commit_record_count": 3,
+      "git_oid_cross_checks": 22,
+      "raw_body_sha256_cross_checks": 22,
+      "framed_sha256_cross_checks": 22,
+      "cat_file_body_cross_checks": 22,
+      "tree_order_cross_checks": 6,
+      "sha256_oid_equals_framed_sha256": false,
+      "parent_bodies_excluded_from_valid_cases": true,
+      "unsafe_child_blobs_excluded_from_valid_cases": true,
+      "case_count": 7
+    },
+    "sha256": {
+      "object_format_reported_by_git": "sha256",
+      "commit_oid": "b9133dc7218746f9c645b8996e4c5ba5392347f10ded1a2cc2ae9f063a0457ac",
+      "root_tree_oid": "c8c123cad55c2b466b636f33b4aaf3826ad172fd183c02c94533eab5cb691420",
+      "parent_oids": [
+        "83fcce3ca1faa3cf39f757b2dc039bd94c88f4b6cef6339a91cecf6589d0c560",
+        "ffda825753752f00a635eb4ce2218fb2303c81957a03cd2a439966b89f6092f7"
+      ],
+      "stored_object_count": 22,
+      "commit_record_count": 3,
+      "git_oid_cross_checks": 22,
+      "raw_body_sha256_cross_checks": 22,
+      "framed_sha256_cross_checks": 22,
+      "cat_file_body_cross_checks": 22,
+      "tree_order_cross_checks": 6,
+      "sha256_oid_equals_framed_sha256": true,
+      "parent_bodies_excluded_from_valid_cases": true,
+      "unsafe_child_blobs_excluded_from_valid_cases": true,
+      "case_count": 7
+    }
+  }
+}

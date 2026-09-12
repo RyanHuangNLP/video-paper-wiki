@@ -1,0 +1,153 @@
+{
+  "$schema": "full-todo.discovery-expansion-semantic-review-r4.v1",
+  "schema": "full-todo.discovery-expansion-semantic-review-r4.v1",
+  "reviewed_at_utc": "2026-09-09T09:41:57Z",
+  "reviewer": "Astra semantic review controller",
+  "scope": "Bounded read-only semantic review of the R2 discovery expansion design, R3 recovery amendment, R4 physical reservation and frontier amendment, and the provider target notes. The review checks identity-component accounting, pending observations, frontier fairness, cumulative projections and assessments, rank mirror suppression, stop/continue behavior, and provider-target determinism. No source, schema, test, Git, connector, Vault, or network mutation was performed.",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "provider_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    },
+    "r3_recovery_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-expansion-recovery-r3-review.json",
+      "sha256": "34ea7b9fcef2df387db577a899408f4fd7da3600a6cf46b06fbf4aab67ed8c89"
+    },
+    "r2_io_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-design-r2-io-review.json",
+      "sha256": "76f416b55caefa11799c61053dea5cda4147874c5116898a0fb8912e077eb390"
+    }
+  },
+  "findings": [
+    {
+      "id": "DISC-R4-PHYSICAL-RESERVE",
+      "status": "CLOSED_DESIGN_PENDING_CAPACITY_TESTS",
+      "evidence": "R4 gives exact per-kind byte bounds, a prospective config/session bootstrap check, family reservations for N request slots, a conservative 14 MiB pending-plan total reserve, 32 MiB family and 64 MiB total inequalities, count caps, and release only after the final event is installed.",
+      "determination": "The arithmetic is internally consistent: the N=8 family sum is 13238272 bytes and is below the 14680064-byte pending reserve. Controls and candidate decisions are explicitly non-reserved writes and must be checked against the same retained usage while the pending reserve remains protected.",
+      "required_acceptance": [
+        "Exercise N=1 and N=8 at exact family and global boundaries, including config/session bootstrap bytes.",
+        "Interrupt after every plan/request/observation/projection install edge and prove status retains the complete outstanding reserve and never double-debits it.",
+        "Fill decisions around a pending plan and prove the reserved assessment/finalization capacity remains available; test an exact-limit refusal without deleting prior evidence."
+      ]
+    },
+    {
+      "id": "DISC-R4-PENDING-CANDIDATE-INTRODUCTIONS",
+      "status": "OPEN_FREEZE_DECISION",
+      "evidence": "R3 charges cumulative identity-component introductions for completed or pending-ready rounds and forbids refunds after bridges. R4 additionally performs a tentative cumulative graph and candidate projection check before every terminal observation, including while other slots remain pending, but it does not define whether a partial round's tentative introductions are a durable debit or a temporary estimate.",
+      "determination": "Freeze the R5 rule proposed for this review: only completed-round introductions are permanently charged; a pending plan exposes a separate pending_candidate_introductions estimate relative to identifiers already present in completed rounds. Before each observation install require completed_candidate_slots plus that estimate, current components, and projection byte bounds to fit. At finalization charge the exact completed-round introduction count once and clear the estimate. A bridge may lower the temporary estimate but never refunds completed slots. This preserves no-refund accounting while keeping final candidate/event bytes independent of observation arrival order.",
+      "required_acceptance": [
+        "Install disjoint observations, then a same_work bridge that lowers the pending estimate; verify no completed debit changes.",
+        "Bridge two previously completed components and add a new alias; verify historical candidate keys and decisions remain immutable while the current key may change.",
+        "Reject a 257th disjoint pending introduction before installing it with no stored debit, and verify a separately installable later bridge/retry cannot retroactively authorize the refused object.",
+        "Complete the same terminal observation set in two arrival orders and compare final candidate set, rank, stop, event, and completed slot counters byte-for-byte."
+      ]
+    },
+    {
+      "id": "DISC-R4-PLAN-PREFIX-CAPACITY",
+      "status": "OPEN_FREEZE_DECISION",
+      "evidence": "R4 says to fill a plan by round-robin passes until per_round_requests or remaining slots is reached and to reserve the exact chosen N, but it does not define the deterministic choice when a full desired prefix cannot satisfy all family/count/total checks.",
+      "determination": "The successor contract must define N as the largest deterministic eligible prefix that passes request count, family count, and global reserve checks, or explicitly refuse the whole plan. It must record why omitted frontier entries were not selected. A partial prefix cannot be chosen by arrival order or by a later capacity probe.",
+      "required_acceptance": [
+        "Use a 3-seed, both-provider frontier with more than eight eligible jobs and verify the same longest feasible prefix under observation permutations.",
+        "Test family-limited, total-limited, and semantic candidate-projection-limited prefixes separately; verify budget_exhausted versus needs_scope classification and no empty plan."
+      ]
+    },
+    {
+      "id": "DISC-R4-FRONTIER-ROUND-ROBIN",
+      "status": "CLOSED_DESIGN_PENDING_FAIRNESS_TESTS",
+      "evidence": "R4 bounds direct base jobs to lookup<=3, references/citations/related<=9, topic=10, and project<=3, then repeatedly visits lookup, references, citations, related, topic, project. It explicitly keeps unavailable identity/neighborhood jobs as capability frontier entries and suppresses only equal canonical operation specifications.",
+      "determination": "The amended schedule removes the R2 risk that topic or lookup jobs consume all early slots before citation paths. With all families eligible, citations, references, and related jobs must appear before the default 32-request request ceiling. Capability-unavailable jobs must remain honest frontier state and must not become fabricated terminal observations or starvation-producing placeholders.",
+      "required_acceptance": [
+        "Run the 3-seed/two-provider vector with enough IDs for all six families and assert reference, citation, and related operations occur before the 32-request cap.",
+        "Remove each family in turn, add capability-unavailable identities, and verify deterministic progress, no duplicate plain attempts, explicit retry-only reissue, and no starvation of a later newly enabled neighborhood.",
+        "Permute terminal observation arrival and compare the next plan's bytes, omitted-frontier reasons, and lineage bindings."
+      ]
+    },
+    {
+      "id": "DISC-R4-IDENTITY-MERGE-HISTORY",
+      "status": "CLOSED_DESIGN_PENDING_GRAPH_VECTORS",
+      "evidence": "R3 limits component joins to explicit same_work edges, retains all historical observations and keys, counts disjoint component introductions cumulatively, does not refund bridges, and excludes conflicted components from fusion/preview/expansion. R4 requires the tentative full graph before observation installation and binds neighborhood jobs to an exact candidate-set/key origin.",
+      "determination": "The graph rule is semantically sound if current keys are recomputed from the complete graph while historical snapshot refs remain immutable. A bridge joining several old components may change the current key and conflict state without erasing the older snapshots or authorizing expansion from an unbound key.",
+      "required_acceptance": [
+        "Exercise exact shared IDs, a same_work bridge joining two or more prior components, a new alias joining an old component, duplicate namespace IDs, and a 257th disjoint component.",
+        "Attempt a neighborhood request from an old key after a later merge and verify it remains bound to its historical snapshot/key; verify new expansion uses only the current complete snapshot.",
+        "Verify conflicts remain visible and are excluded from fusion, preview, and expansion until a fresh corrected session is used."
+      ]
+    },
+    {
+      "id": "DISC-R4-RRF-MIRROR-SUPPRESSION",
+      "status": "OPEN_FREEZE_DECISION",
+      "evidence": "R2 defines list keys, known mirror groups, unknown-group collapse, and one RRF term per candidate and known mirror group, but the phrase compatible lists does not define the equivalence relation across providers, seeds, lenses, operations, cursor pages, retries, or explicit ID slices. Provider notes allow non-cursor continuation through additional explicit bounded ID slices.",
+      "determination": "Freeze a deterministic mirror contribution algorithm before implementation. It must state which list keys are compatible, whether explicit reference/related slices share one list rank sequence or each form a list, how a known group and an unknown provenance fact interact, and which representative rank is retained when duplicates occur. Suppressed contributions and their reasons remain auditable. Without this, RRF scores and tie ordering are not reproducible from the stated inputs.",
+      "required_acceptance": [
+        "Construct the same candidate across topic, citation, reference, and related lists with known, unknown, and conflicting mirror groups; assert exact contributing and suppressed terms.",
+        "Use cursor pages, explicit ID slices, and retries and verify the frozen list identity/rank sequence and byte-identical rational scores.",
+        "Permute observation arrival and source-list order and assert identical rank bytes, reduced Fraction numerators/denominators, scaled integers, and candidate-key tie breaks."
+      ]
+    },
+    {
+      "id": "DISC-R4-CUMULATIVE-ASSESSMENT",
+      "status": "CLOSED_DESIGN_PENDING_REPLAY_TESTS",
+      "evidence": "R3 requires assessment.observations and candidate-set.observations to equal every terminal observation ref from completed history plus the current plan, with one cumulative input digest; lens evidence is a citation subset resolving to exact Unicode spans. R4 adds the five-lens/size limits without changing that membership rule.",
+      "determination": "The cumulative assessment contract remains coherent: a later assessment is a new exact caller input for its plan, while earlier assessment and projection bytes remain immutable. Each lens must appear exactly once with configured scope and state, and evidence cannot cite an observation outside the cumulative digest or a non-existent span.",
+      "required_acceptance": [
+        "Replay all plan histories with failed, partial, empty, unavailable, and successful terminal observations and compare full observation refs and digests.",
+        "Reject duplicate or missing lens entries, stale observation refs, out-of-range Unicode spans, mismatched excerpt hashes, oversized statements, and assessments that cite only a successful request without result evidence.",
+        "Verify assessment/candidate/rank/stop bytes remain unchanged after controls advance, and that a supplied assessment is never synthesized or silently replaced."
+      ]
+    },
+    {
+      "id": "DISC-R4-STOP-CONTINUE-CLASSIFICATION",
+      "status": "CLOSED_DESIGN_PENDING_STOP_VECTORS",
+      "evidence": "R3 separates calculated stop reasons from user_stop controls. R4 states that a prior calculated stop blocks a new plan, that no valid available frontier yields needs_scope when required evidence is missing, and that lack of physical capacity yields budget_exhausted. R2 retains ordered duplicate/low-yield consecutive-round metrics and paths_covered checks against unresolved cited identity.",
+      "determination": "The precedence model is usable if the implementation distinguishes a calculated stop artifact from effective user-stop overlay and from status needs_scope. Duplicate ratio and low-yield metrics must be computed from the complete current identity graph, including same_work merges, with integer numerator/denominator and no arrival-order dependence. Capability-unavailable jobs must not be counted as successful evidence or fabricated timeout results.",
+      "required_acceptance": [
+        "Exercise paths_covered with unrelated unresolved components, unresolved cited identity, pending capability jobs, and no available frontier; verify the exact primary reason and next_action/status combination.",
+        "Exercise consecutive duplicate/low-yield rounds, zero-hit rounds, budget refusal before dispatch, and user_stop/resume during each pending stage.",
+        "Verify a calculated stop prevents plan creation while candidate review remains data-only and controls do not rewrite stop/projection bytes."
+      ]
+    },
+    {
+      "id": "DISC-R4-PROVIDER-TARGET-GRAMMAR",
+      "status": "CLOSED_DESIGN_PENDING_HELD_OUT_TRIAL",
+      "evidence": "Provider notes freeze documented OpenAlex singleton, cites, explicit ID-batch, topic, sorting, selecting, per-page, and Web-query profiles. They expressly record that no successful OpenAlex API response was available in this session and require an honest held-out trial.",
+      "determination": "The implementation boundary remains offline and zero-egress. Exact target regeneration must be frozen as bytes, including query parameter names/order/encoding, the proposed select allowlist, sort forms, bounded OR ID encoding, and cursor eligibility. A failed or unavailable held-out host capability must be persisted as capability_unavailable rather than treated as provider refusal or successful access.",
+      "required_acceptance": [
+        "Validate every target against regenerated canonical bytes and reject caller-supplied URL variations, arbitrary response links, unsupported cursors, and unbounded ID slices.",
+        "Run the held-out trial only through actually available host tools and persist success or capability_unavailable with no live payload copied into fixtures.",
+        "Exercise omitted IDs in a provider batch and preserve requested IDs separately from observed IDs without manufacturing metadata."
+      ]
+    }
+  ],
+  "cross_cutting_acceptance": [
+    "Run the full graph, frontier, projection, stop, and recovery vectors on both supported Python versions after the successor contract is frozen.",
+    "Keep local design/probe results distinct from remote CI, installed-wheel, real-data, and human scientific acceptance gates.",
+    "Preserve zero-egress behavior and the approved .work boundary; no real Vault or connector mutation is implied by this review."
+  ],
+  "decision": "CONDITIONAL_GO_FOR_DISCOVERY_EXPANSION_R4_WITH_R5_FREEZE_DECISIONS_AND_ACCEPTANCE_OPEN",
+  "decision_basis": "R4 closes the numeric physical reservation gap and materially improves deterministic frontier fairness, while R3 closes the earlier control, membership, recovery, and cumulative-input design gaps. Implementation must wait for explicit R5 wording for pending candidate-introduction accounting, deterministic feasible-prefix selection, and RRF mirror/list equivalence. The remaining items are contract and acceptance obligations, not claims of implementation or provider execution.",
+  "implementation_boundary": {
+    "source_files_changed": false,
+    "tests_changed": false,
+    "git_mutated": false,
+    "vault_mutated": false,
+    "network_or_connector_used": false,
+    "review_artifact_only": true
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "schema": "full-todo.code-config-architect-validation.v1",
+  "revision": 5,
+  "label": "py313",
+  "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+  "recorded_at_utc": "2026-09-10T08:07:47.566421+00:00",
+  "candidate_snapshot_sha256": "99a1d3bf14461ba39d14a6c0f49604484ef99fffcc1b2abebeb4fbe186daea73",
+  "handoff_sha256": "683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb",
+  "verified_source_references": 564,
+  "source_unchanged": true,
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "focused",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "--color=no",
+        "tests/unit/test_code_config_parser.py",
+        "-o",
+        "cache_dir=/private/tmp/cv5-zdxwmr6e/cache",
+        "--basetemp=/private/tmp/cv5-zdxwmr6e/base"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.25115450005978346,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-focused-py313-r5.log",
+      "log_sha256": "7974d48c2d9f939b6cc2b0d78a088d9ce03b5da36e044aa381fc2485736729ee",
+      "tail": ".................                    [100%]\n17 passed, 108 subtests passed in 0.07s\n"
+    },
+    {
+      "check": "generated",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-I",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r2.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r5.json",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py313-r5.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08460504189133644,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py313-r5.log",
+      "log_sha256": "983dfa19d9ff663b7a2fb51dfc53b14343da2cbd388d04e07c62945276437adf",
+      "tail": "{\"status\": \"PASS\", \"runtime\": \"3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]\", \"candidate_snapshot_sha256\": \"99a1d3bf14461ba39d14a6c0f49604484ef99fffcc1b2abebeb4fbe186daea73\", \"handoff_sha256\": \"683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb\", \"cases\": 64}\n"
+    },
+    {
+      "check": "adversarial",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-I",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-r1.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r5.json",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py313-r5.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.05459533305838704,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py313-r5.log",
+      "log_sha256": "0dae61a5d0e6a05a57bb390e36b8eacabb997e24d1bfc15d309810bdbd56e94d",
+      "tail": "{\"status\": \"PASS\", \"runtime\": \"3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]\", \"candidate_snapshot_sha256\": \"99a1d3bf14461ba39d14a6c0f49604484ef99fffcc1b2abebeb4fbe186daea73\", \"handoff_sha256\": \"683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb\", \"checks\": 67, \"candidate_files_unchanged\": true}\n"
+    },
+    {
+      "check": "stdlib-key",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "from pathlib import Path\nimport importlib.util,json\np=Path(__import__('sys').argv[1]);out=Path(__import__('sys').argv[2]);assert not out.exists()\nspec=importlib.util.spec_from_file_location('independent_key_probe',p);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.OUT=out;m.main()\nd=json.loads(out.read_bytes());assert d['integrity']['unchanged']\nfor value in d['probes'].values():\n assert value['outcome']=='CODE_CONFIG_ERROR' and value['code']=='CODE_CONFIG_PARSER_MISMATCH'\n assert value['details']=={'instance_pointer':'/payload','reason':'object key type mismatch'}\nassert d['probes']['str_subclass_callback']['callbacks']==[]\nprint('PASS: original independent probe now rejects both keys with bounded mismatch and zero callbacks')\n",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-probe-py313-r5.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.07046491699293256,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-py313-r5.log",
+      "log_sha256": "de26e1bae1956b403a5364d14484a01085cf783d87e92100e06191b4436fc789",
+      "tail": "{\n  \"output\": \"artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-probe-py313-r5.json\",\n  \"sha256\": \"6903d21653f78f3b1ba924dffc951b131cc6eadbe7358a0c24eb6f339a8f416a\",\n  \"bytes\": 3211\n}\nPASS: original independent probe now rejects both keys with bounded mismatch and zero callbacks\n"
+    }
+  ]
+}

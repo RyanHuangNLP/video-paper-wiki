@@ -1,0 +1,86 @@
+{
+  "$schema": "full-todo.code-resource-repair-builder-launch-rejection-r2.v1",
+  "schema": "full-todo.code-resource-repair-builder-launch-rejection-r2.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T13:13:22.697657Z",
+  "phase": "pre_process_host_approval_rejection",
+  "decision": "STOP_NO_RETRY_PENDING_INFORMED_AUTHORIZATION",
+  "attempt": {
+    "command": [
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "-I",
+      "-B",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/launch-resource-repair-r2.py"
+    ],
+    "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+    "sandbox_permissions_requested": "require_escalated",
+    "tool_wait_ms": 1000,
+    "tool_max_output_tokens": 2500,
+    "host_result": "rejected_before_create_process",
+    "process_created": false,
+    "process_started": false,
+    "session_handle": null,
+    "exit_code": null,
+    "stdout_created": false,
+    "stderr_created": false,
+    "fallback_or_retry": false
+  },
+  "review_rejection": {
+    "reviewer": "auto_review",
+    "reviewer_decision": "REJECTED",
+    "raw_tool_error": "exec_command failed: CreateProcess { message: \"Rejected(\\\"This action was rejected due to unacceptable risk.\\nReason: The launcher would export approximately 190 KB of internal code, contracts, tests, and fixtures to the untrusted external Grok proxy; the trusted instructions do not specifically authorize this payload and destination, and required authentication/model verification is not shown resolved.\\nThe agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.\\\")\" }",
+    "reason_exact": "The launcher would export approximately 190 KB of internal code, contracts, tests, and fixtures to the untrusted external Grok proxy; the trusted instructions do not specifically authorize this payload and destination, and required authentication/model verification is not shown resolved.",
+    "review_instruction_exact": "The agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.",
+    "interpretation": "The exact frozen R2 repair payload was not executed; no launcher child, Grok process, model request, or external transfer was observed."
+  },
+  "dispatch_pins": {
+    "architect_go": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/architect-resource-repair-dispatch-go-r2.json",
+      "size_bytes": 2665,
+      "sha256": "d966cd5d8583c9fba2d0436ca2bbe0965c4f9c5422fb21220bd1d9d2fba94c3c"
+    },
+    "freeze": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-repair-freeze-r2.json",
+      "size_bytes": 13021,
+      "sha256": "45ada8fe77b52cdff113bb697f1faf3c601f0b9ad9a19701ac26a6697360c60a"
+    },
+    "launcher": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/launch-resource-repair-r2.py",
+      "size_bytes": 4973,
+      "sha256": "11d1e60dbf2711c80dd8fdbd67db836cfe1d2e6afc3963d35ed9b69dd771cd17"
+    },
+    "independent_dispatch_review": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/steward-resource-repair-dispatch-review-r2.json",
+      "size_bytes": 7462,
+      "sha256": "ccfef6ed8c05607c9c9079087e314bdb00eb7afaffc18f8614d0f49538b2de33"
+    }
+  },
+  "runtime_and_payload_pin": {
+    "model": "grok-4.6",
+    "reasoning_effort": "xhigh",
+    "permission_mode": "default",
+    "tools": ["read_file"],
+    "session_uuid_reserved": "32086f3c-2d4a-45ac-a173-fb01cb643aa2",
+    "input_directory": "/private/tmp/grok-resource-repair-r2-bwx33gpz",
+    "named_prepared_files": 8,
+    "total_bytes_including_prompt": 190017,
+    "destination": "cli-chat-proxy.grok.com",
+    "payload_changed": false,
+    "transport_changed": false
+  },
+  "post_attempt_observation": {
+    "stdout_log": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/builder-resource-repair-r2.stdout.log",
+      "exists": false
+    },
+    "stderr_log": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/builder-resource-repair-r2.stderr.log",
+      "exists": false
+    },
+    "source_git_status_porcelain": "",
+    "product_paths_written": false,
+    "source_or_git_mutation": false,
+    "new_product_paths_observed_absent": true
+  },
+  "stop_reason": "Automatic approval rejected the exact external R2 repair launch because the sensitive approximately 190 KB payload and destination were not specifically authorized and authentication/model verification was not shown resolved. Preserve this denial and stop; no workaround, alternate transport, payload change, retry, or resume is permitted without separately bound informed authorization."
+}

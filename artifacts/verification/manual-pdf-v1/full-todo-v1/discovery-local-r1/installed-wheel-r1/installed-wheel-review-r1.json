@@ -1,0 +1,460 @@
+{
+  "schema": "full-todo.discovery-installed-wheel-review-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-09T11:30:00Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent offline installed-wheel verifier",
+    "scope": "R1 frozen Discovery31 candidate only"
+  },
+  "decision": "PASS_ENGINEERING_WHEEL_SMOKE_WITH_OPEN_PUBLIC_OUTPUT_FINDINGS",
+  "verdict": "Fresh offline build, isolated installs, byte-exact Discovery resource parity, import-origin checks and the synthetic public CLI chain pass on Python 3.12 and 3.13. This is engineering evidence only. The independent public status/render review remains open and blocks final R1 product acceptance; R2 is authorized to repair that finding.",
+  "source_candidate": {
+    "manifest": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r1.json",
+    "manifest_sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54",
+    "snapshot_sha256": "540aa4de6d320873c4c6a4cbf9bd949550d3f787dc9ce49a5fc7fd7c9d229438",
+    "source_root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+    "baseline_head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "source_writes_stopped": true,
+    "source_reads_complete_for_r1_wheel": true,
+    "r2_handoff": "No further live W source checks are required for this R1 wheel record; retained R1 bytes may support post-R2 parity, but R2 must record its changed source base and fresh wheel hash."
+  },
+  "build": {
+    "tool": "/Users/huangzhanpeng/.hermes/bin/uv",
+    "tool_version": "0.12.7",
+    "command": "uv build --offline --wheel --out-dir <artifact>/wheel <frozen-source-root>",
+    "returncode": 0,
+    "stdout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/build/build.stdout",
+    "stderr": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/build/build.stderr",
+    "network_used": false,
+    "wheel": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/wheel/video_paper_wiki-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "c8f8937b8c965987c38c6a6fd4343f4f04ba27e9d62cf5a5f4f2359ca998c46a",
+    "wheel_size_bytes": 757547
+  },
+  "resource_parity": {
+    "record": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/resource-parity.json",
+    "record_sha256": "86186b1d723466a6e31b47596d2be17097139bd97f134906315059abd04c2265",
+    "module_count": 8,
+    "schema_count": 13,
+    "resource_count": 23,
+    "missing_count": 0,
+    "mismatch_count": 0,
+    "byte_exact": true,
+    "resource_scope": "8 Discovery modules, 13 Discovery schemas, discovery-v1 profile and discovery assessment prompt"
+  },
+  "runtimes": [
+    {
+      "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-312/venv/bin/python",
+      "origins_fixture": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-312-origins-fixture.json",
+      "origins_fixture_sha256": "c86704a3d3cbc17fb4321db247f984a53b4d35b677729bd5f1e47f2d3fe45880",
+      "origins_repo_root": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-312-origins.json",
+      "origins_repo_root_sha256": "01788e468a176fc9c888493e0ebd41d0be9955acbab25a170753c24b444140b4",
+      "fixture_checkout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/cli/fixture/runtime-312/checkout",
+      "fixture_checkout_exists": true,
+      "fixture_pythonpath": null,
+      "dependency_install": {
+        "mode": "wheel --offline --no-deps plus locally copied dependency packages",
+        "install_stdout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-312-install.stdout",
+        "install_stderr": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-312-install.stderr",
+        "dependency_stdout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-312-deps.stdout",
+        "network_used": false
+      },
+      "cli": {
+        "command_count": 10,
+        "all_command_returncodes_zero": true,
+        "all_json_command_envelopes_ok": true,
+        "leaf_count": 11,
+        "leaf_commands": [
+          "init",
+          "plan",
+          "observe",
+          "context",
+          "finish",
+          "status",
+          "resume",
+          "control",
+          "decide",
+          "handoff",
+          "render"
+        ],
+        "command_results": {
+          "help-discovery": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": null,
+            "stdout_nonempty_line_count": 9,
+            "leaf_commands": [
+              "init",
+              "plan",
+              "observe",
+              "context",
+              "finish",
+              "status",
+              "resume",
+              "control",
+              "decide",
+              "handoff",
+              "render"
+            ]
+          },
+          "init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.init",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false,
+            "stdout_sha256": "8f22b147f089e0d213e7d7aea023c4c5adbe1be77e94d059c06df87c0017eef5"
+          },
+          "status-after-init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false,
+            "stdout_sha256": "95681b4faba110496f8be01a6d7f193331984d81eda11a3111cf7e20b85a0cfb"
+          },
+          "plan": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.plan",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false,
+            "stdout_sha256": "40ba1e5a94d3b4e9b05149992a48e1bf5e6f10a26114431dd9f0bd4e8c676af4"
+          },
+          "observe-0": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false,
+            "stdout_sha256": "ce3f0193fae9c66524c9bdfe063d4a126aff6689480529cd97fe2d0316e9981d"
+          },
+          "observe-1": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "assessment_required",
+            "effective_state": "assessment_required",
+            "next_action": "assess",
+            "assessment_required": true,
+            "stdout_sha256": "81d557e18e0a91705525755e8f13af6bc758f4249a190e0b78ba7fcb5b75d643"
+          },
+          "finish": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.finish",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "d8e593ffb47115e3fa8b95e8549ea653c72da18ad909ceff1e8943a92bd9019e"
+          },
+          "status": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "2fd91065bf1b693f21f6d9b5902e46a83fcea29a7258b78c6b7706636b69d65d"
+          },
+          "render": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.render",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "1ea590beca045d2e0d7e45fc30c373475297441a16ac00ddace3e06a390355fd"
+          },
+          "context": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.context",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "1b3bf3090feea672b2b744988273a972fc6c922e56734886070437d73a811ad0"
+          }
+        },
+        "summary": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/cli/runtime-312/summary.json",
+        "summary_sha256": "ddec2163ff50c16ef4863fc9dc5662520adc6346debc42bf9ae646cd6517acbc",
+        "request_count": 2,
+        "retained_file_count": 12,
+        "retained_files_sha256": "be55b73b5ce9d6a47e8782848d07e1c585fba8626892fed5df0562bc607fd545",
+        "states": {
+          "init": "session_ready",
+          "status-after-init": "session_ready",
+          "plan": "plan_pending_observations",
+          "observe-0": "plan_pending_observations",
+          "observe-1": "assessment_required",
+          "finish": "calculated_stopped",
+          "status": "calculated_stopped",
+          "render": "calculated_stopped",
+          "context": "calculated_stopped"
+        }
+      }
+    },
+    {
+      "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+      "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-313/venv/bin/python",
+      "origins_fixture": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-313-origins-fixture.json",
+      "origins_fixture_sha256": "16bc9a8021f4d18be14071e4fcdb98a70750342dfdba0ff3c85d40a5fdcedb3d",
+      "origins_repo_root": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-313-origins.json",
+      "origins_repo_root_sha256": "dd651e2731a5acf8372932b9f532609dfab5f00f5f266ce29627ce59ca071ff2",
+      "fixture_checkout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/cli/fixture/runtime-313/checkout",
+      "fixture_checkout_exists": true,
+      "fixture_pythonpath": null,
+      "dependency_install": {
+        "mode": "wheel --offline --no-deps plus locally copied dependency packages",
+        "install_stdout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-313-install.stdout",
+        "install_stderr": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-313-install.stderr",
+        "dependency_stdout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/runtime-313-deps.stdout",
+        "network_used": false
+      },
+      "cli": {
+        "command_count": 10,
+        "all_command_returncodes_zero": true,
+        "all_json_command_envelopes_ok": true,
+        "leaf_count": 11,
+        "leaf_commands": [
+          "init",
+          "plan",
+          "observe",
+          "context",
+          "finish",
+          "status",
+          "resume",
+          "control",
+          "decide",
+          "handoff",
+          "render"
+        ],
+        "command_results": {
+          "help-discovery": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": null,
+            "stdout_nonempty_line_count": 8,
+            "leaf_commands": [
+              "init",
+              "plan",
+              "observe",
+              "context",
+              "finish",
+              "status",
+              "resume",
+              "control",
+              "decide",
+              "handoff",
+              "render"
+            ]
+          },
+          "init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.init",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false,
+            "stdout_sha256": "ee63f29c50e5efdba004d3224426de4a20e26cb7b4feeb110efbe4ebbabbf8f9"
+          },
+          "status-after-init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false,
+            "stdout_sha256": "ac055c20ceaa8b8a31d776e9a00054fcaa91596635e2d3042b2dd52e5f6f2f36"
+          },
+          "plan": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.plan",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false,
+            "stdout_sha256": "4a1f59f90cbb1577067291bb78536e7381a48b5e020475b8f48fc47eafaf41df"
+          },
+          "observe-0": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false,
+            "stdout_sha256": "54c135f87770862935dfe46f8b93183431370015e313af3e0f4bf2f576595bf8"
+          },
+          "observe-1": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "assessment_required",
+            "effective_state": "assessment_required",
+            "next_action": "assess",
+            "assessment_required": true,
+            "stdout_sha256": "1f540e763070f300c72c704547502bcaca3a9a24d9eb038952aa10c9f7c2adab"
+          },
+          "finish": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.finish",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "f84dee431f258901911a18fa2a290cd72c36bf66c29a9eaa156279615074cb98"
+          },
+          "status": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "dd50c54ca20b8a8cf44bd26e045fdbf597bc26fb79c29d1b4f3471b3eb564de3"
+          },
+          "render": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.render",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "37a9a2d5837878ad3dc0934b88c0324dbc1932c8a2dd5da100b96c41692fe6d9"
+          },
+          "context": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "envelope_ok": true,
+            "command": "discovery.context",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false,
+            "stdout_sha256": "addd7cc1fecbebcc3bb8b822f9da8820010b4a3060864cf1cca6f4ba6fdba691"
+          }
+        },
+        "summary": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1/cli/runtime-313/summary.json",
+        "summary_sha256": "67fc414cc8a7fd5bd77760357ea8b4fe5299def4556ee319e5b1242c39ddd750",
+        "request_count": 2,
+        "retained_file_count": 12,
+        "retained_files_sha256": "be55b73b5ce9d6a47e8782848d07e1c585fba8626892fed5df0562bc607fd545",
+        "states": {
+          "init": "session_ready",
+          "status-after-init": "session_ready",
+          "plan": "plan_pending_observations",
+          "observe-0": "plan_pending_observations",
+          "observe-1": "assessment_required",
+          "finish": "calculated_stopped",
+          "status": "calculated_stopped",
+          "render": "calculated_stopped",
+          "context": "calculated_stopped"
+        }
+      }
+    }
+  ],
+  "public_cli_smoke": {
+    "fixture_type": "synthetic bounded two-request/two-observation Discovery fixture",
+    "egress": "none; commands were run against local fixture roots with PYTHONPATH unset and PYTHONNOUSERSITE=1",
+    "command_chain": [
+      "help-discovery",
+      "init",
+      "status-after-init",
+      "plan",
+      "observe-0",
+      "observe-1",
+      "finish",
+      "status",
+      "render",
+      "context"
+    ],
+    "expected_discovery_leaf_count": 11,
+    "expected_discovery_leaves": [
+      "init",
+      "plan",
+      "observe",
+      "context",
+      "finish",
+      "status",
+      "resume",
+      "control",
+      "decide",
+      "handoff",
+      "render"
+    ],
+    "both_runtimes_passed": true,
+    "terminal_state": "calculated_stopped",
+    "formal_admission": false,
+    "retained_files_per_runtime": 12
+  },
+  "known_open_findings": [
+    {
+      "record": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-output-review-r1.json",
+      "record_sha256": "595b2badd6051b60d05108935cfabd5278c5af5338c2fdc9ce09d23983c460e8",
+      "status": "OPEN_PRODUCT_OUTPUT_FINDING",
+      "summary": "Public status omits completed assessment/lens coverage and operation health; render omits assessment/health and candidate provenance fields.",
+      "impact": "The wheel CLI smoke remains valid as command/envelope/fixture evidence but cannot close final product acceptance."
+    }
+  ],
+  "controls": {
+    "source_writes": false,
+    "git_mutations": false,
+    "network_or_connector_calls": false,
+    "real_vault_mutation": false,
+    "real_pdf_or_repository_provenance": false,
+    "human_gate_closed": false,
+    "artifacts_written": [
+      "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r1"
+    ]
+  },
+  "evidence_hashes": {
+    "wheel": "c8f8937b8c965987c38c6a6fd4343f4f04ba27e9d62cf5a5f4f2359ca998c46a",
+    "resource_parity": "86186b1d723466a6e31b47596d2be17097139bd97f134906315059abd04c2265",
+    "runtime_origins": {
+      "312": "c86704a3d3cbc17fb4321db247f984a53b4d35b677729bd5f1e47f2d3fe45880",
+      "313": "16bc9a8021f4d18be14071e4fcdb98a70750342dfdba0ff3c85d40a5fdcedb3d"
+    },
+    "cli_summaries": {
+      "312": "ddec2163ff50c16ef4863fc9dc5662520adc6346debc42bf9ae646cd6517acbc",
+      "313": "67fc414cc8a7fd5bd77760357ea8b4fe5299def4556ee319e5b1242c39ddd750"
+    }
+  }
+}

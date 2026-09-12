@@ -1,0 +1,114 @@
+{
+  "schema": "video-paper-wiki.domain-dependency-audit.v1",
+  "recorded_at_utc": "2026-09-10T01:59:35Z",
+  "scope": "Read-only dependency audit for DOMAIN contract planning; no source, tests, Git, network, Vault, model, or egress actions.",
+  "packet": {
+    "id": "DOMAIN",
+    "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+    "status": "pending-contract",
+    "dependencies": ["SOURCE", "CODE"]
+  },
+  "baseline": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "working_tree_note": "Three untracked CODE-r7 paths were present; audit evidence is from committed HEAD and does not inspect or include them.",
+    "inputs": [
+      "docs/ai/task-index.yaml",
+      "docs/ai/codex-team.md",
+      "docs/ai/TODO-manual-pdf-v1.md",
+      "docs/ai/packets/full-todo-v1/README.md:48-50",
+      "docs/ai/packets/full-todo-v1/status.json:DOMAIN",
+      "docs/ai/development-inventory-2026-09-08.md:48-55",
+      "docs/ai/video-generation-research-wiki-v1-prd-r3.3.md:184-194,218-228,242-253"
+    ]
+  },
+  "findings": [
+    {
+      "id": "DOMAIN-01",
+      "title": "Domain/comparison profile and immutable profile head are missing",
+      "severity": "blocker",
+      "present": "The catalog has a fixed base-catalog generation profile and runtime/dependency/resource fingerprints; no domain/comparison profile schema, publisher, or atomic current profile head is present.",
+      "needed": "Versioned profile identity, allowed dimensions/units/predicates, immutable publication and current-head validation with stale refusal.",
+      "evidence": ["src/video_paper_wiki/projection_generation.py:15-19,60-120", "src/video_paper_wiki/catalog_store.py:582-618", "PRD-R3.3:184-194"]
+    },
+    {
+      "id": "DOMAIN-02",
+      "title": "Typed annotations, relation predicates and current annotation heads are missing",
+      "severity": "blocker",
+      "present": "Paper/claim records and assessment history exist, but there is no typed annotation schema, predicate registry, annotation review event, or current annotation-head resolver.",
+      "needed": "Deterministic typed concept/claim/method/dataset/model annotations, registered predicates, review transitions, and named current heads.",
+      "evidence": ["schemas/video-paper-wiki.paper-analysis-draft.v1.schema.json", "schemas/video-paper-wiki.paper-record.v1.schema.json", "src/video_paper_wiki/assessment_history.py:22-28,95-234", "PRD-R3.3:184-194"]
+    },
+    {
+      "id": "DOMAIN-03",
+      "title": "Structured experiment conditions and comparability lint are missing",
+      "severity": "blocker",
+      "present": "The code-alignment schema fixes five capability buckets and paper conversion preserves section claims; neither captures normalized experiment conditions nor comparability outcomes.",
+      "needed": "Structured condition dimensions (data, split, metric, protocol, budget and implementation context), deterministic lint, and explicit not_comparable/unknown results.",
+      "evidence": ["schemas/video-paper-wiki.paper-code-alignment.v1.schema.json", "src/video_paper_wiki_research/source_conversion_model.py:175-227", "PRD-R3.3:184-194"]
+    },
+    {
+      "id": "DOMAIN-04",
+      "title": "Support/contradiction graph semantics are absent",
+      "severity": "blocker",
+      "present": "supports/contradicts/uncertain currently describe a flat evidence locator relation transported by ledger-locator; no typed claim-to-claim support, counterevidence, contradiction group, or unknown semantics are projected.",
+      "needed": "Validated relation edges with provenance, direction, contradiction candidates/groups, counterevidence and unresolved/unknown states.",
+      "evidence": ["schemas/video-paper-wiki.ledger-locator.v2.schema.json", "src/video_paper_wiki/ledger_locator.py:190-219", "docs/ai/development-inventory-2026-09-08.md:48-55"]
+    },
+    {
+      "id": "DOMAIN-05",
+      "title": "Deterministic typed graph projection, generation and query are missing",
+      "severity": "blocker",
+      "present": "catalog_index.py creates evidence units, mappings, BM25 chunks and fixed record joins; there is no graph namespace, typed projector, graph generation manifest, or graph query route.",
+      "needed": "Canonical sorted graph nodes/edges, deterministic projection and generation fingerprints, typed traversal/query, and complete dependency hashes.",
+      "evidence": ["src/video_paper_wiki_research/catalog_index.py:89-235", "src/video_paper_wiki/projection_input.py:11-160", "PRD-R3.3:218-228"]
+    },
+    {
+      "id": "DOMAIN-06",
+      "title": "Reviewed paper-repository/config relations and officiality evidence are incomplete",
+      "severity": "major",
+      "present": "paper-record, repo-record and paper-code-alignment carry metadata, capability buckets and officiality fields, but no reviewed typed paper-repo-method/config edges or relation evidence extension exists.",
+      "needed": "Versioned Paper/Repo/Method/Config/Checkpoint relation records with locator evidence, officiality rationale, review state and conservative mismatch handling.",
+      "evidence": ["schemas/video-paper-wiki.paper-record.v1.schema.json", "schemas/video-paper-wiki.repo-record.v1.schema.json", "schemas/video-paper-wiki.paper-code-alignment.v1.schema.json", "PRD-R3.3:184-194,242-253"]
+    },
+    {
+      "id": "DOMAIN-07",
+      "title": "Retrieval has BM25 evidence ranking but no exact/typed-graph/paper-code fusion",
+      "severity": "blocker",
+      "present": "retrieval.py validates policy, mappings, gold and BM25 evidence-unit hits; it has no exact identifier route, typed graph route, or paper-code fusion contract.",
+      "needed": "Deterministic exact, lexical and typed-graph routes with source/claim/code alignment, per-route diagnostics and stale dependency checks.",
+      "evidence": ["src/video_paper_wiki/retrieval.py:11-148", "src/video_paper_wiki_research/catalog_index.py:218-235", "PRD-R3.3:218-228"]
+    },
+    {
+      "id": "DOMAIN-08",
+      "title": "Existing RRF only fuses original and rewritten lexical routes",
+      "severity": "major",
+      "present": "light_query.py fixes fusion rrf-v1 for original/rewrite lexical chunk routes; it does not define graph, exact, comparison or paper-code route inputs while retaining old behavior.",
+      "needed": "An additive fusion contract preserving existing lexical results and adding typed/exact/comparison routes, stable tie-breaking and route provenance.",
+      "evidence": ["src/video_paper_wiki_research/light_query.py:36,278-340,813-906", "PRD-R3.3:218-228"]
+    },
+    {
+      "id": "DOMAIN-09",
+      "title": "Budgeted comparison context pack is not implemented",
+      "severity": "blocker",
+      "present": "No context-pack module or schema records included/omitted items, rank, reason, support/counterevidence, unknowns, or budget accounting.",
+      "needed": "Deterministic bounded pack with complete selection rationale, typed graph paths, supporting/counterevidence and explicit unknown/not-comparable coverage.",
+      "evidence": ["src/video_paper_wiki_research/light_context.py:123-559", "src/video_paper_wiki/retrieval.py:63-148", "PRD-R3.3:218-236"]
+    },
+    {
+      "id": "DOMAIN-10",
+      "title": "Catalog status and coverage diagnostics omit graph/comparison dependencies",
+      "severity": "blocker",
+      "present": "Live status checks catalog generation, mapping, configuration and stale BM25 inputs; no graph/comparison generation, profile/head, annotation-head or coverage diagnostics are checked.",
+      "needed": "Generation and dependency manifests for graph/profile/comparison, current-head checks, coverage/contradiction/comparability diagnostics, and fail-closed query behavior.",
+      "evidence": ["src/video_paper_wiki/catalog_store.py:582-690", "src/video_paper_wiki/projection_generation.py:60-120", "docs/ai/video-generation-research-wiki-v1-prd-r3.3.md:218-228"]
+    }
+  ],
+  "dependency_conclusion": {
+    "domain_contract_ready": false,
+    "reason": "The accepted lower-level source, code-evidence, catalog and lexical retrieval primitives do not yet define the immutable typed domain/comparison state, graph semantics, structured conditions, fusion routes, or context-pack/staleness contracts required by DOMAIN.",
+    "recommended_contract_slices": ["profile-and-head", "typed-annotation-and-relation-ledger", "experiment-condition-and-comparability", "graph-projection-and-query", "exact-graph-paper-code-retrieval-fusion", "budgeted-context-pack-and-status"],
+    "human_or_external_gates": ["claim/domain review", "paper/repository officiality and license evidence", "real corpus and semantic gold", "Obsidian visual acceptance"]
+  }
+}

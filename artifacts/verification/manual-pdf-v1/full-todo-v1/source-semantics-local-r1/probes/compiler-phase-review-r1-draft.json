@@ -1,0 +1,209 @@
+{
+  "archived_from_sha256": "dcd2c365cd51b9e6ae6412e5dc4e1d37839030d2d54fd1e73f2d7dbdb73a2549",
+  "candidate": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/terminal-1/source",
+  "contract_sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+  "decision": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "case": "date-before-alias-graph",
+      "expected": {
+        "code": "SCHEMA_INVALID",
+        "exit_code": 2,
+        "reason": "R2 requires closed shape and real calendar validation before compiler graph edges"
+      },
+      "id": "CALENDAR_BEFORE_GRAPH_PRECEDENCE",
+      "observed": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2,
+        "message": "canonical alias has more than one primary owner",
+        "pointer": ""
+      },
+      "recommendation": "Validate every legacy/v2 paper record (including real Gregorian dates) before _owners() alias/claim graph checks.",
+      "severity": "blocker",
+      "status": "observed"
+    }
+  ],
+  "historical_status": "superseded-after-phase-fix",
+  "resolution": "Superseded by source_semantics_contracts._compile_calendar pre-owner validation; the same competing-error vector now passes.",
+  "results": [
+    {
+      "check": true,
+      "id": "baseline-mixed",
+      "status": "pass",
+      "success": true
+    },
+    {
+      "expected": {
+        "code": "SCHEMA_INVALID",
+        "exit_code": 2
+      },
+      "id": "shape-before-duplicate-owner",
+      "observed": {
+        "code": "SCHEMA_INVALID",
+        "exit_code": 2,
+        "message": "{'assessment_heads': {'clm-d377b59001b98187ed1e': 'ase-adb44714c03657b6500c'}, 'associations': [{'association_id': 'sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1', 'extraction': {'path': '.raw/derived/markdown-source/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52/b046e8c73484f9998e96405d6406ee133ebb5b9e0836573b101f3f38b0b6556b.json', 'sha256': 'b046e8c73484f9998e96405d6406ee133ebb5b9e0836573b101f3f38b0b6556b', 'size_bytes': 623}, 'observation': {'light_paper_id': 'sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'markdown': {'sha256': 'd5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52', 'size_bytes': 88}, 'original_pdf_sha256': None, 'pages': [{'anchor': 'page-1', 'page': 1, 'text_end': 82, 'text_sha256': 'fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79', 'text_start': 51}], 'paper_id': 'arxiv:2311.15128', 'schema': 'video-paper-wiki.markdown-source-observation.v1', 'source_metadata_sha256': 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc', 'title': 'Second Paper', 'version': {'kind': 'declared', 'label': 'v1.0'}}, 'paper_id': 'arxiv:2311.15128', 'raw': {'path': '.raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md', 'sha256': 'd5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52', 'size_bytes': 88}, 'registration': {'receipt_path': 'wiki/meta/operations/000000000002-md-ingest.json', 'receipt_sha256': 'a2252e1d0b22572fee436e6a7c71ead5ad0f42e68d32c563c7bb641d397c0c8e', 'source_ledger_path': '.raw/derived/source-ledgers/5b0e4a1ad0710721c8ece55cbcb87d48408a91429692b262570e02245ab0ee77.json', 'source_ledger_sha256': '5b0e4a1ad0710721c8ece55cbcb87d48408a91429692b262570e02245ab0ee77'}, 'schema': 'video-paper-wiki.source-version-association.v1', 'source_id': 'src-13ea0ff610b50ce22aed', 'version': {'kind': 'declared', 'label': 'v1.0'}}], 'claims': [{'assessment': 'accepted', 'canonical_claim_text': 'A Markdown-backed conclusion.', 'claim_id': 'clm-d377b59001b98187ed1e', 'evidence': [{'commit': 'cccccccccccccccccccccccccccccccccccccccc', 'kind': 'code', 'lines': {'end': 3, 'start': 1}, 'path': 'src/model.py', 'relation': 'uncertain', 'repository': 'Owner/Repo', 'snippet_sha256': 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd', 'source_id': 'src-history-code', 'symbol': 'Model.forward'}, {'association': {'association_id': 'sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1', 'sha256': 'f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8'}, 'charspan': [51, 82], 'excerpt_sha256': 'fa3bde3f1ffed3ca3cec13503d733c3cda558e35418d408ecb932f5516825c79', 'kind': 'markdown', 'page_anchor': 'page-1', 'path': '.raw/captured/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52.md', 'relation': 'supports', 'sha256': 'd5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52', 'source_id': 'src-13ea0ff610b50ce22aed'}], 'reviewed_at': '2026-09-09', 'stable_subject_id': 'paper:arxiv:2311.15128'}], 'display_decisions': [{'actor': {'identity': 'fixture reviewer', 'kind': 'human'}, 'association': {'association_id': 'sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1', 'sha256': 'f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8'}, 'choice': {'reference': 'fixture://display/1', 'source': 'fixture', 'text': 'Select declared v1.0 source.'}, 'decided_at': '2026-09-09T00:30:00Z', 'decision_id': 'svd-ba01fc31ab4b8dcfb9b91dd0a26fe319ddcd87947ada6935d19ad6cde67f3ce2', 'paper_id': 'arxiv:2311.15128', 'previous_decision_id': None, 'reason': 'Synthetic fixture choice.', 'schema': 'video-paper-wiki.source-display-decision.v1', 'sequence': 1}], 'events': [{'actor_kind': 'human', 'claim_id': 'clm-d377b59001b98187ed1e', 'claim_text_sha256': 'f6b31ac0a9da25e94059f0b5669f00428fde12135d9fc9e894fb6428b3eb94f3', 'decided_at': '2026-09-09T01:00:00Z', 'decided_by': 'fixture-reviewer', 'event_id': 'ase-adb44714c03657b6500c', 'evidence_fingerprint': '7197a9441950fcd6d338ed23e922da13b99a9138090eae0bb19e08f47fc5e3ba', 'evidence_profile': 'mixed-v2', 'from_assessment': 'provisional', 'previous_event_id': 'ase-9ff39e7a9a93cad28e48', 'reason': 'Synthetic v2 assessment.', 'schema': 'video-paper-wiki.assessment-event.v2', 'to_assessment': 'accepted', 'transition_kind': 'human_assessment'}, {'actor_kind': 'system', 'claim_id': 'clm-d377b59001b98187ed1e', 'claim_text_sha256': 'f6b31ac0a9da25e94059f0b5669f00428fde12135d9fc9e894fb6428b3eb94f3', 'decided_at': '2026-09-09T00:00:00Z', 'decided_by': 'fixture', 'event_id': 'ase-9ff39e7a9a93cad28e48', 'evidence_fingerprint': '7197a9441950fcd6d338ed23e922da13b99a9138090eae0bb19e08f47fc5e3ba', 'evidence_profile': 'mixed-v2', 'from_assessment': None, 'previous_event_id': None, 'reason': 'Synthetic v2 genesis.', 'schema': 'video-paper-wiki.assessment-event.v2', 'to_assessment': 'provisional', 'transition_kind': 'genesis'}], 'record': {'active_extraction_path': '.raw/derived/markdown-source/d5060293eeecc873493ce8395d3d2f77308c98a0854ceb9dc117ee90ec368c52/b046e8c73484f9998e96405d6406ee133ebb5b9e0836573b101f3f38b0b6556b.json', 'active_extraction_sha256': 'b046e8c73484f9998e96405d6406ee133ebb5b9e0836573b101f3f38b0b6556b', 'aliases': ['Second Paper Alias'], 'arxiv_id': '2311.15128', 'authors': ['Ada Example'], 'code_urls': ['https://github.com/ExampleOrg/VideoModel'], 'created_at': '2026-09-09T00:00:00Z', 'display_head': {'decision_id': 'svd-ba01fc31ab4b8dcfb9b91dd0a26fe319ddcd87947ada6935d19ad6cde67f3ce2', 'sha256': '3bf809e3d590493b2444a36e988505297869f8ea181ee7458399fd66a26b2323'}, 'paper_id': 'arxiv:2311.15128', 'published_at': '2023-11-26', 'schema': 'video-paper-wiki.paper-record.v2', 'section_claim_refs': [{'claim_id': 'clm-d377b59001b98187ed1e', 'core': True, 'lifecycle': 'active', 'section': 'one_sentence_conclusion'}], 'source_associations': [{'association_id': 'sva-87474ae4adfa8b817b9904938d9d77b1da0639b65dbca6672a55bdfbf04760a1', 'sha256': 'f34a0e523929cc9857ab90a5f8c82616fec0fbb36540dcc64b1ecefca595b8a8'}], 'source_ids': ['src-13ea0ff610b50ce22aed', 'src-history-code'], 'taxonomy': [{'axis': 'backbone', 'slug': 'dit'}], 'title': None, 'title_zh': '第二篇论文', 'updated_at': '2026-09-09T01:00:00Z'}} is not valid under any of the given schemas",
+        "pointer": "/papers/1"
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "SCHEMA_INVALID",
+        "exit_code": 2
+      },
+      "id": "date-before-alias-graph",
+      "observed": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2,
+        "message": "canonical alias has more than one primary owner",
+        "pointer": ""
+      },
+      "status": "fail"
+    },
+    {
+      "expected": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2
+      },
+      "id": "owner-before-source-map",
+      "observed": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2,
+        "message": "canonical alias has more than one primary owner",
+        "pointer": ""
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "SOURCE_INVENTORY_INVALID",
+        "exit_code": 2
+      },
+      "id": "source-map-before-display",
+      "observed": {
+        "code": "SOURCE_INVENTORY_INVALID",
+        "exit_code": 2,
+        "message": "source material map contains missing or orphan entries",
+        "pointer": "/raw_sources"
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "SOURCE_DISPLAY_INVALID",
+        "exit_code": 2
+      },
+      "id": "display-before-assessment",
+      "observed": {
+        "code": "SOURCE_DISPLAY_INVALID",
+        "exit_code": 2,
+        "message": "display decision identity differs",
+        "pointer": "/decision_id"
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "ASSESSMENT_CHAIN_INVALID",
+        "exit_code": 2
+      },
+      "id": "assessment-before-locator",
+      "observed": {
+        "code": "ASSESSMENT_CHAIN_INVALID",
+        "exit_code": 2,
+        "message": "history state or timestamp does not continue its predecessor",
+        "pointer": "/events"
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "MARKDOWN_LOCATOR_INVALID",
+        "exit_code": 2
+      },
+      "id": "locator-before-taxonomy",
+      "observed": {
+        "code": "MARKDOWN_LOCATOR_INVALID",
+        "exit_code": 2,
+        "message": "Markdown excerpt hash or nonempty text differs",
+        "pointer": "/excerpt_sha256"
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2
+      },
+      "id": "taxonomy-after-graphs",
+      "observed": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2,
+        "message": "prospective taxonomy term is not in the pinned vocabulary",
+        "pointer": ""
+      },
+      "status": "pass"
+    },
+    {
+      "expected": {
+        "code": "SCHEMA_INVALID",
+        "exit_code": 2
+      },
+      "id": "empty-unselected-v2",
+      "observed": {
+        "code": "SCHEMA_INVALID",
+        "exit_code": 2,
+        "message": "{'assessment_heads': {}, 'associations': [], 'claims': [], 'display_decisions': [], 'events': [], 'record': {'active_extraction_path': None, 'active_extraction_sha256': None, 'aliases': ['Second Paper Alias'], 'arxiv_id': '2311.15128', 'authors': ['Ada Example'], 'code_urls': ['https://github.com/ExampleOrg/VideoModel'], 'created_at': '2026-09-09T00:00:00Z', 'display_head': None, 'paper_id': 'arxiv:2311.15128', 'published_at': '2023-11-26', 'schema': 'video-paper-wiki.paper-record.v2', 'section_claim_refs': [], 'source_associations': [], 'source_ids': [], 'taxonomy': [{'axis': 'backbone', 'slug': 'dit'}], 'title': 'Second Paper', 'title_zh': '第二篇论文', 'updated_at': '2026-09-09T01:00:00Z'}} is not valid under any of the given schemas",
+        "pointer": "/papers/1"
+      },
+      "status": "pass"
+    },
+    {
+      "check": true,
+      "id": "provisional-evidence-status",
+      "status": "pass",
+      "success": true
+    },
+    {
+      "expected": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2
+      },
+      "id": "empty-claim-evidence",
+      "observed": {
+        "code": "COMPILE_INPUT_INVALID",
+        "exit_code": 2,
+        "message": "versioned canonical claim requires source evidence",
+        "pointer": ""
+      },
+      "status": "pass"
+    },
+    {
+      "id": "legacy-delegation-empty-authority",
+      "status": "pass",
+      "success": true
+    },
+    {
+      "id": "legacy-refuses-unrelated-authority",
+      "observed": {
+        "code": "SOURCE_INVENTORY_INVALID",
+        "exit_code": 2,
+        "pointer": "/raw_sources"
+      },
+      "status": "pass"
+    },
+    {
+      "id": "mixed-code-legacy-compatibility",
+      "status": "pass",
+      "success": true
+    }
+  ],
+  "schema": "video-paper-wiki.source-semantics-local-compiler-probes-draft.v1",
+  "summary": {
+    "decision": "CHANGES_REQUIRED",
+    "errors": 0,
+    "failed": 1,
+    "passed": 14,
+    "total": 15
+  }
+}

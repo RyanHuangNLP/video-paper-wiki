@@ -1,0 +1,135 @@
+{
+  "schema": "video-paper-wiki.lightweight-library-v1-frozen-checks-runner-review-r2.v1",
+  "recorded_at_utc": "2026-09-08T14:08:00+00:00",
+  "review_mode": "read_only_static_runner_review",
+  "source_executed": false,
+  "active_t3_source_read": false,
+  "active_t3_source_executed": false,
+  "status": "CONDITIONAL_GO_FOR_CONTROLLED_FINAL_RUN_WITH_BINDING_REQUIREMENTS",
+  "runner": {
+    "path": ".work/acceptance/lightweight-library-v1/run_frozen_checks.py",
+    "sha256": "d63eaafe37406724adc6bd364fd191dbe88b2f91da5981dd5893906dc63e2b0a",
+    "size_bytes": 6204,
+    "line_count": 113,
+    "syntax": "AST parse succeeded with Python -B"
+  },
+  "selection_review": {
+    "independent": {
+      "file_count": 13,
+      "files": [
+        {"path": "architect_t1_regressions.py", "static_test_count": 14},
+        {"path": "architect_t1_r2_additional.py", "static_test_count": 10},
+        {"path": "architect_t1_r3_additional.py", "static_test_count": 5},
+        {"path": "architect_t2_regressions.py", "static_test_count": 23},
+        {"path": "architect_t2_r2_additional.py", "static_test_count": 25},
+        {"path": "architect_t2_history_checks_r2.py", "static_test_count": 7},
+        {"path": "architect_t2_r3_precapture.py", "static_test_count": 3},
+        {"path": "architect_t2_r3_postextract.py", "static_test_count": 4},
+        {"path": "architect_t2_r4_premove.py", "static_test_count": 6},
+        {"path": "architect_t2_nested_notes.py", "static_test_count": 10},
+        {"path": "architect_t2_restore_replace_history.py", "static_test_count": 6},
+        {"path": "architect_t3_parser_checks.py", "static_test_count": 4},
+        {"path": "architect_crossfeature_checks_r2.py", "static_test_count": 8}
+      ],
+      "static_expected_count": 125,
+      "runner_selection": "The script names these 13 files explicitly in suite=independent."
+    },
+    "backup": {
+      "file": "architect_t2_backup_candidate_checks.py",
+      "static_expected_count": 21,
+      "runner_selection": "The script runs this file in a separate subprocess in suite=backup."
+    },
+    "full": {
+      "runner_selection": "The script passes the source tests directory in suite=full; it does not internally coordinate or distinguish the two Python invocations."
+    },
+    "dual_full_requirement": "The caller must invoke suite=full once with the locked Python 3.12 executable and once with the locked Python 3.13 executable, then bind both records to the same frozen source/manifest. The runner accepts arbitrary --python and labels and does not enforce version distinctness."
+  },
+  "positive_checks": [
+    {
+      "id": "FZR2-P01",
+      "result": "pass",
+      "evidence": "run_frozen_checks.py:47-52",
+      "summary": "Both UV_CACHE_DIR and LW2_UV_CACHE are explicitly set to /Users/huangzhanpeng/.cache/uv, with offline/no-download flags and the pinned Hermes uv directory prepended to PATH."
+    },
+    {
+      "id": "FZR2-P02",
+      "result": "pass",
+      "evidence": "run_frozen_checks.py:42,88",
+      "summary": "The listed manifest rows are verified before and after the subprocess, so mutation of any listed file fails the run before a success record can be written."
+    },
+    {
+      "id": "FZR2-P03",
+      "result": "pass",
+      "evidence": "run_frozen_checks.py:61-67",
+      "summary": "The provenance probe imports the ten named product modules with the candidate source/src first and requires their reported module paths to be lexically under that source/src directory."
+    },
+    {
+      "id": "FZR2-P04",
+      "result": "pass",
+      "evidence": "run_frozen_checks.py:44-46,82-87",
+      "summary": "Evidence labels are create-only, test basetemp/cache are outside the source under a fresh /private/tmp root, and stdout/stderr/JUnit are captured under the unique evidence directory."
+    },
+    {
+      "id": "FZR2-P05",
+      "result": "pass",
+      "evidence": "run_frozen_checks.py:53-59; architect_t2_backup_candidate_checks.py:32-59",
+      "summary": "The separate backup subprocess receives explicit stopped-source, handoff, snapshot, and light_backup digest parameters; the candidate backup harness rechecks its frozen T2 contract, snapshot, and six source-file rows."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FZR2-H01",
+      "severity": "P1",
+      "status": "must_bind_in_final_acceptance_record",
+      "evidence": "run_frozen_checks.py:68-84,89-94",
+      "summary": "The wrapper records JUnit counts but never asserts expected counts. A changed or incomplete acceptance harness can return exit 0 with fewer than 125 independent or 21 backup cases, and the full suite has no expected count at all.",
+      "required_binding": "Final acceptance must require independent tests=125, backup tests=21, zero failures/errors/skips, and an explicitly recorded expected full-tree count for each locked Python run; any deviation is a blocker."
+    },
+    {
+      "id": "FZR2-H02",
+      "severity": "P1",
+      "status": "must_bind_in_final_manifest_review",
+      "evidence": "run_frozen_checks.py:33-42,95-103",
+      "summary": "Ownership is only the caller-supplied manifest row set. The runner does not require a schema, exact allowlist, unique relative paths, strict source containment, regular non-symlink/non-hardlink files, dependency_pending=false, ready_for_final_acceptance=true, or a complete source status. Absolute or ../ row paths can escape source, and extra unlisted source changes are not detected.",
+      "required_binding": "The final manifest review must independently bind the complete 26-path product set and accepted owner inputs, reject path escape/duplicates/links, verify source status and readiness fields, and prove no unlisted changed paths."
+    },
+    {
+      "id": "FZR2-H03",
+      "severity": "P1",
+      "status": "must_bind_in_dual_runtime_record",
+      "evidence": "run_frozen_checks.py:26-31,63-67",
+      "summary": "--python is unrestricted and the record only captures sys.version. The runner does not require one 3.12 and one 3.13 invocation, does not compare executable paths to the locked runtime records, and does not record uv --version or its resolved path beyond the supplied PATH override.",
+      "required_binding": "The dual-full acceptance record must name and hash the exact 3.12.14 and 3.13.13 executables, show distinct provenance outputs, and record uv 0.12.7 resolution for both runs."
+    },
+    {
+      "id": "FZR2-H04",
+      "severity": "P2",
+      "status": "non_blocking_only_with_frozen_harness_inputs",
+      "evidence": "run_frozen_checks.py:73-81,102-103",
+      "summary": "Independent and backup harness files are hashed only after execution; there is no expected hash manifest or existence assertion before the command. Full suite selection is the mutable tests directory and produces no harness hash.",
+      "required_binding": "Freeze the 13 independent and one backup harness SHA-256 values before execution and record a source/tests tree identity for full runs; compare before and after."
+    },
+    {
+      "id": "FZR2-H05",
+      "severity": "P2",
+      "status": "non_blocking_with_parent_binding",
+      "evidence": "run_frozen_checks.py:54-59,97-103",
+      "summary": "The backup parameter handoff path, snapshot value, and owner_inputs index are trusted from manifest['owner_inputs']['2']; the wrapper does not verify the handoff file's own SHA-256 or owner-input ordering. The backup harness validates content and contract, but the outer record does not bind the metadata independently.",
+      "required_binding": "The final record must identify the T2 handoff path and digest explicitly and bind the exact light_backup row path/digest rather than relying only on index 2 and suffix matching."
+    },
+    {
+      "id": "FZR2-H06",
+      "severity": "P2",
+      "status": "non_blocking_evidence_shape_note",
+      "evidence": "run_frozen_checks.py:91-94",
+      "summary": "JUnit counts are summed over every nested testsuite element. A nested JUnit producer could double-count descendants; the runner does not validate the XML shape or reconcile the count with pytest stdout."
+    }
+  ],
+  "review_limits": [
+    "No active T3 R4 source was read or executed.",
+    "The runner itself was not executed; this is a static orchestration review.",
+    "No Git, PR, Vault, source, or runner mutation was performed.",
+    "The prior architect-real-trial-runner-review-r1.json was preserved; this is a distinct R2 record for the current runner SHA."
+  ],
+  "disposition": "READY_FOR_PARENT_CONTROLLED_USE_ONLY_AFTER_FINAL_MANIFEST,_EXPECTED_COUNT,AND_DUAL_RUNTIME_BINDING"
+}

@@ -2,6 +2,8 @@
 
 Video Paper Wiki 是固定版 Claude Obsidian 之上的视频论文领域扩展。Claude Obsidian 负责 Vault 事务、capture、lint、chunk 与 BM25；本项目负责 67 篇确定性 seed、审批绑定的 PDF/代码 staging、中文 Paper/Code/Concept 编译、code-evidence manifest 和查询结果整形。
 
+用户类目种子清单：[预训练（12 篇）](docs/seed/pretraining.md)，包含九篇模型论文与三篇训练方法论文，独立记录于固定工程 seed 之外。
+
 ## 安装与固定上游
 
 主 CLI 支持 Python 3.12/3.13：

@@ -1,0 +1,698 @@
+..........................FF......FFFF........                           [100%]
+=================================== FAILURES ===================================
+_____________ test_declared_and_actual_caps_precede_hashing[sha1] ______________
+
+object_format = 'sha1'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102872650>
+
+    @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+    def test_declared_and_actual_caps_precede_hashing(
+        object_format: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        hash_calls = {"n": 0}
+        real_sha1 = hashlib.sha1
+        real_sha256 = hashlib.sha256
+    
+        def wrapped_sha1(*args: object, **kwargs: object):
+            hash_calls["n"] += 1
+            return real_sha1(*args, **kwargs)
+    
+        def wrapped_sha256(*args: object, **kwargs: object):
+            hash_calls["n"] += 1
+            return real_sha256(*args, **kwargs)
+    
+        def expect_limit(
+            args: dict,
+            limit_name: str,
+            limit_count: int,
+            observed_count: int,
+            instance_pointer: str,
+        ) -> None:
+            hash_calls["n"] = 0
+            with pytest.raises(CodeGitProofError) as exc:
+                verify_code_git_objects(**args)
+            _assert_error(
+                exc.value,
+                CODE_PROOF_LIMIT_EXCEEDED,
+                limit_name=limit_name,
+                limit_count=limit_count,
+                observed_count=observed_count,
+                instance_pointer=instance_pointer,
+            )
+            assert hash_calls["n"] == 0
+    
+        declared_object_args = _minimal_graph(object_format)
+        declared_total_args = _minimal_graph(object_format)
+        actual_object_args = _minimal_graph(object_format)
+        actual_total_args = _minimal_graph(object_format)
+    
+        sibling_sizes = [rec["body_size_bytes"] for rec in declared_object_args["objects"][1:]]
+        declared_object_cap = max(sibling_sizes) if sibling_sizes else 1
+        if declared_object_cap < 1:
+            declared_object_cap = 1
+        declared_object_observed = declared_object_cap + 1
+        declared_object_args["objects"][0]["body_size_bytes"] = declared_object_observed
+        declared_object_sum = sum(rec["body_size_bytes"] for rec in declared_object_args["objects"])
+        declared_object_args["limits"] = _limits(
+            max_object_bytes=declared_object_cap,
+            max_total_object_bytes=declared_object_sum,
+        )
+    
+        declared_sizes = [rec["body_size_bytes"] for rec in declared_total_args["objects"]]
+        declared_per_object_cap = max(1, max(declared_sizes))
+        declared_total_cap = 1
+        running = 0
+        declared_total_observed = 0
+        for size in declared_sizes:
+            running += size
+            if running > declared_total_cap:
+                declared_total_observed = running
+                break
+        assert declared_total_observed > declared_total_cap
+        declared_total_args["limits"] = _limits(
+            max_object_bytes=declared_per_object_cap,
+            max_total_object_bytes=declared_total_cap,
+        )
+    
+        actual_declared_sizes = [rec["body_size_bytes"] for rec in actual_object_args["objects"]]
+        actual_object_cap = max(1, max(actual_declared_sizes))
+        actual_first_oid = sorted(actual_object_args["bodies"])[0]
+        actual_object_observed = actual_object_cap + 1
+        actual_object_args["bodies"][actual_first_oid] = b"\xab" * actual_object_observed
+        actual_object_sum = sum(len(body) for body in actual_object_args["bodies"].values())
+        actual_object_args["limits"] = _limits(
+            max_object_bytes=actual_object_cap,
+            max_total_object_bytes=actual_object_sum,
+        )
+    
+        actual_total_declared_sizes = [rec["body_size_bytes"] for rec in actual_total_args["objects"]]
+        actual_total_declared_max = max(1, max(actual_total_declared_sizes))
+        actual_total_declared_sum = sum(actual_total_declared_sizes)
+        actual_total_first_oid = sorted(actual_total_args["bodies"])[0]
+        padded_size = actual_total_declared_max + 10
+        actual_total_args["bodies"][actual_total_first_oid] = b"\xcd" * padded_size
+        actual_per_object_cap = max(len(body) for body in actual_total_args["bodies"].values())
+        actual_total_cap = actual_total_declared_sum
+        running = 0
+        actual_total_observed = 0
+        for oid in sorted(actual_total_args["bodies"]):
+            running += len(actual_total_args["bodies"][oid])
+            if running > actual_total_cap:
+                actual_total_observed = running
+                break
+        assert actual_total_observed > actual_total_cap
+        actual_total_args["limits"] = _limits(
+            max_object_bytes=actual_per_object_cap,
+            max_total_object_bytes=actual_total_cap,
+        )
+    
+        monkeypatch.setattr(hashlib, "sha1", wrapped_sha1)
+        monkeypatch.setattr(hashlib, "sha256", wrapped_sha256)
+    
+>       expect_limit(
+            declared_object_args,
+            "max_object_bytes",
+            declared_object_cap,
+            declared_object_observed,
+            "/objects/0/body_size_bytes",
+        )
+
+tests/unit/test_code_git_objects.py:660: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_code_git_objects.py:582: in expect_limit
+    _assert_error(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof limit exceeded')
+code = 'CODE_PROOF_LIMIT_EXCEEDED'
+details = {'limit_name': 'max_object_bytes', 'limit_count': 126, 'observed_count': 127, 'instance_pointer': '/objects/0/body_size_bytes'}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+        assert exc.code == code
+        assert exc.exit_code == 2
+        assert type(exc.details) is dict
+        for key, value in details.items():
+>           assert exc.details[key] == value
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'limit_count'
+
+tests/unit/test_code_git_objects.py:139: KeyError
+____________ test_declared_and_actual_caps_precede_hashing[sha256] _____________
+
+object_format = 'sha256'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x102872520>
+
+    @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+    def test_declared_and_actual_caps_precede_hashing(
+        object_format: str, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        hash_calls = {"n": 0}
+        real_sha1 = hashlib.sha1
+        real_sha256 = hashlib.sha256
+    
+        def wrapped_sha1(*args: object, **kwargs: object):
+            hash_calls["n"] += 1
+            return real_sha1(*args, **kwargs)
+    
+        def wrapped_sha256(*args: object, **kwargs: object):
+            hash_calls["n"] += 1
+            return real_sha256(*args, **kwargs)
+    
+        def expect_limit(
+            args: dict,
+            limit_name: str,
+            limit_count: int,
+            observed_count: int,
+            instance_pointer: str,
+        ) -> None:
+            hash_calls["n"] = 0
+            with pytest.raises(CodeGitProofError) as exc:
+                verify_code_git_objects(**args)
+            _assert_error(
+                exc.value,
+                CODE_PROOF_LIMIT_EXCEEDED,
+                limit_name=limit_name,
+                limit_count=limit_count,
+                observed_count=observed_count,
+                instance_pointer=instance_pointer,
+            )
+            assert hash_calls["n"] == 0
+    
+        declared_object_args = _minimal_graph(object_format)
+        declared_total_args = _minimal_graph(object_format)
+        actual_object_args = _minimal_graph(object_format)
+        actual_total_args = _minimal_graph(object_format)
+    
+        sibling_sizes = [rec["body_size_bytes"] for rec in declared_object_args["objects"][1:]]
+        declared_object_cap = max(sibling_sizes) if sibling_sizes else 1
+        if declared_object_cap < 1:
+            declared_object_cap = 1
+        declared_object_observed = declared_object_cap + 1
+        declared_object_args["objects"][0]["body_size_bytes"] = declared_object_observed
+        declared_object_sum = sum(rec["body_size_bytes"] for rec in declared_object_args["objects"])
+        declared_object_args["limits"] = _limits(
+            max_object_bytes=declared_object_cap,
+            max_total_object_bytes=declared_object_sum,
+        )
+    
+        declared_sizes = [rec["body_size_bytes"] for rec in declared_total_args["objects"]]
+        declared_per_object_cap = max(1, max(declared_sizes))
+        declared_total_cap = 1
+        running = 0
+        declared_total_observed = 0
+        for size in declared_sizes:
+            running += size
+            if running > declared_total_cap:
+                declared_total_observed = running
+                break
+        assert declared_total_observed > declared_total_cap
+        declared_total_args["limits"] = _limits(
+            max_object_bytes=declared_per_object_cap,
+            max_total_object_bytes=declared_total_cap,
+        )
+    
+        actual_declared_sizes = [rec["body_size_bytes"] for rec in actual_object_args["objects"]]
+        actual_object_cap = max(1, max(actual_declared_sizes))
+        actual_first_oid = sorted(actual_object_args["bodies"])[0]
+        actual_object_observed = actual_object_cap + 1
+        actual_object_args["bodies"][actual_first_oid] = b"\xab" * actual_object_observed
+        actual_object_sum = sum(len(body) for body in actual_object_args["bodies"].values())
+        actual_object_args["limits"] = _limits(
+            max_object_bytes=actual_object_cap,
+            max_total_object_bytes=actual_object_sum,
+        )
+    
+        actual_total_declared_sizes = [rec["body_size_bytes"] for rec in actual_total_args["objects"]]
+        actual_total_declared_max = max(1, max(actual_total_declared_sizes))
+        actual_total_declared_sum = sum(actual_total_declared_sizes)
+        actual_total_first_oid = sorted(actual_total_args["bodies"])[0]
+        padded_size = actual_total_declared_max + 10
+        actual_total_args["bodies"][actual_total_first_oid] = b"\xcd" * padded_size
+        actual_per_object_cap = max(len(body) for body in actual_total_args["bodies"].values())
+        actual_total_cap = actual_total_declared_sum
+        running = 0
+        actual_total_observed = 0
+        for oid in sorted(actual_total_args["bodies"]):
+            running += len(actual_total_args["bodies"][oid])
+            if running > actual_total_cap:
+                actual_total_observed = running
+                break
+        assert actual_total_observed > actual_total_cap
+        actual_total_args["limits"] = _limits(
+            max_object_bytes=actual_per_object_cap,
+            max_total_object_bytes=actual_total_cap,
+        )
+    
+        monkeypatch.setattr(hashlib, "sha1", wrapped_sha1)
+        monkeypatch.setattr(hashlib, "sha256", wrapped_sha256)
+    
+>       expect_limit(
+            declared_object_args,
+            "max_object_bytes",
+            declared_object_cap,
+            declared_object_observed,
+            "/objects/0/body_size_bytes",
+        )
+
+tests/unit/test_code_git_objects.py:660: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_code_git_objects.py:582: in expect_limit
+    _assert_error(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof limit exceeded')
+code = 'CODE_PROOF_LIMIT_EXCEEDED'
+details = {'limit_name': 'max_object_bytes', 'limit_count': 150, 'observed_count': 151, 'instance_pointer': '/objects/0/body_size_bytes'}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+        assert exc.code == code
+        assert exc.exit_code == 2
+        assert type(exc.details) is dict
+        for key, value in details.items():
+>           assert exc.details[key] == value
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'limit_count'
+
+tests/unit/test_code_git_objects.py:139: KeyError
+____ test_hostile_str_subclass_keys_rejected_before_methods[body_map-sha1] _____
+
+object_format = 'sha1', site = 'body_map'
+
+    @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+    @pytest.mark.parametrize("site", ["limits", "object_record", "target", "body_map"])
+    def test_hostile_str_subclass_keys_rejected_before_methods(
+        object_format: str, site: str
+    ) -> None:
+        trap = {"n": 0}
+        armed = {"on": False}
+    
+        class HostileStr(str):
+            def __hash__(self) -> int:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__hash__()
+    
+            def __eq__(self, other: object) -> bool:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__eq__(other)
+    
+            def __ne__(self, other: object) -> bool:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__ne__(other)
+    
+            def __str__(self) -> str:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__str__()
+    
+            def __format__(self, spec: str) -> str:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__format__(spec)
+    
+            def __repr__(self) -> str:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__repr__()
+    
+        args = _minimal_graph(object_format)
+        if site == "limits":
+            args["limits"] = {HostileStr(key): value for key, value in args["limits"].items()}
+            pointer = "/limits"
+            reason = "limits_key_set"
+        elif site == "object_record":
+            args["objects"][0] = {
+                HostileStr(key): value for key, value in args["objects"][0].items()
+            }
+            pointer = "/objects/0"
+            reason = "not_closed_record"
+        elif site == "target":
+            args["targets"][0] = {
+                HostileStr(key): value for key, value in args["targets"][0].items()
+            }
+            pointer = "/targets/0"
+            reason = "not_closed_record"
+        else:
+            args["bodies"] = {HostileStr(key): value for key, value in args["bodies"].items()}
+            pointer = "/bodies"
+            reason = "invalid_type"
+    
+        blob_rec, blob_body = _record(object_format, "blob", b"x = 1\n")
+        safe = _minimal_graph(
+            object_format,
+            tree_body=_tree_bytes(object_format, [("100644", b"file.py", blob_rec["oid"])]),
+            extra_objects=[(blob_rec, blob_body)],
+            targets=[{"path": "file.py", "allow_executable_source": False}],
+        )
+    
+        armed["on"] = True
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+>       _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer=pointer,
+            reason=reason,
+        )
+
+tests/unit/test_code_git_objects.py:762: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof input is invalid')
+code = 'CODE_PROOF_INPUT_INVALID'
+details = {'instance_pointer': '/bodies', 'reason': 'invalid_type'}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+        assert exc.code == code
+        assert exc.exit_code == 2
+        assert type(exc.details) is dict
+        for key, value in details.items():
+>           assert exc.details[key] == value
+E           AssertionError: assert 'invalid_oid_key' == 'invalid_type'
+E             
+E             - invalid_type
+E             + invalid_oid_key
+
+tests/unit/test_code_git_objects.py:139: AssertionError
+___ test_hostile_str_subclass_keys_rejected_before_methods[body_map-sha256] ____
+
+object_format = 'sha256', site = 'body_map'
+
+    @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+    @pytest.mark.parametrize("site", ["limits", "object_record", "target", "body_map"])
+    def test_hostile_str_subclass_keys_rejected_before_methods(
+        object_format: str, site: str
+    ) -> None:
+        trap = {"n": 0}
+        armed = {"on": False}
+    
+        class HostileStr(str):
+            def __hash__(self) -> int:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__hash__()
+    
+            def __eq__(self, other: object) -> bool:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__eq__(other)
+    
+            def __ne__(self, other: object) -> bool:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__ne__(other)
+    
+            def __str__(self) -> str:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__str__()
+    
+            def __format__(self, spec: str) -> str:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__format__(spec)
+    
+            def __repr__(self) -> str:
+                if armed["on"]:
+                    trap["n"] += 1
+                return super().__repr__()
+    
+        args = _minimal_graph(object_format)
+        if site == "limits":
+            args["limits"] = {HostileStr(key): value for key, value in args["limits"].items()}
+            pointer = "/limits"
+            reason = "limits_key_set"
+        elif site == "object_record":
+            args["objects"][0] = {
+                HostileStr(key): value for key, value in args["objects"][0].items()
+            }
+            pointer = "/objects/0"
+            reason = "not_closed_record"
+        elif site == "target":
+            args["targets"][0] = {
+                HostileStr(key): value for key, value in args["targets"][0].items()
+            }
+            pointer = "/targets/0"
+            reason = "not_closed_record"
+        else:
+            args["bodies"] = {HostileStr(key): value for key, value in args["bodies"].items()}
+            pointer = "/bodies"
+            reason = "invalid_type"
+    
+        blob_rec, blob_body = _record(object_format, "blob", b"x = 1\n")
+        safe = _minimal_graph(
+            object_format,
+            tree_body=_tree_bytes(object_format, [("100644", b"file.py", blob_rec["oid"])]),
+            extra_objects=[(blob_rec, blob_body)],
+            targets=[{"path": "file.py", "allow_executable_source": False}],
+        )
+    
+        armed["on"] = True
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+>       _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer=pointer,
+            reason=reason,
+        )
+
+tests/unit/test_code_git_objects.py:762: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof input is invalid')
+code = 'CODE_PROOF_INPUT_INVALID'
+details = {'instance_pointer': '/bodies', 'reason': 'invalid_type'}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+        assert exc.code == code
+        assert exc.exit_code == 2
+        assert type(exc.details) is dict
+        for key, value in details.items():
+>           assert exc.details[key] == value
+E           AssertionError: assert 'invalid_oid_key' == 'invalid_type'
+E             
+E             - invalid_type
+E             + invalid_oid_key
+
+tests/unit/test_code_git_objects.py:139: AssertionError
+____________ test_ordinary_closed_shape_and_strict_key_types[sha1] _____________
+
+object_format = 'sha1'
+
+    @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+    def test_ordinary_closed_shape_and_strict_key_types(object_format: str) -> None:
+        args = _minimal_graph(object_format)
+        args["limits"] = {**args["limits"], "extra": 1}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/limits",
+            reason="limits_key_set",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["limits"] = {index: 1 for index in range(5)}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/limits",
+            reason="limits_key_set",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["objects"][0] = {**args["objects"][0], "extra": "x"}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/objects/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["objects"][0] = {index: index for index in range(5)}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/objects/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["targets"][0] = {**args["targets"][0], "extra": False}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/targets/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["targets"][0] = {index: False for index in range(2)}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/targets/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["bodies"] = {index: value for index, value in enumerate(args["bodies"].values())}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+>       _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/bodies",
+            reason="invalid_type",
+        )
+
+tests/unit/test_code_git_objects.py:845: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof input is invalid')
+code = 'CODE_PROOF_INPUT_INVALID'
+details = {'instance_pointer': '/bodies', 'reason': 'invalid_type'}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+        assert exc.code == code
+        assert exc.exit_code == 2
+        assert type(exc.details) is dict
+        for key, value in details.items():
+>           assert exc.details[key] == value
+E           AssertionError: assert 'invalid_oid_key' == 'invalid_type'
+E             
+E             - invalid_type
+E             + invalid_oid_key
+
+tests/unit/test_code_git_objects.py:139: AssertionError
+___________ test_ordinary_closed_shape_and_strict_key_types[sha256] ____________
+
+object_format = 'sha256'
+
+    @pytest.mark.parametrize("object_format", ["sha1", "sha256"])
+    def test_ordinary_closed_shape_and_strict_key_types(object_format: str) -> None:
+        args = _minimal_graph(object_format)
+        args["limits"] = {**args["limits"], "extra": 1}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/limits",
+            reason="limits_key_set",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["limits"] = {index: 1 for index in range(5)}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/limits",
+            reason="limits_key_set",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["objects"][0] = {**args["objects"][0], "extra": "x"}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/objects/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["objects"][0] = {index: index for index in range(5)}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/objects/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["targets"][0] = {**args["targets"][0], "extra": False}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/targets/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["targets"][0] = {index: False for index in range(2)}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/targets/0",
+            reason="not_closed_record",
+        )
+    
+        args = _minimal_graph(object_format)
+        args["bodies"] = {index: value for index, value in enumerate(args["bodies"].values())}
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+>       _assert_error(
+            exc.value,
+            CODE_PROOF_INPUT_INVALID,
+            instance_pointer="/bodies",
+            reason="invalid_type",
+        )
+
+tests/unit/test_code_git_objects.py:845: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof input is invalid')
+code = 'CODE_PROOF_INPUT_INVALID'
+details = {'instance_pointer': '/bodies', 'reason': 'invalid_type'}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+        assert exc.code == code
+        assert exc.exit_code == 2
+        assert type(exc.details) is dict
+        for key, value in details.items():
+>           assert exc.details[key] == value
+E           AssertionError: assert 'invalid_oid_key' == 'invalid_type'
+E             
+E             - invalid_type
+E             + invalid_oid_key
+
+tests/unit/test_code_git_objects.py:139: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_code_git_objects.py::test_declared_and_actual_caps_precede_hashing[sha1]
+FAILED tests/unit/test_code_git_objects.py::test_declared_and_actual_caps_precede_hashing[sha256]
+FAILED tests/unit/test_code_git_objects.py::test_hostile_str_subclass_keys_rejected_before_methods[body_map-sha1]
+FAILED tests/unit/test_code_git_objects.py::test_hostile_str_subclass_keys_rejected_before_methods[body_map-sha256]
+FAILED tests/unit/test_code_git_objects.py::test_ordinary_closed_shape_and_strict_key_types[sha1]
+FAILED tests/unit/test_code_git_objects.py::test_ordinary_closed_shape_and_strict_key_types[sha256]
+6 failed, 40 passed in 0.10s

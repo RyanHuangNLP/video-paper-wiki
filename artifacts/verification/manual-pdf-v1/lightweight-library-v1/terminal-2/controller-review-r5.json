@@ -1,0 +1,75 @@
+{
+  "schema": "video-paper-wiki.library-controller-review.v1",
+  "packet": "lightweight-library-v1",
+  "lane": 2,
+  "revision": "r5",
+  "candidate_snapshot": "69fdc89a2f90226602aef198f6d5c4d599c2d1959ecffc2ea5522c3836dcd108",
+  "previous_snapshot": "e11be2214f411547295c8947245e56cbb05d9fe8600f94c9994244b5219ed2bf",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "freeze_sha256": "469279f572b78f60d2eacb7b4ddf5455f2a146b7c90b5d957361b58dc4979ab6",
+  "handoff_sha256": "f50a46f2710891bc11127faf65e20a0a26da129014f40b7a1284b81b7565c43e",
+  "ready_sha256": "f50a46f2710891bc11127faf65e20a0a26da129014f40b7a1284b81b7565c43e",
+  "controller_actions": {
+    "builder_launch": false,
+    "git_mutations": false,
+    "source_edits": false,
+    "vault_writes": false,
+    "t3_imports": false
+  },
+  "decision": "GO_T2_R5_BOUNDED_FINAL_PREMOVE_CHECK",
+  "status": "R5_REVIEW_GO_PENDING_ARCHITECT_LOCAL_ACCEPTANCE",
+  "independent_checks": {
+    "issue_count": 0,
+    "scope_verification": {
+      "bundle": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r5",
+      "handoff_ready_byte_identical": true,
+      "manifest_count": 9,
+      "changed_vs_r4_exactly": [
+        "src/video_paper_wiki_research/light_library.py",
+        "tests/research/test_light_library_recovery.py"
+      ],
+      "other_owner_files_byte_identical_r4": true,
+      "snapshot_recomputed": "69fdc89a2f90226602aef198f6d5c4d599c2d1959ecffc2ea5522c3836dcd108",
+      "source_bundle_hashes_match": true
+    },
+    "code_boundary": {
+      "function": "video_paper_wiki_research.light_library._replace_forward",
+      "post_hook_stage_validation": "light_library.py:1543-1557",
+      "post_hook_old_payload_validation": "light_library.py:1558-1560",
+      "old_live_rename": "light_library.py:1561",
+      "assessment": "complete stage/producer and old-payload checks execute after before_old_archive and immediately before os.rename; refusal preserves foreign content and keeps old paper live."
+    },
+    "test_runs": [
+      {
+        "command": "python -m pytest -q architect_t2_r4_premove.py",
+        "cwd": ".work/acceptance/lightweight-library-v1",
+        "passed": 6,
+        "failed": 0,
+        "status": "PASS",
+        "basetemp": "/private/tmp/t2-r5-verify.SbUH1F/premove"
+      },
+      {
+        "command": "python -m pytest -q tests/research/test_light_library.py tests/research/test_light_library_recovery.py",
+        "cwd": ".work/parallel/lightweight-library-v1/terminal-2/source",
+        "passed": 55,
+        "failed": 0,
+        "status": "PASS",
+        "basetemp": "/private/tmp/t2-r5-verify.SbUH1F/focused"
+      }
+    ],
+    "late_old_paper_edit_case": {
+      "test": "test_before_old_archive_old_paper_edit_keeps_live_payload",
+      "source": "tests/research/test_light_library_recovery.py:463",
+      "status": "covered_and_passing_in_focused_run"
+    },
+    "builder_evidence": {
+      "focused_owned_passed": 90,
+      "related_existing_passed": 95,
+      "python": "3.13.13",
+      "status": "PASS"
+    }
+  },
+  "next": "Architect may perform local R5 acceptance and then hand off this exact stopped snapshot for T3 import; preserve R5 source/evidence byte-for-byte until that handoff.",
+  "merge_authorized": false,
+  "recorded_at_utc": "2026-09-08T05:28:53Z"
+}

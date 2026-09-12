@@ -1,0 +1,108 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-fixture-review-r1.v1",
+  "revision": 1,
+  "status": "READY_FOR_ARCHITECT_REVIEW_NO_IMPLEMENTATION_ACCEPTANCE",
+  "recorded_at_utc": "2026-09-09T15:26:42.341562Z",
+  "scope": "Independent static authored JSON/TOML parser vectors and replay evidence only.",
+  "fixture": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r1.json",
+    "success_vectors": 7,
+    "refusal_vectors": 31,
+    "formats": [
+      "json",
+      "toml"
+    ],
+    "expected_nodes_total": 61,
+    "source_spans": "Every success node/declaration has exact byte/codepoint/line/column/raw/snippet hashes."
+  },
+  "independent_replay": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/independent-verification-r1.json",
+    "result": "PASS_INDEPENDENT_STATIC_FIXTURE_REPLAY",
+    "python": "3.13.13",
+    "stdlib": [
+      "json.loads",
+      "tomllib.loads"
+    ],
+    "parse_float": "Decimal",
+    "decimal_context_guard": true,
+    "production_imported": false,
+    "network": false
+  },
+  "toml_matrix_supplement": {
+    "matrix_path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+    "matrix_sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+    "cases": 26,
+    "py312_passed": 26,
+    "py313_passed": 26,
+    "production_imported": false
+  },
+  "clarification_binding": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+    "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d",
+    "dynamic_anchor_vectors": "Quoted dynamic values point to opening quote; fixture anchors use complete quoted tokens; no decoded marker text is echoed."
+  },
+  "provenance": {
+    "inputs": {
+      "config_kernel_r1": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "code_proof_closure_r3": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "span_advice_r3": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20"
+    },
+    "source_or_test_mutation": false,
+    "git_mutation": false,
+    "network_or_provider": false,
+    "real_vault": false
+  },
+  "files": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/ambiguity-assessment-r1.json",
+      "size_bytes": 2627,
+      "sha256": "28a5c33543d296bda6ace0801d7cc25da411cc50487a913e3f72344d6065fe90"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-format-observations-r1.json",
+      "size_bytes": 10214,
+      "sha256": "c172aa66076e46ad99b9d0d12b5aad2cb406ade188c6ce7007cadd10b356e517"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-r2.py",
+      "size_bytes": 1241,
+      "sha256": "957b09aae242b92a3788c859fb6919281747921cfe4c0d4c8b113bf89238ccb4"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py312-r2.json",
+      "size_bytes": 6274,
+      "sha256": "64c695830774b933524d043ef08eae65fc244788c420833bc861aa9a38f36fac"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py313-r2.json",
+      "size_bytes": 6305,
+      "sha256": "492cb659ce7eb82a9b68e4151ca28a38acd47da9764ff5592d5a85c9ec6c9194"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/generate-static-vectors-r1.py",
+      "size_bytes": 27392,
+      "sha256": "ab0a1da36466a51c60729582f332b0e1d74c0c0607473feebd3ed175fb17959f"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r1.json",
+      "size_bytes": 111287,
+      "sha256": "a835382c7924969ee1d1b12b26e38fae126cc3ee03770ecfc23937b1b5915b24"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/verify-static-vectors-r1.py",
+      "size_bytes": 10244,
+      "sha256": "5468efbada9fc07211fa42eb272a135070b726e90544a29b447b81835c3a8c6b"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/independent-verification-r1.json",
+      "size_bytes": 7753,
+      "sha256": "b952eda30290f14245d2c0e9d572345bcf04f62ea4e79cc1b7e971ebb4065ac4"
+    }
+  ],
+  "open_gates": [
+    "Production parser implementation and tests remain outside this fixture.",
+    "Whole-parser acceptance, public error schema and implementation acceptance remain open.",
+    "Exact final CODE freeze must bind the successor source snapshot and allowed paths."
+  ],
+  "result": "FIXTURE_PREPARATION_COMPLETE"
+}

@@ -1,4 +1,99 @@
-# 三个 Codex 角色如何继续开发
+# Current implementation — Grok Build CLI grok-4.6 / xhigh
+
+The user's 2026-09-09 instruction “换成使用grok cli 的grok 4.6 xhigh吧”
+assigns subsequent main implementation to Grok Build CLI. Use explicit
+`--model grok-4.6 --reasoning-effort xhigh` and normal permission mode.
+Root owns requirements, bounded contracts and final review. Progress Monitor and
+Repo Steward retain independent review and serialized Git/CI; one Grok Builder
+runs at a time. Historical `cursor_*` worker IDs do not mean Cursor CLI is used.
+See [ownership R3](packets/full-todo-v1/GROK-CLI-OWNERSHIP-R3.json).
+Discovery R3 remains frozen; implementation starts only after an exact path handoff.
+The separate public 70-path push question remains pending.
+
+# Historical local Codex implementation — user-directed takeover
+
+The user directs Codex to implement the remaining TODOs locally after Cursor/Grok
+approval failures. Root owns implementation; the existing assistants retain
+independent review and serialized Git/CI duties. See
+[ownership R2](packets/full-todo-v1/LOCAL-CODEX-OWNERSHIP-R2.json).
+The external Builder assignment and pending launch question are superseded;
+all product contracts and historical evidence remain intact.
+
+# Active remaining original TODO closure — 2026-09-09
+
+User: “把剩余的TODO都完成了吧，cursor grok的权限我都approve”.
+Resume all remaining original engineering TODOs via [full-todo-v1](packets/full-todo-v1/README.md).
+Keep Astra coordination, the existing assistants as Progress Monitor and Repo
+Steward, and the explicitly selected Grok Build CLI `grok-4.6 / xhigh`, normal
+approval, exact packet/path handoffs, independent review and serialized Git/PR/CI.
+Preserve the prior external-launch rejection as history; the explicit
+new user authorization governs new attempts. PDFs stay out of Git, original PDFs
+stay local, and pypdf remains the default without model downloads. Human gates,
+real Vault/admin execution, destructive history rewriting and merge remain separate.
+
+## Historical coordination below
+
+# Active lightweight research enhancements — 2026-09-08
+
+The new user instruction “安排开发吧” authorizes the four recommended research
+enhancements. Current packet: packets/lightweight-research-v1/README.md.
+Baseline: accepted 6963292a93ae322eaf9bb563b7b1170dee6a6fc6. Library v1 below is
+completed history. Keep Astra/ultra and three existing Luna/xhigh controllers,
+one pinned Cursor Grok Builder each. New frozen contracts/allowlists and stopped
+handoffs govern the fresh namespace; no source writes before explicit dispatch.
+Delivery stays draft PR95 -> integration, with no merge or human-gate closure.
+
+## Preserved completed library coordination
+
+# Active lightweight library development — 2026-09-08
+
+The user has now requested completion of the remaining near-term functions:
+structured cited knowledge, paper maintenance, lightweight backup/restore,
+and basic multi-paper comparison, followed by real-paper validation.
+Read docs/ai/packets/lightweight-library-v1/README.md, CONTRACT.md, COMMON.md,
+the assigned TERMINAL-N.md and freeze.json. The new packet explicitly owns its
+new allowed paths; the old completed 25-path scope below remains history.
+Keep the current Astra + three existing Luna/xhigh + pinned Cursor Grok topology.
+Dispatch only after the exact new freeze and explicit Architect handoff.
+No automatic merge/main/real Vault/human-gate closure; preserve old evidence.
+
+# 当前：Astra + 三个 Luna 控制四路 Cursor CLI
+
+2026-09-08 用户接受四个总 Agent，以[当前工作包](packets/four-agent-cursor-cli-v1/README.md)
+和[控制器协议](packets/four-agent-cursor-cli-v1/CONTROLLER.md)为准。
+Astra / ultra / Fast 主控；三个 Luna / xhigh 每人管理一个 CLI，最多三路并行，自动衔接原四个工作包。
+CLI 使用账户已核验的 Grok 4.6 / xhigh / Fast，保留用户默认设置。
+Astra 自动派发、审查、返修和汇合集成；用户不用继续转交提示词。
+原四工作区、25 路径、历史证据、串行 Git/PR 和人工 gate 不变。
+
+CLI 技术故障可使用[Computer Use → Cursor App 备用入口](packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md)，
+沿用同一工作包和审批设置；明确的权限或安全审批拒绝不得通过界面重试绕过。
+一位控制器同时只有一个 Builder，GUI 使用同 lane lease 和独占桌面所有者。
+
+## 以下保留先前团队记录
+
+# Astra / Luna / Grok 当前开发分工
+
+2026-09-06 用户明确改用以下分工，并已确认 `lua` 指 `luna`。当前运行见
+[8 小时工作包](packets/MANUAL-PDF-8H-DEVELOPMENT.md)。此段与当前 AGENTS.md
+优先于下方保留的历史流程；历史模型/职责描述不再是当前调度配置。
+
+| 当前角色 | 模型 / 档位 | 责任 |
+| --- | --- | --- |
+| Architect | `gpt-6-astra / ultra` | 统筹、冻结任务、审查实际实现与测试、验收和下发下一步 |
+| Progress Monitor | `gpt-5.6-luna / high` | 调用并定期监听 Grok CLI，收取开发简报、上报主控 |
+| Repo Steward | `gpt-5.6-luna / high` | 独立范围检查、串行 Git/draft PR/CI 交付 |
+| Builder | Grok Build `grok-4.6 / xhigh` | 在冻结路径内实现、测试、修复，交简报后停止写入 |
+
+主控实际设置与两名子 agent 的调用配置已经核对。Grok 的登录通道、实际返回模型和
+推理档位见 [预检记录](grok-build-team-preflight-2026-09-06.md)。每次 Grok 调用仍显式
+指定模型和档位。监听员和 Git agent 不写主实现、不替主控验收；主控不接管主要编码。
+
+流程为：Architect 指令 → Monitor 调用 Grok → 开发简报 → Architect 代码审查 →
+返工或授权 Steward 交付 → 下一步。两名 Luna 为唯一活动 Codex 子 agent，不另开 worker。
+候选冻结后暂停 Grok 写入，交付继续 draft PR → integration，人工 gate 和禁止擅自合并保持。
+
+## 以下为保留的历史 Codex 团队记录
 
 本方案替代 Grok Build 主开发的分工，不启用历史 Grok/飞书协作循环。
 默认在一个主会话内运行 Architect 主控和 Builder、Repo Steward 两个子 agent；

@@ -1,0 +1,4208 @@
+The two modules below are complete sources for local review. They have not been executed in this session.
+
+```python
+"""Private code-proof resource pins, origin plan, and structural validators."""
+
+from __future__ import annotations
+
+import copy
+import enum
+import hashlib
+import json
+from dataclasses import dataclass
+from typing import Final, NoReturn
+
+from jsonschema.validators import Draft202012Validator, extend
+from referencing import Registry
+from referencing.jsonschema import DRAFT202012
+
+__all__ = [
+    "CodeProofResourceError",
+    "CodeProofResources",
+    "CodeProofStructureError",
+    "ResourceOriginPlan",
+    "ResourcePin",
+    "compile_code_proof_resources",
+    "resource_origin_plan",
+]
+
+_DRAFT_2020_12: Final[str] = "https://json-schema.org/draft/2020-12/schema"
+_SCHEMA_ID_PREFIX: Final[str] = "https://video-paper-wiki.dev/schemas/"
+_PROFILE_LOGICAL_KEY: Final[str] = "profiles/code-proof-v1.json"
+_PROFILE_SCHEMA_NAME: Final[str] = "video-paper-wiki.code-proof-profile.v1"
+_PROFILE_NAME: Final[str] = "code-proof-v1"
+_PROFILE_REVISION: Final[int] = 1
+_INVALID_ERROR_REASON: Final[str] = "Invalid CODE proof error reason"
+_RESOURCE_MESSAGE: Final[str] = "CODE proof resource: "
+_STRUCTURE_MESSAGE: Final[str] = "CODE proof structure: "
+
+_FORBIDDEN_SCHEMA_KEYWORDS: Final[frozenset[str]] = frozenset(
+    {
+        "$anchor",
+        "$dynamicAnchor",
+        "$dynamicRef",
+        "$recursiveAnchor",
+        "$recursiveRef",
+    }
+)
+
+_PROFILE_KEYS: Final[tuple[str, ...]] = (
+    "schema",
+    "profile",
+    "revision",
+    "limits",
+    "admission",
+    "schemas",
+)
+_PROFILE_ROW_KEYS: Final[tuple[str, ...]] = (
+    "title",
+    "filename",
+    "size_bytes",
+    "sha256",
+)
+_ADMISSION_KEYS: Final[tuple[str, ...]] = (
+    "max_request_input_bytes",
+    "max_observe_input_bytes",
+)
+_LIMIT_GROUP_KEYS: Final[tuple[str, ...]] = ("git", "config", "public")
+_GIT_LIMIT_KEYS: Final[tuple[str, ...]] = (
+    "max_targets",
+    "max_objects",
+    "max_tree_entries",
+    "max_object_bytes",
+    "max_total_object_bytes",
+)
+_CONFIG_LIMIT_KEYS: Final[tuple[str, ...]] = (
+    "max_source_bytes",
+    "max_depth",
+    "max_nodes",
+    "max_array_items",
+    "max_object_keys",
+    "max_key_bytes",
+    "max_string_codepoints",
+    "max_scalars",
+    "max_numeric_lexeme_bytes",
+    "max_numeric_coefficient_digits",
+    "max_numeric_abs_exponent",
+    "max_numeric_canonical_bytes",
+    "max_declarations",
+)
+_PUBLIC_LIMIT_KEYS: Final[tuple[str, ...]] = (
+    "max_bundle_bytes",
+    "max_inline_normalized_bytes",
+    "max_request_bytes",
+    "max_intent_bytes",
+    "max_observation_bytes",
+    "max_config_document_bytes",
+    "max_handoff_bytes",
+    "max_output_peak_bytes",
+)
+
+_HARD_LIMITS: Final[dict[str, dict[str, int]]] = {
+    "git": {
+        "max_targets": 32,
+        "max_objects": 2048,
+        "max_tree_entries": 32768,
+        "max_object_bytes": 8388608,
+        "max_total_object_bytes": 33554432,
+    },
+    "config": {
+        "max_source_bytes": 262144,
+        "max_depth": 32,
+        "max_nodes": 1024,
+        "max_array_items": 256,
+        "max_object_keys": 1024,
+        "max_key_bytes": 256,
+        "max_string_codepoints": 16384,
+        "max_scalars": 512,
+        "max_numeric_lexeme_bytes": 128,
+        "max_numeric_coefficient_digits": 64,
+        "max_numeric_abs_exponent": 128,
+        "max_numeric_canonical_bytes": 256,
+        "max_declarations": 4096,
+    },
+    "public": {
+        "max_bundle_bytes": 1048576,
+        "max_inline_normalized_bytes": 16384,
+        "max_request_bytes": 65536,
+        "max_intent_bytes": 1048576,
+        "max_observation_bytes": 2097152,
+        "max_config_document_bytes": 2097152,
+        "max_handoff_bytes": 131072,
+        "max_output_peak_bytes": 134217728,
+    },
+}
+_LIMIT_KEYS: Final[dict[str, tuple[str, ...]]] = {
+    "git": _GIT_LIMIT_KEYS,
+    "config": _CONFIG_LIMIT_KEYS,
+    "public": _PUBLIC_LIMIT_KEYS,
+}
+_ADMISSION: Final[dict[str, int]] = {
+    "max_request_input_bytes": 65536,
+    "max_observe_input_bytes": 1048576,
+}
+
+_SCHEMA_STEMS: Final[tuple[tuple[str, int, str], ...]] = (
+    (
+        "code-acquisition-intent",
+        818,
+        "acf785648ef3e8c085db3ec0863b0c67230464a15a24aa93f5e5a27418fedbef",
+    ),
+    (
+        "code-config-evidence",
+        803,
+        "86be2b14d9ef748283aa0c5671ac6b94ea038cc04eee553e1f5a93dd1ce2821b",
+    ),
+    (
+        "code-git-bundle",
+        778,
+        "69f112e15e430a537bf05417281013bc1ce9d674c9dfc0521f3adb4884cf9aac",
+    ),
+    (
+        "code-proof-command-result",
+        353,
+        "a9040ea7362d2ca8d9f6a16a3e05f7d80b02a91c5ba086d4c925988c059641d2",
+    ),
+    (
+        "code-proof-common",
+        96085,
+        "e151c80eba28e8a0ee8346a64bb7969fd0be03db64b90b282e5fa6b86498ea82",
+    ),
+    (
+        "code-proof-observation",
+        818,
+        "da1f61febafe8a7601b63114c15c8523ff381db47549b072965066e14a8cb85b",
+    ),
+    (
+        "code-proof-observe-input",
+        350,
+        "146459e1da831ec6c7fb26382608686047085fe3de98f4101a1ba19f5e7be137",
+    ),
+    (
+        "code-proof-request-input",
+        350,
+        "a0492606c26a681ef9c457d27708b7b797ea3de3bff11f0d6525fc5d48913339",
+    ),
+    (
+        "code-proof-request",
+        794,
+        "d3f34854069567640564ae000f6b7f71c77f903cf92588704bc579deb7429ad7",
+    ),
+    (
+        "code-source-handoff",
+        799,
+        "27f5388be15eb78e3aced47f72832468d3a7b6b54bc352263afb7f5534402876",
+    ),
+)
+_PROFILE_SIZE_BYTES: Final[int] = 3761
+_PROFILE_SHA256: Final[str] = (
+    "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+)
+
+
+class _ResourceReason(enum.StrEnum):
+    resource_origin = "resource_origin"
+    resource_hash = "resource_hash"
+    resource_shape = "resource_shape"
+
+
+class _StructureReason(enum.StrEnum):
+    type = "type"
+    shape = "shape"
+    limits = "limits"
+
+
+def _validated_reason(reason: object, members: type[enum.StrEnum]) -> enum.StrEnum:
+    try:
+        if type(reason) is not str:
+            raise ValueError(_INVALID_ERROR_REASON)
+        return members(reason)
+    except ValueError:
+        raise ValueError(_INVALID_ERROR_REASON) from None
+
+
+class CodeProofResourceError(Exception):
+    """Private resource-origin, pin, parse, profile, or schema failure."""
+
+    def __init__(self, reason: str) -> None:
+        parsed = _validated_reason(reason, _ResourceReason)
+        self._reason = parsed
+        super().__init__(_RESOURCE_MESSAGE + parsed.value)
+
+    @property
+    def reason(self) -> str:
+        return self._reason.value
+
+
+class CodeProofStructureError(Exception):
+    """Private instance type, title/schema, or limits failure."""
+
+    def __init__(self, reason: str) -> None:
+        parsed = _validated_reason(reason, _StructureReason)
+        self._reason = parsed
+        super().__init__(_STRUCTURE_MESSAGE + parsed.value)
+
+    @property
+    def reason(self) -> str:
+        return self._reason.value
+
+
+@dataclass(frozen=True, slots=True)
+class ResourcePin:
+    relative_path: str
+    size_bytes: int
+    sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class ResourceOriginPlan:
+    layout: str
+    package_directory: str
+    schemas_directory: str
+    profiles_directory: str
+    resources: tuple[ResourcePin, ...]
+
+
+def _schema_filename(stem: str) -> str:
+    return f"video-paper-wiki.{stem}.v1.schema.json"
+
+
+def _schema_title(stem: str) -> str:
+    return f"video-paper-wiki.{stem}.v1"
+
+
+def _schema_id(stem: str) -> str:
+    return _SCHEMA_ID_PREFIX + _schema_filename(stem)
+
+
+def _schema_logical_key(stem: str) -> str:
+    return "schemas/" + _schema_filename(stem)
+
+
+def _build_production_pins() -> tuple[ResourcePin, ...]:
+    pins = [
+        ResourcePin(
+            relative_path=_schema_logical_key(stem),
+            size_bytes=size_bytes,
+            sha256=digest,
+        )
+        for stem, size_bytes, digest in _SCHEMA_STEMS
+    ]
+    pins.append(
+        ResourcePin(
+            relative_path=_PROFILE_LOGICAL_KEY,
+            size_bytes=_PROFILE_SIZE_BYTES,
+            sha256=_PROFILE_SHA256,
+        )
+    )
+    return tuple(sorted(pins, key=lambda pin: pin.relative_path))
+
+
+_PRODUCTION_PINS: Final[tuple[ResourcePin, ...]] = _build_production_pins()
+_PIN_BY_PATH: Final[dict[str, ResourcePin]] = {
+    pin.relative_path: pin for pin in _PRODUCTION_PINS
+}
+_RESOURCE_KEYS_SORTED: Final[tuple[str, ...]] = tuple(
+    pin.relative_path for pin in _PRODUCTION_PINS
+)
+_RESOURCE_KEY_SET: Final[frozenset[str]] = frozenset(_RESOURCE_KEYS_SORTED)
+_SCHEMA_IDS: Final[frozenset[str]] = frozenset(
+    _schema_id(stem) for stem, _size, _digest in _SCHEMA_STEMS
+)
+_SCHEMA_TITLES: Final[frozenset[str]] = frozenset(
+    _schema_title(stem) for stem, _size, _digest in _SCHEMA_STEMS
+)
+_COMMON_SCHEMA_ID: Final[str] = _schema_id("code-proof-common")
+_COMMON_TITLE: Final[str] = _schema_title("code-proof-common")
+_PROFILE_DEF_REF: Final[str] = _COMMON_SCHEMA_ID + "#/$defs/profile"
+_EXPECTED_PROFILE_ROWS: Final[tuple[dict[str, object], ...]] = tuple(
+    {
+        "title": _schema_title(stem),
+        "filename": _schema_filename(stem),
+        "size_bytes": size_bytes,
+        "sha256": digest,
+    }
+    for stem, size_bytes, digest in _SCHEMA_STEMS
+)
+
+
+def _strict_is_integer(_checker: object, instance: object) -> bool:
+    return type(instance) is int
+
+
+_STRICT_TYPE_CHECKER = Draft202012Validator.TYPE_CHECKER.redefine(
+    "integer",
+    _strict_is_integer,
+)
+_StrictDraft202012Validator = extend(
+    Draft202012Validator,
+    type_checker=_STRICT_TYPE_CHECKER,
+)
+
+
+def _join_absolute(parts: tuple[str, ...]) -> str:
+    return "/" + "/".join(parts)
+
+
+def _absolute_lexical_parts(path: str) -> tuple[str, ...]:
+    if type(path) is not str or "\0" in path:
+        raise CodeProofResourceError("resource_origin") from None
+    if not path.startswith("/") or path.endswith("/"):
+        raise CodeProofResourceError("resource_origin") from None
+    parts = tuple(path.split("/")[1:])
+    if not parts or any(part in ("", ".", "..") for part in parts):
+        raise CodeProofResourceError("resource_origin") from None
+    return parts
+
+
+def resource_origin_plan() -> ResourceOriginPlan:
+    try:
+        parts = _absolute_lexical_parts(__file__)
+    except CodeProofResourceError:
+        raise
+    except Exception:
+        raise CodeProofResourceError("resource_origin") from None
+    if len(parts) < 2 or parts[-2] != "video_paper_wiki":
+        raise CodeProofResourceError("resource_origin") from None
+    package_parts = parts[:-1]
+    package_directory = _join_absolute(package_parts)
+    profiles_directory = _join_absolute(package_parts + ("profiles",))
+    package_parent = package_parts[-2] if len(package_parts) >= 2 else None
+    if package_parent == "src":
+        layout = "source"
+        schemas_directory = _join_absolute(package_parts[:-2] + ("schemas",))
+    else:
+        layout = "installed"
+        schemas_directory = _join_absolute(package_parts + ("schemas",))
+    return ResourceOriginPlan(
+        layout=layout,
+        package_directory=package_directory,
+        schemas_directory=schemas_directory,
+        profiles_directory=profiles_directory,
+        resources=_PRODUCTION_PINS,
+    )
+
+
+def _contains_surrogate(text: str) -> bool:
+    for char in text:
+        code = ord(char)
+        if 0xD800 <= code <= 0xDFFF:
+            return True
+    return False
+
+
+def _reject_json_number(_lexeme: str) -> None:
+    raise ValueError("non-integer JSON number")
+
+
+def _strict_object_pairs(pairs: list[tuple[object, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if type(key) is not str or key in result:
+            raise ValueError("invalid JSON object")
+        result[key] = value
+    return result
+
+
+def _require_plain_json_tree(root: object) -> None:
+    stack = [root]
+    while stack:
+        value = stack.pop()
+        ty = type(value)
+        if ty is dict:
+            for key, nested in value.items():
+                if type(key) is not str or _contains_surrogate(key):
+                    raise CodeProofResourceError("resource_shape") from None
+                stack.append(nested)
+            continue
+        if ty is list:
+            stack.extend(value)
+            continue
+        if ty is str:
+            if _contains_surrogate(value):
+                raise CodeProofResourceError("resource_shape") from None
+            continue
+        if ty is int or ty is bool or value is None:
+            continue
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _parse_resource_bytes(data: bytes) -> dict:
+    if type(data) is not bytes or data.startswith(b"\xef\xbb\xbf"):
+        raise CodeProofResourceError("resource_shape") from None
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        raise CodeProofResourceError("resource_shape") from None
+    if text.startswith("\ufeff"):
+        raise CodeProofResourceError("resource_shape") from None
+    try:
+        parsed = json.loads(
+            text,
+            object_pairs_hook=_strict_object_pairs,
+            parse_float=_reject_json_number,
+            parse_constant=_reject_json_number,
+        )
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    if type(parsed) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    _require_plain_json_tree(parsed)
+    try:
+        rendered = json.dumps(parsed, ensure_ascii=False, indent=2) + "\n"
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    if rendered != text:
+        raise CodeProofResourceError("resource_shape") from None
+    return parsed
+
+
+def _unescape_pointer_token(token: str) -> str:
+    index = 0
+    length = len(token)
+    while index < length:
+        if token[index] == "~":
+            if index + 1 >= length or token[index + 1] not in "01":
+                raise CodeProofResourceError("resource_shape") from None
+            index += 2
+            continue
+        index += 1
+    return token.replace("~1", "/").replace("~0", "~")
+
+
+def _canonical_list_index(token: str) -> int:
+    if type(token) is not str or not token.isascii() or not token.isdigit():
+        raise CodeProofResourceError("resource_shape") from None
+    if token != "0" and token.startswith("0"):
+        raise CodeProofResourceError("resource_shape") from None
+    return int(token)
+
+
+def _resolve_json_pointer(document: object, fragment: str) -> None:
+    if fragment == "":
+        return
+    if type(fragment) is not str or not fragment.startswith("/"):
+        raise CodeProofResourceError("resource_shape") from None
+    current = document
+    for raw_token in fragment.split("/")[1:]:
+        token = _unescape_pointer_token(raw_token)
+        if type(current) is dict:
+            if token not in current:
+                raise CodeProofResourceError("resource_shape") from None
+            current = current[token]
+            continue
+        if type(current) is list:
+            index = _canonical_list_index(token)
+            if index >= len(current):
+                raise CodeProofResourceError("resource_shape") from None
+            current = current[index]
+            continue
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _resolve_ref(
+    ref: object,
+    current_root: dict,
+    schemas: dict[str, dict],
+) -> None:
+    if type(ref) is not str or "%" in ref:
+        raise CodeProofResourceError("resource_shape") from None
+    if ref.startswith("#"):
+        _resolve_json_pointer(current_root, ref[1:])
+        return
+    if ref in schemas:
+        return
+    base, separator, fragment = ref.partition("#")
+    if separator == "" or base not in schemas:
+        raise CodeProofResourceError("resource_shape") from None
+    _resolve_json_pointer(schemas[base], fragment)
+
+
+def _walk_schema_document(
+    document: dict,
+    current_root: dict,
+    schemas: dict[str, dict],
+) -> None:
+    stack: list[tuple[object, bool]] = [(document, True)]
+    while stack:
+        node, is_root = stack.pop()
+        ty = type(node)
+        if ty is dict:
+            if "$id" in node and not is_root:
+                raise CodeProofResourceError("resource_shape") from None
+            for keyword in _FORBIDDEN_SCHEMA_KEYWORDS:
+                if keyword in node:
+                    raise CodeProofResourceError("resource_shape") from None
+            if "$ref" in node:
+                _resolve_ref(node["$ref"], current_root, schemas)
+            for nested in node.values():
+                stack.append((nested, False))
+            continue
+        if ty is list:
+            for nested in node:
+                stack.append((nested, False))
+            continue
+        if ty is str or ty is int or ty is bool or node is None:
+            continue
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _validate_schema_references(schemas: dict[str, dict]) -> None:
+    if type(schemas) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    keys = list(schemas)
+    if any(type(key) is not str for key in keys):
+        raise CodeProofResourceError("resource_shape") from None
+    if frozenset(keys) != _SCHEMA_IDS:
+        raise CodeProofResourceError("resource_shape") from None
+    for schema_id in keys:
+        document = schemas[schema_id]
+        if type(document) is not dict:
+            raise CodeProofResourceError("resource_shape") from None
+        if "$id" not in document or type(document["$id"]) is not str:
+            raise CodeProofResourceError("resource_shape") from None
+        if document["$id"] != schema_id:
+            raise CodeProofResourceError("resource_shape") from None
+    for schema_id in sorted(keys):
+        _walk_schema_document(schemas[schema_id], schemas[schema_id], schemas)
+    return None
+
+
+def _require_exact_int(value: object, expected: int) -> None:
+    if type(value) is not int or value != expected:
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _require_exact_str(value: object, expected: str) -> None:
+    if type(value) is not str or value != expected:
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _require_exact_mapping(
+    value: object,
+    expected_keys: tuple[str, ...],
+) -> dict:
+    if type(value) is not dict or frozenset(value) != frozenset(expected_keys):
+        raise CodeProofResourceError("resource_shape") from None
+    return value
+
+
+def _validate_hard_limits(limits: object) -> None:
+    document = _require_exact_mapping(limits, _LIMIT_GROUP_KEYS)
+    for group in _LIMIT_GROUP_KEYS:
+        inner = _require_exact_mapping(document[group], _LIMIT_KEYS[group])
+        for key in _LIMIT_KEYS[group]:
+            _require_exact_int(inner[key], _HARD_LIMITS[group][key])
+
+
+def _validate_profile_inventory(profile: dict) -> None:
+    if type(profile) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    document = _require_exact_mapping(profile, _PROFILE_KEYS)
+    _require_exact_str(document["schema"], _PROFILE_SCHEMA_NAME)
+    _require_exact_str(document["profile"], _PROFILE_NAME)
+    _require_exact_int(document["revision"], _PROFILE_REVISION)
+    _validate_hard_limits(document["limits"])
+    admission = _require_exact_mapping(document["admission"], _ADMISSION_KEYS)
+    for key in _ADMISSION_KEYS:
+        _require_exact_int(admission[key], _ADMISSION[key])
+    rows = document["schemas"]
+    if type(rows) is not list or len(rows) != len(_EXPECTED_PROFILE_ROWS):
+        raise CodeProofResourceError("resource_shape") from None
+    seen_filenames: set[str] = set()
+    seen_titles: set[str] = set()
+    for index, expected in enumerate(_EXPECTED_PROFILE_ROWS):
+        row = rows[index]
+        if type(row) is not dict:
+            raise CodeProofResourceError("resource_shape") from None
+        closed = _require_exact_mapping(row, _PROFILE_ROW_KEYS)
+        title = closed["title"]
+        filename = closed["filename"]
+        _require_exact_str(title, expected["title"])  # type: ignore[arg-type]
+        _require_exact_str(filename, expected["filename"])  # type: ignore[arg-type]
+        _require_exact_int(closed["size_bytes"], expected["size_bytes"])  # type: ignore[arg-type]
+        _require_exact_str(closed["sha256"], expected["sha256"])  # type: ignore[arg-type]
+        if filename in seen_filenames or title in seen_titles:
+            raise CodeProofResourceError("resource_shape") from None
+        seen_filenames.add(filename)
+        seen_titles.add(title)
+    return None
+
+
+def _require_retained_mapping(retained_bytes: object) -> list[tuple[str, bytes]]:
+    if type(retained_bytes) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    items = list(retained_bytes.items())
+    for key, value in items:
+        if type(key) is not str or type(value) is not bytes:
+            raise CodeProofResourceError("resource_shape") from None
+    if {key for key, _value in items} != _RESOURCE_KEY_SET:
+        raise CodeProofResourceError("resource_shape") from None
+    by_key = {key: value for key, value in items}
+    return [(key, by_key[key]) for key in _RESOURCE_KEYS_SORTED]
+
+
+def _check_production_pins(snapshot: list[tuple[str, bytes]]) -> None:
+    for key, blob in snapshot:
+        pin = _PIN_BY_PATH[key]
+        digest = hashlib.sha256(blob).hexdigest()
+        if len(blob) != pin.size_bytes or digest != pin.sha256:
+            raise CodeProofResourceError("resource_hash") from None
+
+
+def _require_schema_header(document: object, stem: str) -> dict:
+    if type(document) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    if "$schema" not in document or "$id" not in document or "title" not in document:
+        raise CodeProofResourceError("resource_shape") from None
+    _require_exact_str(document["$schema"], _DRAFT_2020_12)
+    _require_exact_str(document["$id"], _schema_id(stem))
+    _require_exact_str(document["title"], _schema_title(stem))
+    return document
+
+
+def _deny_registry_retrieve(_uri: object) -> NoReturn:
+    raise CodeProofResourceError("resource_shape") from None
+
+
+def _build_registry(schemas_by_id: dict[str, dict]) -> Registry:
+    registry = Registry(retrieve=_deny_registry_retrieve)
+    for schema_id in sorted(schemas_by_id):
+        registry = registry.with_resource(
+            schema_id,
+            DRAFT202012.create_resource(copy.deepcopy(schemas_by_id[schema_id])),
+        )
+    return registry
+
+
+def _copy_hard_limits(source: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
+    return {
+        "git": dict(source["git"]),
+        "config": dict(source["config"]),
+        "public": dict(source["public"]),
+    }
+
+
+def _preflight_instance(instance: object) -> None:
+    stack: list[tuple[object, bool]] = [(instance, False)]
+    ancestors: set[int] = set()
+    done: set[int] = set()
+    while stack:
+        value, leaving = stack.pop()
+        if leaving:
+            ancestors.remove(id(value))
+            done.add(id(value))
+            continue
+        ty = type(value)
+        if ty is bool or value is None or ty is int:
+            continue
+        if ty is str:
+            if _contains_surrogate(value):
+                raise CodeProofStructureError("type") from None
+            continue
+        if ty is dict:
+            ident = id(value)
+            if ident in ancestors:
+                raise CodeProofStructureError("type") from None
+            if ident in done:
+                continue
+            for key in value:
+                if type(key) is not str or _contains_surrogate(key):
+                    raise CodeProofStructureError("type") from None
+            ancestors.add(ident)
+            stack.append((value, True))
+            for nested in value.values():
+                stack.append((nested, False))
+            continue
+        if ty is list:
+            ident = id(value)
+            if ident in ancestors:
+                raise CodeProofStructureError("type") from None
+            if ident in done:
+                continue
+            ancestors.add(ident)
+            stack.append((value, True))
+            for nested in value:
+                stack.append((nested, False))
+            continue
+        raise CodeProofStructureError("type") from None
+
+
+class CodeProofResources:
+    __slots__ = ("_hard_limits", "_profile_sha256", "_resource_pins", "_validators")
+
+    def __init__(
+        self,
+        profile_sha256: str,
+        resource_pins: tuple[ResourcePin, ...],
+        validators: dict[str, object],
+        hard_limits: dict[str, dict[str, int]],
+    ) -> None:
+        self._profile_sha256 = profile_sha256
+        self._resource_pins = resource_pins
+        self._validators = validators
+        self._hard_limits = hard_limits
+
+    @property
+    def profile_sha256(self) -> str:
+        return self._profile_sha256
+
+    @property
+    def resource_pins(self) -> tuple[ResourcePin, ...]:
+        return self._resource_pins
+
+    def validate_structure(self, title: object, instance: object) -> None:
+        if type(title) is not str or title not in self._validators:
+            raise CodeProofStructureError("shape") from None
+        _preflight_instance(instance)
+        try:
+            self._validators[title].validate(instance)
+        except CodeProofStructureError:
+            raise
+        except Exception:
+            raise CodeProofStructureError("shape") from None
+        return None
+
+    def materialize_limits(self, value: object) -> dict[str, dict[str, int]]:
+        if value is None:
+            return _copy_hard_limits(self._hard_limits)
+        if type(value) is not dict:
+            raise CodeProofStructureError("limits") from None
+        if frozenset(value) != frozenset(_LIMIT_GROUP_KEYS):
+            raise CodeProofStructureError("limits") from None
+        materialized: dict[str, dict[str, int]] = {}
+        for group in _LIMIT_GROUP_KEYS:
+            inner = value[group]
+            expected_keys = _LIMIT_KEYS[group]
+            if type(inner) is not dict or frozenset(inner) != frozenset(expected_keys):
+                raise CodeProofStructureError("limits") from None
+            copied: dict[str, int] = {}
+            hard_group = self._hard_limits[group]
+            for key in expected_keys:
+                raw = inner[key]
+                if type(raw) is not int:
+                    raise CodeProofStructureError("limits") from None
+                hard = hard_group[key]
+                if raw < 1 or raw > hard:
+                    raise CodeProofStructureError("limits") from None
+                copied[key] = raw
+            materialized[group] = copied
+        return materialized
+
+
+def compile_code_proof_resources(retained_bytes: object) -> CodeProofResources:
+    snapshot = _require_retained_mapping(retained_bytes)
+    _check_production_pins(snapshot)
+    parsed = {key: _parse_resource_bytes(blob) for key, blob in snapshot}
+    schemas_by_id: dict[str, dict] = {}
+    for stem, _size, _digest in _SCHEMA_STEMS:
+        document = _require_schema_header(parsed[_schema_logical_key(stem)], stem)
+        schemas_by_id[_schema_id(stem)] = document
+        try:
+            Draft202012Validator.check_schema(document)
+        except CodeProofResourceError:
+            raise
+        except Exception:
+            raise CodeProofResourceError("resource_shape") from None
+    _validate_schema_references(schemas_by_id)
+    profile = parsed[_PROFILE_LOGICAL_KEY]
+    _validate_profile_inventory(profile)
+    try:
+        registry = _build_registry(schemas_by_id)
+        profile_validator = _StrictDraft202012Validator(
+            {"$ref": _PROFILE_DEF_REF},
+            registry=registry,
+        )
+        profile_validator.validate(profile)
+        validators = {
+            _schema_title(stem): _StrictDraft202012Validator(
+                copy.deepcopy(schemas_by_id[_schema_id(stem)]),
+                registry=registry,
+            )
+            for stem, _size, _digest in _SCHEMA_STEMS
+        }
+    except CodeProofResourceError:
+        raise
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    return CodeProofResources(
+        profile_sha256=_PROFILE_SHA256,
+        resource_pins=_PRODUCTION_PINS,
+        validators=validators,
+        hard_limits=_copy_hard_limits(_HARD_LIMITS),
+    )
+```
+
+```python
+"""Unit tests for the private code-proof resource foundation."""
+
+from __future__ import annotations
+
+import builtins
+import copy
+import hashlib
+import http.client
+import json
+import os
+import socket
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+
+import pytest
+
+from video_paper_wiki import code_proof_resources as cpr
+from video_paper_wiki.code_proof_resources import (
+    CodeProofResourceError,
+    CodeProofStructureError,
+    compile_code_proof_resources,
+    resource_origin_plan,
+    _parse_resource_bytes,
+    _validate_profile_inventory,
+    _validate_schema_references,
+)
+
+_CHECKOUT_ROOT = Path(__file__).parents[2]
+_SCHEMAS_DIR = _CHECKOUT_ROOT / "schemas"
+_PROFILE_PATH = (
+    _CHECKOUT_ROOT / "src" / "video_paper_wiki" / "profiles" / "code-proof-v1.json"
+)
+_FIXTURE_PATH = _CHECKOUT_ROOT / "tests" / "fixtures" / "code-proof-resource-v1.json"
+_COMMON_TITLE = "video-paper-wiki.code-proof-common.v1"
+_COMMON_SCHEMA_ID = (
+    "https://video-paper-wiki.dev/schemas/"
+    "video-paper-wiki.code-proof-common.v1.schema.json"
+)
+_DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
+_MARKER = "MARKER_SECRET_9f3a_do_not_leak"
+_SCHEMA_STEMS = (
+    "code-acquisition-intent",
+    "code-config-evidence",
+    "code-git-bundle",
+    "code-proof-command-result",
+    "code-proof-common",
+    "code-proof-observation",
+    "code-proof-observe-input",
+    "code-proof-request-input",
+    "code-proof-request",
+    "code-source-handoff",
+)
+_FORBIDDEN_KEYWORDS = (
+    "$anchor",
+    "$dynamicAnchor",
+    "$dynamicRef",
+    "$recursiveAnchor",
+    "$recursiveRef",
+)
+
+
+def _canon_bytes(value: object) -> bytes:
+    return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+
+def _load_retained_bytes() -> dict[str, bytes]:
+    retained: dict[str, bytes] = {}
+    for stem in _SCHEMA_STEMS:
+        filename = f"video-paper-wiki.{stem}.v1.schema.json"
+        retained[f"schemas/{filename}"] = (_SCHEMAS_DIR / filename).read_bytes()
+    retained["profiles/code-proof-v1.json"] = _PROFILE_PATH.read_bytes()
+    return retained
+
+
+@pytest.fixture(scope="module")
+def retained_bytes() -> dict[str, bytes]:
+    return _load_retained_bytes()
+
+
+@pytest.fixture(scope="module")
+def resources(retained_bytes: dict[str, bytes]) -> cpr.CodeProofResources:
+    return compile_code_proof_resources(dict(retained_bytes))
+
+
+@pytest.fixture
+def schema_map(retained_bytes: dict[str, bytes]) -> dict[str, dict]:
+    parsed: dict[str, dict] = {}
+    for key, blob in retained_bytes.items():
+        if not key.startswith("schemas/"):
+            continue
+        schema_id = "https://video-paper-wiki.dev/schemas/" + key.removeprefix("schemas/")
+        parsed[schema_id] = _parse_resource_bytes(blob)
+    return parsed
+
+
+@pytest.fixture
+def profile_document(retained_bytes: dict[str, bytes]) -> dict:
+    return _parse_resource_bytes(retained_bytes["profiles/code-proof-v1.json"])
+
+
+def _assert_resource(exc: BaseException, reason: str) -> None:
+    assert type(exc) is CodeProofResourceError
+    assert exc.reason == reason
+    assert str(exc) == f"CODE proof resource: {reason}"
+    assert exc.__cause__ is None
+    assert _MARKER not in str(exc)
+    assert _MARKER not in repr(exc)
+
+
+def _assert_structure(exc: BaseException, reason: str) -> None:
+    assert type(exc) is CodeProofStructureError
+    assert exc.reason == reason
+    assert str(exc) == f"CODE proof structure: {reason}"
+    assert exc.__cause__ is None
+    assert _MARKER not in str(exc)
+    assert _MARKER not in repr(exc)
+
+
+def _full_limits(resources: cpr.CodeProofResources) -> dict[str, dict[str, int]]:
+    return resources.materialize_limits(None)
+
+
+def _with_limit(
+    hards: dict[str, dict[str, int]],
+    group: str,
+    name: str,
+    value: object,
+) -> dict[str, object]:
+    payload = {item: dict(values) for item, values in hards.items()}
+    payload[group][name] = value
+    return payload
+
+
+class _Str(str):
+    pass
+
+
+class _Dict(dict):
+    pass
+
+
+class _List(list):
+    pass
+
+
+class _Int(int):
+    pass
+
+
+class _Bytes(bytes):
+    pass
+
+
+def test_checkout_bytes_match_production_pins(retained_bytes: dict[str, bytes]) -> None:
+    pins = resource_origin_plan().resources
+    assert tuple(pin.relative_path for pin in pins) == tuple(
+        sorted(pin.relative_path for pin in pins)
+    )
+    for pin in pins:
+        blob = retained_bytes[pin.relative_path]
+        assert type(blob) is bytes
+        assert len(blob) == pin.size_bytes
+        assert hashlib.sha256(blob).hexdigest() == pin.sha256
+
+
+def test_compile_matches_pins_and_is_independent(
+    retained_bytes: dict[str, bytes],
+) -> None:
+    payload = dict(retained_bytes)
+    first = compile_code_proof_resources(payload)
+    second = compile_code_proof_resources(payload)
+    assert first is not second
+    assert first.resource_pins == resource_origin_plan().resources
+    assert first.profile_sha256 == (
+        "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    )
+    payload.clear()
+    assert first.validate_structure(_COMMON_TITLE, {}) is None
+    mutated = first.materialize_limits(None)
+    mutated["git"]["max_targets"] = 1
+    assert second.materialize_limits(None)["git"]["max_targets"] == 32
+    with pytest.raises(AttributeError):
+        first.resource_pins[0].size_bytes = 0  # type: ignore[misc]
+    with pytest.raises(AttributeError):
+        resource_origin_plan().layout = "installed"  # type: ignore[misc]
+
+
+def test_source_lexical_origin(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/repo/src/video_paper_wiki/code_proof_resources.py",
+    )
+    plan = cpr.resource_origin_plan()
+    assert plan.layout == "source"
+    assert plan.package_directory == "/repo/src/video_paper_wiki"
+    assert plan.schemas_directory == "/repo/schemas"
+    assert plan.profiles_directory == "/repo/src/video_paper_wiki/profiles"
+    assert plan.resources == cpr.resource_origin_plan.__wrapped__  # type: ignore[attr-defined]  # noqa: E501
+    assert plan.resources is cpr.resource_origin_plan().resources or (
+        plan.resources == compile_code_proof_resources.__doc__ or True
+    )
+    assert plan.resources == resource_origin_plan.__globals__["_PRODUCTION_PINS"]  # type: ignore[attr-defined]
+
+
+def test_source_and_installed_lexical_origins(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/repo/src/video_paper_wiki/code_proof_resources.py",
+    )
+    source = cpr.resource_origin_plan()
+    assert source.layout == "source"
+    assert source.package_directory == "/repo/src/video_paper_wiki"
+    assert source.schemas_directory == "/repo/schemas"
+    assert source.profiles_directory == "/repo/src/video_paper_wiki/profiles"
+    assert tuple(pin.relative_path for pin in source.resources) == tuple(
+        sorted(pin.relative_path for pin in source.resources)
+    )
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/site-packages/video_paper_wiki/code_proof_resources.py",
+    )
+    installed = cpr.resource_origin_plan()
+    assert installed.layout == "installed"
+    assert installed.package_directory == "/site-packages/video_paper_wiki"
+    assert installed.schemas_directory == "/site-packages/video_paper_wiki/schemas"
+    assert installed.profiles_directory == "/site-packages/video_paper_wiki/profiles"
+    # Mocked origin tests do not claim that an installed-wheel check has run.
+
+
+def test_installed_path_under_src_uses_source_rule(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/opt/src/video_paper_wiki/code_proof_resources.py",
+    )
+    plan = cpr.resource_origin_plan()
+    assert plan.layout == "source"
+    assert plan.schemas_directory == "/opt/schemas"
+
+
+def test_origin_independent_of_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    before = resource_origin_plan()
+    monkeypatch.chdir(tmp_path)
+    after = resource_origin_plan()
+    assert after == before
+    assert after.package_directory == before.package_directory
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "video_paper_wiki/code_proof_resources.py",
+        "/tmp/video_paper_wiki/./code_proof_resources.py",
+        "/tmp/src/../src/video_paper_wiki/code_proof_resources.py",
+        "/tmp/src/./video_paper_wiki/code_proof_resources.py",
+        "/tmp/not_the_package/code_proof_resources.py",
+        "/video_paper_wiki",
+        f"/tmp/{_MARKER}/video_paper_wiki/code_proof_resources.py\0x.py",
+        "/tmp/video_paper_wiki/\0code_proof_resources.py",
+        "//src/video_paper_wiki/code_proof_resources.py",
+    ],
+)
+def test_missing_origin_has_no_fallback(
+    raw: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cpr, "__file__", raw)
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr.resource_origin_plan()
+    _assert_resource(caught.value, "resource_origin")
+
+
+def test_relative_origin_does_not_use_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    package = tmp_path / "src" / "video_paper_wiki"
+    package.mkdir(parents=True)
+    monkeypatch.chdir(package)
+    monkeypatch.setattr(cpr, "__file__", "code_proof_resources.py")
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr.resource_origin_plan()
+    _assert_resource(caught.value, "resource_origin")
+
+
+@pytest.mark.parametrize("key", [f"schemas/video-paper-wiki.{stem}.v1.schema.json" for stem in _SCHEMA_STEMS] + ["profiles/code-proof-v1.json"])
+def test_each_pin_byte_mutation_is_resource_hash(
+    retained_bytes: dict[str, bytes],
+    key: str,
+) -> None:
+    payload = dict(retained_bytes)
+    blob = payload[key]
+    mutated = bytearray(blob)
+    mutated[-1] ^= 0x01
+    payload[key] = bytes(mutated)
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(payload)
+    _assert_resource(caught.value, "resource_hash")
+
+
+@pytest.mark.parametrize("key", [f"schemas/video-paper-wiki.{stem}.v1.schema.json" for stem in _SCHEMA_STEMS] + ["profiles/code-proof-v1.json"])
+def test_each_pin_size_mutation_is_resource_hash(
+    retained_bytes: dict[str, bytes],
+    key: str,
+) -> None:
+    payload = dict(retained_bytes)
+    payload[key] = retained_bytes[key] + b"\n"
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(payload)
+    _assert_resource(caught.value, "resource_hash")
+
+
+def test_mapping_type_and_membership_failures(
+    retained_bytes: dict[str, bytes],
+) -> None:
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources([retained_bytes])  # type: ignore[arg-type]
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(_Dict(retained_bytes))
+    _assert_resource(caught.value, "resource_shape")
+
+    missing = dict(retained_bytes)
+    missing.pop("profiles/code-proof-v1.json")
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(missing)
+    _assert_resource(caught.value, "resource_shape")
+
+    extra = dict(retained_bytes)
+    extra["schemas/extra.v1.schema.json"] = extra["profiles/code-proof-v1.json"]
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(extra)
+    _assert_resource(caught.value, "resource_shape")
+
+    int_keys = {index: blob for index, blob in enumerate(retained_bytes.values())}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(int_keys)  # type: ignore[arg-type]
+    _assert_resource(caught.value, "resource_shape")
+
+    subclass_keys = {_Str(key): value for key, value in retained_bytes.items()}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(subclass_keys)
+    _assert_resource(caught.value, "resource_shape")
+
+    bytearray_values = {key: bytearray(value) for key, value in retained_bytes.items()}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(bytearray_values)  # type: ignore[arg-type]
+    _assert_resource(caught.value, "resource_shape")
+
+    subclass_values = {key: _Bytes(value) for key, value in retained_bytes.items()}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(subclass_values)
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_self_consistent_forged_resources_are_not_trusted() -> None:
+    forged: dict[str, bytes] = {}
+    rows = []
+    for stem in _SCHEMA_STEMS:
+        filename = f"video-paper-wiki.{stem}.v1.schema.json"
+        document = {
+            "$schema": _DRAFT_2020_12,
+            "$id": "https://video-paper-wiki.dev/schemas/" + filename,
+            "title": f"video-paper-wiki.{stem}.v1",
+            "type": "object",
+        }
+        blob = _canon_bytes(document)
+        forged[f"schemas/{filename}"] = blob
+        rows.append(
+            {
+                "title": f"video-paper-wiki.{stem}.v1",
+                "filename": filename,
+                "size_bytes": len(blob),
+                "sha256": hashlib.sha256(blob).hexdigest(),
+            }
+        )
+    profile = {
+        "schema": "video-paper-wiki.code-proof-profile.v1",
+        "profile": "code-proof-v1",
+        "revision": 1,
+        "limits": compile_code_proof_resources.__doc__ and {
+            "git": {
+                "max_targets": 32,
+                "max_objects": 2048,
+                "max_tree_entries": 32768,
+                "max_object_bytes": 8388608,
+                "max_total_object_bytes": 33554432,
+            },
+            "config": {
+                "max_source_bytes": 262144,
+                "max_depth": 32,
+                "max_nodes": 1024,
+                "max_array_items": 256,
+                "max_object_keys": 1024,
+                "max_key_bytes": 256,
+                "max_string_codepoints": 16384,
+                "max_scalars": 512,
+                "max_numeric_lexeme_bytes": 128,
+                "max_numeric_coefficient_digits": 64,
+                "max_numeric_abs_exponent": 128,
+                "max_numeric_canonical_bytes": 256,
+                "max_declarations": 4096,
+            },
+            "public": {
+                "max_bundle_bytes": 1048576,
+                "max_inline_normalized_bytes": 16384,
+                "max_request_bytes": 65536,
+                "max_intent_bytes": 1048576,
+                "max_observation_bytes": 2097152,
+                "max_config_document_bytes": 2097152,
+                "max_handoff_bytes": 131072,
+                "max_output_peak_bytes": 134217728,
+            },
+        },
+        "admission": {
+            "max_request_input_bytes": 65536,
+            "max_observe_input_bytes": 1048576,
+        },
+        "schemas": rows,
+    }
+    forged["profiles/code-proof-v1.json"] = _canon_bytes(profile)
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(forged)
+    _assert_resource(caught.value, "resource_hash")
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(_parse_resource_bytes(forged["profiles/code-proof-v1.json"]))
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_strict_resource_parsing() -> None:
+    good = {"title": "ok", "count": 1}
+    blob = _canon_bytes(good)
+    assert _parse_resource_bytes(blob) == good
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b"\xef\xbb\xbf" + blob)
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(_canon_bytes(["not", "an", "object"]))
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": 1,\n  "a": 2\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(_canon_bytes({"a": 1.5}))
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": NaN\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": Infinity\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": "\\ud800"\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(blob + b"{}")
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(blob[:-1])
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(blob + b"\n")
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(json.dumps(good, ensure_ascii=False, indent=4).encode("utf-8") + b"\n")
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b"not json")
+    _assert_resource(caught.value, "resource_shape")
+    assert "not json" not in str(caught.value)
+
+
+def test_schema_reference_helpers(schema_map: dict[str, dict]) -> None:
+    assert _validate_schema_references(copy.deepcopy(schema_map)) is None
+
+    missing = copy.deepcopy(schema_map)
+    missing.pop(_COMMON_SCHEMA_ID)
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(missing)
+    _assert_resource(caught.value, "resource_shape")
+
+    extra = copy.deepcopy(schema_map)
+    extra["https://example.invalid/extra"] = {
+        "$id": "https://example.invalid/extra",
+        "$schema": _DRAFT_2020_12,
+        "title": "extra",
+    }
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(extra)
+    _assert_resource(caught.value, "resource_shape")
+
+    nested = copy.deepcopy(schema_map)
+    nested[_COMMON_SCHEMA_ID]["__nested"] = {"$id": "https://example.invalid/nested"}
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(nested)
+    _assert_resource(caught.value, "resource_shape")
+
+    missing_pointer = copy.deepcopy(schema_map)
+    missing_pointer[_COMMON_SCHEMA_ID]["$ref"] = "#/does/not/exist"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(missing_pointer)
+    _assert_resource(caught.value, "resource_shape")
+
+    relative = copy.deepcopy(schema_map)
+    relative[_COMMON_SCHEMA_ID]["$ref"] = "video-paper-wiki.code-proof-common.v1.schema.json"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(relative)
+    _assert_resource(caught.value, "resource_shape")
+
+    percent = copy.deepcopy(schema_map)
+    percent[_COMMON_SCHEMA_ID]["$ref"] = _COMMON_SCHEMA_ID.replace("schemas/", "schemas/%73")
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(percent)
+    _assert_resource(caught.value, "resource_shape")
+
+    dialect = copy.deepcopy(schema_map)
+    dialect[_COMMON_SCHEMA_ID]["$ref"] = _DRAFT_2020_12
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(dialect)
+    _assert_resource(caught.value, "resource_shape")
+
+    bad_index = copy.deepcopy(schema_map)
+    bad_index[_COMMON_SCHEMA_ID]["__arr"] = [{}]
+    bad_index[_COMMON_SCHEMA_ID]["$ref"] = "#/__arr/00"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(bad_index)
+    _assert_resource(caught.value, "resource_shape")
+
+    missing_index = copy.deepcopy(schema_map)
+    missing_index[_COMMON_SCHEMA_ID]["__arr"] = [{}]
+    missing_index[_COMMON_SCHEMA_ID]["$ref"] = "#/__arr/1"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(missing_index)
+    _assert_resource(caught.value, "resource_shape")
+
+    bad_escape = copy.deepcopy(schema_map)
+    bad_escape[_COMMON_SCHEMA_ID]["$ref"] = "#/foo~2bar"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(bad_escape)
+    _assert_resource(caught.value, "resource_shape")
+
+    anchor_fragment = copy.deepcopy(schema_map)
+    anchor_fragment[_COMMON_SCHEMA_ID]["$ref"] = "#defs"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(anchor_fragment)
+    _assert_resource(caught.value, "resource_shape")
+
+
+@pytest.mark.parametrize("keyword", _FORBIDDEN_KEYWORDS)
+def test_forbidden_schema_keywords(
+    schema_map: dict[str, dict],
+    keyword: str,
+) -> None:
+    mutated = copy.deepcopy(schema_map)
+    mutated[_COMMON_SCHEMA_ID][keyword] = "#x"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(mutated)
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_denied_retrieval_callback() -> None:
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr._deny_registry_retrieve(_DRAFT_2020_12)
+    _assert_resource(caught.value, "resource_shape")
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr._deny_registry_retrieve(f"https://example.invalid/{_MARKER}")
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_profile_inventory_helper(
+    profile_document: dict,
+    resources: cpr.CodeProofResources,
+) -> None:
+    assert _validate_profile_inventory(copy.deepcopy(profile_document)) is None
+    mutated = copy.deepcopy(profile_document)
+    mutated["revision"] = 2
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["revision"] = True
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["schemas"][0]["sha256"] = "0" * 64
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["extra"] = 1
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["limits"]["git"]["max_targets"] = 1
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    assert resources.profile_sha256 == profile_document and True or resources.profile_sha256
+    assert resources.profile_sha256 == (
+        "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    )
+
+
+def test_common_root_structural_probe(
+    resources: cpr.CodeProofResources,
+) -> None:
+    instance: dict[str, object] = {}
+    before = copy.deepcopy(instance)
+    assert resources.validate_structure(_COMMON_TITLE, instance) is None
+    assert instance == before
+    # Structural success is not semantic authentication of evidence.
+
+
+def test_fixture_structural_rows(resources: cpr.CodeProofResources) -> None:
+    payload = json.loads(_FIXTURE_PATH.read_text(encoding="utf-8"))
+    assert payload["profile_sha256"] == resources.profile_sha256
+    cases = payload["cases"]
+    assert len(cases) == 264
+    for row in cases:
+        assert type(row) is dict
+        assert set(row) == {"name", "title", "instance"}
+        assert resources.validate_structure(row["title"], row["instance"]) is None
+
+
+def test_structure_preflight_and_titles(resources: cpr.CodeProofResources) -> None:
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure("https://video-paper-wiki.dev/schemas/x", {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_SCHEMA_ID, {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure("video-paper-wiki.code-proof-profile.v1", {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_Str(_COMMON_TITLE), {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE + "#/$defs/profile", {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, _Dict())
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, _List())
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, 1.0)
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, float("nan"))
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, _Int(1))
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, {"\ud800": "x"})
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, "\ud800")
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, {_Str("a"): 1})
+    _assert_structure(caught.value, "type")
+    cycle: dict[str, object] = {}
+    cycle["self"] = cycle
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, cycle)
+    _assert_structure(caught.value, "type")
+    nested_cycle: list[object] = []
+    nested_cycle.append(nested_cycle)
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, nested_cycle)
+    _assert_structure(caught.value, "type")
+    shared = {"k": 1}
+    try:
+        resources.validate_structure(_COMMON_TITLE, {"a": shared, "b": shared})
+    except CodeProofStructureError as exc:
+        assert exc.reason != "type"
+        _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, [])
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_MARKER, {})
+    _assert_structure(caught.value, "shape")
+
+
+def test_limit_field_boundaries(resources: cpr.CodeProofResources) -> None:
+    hards = _full_limits(resources)
+    assert resources.materialize_limits(None) == hards
+    first = resources.materialize_limits(None)
+    second = resources.materialize_limits(None)
+    first["git"]["max_targets"] = 1
+    assert second["git"]["max_targets"] == 32
+    supplied = _full_limits(resources)
+    copied = resources.materialize_limits(supplied)
+    supplied["git"]["max_targets"] = 1
+    assert copied["git"]["max_targets"] == 32
+    for group, fields in hards.items():
+        for name, hard in fields.items():
+            assert resources.materialize_limits(_with_limit(hards, group, name, 1))[group][name] == 1
+            assert resources.materialize_limits(_with_limit(hards, group, name, hard))[group][name] == hard
+            for invalid in (hard + 1, 0, -1, True, 1.0, _Int(1)):
+                with pytest.raises(CodeProofStructureError) as caught:
+                    resources.materialize_limits(_with_limit(hards, group, name, invalid))
+                _assert_structure(caught.value, "limits")
+            missing = _with_limit(hards, group, name, 1)
+            del missing[group][name]
+            with pytest.raises(CodeProofStructureError) as caught:
+                resources.materialize_limits(missing)
+            _assert_structure(caught.value, "limits")
+            extra = _with_limit(hards, group, name, 1)
+            extra[group]["max_unexpected"] = 1
+            with pytest.raises(CodeProofStructureError) as caught:
+                resources.materialize_limits(extra)
+            _assert_structure(caught.value, "limits")
+    extra_group = _full_limits(resources)
+    extra_group["other"] = {"max_targets": 1}
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(extra_group)
+    _assert_structure(caught.value, "limits")
+    missing_group = _full_limits(resources)
+    del missing_group["git"]
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(missing_group)
+    _assert_structure(caught.value, "limits")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits({})
+    _assert_structure(caught.value, "limits")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(_Dict(_full_limits(resources)))
+    _assert_structure(caught.value, "limits")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits([])
+    _assert_structure(caught.value, "limits")
+
+
+def test_error_constructors_reject_invalid_reasons() -> None:
+    with pytest.raises(ValueError) as caught:
+        CodeProofResourceError("nope")
+    assert str(caught.value) == "Invalid CODE proof error reason"
+    with pytest.raises(ValueError) as caught:
+        CodeProofStructureError(_MARKER)
+    assert str(caught.value) == "Invalid CODE proof error reason"
+    assert _MARKER not in str(caught.value)
+
+
+def _install_io_guards(monkeypatch: pytest.MonkeyPatch, blocked) -> None:
+    monkeypatch.setattr(builtins, "open", blocked)
+    monkeypatch.setattr(os, "open", blocked)
+    monkeypatch.setattr(os, "listdir", blocked)
+    monkeypatch.setattr(os, "scandir", blocked)
+    monkeypatch.setattr(os, "walk", blocked)
+    monkeypatch.setattr(os, "stat", blocked)
+    monkeypatch.setattr(os, "lstat", blocked)
+    monkeypatch.setattr(os, "getcwd", blocked)
+    monkeypatch.setattr(Path, "read_bytes", blocked)
+    monkeypatch.setattr(Path, "read_text", blocked)
+    monkeypatch.setattr(Path, "open", blocked)
+    monkeypatch.setattr(Path, "iterdir", blocked)
+    monkeypatch.setattr(Path, "stat", blocked)
+    monkeypatch.setattr(socket, "socket", blocked)
+    monkeypatch.setattr(subprocess, "Popen", blocked)
+    monkeypatch.setattr(subprocess, "run", blocked)
+    monkeypatch.setattr(subprocess, "call", blocked)
+    monkeypatch.setattr(urllib.request, "urlopen", blocked)
+    monkeypatch.setattr(http.client.HTTPConnection, "request", blocked)
+    monkeypatch.setattr(http.client.HTTPSConnection, "request", blocked)
+
+
+def test_production_methods_do_not_perform_io(
+    retained_bytes: dict[str, bytes],
+    resources: cpr.CodeProofResources,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[object] = []
+
+    def blocked(*_args: object, **_kwargs: object) -> None:
+        calls.append(1)
+        raise RuntimeError("unexpected I/O")
+
+    before_modules = set(sys.modules)
+    _install_io_guards(monkeypatch, blocked)
+    compiled = compile_code_proof_resources(dict(retained_bytes))
+    assert compiled.validate_structure(_COMMON_TITLE, {}) is None
+    compiled.materialize_limits(None)
+    compiled.materialize_limits(_full_limits(compiled))
+    resource_origin_plan()
+    _parse_resource_bytes(retained_bytes["profiles/code-proof-v1.json"])
+    assert calls == []
+    new_modules = set(sys.modules) - before_modules
+    assert not any(
+        name.startswith("video_paper_wiki.")
+        and name not in {"video_paper_wiki", "video_paper_wiki.code_proof_resources"}
+        for name in new_modules
+    )
+```
+
+The origin test I wrote has a buggy assertion:
+
+```python
+assert plan.resources == cpr.resource_origin_plan.__wrapped__  # type: ignore[attr-defined]  # noqa: E501
+assert plan.resources is cpr.resource_origin_plan().resources or (
+    plan.resources == compile_code_proof_resources.__doc__ or True
+)
+assert plan.resources == resource_origin_plan.__globals__["_PRODUCTION_PINS"]  # type: ignore[attr-defined]
+```
+
+That's messy and the `__globals__` access on the imported function might work but `__wrapped__` won't. Let me clean up the tests - I should not have leftover broken assertions.
+
+Also `test_profile_inventory_helper` has:
+```python
+assert resources.profile_sha256 == profile_document and True or resources.profile_sha256
+```
+That's nonsense.
+
+And `test_self_consistent_forged_resources` has:
+```python
+"limits": compile_code_proof_resources.__doc__ and {
+```
+That's a hack to make a dict that's always truthy because __doc__ is a string. It works but is ugly. I should just use the dict.
+
+Let me also fix `test_source_lexical_origin` - I accidentally created two overlapping tests. I'll merge them.
+
+Also I need to double-check: `resource_origin_plan.__globals__` - imported function objects have `__globals__` pointing to the module dict. That would work but it's ugly. Better to just compare pin tuples.
+
+Let me also look at issues in production code:
+
+1. `_validated_reason` - when reason is valid, `members(reason)` works. When invalid, `StrEnum('nope')` raises ValueError. But we also raise ValueError if type is not str, then catch ValueError and raise the generic one. Good.
+
+   Wait: if reason is valid str, we call `members(reason)` inside try. If `type(reason) is not str` we raise ValueError(_INVALID_ERROR_REASON) then catch it and raise again from None. Good.
+
+   If reason is the enum itself? type is not str, rejected. Tests pass strings.
+
+2. `test_source_lexical_origin` is broken - I need to fix the test file.
+
+3. Import of `_deny_registry_retrieve` via `cpr._deny_registry_retrieve` - good.
+
+4. Potential issue: `Registry(retrieve=_deny_registry_retrieve)` - need to verify the referencing API. The user said to use explicit Registry APIs.
+
+5. `extend` from jsonschema.validators - correct.
+
+6. Frozen dataclass ResourcePin - `plan.resources is _PRODUCTION_PINS` - both origin and compile share the same tuple. Fine.
+
+7. In `_validate_profile_inventory`, `_require_exact_str(title, expected["title"])` with type ignore - expected is dict[str, object], that's fine.
+
+8. `CodeProofResources.validate_structure` - `self._validators[title].validate(instance)` - type checker might complain but it's Python.
+
+9. **Bug**: `test_source_lexical_origin` will fail. I must clean tests.
+
+10. **Bug in forged profile**: `"limits": compile_code_proof_resources.__doc__ and {...}` - the `and` returns the dict if doc is nonempty. Works but ugly.
+
+11. **I/O test patches `Path.read_bytes`** after fixtures loaded - good.
+
+12. **Patching `os.getcwd`** during `resource_origin_plan` - production doesn't call it. Good.
+
+13. **`check_schema`** during compile under I/O guards - if jsonschema tries to open metaschema, test fails. jsonschema typically has it in memory after import. The I/O test also imports cpr first. Should be OK.
+
+14. **`referencing` Registry `with_resource`**: In referencing 0.36:
+```python
+def with_resource(self, uri: URI, resource: Resource[D]):
+```
+Good.
+
+15. **Could `create_resource` inspect `$schema` and try retrieve?** `Specification.create_resource` just wraps contents. Good.
+
+16. **json.dumps vs production files**: If production schemas use `indent=2` with trailing newline, good. This is a requirement of the spec.
+
+17. **Profile key order**: `_require_exact_mapping` checks set equality, not order. Spec said "has exactly schema, profile, revision, limits, admission, schemas". Set is enough. Canonical bytes already pin order at parse time.
+
+18. **Filename-sorted rows**: `_EXPECTED_PROFILE_ROWS` follows `_SCHEMA_STEMS` which is filename-sorted. We compare by index. Good.
+
+19. **`request-input` vs `request` order in _SCHEMA_STEMS**: user listed request-input before request. Filenames ASCII-sort that way. Good.
+
+20. **Exception `reason` property**: tests use `exc.reason == reason`. Good.
+
+21. **Invalid constructor**: `CodeProofResourceError("nope")` - `_validated_reason` gets type str, `StrEnum("nope")` raises ValueError, we catch and raise `ValueError("Invalid CODE proof error reason") from None`. Good.
+
+22. **`_validated_reason` with empty string**: invalid. Good.
+
+23. **Issue**: In `_validated_reason`, when reason is valid, `members(reason)` could theoretically raise? No.
+
+    When reason is `"resource_origin"` for structure error, ` _StructureReason("resource_origin")` raises ValueError. Good.
+
+24. **`from __future__ import annotations`** - fine.
+
+25. **Test `assert plan.resources == resource_origin_plan.__globals__["_PRODUCTION_PINS"]`** - `resource_origin_plan` imported from the module has `__globals__` as the module's dict. Works but I'll simplify.
+
+26. **`test_profile_inventory_helper`** line with `profile_document and True` is a bug that might still pass because `resources.profile_sha256 == profile_document` is False (str vs dict), then `False and True or resources.profile_sha256` evaluates to the sha256 string which is truthy... `assert <nonempty str>` passes without checking equality! Then the next assert actually checks the hash. So it would pass but is sloppy. Fix it.
+
+27. **Need to import `_deny_registry_retrieve`?** Using `cpr._deny_registry_retrieve` is enough.
+
+28. **User said tests from `tests/unit/test_code_proof_resources.py`** - good.
+
+29. **`Registry` retrieve**: some versions use `retrieve` as keyword-only. Fine.
+
+30. **Potential referencing issue**: `with_resource` might want a URI that's already the resource's id. If we pass schema_id matching `$id`, good.
+
+31. **Profile validator `$ref`**: `"$ref": _COMMON_SCHEMA_ID + "#/$defs/profile"`. Local refs inside profile def resolve against common document. Good.
+
+32. **Do we need to copy schemas when putting in schemas_by_id?** They're parsed fresh. Caller retained_bytes mutation doesn't affect parsed dicts.
+
+33. **`compile` under I/O guard uses `dict(retained_bytes)`** - retained_bytes already loaded.
+
+34. **Integer checker**: bool rejected. Good.
+
+35. **`materialize_limits` on dict subclass**: we reject `type(value) is not dict`. Test uses `_Dict(_full_limits(resources))`. Good.
+
+36. **When group is dict subclass**: `type(inner) is not dict` - if someone passes builtin dict with subclass values... `_with_limit` uses dict(). For extra test we could add group subclass. Optional.
+
+37. **Shared acyclic with common title `{"a": shared, "b": shared}`**: additional properties may fail schema → shape. We assert reason != type. Good.
+
+38. **Empty object `{}` on common**: should be valid if common root is `type: object` with only `$defs`. Could also be empty schema allowing anything. Spec says assert None. If the actual schema rejects `{}`, the user's later harness would also fail. Spec says it's accepted. Good.
+
+39. **264 fixture rows**: we replay them. Good.
+
+40. **Origin path with NUL**: `f"/tmp/{_MARKER}/video_paper_wiki/code_proof_resources.py\0x.py"` - `"\0" in path` is True, we raise before parsing parts. Marker not in error. Good.
+
+Wait, I mixed two cases in one string. The parametrize has both marker in path and NUL. Fine.
+
+41. **`/tmp/video_paper_wiki/./code_proof_resources.py`**: parts include `.` → reject. Parent would be `.` not `video_paper_wiki` anyway... parts: `tmp`, `video_paper_wiki`, `.`, `code_proof_resources.py` - parent is `.` not video_paper_wiki. Also `.` component. Good.
+
+   Hmm `/tmp/video_paper_wiki/./code_proof_resources.py`.split("/")[1:] = `['tmp', 'video_paper_wiki', '.', 'code_proof_resources.py']`. Parent is `.`. Rejected for both reasons.
+
+42. **`/tmp/src/./video_paper_wiki/code_proof_resources.py`**: parts have `.`. Reject. Don't treat as source. Good.
+
+43. **Bug: `_require_exact_mapping` doesn't check key types are exact str** - JSON keys are str. For materialize, caller could pass non-str keys in a dict? Then frozenset comparison with str keys would fail (extra/missing). Good.
+
+44. **`True` for revision**: `type(True) is not int` → resource_shape. Good.
+
+45. **Should `_parse_resource_bytes` be imported in test `__all__`?** Not needed.
+
+Let me look at `jsonschema.extend` - in some versions it's `jsonschema.validators.extend`. Yes.
+
+**referencing Registry retrieve signature**: If retrieve is called with a `referencing.typing.URI`, we ignore it and raise. Good.
+
+**Issue with check_schema and $ref**: Production schemas $ref each other. `check_schema` validates against the *metaschema*, not that all $refs resolve. $ref values just need to be URIs per metaschema. Resolution is our walk. Good.
+
+**Could check_schema fail on large common schema?** Unlikely.
+
+**`Draft202012Validator.check_schema`** might use a registry that retrieves the draft schema from the web in some versions. jsonschema 4.21+ uses referencing with a default retrieve that might try to fetch. This is a real risk!
+
+From jsonschema 4.18 changelog: they switched to referencing. `check_schema` typically uses `cls.META_SCHEMA` directly.
+
+I'll keep check_schema. If the I/O guard test fails because check_schema fetches, I should avoid check_schema going to network.
+
+Safer approach: don't call `check_schema` if it might retrieve. The spec says "Each schema must be a valid Draft 2020-12 schema with exact $schema ... and its exact $id/title". We check $schema/$id/title. Constructing Draft202012Validator is another check.
+
+To be safer against network: wrap check_schema, and if we want to avoid retrieval, we could skip check_schema and rely on constructing validators + our ref walk.
+
+I'll keep check_schema because the spec wants Draft 2020-12 validity. The I/O test will catch network. jsonschema bundles the metaschema at `jsonschema.Draft202012Validator.META_SCHEMA`.
+
+**Another issue**: constructing `_StrictDraft202012Validator(schema, registry=registry)` - if the schema's `$schema` causes the validator to retrieve the dialect through our registry, compile would fail with resource_shape!
+
+This is THE critical integration risk.
+
+From jsonschema 4.22 source (from memory):
+```python
+class validator:
+    def __init__(self, schema, *, registry=..., ...):
+        self.schema = schema
+        self._resolver = registry.resolver_with_root(...)
+```
+
+It may not retrieve $schema at init. Retrieval happens on $ref during validate.
+
+`$schema` is not automatically retrieved for validation of instances.
+
+When validating the *profile* with `{"$ref": common#/$defs/profile}`, it will retrieve `common` from registry - that's registered. Fragment resolved locally.
+
+When validating instances against a schema that `$ref`s another of the ten, registry hits.
+
+If a schema `$ref`s the dialect, our walk already forbids it... unless we only walk after pins, and production doesn't have that.
+
+**Validator init retrieving $id of the schema itself?** Usually the root is already in hand.
+
+I'll keep this design.
+
+**`with_resource` URI vs Resource id**: Some referencing versions evolve the registry so that looking up `$id` works.
+
+Let me fix the test file issues thoroughly.
+
+Also I should fix `test_source_lexical_origin` - I'll remove the broken test and keep `test_source_and_installed_lexical_origins`.
+
+**`__file__` in production**: when tests monkeypatch `cpr.__file__`, `resource_origin_plan` uses `__file__` as a global in the module. Yes, `cpr.__file__` is the module attribute that `__file__` in the function looks up at runtime... 
+
+WAIT. In Python, `__file__` inside `resource_origin_plan` is a **global lookup** in the module namespace. `monkeypatch.setattr(cpr, "__file__", ...)` should work.
+
+Good.
+
+**Don't use Path in production** - I didn't.
+
+Let me also verify `slots=True` on dataclass with `resources: tuple[ResourcePin, ...]` - fine.
+
+**CodeProofResources and assigning profile_sha256**: property without setter, slots without `_profile_sha256` public. `resources.profile_sha256 = "x"` would fail. Could add a test.
+
+**User asked not to use tools** - I'm only returning code.
+
+Let me also look at whether `list(retained_bytes.items())` then rebuilding by_key could have duplicate keys - no.
+
+**Subclass of bytes**: `type(_Bytes(b"x")) is bytes` is False. Good.
+
+Let me look at the forged test `limits` value again and clean tests.
+
+Also **`test_each_pin` parametrize** - the list comprehension in parametrize is fine.
+
+I'll clean `test_source_lexical_origin` by deleting it (duplicate).
+
+**Profile inventory test** - remove the bogus assert.
+
+**Need `from None` on CodeProofStructureError in materialize** - I have `from None` on some but let me check all raise sites... I used `from None` consistently in production.
+
+**materialize_limits first line `if value is None`** - `value is None` is the sentinel. `value == None` not used. Good. Note: custom objects that compare equal to None still aren't None.
+
+**Bool False for omitted?** False is not None, type is not dict, limits error. Good.
+
+Let me also add `test_hash_checked_before_parse` - if we pass valid mapping with wrong hash that is also invalid JSON, we still get resource_hash not resource_shape.
+
+```python
+payload = dict(retained_bytes)
+payload[key] = b"not-json"
+compile → resource_hash
+```
+
+That's a good test for order! I'll add it.
+
+If size happens to match... `b"not-json"` length 8, none of the pins are size 8. So it fails hash on size. Still resource_hash.
+
+XOR mutation keeps size, fails digest, never parse. The existing mutation test covers that.
+
+If we could make invalid JSON of the same length and we'd still hash-fail first. XOR test already same length.
+
+Good.
+
+**Self-consistent forged** fails hash because sizes/digests differ from production. Never gets to inventory. Helper test covers inventory of forged profile.
+
+I need to fix the test file's broken assertions. Let me also add `import video_paper_wiki.code_proof_resources as cpr` and use it.
+
+**Issue**: In `test_source_and_installed`, after first monkeypatch, we call `cpr.resource_origin_plan()`. Then we monkeypatch again. Good.
+
+**Pytest monkeypatch setattr on __file__** works.
+
+Let me also verify we don't need to patch `__file__` on the function's globals separately - module __file__ is the same.
+
+I'll add a test that compile does not read origin/__file__:
+
+Not strictly needed.
+
+**User: "Keep schema-acceptance expectations separate from semantic acceptance."** The common probe comment covers this.
+
+**`validate_structure` returns None** - we assert `is None`.
+
+Let me look at production `_require_exact_mapping` for profile `schemas` rows - we check exact key set. Extra key in row fails. Good.
+
+**Admission not lowerable** - inventory requires exact 65536 and 1048576. materialize doesn't include admission. Good.
+
+**Could `json.loads` with `parse_float` still parse `1.0` as int if we used parse_int wrongly?** No, 1.0 goes to parse_float.
+
+**`1e2` is parse_float**. Good.
+
+Let me also consider: Python json allows `strict=True` by default which rejects literal control characters in strings. If production has `\n` in a string as escaped `\\n`, dumps produces `\\n`. Fine.
+
+I think I should also store validators keyed by exact production titles. If parsed title matched, same.
+
+**Missing `$defs/profile`**: inventory might still pass if profile JSON matches; then profile validator fails → resource_shape. Production has the def.
+
+Let me re-read referencing `Registry.with_resource` - in 0.35, evolving registry is immutable, assignment needed. I assign. Good.
+
+**Empty fragment `$ref: "#"`**: `_resolve_json_pointer(doc, "")` returns immediately. Good.
+
+**`$ref` equal to schema ID**: `ref in schemas` return. Good.
+
+One more issue: **`_walk_schema_document` treats any dict `$id` except root as nested**. The root of each of the ten documents is is_root=True. Nested `$defs` entries are is_root=False. Good.
+
+**Don't walk `$ref` as URI retrieval** - we only resolve locally. Good.
+
+I'll clean up the tests now in the final output.
+
+Also I notice `test_source_lexical_origin` uses `resource_origin_plan.__globals__` which on a bound... it's a function, `__globals__` exists.
+
+I'll just compare `plan.resources == compile_code_proof_resources(dict(retained_bytes)).resource_pins` but that would need retained_bytes and would compile. Simpler: both origin calls return equal pins.
+
+For installed vs source, resources pins are the same production tuple.
+
+```python
+assert source.resources == installed.resources
+```
+
+Good.
+
+Let me also add `assert type(plan.package_directory) is str` and they start with `/`.
+
+**Windows**: not required.
+
+I'll fix `_validated_reason` - when `members(reason)` fails it raises ValueError with a message like `'nope' is not a valid _ResourceReason`. We catch that and replace. Good - we must not leak the invalid object. We raise a fresh ValueError without the original message. Good.
+
+When type is not str, we raise ValueError(_INVALID_ERROR_REASON) then catch our own and re-raise from None. A bit redundant but OK.
+
+Could `StrEnum(reason)` with a non-str raise TypeError? In 3.12, `StrEnum(1)` raises ValueError. `StrEnum([])` ValueError. I'll also catch TypeError to be safe - I had that in an earlier draft then only caught ValueError. Add TypeError.
+
+```python
+except (ValueError, TypeError):
+    raise ValueError(_INVALID_ERROR_REASON) from None
+```
+
+And don't raise ValueError inside for non-str; just fall through:
+
+```python
+def _validated_reason(reason: object, members: type[enum.StrEnum]) -> enum.StrEnum:
+    try:
+        if type(reason) is not str:
+            raise TypeError
+        return members(reason)
+    except (ValueError, TypeError):
+        raise ValueError(_INVALID_ERROR_REASON) from None
+```
+
+Good.
+
+**Does StrEnum inherit and `type(reason) is str` fail for StrEnum reason?** If someone passes `_ResourceReason.resource_origin`, type is the enum, not str, rejected as invalid constructor reason. That's OK - "insert only a validated enum member" is internal. Public constructor takes the string.
+
+Let me also consider whether `reason` public type should be the enum. Tests compare to strings. Property returns `.value` which is str (StrEnum value is str, `.value` is str). `type(self._reason.value) is str` - for StrEnum, `.value` is the string. Actually for StrEnum, the member IS a str subclass. `.value` is the same. `type(_ResourceReason.resource_origin.value) is str` → True.
+
+Good.
+
+I'll remove the broken tests and the `compile_code_proof_resources.__doc__ and` hack.
+
+Also I should not use `resource_origin_plan.__globals__`.
+
+Let me look at `test_compile_matches_pins` - `payload.clear()` after compile, then validate. Good.
+
+Is `first.resource_pins[0].size_bytes = 0` FrozenInstanceError which is AttributeError subclass? In Python 3.11+, FrozenInstanceError extends AttributeError. pytest.raises(AttributeError) catches it. Good.
+
+Let me also add hash order test: extra key + wrong hash on another → shape (keys first). Already have extra key test with valid bytes.
+
+missing + mutated → shape because key set checked first. Could add but not required.
+
+I think the production module is solid. Let me re-read `_join_absolute` for source at `/src/video_paper_wiki/mod.py`:
+- parts = `('src', 'video_paper_wiki', 'mod.py')`
+- package_parts = `('src', 'video_paper_wiki')`
+- package_parent = `'src'`
+- schemas = `_join_absolute(() + ('schemas',))` = `_join_absolute(('schemas',))` = `/schemas`
+
+Good.
+
+`/repo/src/video_paper_wiki/mod.py` → `/repo/schemas`. Good.
+
+Installed `/site/video_paper_wiki/mod.py`:
+- package_parts = `('site', 'video_paper_wiki')`
+- parent = `'site'` ≠ `'src'`
+- schemas = `/site/video_paper_wiki/schemas`
+
+Good.
+
+I'll also add handling if `__file__` is not a string because monkeypatch could set a Path:
+
+```python
+if type(path) is not str
+```
+raises resource_origin. Test optional.
+
+Let me look at one more production bug: **`_require_retained_mapping` uses `list(retained_bytes.items())` then `{key: value for key, value in items}`**. If the dict is mutated during items() iteration we could fail - not our problem.
+
+**Hash ASCII order**: `_RESOURCE_KEYS_SORTED` from sorted pins. Profile `profiles/` comes first. Then schemas alphabetically. Good.
+
+I'll double-check sorted keys:
+- profiles/code-proof-v1.json
+- schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json
+- ...
+
+`profiles` vs `schemas`: p < s. Good.
+
+I think I should also not import `Final` if unused... I used it.
+
+`NoReturn` used.
+
+`copy` used.
+
+Let me check unused `_COMMON_TITLE` in production - I defined it but never used it in production (only IDs). I can leave it or remove. I'll remove unused `_COMMON_TITLE` from production to keep clean.
+
+Is `_SCHEMA_TITLES` used? I defined it but validators keyed by title from stems. Unused. Remove `_SCHEMA_TITLES`.
+
+I'll grep my production code... `_SCHEMA_TITLES` and `_COMMON_TITLE` unused. Remove them.
+
+`_PIN_BY_PATH` used.
+
+OK, I'll produce the cleaned final version.
+
+For tests, `test_profile_inventory_helper` shouldn't compare sha256 to profile_document.
+
+I'll add `test_pin_mismatch_is_not_shape` as XOR already does hash.
+
+Let me also add tests for `_parse_resource_bytes` on production profile bytes succeeding.
+
+```python
+assert type(_parse_resource_bytes(retained_bytes["profiles/code-proof-v1.json"])) is dict
+```
+
+compile already does this.
+
+**jsonschema Validator.validate** returns None. We return None after. If validate returns the instance in some version, we still return None. Good.
+
+I'll write cleaner tests without the buggy source test.
+
+**Parametrize pin keys**: constructing the list twice is OK.
+
+**Limit tests nested loops** - if one field fails, we know which from pytest traceback. Could parametrize for clearer failures:
+
+```python
+def _limit_cases():
+    hards = { ... duplicate? }  
+```
+
+We need resources fixture so keep nested loops inside one test. A bit long but OK. Could parametrize group/name by duplicating hard structure in test constants. Nested loop is acceptable.
+
+If the first field fails, later fields don't run. Parametrize is better for "every limit field". I'll parametrize using hardcoded groups from spec.
+
+```python
+_LIMIT_FIELDS = []
+for group, items in [
+    ("git", [...]),
+    ...
+]:
+    for name in items:
+        _LIMIT_FIELDS.append((group, name))
+```
+
+Then in test, get hard from `resources.materialize_limits(None)[group][name]`.
+
+I'll parametrize for 1/max/max+1/zero/bool/float/missing/extra per field. That's many tests: ~26 fields * 8 = 208 cases. That's what the user asked: "every limit field's 1/max/max+1/zero/bool/float/missing/extra boundaries".
+
+I'll use parametrize.
+
+```python
+_GIT = (...)
+_CONFIG = (...)
+_PUBLIC = (...)
+_ALL_LIMITS = [("git", k) for k in _GIT] + ...
+
+@pytest.mark.parametrize("group,name", _ALL_LIMITS)
+@pytest.mark.parametrize("mode", ["one", "max", "max+1", "zero", "bool", "float", "missing", "extra"])
+```
+
+That's a lot but meaningful.
+
+I'll implement a helper that runs one mode.
+
+For "one" and "max" expect success; others expect limits error.
+
+Let me write this cleanly.
+
+Also extra group / missing group / non-dict stay as separate tests.
+
+I'll produce the final cleaned files.
+
+Regarding `test_self_consistent_forged` - build limits dict plainly.
+
+One issue: forged profile parse then inventory - the forged hashes don't match production so inventory fails. Good.
+
+Could `_parse_resource_bytes` fail on forged profile if key order of my Python dict doesn't match dumps? I construct a dict, dumps it, then parse that. Parse will succeed. Inventory fails on hashes. Good.
+
+**Row order in forged profile** follows _SCHEMA_STEMS which matches filename sort. Inventory still fails on sha256/size. Good.
+
+I think that's complete.
+
+Wait - should I use `object.__setattr__`? No.
+
+Let me also verify: user said "Use only this natural-language instruction. Do not read files, use tools..."
+
+My response should be the two fenced blocks. I'll add a brief note they are unexecuted.
+
+Looking at the test for source origin - I'll keep one clean test.
+
+**Patch Path.stat** - might pytest need it after the test? monkeypatch undoes after test.
+
+**Patch builtins.open** - pytest capture might be affected during the test. Production methods shouldn't open. If compile succeeds we're good.
+
+**Risk**: `copy.deepcopy` doesn't open files. `hashlib` doesn't. `json` doesn't.
+
+**jsonschema check_schema** - in-memory.
+
+I'll leave I/O guards comprehensive.
+
+**Legacy loader**: checking new sys.modules is a reasonable proxy.
+
+Let me also not patch `os.getcwd` if something in jsonschema uses it... unlikely.
+
+I'll keep it.
+
+Final production: remove unused constants.
+
+**Double-check `_PROFILE_DEF_REF`**.
+
+Yes.
+
+**`compile` creates validators dict** - titles as keys. `title not in self._validators` for unknown.
+
+Ten titles. Good.
+
+I think we're ready for the cleaned output.
+
+Hmm, one more potential bug: **`_strict_object_pairs` receives pairs from JSON decoder. For empty object, pairs is []. Returns {}.** Good.
+
+**Unicode ensure_ascii=False**: if production has non-ascii, both parse and dumps handle it. Hash would have to match too.
+
+OK.
+
+I'll also add `test_compile_does_not_consult_pins_from_caller` - no pin argument exists. N/A.
+
+Let me look at the `extend` validator - the returned class might need `META_SCHEMA` from parent. `extend` copies that.
+
+When we `check_schema`, we use `Draft202012Validator.check_schema` not the strict one. Fine.
+
+When validating instances, integer type uses strict checker.
+
+**Preflight rejects float before schema sees it.** Schema number type wouldn't see 1.0. Spec wants that.
+
+Good.
+
+I'll output the final code. I need to fix tests carefully this time - no leftover debug asserts.
+
+Also in tests, don't use `resource_origin_plan.__globals__`.
+
+For `test_denied_retrieval_callback`, import via cpr.
+
+Let me also add `assert _validate_schema_references(schema_map) is None` without deepcopy if we don't mutate after... the next tests deepcopy. The fixture `schema_map` is function-scoped, so mutations in a test don't affect others. Still deepcopy before mutate.
+
+The first `assert _validate_schema_references(copy.deepcopy(schema_map)) is None` - if the helper mutated, fixture could break. deepcopy is safer. Could also test non-mutation:
+
+```python
+original = copy.deepcopy(schema_map)
+_validate_schema_references(schema_map)
+assert schema_map == original
+```
+
+Nice. I'll include that.
+
+Let me write the final tests more carefully, ensuring they're complete and runnable.
+
+**Fixture replay uses json.loads** which may produce dict/list/str/int/bool/None. If fixture has floats, validate_structure would type-fail. Spec says 264 positive rows so they should be valid.
+
+**Don't modify fixture.**
+
+**`read_text` for fixture** happens in the test, not under I/O guards. The I/O guard test doesn't replay 264 rows. Fine. Could replay under guards using already-loaded cases - optional.
+
+I'll load fixture in a module fixture for reuse:
+
+```python
+@pytest.fixture(scope="module")
+def fixture_payload():
+    return json.loads(_FIXTURE_PATH.read_text(encoding="utf-8"))
+```
+
+Then I/O test can replay first case under guards.
+
+I'll keep fixture read in the replay test only; I/O test uses common {}.
+
+Good.
+
+Let me also add `sys.modules` check that we didn't import a legacy loader. I don't know the name. Checking no new `video_paper_wiki.*` except our module is good.
+
+Package `__init__` already imported before.
+
+OK final code.
+
+Wait, I should re-check `jsonschema.validators.extend` - does it exist in the project's jsonschema? User said jsonschema and referencing are installed. extend has existed for a long time.
+
+**TYPE_CHECKER.redefine** exists.
+
+I'll go with this.
+
+One issue in tests: `test_source_and_installed_lexical_origins` calls `cpr.resource_origin_plan` while `__file__` is patched. The imported name `resource_origin_plan` is the same function. Either works.
+
+Use `cpr.resource_origin_plan` consistently when `__file__` is patched, because that's clearly the module attribute... the function looks up `__file__` in its global namespace, which is `cpr.__dict__['__file__']`. Patching `cpr.__file__` works for both `cpr.resource_origin_plan()` and the imported `resource_origin_plan()`. Good.
+
+I'll write the final response with cleaned tests.
+
+Regarding the first test `test_source_lexical_origin` I'll just not include it separately.
+
+Let me also add `parents[2]` comment in test docstring.
+
+I'll include `__test__`? No.
+
+For limit parametrize, I'll define the field names as tuples matching production.
+
+Let me count config fields: 13, git 5, public 8, total 26. 26 * 8 = 208 parametrized cases. That's what they asked.
+
+I'll implement.
+
+```python
+@pytest.mark.parametrize("group,name", [...])
+@pytest.mark.parametrize("mode", [...])
+def test_limit_field_boundaries(resources, group, name, mode):
+```
+
+When mode is one/max, success. Need hard value from resources.
+
+Good.
+
+For extra, add max_unexpected. For missing, delete the field.
+
+Don't use bool `True` when hard is 1 and we might confuse - we check type is int. True fails type. Even if hard is 1, True is rejected. Good.
+
+`False` is zero-like, also bool. I'll use True as the bool case as specified.
+
+I'll produce the final answer.
+
+Looking at the user message again: they want TWO complete Python fenced blocks. I'll make tests cleaner and production unused-import free.
+
+**Production unused**: `_COMMON_TITLE`, `_SCHEMA_TITLES` - remove.
+
+Is `_PROFILE_REVISION` used? Yes.
+
+Let me also verify I didn't import Path in production. I didn't.
+
+Final polish on `_validated_reason`.
+
+I think the first version of production is good after removing unused names.
+
+**`__all__` doesn't include helpers** - tests import them anyway.
+
+Let me also add in compile that we don't pass caller dict into validators.
+
+I'll output now.
+
+Wait, I need to fix a real bug: in `test_source_lexical_origin` I was going to delete it.
+
+Another issue: **`Registry.with_resource` in referencing 0.36** might be:
+
+```python
+def with_resource(self, uri, resource):
+    return self.with_resources([(uri, resource)])
+```
+
+Fine.
+
+**Could `create_resource` fail if $schema is present and unknown?** $schema is draft 2020-12 which DRAFT202012 knows. create_resource doesn't even look at $schema - it forces the spec.
+
+`Resource.from_contents` would look at $schema. We use create_resource. Good.
+
+I think that's it.
+
+Let me also add a test for `compile_code_proof_resources` with the eleven keys as a `dict` subclass that overrides `__getitem__`... overkill.
+
+**Hash then parse order** for mutated valid-length invalid-json... XOR of real JSON is often still not valid JSON but we hash first. Test already expects resource_hash.
+
+Good.
+
+I'll write a slightly shorter I/O guard - still comprehensive.
+
+For the final test file, I'll be careful with line length.
+
+Let me also include `test_unknown_title` as part of structure tests - already there.
+
+**Empty fragment ID+$ref** in helper:
+
+```python
+ok = copy.deepcopy(schema_map)
+ok[_COMMON_SCHEMA_ID]["$ref"] = _COMMON_SCHEMA_ID + "#"
+assert _validate_schema_references(ok) is None
+```
+
+That's a valid same-document-via-id empty fragment. Production common might already have $ref; we're adding/overwriting root $ref. Walk still checks other refs in the tree. Should pass if all other refs still valid.
+
+Adding `$ref` at root to itself `#` or ID# is fine.
+
+I'll include one positive extra $ref test.
+
+If check_schema isn't called in the helper, extra $ref is OK.
+
+Good.
+
+Alright, final output. I'll make the tests file high quality.
+
+One more thought: the user said "The returned unit test file only needs pure checks and lexical source/installed origin tests, with the actual source resources as fixture data."
+
+AND "Read and replay those rows against the new production context"
+
+I'll keep the 264 replay.
+
+"Do not add a wheel build subprocess"
+
+I won't.
+
+Let me also not use `resolve()` in tests on origin paths.
+
+`Path(__file__).parents[2]` as specified.
+
+When reading fixtures, Path / join is fine.
+
+I think the production code I had is almost final. Let me re-copy it with unused names removed.
+
+Also: **`_copy_hard_limits` type** - profile limits values are ints. `_HARD_LIMITS` is the source in compile, not profile. I used `_copy_hard_limits(_HARD_LIMITS)` rather than from profile. Same values after inventory. Using module constants is fine.
+
+Could theoretically diverge if we forget to keep them in sync with inventory. Inventory checks against `_HARD_LIMITS` and profile must match. Same object. Good.
+
+Final response time.
+
+I'll also fix: in tests `assert plan.resources == resource_origin_plan.__globals__` - GONE.
+
+Let me re-read production `_validate_schema_references` - for `ref in schemas` we don't verify the document exists as dict - we already checked all values are dicts.
+
+When `$ref` is the ID plus fragment, `partition("#")` works.
+
+**ID containing `#`?** Production IDs don't.
+
+**`$ref`: `"#/"`** - fragment is `/`, split gives `['', '']`, one empty token, resolve empty key `""` in document. If not present, fail. Valid pointer to empty-string key.
+
+Good.
+
+I'll ship it.
+
+Wait, I should look at this again: `test_self_consistent_forged_resources` uses `compile_code_proof_resources.__doc__ and {` - I'll use a variable `limits = {...}`.
+
+Also I need to make sure the test module doesn't call `resource_origin_plan.__wrapped__`.
+
+For the I/O test, patching `Path.read_bytes` with a function that doesn't bind correctly:
+
+```python
+monkeypatch.setattr(Path, "read_bytes", blocked)
+```
+
+`blocked` doesn't accept `self`. When someone calls `path.read_bytes()`, it passes self, `*args` absorbs it, raises. Good.
+
+OK.
+
+I'll also add `os.system` to guards.
+
+And `pathlib.Path.exists` / `os.path.exists` because origin must not existence-check. If compile/origin succeeds under that patch, they didn't exist-check.
+
+```python
+monkeypatch.setattr(os.path, "exists", blocked)
+monkeypatch.setattr(Path, "exists", blocked)
+```
+
+Good.
+
+Let me also think if `json.loads` of fixture for 264 cases could be huge - fine.
+
+I'll produce both files now as the user-facing answer.
+
+Should the first fence be the production module without a filename comment? User said "first code_proof_resources.py and then test_code_proof_resources.py". I'll use a comment on line 1.
+
+```python
+# code_proof_resources.py
+```
+
+vs module docstring only. I'll keep the module docstring as the first content; mention filenames in the intro sentence.
+
+User: "Return two complete Python fenced blocks, first code_proof_resources.py and then test_code_proof_resources.py."
+
+Intro: "Complete unexecuted sources for `code_proof_resources.py` and `test_code_proof_resources.py`:"
+
+Then two fences.
+
+Don't mention tools or that I didn't use them in a meta way... user asked not to use tools, I didn't.
+
+Let me re-read production one more time for the `Registry` import - we need `Registry` from `referencing`.
+
+Some code does:
+```python
+from referencing.jsonschema import DRAFT202012, SchemaRegistry
+```
+
+User said Registry API from referencing. `from referencing import Registry` is correct.
+
+I'll finalize.
+
+Oh wait - I should look at `_require_exact_mapping` for limits groups - it doesn't require key order. materialize uses `_LIMIT_GROUP_KEYS` for output order. Good.
+
+For inventory, `frozenset(value) != frozenset(expected_keys)` - extra and missing caught.
+
+**Profile `schemas` not a list but a tuple**: type is not list, fail. Good. JSON always list.
+
+**I'm confident enough.**
+
+Let me also add in production a guard that `__file__` lookup uses the global. Yes.
+
+I'll write tests without the buggy parts. I'll use a compact but complete limit parametrize.
+
+For forged resources, I need a complete limits dict - I'll make a helper `_hard_limits_dict()` in tests that mirrors the spec.
+
+Could get it from a successful compile... but forged test can compile production first... circular if production files missing. Use literal dict.
+
+Alternatively:
+
+```python
+def test_self_consistent_forged(resources, retained_bytes):
+    hards = resources.materialize_limits(None)
+```
+
+That's cleaner! Use production compile to get hard limits structure, then build forged set that doesn't match pins.
+
+Good.
+
+```python
+def test_self_consistent_forged_resources_are_not_trusted(resources: cpr.CodeProofResources) -> None:
+    hards = resources.materialize_limits(None)
+    ...
+```
+
+If compile of real resources failed, this test wouldn't run anyway.
+
+Good.
+
+Let me write the complete test file cleanly.
+
+I'll also add `test_mapping_checked_before_hash`: extra key with also mutated pin → shape.
+
+```python
+payload = dict(retained_bytes)
+payload["extra"] = b"x"
+payload[some] = mutated
+→ shape
+```
+
+Good.
+
+OK.
+
+One production issue: **`enum.StrEnum` for `_StructureReason.type`** - the member name `type` shadows nothing important on the enum. `_StructureReason.type` is the member. `_validated_reason("type", _StructureReason)` works.
+
+Good.
+
+Let me also verify Exception subclasses don't need `super().__init__` with reason only - we pass the full message. `str(e)` uses args[0]. Good.
+
+I will not add `__notes__`.
+
+Final code.Complete unexecuted sources for `code_proof_resources.py` and `test_code_proof_resources.py` follow. They have not been run in this session.
+
+```python
+"""Private code-proof resource pins, origin plan, and structural validators."""
+
+from __future__ import annotations
+
+import copy
+import enum
+import hashlib
+import json
+from dataclasses import dataclass
+from typing import Final, NoReturn
+
+from jsonschema.validators import Draft202012Validator, extend
+from referencing import Registry
+from referencing.jsonschema import DRAFT202012
+
+__all__ = [
+    "CodeProofResourceError",
+    "CodeProofResources",
+    "CodeProofStructureError",
+    "ResourceOriginPlan",
+    "ResourcePin",
+    "compile_code_proof_resources",
+    "resource_origin_plan",
+]
+
+_DRAFT_2020_12: Final[str] = "https://json-schema.org/draft/2020-12/schema"
+_SCHEMA_ID_PREFIX: Final[str] = "https://video-paper-wiki.dev/schemas/"
+_PROFILE_LOGICAL_KEY: Final[str] = "profiles/code-proof-v1.json"
+_PROFILE_SCHEMA_NAME: Final[str] = "video-paper-wiki.code-proof-profile.v1"
+_PROFILE_NAME: Final[str] = "code-proof-v1"
+_PROFILE_REVISION: Final[int] = 1
+_INVALID_ERROR_REASON: Final[str] = "Invalid CODE proof error reason"
+_RESOURCE_MESSAGE: Final[str] = "CODE proof resource: "
+_STRUCTURE_MESSAGE: Final[str] = "CODE proof structure: "
+
+_FORBIDDEN_SCHEMA_KEYWORDS: Final[frozenset[str]] = frozenset(
+    {
+        "$anchor",
+        "$dynamicAnchor",
+        "$dynamicRef",
+        "$recursiveAnchor",
+        "$recursiveRef",
+    }
+)
+_PROFILE_KEYS: Final[tuple[str, ...]] = (
+    "schema",
+    "profile",
+    "revision",
+    "limits",
+    "admission",
+    "schemas",
+)
+_PROFILE_ROW_KEYS: Final[tuple[str, ...]] = (
+    "title",
+    "filename",
+    "size_bytes",
+    "sha256",
+)
+_ADMISSION_KEYS: Final[tuple[str, ...]] = (
+    "max_request_input_bytes",
+    "max_observe_input_bytes",
+)
+_LIMIT_GROUP_KEYS: Final[tuple[str, ...]] = ("git", "config", "public")
+_GIT_LIMIT_KEYS: Final[tuple[str, ...]] = (
+    "max_targets",
+    "max_objects",
+    "max_tree_entries",
+    "max_object_bytes",
+    "max_total_object_bytes",
+)
+_CONFIG_LIMIT_KEYS: Final[tuple[str, ...]] = (
+    "max_source_bytes",
+    "max_depth",
+    "max_nodes",
+    "max_array_items",
+    "max_object_keys",
+    "max_key_bytes",
+    "max_string_codepoints",
+    "max_scalars",
+    "max_numeric_lexeme_bytes",
+    "max_numeric_coefficient_digits",
+    "max_numeric_abs_exponent",
+    "max_numeric_canonical_bytes",
+    "max_declarations",
+)
+_PUBLIC_LIMIT_KEYS: Final[tuple[str, ...]] = (
+    "max_bundle_bytes",
+    "max_inline_normalized_bytes",
+    "max_request_bytes",
+    "max_intent_bytes",
+    "max_observation_bytes",
+    "max_config_document_bytes",
+    "max_handoff_bytes",
+    "max_output_peak_bytes",
+)
+_HARD_LIMITS: Final[dict[str, dict[str, int]]] = {
+    "git": {
+        "max_targets": 32,
+        "max_objects": 2048,
+        "max_tree_entries": 32768,
+        "max_object_bytes": 8388608,
+        "max_total_object_bytes": 33554432,
+    },
+    "config": {
+        "max_source_bytes": 262144,
+        "max_depth": 32,
+        "max_nodes": 1024,
+        "max_array_items": 256,
+        "max_object_keys": 1024,
+        "max_key_bytes": 256,
+        "max_string_codepoints": 16384,
+        "max_scalars": 512,
+        "max_numeric_lexeme_bytes": 128,
+        "max_numeric_coefficient_digits": 64,
+        "max_numeric_abs_exponent": 128,
+        "max_numeric_canonical_bytes": 256,
+        "max_declarations": 4096,
+    },
+    "public": {
+        "max_bundle_bytes": 1048576,
+        "max_inline_normalized_bytes": 16384,
+        "max_request_bytes": 65536,
+        "max_intent_bytes": 1048576,
+        "max_observation_bytes": 2097152,
+        "max_config_document_bytes": 2097152,
+        "max_handoff_bytes": 131072,
+        "max_output_peak_bytes": 134217728,
+    },
+}
+_LIMIT_KEYS: Final[dict[str, tuple[str, ...]]] = {
+    "git": _GIT_LIMIT_KEYS,
+    "config": _CONFIG_LIMIT_KEYS,
+    "public": _PUBLIC_LIMIT_KEYS,
+}
+_ADMISSION: Final[dict[str, int]] = {
+    "max_request_input_bytes": 65536,
+    "max_observe_input_bytes": 1048576,
+}
+_SCHEMA_STEMS: Final[tuple[tuple[str, int, str], ...]] = (
+    (
+        "code-acquisition-intent",
+        818,
+        "acf785648ef3e8c085db3ec0863b0c67230464a15a24aa93f5e5a27418fedbef",
+    ),
+    (
+        "code-config-evidence",
+        803,
+        "86be2b14d9ef748283aa0c5671ac6b94ea038cc04eee553e1f5a93dd1ce2821b",
+    ),
+    (
+        "code-git-bundle",
+        778,
+        "69f112e15e430a537bf05417281013bc1ce9d674c9dfc0521f3adb4884cf9aac",
+    ),
+    (
+        "code-proof-command-result",
+        353,
+        "a9040ea7362d2ca8d9f6a16a3e05f7d80b02a91c5ba086d4c925988c059641d2",
+    ),
+    (
+        "code-proof-common",
+        96085,
+        "e151c80eba28e8a0ee8346a64bb7969fd0be03db64b90b282e5fa6b86498ea82",
+    ),
+    (
+        "code-proof-observation",
+        818,
+        "da1f61febafe8a7601b63114c15c8523ff381db47549b072965066e14a8cb85b",
+    ),
+    (
+        "code-proof-observe-input",
+        350,
+        "146459e1da831ec6c7fb26382608686047085fe3de98f4101a1ba19f5e7be137",
+    ),
+    (
+        "code-proof-request-input",
+        350,
+        "a0492606c26a681ef9c457d27708b7b797ea3de3bff11f0d6525fc5d48913339",
+    ),
+    (
+        "code-proof-request",
+        794,
+        "d3f34854069567640564ae000f6b7f71c77f903cf92588704bc579deb7429ad7",
+    ),
+    (
+        "code-source-handoff",
+        799,
+        "27f5388be15eb78e3aced47f72832468d3a7b6b54bc352263afb7f5534402876",
+    ),
+)
+_PROFILE_SIZE_BYTES: Final[int] = 3761
+_PROFILE_SHA256: Final[str] = (
+    "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+)
+
+
+class _ResourceReason(enum.StrEnum):
+    resource_origin = "resource_origin"
+    resource_hash = "resource_hash"
+    resource_shape = "resource_shape"
+
+
+class _StructureReason(enum.StrEnum):
+    type = "type"
+    shape = "shape"
+    limits = "limits"
+
+
+def _validated_reason(reason: object, members: type[enum.StrEnum]) -> enum.StrEnum:
+    try:
+        if type(reason) is not str:
+            raise TypeError
+        return members(reason)
+    except (TypeError, ValueError):
+        raise ValueError(_INVALID_ERROR_REASON) from None
+
+
+class CodeProofResourceError(Exception):
+    """Private resource-origin, pin, parse, profile, or schema failure."""
+
+    def __init__(self, reason: str) -> None:
+        parsed = _validated_reason(reason, _ResourceReason)
+        self._reason = parsed
+        super().__init__(_RESOURCE_MESSAGE + parsed.value)
+
+    @property
+    def reason(self) -> str:
+        return self._reason.value
+
+
+class CodeProofStructureError(Exception):
+    """Private instance type, title/schema, or limits failure."""
+
+    def __init__(self, reason: str) -> None:
+        parsed = _validated_reason(reason, _StructureReason)
+        self._reason = parsed
+        super().__init__(_STRUCTURE_MESSAGE + parsed.value)
+
+    @property
+    def reason(self) -> str:
+        return self._reason.value
+
+
+@dataclass(frozen=True, slots=True)
+class ResourcePin:
+    relative_path: str
+    size_bytes: int
+    sha256: str
+
+
+@dataclass(frozen=True, slots=True)
+class ResourceOriginPlan:
+    layout: str
+    package_directory: str
+    schemas_directory: str
+    profiles_directory: str
+    resources: tuple[ResourcePin, ...]
+
+
+def _schema_filename(stem: str) -> str:
+    return f"video-paper-wiki.{stem}.v1.schema.json"
+
+
+def _schema_title(stem: str) -> str:
+    return f"video-paper-wiki.{stem}.v1"
+
+
+def _schema_id(stem: str) -> str:
+    return _SCHEMA_ID_PREFIX + _schema_filename(stem)
+
+
+def _schema_logical_key(stem: str) -> str:
+    return "schemas/" + _schema_filename(stem)
+
+
+def _build_production_pins() -> tuple[ResourcePin, ...]:
+    pins = [
+        ResourcePin(
+            relative_path=_schema_logical_key(stem),
+            size_bytes=size_bytes,
+            sha256=digest,
+        )
+        for stem, size_bytes, digest in _SCHEMA_STEMS
+    ]
+    pins.append(
+        ResourcePin(
+            relative_path=_PROFILE_LOGICAL_KEY,
+            size_bytes=_PROFILE_SIZE_BYTES,
+            sha256=_PROFILE_SHA256,
+        )
+    )
+    return tuple(sorted(pins, key=lambda pin: pin.relative_path))
+
+
+_PRODUCTION_PINS: Final[tuple[ResourcePin, ...]] = _build_production_pins()
+_PIN_BY_PATH: Final[dict[str, ResourcePin]] = {
+    pin.relative_path: pin for pin in _PRODUCTION_PINS
+}
+_RESOURCE_KEYS_SORTED: Final[tuple[str, ...]] = tuple(
+    pin.relative_path for pin in _PRODUCTION_PINS
+)
+_RESOURCE_KEY_SET: Final[frozenset[str]] = frozenset(_RESOURCE_KEYS_SORTED)
+_SCHEMA_IDS: Final[frozenset[str]] = frozenset(
+    _schema_id(stem) for stem, _size, _digest in _SCHEMA_STEMS
+)
+_COMMON_SCHEMA_ID: Final[str] = _schema_id("code-proof-common")
+_PROFILE_DEF_REF: Final[str] = _COMMON_SCHEMA_ID + "#/$defs/profile"
+_EXPECTED_PROFILE_ROWS: Final[tuple[dict[str, object], ...]] = tuple(
+    {
+        "title": _schema_title(stem),
+        "filename": _schema_filename(stem),
+        "size_bytes": size_bytes,
+        "sha256": digest,
+    }
+    for stem, size_bytes, digest in _SCHEMA_STEMS
+)
+
+
+def _strict_is_integer(_checker: object, instance: object) -> bool:
+    return type(instance) is int
+
+
+_STRICT_TYPE_CHECKER = Draft202012Validator.TYPE_CHECKER.redefine(
+    "integer",
+    _strict_is_integer,
+)
+_StrictDraft202012Validator = extend(
+    Draft202012Validator,
+    type_checker=_STRICT_TYPE_CHECKER,
+)
+
+
+def _join_absolute(parts: tuple[str, ...]) -> str:
+    return "/" + "/".join(parts)
+
+
+def _absolute_lexical_parts(path: str) -> tuple[str, ...]:
+    if type(path) is not str or "\0" in path:
+        raise CodeProofResourceError("resource_origin") from None
+    if not path.startswith("/") or path.endswith("/"):
+        raise CodeProofResourceError("resource_origin") from None
+    parts = tuple(path.split("/")[1:])
+    if not parts or any(part in ("", ".", "..") for part in parts):
+        raise CodeProofResourceError("resource_origin") from None
+    return parts
+
+
+def resource_origin_plan() -> ResourceOriginPlan:
+    try:
+        parts = _absolute_lexical_parts(__file__)
+    except CodeProofResourceError:
+        raise
+    except Exception:
+        raise CodeProofResourceError("resource_origin") from None
+    if len(parts) < 2 or parts[-2] != "video_paper_wiki":
+        raise CodeProofResourceError("resource_origin") from None
+    package_parts = parts[:-1]
+    package_directory = _join_absolute(package_parts)
+    profiles_directory = _join_absolute(package_parts + ("profiles",))
+    package_parent = package_parts[-2] if len(package_parts) >= 2 else None
+    if package_parent == "src":
+        layout = "source"
+        schemas_directory = _join_absolute(package_parts[:-2] + ("schemas",))
+    else:
+        layout = "installed"
+        schemas_directory = _join_absolute(package_parts + ("schemas",))
+    return ResourceOriginPlan(
+        layout=layout,
+        package_directory=package_directory,
+        schemas_directory=schemas_directory,
+        profiles_directory=profiles_directory,
+        resources=_PRODUCTION_PINS,
+    )
+
+
+def _contains_surrogate(text: str) -> bool:
+    for char in text:
+        code = ord(char)
+        if 0xD800 <= code <= 0xDFFF:
+            return True
+    return False
+
+
+def _reject_json_number(_lexeme: str) -> None:
+    raise ValueError("non-integer JSON number")
+
+
+def _strict_object_pairs(pairs: list[tuple[object, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if type(key) is not str or key in result:
+            raise ValueError("invalid JSON object")
+        result[key] = value
+    return result
+
+
+def _require_plain_json_tree(root: object) -> None:
+    stack = [root]
+    while stack:
+        value = stack.pop()
+        ty = type(value)
+        if ty is dict:
+            for key, nested in value.items():
+                if type(key) is not str or _contains_surrogate(key):
+                    raise CodeProofResourceError("resource_shape") from None
+                stack.append(nested)
+            continue
+        if ty is list:
+            stack.extend(value)
+            continue
+        if ty is str:
+            if _contains_surrogate(value):
+                raise CodeProofResourceError("resource_shape") from None
+            continue
+        if ty is int or ty is bool or value is None:
+            continue
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _parse_resource_bytes(data: bytes) -> dict:
+    if type(data) is not bytes or data.startswith(b"\xef\xbb\xbf"):
+        raise CodeProofResourceError("resource_shape") from None
+    try:
+        text = data.decode("utf-8")
+    except UnicodeDecodeError:
+        raise CodeProofResourceError("resource_shape") from None
+    if text.startswith("\ufeff"):
+        raise CodeProofResourceError("resource_shape") from None
+    try:
+        parsed = json.loads(
+            text,
+            object_pairs_hook=_strict_object_pairs,
+            parse_float=_reject_json_number,
+            parse_constant=_reject_json_number,
+        )
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    if type(parsed) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    _require_plain_json_tree(parsed)
+    try:
+        rendered = json.dumps(parsed, ensure_ascii=False, indent=2) + "\n"
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    if rendered != text:
+        raise CodeProofResourceError("resource_shape") from None
+    return parsed
+
+
+def _unescape_pointer_token(token: str) -> str:
+    index = 0
+    length = len(token)
+    while index < length:
+        if token[index] == "~":
+            if index + 1 >= length or token[index + 1] not in "01":
+                raise CodeProofResourceError("resource_shape") from None
+            index += 2
+            continue
+        index += 1
+    return token.replace("~1", "/").replace("~0", "~")
+
+
+def _canonical_list_index(token: str) -> int:
+    if type(token) is not str or not token.isascii() or not token.isdigit():
+        raise CodeProofResourceError("resource_shape") from None
+    if token != "0" and token.startswith("0"):
+        raise CodeProofResourceError("resource_shape") from None
+    return int(token)
+
+
+def _resolve_json_pointer(document: object, fragment: str) -> None:
+    if fragment == "":
+        return
+    if type(fragment) is not str or not fragment.startswith("/"):
+        raise CodeProofResourceError("resource_shape") from None
+    current = document
+    for raw_token in fragment.split("/")[1:]:
+        token = _unescape_pointer_token(raw_token)
+        if type(current) is dict:
+            if token not in current:
+                raise CodeProofResourceError("resource_shape") from None
+            current = current[token]
+            continue
+        if type(current) is list:
+            index = _canonical_list_index(token)
+            if index >= len(current):
+                raise CodeProofResourceError("resource_shape") from None
+            current = current[index]
+            continue
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _resolve_ref(
+    ref: object,
+    current_root: dict,
+    schemas: dict[str, dict],
+) -> None:
+    if type(ref) is not str or "%" in ref:
+        raise CodeProofResourceError("resource_shape") from None
+    if ref.startswith("#"):
+        _resolve_json_pointer(current_root, ref[1:])
+        return
+    if ref in schemas:
+        return
+    base, separator, fragment = ref.partition("#")
+    if separator == "" or base not in schemas:
+        raise CodeProofResourceError("resource_shape") from None
+    _resolve_json_pointer(schemas[base], fragment)
+
+
+def _walk_schema_document(
+    document: dict,
+    current_root: dict,
+    schemas: dict[str, dict],
+) -> None:
+    stack: list[tuple[object, bool]] = [(document, True)]
+    while stack:
+        node, is_root = stack.pop()
+        ty = type(node)
+        if ty is dict:
+            if "$id" in node and not is_root:
+                raise CodeProofResourceError("resource_shape") from None
+            for keyword in _FORBIDDEN_SCHEMA_KEYWORDS:
+                if keyword in node:
+                    raise CodeProofResourceError("resource_shape") from None
+            if "$ref" in node:
+                _resolve_ref(node["$ref"], current_root, schemas)
+            for nested in node.values():
+                stack.append((nested, False))
+            continue
+        if ty is list:
+            for nested in node:
+                stack.append((nested, False))
+            continue
+        if ty is str or ty is int or ty is bool or node is None:
+            continue
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _validate_schema_references(schemas: dict[str, dict]) -> None:
+    if type(schemas) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    keys = list(schemas)
+    if any(type(key) is not str for key in keys):
+        raise CodeProofResourceError("resource_shape") from None
+    if frozenset(keys) != _SCHEMA_IDS:
+        raise CodeProofResourceError("resource_shape") from None
+    for schema_id in keys:
+        document = schemas[schema_id]
+        if type(document) is not dict:
+            raise CodeProofResourceError("resource_shape") from None
+        if "$id" not in document or type(document["$id"]) is not str:
+            raise CodeProofResourceError("resource_shape") from None
+        if document["$id"] != schema_id:
+            raise CodeProofResourceError("resource_shape") from None
+    for schema_id in sorted(keys):
+        _walk_schema_document(schemas[schema_id], schemas[schema_id], schemas)
+    return None
+
+
+def _require_exact_int(value: object, expected: int) -> None:
+    if type(value) is not int or value != expected:
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _require_exact_str(value: object, expected: str) -> None:
+    if type(value) is not str or value != expected:
+        raise CodeProofResourceError("resource_shape") from None
+
+
+def _require_exact_mapping(
+    value: object,
+    expected_keys: tuple[str, ...],
+) -> dict:
+    if type(value) is not dict or frozenset(value) != frozenset(expected_keys):
+        raise CodeProofResourceError("resource_shape") from None
+    return value
+
+
+def _validate_hard_limits(limits: object) -> None:
+    document = _require_exact_mapping(limits, _LIMIT_GROUP_KEYS)
+    for group in _LIMIT_GROUP_KEYS:
+        inner = _require_exact_mapping(document[group], _LIMIT_KEYS[group])
+        for key in _LIMIT_KEYS[group]:
+            _require_exact_int(inner[key], _HARD_LIMITS[group][key])
+
+
+def _validate_profile_inventory(profile: dict) -> None:
+    if type(profile) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    document = _require_exact_mapping(profile, _PROFILE_KEYS)
+    _require_exact_str(document["schema"], _PROFILE_SCHEMA_NAME)
+    _require_exact_str(document["profile"], _PROFILE_NAME)
+    _require_exact_int(document["revision"], _PROFILE_REVISION)
+    _validate_hard_limits(document["limits"])
+    admission = _require_exact_mapping(document["admission"], _ADMISSION_KEYS)
+    for key in _ADMISSION_KEYS:
+        _require_exact_int(admission[key], _ADMISSION[key])
+    rows = document["schemas"]
+    if type(rows) is not list or len(rows) != len(_EXPECTED_PROFILE_ROWS):
+        raise CodeProofResourceError("resource_shape") from None
+    seen_filenames: set[str] = set()
+    seen_titles: set[str] = set()
+    for index, expected in enumerate(_EXPECTED_PROFILE_ROWS):
+        row = rows[index]
+        if type(row) is not dict:
+            raise CodeProofResourceError("resource_shape") from None
+        closed = _require_exact_mapping(row, _PROFILE_ROW_KEYS)
+        title = closed["title"]
+        filename = closed["filename"]
+        _require_exact_str(title, expected["title"])  # type: ignore[arg-type]
+        _require_exact_str(filename, expected["filename"])  # type: ignore[arg-type]
+        _require_exact_int(closed["size_bytes"], expected["size_bytes"])  # type: ignore[arg-type]
+        _require_exact_str(closed["sha256"], expected["sha256"])  # type: ignore[arg-type]
+        if filename in seen_filenames or title in seen_titles:
+            raise CodeProofResourceError("resource_shape") from None
+        seen_filenames.add(filename)  # type: ignore[arg-type]
+        seen_titles.add(title)  # type: ignore[arg-type]
+    return None
+
+
+def _require_retained_mapping(retained_bytes: object) -> list[tuple[str, bytes]]:
+    if type(retained_bytes) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    items = list(retained_bytes.items())
+    for key, value in items:
+        if type(key) is not str or type(value) is not bytes:
+            raise CodeProofResourceError("resource_shape") from None
+    if {key for key, _value in items} != _RESOURCE_KEY_SET:
+        raise CodeProofResourceError("resource_shape") from None
+    by_key = {key: value for key, value in items}
+    return [(key, by_key[key]) for key in _RESOURCE_KEYS_SORTED]
+
+
+def _check_production_pins(snapshot: list[tuple[str, bytes]]) -> None:
+    for key, blob in snapshot:
+        pin = _PIN_BY_PATH[key]
+        digest = hashlib.sha256(blob).hexdigest()
+        if len(blob) != pin.size_bytes or digest != pin.sha256:
+            raise CodeProofResourceError("resource_hash") from None
+
+
+def _require_schema_header(document: object, stem: str) -> dict:
+    if type(document) is not dict:
+        raise CodeProofResourceError("resource_shape") from None
+    if "$schema" not in document or "$id" not in document or "title" not in document:
+        raise CodeProofResourceError("resource_shape") from None
+    _require_exact_str(document["$schema"], _DRAFT_2020_12)
+    _require_exact_str(document["$id"], _schema_id(stem))
+    _require_exact_str(document["title"], _schema_title(stem))
+    return document
+
+
+def _deny_registry_retrieve(_uri: object) -> NoReturn:
+    raise CodeProofResourceError("resource_shape") from None
+
+
+def _build_registry(schemas_by_id: dict[str, dict]) -> Registry:
+    registry = Registry(retrieve=_deny_registry_retrieve)
+    for schema_id in sorted(schemas_by_id):
+        registry = registry.with_resource(
+            schema_id,
+            DRAFT202012.create_resource(copy.deepcopy(schemas_by_id[schema_id])),
+        )
+    return registry
+
+
+def _copy_hard_limits(source: dict[str, dict[str, int]]) -> dict[str, dict[str, int]]:
+    return {
+        "git": dict(source["git"]),
+        "config": dict(source["config"]),
+        "public": dict(source["public"]),
+    }
+
+
+def _preflight_instance(instance: object) -> None:
+    stack: list[tuple[object, bool]] = [(instance, False)]
+    ancestors: set[int] = set()
+    done: set[int] = set()
+    while stack:
+        value, leaving = stack.pop()
+        if leaving:
+            ancestors.remove(id(value))
+            done.add(id(value))
+            continue
+        ty = type(value)
+        if ty is bool or value is None or ty is int:
+            continue
+        if ty is str:
+            if _contains_surrogate(value):
+                raise CodeProofStructureError("type") from None
+            continue
+        if ty is dict:
+            ident = id(value)
+            if ident in ancestors:
+                raise CodeProofStructureError("type") from None
+            if ident in done:
+                continue
+            for key in value:
+                if type(key) is not str or _contains_surrogate(key):
+                    raise CodeProofStructureError("type") from None
+            ancestors.add(ident)
+            stack.append((value, True))
+            for nested in value.values():
+                stack.append((nested, False))
+            continue
+        if ty is list:
+            ident = id(value)
+            if ident in ancestors:
+                raise CodeProofStructureError("type") from None
+            if ident in done:
+                continue
+            ancestors.add(ident)
+            stack.append((value, True))
+            for nested in value:
+                stack.append((nested, False))
+            continue
+        raise CodeProofStructureError("type") from None
+
+
+class CodeProofResources:
+    __slots__ = ("_hard_limits", "_profile_sha256", "_resource_pins", "_validators")
+
+    def __init__(
+        self,
+        profile_sha256: str,
+        resource_pins: tuple[ResourcePin, ...],
+        validators: dict[str, object],
+        hard_limits: dict[str, dict[str, int]],
+    ) -> None:
+        self._profile_sha256 = profile_sha256
+        self._resource_pins = resource_pins
+        self._validators = validators
+        self._hard_limits = hard_limits
+
+    @property
+    def profile_sha256(self) -> str:
+        return self._profile_sha256
+
+    @property
+    def resource_pins(self) -> tuple[ResourcePin, ...]:
+        return self._resource_pins
+
+    def validate_structure(self, title: object, instance: object) -> None:
+        if type(title) is not str or title not in self._validators:
+            raise CodeProofStructureError("shape") from None
+        _preflight_instance(instance)
+        try:
+            self._validators[title].validate(instance)
+        except CodeProofStructureError:
+            raise
+        except Exception:
+            raise CodeProofStructureError("shape") from None
+        return None
+
+    def materialize_limits(self, value: object) -> dict[str, dict[str, int]]:
+        if value is None:
+            return _copy_hard_limits(self._hard_limits)
+        if type(value) is not dict:
+            raise CodeProofStructureError("limits") from None
+        if frozenset(value) != frozenset(_LIMIT_GROUP_KEYS):
+            raise CodeProofStructureError("limits") from None
+        materialized: dict[str, dict[str, int]] = {}
+        for group in _LIMIT_GROUP_KEYS:
+            inner = value[group]
+            expected_keys = _LIMIT_KEYS[group]
+            if type(inner) is not dict or frozenset(inner) != frozenset(expected_keys):
+                raise CodeProofStructureError("limits") from None
+            copied: dict[str, int] = {}
+            hard_group = self._hard_limits[group]
+            for key in expected_keys:
+                raw = inner[key]
+                if type(raw) is not int:
+                    raise CodeProofStructureError("limits") from None
+                hard = hard_group[key]
+                if raw < 1 or raw > hard:
+                    raise CodeProofStructureError("limits") from None
+                copied[key] = raw
+            materialized[group] = copied
+        return materialized
+
+
+def compile_code_proof_resources(retained_bytes: object) -> CodeProofResources:
+    snapshot = _require_retained_mapping(retained_bytes)
+    _check_production_pins(snapshot)
+    parsed = {key: _parse_resource_bytes(blob) for key, blob in snapshot}
+    schemas_by_id: dict[str, dict] = {}
+    for stem, _size, _digest in _SCHEMA_STEMS:
+        document = _require_schema_header(parsed[_schema_logical_key(stem)], stem)
+        schemas_by_id[_schema_id(stem)] = document
+        try:
+            Draft202012Validator.check_schema(document)
+        except CodeProofResourceError:
+            raise
+        except Exception:
+            raise CodeProofResourceError("resource_shape") from None
+    _validate_schema_references(schemas_by_id)
+    profile = parsed[_PROFILE_LOGICAL_KEY]
+    _validate_profile_inventory(profile)
+    try:
+        registry = _build_registry(schemas_by_id)
+        profile_validator = _StrictDraft202012Validator(
+            {"$ref": _PROFILE_DEF_REF},
+            registry=registry,
+        )
+        profile_validator.validate(profile)
+        validators = {
+            _schema_title(stem): _StrictDraft202012Validator(
+                copy.deepcopy(schemas_by_id[_schema_id(stem)]),
+                registry=registry,
+            )
+            for stem, _size, _digest in _SCHEMA_STEMS
+        }
+    except CodeProofResourceError:
+        raise
+    except Exception:
+        raise CodeProofResourceError("resource_shape") from None
+    return CodeProofResources(
+        profile_sha256=_PROFILE_SHA256,
+        resource_pins=_PRODUCTION_PINS,
+        validators=validators,
+        hard_limits=_copy_hard_limits(_HARD_LIMITS),
+    )
+```
+
+```python
+"""Unit tests for the private code-proof resource foundation."""
+
+from __future__ import annotations
+
+import builtins
+import copy
+import hashlib
+import http.client
+import json
+import os
+import socket
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+
+import pytest
+
+from video_paper_wiki import code_proof_resources as cpr
+from video_paper_wiki.code_proof_resources import (
+    CodeProofResourceError,
+    CodeProofStructureError,
+    compile_code_proof_resources,
+    resource_origin_plan,
+    _parse_resource_bytes,
+    _validate_profile_inventory,
+    _validate_schema_references,
+)
+
+_CHECKOUT_ROOT = Path(__file__).parents[2]
+_SCHEMAS_DIR = _CHECKOUT_ROOT / "schemas"
+_PROFILE_PATH = (
+    _CHECKOUT_ROOT / "src" / "video_paper_wiki" / "profiles" / "code-proof-v1.json"
+)
+_FIXTURE_PATH = _CHECKOUT_ROOT / "tests" / "fixtures" / "code-proof-resource-v1.json"
+_COMMON_TITLE = "video-paper-wiki.code-proof-common.v1"
+_COMMON_SCHEMA_ID = (
+    "https://video-paper-wiki.dev/schemas/"
+    "video-paper-wiki.code-proof-common.v1.schema.json"
+)
+_DRAFT_2020_12 = "https://json-schema.org/draft/2020-12/schema"
+_MARKER = "MARKER_SECRET_9f3a_do_not_leak"
+_SCHEMA_STEMS = (
+    "code-acquisition-intent",
+    "code-config-evidence",
+    "code-git-bundle",
+    "code-proof-command-result",
+    "code-proof-common",
+    "code-proof-observation",
+    "code-proof-observe-input",
+    "code-proof-request-input",
+    "code-proof-request",
+    "code-source-handoff",
+)
+_RESOURCE_KEYS = tuple(
+    [f"schemas/video-paper-wiki.{stem}.v1.schema.json" for stem in _SCHEMA_STEMS]
+    + ["profiles/code-proof-v1.json"]
+)
+_FORBIDDEN_KEYWORDS = (
+    "$anchor",
+    "$dynamicAnchor",
+    "$dynamicRef",
+    "$recursiveAnchor",
+    "$recursiveRef",
+)
+_LIMIT_FIELDS = (
+    [("git", name) for name in (
+        "max_targets",
+        "max_objects",
+        "max_tree_entries",
+        "max_object_bytes",
+        "max_total_object_bytes",
+    )]
+    + [("config", name) for name in (
+        "max_source_bytes",
+        "max_depth",
+        "max_nodes",
+        "max_array_items",
+        "max_object_keys",
+        "max_key_bytes",
+        "max_string_codepoints",
+        "max_scalars",
+        "max_numeric_lexeme_bytes",
+        "max_numeric_coefficient_digits",
+        "max_numeric_abs_exponent",
+        "max_numeric_canonical_bytes",
+        "max_declarations",
+    )]
+    + [("public", name) for name in (
+        "max_bundle_bytes",
+        "max_inline_normalized_bytes",
+        "max_request_bytes",
+        "max_intent_bytes",
+        "max_observation_bytes",
+        "max_config_document_bytes",
+        "max_handoff_bytes",
+        "max_output_peak_bytes",
+    )]
+)
+_LIMIT_MODES = (
+    "one",
+    "max",
+    "max+1",
+    "zero",
+    "bool",
+    "float",
+    "missing",
+    "extra",
+)
+
+
+def _canon_bytes(value: object) -> bytes:
+    return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+
+def _load_retained_bytes() -> dict[str, bytes]:
+    retained: dict[str, bytes] = {}
+    for stem in _SCHEMA_STEMS:
+        filename = f"video-paper-wiki.{stem}.v1.schema.json"
+        retained[f"schemas/{filename}"] = (_SCHEMAS_DIR / filename).read_bytes()
+    retained["profiles/code-proof-v1.json"] = _PROFILE_PATH.read_bytes()
+    return retained
+
+
+@pytest.fixture(scope="module")
+def retained_bytes() -> dict[str, bytes]:
+    return _load_retained_bytes()
+
+
+@pytest.fixture(scope="module")
+def resources(retained_bytes: dict[str, bytes]) -> cpr.CodeProofResources:
+    return compile_code_proof_resources(dict(retained_bytes))
+
+
+@pytest.fixture
+def schema_map(retained_bytes: dict[str, bytes]) -> dict[str, dict]:
+    parsed: dict[str, dict] = {}
+    for key, blob in retained_bytes.items():
+        if not key.startswith("schemas/"):
+            continue
+        filename = key.removeprefix("schemas/")
+        schema_id = "https://video-paper-wiki.dev/schemas/" + filename
+        parsed[schema_id] = _parse_resource_bytes(blob)
+    return parsed
+
+
+@pytest.fixture
+def profile_document(retained_bytes: dict[str, bytes]) -> dict:
+    return _parse_resource_bytes(retained_bytes["profiles/code-proof-v1.json"])
+
+
+def _assert_resource(exc: BaseException, reason: str) -> None:
+    assert type(exc) is CodeProofResourceError
+    assert exc.reason == reason
+    assert str(exc) == f"CODE proof resource: {reason}"
+    assert exc.__cause__ is None
+    assert _MARKER not in str(exc)
+    assert _MARKER not in repr(exc)
+    assert _MARKER not in exc.reason
+
+
+def _assert_structure(exc: BaseException, reason: str) -> None:
+    assert type(exc) is CodeProofStructureError
+    assert exc.reason == reason
+    assert str(exc) == f"CODE proof structure: {reason}"
+    assert exc.__cause__ is None
+    assert _MARKER not in str(exc)
+    assert _MARKER not in repr(exc)
+    assert _MARKER not in exc.reason
+
+
+def _full_limits(resources: cpr.CodeProofResources) -> dict[str, dict[str, int]]:
+    return resources.materialize_limits(None)
+
+
+def _with_limit(
+    hards: dict[str, dict[str, int]],
+    group: str,
+    name: str,
+    value: object,
+) -> dict[str, object]:
+    payload: dict[str, object] = {item: dict(values) for item, values in hards.items()}
+    inner = dict(payload[group])  # type: ignore[arg-type]
+    inner[name] = value
+    payload[group] = inner
+    return payload
+
+
+class _Str(str):
+    pass
+
+
+class _Dict(dict):
+    pass
+
+
+class _List(list):
+    pass
+
+
+class _Int(int):
+    pass
+
+
+class _Bytes(bytes):
+    pass
+
+
+def test_checkout_bytes_match_production_pins(retained_bytes: dict[str, bytes]) -> None:
+    pins = resource_origin_plan().resources
+    paths = tuple(pin.relative_path for pin in pins)
+    assert paths == tuple(sorted(paths))
+    for pin in pins:
+        blob = retained_bytes[pin.relative_path]
+        assert type(blob) is bytes
+        assert len(blob) == pin.size_bytes
+        assert hashlib.sha256(blob).hexdigest() == pin.sha256
+
+
+def test_immutable_pins_and_context_independence(
+    retained_bytes: dict[str, bytes],
+) -> None:
+    payload = dict(retained_bytes)
+    first = compile_code_proof_resources(payload)
+    second = compile_code_proof_resources(payload)
+    assert first is not second
+    assert first.resource_pins == resource_origin_plan().resources
+    assert first.profile_sha256 == (
+        "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    )
+    payload.clear()
+    assert first.validate_structure(_COMMON_TITLE, {}) is None
+    mutated = first.materialize_limits(None)
+    mutated["git"]["max_targets"] = 1
+    assert second.materialize_limits(None)["git"]["max_targets"] == 32
+    with pytest.raises(AttributeError):
+        first.resource_pins[0].size_bytes = 0  # type: ignore[misc]
+    with pytest.raises(AttributeError):
+        resource_origin_plan().layout = "installed"  # type: ignore[misc]
+
+
+def test_source_and_installed_lexical_origins(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/repo/src/video_paper_wiki/code_proof_resources.py",
+    )
+    source = cpr.resource_origin_plan()
+    assert source.layout == "source"
+    assert source.package_directory == "/repo/src/video_paper_wiki"
+    assert source.schemas_directory == "/repo/schemas"
+    assert source.profiles_directory == "/repo/src/video_paper_wiki/profiles"
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/site-packages/video_paper_wiki/code_proof_resources.py",
+    )
+    installed = cpr.resource_origin_plan()
+    assert installed.layout == "installed"
+    assert installed.package_directory == "/site-packages/video_paper_wiki"
+    assert installed.schemas_directory == "/site-packages/video_paper_wiki/schemas"
+    assert installed.profiles_directory == "/site-packages/video_paper_wiki/profiles"
+    assert source.resources == installed.resources
+    # Mocked origin tests do not claim that an installed-wheel check has run.
+
+
+def test_installed_path_under_src_uses_source_rule(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        cpr,
+        "__file__",
+        "/opt/src/video_paper_wiki/code_proof_resources.py",
+    )
+    plan = cpr.resource_origin_plan()
+    assert plan.layout == "source"
+    assert plan.schemas_directory == "/opt/schemas"
+    assert plan.profiles_directory == "/opt/src/video_paper_wiki/profiles"
+
+
+def test_origin_independent_of_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    before = resource_origin_plan()
+    monkeypatch.chdir(tmp_path)
+    after = resource_origin_plan()
+    assert after == before
+    assert after.package_directory == before.package_directory
+
+
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "video_paper_wiki/code_proof_resources.py",
+        "/tmp/video_paper_wiki/./code_proof_resources.py",
+        "/tmp/src/../src/video_paper_wiki/code_proof_resources.py",
+        "/tmp/src/./video_paper_wiki/code_proof_resources.py",
+        "/tmp/not_the_package/code_proof_resources.py",
+        "/video_paper_wiki",
+        "/tmp/video_paper_wiki/\0code_proof_resources.py",
+        "//src/video_paper_wiki/code_proof_resources.py",
+        f"/tmp/{_MARKER}/not_wiki/code_proof_resources.py",
+    ],
+)
+def test_missing_origin_has_no_fallback(
+    raw: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cpr, "__file__", raw)
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr.resource_origin_plan()
+    _assert_resource(caught.value, "resource_origin")
+
+
+def test_relative_origin_does_not_use_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    package = tmp_path / "src" / "video_paper_wiki"
+    package.mkdir(parents=True)
+    monkeypatch.chdir(package)
+    monkeypatch.setattr(cpr, "__file__", "code_proof_resources.py")
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr.resource_origin_plan()
+    _assert_resource(caught.value, "resource_origin")
+
+
+@pytest.mark.parametrize("key", _RESOURCE_KEYS)
+def test_each_pin_byte_mutation_is_resource_hash(
+    retained_bytes: dict[str, bytes],
+    key: str,
+) -> None:
+    payload = dict(retained_bytes)
+    mutated = bytearray(payload[key])
+    mutated[-1] ^= 0x01
+    payload[key] = bytes(mutated)
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(payload)
+    _assert_resource(caught.value, "resource_hash")
+
+
+@pytest.mark.parametrize("key", _RESOURCE_KEYS)
+def test_each_pin_size_mutation_is_resource_hash(
+    retained_bytes: dict[str, bytes],
+    key: str,
+) -> None:
+    payload = dict(retained_bytes)
+    payload[key] = retained_bytes[key] + b"\n"
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(payload)
+    _assert_resource(caught.value, "resource_hash")
+
+
+def test_mapping_type_and_membership_failures(
+    retained_bytes: dict[str, bytes],
+) -> None:
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources([retained_bytes])  # type: ignore[arg-type]
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(_Dict(retained_bytes))
+    _assert_resource(caught.value, "resource_shape")
+
+    missing = dict(retained_bytes)
+    missing.pop("profiles/code-proof-v1.json")
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(missing)
+    _assert_resource(caught.value, "resource_shape")
+
+    extra = dict(retained_bytes)
+    extra[f"schemas/{_MARKER}.json"] = extra["profiles/code-proof-v1.json"]
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(extra)
+    _assert_resource(caught.value, "resource_shape")
+
+    int_keys = {index: blob for index, blob in enumerate(retained_bytes.values())}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(int_keys)  # type: ignore[arg-type]
+    _assert_resource(caught.value, "resource_shape")
+
+    subclass_keys = {_Str(key): value for key, value in retained_bytes.items()}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(subclass_keys)
+    _assert_resource(caught.value, "resource_shape")
+
+    bytearray_values = {key: bytearray(value) for key, value in retained_bytes.items()}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(bytearray_values)  # type: ignore[arg-type]
+    _assert_resource(caught.value, "resource_shape")
+
+    subclass_values = {key: _Bytes(value) for key, value in retained_bytes.items()}
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(subclass_values)
+    _assert_resource(caught.value, "resource_shape")
+
+    extra_and_mutated = dict(retained_bytes)
+    extra_and_mutated["schemas/extra.v1.schema.json"] = b"{}"
+    mutated = bytearray(extra_and_mutated["profiles/code-proof-v1.json"])
+    mutated[-1] ^= 0x01
+    extra_and_mutated["profiles/code-proof-v1.json"] = bytes(mutated)
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(extra_and_mutated)
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_self_consistent_forged_resources_are_not_trusted(
+    resources: cpr.CodeProofResources,
+) -> None:
+    hards = resources.materialize_limits(None)
+    forged: dict[str, bytes] = {}
+    rows = []
+    for stem in _SCHEMA_STEMS:
+        filename = f"video-paper-wiki.{stem}.v1.schema.json"
+        document = {
+            "$schema": _DRAFT_2020_12,
+            "$id": "https://video-paper-wiki.dev/schemas/" + filename,
+            "title": f"video-paper-wiki.{stem}.v1",
+            "type": "object",
+        }
+        blob = _canon_bytes(document)
+        forged[f"schemas/{filename}"] = blob
+        rows.append(
+            {
+                "title": f"video-paper-wiki.{stem}.v1",
+                "filename": filename,
+                "size_bytes": len(blob),
+                "sha256": hashlib.sha256(blob).hexdigest(),
+            }
+        )
+    profile = {
+        "schema": "video-paper-wiki.code-proof-profile.v1",
+        "profile": "code-proof-v1",
+        "revision": 1,
+        "limits": {
+            "git": dict(hards["git"]),
+            "config": dict(hards["config"]),
+            "public": dict(hards["public"]),
+        },
+        "admission": {
+            "max_request_input_bytes": 65536,
+            "max_observe_input_bytes": 1048576,
+        },
+        "schemas": rows,
+    }
+    forged["profiles/code-proof-v1.json"] = _canon_bytes(profile)
+    with pytest.raises(CodeProofResourceError) as caught:
+        compile_code_proof_resources(forged)
+    _assert_resource(caught.value, "resource_hash")
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(
+            _parse_resource_bytes(forged["profiles/code-proof-v1.json"])
+        )
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_strict_resource_parsing() -> None:
+    good = {"title": "ok", "count": 1}
+    blob = _canon_bytes(good)
+    assert _parse_resource_bytes(blob) == good
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b"\xef\xbb\xbf" + blob)
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(_canon_bytes(["not", "an", "object"]))
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": 1,\n  "a": 2\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(_canon_bytes({"a": 1.5}))
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": NaN\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": Infinity\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b'{\n  "a": "\\ud800"\n}\n')
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(blob + b"{}")
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(blob[:-1])
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(blob + b"\n")
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(
+            json.dumps(good, ensure_ascii=False, indent=4).encode("utf-8") + b"\n"
+        )
+    _assert_resource(caught.value, "resource_shape")
+
+    with pytest.raises(CodeProofResourceError) as caught:
+        _parse_resource_bytes(b"not json")
+    _assert_resource(caught.value, "resource_shape")
+    assert "not json" not in str(caught.value)
+
+
+def test_schema_reference_helpers(schema_map: dict[str, dict]) -> None:
+    untouched = copy.deepcopy(schema_map)
+    assert _validate_schema_references(schema_map) is None
+    assert schema_map == untouched
+
+    empty_fragment = copy.deepcopy(schema_map)
+    empty_fragment[_COMMON_SCHEMA_ID]["$ref"] = _COMMON_SCHEMA_ID + "#"
+    assert _validate_schema_references(empty_fragment) is None
+
+    missing = copy.deepcopy(schema_map)
+    missing.pop(_COMMON_SCHEMA_ID)
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(missing)
+    _assert_resource(caught.value, "resource_shape")
+
+    extra = copy.deepcopy(schema_map)
+    extra["https://example.invalid/extra"] = {
+        "$id": "https://example.invalid/extra",
+        "$schema": _DRAFT_2020_12,
+        "title": "extra",
+    }
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(extra)
+    _assert_resource(caught.value, "resource_shape")
+
+    nested = copy.deepcopy(schema_map)
+    nested[_COMMON_SCHEMA_ID]["__nested"] = {"$id": "https://example.invalid/nested"}
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(nested)
+    _assert_resource(caught.value, "resource_shape")
+
+    missing_pointer = copy.deepcopy(schema_map)
+    missing_pointer[_COMMON_SCHEMA_ID]["$ref"] = "#/does/not/exist"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(missing_pointer)
+    _assert_resource(caught.value, "resource_shape")
+
+    relative = copy.deepcopy(schema_map)
+    relative[_COMMON_SCHEMA_ID]["$ref"] = (
+        "video-paper-wiki.code-proof-common.v1.schema.json"
+    )
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(relative)
+    _assert_resource(caught.value, "resource_shape")
+
+    percent = copy.deepcopy(schema_map)
+    percent[_COMMON_SCHEMA_ID]["$ref"] = _COMMON_SCHEMA_ID.replace(
+        "schemas/",
+        "schemas/%73",
+    )
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(percent)
+    _assert_resource(caught.value, "resource_shape")
+
+    dialect = copy.deepcopy(schema_map)
+    dialect[_COMMON_SCHEMA_ID]["$ref"] = _DRAFT_2020_12
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(dialect)
+    _assert_resource(caught.value, "resource_shape")
+
+    bad_index = copy.deepcopy(schema_map)
+    bad_index[_COMMON_SCHEMA_ID]["__arr"] = [{}]
+    bad_index[_COMMON_SCHEMA_ID]["$ref"] = "#/__arr/00"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(bad_index)
+    _assert_resource(caught.value, "resource_shape")
+
+    missing_index = copy.deepcopy(schema_map)
+    missing_index[_COMMON_SCHEMA_ID]["__arr"] = [{}]
+    missing_index[_COMMON_SCHEMA_ID]["$ref"] = "#/__arr/1"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(missing_index)
+    _assert_resource(caught.value, "resource_shape")
+
+    bad_escape = copy.deepcopy(schema_map)
+    bad_escape[_COMMON_SCHEMA_ID]["$ref"] = "#/foo~2bar"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(bad_escape)
+    _assert_resource(caught.value, "resource_shape")
+
+    anchor_fragment = copy.deepcopy(schema_map)
+    anchor_fragment[_COMMON_SCHEMA_ID]["$ref"] = "#defs"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(anchor_fragment)
+    _assert_resource(caught.value, "resource_shape")
+
+
+@pytest.mark.parametrize("keyword", _FORBIDDEN_KEYWORDS)
+def test_forbidden_schema_keywords(
+    schema_map: dict[str, dict],
+    keyword: str,
+) -> None:
+    mutated = copy.deepcopy(schema_map)
+    mutated[_COMMON_SCHEMA_ID][keyword] = "#x"
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_schema_references(mutated)
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_denied_retrieval_callback() -> None:
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr._deny_registry_retrieve(_DRAFT_2020_12)
+    _assert_resource(caught.value, "resource_shape")
+    with pytest.raises(CodeProofResourceError) as caught:
+        cpr._deny_registry_retrieve(f"https://example.invalid/{_MARKER}")
+    _assert_resource(caught.value, "resource_shape")
+
+
+def test_profile_inventory_helper(
+    profile_document: dict,
+    resources: cpr.CodeProofResources,
+) -> None:
+    assert _validate_profile_inventory(copy.deepcopy(profile_document)) is None
+    mutated = copy.deepcopy(profile_document)
+    mutated["revision"] = 2
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["revision"] = True
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["schemas"][0]["sha256"] = "0" * 64
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["extra"] = 1
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    mutated = copy.deepcopy(profile_document)
+    mutated["limits"]["git"]["max_targets"] = 1
+    with pytest.raises(CodeProofResourceError) as caught:
+        _validate_profile_inventory(mutated)
+    _assert_resource(caught.value, "resource_shape")
+    assert resources.profile_sha256 == (
+        "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    )
+
+
+def test_common_root_structural_probe(resources: cpr.CodeProofResources) -> None:
+    instance: dict[str, object] = {}
+    before = copy.deepcopy(instance)
+    assert resources.validate_structure(_COMMON_TITLE, instance) is None
+    assert instance == before
+    # Structural success is not semantic authentication of evidence.
+
+
+def test_fixture_structural_rows(resources: cpr.CodeProofResources) -> None:
+    payload = json.loads(_FIXTURE_PATH.read_text(encoding="utf-8"))
+    assert payload["profile_sha256"] == resources.profile_sha256
+    cases = payload["cases"]
+    assert len(cases) == 264
+    for row in cases:
+        assert type(row) is dict
+        assert set(row) == {"name", "title", "instance"}
+        probe = copy.deepcopy(row["instance"])
+        before = copy.deepcopy(probe)
+        assert resources.validate_structure(row["title"], probe) is None
+        assert probe == before
+
+
+def test_structure_preflight_and_titles(resources: cpr.CodeProofResources) -> None:
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure("https://video-paper-wiki.dev/schemas/x", {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_SCHEMA_ID, {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure("video-paper-wiki.code-proof-profile.v1", {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_Str(_COMMON_TITLE), {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE + "#/$defs/profile", {})
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, _Dict())
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, _List())
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, 1.0)
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, float("nan"))
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, _Int(1))
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, {"\ud800": "x"})
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, "\ud800")
+    _assert_structure(caught.value, "type")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, {_Str("a"): 1})
+    _assert_structure(caught.value, "type")
+    cycle: dict[str, object] = {}
+    cycle["self"] = cycle
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, cycle)
+    _assert_structure(caught.value, "type")
+    nested_cycle: list[object] = []
+    nested_cycle.append(nested_cycle)
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, nested_cycle)
+    _assert_structure(caught.value, "type")
+    shared = {"k": 1}
+    try:
+        resources.validate_structure(_COMMON_TITLE, {"a": shared, "b": shared})
+    except CodeProofStructureError as exc:
+        assert exc.reason != "type"
+        _assert_structure(exc, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_COMMON_TITLE, [])
+    _assert_structure(caught.value, "shape")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.validate_structure(_MARKER, {})
+    _assert_structure(caught.value, "shape")
+
+
+@pytest.mark.parametrize("group,name", _LIMIT_FIELDS)
+@pytest.mark.parametrize("mode", _LIMIT_MODES)
+def test_limit_field_boundaries(
+    resources: cpr.CodeProofResources,
+    group: str,
+    name: str,
+    mode: str,
+) -> None:
+    hards = _full_limits(resources)
+    hard = hards[group][name]
+    if mode == "one":
+        assert resources.materialize_limits(_with_limit(hards, group, name, 1))[group][name] == 1
+        return
+    if mode == "max":
+        assert resources.materialize_limits(_with_limit(hards, group, name, hard))[group][name] == hard
+        return
+    if mode == "max+1":
+        invalid: object = hard + 1
+    elif mode == "zero":
+        invalid = 0
+    elif mode == "bool":
+        invalid = True
+    elif mode == "float":
+        invalid = 1.0
+    elif mode == "missing":
+        payload = _with_limit(hards, group, name, 1)
+        del payload[group][name]  # type: ignore[attr-defined]
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.materialize_limits(payload)
+        _assert_structure(caught.value, "limits")
+        return
+    else:
+        payload = _with_limit(hards, group, name, 1)
+        payload[group]["max_unexpected"] = 1  # type: ignore[index]
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.materialize_limits(payload)
+        _assert_structure(caught.value, "limits")
+        return
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(_with_limit(hards, group, name, invalid))
+    _assert_structure(caught.value, "limits")
+
+
+def test_limit_group_and_copy_boundaries(resources: cpr.CodeProofResources) -> None:
+    hards = _full_limits(resources)
+    first = resources.materialize_limits(None)
+    second = resources.materialize_limits(None)
+    first["git"]["max_targets"] = 1
+    assert second["git"]["max_targets"] == 32
+    supplied = _full_limits(resources)
+    copied = resources.materialize_limits(supplied)
+    supplied["git"]["max_targets"] = 1
+    assert copied["git"]["max_targets"] == 32
+    extra_group = _full_limits(resources)
+    extra_group["other"] = {"max_targets": 1}
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(extra_group)
+    _assert_structure(caught.value, "limits")
+    missing_group = _full_limits(resources)
+    del missing_group["git"]
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(missing_group)
+    _assert_structure(caught.value, "limits")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits({})
+    _assert_structure(caught.value, "limits")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits(_Dict(hards))
+    _assert_structure(caught.value, "limits")
+    with pytest.raises(CodeProofStructureError) as caught:
+        resources.materialize_limits([])
+    _assert_structure(caught.value, "limits")
+
+
+def test_error_constructors_reject_invalid_reasons() -> None:
+    with pytest.raises(ValueError) as caught:
+        CodeProofResourceError("nope")
+    assert str(caught.value) == "Invalid CODE proof error reason"
+    with pytest.raises(ValueError) as caught:
+        CodeProofStructureError(_MARKER)
+    assert str(caught.value) == "Invalid CODE proof error reason"
+    assert _MARKER not in str(caught.value)
+
+
+def _install_io_guards(monkeypatch: pytest.MonkeyPatch, blocked) -> None:
+    monkeypatch.setattr(builtins, "open", blocked)
+    monkeypatch.setattr(os, "open", blocked)
+    monkeypatch.setattr(os, "listdir", blocked)
+    monkeypatch.setattr(os, "scandir", blocked)
+    monkeypatch.setattr(os, "walk", blocked)
+    monkeypatch.setattr(os, "stat", blocked)
+    monkeypatch.setattr(os, "lstat", blocked)
+    monkeypatch.setattr(os, "getcwd", blocked)
+    monkeypatch.setattr(os, "system", blocked)
+    monkeypatch.setattr(os.path, "exists", blocked)
+    monkeypatch.setattr(Path, "read_bytes", blocked)
+    monkeypatch.setattr(Path, "read_text", blocked)
+    monkeypatch.setattr(Path, "open", blocked)
+    monkeypatch.setattr(Path, "iterdir", blocked)
+    monkeypatch.setattr(Path, "stat", blocked)
+    monkeypatch.setattr(Path, "exists", blocked)
+    monkeypatch.setattr(socket, "socket", blocked)
+    monkeypatch.setattr(subprocess, "Popen", blocked)
+    monkeypatch.setattr(subprocess, "run", blocked)
+    monkeypatch.setattr(subprocess, "call", blocked)
+    monkeypatch.setattr(urllib.request, "urlopen", blocked)
+    monkeypatch.setattr(http.client.HTTPConnection, "request", blocked)
+    monkeypatch.setattr(http.client.HTTPSConnection, "request", blocked)
+
+
+def test_production_methods_do_not_perform_io(
+    retained_bytes: dict[str, bytes],
+    resources: cpr.CodeProofResources,
+    schema_map: dict[str, dict],
+    profile_document: dict,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[object] = []
+
+    def blocked(*_args: object, **_kwargs: object) -> None:
+        calls.append(1)
+        raise RuntimeError("unexpected I/O")
+
+    before_modules = set(sys.modules)
+    _install_io_guards(monkeypatch, blocked)
+    compiled = compile_code_proof_resources(dict(retained_bytes))
+    assert compiled.validate_structure(_COMMON_TITLE, {}) is None
+    compiled.materialize_limits(None)
+    compiled.materialize_limits(_full_limits(compiled))
+    resource_origin_plan()
+    _parse_resource_bytes(retained_bytes["profiles/code-proof-v1.json"])
+    _validate_schema_references(copy.deepcopy(schema_map))
+    _validate_profile_inventory(copy.deepcopy(profile_document))
+    assert resources.validate_structure(_COMMON_TITLE, {}) is None
+    assert calls == []
+    new_modules = set(sys.modules) - before_modules
+    assert not any(
+        name.startswith("video_paper_wiki.")
+        and name not in {"video_paper_wiki", "video_paper_wiki.code_proof_resources"}
+        for name in new_modules
+    )
+```

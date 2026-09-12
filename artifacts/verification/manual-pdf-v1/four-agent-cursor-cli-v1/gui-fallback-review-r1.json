@@ -1,0 +1,119 @@
+{
+  "schema": "gui-fallback-document-review-r1.v1",
+  "review": "independent-bounded-read-only-document-review",
+  "observed_at_utc": "2026-09-07T18:41:42.309073+00:00",
+  "decision": "GO_GUI_FALLBACK_PROTOCOL_WITH_NONBLOCKING_DOCUMENTATION_CLARIFICATIONS",
+  "scope": "Review of the five coordination documents and the recorded native-UI preflight only; no Cursor launch, prompt entry, message submission, development run, source edit, Git mutation, test service, or model-inference claim.",
+  "baseline": {
+    "current_product_delivery_from_preflight": "809627bfa0deb8c1b1393f731bf3cb9a3c21ee66",
+    "automation": "cursor remains PAUSED",
+    "preflight_path": "artifacts/verification/manual-pdf-v1/four-agent-cursor-cli-v1/gui-fallback-preflight-r1.json",
+    "preflight_sha256": "8fa10e9cec80c072df4bdaf995086457fdfba8b1da5511e1dca08987796836dc",
+    "documents": {
+      "AGENTS.md": {
+        "sha256": "ab05150693e4573a35c55eba4637e6bfb36785ad95a7c976c09851e37fe04956",
+        "size_bytes": 16702
+      },
+      "docs/ai/codex-team.md": {
+        "sha256": "7fb26efacf33ee3a8a5da04b65888e0918374d4f67410bb3278bd2c5927f45dc",
+        "size_bytes": 20210
+      },
+      "docs/ai/packets/four-agent-cursor-cli-v1/README.md": {
+        "sha256": "16938ed3d21abebbe65c5c483c85b249c1a277f48160b7cf6bdfb8b93f31a648",
+        "size_bytes": 3500
+      },
+      "docs/ai/packets/four-agent-cursor-cli-v1/CONTROLLER.md": {
+        "sha256": "6dcb9dc173ed89039995ae79fdfe429b8f5d7950b0ee024e5675bc88573339f6",
+        "size_bytes": 3781
+      },
+      "docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md": {
+        "sha256": "5acc22f07a4b7bd0ab4888b10091bb34658eccacb5f240a3e534b17d3c8323cb",
+        "size_bytes": 4893
+      }
+    }
+  },
+  "preflight_observation": {
+    "native_ui_tool": "cua.getApp(Cursor)",
+    "accessibility_read_succeeded": true,
+    "visible_chat": "Agent 3 workflow implementation",
+    "composer": "Send follow-up",
+    "visible_model_selector": "Extra High Fast",
+    "exact_model_identity_verified": false,
+    "source_workspace_verified_for_new_dispatch": false,
+    "prompt_entered": false,
+    "message_submitted": false,
+    "development_started": false,
+    "git_mutations": false,
+    "current_run_restarted": false
+  },
+  "positive_checks": {
+    "all_five_document_hashes_match_preflight": true,
+    "required_document_links_resolve": true,
+    "shared_lane_active_lease_path_matches_run_cursor": true,
+    "permission_security_auth_content_quota_denials_rerouted": false,
+    "single_desktop_owner_required": true,
+    "no_apply_or_merge_instruction": true,
+    "no_duplicate_send_instruction": true,
+    "accepted_work_or_paused_heartbeat_restarted": false
+  },
+  "findings": [
+    {
+      "id": "GUI-DOC-P2-001",
+      "priority": 2,
+      "file": "docs/ai/packets/four-agent-cursor-cli-v1/START.md",
+      "lines": [
+        3
+      ],
+      "issue": "The restart note says each Luna manages one CLI and omits the documented CLI-or-GUI fallback, leaving the entrypoint stale or ambiguous during recovery.",
+      "action": "Change the wording to “one active Builder (CLI or GUI)” or add an explicit link to GUI-FALLBACK.md beside the one-CLI statement.",
+      "blocking": false
+    },
+    {
+      "id": "GUI-DOC-P2-002",
+      "priority": 2,
+      "file": "docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md",
+      "lines": [
+        40,
+        41,
+        42,
+        43
+      ],
+      "issue": "The protocol says to verify the source workspace and exact model, and warns that “Extra High Fast” is insufficient, but it does not state an explicit hard stop when either verification is unavailable. The recorded preflight had both values false and correctly submitted no prompt.",
+      "action": "Add a direct stop rule: if exact model identity or source workspace cannot be verified, do not enter or send the prompt; record the blocked attempt and release only leases owned by that attempt.",
+      "blocking": false
+    },
+    {
+      "id": "GUI-DOC-P2-003",
+      "priority": 2,
+      "file": "docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md",
+      "lines": [
+        10,
+        12,
+        15
+      ],
+      "issue": "The first table row contains the ambiguous phrase “没有权限或安全拒绝”; read literally it can be mistaken for including a permission or security refusal in the directly-switchable class, contradicting the explicit denial row and the next paragraph.",
+      "action": "Rewrite the technical-failure condition as “且未出现权限或安全拒绝” (and no permission or security refusal occurred), preserving the separate denial row.",
+      "blocking": false
+    },
+    {
+      "id": "GUI-DOC-P3-004",
+      "priority": 3,
+      "file": "docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md",
+      "lines": [
+        27,
+        28,
+        55,
+        56
+      ],
+      "issue": "The lease/evidence requirements mention a generic run-id and an original CLI run reference, but do not require stable field names for the parent CLI run and the classified trigger. That weakens lineage joins when a GUI attempt follows a failed CLI attempt.",
+      "action": "Require parent_cli_run_id and failure_class in both the GUI identity/evidence record; keep unknown values explicit and preserve the original error text.",
+      "blocking": false
+    }
+  ],
+  "known_limits": [
+    "This is protocol/document review only; no live GUI fallback was exercised.",
+    "The preflight did not verify exact model identity or a new-dispatch source workspace, so no GUI dispatch was authorized by this review.",
+    "No product implementation, test result, CI result, or human approval is claimed."
+  ],
+  "stop_writing": true
+}

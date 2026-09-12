@@ -1,0 +1,72 @@
+{
+  "schema": "lightweight-workflow-v2-architect-local-acceptance.v1",
+  "decision": "ACCEPTED_LANE1_R3_AND_LANE2_R4_FOR_DOWNSTREAM_INTEGRATION",
+  "recorded_at_utc": "2026-09-07T16:41:03.504274+00:00",
+  "architect_review": "Read exact candidate deltas, actual production validation/cleanup paths and regression assertions, independent focused/compatibility replays and unchanged original adversarial probes; rechecked actual source/snapshot/ready bytes.",
+  "lanes": [
+    {
+      "lane": 1,
+      "revision": "r3",
+      "handoff": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r3/handoff.json",
+      "handoff_sha256": "ac1aadc2e57b28db5359b655a2ac6ac1d4b5db1ca5dd114a414a0f143daaca89",
+      "files": [
+        {
+          "path": "src/video_paper_wiki_research/light_pdf.py",
+          "sha256": "6a50fbf237a1f28b3f0a58834a05cbfac3c38da02c0db2abbe4e1a1949f1ca80"
+        },
+        {
+          "path": "src/video_paper_wiki_research/light_workspace.py",
+          "sha256": "96330683f89ad1d8ec4549eb170d5b130c5b9eeb625b985db9390def21623fd2"
+        },
+        {
+          "path": "tests/research/test_light_pdf.py",
+          "sha256": "fb33831031f8962b9f8d2cb227923e91d0b9916fd71052d313694e9a4ea4d1e2"
+        },
+        {
+          "path": "tests/research/test_light_pdf_recovery.py",
+          "sha256": "e44557b9f84824db4b3996a8fc50bddce2f4dbab93a15905af1dc0c40c1b2e12"
+        },
+        {
+          "path": "tests/research/test_light_workspace.py",
+          "sha256": "82dcc742754a76a1bd266a72f880789967a490e969eaf949ffbd521aadf6c14a"
+        }
+      ],
+      "independent_review": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane1-review.json",
+      "review_sha256": "773613aface5084f7dc988fb8d436cd0d68b4aec3265d7427965abadfcd7706c"
+    },
+    {
+      "lane": 2,
+      "revision": "r4",
+      "handoff": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/handoffs/r4/handoff.json",
+      "handoff_sha256": "e04bab0e3f2f441443b3034ab34f3a536feac236d5519a2bd8cadaecfb9f9ca6",
+      "files": [
+        {
+          "path": "src/video_paper_wiki_research/light_index.py",
+          "sha256": "9817a819785fed967c8f1d74c48d38c3617d9a25c9d9698aa7a04fda8a26e9fc"
+        },
+        {
+          "path": "src/video_paper_wiki_research/light_context.py",
+          "sha256": "11049dee2c727fd8be2d310bba0a9a9817fb91c18b11c93dd1adf1df37ccd5fc"
+        },
+        {
+          "path": "tests/research/test_light_index.py",
+          "sha256": "7f38cfbf2c43e5969ab4ed94b7551979bd4af631cf21e1579c9277cf23dce0c7"
+        },
+        {
+          "path": "tests/research/test_light_context.py",
+          "sha256": "b52fcfaeca8e1cfc929aa63169621fc0bbbbaf3cf1ed71bf1cf48b984018892b"
+        },
+        {
+          "path": "tests/research/test_light_selection.py",
+          "sha256": "e85b4eebcb5ccefebfd2e3ac2e7b6e2ebb819ab666b3fbe9e32d0f611a867b71"
+        }
+      ],
+      "independent_review": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane2-review.json",
+      "review_sha256": "40d9807a7999925da4e06b79ac6bb805fa3ab6862269b75e1ea392459d03f2eb"
+    }
+  ],
+  "integration_accepted": false,
+  "fresh_ci_accepted": false,
+  "merge_authorized": false,
+  "remaining": "T3 must consume T2 r4 and complete true handoff; T4 must integrate finals and complete original full validation. New source hashes invalidate this local lane acceptance."
+}

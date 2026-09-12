@@ -1,0 +1,89 @@
+{
+  "schema": "video-paper-wiki.domain-dependency-audit-supplement.v2",
+  "revision": 2,
+  "recorded_at_utc": "2026-09-10T04:22:38Z",
+  "scope": "Read-only correction of DOMAIN-03 and DOMAIN-09 against the accepted CODE worktree; the original domain-dependency-audit-r1.json is preserved unchanged.",
+  "baseline": {
+    "source_root": ".work/parallel/code-proof-v1/terminal-1/source",
+    "head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "working_tree": "clean"
+  },
+  "corrections": [
+    {
+      "id": "DOMAIN-03",
+      "title": "Existing cited provisional comparison; canonical typed condition graph remains absent",
+      "status": "partially_present",
+      "present": "light_compare.py exports a comparison context for 2–8 selected papers, retrieves up to six chunks per paper, freezes ordered dimensions, and requires each row to cover every selected paper. The imported document is checked for comparable, not_comparable, or unknown rows and paper-bound citations. This is a cited, model-proposed comparison and is revalidated against the live context before import.",
+      "conditions": "conditions is only a nonblank free-text string or literal unknown. The prompt explicitly warns that this is not deterministic scientific verification and forbids cross-dataset/protocol score equivalence. There is no typed data/split/metric/protocol/budget/implementation condition object, unit/predicate registry, canonical condition identity, or graph comparison edge.",
+      "future_gap": "Add the separately contracted canonical typed condition graph and deterministic comparison relation/results while retaining this provisional comparison API as an explicitly provisional path."
+    },
+    {
+      "id": "DOMAIN-09",
+      "title": "Live snapshot context exists; budgeted typed comparison context pack remains absent",
+      "status": "partially_present",
+      "present": "light_context.export_context produces qa or writing light-context.v1 from the live index and selected papers. validate_live_context checks current source/index identity, selected papers, evidence identity, source slices and hashes. Query-plan contexts add workspace/index IDs, selected-paper snapshots, original/rewrite routes, fixed RRF fusion, fused evidence and a canonical plan hash; validate_live_query_plan recomputes and compares them.",
+      "future_gap": "There is no canonical typed condition/graph context pack with deterministic inclusion/omission reasons, graph paths, support/counterevidence, unknown/not-comparable coverage, or explicit budget accounting. Existing comparison coverage counts exported chunks per paper, but does not supply that future typed-pack contract."
+    }
+  ],
+  "api_evidence": [
+    {
+      "path": "src/video_paper_wiki_research/light_compare.py",
+      "sha256": "5f2283a5f9abca772bab3cef1e20b82006697f17da8e6d6164b63d90a53d5a77",
+      "lines": [
+        "54-84",
+        "171-274",
+        "278-303",
+        "306-404",
+        "477-557"
+      ],
+      "facts": [
+        "comparison schemas/statuses and provisional prompt",
+        "multi-paper retrieval/context export and live validation",
+        "selected-paper/dimension normalization",
+        "free-text conditions and closed comparison rows",
+        "fresh context re-export, hash/live checks, document validation, create-only staging"
+      ]
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_context.py",
+      "sha256": "c6bb9bf429b4279d429fc4b916adc7bbd24d53dbca1e28d1fb1e3372e0b0bb35",
+      "lines": [
+        "206-250",
+        "283-303",
+        "306-456",
+        "548-578"
+      ],
+      "facts": [
+        "qa/writing live-context export",
+        "successful context shape requires evidence/index/prompt",
+        "read-only live source/index snapshot validation",
+        "render_document validates live context before prospective output"
+      ]
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_query.py",
+      "sha256": "0eb4082b9af39d427c411a0de66f9b9bc92ad6656980c4be1c65d0478a3a3f6c",
+      "lines": [
+        "36-56",
+        "278-340",
+        "390-484",
+        "812-906",
+        "909-1065"
+      ],
+      "facts": [
+        "fixed rrf-v1 and original/rewrite routes",
+        "fused retrieval and canonical query-plan hash",
+        "same-snapshot route retrieval",
+        "query-plan shape/internal fusion checks",
+        "live recomputation and evidence-score/identity checks"
+      ]
+    }
+  ],
+  "disposition": {
+    "domain03": "corrected_to_existing_provisional_comparison_with_typed_condition_gap",
+    "domain09": "corrected_to_existing_live_snapshot_context_with_typed_budget_pack_gap",
+    "original_report": "preserved",
+    "architecture_scope": "unchanged"
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "full-todo.foundation-integration-recipe-assembler-review.v6",
+  "recorded_at_utc": "2026-09-11T02:18:52.889094+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_EXACT_R6_RECIPE_ASSEMBLY",
+  "scope": "Bounded read-only static review of the pinned R6 assembler recipe. The recipe was inspected as source only; it was not executed and no source, test, harness, build, Git, model, UI, network, lease or product path was modified.",
+  "recipe": {
+    "label": "apply_integration_recipe_r6",
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/apply_integration_recipe_r6.py",
+    "size_bytes": 8898,
+    "sha256": "9c5562176b41600d3794d1532863b2f6a2c4814b77880f6fefe67a33a2e91a76"
+  },
+  "recipe_contract": {
+    "inputs": {
+      "production": {
+        "path": "assembled-r5-code_proof_resources.py",
+        "size_bytes": 29122,
+        "sha256": "5bbace6bedafa46b16274dd1a842ee6d0e643fae042c905d9eb5a7699483d0a5"
+      },
+      "tests": {
+        "path": "assembled-r5-test_code_proof_resources.py",
+        "size_bytes": 44029,
+        "sha256": "75e5d20582963324c15e70482f6f481cc1fe95dccd2b4e7250c4befee50e75c9"
+      },
+      "result": "grok-foundation-r6-result.json",
+      "stdout": "grok-foundation-r6.stdout.log"
+    },
+    "outputs": [
+      "assembled-r6-code_proof_resources.py",
+      "assembled-r6-test_code_proof_resources.py",
+      "assembly-r6.json"
+    ],
+    "recipe_schema": "foundation.integration-correction.v1",
+    "exact_edit_operations": [
+      {
+        "kind": "suppress_private_raise_context",
+        "path": "src/video_paper_wiki/code_proof_resources.py",
+        "symbols": [
+          "_require_plain_json_tree",
+          "_canonical_list_index",
+          "_require_exact_mapping",
+          "_walk_schema_document",
+          "_validate_schema_references",
+          "CodeProofResources",
+          "compile_code_proof_resources"
+        ],
+        "exceptions": [
+          "CodeProofResourceError",
+          "CodeProofStructureError"
+        ],
+        "guard": "scoped AST walk, direct Raise nodes only, cause is None, one-line nodes, insertion at UTF-8 byte end offset, exactly 29 edits"
+      },
+      {
+        "kind": "pytest_exception_value",
+        "path": "tests/unit/test_code_proof_resources.py",
+        "symbols": [
+          "test_structure_preflight_and_titles",
+          "test_limit_exact_key_and_value_types",
+          "test_profile_exact_builtin_keys",
+          "test_schema_reference_malformed_graphs",
+          "test_context_rejects_external_configuration"
+        ],
+        "helpers": [
+          "_assert_resource",
+          "_assert_structure"
+        ],
+        "variable": "exc",
+        "guard": "scoped AST call walk, first argument is exactly Name(exc), source slice is exactly b\"exc\", exactly 48 edits"
+      },
+      {
+        "kind": "profile_inventory_key",
+        "path": "tests/unit/test_code_proof_resources.py",
+        "symbol": "test_profile_exact_builtin_keys",
+        "old_key": "inventory",
+        "new_key": "schemas",
+        "guard": "scoped AST subscript walk, exactly one literal b\"inventory\" source slice, exactly 1 edit"
+      }
+    ]
+  },
+  "static_correctness": {
+    "ast_utf8_offsets": {
+      "status": "PASS",
+      "evidence": [
+        "Production/test inputs are read with read_bytes.",
+        "byte_offsets accumulates byte lengths from splitlines(keepends=True).",
+        "AST lineno/end_lineno and col_offset/end_col_offset are translated to byte offsets, valid for Python UTF-8 source.",
+        "Each replacement is applied to non-overlapping sorted byte ranges and the resulting bytes are reparsed with ast.parse."
+      ]
+    },
+    "counts": {
+      "production_private_raise_edits": 29,
+      "pytest_exception_value_edits": 48,
+      "profile_key_edits": 1,
+      "status": "PASS: exact assertions are present before any output write."
+    },
+    "preservation": {
+      "status": "PASS",
+      "evidence": [
+        "Pinned R5 production/test hashes are asserted before transformation.",
+        "apply_edits emits untouched byte segments directly from the original bytes and records each preserved segment size/hash.",
+        "Only the three declared edit streams plus the one new test append are assembled.",
+        "Outputs are reparsed and must end with exactly one terminal LF."
+      ]
+    },
+    "new_test_only": {
+      "status": "PASS",
+      "evidence": [
+        "The returned Python block must parse to exactly one top-level FunctionDef named test_private_errors_suppress_outer_exception_context.",
+        "Decorators are rejected.",
+        "The function body is appended once after the preserved test source; duplicate top-level names are rejected before append."
+      ]
+    }
+  },
+  "pin_and_safety_checks": {
+    "result_stdout": {
+      "status": "PASS",
+      "evidence": [
+        "The result JSON must report actual_exit_code == 0.",
+        "The result stdout object must exactly equal a fresh size/SHA pin of grok-foundation-r6.stdout.log.",
+        "The stdout must end with the required Tests not run. sentence and contain exactly one JSON fenced block and one Python fenced block."
+      ]
+    },
+    "output_exclusivity": {
+      "status": "PASS",
+      "evidence": [
+        "All three R6 assembly outputs are checked absent before writing.",
+        "Both source outputs use open(\"xb\") and the record uses open(\"x\"), so existing output cannot be overwritten.",
+        "No path under src/video_paper_wiki or tests/unit is opened for write."
+      ]
+    },
+    "recording": "assembly-r6.json records fresh result/stdout/assembler/input/output pins, edit records, preserved segments, new-test size/SHA, product_source_written=false and accepted=false."
+  },
+  "nonblocking_observation": "The static guard verifies the new test name and no decorator but does not independently assert its parameter list; the required one-test stdout recipe and the subsequent focused preview remain the appropriate checks for the resources fixture parameter. This does not broaden or invalidate the exact three-edit assembly guard.",
+  "conclusion": "GO is limited to executing this exact pinned recipe after the separately authorized R6 result/stdout exist. It does not accept the candidate, write product source paths, or authorize tests/build/model/Git actions beyond the recipe’s exclusive preview artifact assembly."
+}

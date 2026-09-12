@@ -1,0 +1,104 @@
+{
+  "$schema": "full-todo.code-proof-resource-output-contract-review.v1",
+  "schema": "full-todo.code-proof-resource-output-contract-review.v1",
+  "revision": 1,
+  "reviewed_at_utc": "2026-09-10T08:15:58.804099Z",
+  "decision": "GO_FOR_FROZEN_INVOCATION_PREPARATION",
+  "status": "PASS_WITH_EXPLICIT_HANDOFF_PREREQUISITES",
+  "scope": "Bounded read-only review of the selected full resource generator and resource-test output flow. This review does not authorize a Grok launch, generator execution, resource writes, fixture generation, source integration, tests, Git or provider activity.",
+  "inputs": {
+    "output_contract": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-OUTPUT-CONTRACT-R1.md",
+      "sha256": "c3ad66ebf4201e8701bd71b6787a5420006ff9e107583b989bc60182fe1a3c5b",
+      "size_bytes": 7854
+    },
+    "generation_plan": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-GENERATION-PLAN-R1.md",
+      "sha256": "8579447f5f7ac2a9b5f18a859b65536bec0f1313c666628c2d5a4ff6bb859260",
+      "size_bytes": 7037
+    },
+    "r12_contract": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95",
+      "size_bytes": 10225
+    },
+    "plan_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-generation-plan-review-r1.json",
+      "sha256": "69c15cc32634f0c87f11e83592f436d6718d146ec9d75184e2bc412c233f420c",
+      "size_bytes": 14193
+    },
+    "pyproject": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/pyproject.toml",
+      "sha256": "da3765ef066d5e431862ad1854aa018d54db0574102823502e940b89fa87c9f6",
+      "size_bytes": 938
+    },
+    "legacy_schema_test": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/contract/test_schemas.py",
+      "sha256": "8c916239d2fba1c2c9fbddf41611a99b5eafed9cb6f3374f316334daa38a855e",
+      "size_bytes": 11651
+    },
+    "accepted_config_head": {
+      "head": "4ab1830939cd41981983909763434d5612df6070",
+      "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+      "exact_local_acceptance_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-exact-local-head-acceptance-r5.json",
+      "exact_local_acceptance_sha256": "d0533c40e7a87f65bc6819d0e94cb3fcd96f687c806ad6c77462e47c4993fae8"
+    }
+  },
+  "checks": [
+    {
+      "id": "OUTPUT_FLOW_AND_BOUNDARY",
+      "result": "PASS",
+      "evidence": "The generator contract selects one explicit --output-dir PATH, requires that path to be absent including symlinks, permits only eleven named resource files plus their parent directories, and forbids tests, fixtures, manifests, logs, hidden outputs, repository discovery, subprocess, Git, network, dynamic code, project imports and settings changes."
+    },
+    {
+      "id": "RESOURCE_INVENTORY_AND_SERIALIZATION",
+      "result": "PASS",
+      "evidence": "R12 and the output contract agree on ten schemas plus one profile, fixed IDs/titles, Draft 2020-12, UTF-8 JSON with indent=2, ensure_ascii=false, allow_nan=false, integer-valued limits, one terminal LF, schema-first/profile-second generation, exact byte sizes and SHA-256 inventory rows, and no self/profile hash embedded in schema definitions."
+    },
+    {
+      "id": "REGISTRY_AND_PROFILE_DEFINITION",
+      "result": "PASS",
+      "evidence": "The common schema owns $defs/profile; there is no eleventh profile schema. The test must name all ten resources, build a fresh explicit referencing.Registry from those retained bytes, refuse undeclared retrieval, resolve same-document and exact ten-resource JSON Pointer references, and avoid unrelated-schema discovery or the legacy global registry."
+    },
+    {
+      "id": "TEST_SHAPE_AND_INTEGER_CHECKER",
+      "result": "PASS",
+      "evidence": "The closed fixture bundle is {schema, profile_sha256, cases}; cases are exact {name,title,instance}, unique ASCII names sorted by name, and cover the nine instance titles plus a separate common $defs/profile validation case. The test requires type(value) is int, rejecting bool, float and int subclasses even for direct common-definition selection."
+    },
+    {
+      "id": "COVERAGE_AND_NEGATIVE_SEPARATION",
+      "result": "PASS",
+      "evidence": "The selected flow preserves coverage for six saved kinds, both ordinary inputs, five result branches, pending/raw states, normalized outcomes, mixed raw targets, both Git object formats, source-only and complete typed JSON/TOML kernel results, while keeping structural schema rejection distinct from later semantic identity/byte/derivation replay."
+    },
+    {
+      "id": "MECHANICAL_14_PATH_INTEGRATION",
+      "result": "PASS",
+      "evidence": "The plan and output contract agree on exactly fourteen product paths: ten schemas, one profile, the new contract test, the fixture bundle, and only the 71-to-81 assertion change in tests/contract/test_schemas.py. Generator/review evidence remains outside product scope; existing 71 schema bytes and package inclusion rules must be preserved and then verified by isolated wheel parity."
+    },
+    {
+      "id": "PACKAGE_AND_WHEEL_CHECK",
+      "result": "PASS_WITH_HANDOFF_PREREQUISITE",
+      "evidence": "The reviewed pyproject packages src/video_paper_wiki and force-includes the checkout schemas directory; the plan correctly requires verifying profile/package placement and byte-identical ten-schema/profile wheel contents instead of changing package metadata speculatively."
+    }
+  ],
+  "required_before_runtime_freeze": [
+    "Freeze the complete Grok generator and resource-test outputs as evidence, with explicit BEGIN_FILE/END_FILE blocks and complete code fences; no launch or execution is implied by this review.",
+    "Bind the final invocation manifest to the accepted CONFIG head/tree and all exact contract/fixture inputs, then independently review the generator for no project imports, discovery, subprocess, Git, network, dynamic execution or extra writes.",
+    "Prepare and independently review the seven typed fixture inputs after the exact CONFIG acceptance; rebuild profile-bound fixture IDs/references from the generated profile SHA-256 without replacing digest strings.",
+    "At execution, use an absent child of a fresh temporary directory, verify exactly eleven generated files and no extras, then structurally/hash/serialization/reference-check every resource before mechanical 14-path integration.",
+    "After integration and freeze, apply only the reviewed 71-to-81 assertion change, run resource tests and both locked Python suites, and prove isolated wheel byte parity."
+  ],
+  "not_claimed": [
+    "No Grok launch, generator execution, resource or fixture generation, source/test/resource write, Git mutation, provider access, public I/O implementation, public command behavior, semantic replay, CI, push, merge or human-gate closure."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "resources": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "runtime_launched": false,
+    "review_artifact_only": true
+  }
+}

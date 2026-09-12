@@ -1,0 +1,152 @@
+{
+  "$schema": "full-todo.discovery-semantic-wip-review-r2.v1",
+  "schema": "full-todo.discovery-semantic-wip-review-r2.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R2-WIP-semantic-review-of-plan-candidates-graph",
+  "reviewed_at_utc": "2026-09-09T10:38:43Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "bounded independent read-only Discovery semantic WIP reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_DISCOVERY_SEMANTIC_WIP_REVIEW_WITH_TWO_OPEN_IMPLEMENTATION_FINDINGS",
+  "scope": "Read-only inspection of the three frozen WIP modules discovery_plan.py, discovery_candidates.py and discovery_graph.py against R2-R7 discovery semantics, provider target notes and the frozen package. discovery.py and discovery_storage.py wiring were excluded. No source, test, Git, network, connector, Vault or human-gate mutation.",
+  "scope_controls": {
+    "source_edits": false,
+    "tests_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_mutation": false,
+    "review_artifact_only": true
+  },
+  "inputs": {
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732
+    },
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "r5_wire": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    "r6_rank": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    "r7_final": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    "provider_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    }
+  },
+  "reviewed_sources": [
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_plan.py",
+      "sha256": "1aa48ec8bc96ba832cded502e5788b8462e0b0333dc704b7301e8b1a8b04f1b5",
+      "size_bytes": 19186,
+      "lines": 343
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_candidates.py",
+      "sha256": "c10a75ef54d2fe06a819b126e5f839abc7bfc7b5d280ac00f9fa6a2124ea4672",
+      "size_bytes": 13267,
+      "lines": 278
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_graph.py",
+      "sha256": "043fe04b25b7eead681b9fecb038767ceed5dc61ab0eb3d8cc6462f7cb1513f6",
+      "size_bytes": 24266,
+      "lines": 377
+    }
+  ],
+  "checks": [
+    {
+      "id": "DSEM-PLAN-TARGETS-001",
+      "status": "PASS_STATIC_WITH_ACCEPTANCE_OPEN",
+      "evidence": "discovery_plan.py:74-122 regenerates fixed Web and OpenAlex target descriptions, chooses OpenAlex/DOI/arXiv subject precedence, applies the frozen singleton/filter/select/sort/cursor grammar, and enforces the generated OpenAlex URL ASCII bound. query():139-147 preserves declared query order and the 2048-character bound. No arbitrary caller URL is accepted by these helpers.",
+      "remaining": "Provider held-out capability and exact target vectors remain later acceptance gates; no network execution was performed."
+    },
+    {
+      "id": "DSEM-FRONTIER-BASE-EXPANSION-002",
+      "status": "OPEN_IMPLEMENTATION_FINDING",
+      "evidence": "discovery_plan.py:177-213 calls chosen_id(expanded_ids(...)) before operation-specific capability handling. expanded_ids():21-27 expands an original subject into every identity in a current component. chosen_id():57-65 raises DISCOVERY_IDENTITY_UNRESOLVED when the selected namespace contains two values. Therefore a valid completed graph containing an explicit same_work component with two OpenAlex IDs intersecting an original seed makes frontier(), status planning and _choose() raise instead of returning the conflicted candidate as visible graph state/capability gap. The inline probe with W1 plus W2 in one component reproduced expanded_ids -> [W1,W2] and ResearchError DISCOVERY_IDENTITY_UNRESOLVED.",
+      "contract_impact": "R5/R6/R7 require conflicts to remain inspectable and excluded from fusion/preview/expansion; a conflicting component must not turn a valid graph into an unhandled planner exception or fabricate a request.",
+      "required_fix": "Handle namespace-conflicted expanded subjects before chosen_id and emit deterministic capability/refusal state (or suppress the affected plain operation) while preserving candidate conflicts; do not allow the exception to abort the whole status/frontier.",
+      "lines": "discovery_plan.py:21-27,57-65,177-213",
+      "severity": "high"
+    },
+    {
+      "id": "DSEM-CONTROL-GROUPING-003",
+      "status": "OPEN_IMPLEMENTATION_FINDING",
+      "evidence": "discovery_graph.py:178-195 validates only a nondecreasing control.round sequence and round_sequence <= len(self.events). It does not require a control.round to equal the last complete event in its historical install group, and does not verify the R3 event.control_head/preceding-round group rule. discovery_graph.py:197-204 then includes every control with round_sequence < the event sequence, while :206-215 accepts an ancestor control head. Thus an artifact set may contain completed event e2 and a later control with round=e1; the stale group is accepted, and a tampered e2 can bind that control as event.control_head. The same hole exists for a post-event control retaining round=null before the first event.",
+      "contract_impact": "R3:75-98 requires exact previous sequence, control.round equal to the last completed event at installation, controls referencing an event to belong to the following group, and each event.control_head to be the last control in its preceding-round group. Accepting stale round groups can misclassify user_stop/resume interleavings and permits a stale finish history.",
+      "required_fix": "Replay controls and events by historical round groups, require each control group to target the immediately preceding completed event (or null before the first), and assert each event.control_head is the last control of its preceding-round group before accepting the complete event.",
+      "lines": "discovery_graph.py:178-215,217-253",
+      "severity": "high"
+    },
+    {
+      "id": "DSEM-RETRY-CURSOR-SLICE-004",
+      "status": "PASS_STATIC_WITH_ACCEPTANCE_OPEN",
+      "evidence": "discovery_plan.py:271-332 requires an exact predecessor observation, maps terminal outcome to the four frozen retry reasons, preserves immutable base fields, checks cursor against the exact supported predecessor next_cursor, and requires references/related slices to use the original lookup provenance and canonical unseen nonempty prefix. The request key is recomputed from the resulting complete spec at :327-329, so these continuations consume distinct slots and arbitrary changed fields are refused.",
+      "remaining": "Dynamic predecessor, retry/cursor collapse and arrival-order vectors remain acceptance obligations; no source or test mutation was performed."
+    },
+    {
+      "id": "DSEM-MIRROR-RRF-005",
+      "status": "PASS_STATIC_WITH_ACCEPTANCE_OPEN",
+      "evidence": "discovery_candidates.py:146-173 normalizes source URLs for grouping, joins known mirror labels transitively, preserves known/unknown classes and sorted fact citations; :176-246 builds one list per provider/seed/lens/operation, chooses one known-first representative per list/candidate, records suppression reasons, and computes reduced Fraction RRF scores with deterministic tie ordering. This matches R6 mirror/list semantics on inspection.",
+      "remaining": "Parent reports ranking vectors pass; exact all-arrival-permutation acceptance remains a later gate."
+    },
+    {
+      "id": "DSEM-COMPONENT-ADMISSION-006",
+      "status": "PASS_STATIC_WITH_ACCEPTANCE_OPEN",
+      "evidence": "discovery_graph.py:97-113 derives completed projections from the full cumulative graph; :280-285 computes current components and pending introductions before each replay step; :77-86 rejects current-component or completed-plus-pending candidate capacity overflow. discovery_candidates.py:73-104 joins only stable IDs and explicit same_work edges and keeps deterministic component keys. The completed/per-observation no-refund shape is consistent with R5/R7.",
+      "remaining": "The live workflow/adversarial acceptance vectors, including arrival-order prefixes and 257th disjoint refusal, remain separate gates."
+    },
+    {
+      "id": "DSEM-GRAPH-PREFIX-007",
+      "status": "PASS_STATIC_WITH_CONTROL_FINDING",
+      "evidence": "discovery_graph.py:233-333 enforces contiguous plan/event streams, at most one incomplete tail plan, exact plan/request/observation memberships, cumulative terminal refs, supplied-assessment binding, deterministic child projections, exact event children and final orphan rejection. Pending requests/observations do not become completed events, and current candidate introductions remain pending until event completion.",
+      "caveat": "The control-group defect DSEM-CONTROL-GROUPING-003 prevents a clean complete-graph acceptance because a malformed stale interleaving can pass replay; the ordinary plan/event complete-vs-prefix checks themselves are coherent."
+    },
+    {
+      "id": "DSEM-STOP-008",
+      "status": "PASS_STATIC_WITH_ACCEPTANCE_OPEN",
+      "evidence": "discovery_graph.py:118-126 uses the frozen four-reason precedence, inclusive duplicate threshold with total_hits>0, and consecutive completed-stop metrics; :97-117 keeps cited conflicts out of paths_covered. User-stop is correctly kept as a control overlay and complete event rejection at :306-312 prevents a finish from committing under an effective user_stop.",
+      "remaining": "Control interleaving vectors and exact stop/continue status outcomes remain acceptance gates."
+    }
+  ],
+  "actual_findings": [
+    "DSEM-FRONTIER-BASE-EXPANSION-002: a current explicit same_work namespace conflict intersecting an original seed causes frontier/status planning to raise DISCOVERY_IDENTITY_UNRESOLVED before capability handling.",
+    "DSEM-CONTROL-GROUPING-003: stale control.round groups are accepted because replay checks only nondecreasing rounds and does not enforce event.control_head group membership."
+  ],
+  "limitations_and_remaining_gates": [
+    "This is a bounded source review; discovery.py and discovery_storage.py wiring were intentionally excluded.",
+    "No provider, filesystem, Vault, network or human scientific gate was exercised.",
+    "The root-reported focused workflow tests and ranking vectors are not relabelled as remote CI or final acceptance evidence.",
+    "The two open findings must be closed and independently reviewed before an implementation acceptance decision."
+  ],
+  "conclusion": "The three inspected modules implement the frozen target, retry/slice, identity graph, mirror-aware RRF, strict admission, replay-prefix and stop formulas substantially, but the seed-conflict frontier exception and stale control-round grouping leave the WIP conditionally unacceptable for exact semantic acceptance."
+}

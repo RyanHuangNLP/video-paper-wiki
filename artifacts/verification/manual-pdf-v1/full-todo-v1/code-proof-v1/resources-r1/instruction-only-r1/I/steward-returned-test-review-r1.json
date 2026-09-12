@@ -1,0 +1,35 @@
+{
+  "record_type": "steward-returned-test-review-r1",
+  "reviewed_at_utc": "2026-09-10T15:24:00Z",
+  "generator": {
+    "path": "instruction-only-r1/output-r1/generate_code_proof_resources.py",
+    "size_bytes": 54726,
+    "sha256": "778225736c65efdbc40f4c64a31db03eda4e14590a2dc54d74bcc9d830054c43",
+    "generator_safe_to_execute": true,
+    "findings": [
+      "The old _CHECKOUT_REL remains unchanged and is used only by stored_body_path/stored_derived_path.",
+      "The new _BUNDLE_DIRECTORY_REL is used only by bundle_directory and permits the specified Unicode/space/.git/long components while rejecting forbidden separators and controls; minLength=7 and maxLength=4096 are present.",
+      "Repository input/saved patterns and all three URL patterns use component-boundary exclusions; json_pointer maxLength=16416 and span.column_end maximum=262145 are present.",
+      "main refuses an existing or symlink output path, writes only fixed schema/profile paths below the fresh output directory, performs no source/network/subprocess reads, and never deletes or overwrites an existing path."
+    ]
+  },
+  "tests": {
+    "path": "instruction-only-r1/output-r1/test_code_proof_resources.py",
+    "size_bytes": 57566,
+    "sha256": "203e2a72411eaa30f06becf45c49aa516f58cd99ffde5f9618a738310743b05a",
+    "review": "GO",
+    "findings": [
+      "fixture_bundle validates every positive case before returning; unknown/missing-field traversal does not deduplicate branches and permits only the request-input root limits deletion.",
+      "_walk_typed preserves numeric string dictionary keys and integer list indices; strict-integer negatives cover bool, float, and IntSubclass.",
+      "Boundary tests cover repository input/saved and commit/blob/raw URLs, pointer 16416/16417, span column_end 262145/262146, and bundle directory lexical/Unicode/control/length cases.",
+      "Targeted config result/reason, declaration kind/span, git outcome/reason/walk plus schema-only unsafe, and saved-root/reference hash cases are single-field mutations from fixture-validated positives."
+    ],
+    "coverage_notes_non_blocking": [
+      "The unknown-field marker is hard-coded as __unknown_field__; it is safe for the reviewed fixture but a per-node guaranteed-absent marker would be more defensive.",
+      "The saved-ID test identifies roots by ce1: syntax rather than filtering saved-document titles, and does not separately mutate reference-object id syntax; existing fixture assertions still require a root and reference hash case."
+    ]
+  },
+  "integration_manifest": "instruction-only-r1/output-r1/integration-manifest-r1.json",
+  "decision": "GO_FOR_GENERATOR_SAFE_TO_EXECUTE_AND_LOCAL_REVIEW",
+  "execution_status": "not executed"
+}

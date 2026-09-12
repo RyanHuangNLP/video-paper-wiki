@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.local/research/research-assessment.v1.schema.json",
+  "title": "video-paper-wiki-research.research-assessment.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "video-paper-wiki-research.research-assessment.v1"
+    },
+    "kind": {
+      "const": "research-assessment"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180,
+      "pattern": "^rw3:research-assessment:[0-9a-f]{64}$"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session",
+        "sequence",
+        "plan_id",
+        "input_set_sha256",
+        "observations",
+        "lenses",
+        "generator",
+        "recorded_at"
+      ],
+      "properties": {
+        "session": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "plan_id": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/id"
+        },
+        "input_set_sha256": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "observations": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/refs"
+        },
+        "lenses": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/lens_assessment"
+          },
+          "minItems": 5,
+          "maxItems": 5
+        },
+        "generator": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/identity"
+        },
+        "recorded_at": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/time"
+        }
+      }
+    }
+  }
+}

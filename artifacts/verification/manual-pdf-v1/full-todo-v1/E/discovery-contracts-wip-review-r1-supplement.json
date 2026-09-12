@@ -1,0 +1,120 @@
+{
+  "$schema": "full-todo.discovery-contracts-wip-review-r1-supplement.v1",
+  "schema": "full-todo.discovery-contracts-wip-review-r1-supplement.v1",
+  "reviewed_at_utc": "2026-09-09T10:19:44Z",
+  "reviewer": "Astra discovery-contracts WIP review controller",
+  "scope": "Narrow immutable supplement to the preserved R1 contract/schema WIP review. It corrects two findings after re-reading the exact R6 terms and result-component wording, records an exact schema-resource hash audit, and reclassifies missing in-progress workflow paths as implementation-scope observations rather than frozen-contract defects. The original R1 record is unchanged.",
+  "decision": "R1_PRESERVED_WITH_NARROW_CORRECTIONS",
+  "prior_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-contracts-wip-review-r1.json",
+    "sha256": "606e390f1549974dc7cd43a54adda610bc85eb7e5c23a1292f6e83d8408b4f67",
+    "immutable": true,
+    "source_scope": "contract/schema WIP review; no source or test acceptance claim"
+  },
+  "frozen_inputs": {
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732
+    },
+    "r6_rank": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    "wip_source": {
+      "root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+      "head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+      "tree": "04fd8375510d73a9633cadd66c54f80d253e28ba"
+    }
+  },
+  "corrections": [
+    {
+      "id": "DISC-WIP-CONFIG-TERM-CANONICALIZATION",
+      "prior_status": "OPEN_HIGH",
+      "corrected_status": "WITHDRAWN_AS_MISFRAMED",
+      "exact_frozen_text": [
+        {
+          "source": "DISCOVERY-EXPANSION-RANK-R6.md:55-61",
+          "quote": "Match lowercase NFC whole-term substrings against each result's title and summary separately. The term set for a fact is config.query_terms plus that request lens's terms, plus original seed author_terms/project_terms for project operations only. Terms are normalized lowercase/NFC, deduplicated, sorted by JCS, and must contain non-whitespace text."
+        },
+        {
+          "source": "DISCOVERY-EXPANSION-RANK-R6.md:112-116",
+          "quote": "Topic query is question + lens.scope + common terms + lens terms, each retained in declared order separated by a single ASCII space. Project query additionally appends seed title, author terms and project terms in declared order. Empty optional pieces are omitted, nonempty text is preserved; enforce the final 2048-character query and 4094-byte target bounds."
+        }
+      ],
+      "reassessment": "The first quote governs the derived matching term set, while the second governs target query construction from the declared configuration. The current WIP correctly preserves declared config arrays in config_input at discovery_contracts.py:297-316 and normalizes the derived matching set in discovery_candidates.py:50-62. The earlier R1 finding incorrectly required declared arrays themselves to be lowercased/reordered, which would violate the declared-order/text query rule.",
+      "isolated_vector": {
+        "declared_query_terms": ["Z term", "a term"],
+        "declared_lens_terms": ["Zed", "alpha"],
+        "result_title": "Alpha z term",
+        "matching_terms_output": ["alpha", "z term"],
+        "interpretation": "The derived set is lowercase/NFC/deduplicated/JCS-sorted; declaration order/text remains available to the future query compiler. No contract defect is established by config_input accepting the declaration as supplied."
+      },
+      "preserved_note": "Future query-planner acceptance must still prove exact declared-order query construction and target byte bounds; this supplement does not claim the planner is implemented."
+    },
+    {
+      "id": "DISC-WIP-ROUND-METRICS-WRONG-HIT-UNIT",
+      "prior_status": "OPEN_HIGH",
+      "corrected_status": "WITHDRAWN_AS_INCORRECT",
+      "exact_frozen_text": [
+        {
+          "source": "DISCOVERY-EXPANSION-RANK-R6.md:73-79",
+          "quote": "Repeated-hit and yield metrics use result-component memberships, not file order. For every current-round result, each distinct component it names is one hit. A hit is repeated if that component intersects identifiers in completed prior rounds OR it is after the first occurrence of that current component in canonical observation-ref/ordinal order. total_hits counts those memberships; repeated_hits counts that subset."
+        }
+      ],
+      "reassessment": "The phrase 'each distinct component it names' is scoped per current-round result. Two different results or observations that name the same component create two result-component memberships; the later membership is repeated under the first-occurrence rule. discovery_candidates.py:82-98 appends each fact once for each distinct component root named by that result (the set at line 97 prevents duplicate roots within one result), and round_counts at lines 266-278 counts those memberships. The prior R1 claim that two observations of one component must count as one total hit was contrary to R6.",
+      "isolated_vector": {
+        "observations": 2,
+        "results_per_observation": 1,
+        "identifiers": ["doi:10.1234/test", "doi:10.1234/test"],
+        "component_count": 1,
+        "facts_in_component": 2,
+        "round_counts_output": {
+          "total_hits": 2,
+          "repeated_hits": 1,
+          "new_components": 1,
+          "new_relevant": 0
+        },
+        "interpretation": "The output matches R6: two result-component memberships, with the second repeated and one newly introduced component."
+      },
+      "preserved_note": "Future acceptance must still cover aliases, same_work bridges, multiple components named by one result and canonical observation-ref/ordinal ordering. This isolated vector does not claim the complete graph workflow is accepted."
+    }
+  ],
+  "scope_reclassification": [
+    {
+      "prior_findings": [
+        "DISC-WIP-PENDING-INTRODUCTION-AND-SELECTION-LINEAGE",
+        "DISC-WIP-RESERVATION-WIRING-INCOMPLETE",
+        "DISC-WIP-RETAINED-TREE-STATE-RECOVERY-INCOMPLETE",
+        "DISC-WIP-CLI-AND-TEST-SCOPE-MISSING"
+      ],
+      "corrected_interpretation": "These entries describe intentionally not-yet-wired graph, workflow, CLI and acceptance paths in a contract/schema WIP lane. They remain acknowledged implementation work and future acceptance gates under the frozen allowlist; their absence is not a newly discovered contradiction in the frozen R7 contract. The R1 artifact remains unchanged, and this supplement does not issue implementation acceptance."
+    }
+  ],
+  "schema_hash_audit": [
+    {"path":"src/video_paper_wiki_research/schemas/candidate-decision.v1.schema.json","r1_hash":"72b9031a54463c703ac84c9434bfa34931de235c02afd193fdcb2b39d3ddba1f","actual_hash":"72b9031a54463c703ac84c9434bfa34931de235c02afd193fdcb2b39d3ddba1f","size_bytes":2611,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/discovery-common.v1.schema.json","r1_hash":"46b88583fd006b09dbbdd6e6cceb620766c48344ca87b8c2b9d5a992f5aba964","actual_hash":"46b88583fd006b09dbbdd6e6cceb620766c48344ca87b8c2b9d5a992f5aba964","size_bytes":47552,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/discovery-observation.v1.schema.json","r1_hash":"bc7aba7f61aa369d4734f6ae78de637626ef576087abe21b0556e2c294b9e147","actual_hash":"bc7aba7f61aa369d4734f6ae78de637626ef576087abe21b0556e2c294b9e147","size_bytes":2248,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/discovery-request.v1.schema.json","r1_hash":"acc7c645c052d2556a66c3002e45cfb03187ae3976e4dad2eb10bf8861e712db","actual_hash":"acc7c645c052d2556a66c3002e45cfb03187ae3976e4dad2eb10bf8861e712db","size_bytes":1971,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/paper-candidate-set.v1.schema.json","r1_hash":"fd5ba3ff2f0c1c65165c2eadb0ead95f11527a2c0fabea332aef31a9c27e32df","actual_hash":"fd5ba3ff2f0c1c65165c2eadb0ead95f11527a2c0fabea332aef31a9c27e32df","size_bytes":2001,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/paper-rank.v1.schema.json","r1_hash":"67469eed0dea01a360668afc476888dd2a91971c5082adb1ef965e8bc775e2b2","actual_hash":"67469eed0dea01a360668afc476888dd2a91971c5082adb1ef965e8bc775e2b2","size_bytes":2770,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/research-assessment.v1.schema.json","r1_hash":"0541ce1745ec4219a2bae52c899e961800e36a22bf22624fe9c5c26e61b1e4c2","actual_hash":"0541ce1745ec4219a2bae52c899e961800e36a22bf22624fe9c5c26e61b1e4c2","size_bytes":2333,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/research-config.v1.schema.json","r1_hash":"d9b2b6cf6c6a42107d325317f591df631bfcecbc6a85a23e9a849d531d2d4441","actual_hash":"d9b2b6cf6c6a42107d325317f591df631bfcecbc6a85a23e9a849d531d2d4441","size_bytes":922,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/research-control-event.v1.schema.json","r1_hash":"06e42428240daeb207d243b9e966bb15167810df7db5d46af71c540a819adf1f","actual_hash":"06e42428240daeb207d243b9e966bb15167810df7db5d46af71c540a819adf1f","size_bytes":2106,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/research-round-event.v1.schema.json","r1_hash":"577d7a4cebaa211ad2a1f64eb468c4348748eca516fb2ec6fda81273b1bc2e88","actual_hash":"577d7a4cebaa211ad2a1f64eb468c4348748eca516fb2ec6fda81273b1bc2e88","size_bytes":3367,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/research-round-plan.v1.schema.json","r1_hash":"b057d7a4cebaa211ad2a1f64eb468c4348748eca516fb2ec6fda81273b1bc2e88","actual_hash":"b0574ca2b2865e1c9a2fdd1096d09025d79573dbb400bea61677e12fd779acab","size_bytes":2311,"status":"R1_TRANSCRIPTION_ERROR_CORRECTED_IN_SUPPLEMENT"},
+    {"path":"src/video_paper_wiki_research/schemas/research-session.v1.schema.json","r1_hash":"65e0bbf86f4e357eaff6bb0c493dd8bb9149a4bae76dce0f529746a8bdc4d584","actual_hash":"65e0bbf86f4e357eaff6bb0c493dd8bb9149a4bae76dce0f529746a8bdc4d584","size_bytes":1258,"status":"MATCH"},
+    {"path":"src/video_paper_wiki_research/schemas/research-stop-decision.v1.schema.json","r1_hash":"163eabda8a7592006fcb521ec26d9db2b3849b3dcc217c228c2d32936f70eb34","actual_hash":"163eabda8a7592006fcb521ec26d9db2b3849b3dcc217c228c2d32936f70eb34","size_bytes":3095,"status":"MATCH"}
+  ],
+  "verification": {
+    "resource_registry": "resource_state() passed in the locked virtualenv with the frozen profile SHA and 13 schemas.",
+    "term_vector": "matching_terms(config, spec, result) returned ['alpha', 'z term'] from declared ['Z term','a term'] plus ['Zed','alpha']; this is the required derived matching-set normalization.",
+    "hit_vector": "Two valid sealed success observations, each with one result naming the same DOI component, produced one component with two facts and round_counts {total_hits:2,repeated_hits:1,new_components:1,new_relevant:0}.",
+    "mutations": "Only this supplemental review artifact was written; no source, tests, Git, network, connector, Vault or catalog mutation."
+  },
+  "remaining_review_scope": [
+    "The candidate-key and fused-rank integrity probes from R1 remain direct contract-validation findings and are not withdrawn here.",
+    "Future graph/planner/CLI implementation and acceptance remain open under root ownership; this supplement does not accept or reject those future paths."
+  ]
+}

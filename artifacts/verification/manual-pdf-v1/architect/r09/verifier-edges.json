@@ -1,0 +1,208 @@
+{
+  "verifier": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+  "verifier_sha256": "1ca5f342517294c1d5ed3ed3974585bc6ede410a15b08d78f84f6ae285120197",
+  "cases": [
+    {
+      "name": "valid_only",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n",
+      "expected_ok": true,
+      "bad_target_or_anchor_exists": null,
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+        "--workspace",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/ws",
+        "--output",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/out/answer.md",
+        "--report",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/valid_only.json"
+      ],
+      "exit_code": 0,
+      "report": {
+        "ok": true,
+        "source_link_count": 1,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          }
+        ],
+        "errors": []
+      },
+      "observed_ok": true,
+      "expectation_matches": true
+    },
+    {
+      "name": "missing_file_plain",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n[bad](../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n",
+      "expected_ok": false,
+      "bad_target_or_anchor_exists": false,
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+        "--workspace",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/ws",
+        "--output",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/out/answer.md",
+        "--report",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/missing_file_plain.json"
+      ],
+      "exit_code": 1,
+      "report": {
+        "ok": false,
+        "source_link_count": 2,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          },
+          {
+            "href": "../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": false
+          }
+        ],
+        "errors": [
+          "resolved path is not the declared workspace papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md: ../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1 -> /private/tmp/vp.r08.edges.9vm3o7tl/missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+          "workspace still has /private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md, but the full href does not resolve to it"
+        ]
+      },
+      "observed_ok": false,
+      "expectation_matches": true
+    },
+    {
+      "name": "missing_file_query",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n[bad](../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md?x=1#page-1)\n",
+      "expected_ok": false,
+      "bad_target_or_anchor_exists": false,
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+        "--workspace",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/ws",
+        "--output",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/out/answer.md",
+        "--report",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/missing_file_query.json"
+      ],
+      "exit_code": 1,
+      "report": {
+        "ok": false,
+        "source_link_count": 2,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          },
+          {
+            "href": "../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md?x=1#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": false
+          }
+        ],
+        "errors": [
+          "source citation has a nonempty query; query is not a filename suffix: ../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md?x=1#page-1",
+          "resolved path is not the declared workspace papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md: ../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md?x=1#page-1 -> /private/tmp/vp.r08.edges.9vm3o7tl/missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+          "workspace still has /private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md, but the full href does not resolve to it"
+        ]
+      },
+      "observed_ok": false,
+      "expectation_matches": true
+    },
+    {
+      "name": "missing_file_markdown_title",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n[bad](../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1 \"missing\")\n",
+      "expected_ok": false,
+      "bad_target_or_anchor_exists": false,
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+        "--workspace",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/ws",
+        "--output",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/out/answer.md",
+        "--report",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/missing_file_markdown_title.json"
+      ],
+      "exit_code": 1,
+      "report": {
+        "ok": false,
+        "source_link_count": 2,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          },
+          {
+            "href": "../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": false
+          }
+        ],
+        "errors": [
+          "resolved path is not the declared workspace papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md: ../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1 -> /private/tmp/vp.r08.edges.9vm3o7tl/missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+          "workspace still has /private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md, but the full href does not resolve to it"
+        ]
+      },
+      "observed_ok": false,
+      "expectation_matches": true
+    },
+    {
+      "name": "missing_anchor_unquoted_html",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n<a href=../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-2>bad</a>\n",
+      "expected_ok": false,
+      "bad_target_or_anchor_exists": false,
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+        "--workspace",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/ws",
+        "--output",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/out/answer.md",
+        "--report",
+        "/private/tmp/vp.r08.edges.9vm3o7tl/missing_anchor_unquoted_html.json"
+      ],
+      "exit_code": 1,
+      "report": {
+        "ok": false,
+        "source_link_count": 2,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          },
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-2",
+            "resolved_path": "/private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-2",
+            "exists": true
+          }
+        ],
+        "errors": [
+          "missing page anchor page-2 in /private/tmp/vp.r08.edges.9vm3o7tl/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md"
+        ]
+      },
+      "observed_ok": false,
+      "expectation_matches": true
+    }
+  ],
+  "input_workspaces_cleaned": true
+}

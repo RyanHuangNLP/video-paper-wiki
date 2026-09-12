@@ -1,0 +1,99 @@
+{
+  "$schema": "full-todo.code-config-kernel-dispatch-review-r1.v1",
+  "schema": "full-todo.code-config-kernel-dispatch-review-r1.v1",
+  "recorded_at_utc": "2026-09-10T02:31:00Z",
+  "status": "GO_FOR_EXACT_CONFIG_READ_ONLY_OUTPUT_LAUNCH",
+  "scope": "Independent read-only review of the frozen CONFIG contract inputs, output-only Grok prompt, launcher and baseline. No Grok launch, source/test/fixture/Git mutation or network action.",
+  "freeze": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-freeze-r1.json",
+    "size_bytes": 168829,
+    "sha256": "def0a0e66576cc56d7f3900836e9f6a4eeef3f843e15ed74118bf473d2de139d",
+    "status": "FROZEN_PENDING_INDEPENDENT_DISPATCH_REVIEW",
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "baseline_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "baseline_tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "prospective_paths": [
+      "src/video_paper_wiki/code_config_parser.py",
+      "tests/unit/test_code_config_parser.py",
+      "tests/fixtures/code-config-vectors-v1.json"
+    ],
+    "source_paths_initially_absent": true,
+    "baseline_source_writes_stopped": true
+  },
+  "prompt": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-OUTPUT-R2.md",
+    "size_bytes": 6741,
+    "sha256": "0fe4c7268ce7edc809d756387575ae376a83c21c8a49d199c5459b26ad1f0ebf",
+    "review": "Preserves the full R1 parser API, limits, scanner-before-stdlib semantics, numeric/span/TOML/dynamic rules, purity and adversarial-test requirements. The only operational change is explicit output-only return of the two complete Python bodies plus an honest unrun-test brief; Architect runs tests and mechanically installs the immutable fixture."
+  },
+  "launcher": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/launch-output-r1.py",
+    "size_bytes": 2304,
+    "sha256": "5b0c853b47cb37459aea58f3e970c43a5dba26b14a5b02ae8cfc4bca92e9f8dc",
+    "review": {
+      "freeze_hash_checked": true,
+      "dispatch_go_hash_checked_before_launch": true,
+      "all_evidence_and_input_hashes_checked": true,
+      "baseline_head_tree_checked": true,
+      "baseline_worktree_clean_checked": true,
+      "prospective_paths_absence_checked": true,
+      "prepared_directory_exactly_eight_regular_non_symlink_files": true,
+      "stdout_stderr_opened_exclusive": true,
+      "source_or_fixture_write": false
+    },
+    "runtime_controls": {
+      "model": "grok-4.6",
+      "reasoning_effort": "xhigh",
+      "permission_mode": "default",
+      "tools": ["read_file"],
+      "no_subagents": true,
+      "web_search_disabled": true,
+      "normal_approval_required": true,
+      "cwd_is_prepared_input_directory": true,
+      "no_deceptive_os_isolation_claim": true
+    }
+  },
+  "prepared_inputs": {
+    "directory": "/private/tmp/grok-config-r1-pl34bcng",
+    "count": 8,
+    "all_original_copy_pairs_byte_exact": true,
+    "fixture_copy": {
+      "path": "static-vectors-r2.json",
+      "size_bytes": 125029,
+      "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37"
+    },
+    "semantic_inputs": [
+      "CODE-CONFIG-KERNEL-R1.md",
+      "CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "CODE-PROOF-CLOSURE-R3.md",
+      "CODE-CONFIG-TOML-MATRIX-R2.json",
+      "CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+      "static-vectors-r2.json"
+    ],
+    "legacy_helper_excerpt": {
+      "derived_source": "src/video_paper_wiki/code_evidence_contracts.py",
+      "derived_source_sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "copy": "legacy-helper-interface.md",
+      "copy_sha256": "21934c626d9e189ba32097fd168ab10d8c686e6e0517199313c9a8fe943ae9e0"
+    }
+  },
+  "decision_basis": {
+    "accepted_git_kernel_dependency": true,
+    "semantic_preparation_acceptance_bound": true,
+    "generated_json_oracle_is_preparation_only_and_correctly_not_claimed_as_parser_acceptance": true,
+    "fixture_and_supplementary_evidence_bound": true,
+    "implementation_paths_absent": true,
+    "concrete_blockers": [],
+    "next_procedural_step": "Root may create the dispatch-go record bound to this freeze/review, then launch the exact read-only output request."
+  },
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixture": false,
+    "git": false,
+    "network": false,
+    "provider": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

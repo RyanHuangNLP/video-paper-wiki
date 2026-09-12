@@ -1,0 +1,227 @@
+{
+  "$schema": "full-todo.discovery-heldout-trial-plan-r1.v1",
+  "schema": "full-todo.discovery-heldout-trial-plan-r1.v1",
+  "revision": "R1",
+  "recorded_at_utc": "2026-09-09T10:35:49Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "bounded independent read-only holdout-trial planner",
+    "authority": "Architect/root"
+  },
+  "decision": "PLAN_ONLY_TRIAL_PREPARED_NO_SUCCESS_CLAIM",
+  "scope": "Prepare the smallest real-source Discovery trial that the current host can honestly execute after implementation acceptance. This record is a plan and provenance map only; it does not execute a provider, create a session, or claim a successful observation or assessment.",
+  "scope_controls": {
+    "source_edits": false,
+    "test_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_provider_invoked": false,
+    "connector_install": false,
+    "pdf_download": false,
+    "full_text_or_source_download": false,
+    "real_vault_mutation": false,
+    "user_selection_or_publication": false,
+    "success_claimed": false
+  },
+  "frozen_inputs": [
+    {
+      "purpose": "provider target syntax and capability boundary",
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    },
+    {
+      "purpose": "request wire, target regeneration, and capability-unavailable semantics",
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    {
+      "purpose": "final admission, selection, and durable lineage semantics",
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    {
+      "purpose": "frozen provider limits and required lenses",
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951
+    }
+  ],
+  "host_capability_inventory": {
+    "metadata_surface": "functions.exec ALL_TOOLS",
+    "observed_at_utc": "2026-09-09",
+    "available_relevant_tool": "web__run",
+    "available_operations": ["search_query", "open"],
+    "provider_specific_http_or_openalex_tools": [],
+    "provider_specific_arxiv_tools": [],
+    "snapshot": {
+      "path": "/private/tmp/host_capability_metadata_r1.json",
+      "sha256": "d7eaf60f5ed3b82b9e44d6ceba3ee34e4f4c62e55efb5feea4ed3084e0d6858",
+      "size_bytes": 472,
+      "note": "Metadata inventory only; it contains no provider response and no provider tool was invoked while preparing this plan."
+    },
+    "execution_consequence": {
+      "web": "The general host Web tool may carry the bounded web_search slot; normalize only visible results and preserve its source locator.",
+      "openalex": "The fixed OpenAlex http_get slot has no exposed provider-specific HTTP connector in this inventory. If that remains true at execution, record capability_unavailable before invocation; do not substitute general Web search, fabricate an empty success, or follow an arbitrary URL."
+    }
+  },
+  "seed_provenance": {
+    "seed": {
+      "namespace": "arxiv",
+      "value": "2311.15127",
+      "version": 1,
+      "canonical_reference": "2311.15127v1",
+      "title_as_observed_in_prior_preview": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets"
+    },
+    "raw_observed_source_locator": "https://arxiv.org/abs/2311.15127v1",
+    "basis": "Reuse only the identifier and visible source provenance from previously accepted real-source preview evidence; do not copy its normalized payload, PDF, or preview text into this plan.",
+    "prior_preview_evidence": [
+      {
+        "purpose": "prior real-source trial record",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/preview-local-r1/live-trial-r1.json",
+        "sha256": "6c16cab7b3a45b575f9dd87aa4c2d7d6c68239d8ea5e19f55a1d18ac3adaf7d4",
+        "size_bytes": 4004,
+        "request_calls": 1,
+        "status_in_that_record": "LIVE_PREVIEW_OBSERVED_USER_SELECTION_PENDING"
+      },
+      {
+        "purpose": "prior host-visible source observation provenance",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/preview-local-r1/live-svd-r1/web-observation.json",
+        "sha256": "ef6dbc208ab5ea5c50a063bab7f992edfc2c16449314bb9b3526492763748450",
+        "size_bytes": 8902,
+        "payload_reused": false
+      },
+      {
+        "purpose": "prior normalized observation reference, retained outside this plan",
+        "path": ".work/parallel/full-todo-v1/terminal-2/source/.work/research/real-preview-svd-r1/preview-v1/observations/be07d202ce6520d132f78fd706876903e56b7d0b170029c4fa12d6d56522970b.json",
+        "sha256": "24073d1a94eb395cd757f225d79b3ee53e87153149842ed8803923c515b62861",
+        "reference_id": "rw1:observation:be07d202ce6520d132f78fd706876903e56b7d0b170029c4fa12d6d56522970b",
+        "payload_reused": false
+      }
+    ],
+    "identity_constraints": [
+      "The arXiv version is explicit and remains a versioned seed; do not infer a DOI/OpenAlex same-work bridge from the seed alone.",
+      "The prior preview is provenance for choosing a seed, not a Discovery observation, candidate-set, human selection, or source-publication authorization.",
+      "A new Discovery observation must retain its own request, executor, outcome, visible result ordinals, and source locators."
+    ]
+  },
+  "research_question": "How do staged training and data curation affect video diffusion model quality and downstream transfer?",
+  "trial_config_outline": {
+    "provider_profile": "discovery-v1",
+    "seed_ids": [{"namespace": "arxiv", "value": "2311.15127", "version": 1}],
+    "query_terms": ["video diffusion", "training", "data curation"],
+    "lenses": [
+      {"lens": "method", "scope": "training stages, objectives, and data selection", "terms": ["training stages", "data curation", "pretraining", "finetuning"]},
+      {"lens": "benchmark", "scope": "datasets, evaluation protocol, metrics, and comparisons", "terms": ["benchmark", "evaluation", "metrics", "dataset"]},
+      {"lens": "implementation", "scope": "pipeline details, conditioning, adaptation, and compute", "terms": ["implementation", "pipeline", "adaptation", "compute"]},
+      {"lens": "counterevidence", "scope": "limitations, ablations, failures, and contrary evidence", "terms": ["limitations", "ablation", "failure", "negative results"]},
+      {"lens": "reproduction", "scope": "code, data, hyperparameters, and reproducibility details", "terms": ["reproduction", "code", "hyperparameters", "reproducibility"]}
+    ],
+    "limits": {
+      "rounds": 1,
+      "requests": 2,
+      "observations": 2,
+      "per_round_requests": 2,
+      "per_page": 5,
+      "results_per_observation": 5,
+      "payload_bytes_per_observation": 1048576,
+      "total_payload_bytes": 2097152,
+      "unique_candidates": 32,
+      "max_retries": 0,
+      "cursor_continuation": false
+    },
+    "stop_reason_order": ["budget_exhausted", "paths_covered", "duplicate_ratio", "yield_below_threshold"],
+    "assessment_policy": {
+      "required_lenses": ["method", "benchmark", "implementation", "counterevidence", "reproduction"],
+      "initial_status": "pending_trial",
+      "unanswered_lens_is": "gap",
+      "coverage_requires": "explicit visible evidence or a bounded not_applicable rationale tied to the declared scope",
+      "quality_or_scientific_approval": false
+    }
+  },
+  "planned_trial": {
+    "rounds": [
+      {
+        "sequence": 1,
+        "request_slots": [
+          {
+            "slot": 0,
+            "planned_request_key": "b85c3cc4030ff2ab33362e8c5c488902b9cf42b1d5f3645594c36be3960ff641",
+            "provider": "platform-web-search-normalized-v1",
+            "operation": "lookup",
+            "lens": "method",
+            "depth": 0,
+            "subject_ids": [{"namespace": "arxiv", "value": "2311.15127", "version": 1}],
+            "target": {"kind": "web_search", "query": "2311.15127v1", "max_results": 5},
+            "host_request_mapping": {
+              "tool": "web__run",
+              "operation": "search_query",
+              "shape": {"search_query": [{"q": "2311.15127v1"}], "response_length": "short"},
+              "adapter_rule": "Apply the Discovery max_results=5 bound to visible results; do not claim raw transport facts."
+            },
+            "planned_outcome_branches": ["success", "partial", "timeout", "rate_limited", "failure", "capability_unavailable"]
+          },
+          {
+            "slot": 1,
+            "planned_request_key": "d5bd07bd7b0d8ba3df2f5e847573f22ca569344a611feae1692479514c8cb1bf",
+            "provider": "openalex-rest-normalized-v1",
+            "operation": "topic",
+            "lens": "method",
+            "depth": 0,
+            "subject_ids": [{"namespace": "arxiv", "value": "2311.15127", "version": 1}],
+            "query": "How do staged training and data curation affect video diffusion model quality and downstream transfer? training stages and data curation video diffusion data curation training staged training pretraining finetuning",
+            "target": {
+              "kind": "http_get",
+              "url": "https://api.openalex.org/works?search=How%20do%20staged%20training%20and%20data%20curation%20affect%20video%20diffusion%20model%20quality%20and%20downstream%20transfer%3F%20training%20stages%20and%20data%20curation%20video%20diffusion%20data%20curation%20training%20staged%20training%20pretraining%20finetuning&per_page=5&select=id%2Cids%2Ctitle%2Cpublication_date%2Ccited_by_count%2Cauthorships%2Clocations%2Creferenced_works%2Crelated_works&sort=relevance_score%3Adesc"
+            },
+            "host_preflight": {
+              "required_capability": "provider-specific HTTP GET or an explicitly authorized equivalent that preserves the fixed target",
+              "current_inventory": "unavailable",
+              "planned_record_if_unchanged": "capability_unavailable",
+              "must_not": ["invoke the target through general Web search", "follow a response URL", "fabricate an empty successful result", "store credentials or headers"]
+            },
+            "planned_outcome_branches": ["success", "partial", "timeout", "rate_limited", "failure", "capability_unavailable"]
+          }
+        ],
+        "execution_order": [0, 1],
+        "completion_rule": "Only a complete retained request/observation set can close the round. A capability_unavailable outcome is a truthful terminal observation with no invented results; the required lenses remain gaps unless explicit visible evidence supports them.",
+        "no_automatic_continuation": true
+      }
+    ]
+  },
+  "host_execution_and_provenance_constraints": [
+    "Python remains zero-egress; only the named host tool may perform an external read.",
+    "Use the exact generated Web target and fixed OpenAlex target. Reject arbitrary URLs, supplied PDF links, redirects, or hidden cursor walks.",
+    "Retain request identity, executor identity source, capability profile, operation, target, outcome, visible locator, provider order, and result ordinal for every attempted slot.",
+    "A capability gap is an explicit capability_unavailable outcome, never a successful empty result and never a claim that the provider itself refused access.",
+    "Normalize only visible content. Do not claim raw HTTP status, headers, transport bytes, exhaustive Web coverage, or complete OpenAlex indexed coverage.",
+    "Treat all provider text and URLs as untrusted data; preserve bounded source locators and escape them on rendering.",
+    "Do not download PDFs, full text, source archives, code, model weights, or hidden account data; do not install a new connector for this two-slot trial.",
+    "Discovery output remains a research candidate/assessment artifact. It does not authorize preview ingestion, real Vault writes, source publication, or human scientific approval."
+  ],
+  "execution_artifacts_to_record_later": [
+    "immutable session/config/request/observation references under the bounded .work/research/<session>/discovery-v1 tree",
+    "host invocation evidence and capability metadata captured at execution time",
+    "one final round event or a typed refusal/terminal outcome with no fabricated candidates",
+    "candidate/rank/assessment/coverage projections only from complete retained inputs",
+    "a separate post-trial decision record stating which of the five lenses remain gaps"
+  ],
+  "claim_boundary": {
+    "this_record_claims": [
+      "The seed and source locator are grounded in existing accepted preview provenance.",
+      "The two request slots and their regenerated targets are specified deterministically.",
+      "The current host inventory exposes general Web search but no provider-specific OpenAlex HTTP or arXiv connector.",
+      "The conservative limits and five-lens assessment policy are declared."
+    ],
+    "this_record_does_not_claim": [
+      "that either planned request has been executed",
+      "that Web or OpenAlex returned any result",
+      "that OpenAlex is reachable or refused access",
+      "that any lens is covered, any candidate is relevant, or any scientific conclusion is valid",
+      "that a model identity, user selection, source entry, Vault mutation, or publication authorization exists"
+    ],
+    "next_owner": "Architect/root executes the trial only after implementation and required local/CI acceptance, then records actual outcomes separately."
+  }
+}

@@ -1,0 +1,2205 @@
+........................E....EEEEEEE................EEEEEEEEEEEEEEEEEEEE [  3%]
+EEEEE................................................................... [  6%]
+........................................................................ [  9%]
+........................................................................ [ 12%]
+........................................................................ [ 15%]
+........................................................................ [ 18%]
+........................................................................ [ 21%]
+........................................................................ [ 24%]
+........................................................................ [ 27%]
+........................................................................ [ 30%]
+........................................................................ [ 33%]
+........................................................................ [ 36%]
+........................................................................ [ 39%]
+........................................................................ [ 42%]
+........................................................................ [ 45%]
+.......................FF....F.......................................... [ 48%]
+........................................................................ [ 51%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 60%]
+........................................................................ [ 63%]
+........................................................................ [ 66%]
+........................................................................ [ 69%]
+........................................................................ [ 72%]
+........................................................................ [ 75%]
+........................................................................ [ 78%]
+........................................................................ [ 81%]
+...F.................................................................... [ 84%]
+..............................................F......................... [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 93%]
+........................................................................ [ 96%]
+........................................................................ [ 99%]
+......                                                                   [100%]
+==================================== ERRORS ====================================
+___________ ERROR at setup of test_prospective_agent_verify_no_build ___________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+___________ ERROR at setup of test_prospective_gate_inspect_genesis ____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+__________ ERROR at setup of test_prospective_gate_inspect_successor ___________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_ ERROR at setup of test_gate_successor_changed_baseline_claims_both_receipt_backed_baselines _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_ ERROR at setup of test_gate_successor_changed_baseline_missing_prior_claim_is_rejected _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_ ERROR at setup of test_gate_successor_second_extra_baseline_claim_is_rejected _
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_____________ ERROR at setup of test_prospective_gate_inspect_fork _____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+______________ ERROR at setup of test_external_gates_remain_open _______________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed0/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_____________ ERROR at setup of test_operator_nontty_catalog_build _____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed1/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed1/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+________________ ERROR at setup of test_gate_apply_real_nontty _________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed1/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed1/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+___________________ ERROR at setup of test_skills_fresh_path ___________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+____________________ ERROR at setup of test_skills_no_admin ____________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+___________________ ERROR at setup of test_skills_no_egress ____________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_________________ ERROR at setup of test_skills_no_vault_write _________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+__________________ ERROR at setup of test_skills_stale_report __________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_____________ ERROR at setup of test_prospective_wheel_skill_phase _____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed2/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+___________ ERROR at setup of test_prospective_wheel_operator_phase ____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_________________ ERROR at setup of test_three_paper_one_repo __________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_______________ ERROR at setup of test_postrestore_domain_audit ________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+____________ ERROR at setup of test_postrestore_locator_resolution _____________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+__________________ ERROR at setup of test_postrestore_compile __________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+________________ ERROR at setup of test_postrestore_strict_lint ________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+______________ ERROR at setup of test_postrestore_runtime_rebuild ______________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+___________________ ERROR at setup of test_postrestore_query ___________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+__________________ ERROR at setup of test_delete_projections ___________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+___________________ ERROR at setup of test_rebuild_markdown ____________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+____________________ ERROR at setup of test_rebuild_export _____________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+____________________ ERROR at setup of test_rebuild_runtime ____________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_________________ ERROR at setup of test_rebuild_mapping_query _________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_____________________ ERROR at setup of test_delete_truth ______________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+__________________ ERROR at setup of test_catalog_stale_head ___________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+__________________ ERROR at setup of test_catalog_stale_index __________________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+_________ ERROR at setup of test_prospective_operator_restore_rebuild __________
+
+tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _trace=<pluggy._tracing.TagTracerSub object at 0x1018c9cd0>, _basetemp=PosixPath('/private/tmp/l4r4.cxy9ljhd/base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope='session')
+    def installed_cli(tmp_path_factory):
+        # CI installs the locked environment before switching uv to offline mode.
+        # Its build cache supplies the pinned wheel backend; runtime dependencies
+        # are exposed from that locked environment through the path-only bridge
+        # below.  Product installation itself explicitly bypasses uv's cache.
+        uv_raw=shutil.which('uv')
+        assert uv_raw is not None,'the test job must provide its pinned uv on PATH'
+        uv=Path(uv_raw).resolve()
+        assert uv.is_file() and os.access(uv,os.X_OK)
+        uv_version=subprocess.run([str(uv),'--version'],check=True,stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,text=True).stdout.strip()
+        assert uv_version.split()[:2]==['uv','0.12.7'],uv_version
+        wheel_python=Path(sys.executable).resolve()
+        assert wheel_python.is_file() and os.access(wheel_python,os.X_OK)
+        base=tmp_path_factory.mktemp('vpwiki-closure-installed');venv=base/'venv'
+        assert ROOT not in base.parents and base!=ROOT
+        wheels=base/'wheels';wheels.mkdir()
+        uv_env={**os.environ,'UV_OFFLINE':'1','UV_PYTHON_DOWNLOADS':'never'}
+        # Do not inherit an operator workstation's local flat-index shortcut.  The
+        # offline build backend may use the locked setup's job cache; product
+        # installation below explicitly bypasses the cache.
+        uv_env.pop('UV_FIND_LINKS',None)
+        def checked(argv):
+            result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+                text=True,env=uv_env,check=False)
+            if result.returncode:
+                pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                    '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+            return result
+        for project in (ROOT,ROOT/'operator'):
+>           checked([uv,'build','--offline','--wheel','--out-dir',wheels,project])
+
+tests/closure/test_installed_vertical.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+argv = [PosixPath('/Users/huangzhanpeng/.hermes/bin/uv'), 'build', '--offline', '--wheel', '--out-dir', PosixPath('/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels'), ...]
+
+    def checked(argv):
+        result=subprocess.run([str(x) for x in argv],stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            text=True,env=uv_env,check=False)
+        if result.returncode:
+>           pytest.fail('installed CLI setup failed\nargv: '+repr([str(x) for x in argv])+
+                '\nstdout:\n'+result.stdout+'\nstderr:\n'+result.stderr)
+E           Failed: installed CLI setup failed
+E           argv: ['/Users/huangzhanpeng/.hermes/bin/uv', 'build', '--offline', '--wheel', '--out-dir', '/private/tmp/l4r4.cxy9ljhd/base/vpwiki-closure-installed3/wheels', '/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source']
+E           stdout:
+E           
+E           stderr:
+E           error: Failed to initialize cache at `/Users/huangzhanpeng/.cache/uv`
+E             Caused by: failed to open file `/Users/huangzhanpeng/.cache/uv/sdists-v9/.git`: Operation not permitted (os error 1)
+
+tests/closure/test_installed_vertical.py:113: Failed
+=================================== FAILURES ===================================
+____ test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-batch] ____
+
+slot = 'batch', kind = 'socket'
+tmp_path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_batch_or_intermediate_fif2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1033781a0>
+capsys = <_pytest.capture.CaptureFixture object at 0x1040afed0>
+network_attempts = []
+
+    @pytest.mark.parametrize("slot", ["batch", "intermediate"])
+    @pytest.mark.parametrize("kind", ["fifo", "socket"])
+    def test_batch_or_intermediate_fifo_or_socket_is_unsafe_json(
+        slot, kind, tmp_path, monkeypatch, capsys, network_attempts
+    ) -> None:
+        checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+        before = _snapshot(external)
+        if slot == "batch":
+            (checkout / ".work").mkdir()
+            target = checkout / ".work" / "b1"
+        else:
+            (checkout / ".work" / "b1").mkdir(parents=True)
+            target = checkout / ".work" / "b1" / "review"
+        server = None
+        if kind == "fifo":
+            os.mkfifo(target)
+        else:
+>           server = plant_unix_socket(target)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/security/test_work_staging_boundary.py:865: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_batch_or_intermediate_fif2/repo/.work/b1')
+
+    def plant_unix_socket(path: Path) -> socket.socket:
+        """Bind at a short same-device path, then move the socket entry to *path*."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # Both supported CI platforms provide /tmp.  Its spelling stays below the
+        # AF_UNIX path limit even when the test runner's TMPDIR is deeply nested.
+        short_base=Path("/tmp")
+        if not short_base.is_dir():
+            raise RuntimeError("short socket temporary directory is unavailable")
+        short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir=short_base));short=short_root/"s"
+        if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
+            short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
+        server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+        try:
+>           server.bind(str(short));server.listen(1);os.rename(short,path)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [Errno 1] Operation not permitted
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/support.py:26: PermissionError
+_ test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-intermediate] _
+
+slot = 'intermediate', kind = 'socket'
+tmp_path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_batch_or_intermediate_fif3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x104a1e350>
+capsys = <_pytest.capture.CaptureFixture object at 0x1040af450>
+network_attempts = []
+
+    @pytest.mark.parametrize("slot", ["batch", "intermediate"])
+    @pytest.mark.parametrize("kind", ["fifo", "socket"])
+    def test_batch_or_intermediate_fifo_or_socket_is_unsafe_json(
+        slot, kind, tmp_path, monkeypatch, capsys, network_attempts
+    ) -> None:
+        checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+        before = _snapshot(external)
+        if slot == "batch":
+            (checkout / ".work").mkdir()
+            target = checkout / ".work" / "b1"
+        else:
+            (checkout / ".work" / "b1").mkdir(parents=True)
+            target = checkout / ".work" / "b1" / "review"
+        server = None
+        if kind == "fifo":
+            os.mkfifo(target)
+        else:
+>           server = plant_unix_socket(target)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/security/test_work_staging_boundary.py:865: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_batch_or_intermediate_fif3/repo/.work/b1/review')
+
+    def plant_unix_socket(path: Path) -> socket.socket:
+        """Bind at a short same-device path, then move the socket entry to *path*."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # Both supported CI platforms provide /tmp.  Its spelling stays below the
+        # AF_UNIX path limit even when the test runner's TMPDIR is deeply nested.
+        short_base=Path("/tmp")
+        if not short_base.is_dir():
+            raise RuntimeError("short socket temporary directory is unavailable")
+        short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir=short_base));short=short_root/"s"
+        if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
+            short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
+        server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+        try:
+>           server.bind(str(short));server.listen(1);os.rename(short,path)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [Errno 1] Operation not permitted
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/support.py:26: PermissionError
+_____________________ test_unix_socket_sentinel_unchanged ______________________
+
+tmp_path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_unix_socket_sentinel_unch0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x104a1ee40>
+capsys = <_pytest.capture.CaptureFixture object at 0x106a439d0>
+network_attempts = []
+
+    def test_unix_socket_sentinel_unchanged(tmp_path, monkeypatch, capsys, network_attempts) -> None:
+        checkout, external = _prepare_checkout(tmp_path, monkeypatch)
+        sock_path = external / "sentinel.sock"
+>       server = plant_unix_socket(sock_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/security/test_work_staging_boundary.py:995: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_unix_socket_sentinel_unch0/external/sentinel.sock')
+
+    def plant_unix_socket(path: Path) -> socket.socket:
+        """Bind at a short same-device path, then move the socket entry to *path*."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # Both supported CI platforms provide /tmp.  Its spelling stays below the
+        # AF_UNIX path limit even when the test runner's TMPDIR is deeply nested.
+        short_base=Path("/tmp")
+        if not short_base.is_dir():
+            raise RuntimeError("short socket temporary directory is unavailable")
+        short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir=short_base));short=short_root/"s"
+        if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
+            short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
+        server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+        try:
+>           server.bind(str(short));server.listen(1);os.rename(short,path)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [Errno 1] Operation not permitted
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/support.py:26: PermissionError
+___________________ test_plan_ref_blob_special_files[socket] ___________________
+
+kind = 'socket'
+tmp_path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_plan_ref_blob_special_fil3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x103655a20>
+capsys = <_pytest.capture.CaptureFixture object at 0x11016eed0>
+network_attempts = []
+
+    @pytest.mark.parametrize("kind", ["symlink", "dir", "fifo", "socket", "device"])
+    def test_plan_ref_blob_special_files(kind, tmp_path, monkeypatch, capsys, network_attempts) -> None:
+        make_checkout(tmp_path)
+        monkeypatch.chdir(tmp_path)
+        blob_root = tmp_path / "blobs"
+        monkeypatch.setenv("VPWIKI_BLOB_ROOT", str(blob_root))
+        data = TINY_PDF.read_bytes()
+        digest = plant_blob(blob_root, data)
+        request = paper_source_request(batch_id="sp1", local_sha256=digest)
+        plan_path, ref_path, plan = _bind_plan(tmp_path, request)
+        plan_bytes = plan_path.read_bytes()
+        ref_obj = make_approval_ref(plan)
+    
+>       server = _plant_special(plan_path, kind)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/unit/test_prepare.py:446: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/unit/test_prepare.py:417: in _plant_special
+    server = plant_unix_socket(path)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_plan_ref_blob_special_fil3/.work/sp1/plan/ingest-plan.v1.json')
+
+    def plant_unix_socket(path: Path) -> socket.socket:
+        """Bind at a short same-device path, then move the socket entry to *path*."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # Both supported CI platforms provide /tmp.  Its spelling stays below the
+        # AF_UNIX path limit even when the test runner's TMPDIR is deeply nested.
+        short_base=Path("/tmp")
+        if not short_base.is_dir():
+            raise RuntimeError("short socket temporary directory is unavailable")
+        short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir=short_base));short=short_root/"s"
+        if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
+            short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
+        server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+        try:
+>           server.bind(str(short));server.listen(1);os.rename(short,path)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [Errno 1] Operation not permitted
+
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/support.py:26: PermissionError
+_________________ test_missing_symlink_dir_fifo_socket_device __________________
+
+tmp_path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_missing_symlink_dir_fifo_0')
+
+    def test_missing_symlink_dir_fifo_socket_device(tmp_path: Path) -> None:
+        missing = tmp_path / "nope.json"
+        with pytest.raises(SecureIOError) as exc:
+            read_regular_file(
+                missing,
+                missing_code=PLAN_NOT_FOUND,
+                unsafe_code=PLAN_PATH_UNSAFE,
+            )
+        assert exc.value.code == PLAN_NOT_FOUND
+    
+        link = tmp_path / "link.json"
+        link.symlink_to(tmp_path / "target.json")
+        with pytest.raises(SecureIOError) as linked:
+            read_regular_file(link, missing_code=PLAN_NOT_FOUND, unsafe_code=PLAN_PATH_UNSAFE)
+        assert linked.value.code == PLAN_PATH_UNSAFE
+    
+        directory = tmp_path / "dir.json"
+        directory.mkdir()
+        with pytest.raises(SecureIOError) as as_dir:
+            read_regular_file(directory, missing_code=PLAN_NOT_FOUND, unsafe_code=PLAN_PATH_UNSAFE)
+        assert as_dir.value.code == PLAN_PATH_UNSAFE
+    
+        fifo = tmp_path / "fifo.json"
+        os.mkfifo(fifo)
+        with pytest.raises(SecureIOError) as as_fifo:
+            read_regular_file(fifo, missing_code=PLAN_NOT_FOUND, unsafe_code=PLAN_PATH_UNSAFE)
+        assert as_fifo.value.code == PLAN_PATH_UNSAFE
+    
+        sock_path = tmp_path / "sock.json"
+>       server = plant_unix_socket(sock_path)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_secure_io.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/private/tmp/l4r4.cxy9ljhd/base/test_missing_symlink_dir_fifo_0/sock.json')
+
+    def plant_unix_socket(path: Path) -> socket.socket:
+        """Bind at a short same-device path, then move the socket entry to *path*."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        # Both supported CI platforms provide /tmp.  Its spelling stays below the
+        # AF_UNIX path limit even when the test runner's TMPDIR is deeply nested.
+        short_base=Path("/tmp")
+        if not short_base.is_dir():
+            raise RuntimeError("short socket temporary directory is unavailable")
+        short_root=Path(tempfile.mkdtemp(prefix="vpws-",dir=short_base));short=short_root/"s"
+        if os.stat(short_root).st_dev!=os.stat(path.parent).st_dev:
+            short_root.rmdir();raise RuntimeError("short socket path is on another filesystem")
+        server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+        try:
+>           server.bind(str(short));server.listen(1);os.rename(short,path)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E           PermissionError: [Errno 1] Operation not permitted
+
+tests/support.py:26: PermissionError
+=========================== short test summary info ============================
+FAILED tests/security/test_work_staging_boundary.py::test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-batch]
+FAILED tests/security/test_work_staging_boundary.py::test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-intermediate]
+FAILED tests/security/test_work_staging_boundary.py::test_unix_socket_sentinel_unchanged
+FAILED tests/unit/test_prepare.py::test_plan_ref_blob_special_files[socket]
+FAILED tests/unit/test_secure_io.py::test_missing_symlink_dir_fifo_socket_device
+ERROR tests/closure/test_closure_direct.py::test_prospective_agent_verify_no_build
+ERROR tests/closure/test_closure_direct.py::test_prospective_gate_inspect_genesis
+ERROR tests/closure/test_closure_direct.py::test_prospective_gate_inspect_successor
+ERROR tests/closure/test_closure_direct.py::test_gate_successor_changed_baseline_claims_both_receipt_backed_baselines
+ERROR tests/closure/test_closure_direct.py::test_gate_successor_changed_baseline_missing_prior_claim_is_rejected
+ERROR tests/closure/test_closure_direct.py::test_gate_successor_second_extra_baseline_claim_is_rejected
+ERROR tests/closure/test_closure_direct.py::test_prospective_gate_inspect_fork
+ERROR tests/closure/test_closure_direct.py::test_external_gates_remain_open
+ERROR tests/closure/test_installed_operator_exact.py::test_operator_nontty_catalog_build
+ERROR tests/closure/test_installed_operator_exact.py::test_gate_apply_real_nontty
+ERROR tests/closure/test_installed_skills.py::test_skills_fresh_path - Failed...
+ERROR tests/closure/test_installed_skills.py::test_skills_no_admin - Failed: ...
+ERROR tests/closure/test_installed_skills.py::test_skills_no_egress - Failed:...
+ERROR tests/closure/test_installed_skills.py::test_skills_no_vault_write - Fa...
+ERROR tests/closure/test_installed_skills.py::test_skills_stale_report - Fail...
+ERROR tests/closure/test_installed_skills.py::test_prospective_wheel_skill_phase
+ERROR tests/closure/test_installed_vertical.py::test_prospective_wheel_operator_phase
+ERROR tests/closure/test_installed_vertical.py::test_three_paper_one_repo - F...
+ERROR tests/closure/test_installed_vertical.py::test_postrestore_domain_audit
+ERROR tests/closure/test_installed_vertical.py::test_postrestore_locator_resolution
+ERROR tests/closure/test_installed_vertical.py::test_postrestore_compile - Fa...
+ERROR tests/closure/test_installed_vertical.py::test_postrestore_strict_lint
+ERROR tests/closure/test_installed_vertical.py::test_postrestore_runtime_rebuild
+ERROR tests/closure/test_installed_vertical.py::test_postrestore_query - Fail...
+ERROR tests/closure/test_installed_vertical.py::test_delete_projections - Fai...
+ERROR tests/closure/test_installed_vertical.py::test_rebuild_markdown - Faile...
+ERROR tests/closure/test_installed_vertical.py::test_rebuild_export - Failed:...
+ERROR tests/closure/test_installed_vertical.py::test_rebuild_runtime - Failed...
+ERROR tests/closure/test_installed_vertical.py::test_rebuild_mapping_query - ...
+ERROR tests/closure/test_installed_vertical.py::test_delete_truth - Failed: i...
+ERROR tests/closure/test_installed_vertical.py::test_catalog_stale_head - Fai...
+ERROR tests/closure/test_installed_vertical.py::test_catalog_stale_index - Fa...
+ERROR tests/closure/test_installed_vertical.py::test_prospective_operator_restore_rebuild
+5 failed, 2344 passed, 33 errors in 130.94s (0:02:10)

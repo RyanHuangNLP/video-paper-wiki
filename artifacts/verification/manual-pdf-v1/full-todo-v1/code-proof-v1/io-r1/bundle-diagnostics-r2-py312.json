@@ -1,0 +1,90 @@
+{
+  "schema": "full-todo.code-io-bundle-diagnostics.v1",
+  "recorded_at_utc": "2026-09-11T04:31:13.635802+00:00",
+  "runtime": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+  "script": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_bundle_diagnostics_r2.py",
+    "size_bytes": 5631,
+    "sha256": "d192796a00d7b64bf84bc9b4e6cfe26689ca10005e4d9c317d2fe5847646521d"
+  },
+  "source": {
+    "path": "/private/tmp/cio-r2-q9gm4dk1/source/src/video_paper_wiki/code_proof_io.py",
+    "size_bytes": 158847,
+    "sha256": "2ae90a07ffa14806d82e5285084c168cbd025c079483a4b4e6626e22761d97df"
+  },
+  "scratch_root": "/private/tmp/cio-bdiag-qsytsb9o",
+  "observations": [
+    {
+      "name": "raw_root_complete_set",
+      "expected": "WORK_PATH_UNSAFE after third raw-root entry appears",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofIOError",
+        "code": "WORK_PATH_UNSAFE",
+        "reason": null,
+        "details": {
+          "phase": "final_verify",
+          "group": "bundle",
+          "reason": "set_changed",
+          "operation": "scandir",
+          "errno": null,
+          "prior_code": "WORK_PATH_UNSAFE",
+          "prior_operation": "scandir",
+          "prior_errno": null,
+          "failed_groups": [
+            "bundle"
+          ]
+        }
+      }
+    },
+    {
+      "name": "raw_objects_named_directory_lineage",
+      "expected": "WORK_PATH_UNSAFE for persistent named objects directory replacement",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofIOError",
+        "code": "WORK_PATH_UNSAFE",
+        "reason": null,
+        "details": {
+          "phase": "final_verify",
+          "group": "bundle",
+          "reason": "edge_changed",
+          "operation": "stat",
+          "errno": null,
+          "prior_code": "WORK_PATH_UNSAFE",
+          "prior_operation": "stat",
+          "prior_errno": null,
+          "failed_groups": [
+            "bundle"
+          ]
+        }
+      }
+    },
+    {
+      "name": "inventory_records_are_closed",
+      "expected": "private structure refusal for sixth object-record key before body open",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofStructureError",
+        "code": null,
+        "reason": "shape",
+        "details": null
+      }
+    },
+    {
+      "name": "inventory_oid_order",
+      "expected": "private structure refusal for non-ascending inventory before body open",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofStructureError",
+        "code": null,
+        "reason": "shape",
+        "details": null
+      }
+    }
+  ],
+  "candidate_accepted": false,
+  "product_source_modified": false,
+  "source_unchanged": true,
+  "expected_source_sha256": "2ae90a07ffa14806d82e5285084c168cbd025c079483a4b4e6626e22761d97df"
+}

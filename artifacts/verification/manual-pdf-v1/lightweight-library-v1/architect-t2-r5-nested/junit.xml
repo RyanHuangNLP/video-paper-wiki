@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="10" time="0.198" timestamp="2026-09-08T13:38:45.821622+08:00" hostname="HuangzhanpengdeMacBook-Pro.local"><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_live_listing_metadata_and_native_reuse" time="0.011"><failure message="assert 0 == 1&#10; +  where 0 = len([])">../../../../acceptance/lightweight-library-v1/architect_t2_nested_notes.py:35: in test_nested_live_listing_metadata_and_native_reuse
+    assert len(listed['papers']) == 1
+E   assert 0 == 1
+E    +  where 0 = len([])</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_archive_restore_complete_set_and_retries[False]" time="0.006"><failure message="AssertionError: {'ok': False, 'status': 'LIGHT_LIBRARY_INVALID', 'message': 'unexpected dir notes-α', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f'}">../../../../acceptance/lightweight-library-v1/architect_t2_nested_notes.py:52: in test_nested_archive_restore_complete_set_and_retries
+    archived = accepted(library.archive_paper(workspace, 'sha256:' + OLD))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t2_regressions.py:29: in accepted
+    assert result.get('ok') is True, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: {'ok': False, 'status': 'LIGHT_LIBRARY_INVALID', 'message': 'unexpected dir notes-α', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f'}</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_archive_restore_complete_set_and_retries[True]" time="0.006"><failure message="Failed: DID NOT RAISE RuntimeError">../../../../acceptance/lightweight-library-v1/architect_t2_nested_notes.py:50: in test_nested_archive_restore_complete_set_and_retries
+    interrupted('after_archive_move', lambda: library.archive_paper(workspace, 'sha256:' + OLD))
+../../../../acceptance/lightweight-library-v1/architect_t2_regressions.py:71: in interrupted
+    with pytest.raises(RuntimeError, match='Architect interruption'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RuntimeError</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_replace_retains_complete_old_archive[False]" time="0.012"><failure message="AssertionError: {'ok': False, 'status': 'LIGHT_LIBRARY_INVALID', 'message': 'unexpected dir notes-α', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f'}">../../../../acceptance/lightweight-library-v1/architect_t2_nested_notes.py:74: in test_nested_replace_retains_complete_old_archive
+    result = accepted(library.replace_paper(workspace, 'sha256:' + OLD, NEW_PDF))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t2_regressions.py:29: in accepted
+    assert result.get('ok') is True, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: {'ok': False, 'status': 'LIGHT_LIBRARY_INVALID', 'message': 'unexpected dir notes-α', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f'}</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_replace_retains_complete_old_archive[True]" time="0.011"><failure message="Failed: DID NOT RAISE RuntimeError">../../../../acceptance/lightweight-library-v1/architect_t2_nested_notes.py:72: in test_nested_replace_retains_complete_old_archive
+    interrupted('after_old_archive', lambda: library.replace_paper(workspace, 'sha256:' + OLD, NEW_PDF))
+../../../../acceptance/lightweight-library-v1/architect_t2_regressions.py:71: in interrupted
+    with pytest.raises(RuntimeError, match='Architect interruption'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE RuntimeError</failure></testcase><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_unsafe_archive_refusal_preserves_live[file-symlink]" time="0.005" /><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_unsafe_archive_refusal_preserves_live[directory-symlink]" time="0.005" /><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_unsafe_archive_refusal_preserves_live[hardlink]" time="0.005" /><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_unsafe_archive_refusal_preserves_live[binary]" time="0.005" /><testcase classname=".work.acceptance.lightweight-library-v1.architect_t2_nested_notes" name="test_nested_unsafe_archive_refusal_preserves_live[oversize]" time="0.008" /></testsuite></testsuites>

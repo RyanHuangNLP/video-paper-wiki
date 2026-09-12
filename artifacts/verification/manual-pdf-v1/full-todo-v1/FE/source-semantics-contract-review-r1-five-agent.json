@@ -1,0 +1,103 @@
+{
+  "accepted_l1": {
+    "capture_admission": "admit_markdown_source stages one ingest publication with claimed_inputs=[raw_path]; capture itself creates the raw file and has no registration receipt.",
+    "ci_checkout": "2732314fe8216e9d7a536c7b3d25f5afa22ab310",
+    "head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "observation_schema": "video-paper-wiki.markdown-source-observation.v1",
+    "observation_schema_sha256": "8da92711aac250ccb0ef26bf7e78a8d91e687c92649f7b211c38ea45c4b2445a",
+    "observed_version_shape": "{\"kind\":\"unknown\",\"label\":null} or {\"kind\":\"declared\",\"label\":text}"
+  },
+  "contract": {
+    "allowlist_count": 29,
+    "allowlist_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-allowed-paths-r1.json",
+    "allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "baseline": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R1.md",
+    "sha256": "d9b1c779b95736d53ce5d9369501953e4aab3e332e8d8baa955bc80af43ad777",
+    "size_bytes": 14924
+  },
+  "decision": "CHANGES_REQUIRED_BEFORE_FREEZE",
+  "findings": [
+    {
+      "evidence": "tests/unit/test_markdown_source.py and markdown-source-observation.v1 fixtures assert version.kind.",
+      "finding": "The contract describes Markdown observation version as {status: unknown|declared, label: ...}, but accepted markdown-source-observation.v1 is closed on {kind: unknown|declared, label: ...}. The association claims version and observation are exact accepted values.",
+      "id": "L1-VERSION-FIELD-MISMATCH",
+      "required_change": "Use the frozen kind field verbatim in association validation and fixtures, or explicitly specify a lossless adapter without changing the embedded observation bytes. Do not emit status under an exact-observation contract.",
+      "severity": "blocker",
+      "status": "open"
+    },
+    {
+      "compatibility": "This preserves capture-create -> ingest-registration ordering and prevents relabeling a later ingest after an earlier ingest claim.",
+      "finding": "The contract requires the registration receipt to be the first receipt claiming the captured path, then says any earlier receipt claim or write of that raw path forbids later registration. SOURCE-CAPTURE necessarily has an earlier capture receipt that creates/writes the raw path; SOURCE-CAPTURE admission then produces the ingest receipt with the raw read claim and source-ledger write.",
+      "id": "REGISTRATION-EARLIEST-RECEIPT-WRITE-CONTRADICTION",
+      "required_change": "Define “earliest registration claim” as the first receipt whose claimed_inputs contains the raw path/hash and whose operation_type is ingest, while permitting the earlier capture receipt’s create write. Reject earlier ingest/read claims or a prior source-ledger registration, not the capture create write.",
+      "severity": "blocker",
+      "status": "open"
+    },
+    {
+      "compatibility": "The extraction descriptor can remain canonical JCS(observation) at .raw/derived/markdown-source/<raw-sha>/<observation-sha>.json; the missing part is retaining/refusing a second observation when association identity is reused.",
+      "finding": "Same conflict key plus same raw bytes returns the prior immutable association even when new observation metadata differs. The 29-path allowlist has no source-version-provenance schema or history path, so original_pdf_sha256, page metadata, source metadata digest and registration-history variants can disappear silently.",
+      "id": "REUSE-PROVENANCE-HISTORY",
+      "required_change": "Either return explicit PROVENANCE_VARIANT with immutable supplied variant bytes/refs preserved in a separately frozen namespace/schema, or require metadata equivalence on reuse and refuse differing observations. Never silently discard changed provenance.",
+      "severity": "blocker",
+      "status": "open"
+    },
+    {
+      "finding": "associate_source receives a prior association plus new head/receipt/ledger bytes, but the contract does not state that a reused result must prove the supplied historical registration descriptor equals the prior association.registration and source-ledger snapshot.",
+      "id": "REGISTRATION-PROOF-REUSE-BINDING",
+      "required_change": "On reused associations, verify raw/source/version key and exact registration receipt/ledger/extraction refs against the prior complete association; otherwise return a stable provenance/history conflict. Preserve the prior bytes unchanged.",
+      "severity": "high",
+      "status": "open"
+    },
+    {
+      "compatibility": "Parent choice is compatible with L1 if this pure projection is clearly distinct from vendor validation and current-time/Vault reads are excluded.",
+      "finding": "Accepted runtime validation is Python/vendor behavior and is not a closed JSON schema. A pure registration proof must not import or execute it, and the contract currently only says “pinned closed source-ledger profile” without spelling its exact closed projection.",
+      "id": "HISTORICAL-LEDGER-CLOSED-PROJECTION",
+      "required_change": "Freeze a separately named pure historical-ledger projection: exact root schema/generated_at/sources; exact source row fields origin/content_kind/title/authority/review_status/pages plus the permitted hash/date/independence/supersedes optionals; closed extras; exact Markdown row/path/hash/primary checks. Later publication may run pinned runtime validation separately.",
+      "severity": "high",
+      "status": "partially-resolved-by-design-choice"
+    },
+    {
+      "compatibility": "No second genesis or v1 reinterpretation is permitted; current transition grammar is otherwise compatible.",
+      "finding": "The profile transition is encoded as the first v2 evidence_invalidation, with previous_event_id and existing claim_text/evidence fingerprints, but the contract does not explicitly name a prior-v1-head/claim-snapshot digest field.",
+      "id": "V2-MIGRATION-SNAPSHOT",
+      "required_change": "State whether previous_event_id + supplied immutable predecessor bytes is the complete snapshot proof. If a separately hashed claim snapshot is required, add its exact field before freeze. Keep one chain and refuse v2 human review before invalidation.",
+      "severity": "medium",
+      "status": "review-required"
+    },
+    {
+      "finding": "Resource bounds are specified, but stable ContractError code, exit code, pointer precedence and mutation/authority guarantees are not frozen for receipt history, source maps, locator resolution, display graph and compiler failures.",
+      "id": "ERROR-PRECEDENCE-TABLE",
+      "required_change": "Publish the small stable error table before implementation freeze and include it in focused/security tests.",
+      "severity": "blocker",
+      "status": "open"
+    },
+    {
+      "finding": "Compiler v2 semantics require imported version refs, selection state and exact evidence links, but the exact frontmatter keys/body headings/link grammar and provisional wording are not stated.",
+      "id": "V2-COMPILER-RENDERING-SHAPE",
+      "required_change": "Freeze the output fixture or exact rendering rules in docs/source-version-semantics.md before Builder implementation, while keeping unchanged legacy renderer bytes delegated to v1.",
+      "severity": "medium",
+      "status": "review-required"
+    }
+  ],
+  "positive_checks": [
+    "Decoded Unicode character offsets are now aligned with accepted L1 observation page spans; exact UTF-8 bytes are used only for payload/excerpt digests.",
+    "Extraction path and bytes are compatible with the accepted observation: canonical JCS(observation) at .raw/derived/markdown-source/<raw-sha>/<observation-sha>.json, with no Docling/PDF authority claim.",
+    "Historical source-ledger snapshot preservation at .raw/derived/source-ledgers/<sha>.json is compatible with current-ledger drift, provided registration proof verifies the earliest qualifying ingest receipt and supplied bytes.",
+    "Display decisions/heads under wiki/meta/records and wiki/meta/reviews remain separate from v1 records and do not auto-select imported associations.",
+    "v1 locator/event/record/compiler validators remain isolated and can preserve prior bytes while v2 dispatch occurs only through new schemas/modules."
+  ],
+  "recorded_at_utc": "2026-09-09T03:05:00Z",
+  "required_tests": [
+    "accepted observation uses version.kind and status-shaped input refuses",
+    "capture create receipt followed by first qualifying ingest registration succeeds; earlier ingest read claim or duplicate ledger registration refuses",
+    "same-key same-bytes changed observation metadata returns explicit variant/refusal and preserves both historical inputs",
+    "reused association with mismatched registration receipt/ledger/extraction proof refuses",
+    "closed pure historical-ledger projection rejects vendor extras and does no current-time/Vault I/O",
+    "v1 genesis/human head -> exactly one v2 invalidation -> v2 human successor; wrong predecessor snapshot/profile and v2-before-invalidation refuse",
+    "compiler v2 golden fixture fixes frontmatter/evidence-link/provisional wording while legacy-only output hashes remain unchanged"
+  ],
+  "revision": "R1-independent",
+  "schema": "full-todo.source-semantics-contract-review-r1-five-agent.v1",
+  "scope": "Independent read-only review of the exact SOURCE-SEMANTICS-R1 contract against accepted SOURCE-CAPTURE-R1 interfaces. No production source, schema, Git, Vault, network or runtime changes."
+}

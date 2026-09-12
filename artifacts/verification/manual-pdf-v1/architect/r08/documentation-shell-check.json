@@ -1,0 +1,56 @@
+{
+  "integrated_sha256": "6c02145f0627020cf717048162f363a470d64d62fc41f2f71f0ce4b8d8569178",
+  "draft_sha256": "82d44948d71f821317047b91fc17e9c3c74281acd695d97697ec541661ca1b74",
+  "python_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-4/wheel/venv/bin/python",
+  "checks": [
+    {
+      "case": "integration_undefined",
+      "shell": "/bin/bash",
+      "script": "unset CLI\n$CLI --help",
+      "exit_code": 127,
+      "stdout": "",
+      "stderr": "/bin/bash: line 1: --help: command not found\n"
+    },
+    {
+      "case": "integration_undefined",
+      "shell": "/bin/zsh",
+      "script": "unset CLI\n$CLI --help",
+      "exit_code": 127,
+      "stdout": "",
+      "stderr": "zsh:2: command not found: --help\n"
+    },
+    {
+      "case": "updated_draft_scalar",
+      "shell": "/bin/bash",
+      "script": "CLI=\"python -I -B -m video_paper_wiki_research\"   # 已安装；源码树改为 python -B -m video_paper_wiki_research\n$CLI --help",
+      "exit_code": 0,
+      "stdout": "usage: vpwiki-research [-h] {pdf,index,qa,writing} ...\n\npositional arguments:\n  {pdf,index,qa,writing}\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "stderr": ""
+    },
+    {
+      "case": "updated_draft_scalar",
+      "shell": "/bin/zsh",
+      "script": "CLI=\"python -I -B -m video_paper_wiki_research\"   # 已安装；源码树改为 python -B -m video_paper_wiki_research\n$CLI --help",
+      "exit_code": 127,
+      "stdout": "",
+      "stderr": "zsh:2: command not found: python -I -B -m video_paper_wiki_research\n"
+    },
+    {
+      "case": "proposed_array",
+      "shell": "/bin/bash",
+      "script": "CLI=(python -I -B -m video_paper_wiki_research)\n\"${CLI[@]}\" --help",
+      "exit_code": 0,
+      "stdout": "usage: vpwiki-research [-h] {pdf,index,qa,writing} ...\n\npositional arguments:\n  {pdf,index,qa,writing}\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "stderr": ""
+    },
+    {
+      "case": "proposed_array",
+      "shell": "/bin/zsh",
+      "script": "CLI=(python -I -B -m video_paper_wiki_research)\n\"${CLI[@]}\" --help",
+      "exit_code": 0,
+      "stdout": "usage: vpwiki-research [-h] {pdf,index,qa,writing} ...\n\npositional arguments:\n  {pdf,index,qa,writing}\n\noptions:\n  -h, --help            show this help message and exit\n",
+      "stderr": ""
+    }
+  ],
+  "product_or_documentation_modified": false
+}

@@ -1,0 +1,64 @@
+{
+  "preflight": "cursor-cli",
+  "observed_at_utc": "2026-09-07T16:26:18Z",
+  "scope": "read-only help/version/model-list/status probes; no model generation, config edits, installs, Git mutations, or existing-work launch",
+  "repository": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+  "binary": {
+    "agent_path": "/Users/huangzhanpeng/.local/bin/agent",
+    "cursor_agent_path": "/Users/huangzhanpeng/.local/bin/cursor-agent",
+    "both_symlink_to": "/Users/huangzhanpeng/.local/share/cursor-agent/versions/2026.09.02-c22c1a3/cursor-agent",
+    "target_type": "Bourne-Again shell script",
+    "version": "2026.09.02-c22c1a3",
+    "aliases_observed": ["agent", "cursor-agent"]
+  },
+  "local_cli_help": {
+    "noninteractive": {
+      "print_flag": "-p|--print",
+      "output_format": "--output-format <format>",
+      "output_formats": ["text", "json", "stream-json"],
+      "stream_partial_output": "--stream-partial-output (only with --print and stream-json)",
+      "recommended": "--print --output-format stream-json"
+    },
+    "workspace": "--workspace <path-or-name>; defaults to current working directory",
+    "resume": ["--resume [chatId]", "--continue", "resume (latest chat; subcommand has no extra flags)"],
+    "model": "--model <model>; parameterized models accept quoted bracket overrides",
+    "parameter_example_from_binary": "claude-opus-4-8[context=1m,effort=high,fast=false]",
+    "worktree_note": "-w|--worktree exists; not used in this preflight"
+  },
+  "probe_results": [
+    {"command": "agent --version", "exit": 0, "result": "2026.09.02-c22c1a3"},
+    {"command": "cursor-agent --version", "exit": 0, "result": "2026.09.02-c22c1a3"},
+    {"command": "agent status", "exit": 0, "result": "Not logged in"},
+    {"command": "agent status --format json", "exit": 0, "result": {"status": "unauthenticated", "isAuthenticated": false, "hasAccessToken": false, "hasRefreshToken": false, "message": "Not logged in"}},
+    {"command": "agent whoami", "exit": 0, "result": "Not logged in"},
+    {"command": "agent models", "exit": 1, "result": "Authentication required; model catalog not listed"},
+    {"command": "agent --list-models", "exit": 1, "result": "Authentication required; model catalog not listed"},
+    {"command": "agent models --help", "exit": 0, "result": "List available models for this account"},
+    {"command": "agent --print --output-format stream-json --workspace <repo> --model 'grok-4.6[effort=xhigh,fast=true]' --help", "exit": 0, "result": "argument syntax accepted by local parser/help path; no model run"},
+    {"command": "agent --print --output-format stream-json --workspace <repo> --model 'grok-4.6[reasoning=xhigh,fast=true]' --help", "exit": 0, "result": "argument syntax also accepted by local parser/help path; this does not prove server-side parameter validity"}
+  ],
+  "recommended_invocation_shape": {
+    "argv": ["agent", "--print", "--output-format", "stream-json", "--workspace", "/Users/huangzhanpeng/python_code/video-paper-wiki", "--model", "grok-4.6[effort=xhigh,fast=true]", "<prompt>"],
+    "resume_shape": ["agent", "--print", "--output-format", "stream-json", "--workspace", "/Users/huangzhanpeng/python_code/video-paper-wiki", "--resume", "<chatId>", "<prompt>"],
+    "latest_resume_shape": ["agent", "resume"],
+    "caveat": "The installed CLI cannot authenticate in this environment, so account-specific model availability and server-side acceptance of the Grok parameterized variant remain unverified. Do not use --reasoning-effort; that is the Grok Build CLI flag, not shown by Cursor Agent help."
+  },
+  "official_cursor_docs": {
+    "model_page": "https://prod.cursor.com/docs/models/grok-4-6",
+    "subagent_model_parameters": "https://prod.cursor.com/docs/subagents",
+    "sdk_model_parameters": "https://prod.cursor.com/docs/sdk/python",
+    "headless_output": "https://docs.cursor.com/en/cli/reference/output-format",
+    "observations": [
+      "Grok 4.6 model ID is grok-4.6 and it supports xhigh, high, medium, and low effort levels.",
+      "Fast is a supported speed tier; the SDK/docs use per-model id=value parameters including fast=true.",
+      "CLI availability is documented. Account plan/team policy can still restrict xhigh or Fast.",
+      "Cursor docs show bracket parameter syntax; the installed binary's own example names the reasoning control effort."
+    ]
+  },
+  "confidence": {
+    "exact_cli_flags": "observed locally",
+    "grok_model_id": "confirmed by official Cursor model page; not account-listed because unauthenticated",
+    "effort_xhigh_and_fast_true": "official model capability and parameter syntax confirmed; exact account/server variant remains unverified",
+    "account_auth": "not authenticated"
+  }
+}

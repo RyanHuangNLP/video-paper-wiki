@@ -1,0 +1,84 @@
+--- a/tests/unit/test_code_config_parser.py
++++ b/tests/unit/test_code_config_parser.py
+@@ -817,35 +817,35 @@
+                         self._parse(payload, fmt)
+                 err = caught.exception
+                 self.assertEqual(err.exit_code, 2)
+-                self.assertEqual(err.code, mod.CODE_CONFIG_PARSER_MISMATCH)
++                self.assertEqual(err.code, 'CODE_CONFIG_PARSER_MISMATCH')
+                 self.assertEqual(
+                     set(err.details), {"instance_pointer", "reason"}
+                 )
+                 self.assertEqual(err.details["instance_pointer"], "/payload")
+                 reason = err.details["reason"]
+-                self.assertIsInstance(reason, str)
+-                self.assertTrue(reason)
++                self.assertIs(type(reason), str)
++                self.assertGreater(len(reason), 0)
++                self.assertLessEqual(len(reason), 256)
++                self.assertEqual(reason, "object key type mismatch")
+                 self.assertEqual(callbacks, [])
+                 self._parse(payload, fmt)
+                 self.assertEqual(callbacks, [])
+ 
+     def test_scanner_error_content_omits_source_sentinels(self) -> None:
+-        import video_paper_wiki.code_config_parser as mod
+-
+         cases = (
+             (
+                 "duplicate-key",
+                 b'{"zzDupKeyQ9":true,"zzDupKeyQ9":false}',
+-                mod.CODE_CONFIG_DUPLICATE_KEY,
+-                20,
+-                20,
++                'CODE_CONFIG_DUPLICATE_KEY',
++                19,
++                19,
+                 ("zzDupKeyQ9",),
+                 None,
+             ),
+             (
+                 "trailing-comma",
+                 b'{"zzSynTokW7":true,}',
+-                mod.CODE_CONFIG_SYNTAX_INVALID,
++                'CODE_CONFIG_SYNTAX_INVALID',
+                 19,
+                 19,
+                 ("zzSynTokW7",),
+@@ -854,7 +854,7 @@
+             (
+                 "dynamic-string",
+                 b'{"zzDynKeyM3":"pre${zzDynValN5}"}',
+-                mod.CODE_CONFIG_DYNAMIC_UNSUPPORTED,
++                'CODE_CONFIG_DYNAMIC_UNSUPPORTED',
+                 14,
+                 14,
+                 ("zzDynKeyM3", "zzDynValN5", "pre${zzDynValN5}"),
+@@ -863,7 +863,7 @@
+             (
+                 "negative-zero",
+                 b'{"zzNumKeyP2":-0.0}',
+-                mod.CODE_CONFIG_NUMBER_INVALID,
++                'CODE_CONFIG_NUMBER_INVALID',
+                 14,
+                 14,
+                 ("zzNumKeyP2", "-0.0"),
+@@ -897,12 +897,13 @@
+                 )
+                 self.assertEqual(err.details["instance_pointer"], "/payload")
+                 reason = err.details["reason"]
+-                self.assertIsInstance(reason, str)
+-                self.assertTrue(reason)
++                self.assertIs(type(reason), str)
++                self.assertGreater(len(reason), 0)
++                self.assertLessEqual(len(reason), 256)
+                 if reason_token is not None:
+-                    self.assertIn(reason_token, reason)
+-                self.assertIsInstance(err.details["byte_offset"], int)
+-                self.assertIsInstance(err.details["codepoint_offset"], int)
++                    self.assertEqual(reason, reason_token)
++                self.assertIs(type(err.details["byte_offset"]), int)
++                self.assertIs(type(err.details["codepoint_offset"]), int)
+                 self.assertEqual(err.details["byte_offset"], byte_offset)
+                 self.assertEqual(
+                     err.details["codepoint_offset"], codepoint_offset

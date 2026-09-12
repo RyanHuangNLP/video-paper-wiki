@@ -1,0 +1,84 @@
+{
+  "schema": "full-todo.code-proof-io-api-seam-review.v15",
+  "reviewed_at_utc": "2026-09-11T02:30:00Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "R15_FOUR_SEAMS_CLOSED_WITH_ONE_LITERAL_FREEZE_GAP",
+  "scope": "Bounded read-only comparison of the R15 API-seam preparation with R6, R8, R9, R13, R14 and the prior R15 advisory. No product, test, assembler, build, Git, model, UI, network or lease action was performed.",
+  "reviewed_inputs": [
+    {
+      "label": "r15",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-API-SEAMS-R15.md",
+      "size_bytes": 8016,
+      "sha256": "3dacfaaa55df2c4948dc2ab12e7055afd3315962feaeb78051bb817ad6f502ef"
+    },
+    {
+      "label": "r6",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "label": "r8",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "label": "r9",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "label": "r13_review",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/io-foundation-integration-review-r13.json",
+      "size_bytes": 9263,
+      "sha256": "7ca35466338bfee2f7c4db5b320ea973a76e728eb4d60c72704f36f07fa410f1"
+    },
+    {
+      "label": "r14",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-CONCRETE-CLOSURES-R14.md",
+      "size_bytes": 8950,
+      "sha256": "5c877a236f681ffeda0cdcaba090027d3615b3a9bc6aa1dccbc6ebaccfd04052"
+    },
+    {
+      "label": "r14_review",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/F/io-concrete-closures-review-r14.json",
+      "size_bytes": 4698,
+      "sha256": "cf3c5aac67b129ddd17f72af9946c75e1a8b4faf7a5213656d8ad97c93288da0"
+    },
+    {
+      "label": "r15_advisory",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/F/io-api-seam-advisory-r15.json",
+      "size_bytes": 14314,
+      "sha256": "7f3611938715ad2f967890e94fb5fb32cc53ba033460beff011205aff4b60ef6"
+    }
+  ],
+  "seam_checks": {
+    "o_rdwr": {
+      "status": "CLOSED",
+      "finding": "R15 adds exact nonzero os.O_RDWR capability preflight and requires O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC on the retained parent descriptor, with the same descriptor used for writes, seek/read verification, fstat and cleanup. It preserves O_RDONLY for resources/raw inputs and gives unavailable_primitive before output creation. This is consistent with R6/R8/R14 and the prior advisory."
+    },
+    "output_setter": {
+      "status": "CLOSED",
+      "finding": "R15 freezes the exact flat seven-key projection, exact str keys and exact positive int values within the R7 hard maxima, copied state, one successful call, install-before-set and second-call misuse errors, retained-data recheck, R9 limit details and C+2*N peak accounting. max_inline_normalized_bytes, fixed admission caps, config limits and Git limits remain outside this setter as required. No contradiction with R6/R9/R10/R14 was found."
+    },
+    "git_caps": {
+      "status": "CLOSED",
+      "finding": "R15 keeps the complete exact five-key materialized git map separate from the seven-key output projection, sends it to retain_bundle_bodies and the pure Git kernel, enforces lowered object-count/per-object/aggregate byte limits during body retention, and requires saved-state replay under the complete lowered map before success. This closes the projection/replay seam without changing the Git kernel."
+    },
+    "private_error_facade_and_final_precedence": {
+      "status": "PARTIALLY_CLOSED",
+      "closed": "R15 specifies read-only code/message/details/exit_code, fresh plain-data details copies, the R8 nine-field I/O shape plus R9 extended reasons, separate limit/conflict shapes, idle phase, bounded prior metadata, resource/structure mapping, preserved kernel details, and the inherited R8 precedence: persistent lineage first, cleanup before original error when lineage is intact, otherwise original error. No precedence contradiction with R8/R9/R14 was found.",
+      "gap": {
+        "severity": "MEDIUM",
+        "area": "safe_message_literals",
+        "problem": "R15 requires fixed code-to-message constants and acceptance of safe messages, but explicitly defers the literal table to a future implementation instruction. The reviewed R6/R8/R9/R13/R14 material fixes the no-source-echo rule and error/detail shapes but does not supply the exact CodeProofIOError message for each accepted code.",
+        "impact": "An implementation cannot reproduce or assert the exact private facade messages for I/O, busy, resource/workspace, limit and conflict selections while preserving a byte-stable, source-free interface.",
+        "required_closure": "Before implementation dispatch, freeze the complete code-to-message literal mapping (including the resource/structure adapter boundary and the R9 limit/conflict codes) and make the acceptance vectors bind those literals. No change to the inherited final-precedence order is required."
+      }
+    }
+  },
+  "contradictions_found": [],
+  "boundary": "The three projection/descriptor seams and final-error precedence are closed by R15 plus the inherited frozen contracts. Only the exact safe-message literal table remains an implementation-impacting closure; this review does not authorize implementation or dispatch."
+}

@@ -1,0 +1,62 @@
+{
+  "schema": "lightweight-research-t2-independent-spec-review-r2.v1",
+  "at_utc": "2026-09-08T12:27:53Z",
+  "packet": "lightweight-research-v1",
+  "lane": 2,
+  "spec_path": "docs/ai/packets/lightweight-research-v1/FIX-T2-R2.md",
+  "spec_sha256": "8ef1e8593fd98900b15586ad15dd52297f08688cd5b613d964c8dddc166050e5",
+  "reviewed_r1_snapshot_sha256": "5abc88dac56fc77f4ecbb9858f1f9c82950266a10558ee4a64842515a26a6181",
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "scope": "Read-only specification review. No source, test, Git, external, Vault, or network mutation; no tests run.",
+  "status": "GO",
+  "decision": "GO_T2_R2_SPEC_COMPLETE_FOR_THE_FIVE_R1_FINDINGS_AND_FROZEN_SCOPE",
+  "coverage": [
+    {
+      "finding": "T2-R1-ADDITIONAL-01 dynamic truncated inventory/partition",
+      "spec_section": "1 Complete live plan binding",
+      "coverage": "Exact current derived inventory, IDs/pages/offsets/hashes/counts/order/text totals, full exact-once partition, and caller-only rehash refusal are explicit."
+    },
+    {
+      "finding": "T2-R1-ADDITIONAL-02 zero-batch refresh seed",
+      "spec_section": "2 Refresh seeds and zero batches",
+      "coverage": "Same-paper recomputation, complete document/size/citation validation, zero-batch handling, and truncated-inventory refusal are explicit."
+    },
+    {
+      "finding": "T2-R1-ADDITIONAL-03 persisted accepted batch cross-partition citation",
+      "spec_section": "3 Persisted batch ownership",
+      "coverage": "Every persisted accepted document is revalidated against its own partition, live identities, context/source hash, allowed citations, shape and size; rehashing is explicitly insufficient."
+    },
+    {
+      "finding": "T2-R1-ADDITIONAL-04 pending/non-final merge provenance",
+      "spec_section": "4 Contiguous rolling merge and 5 Record/ancestry semantics",
+      "coverage": "Exact chain edges, final-step hash/document binding, completed-job requirement, and the zero-batch-only null merge exception are explicit; pending/incomplete records cannot certify completion."
+    },
+    {
+      "finding": "T2-R1-ADDITIONAL-05 ancestry same-paper/mode semantics",
+      "spec_section": "5 Record and ancestry semantics",
+      "coverage": "Same-paper base/candidate, mode-specific relationships, actual referenced bytes, bounded acyclic traversal, and valid shared-base DAGs are explicit. The earlier false shared-DAG cycle observation is correctly excluded."
+    }
+  ],
+  "scope_checks": {
+    "owned_path_count": 8,
+    "owned_paths_unchanged": true,
+    "owned_paths": [
+      "src/video_paper_wiki_research/light_knowledge_batch.py",
+      "src/video_paper_wiki_research/light_knowledge_refresh.py",
+      "src/video_paper_wiki_research/light_knowledge.py",
+      "src/video_paper_wiki_research/light_backup.py",
+      "tests/research/test_light_knowledge_batch.py",
+      "tests/research/test_light_knowledge_refresh.py",
+      "tests/research/test_light_knowledge.py",
+      "tests/research/test_light_backup.py"
+    ],
+    "contract_unchanged": true,
+    "public_api_cli_lane_compatibility_preserved": true,
+    "historical_legacy_backup_relocation_and_retry_requirements_preserved": true,
+    "no_concrete_omission_found": true
+  },
+  "limitations": [
+    "This is a specification completeness review only; it does not accept implementation, source bytes, tests, CI, or user confirmation.",
+    "The specification requires the R2 Builder regressions and bounded scoped checks listed in its acceptance section."
+  ]
+}

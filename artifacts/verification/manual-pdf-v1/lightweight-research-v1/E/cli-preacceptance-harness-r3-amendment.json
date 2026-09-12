@@ -1,0 +1,108 @@
+{
+  "schema": "lightweight-research-v1-cli-preacceptance-harness-amendment-r3.v1",
+  "reviewed_at_utc": "2026-09-08T15:01:53.604241+00:00",
+  "clock_source": "datetime.now(timezone.utc) on the review host",
+  "scope": "NEW independent R3 harness correction and provenance note; no product/test/Git/external mutation and no stopped-candidate acceptance.",
+  "supersession": {
+    "r1_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/probes/cli_preacceptance_harness.py",
+    "r1_sha256": "e95aadd25404f3da49d3436b332dd9c84ac5da8e4c62e21239b9b8b2d39e3973",
+    "r2_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/probes/cli_preacceptance_harness_r2.py",
+    "r2_sha256": "753ce4a085e5309a1a10ed5134f7f2959cd224790b24a0a828f83e4b9c6d7f7b",
+    "r1_r2_bytes_unchanged": true,
+    "successor_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/probes/cli_preacceptance_harness_r3.py",
+    "successor_sha256": "df3027de7553950bdc021d5ad0e73d2916df3bfe6015346aaed3d3f61e1b86fc",
+    "successor_final_sha256": "df3027de7553950bdc021d5ad0e73d2916df3bfe6015346aaed3d3f61e1b86fc",
+    "intermediate_hashes": [
+      {
+        "sha256": "adee03f1e50d0e5df38678d77e45c0a8f9e0ac584617c4ee06a64ebaa28d24ab",
+        "role": "initial R3 static-ready draft"
+      },
+      {
+        "sha256": "3b6c8886eb42bbb2f9d51e1ed30fb55f7bbf0704b3a289740e85d0b1904c3829",
+        "role": "fixture query_plan correction before frozen rerun"
+      }
+    ]
+  },
+  "corrections": [
+    {
+      "id": "R3-DUPLICATE-REWRITE-001",
+      "issue": "R2 duplicate QA/writing probes omitted --rewrite and therefore exercised legacy selection semantics.",
+      "correction": "R3 passes the real rewrite file to both duplicate paper-id commands and retains the strict refusal codes."
+    },
+    {
+      "id": "R3-QUERY-PLAN-UNKNOWN-001",
+      "issue": "R2 treated an arbitrary outer context extra as a strict unknown-field failure.",
+      "correction": "R3 records outer extras as a legacy observation and adds separate unknown query_plan fields under explicit workspace import, where the strict traced identity contract applies."
+    },
+    {
+      "id": "R3-LARGE-JSON-001",
+      "issue": "R2 retained only a 1400-level no-workspace legacy observation.",
+      "correction": "R3 preserves the 1400-level case and adds 10000 nested arrays plus a 5000-digit integer for QA and writing imports without --workspace.",
+      "prior_root_observation": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-cli-transport-supplement-r1.json",
+      "prior_root_observation_sha256": "8ba599f32c9f93bb80a7be2c2a093d9fbe67a13f670874f18351138e1295fed9"
+    },
+    {
+      "id": "R3-PROVENANCE-001",
+      "issue": "R2 case records did not bind each dynamic report to its harness or complete candidate source snapshot and omitted raw stdout.",
+      "correction": "R3 records harness SHA, all 26 candidate path SHA/size entries, actual command, stdout, stderr, exit code, and derived error code for every run_cli result."
+    },
+    {
+      "id": "R3-FIXTURE-QUERY-PLAN-001",
+      "issue": "The first R3 dynamic attempt seeded direct light contexts without query_plan, so strict inner-field probes could not begin.",
+      "correction": "The final R3 harness seeds QA/writing contexts through the real export_rewritten_context route; the strict query_plan probes then execute.",
+      "intermediate_attempt_sha256": "3b6c8886eb42bbb2f9d51e1ed30fb55f7bbf0704b3a289740e85d0b1904c3829"
+    },
+    {
+      "id": "R3-DUPLICATE-CLOSED-CODE-001",
+      "issue": "The stopped CLI rejects duplicate rewrite paper-id arguments at its parser boundary with USAGE before the rewrite selector guard.",
+      "correction": "R3 accepts USAGE alongside the strict selection/rewrite refusal codes; the probe remains a required closed refusal."
+    }
+  ],
+  "case_policy": {
+    "raw_workspace_and_output": "retained strict blocker probes",
+    "secure_json_and_apply_checks": "retained",
+    "outer_context_extra": "legacy observation only; success is not a blocker",
+    "inner_query_plan_extra": "strict traced rewrite refusal probe",
+    "legacy_depth": "1400 nested arrays retained",
+    "large_depth": "10000 nested arrays and 5000-digit integer, both QA/writing with no workspace"
+  },
+  "provenance_contract": {
+    "harness_sha_field": "harness_sha256",
+    "candidate_manifest_field": "candidate_26path_manifest",
+    "per_case_fields": [
+      "command",
+      "argv",
+      "stdout",
+      "stderr",
+      "exit_code",
+      "error_code",
+      "payload",
+      "traceback_leaked"
+    ],
+    "candidate_path_count": 26
+  },
+  "validation": {
+    "compile": "PASS_IN_MEMORY",
+    "static_only": "PASS",
+    "static_report_path": "/private/tmp/cli-r3-static.json",
+    "static_report_sha256": "dee78ed55db55fda3e1fe16fae0b32b59f64aafd4a3484977433cfe1a495ee02",
+    "static_report_reviewed_at_utc": "2026-09-08T14:50:33.881860+00:00",
+    "static_report_source_imported_or_executed": false,
+    "static_report_candidate_manifest_complete": true,
+    "dynamic_run": "PASS_CLI_PREACCEPTANCE_PROBES",
+    "dynamic_report_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r2.json",
+    "dynamic_report_sha256": "cb6e0a2acbbc40ee5612c56c546f7cd6a130d4172f652c26901f5302b34df408",
+    "dynamic_report_reviewed_at_utc": "2026-09-08T15:00:57.561883+00:00",
+    "dynamic_report_harness_sha256": "df3027de7553950bdc021d5ad0e73d2916df3bfe6015346aaed3d3f61e1b86fc",
+    "dynamic_report_case_count": 38,
+    "dynamic_report_failure_count": 0,
+    "stopped_source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source",
+    "stopped_head": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+    "source_check_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-source-check-r2.json",
+    "source_check_sha256": "c1f2c5c67f6ed5ac824fd40d965672c33cfb438e94d3aec3dfe2beb6c274232a",
+    "handoff_sha256": "dd52085e5acdd472a4ed08176e0d21df9bb32bbbf987ce4d8b4ace319a40ed05",
+    "candidate_26path_combined_snapshot_sha256": "963f9f4237be0c572b447f005465889ed9dfc48b9283f1ebde10ff3013ec8402",
+    "candidate_26path_before_after_match": true
+  },
+  "decision": "R3_DYNAMIC_PROBES_PASS_ON_STOPPED_R2_CANDIDATE"
+}

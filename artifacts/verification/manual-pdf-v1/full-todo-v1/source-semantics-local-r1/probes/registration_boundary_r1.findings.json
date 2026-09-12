@@ -1,0 +1,51 @@
+{
+  "schema": "full-todo.source-semantics-registration-probe-findings.v1",
+  "scope": "Read-only review of the draft registration helpers in the isolated source checkout",
+  "source_checkout": ".work/parallel/source-semantics-v1/terminal-1/source",
+  "probe_script": "registration_boundary_r1.py",
+  "probe_script_sha256": "20346b8836df7288ca2681052e420b2aab62df69d6932772750d27dbcc4e92b3",
+  "result_sha256": "9b06d856f854a4616ec60f8b3f65dd6c2d2d4d94538943930df5a91f1478d46c",
+  "findings": [
+    {
+      "id": "REGISTRATION-LOWER-LEVEL-JSON-EXCEPTION",
+      "severity": "blocker-for-local-acceptance",
+      "observed": "historical_source_ledger(b'xxx') and receipt_chain(b'xxx', {}) raise SecureIOError(code=SOURCE_REGISTRATION_INVALID, details.reason=syntax)",
+      "expected": "All public helpers raise ContractError with an instance_pointer; malformed historical JSON must not leak SecureIOError",
+      "location": "source_registration.py:_parse",
+      "recommendation": "Catch SecureIOError from parse_strict_json and map it to SOURCE_REGISTRATION_INVALID with the supplied input pointer, while retaining SOURCE_SEMANTICS_LIMIT for bound failures."
+    },
+    {
+      "id": "REGISTRATION-PARSER-DEPTH-LIMIT",
+      "severity": "blocker-for-local-acceptance",
+      "observed": "65-level JSON reaches secure_io's parser bound and raises SecureIOError(code=SOURCE_REGISTRATION_INVALID, details={reason: depth, max_depth: 64})",
+      "expected": "Depth-bound input returns ContractError(code=SOURCE_SEMANTICS_LIMIT) with an instance_pointer",
+      "location": "source_registration.py:_parse",
+      "recommendation": "Map parser depth-bound failures to SOURCE_SEMANTICS_LIMIT before generic malformed JSON mapping."
+    },
+    {
+      "id": "REGISTRATION-MAP-SHAPE",
+      "severity": "observation",
+      "observed": "receipt_chain(head, {'bad': b'{}'}) returns ContractError(SOURCE_REGISTRATION_INVALID) with /receipt_bytes",
+      "expected": "The selected registration-phase map error code/pointer must be asserted against the frozen phase table; no Python exception is leaked",
+      "location": "source_registration.py:receipt_chain",
+      "recommendation": "Keep the explicit shape-before-content check and add a regression assertion for the chosen SOURCE_REGISTRATION_INVALID versus SOURCE_INVENTORY_INVALID boundary."
+    },
+    {
+      "id": "REGISTRATION-HISTORY-POSITIVE",
+      "severity": "pass",
+      "observed": "A canonical two-receipt genesis -> ingest chain, with a raw read claim and one source-ledger replace, passes receipt_chain and registration_proof; the derived descriptor binds the ingest receipt and ledger SHA-256.",
+      "expected": "The capture facade remains receipt=null/head=null; the first actual ingest receipt claims the captured Markdown and writes the historical source ledger",
+      "location": "registration_boundary_r1.result.json:valid_registration_proof",
+      "recommendation": "Retain this shape as a unit regression and pair it with the real capture-result fixture without fabricating a capture receipt."
+    },
+    {
+      "id": "HISTORICAL-OPTIONAL-ABSENCE",
+      "severity": "pass",
+      "observed": "A historical source-ledger row with only required fields and no optional fields is accepted by historical_source_ledger",
+      "expected": "Optional field absence remains distinct from null; registration target binding may still require the complete SOURCE-CAPTURE row",
+      "location": "source_registration.py:historical_source_ledger",
+      "recommendation": "Keep separate tests for a generic historical row and the target registration row's exact complete field set."
+    }
+  ],
+  "source_or_git_edited": false
+}

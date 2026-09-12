@@ -1,0 +1,90 @@
+{
+  "schema": "video-paper-wiki.architect-candidate-decision.v1",
+  "recorded_at_utc": "2026-09-08T04:25:50.430267+00:00",
+  "lane": 1,
+  "revision": 2,
+  "candidate_snapshot": "d9aebbe770a36863f6186ef9b57536dc9f6f4f2b747f0f54c86794b896944293",
+  "decision": "REJECTED_T1_R2_REQUIRES_COMPARISON_AND_PRIOR_REFERENCE_FIXES",
+  "original_regression_replay": {
+    "passed": 14,
+    "failed": 0
+  },
+  "additional_replay": {
+    "passed": 1,
+    "failed": 9,
+    "cases": [
+      {
+        "name": "test_duplicate_paper_selection_is_not_silently_rewritten",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_table_cells_have_real_citation_links",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_table_conditions_are_escaped_exactly_once",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_unhashable_comparability_is_closed[bad0]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_unhashable_comparability_is_closed[bad1]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_missing_prior_current_target_is_preserved",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_missing_prior_head_target_is_preserved",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_record_unknown_manifest_or_identity_fields_are_conflict[manifest.json]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_record_unknown_manifest_or_identity_fields_are_conflict[identity.json]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_valid_prior_pointer_can_advance_to_new_record_and_view",
+        "outcome": "passed"
+      }
+    ]
+  },
+  "findings": [
+    "Duplicate A,A,B selection silently deduplicates into A,B",
+    "Table claims contain escaped citation markers instead of linked citations; conditions and generated br markup double-escaped",
+    "Dict/list comparability triggers unhandled TypeError",
+    "Missing prior CURRENT view and HEADS record references overwritten instead of preserved conflict",
+    "Unknown record manifest/identity fields still classify as current"
+  ],
+  "positive": "Valid prior record/view can advance to a different new target; never require old target equality to new target",
+  "evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/r2/handoff.json",
+      "sha256": "83b8f40a54e22549ebf1f07eed8437d6d4c6fb4d3acbd4febc9eae5ddb15e91a"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t1-r2-replay/checks.json",
+      "sha256": "b529d7bc0717bef38d359e3b80d897174c13e1f11e4bbb8813d24013f415e10d"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t1-r2-additional/checks.json",
+      "sha256": "c96b15b4b978c32c8579172a0ef7bb48850029d1092484a723bcb58e4de57213"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/controller-review-r2.json",
+      "sha256": "9f1fc6061bb46024a132c645095cd5e99371646920eef8c4a72abbab5fa1e478"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-3/r1/independent-review.json",
+      "sha256": "13f0f7d0684b8f98b730267b5591689e668597215d09d5576c5385a2bd6c18d5"
+    }
+  ],
+  "raw_output_restriction": "Additional stdout/junit contain paper text in an assertion; do not send/read through Cursor. Use this decision, checks.json and test source.",
+  "accepted_for_integration": false
+}

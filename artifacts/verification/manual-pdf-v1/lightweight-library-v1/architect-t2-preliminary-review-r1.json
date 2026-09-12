@@ -1,0 +1,27 @@
+{
+  "schema": "video-paper-wiki.library-preliminary-review.v1",
+  "recorded_at_utc": "2026-09-08T04:02:47.681402+00:00",
+  "status": "UNFROZEN_SOURCE_OBSERVATIONS_NOT_ACCEPTANCE_OR_FINAL_FINDINGS",
+  "lane": 2,
+  "source_hashes": {
+    "src/video_paper_wiki_research/light_library_state.py": "cc4cef34f5ef4fe403930c701794baa620bc6efef354f69253bc12a7ad5fb5db",
+    "src/video_paper_wiki_research/light_pdf.py": "a1234e72d321c7ba60adf285f5421fafc55039060094dab0ddf991faf6796876"
+  },
+  "observations": [
+    {
+      "id": "T2-PRE-01",
+      "function": "light_pdf.extract_pdf/_prepare_workspace",
+      "observation": "_prepare_workspace still creates papers/ before workspace lock; busy refusal on an empty root can create managed paper layout. Contract explicitly requires workspace lock before paper/transaction side effects."
+    },
+    {
+      "id": "T2-PRE-02",
+      "function": "light_library_state.write_persisted_atomic",
+      "observation": "Fixed destination.name+.tmp path accepts an existing regular file and uses write_bytes then replace, without exclusive creation or ownership/hash check. Could overwrite unknown user .tmp or modify hardlink referent outside workspace. Refusals/failure cleanup may remove pre-existing unowned bytes."
+    },
+    {
+      "id": "T2-PRE-03",
+      "function": "light_library_state.recognized_operation",
+      "observation": "Only broad types checked: kind phase not enumerated, owned relative paths only strings, optionalIDs canbeNone; inspect recovery-level exact identities/paths/phase/manifest validation before accepting journals. This is only a watchlist until full recovery is available."
+    }
+  ]
+}

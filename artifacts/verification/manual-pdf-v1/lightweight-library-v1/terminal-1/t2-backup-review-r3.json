@@ -1,0 +1,68 @@
+{
+  "schema": "lightweight-library-v1-t2-backup-review-r3.v1",
+  "status": "GO_FOR_ARCHITECT_R3_LOCAL_ACCEPTANCE",
+  "lane": "terminal-1",
+  "scope": "independent synthetic acceptance of stopped terminal-2 R3 backup and restore implementation",
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "freeze_sha256": "e45c3d87f980a6fb01b32d0ee596d7b31e1ba6d0b1891d093221643d05603b2e",
+  "snapshot_sha256": "59a62f696bc75b5b4ff0346612dbd380ec45b68f16f73fc7f5546e407123851e",
+  "handoff_sha256": "dd8768cb9328f5c966d8414ddbdecdb73ee538ed68d06ea72b5acb1879db09d6",
+  "ready_sha256": "dd8768cb9328f5c966d8414ddbdecdb73ee538ed68d06ea72b5acb1879db09d6",
+  "checks_sha256": "cc7b83358ed305b93b722b20497d50c86d4266832d3d37e190daad138dcebd90",
+  "acceptance_script": {
+    "path": ".work/acceptance/lightweight-library-v1/architect_t2_backup_r3_checks.py",
+    "sha256": "aa345e52712f0f9daab279e4f5b58e528cfd60b433f3ec99022b12dd61737465",
+    "source_import": "temporary overlay copied only from the stopped terminal-2 R3 source; no active checkout product module imported"
+  },
+  "source_files": [
+    {"path": "src/video_paper_wiki_research/light_backup.py", "sha256": "d0142126b09f600dbe34dc98e67830f800bcaa33f3cc4c1240bf54eb127af540", "size_bytes": 58568},
+    {"path": "src/video_paper_wiki_research/light_index.py", "sha256": "ceac321f97c4820a2ddb0c5ec48231e7cfdf4e4d9f1e3f1ff46555d24011d9ef", "size_bytes": 32171},
+    {"path": "src/video_paper_wiki_research/light_library.py", "sha256": "e2de91a2bcdc96933a2e249759df4d4446e45f0696795eae7e6aa5fdb76f9314", "size_bytes": 96461},
+    {"path": "src/video_paper_wiki_research/light_library_state.py", "sha256": "74cf1ee0486fdd822cac7421050edb08b7e9356f7aeb2de3c1f39270983cb534", "size_bytes": 44033},
+    {"path": "src/video_paper_wiki_research/light_pdf.py", "sha256": "8794f19df18a0715b1cfd8553868e4f10aee7d80885fdb830bc738c9c50375ee", "size_bytes": 32559},
+    {"path": "src/video_paper_wiki_research/light_workspace.py", "sha256": "ca99c74b4d64c2dd71fb9152ccd00f01b1d4af8ff7edc5430151eb3935d23ae6", "size_bytes": 11593},
+    {"path": "tests/research/test_light_backup.py", "sha256": "baec004058f07e8fd01c320c914405bb9eaec29cce45219b33ce73a082e3e344", "size_bytes": 25421},
+    {"path": "tests/research/test_light_library.py", "sha256": "b4080838629834c21908a212fb9c1fcfd09e7b96a349b21be65aa61e20ad4ce9", "size_bytes": 23132},
+    {"path": "tests/research/test_light_library_recovery.py", "sha256": "44a957ef1d0801b06bede25fff064a7f44e68b65e7f8594f51ecee245d879c3b", "size_bytes": 14672}
+  ],
+  "interpreter": {
+    "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "version": "3.13.13",
+    "pytest_plugin_autoload": false,
+    "network": "offline",
+    "basetemp": "/private/tmp/t2-r3-architect-isolated"
+  },
+  "commands": [
+    {
+      "name": "independent-r3-synthetic-acceptance",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+      "command": ["env", "-u", "PYTHONPATH", "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1", ".venv/bin/python", "-m", "pytest", "-q", ".work/acceptance/lightweight-library-v1/architect_t2_backup_r3_checks.py", "--basetemp=/private/tmp/t2-r3-architect-isolated", "--cache-clear", "--tb=line"],
+      "exit_code": 0,
+      "summary": "21 passed in 0.22s",
+      "coverage": ["typed journals", "complete staging ownership", "successor history", "manifest identity and policy", "outside-.work explicit Markdown", "create-only backup publication", "exclusive restore publication", "bounded ZIP read and deterministic metadata", "CRC/local-name/truncation failures", "restore-stage preservation"]
+    },
+    {
+      "name": "frozen-t2-focused",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-2/source",
+      "command": ["env", "PYTHONPATH=src", "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1", "PYTHONDONTWRITEBYTECODE=1", "UV_OFFLINE=1", "UV_PYTHON_DOWNLOADS=never", "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python", "-m", "pytest", "-q", "tests/research/test_light_library.py", "tests/research/test_light_library_recovery.py", "tests/research/test_light_backup.py", "--basetemp=/private/tmp/t2-r3-final-architect-focused", "--cache-clear", "-o", "cache_dir=/private/tmp/t2-r3-final-architect-cache", "--tb=line"],
+      "exit_code": 0,
+      "summary": "76 passed in 0.50s"
+    },
+    {
+      "name": "frozen-related-existing",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-2/source",
+      "command": ["env", "PYTHONPATH=src", "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1", "PYTHONDONTWRITEBYTECODE=1", "UV_OFFLINE=1", "UV_PYTHON_DOWNLOADS=never", "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python", "-m", "pytest", "-q", "tests/research/test_light_pdf.py", "tests/research/test_light_pdf_recovery.py", "tests/research/test_light_workspace.py", "tests/research/test_light_index.py", "tests/research/test_light_workflow.py", "tests/research/test_light_workflow_recovery.py", "--basetemp=/private/tmp/t2-r3-final-architect-related", "--cache-clear", "-o", "cache_dir=/private/tmp/t2-r3-final-architect-cache", "--tb=line"],
+      "exit_code": 0,
+      "summary": "95 passed in 1.39s"
+    }
+  ],
+  "limitations": [
+    "This is local synthetic acceptance only; no real corpus, real Vault, Git mutation, commit, CI, installed-wheel, or Python 3.12 evidence is claimed.",
+    "The stopped terminal-2 source remains uncommitted and exactly matches its R3 handoff allowlist; no T3 import or source edit was performed.",
+    "Human gates and Architect final acceptance remain open."
+  ],
+  "reviewer": "terminal-1",
+  "reviewed_at": "2026-09-08",
+  "architect_accepted": false
+}

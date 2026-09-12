@@ -1,0 +1,102 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_fresh_wheel_exposes_equivalent_entries_and_workflow_help _________
+
+tmp_path = PosixPath('/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0')
+
+    def test_fresh_wheel_exposes_equivalent_entries_and_workflow_help(tmp_path: Path) -> None:
+        python = _runtime_python()
+        wheel = _build_wheel(python, tmp_path)
+        venv = tmp_path / "isolated-venv"
+        venv_python, bindir = _create_isolated_venv(python, venv)
+        _install_wheel(venv_python, wheel, tmp_path)
+        env = _isolated_run_env(venv, bindir)
+        expected = _expected_new_modules()
+        assert expected, "checkout has no lightweight modules to verify"
+        venv_site = _purelib(venv_python, isolated=True, cwd=tmp_path)
+        installed_pkg = venv_site / "video_paper_wiki_research"
+        for path in expected:
+            installed = installed_pkg / path.name
+            assert installed.is_file(), installed
+            assert _sha256(installed) == _sha256(ROOT / path)
+        _seed_locked_runtime_deps(venv_site)
+    
+        inspect = _run(
+            [
+                str(venv_python),
+                "-I",
+                "-B",
+                "-c",
+                (
+                    "import hashlib, json, sys\n"
+                    "from importlib import import_module\n"
+                    "from pathlib import Path\n"
+                    "names = json.loads(sys.argv[1])\n"
+                    "payload = {'executable': sys.executable, 'prefix': sys.prefix, 'modules': {}}\n"
+                    "for name in names:\n"
+                    "    mod = import_module(name)\n"
+                    "    path = Path(mod.__file__)\n"
+                    "    payload['modules'][name] = {\n"
+                    "        'file': str(path),\n"
+                    "        'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),\n"
+                    "    }\n"
+                    "print(json.dumps(payload))\n"
+                ),
+                json.dumps(
+                    [
+                        "video_paper_wiki_research." + path.stem
+                        if path.stem != "cli"
+                        else "video_paper_wiki_research.cli"
+                        for path in expected
+                    ]
+                ),
+            ],
+            cwd=tmp_path,
+            env=env,
+        )
+>       assert inspect.returncode == 0, inspect.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "<string>", line 7, in <module>
+E           File "/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py", line 90, in import_module
+E             return _bootstrap._gcd_import(name[level:], package, level)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+E           File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+E           File "<frozen importlib._bootstrap>", line 1310, in _find_and_load_unlocked
+E           File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+E           File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+E           File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+E           File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+E           File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+E           File "<frozen importlib._bootstrap_external>", line 999, in exec_module
+E           File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki_research/__init__.py", line 3, in <module>
+E             from video_paper_wiki_research.catalog_index import build_published_catalog
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki_research/catalog_index.py", line 17, in <module>
+E             from video_paper_wiki.assessment_history import derive_assessment_heads
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki/assessment_history.py", line 12, in <module>
+E             from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki/contracts.py", line 11, in <module>
+E             from jsonschema import Draft202012Validator, FormatChecker, ValidationError
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/__init__.py", line 13, in <module>
+E             from jsonschema._format import FormatChecker
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/_format.py", line 11, in <module>
+E             from jsonschema.exceptions import FormatError
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/exceptions.py", line 15, in <module>
+E             from referencing.exceptions import Unresolvable as _Unresolvable
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/__init__.py", line 5, in <module>
+E             from referencing._core import Anchor, Registry, Resource, Specification
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/_core.py", line 18, in <module>
+E             from referencing.typing import URI, Anchor as AnchorType, D, Mapping, Retrieve
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/typing.py", line 22, in <module>
+E             D = TypeVar("D", default=Any)
+E                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E         TypeError: 'default' is an invalid keyword argument for typevar()
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/bin/python'...efault=Any)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: \'default\' is an invalid keyword argument for typevar()\n').returncode
+
+tests/research/test_light_workflow_installed.py:338: AssertionError
+=========================== short test summary info ============================
+FAILED tests/research/test_light_workflow_installed.py::test_fresh_wheel_exposes_equivalent_entries_and_workflow_help
+1 failed in 2.06s

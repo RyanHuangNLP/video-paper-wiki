@@ -1,0 +1,10 @@
+python: 3.13.13
+command: PYTHONPATH=src:operator/parser_executor/src PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q tests/research
+result: 28 passed in 4.53s
+
+related:
+  tests/research + tests/security/test_cli_isolation.py + tests/contract/test_dependency_manifest.py + tests/unit/test_commands.py + tests/unit/test_staging.py
+  -> 89 passed in 4.33s
+
+not run: full 2152-test dual-Python suite, Linux/macOS CI, real Docling, real PDF, vpwiki-admin, Vault mutation
+not claimed: real parser/operator smoke, canonical publication, human gates

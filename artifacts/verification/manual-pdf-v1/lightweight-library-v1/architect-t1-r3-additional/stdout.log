@@ -1,0 +1,34 @@
+FFFF.                                                                    [100%]
+=================================== FAILURES ===================================
+______________ test_heads_key_must_match_referenced_record_paper _______________
+../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py:23: in test_heads_key_must_match_referenced_record_paper
+    refused(lambda: knowledge.import_knowledge(workspace, second, document(second)))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'published structured knowledge record', 'record_id': 'dbbc6af147202a2e271929d594a9b1eb8c8da089ba54bc8d486dd2a69950e9ec', 'paper_id': 'sha256:6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235', 'page_path': '/private/tmp/ll-t1r3x-9dkzfkhd/b/test_heads_key_must_match_refe0/.work/library/.light-knowledge/records/dbbc6af147202a2e271929d594a9b1eb8c8da089ba54bc8d486dd2a69950e9ec/knowledge.md', 'source_status': 'current', 'reused': False}
+______ test_current_view_cannot_borrow_foreign_missing_record_references _______
+../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py:39: in test_current_view_cannot_borrow_foreign_missing_record_references
+    refused(lambda: knowledge.build_knowledge_views(foreign))
+../../../../acceptance/lightweight-library-v1/architect_t1_regressions.py:34: in refused
+    assert result.get('ok') is False, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: {'ok': True, 'status': 'OK', 'message': 'published knowledge views', 'view_id': '268bd7468cfa8884c886c0b21b9d48b744408c665cad0ae503673a99f628acc2', 'index_path': '/private/tmp/ll-t1r3x-9dkzfkhd/b/test_current_view_cannot_borro0/.work/foreign-library/knowledge/views/268bd7468cfa8884c886c0b21b9d48b744408c665cad0ae503673a99f628acc2/index.md', 'reused': False}
+________ test_record_redundant_snapshots_are_bound_to_original_wrapper _________
+../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py:68: in test_record_redundant_snapshots_are_bound_to_original_wrapper
+    assert row['source_status'] == 'conflict', row
+E   AssertionError: {'is_head': True, 'page_path': '/private/tmp/ll-t1r3x-9dkzfkhd/b/test_record_redundant_snapshot0/.work/library/.light-...cc3378b82f32c5b042ce861679da96f', 'record_id': 'f642fd972ee825571b35d9303c0afab99ed1ef504c35cb3ec0533efb83bc219c', ...}
+E   assert 'current' == 'conflict'
+E     
+E     - conflict
+E     + current
+__________ test_citation_title_newline_does_not_split_markdown_table ___________
+../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py:84: in test_citation_title_newline_does_not_split_markdown_table
+    assert 'Title first line<br>Title second' in table_lines[-1]
+E   AssertionError: assert 'Title first line<br>Title second' in '| Method | Mechanical cited fixture [Title first line'
+=========================== short test summary info ============================
+FAILED ../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py::test_heads_key_must_match_referenced_record_paper
+FAILED ../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py::test_current_view_cannot_borrow_foreign_missing_record_references
+FAILED ../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py::test_record_redundant_snapshots_are_bound_to_original_wrapper
+FAILED ../../../../acceptance/lightweight-library-v1/architect_t1_r3_additional.py::test_citation_title_newline_does_not_split_markdown_table
+4 failed, 1 passed in 2.64s

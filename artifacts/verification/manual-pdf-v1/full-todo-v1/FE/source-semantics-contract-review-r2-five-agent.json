@@ -1,0 +1,145 @@
+{
+  "accepted_l1_compatibility": {
+    "capture_registration_order": "generic capture proposal has receipt=null, head=null and claimed_inputs=[]; first qualifying ingest receipt claims raw path and writes source ledger",
+    "extraction": "JCS(observation) bytes at .raw/derived/markdown-source/<raw-sha>/<observation-sha>.json; native metadata, not Docling/PDF authority",
+    "observation_version_field": "kind (not status), exact accepted shapes unknown|declared",
+    "source_capture_ci_checkout": "2732314fe8216e9d7a536c7b3d25f5afa22ab310",
+    "source_capture_head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "span_unit": "decoded Unicode character offsets, with exact UTF-8 bytes only for payload/page/excerpt hashes"
+  },
+  "concrete_contract_checks": [
+    {
+      "detail": "Contract and unchanged 29-path allowlist hashes match requested values.",
+      "id": "R2_HASHES",
+      "result": "pass"
+    },
+    {
+      "detail": "Association version and observation use accepted kind field.",
+      "id": "OBSERVATION_KIND",
+      "result": "pass"
+    },
+    {
+      "detail": "Contract preserves generic capture as receipt=null/head=null/claimed_inputs=[] and requires an actual capture-to-ingest registration fixture.",
+      "id": "CAPTURE_INGEST_FIXTURE",
+      "result": "pass"
+    },
+    {
+      "detail": "Changed observation metadata on same key/raw produces SOURCE_PROVENANCE_VARIANT with exit 75; prior object is immutable and no duplicate canonical association is manufactured.",
+      "id": "PROVENANCE_VARIANT_REFUSAL",
+      "result": "pass"
+    },
+    {
+      "detail": "Reused association requires full prior object and exact registration/extraction proof equivalence.",
+      "id": "FULL_REUSE_PROOF",
+      "result": "pass"
+    },
+    {
+      "detail": "Closed pure historical projection is explicit and distinct from vendor runtime validation; no current time/Vault reads.",
+      "id": "HISTORICAL_LEDGER",
+      "result": "pass"
+    },
+    {
+      "detail": "Canonical aliases reserve ownership across the mixed compiler set without changing legacy IDs or source provenance.",
+      "id": "ALIAS_OWNERSHIP",
+      "result": "pass"
+    },
+    {
+      "detail": "Stable ContractError codes, exit codes and phase order are frozen.",
+      "id": "ERROR_PRECEDENCE",
+      "result": "pass"
+    },
+    {
+      "detail": "One authoritative chain, exact v1 prefix, first v2 invalidation, no v2 human bypass or v1 re-entry.",
+      "id": "MIGRATION",
+      "result": "pass"
+    },
+    {
+      "detail": "Version section, evidence display, frontmatter order and provisional wording are frozen.",
+      "id": "RENDERING",
+      "result": "pass"
+    },
+    {
+      "detail": "v1 schemas/IDs/wires/compiler remain unchanged; v2 uses isolated schemas/modules and no-v2 delegates exact v1 bytes.",
+      "id": "LEGACY_ISOLATION",
+      "result": "pass"
+    }
+  ],
+  "contract": {
+    "allowlist_count": 29,
+    "allowlist_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-allowed-paths-r1.json",
+    "allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "baseline": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R2.md",
+    "sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+    "size_bytes": 22923
+  },
+  "decision": "GO_FOR_SOURCE_SEMANTICS_R2_FREEZE",
+  "implementation_gate": "Freeze is acceptable. Before local acceptance, verify the actual 29-path candidate against the R2 contract, including capture->ingest fixture, error-detail keys, vendor-enum projection, alias map reuse and the frozen compiler golden bytes.",
+  "no_blocker_found": true,
+  "recorded_at_utc": "2026-09-09T03:20:00Z",
+  "residual_review": [
+    {
+      "detail": "The contract requires SOURCE_PROVENANCE_VARIANT details to include old reference and proposed observation hash; tests should assert these exact detail keys/pointers, although the stable failure code and exit are frozen.",
+      "id": "PROVENANCE_VARIANT_DETAILS",
+      "severity": "observation",
+      "status": "implementation-test"
+    },
+    {
+      "detail": "Implementation must use the pinned enum sets exactly (content_kind, authority, review_status) and reject extras; R2 states this requirement.",
+      "id": "HISTORICAL_LEDGER_ENUMS",
+      "severity": "observation",
+      "status": "implementation-test"
+    },
+    {
+      "detail": "validate_source_inventory must prove aliased versions share exact map entries while duplicate association IDs/keys still refuse; R2 states both constraints.",
+      "id": "REUSE_ALIAS_MAPS",
+      "severity": "observation",
+      "status": "implementation-test"
+    }
+  ],
+  "resolved_r1_findings": [
+    {
+      "evidence": "R2 uses version.kind exactly.",
+      "id": "L1-VERSION-FIELD-MISMATCH",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 states generic capture is not a receipt and adds actual capture->ingest fixture requirements; no fictional capture receipt is admitted.",
+      "id": "REGISTRATION-EARLIEST-RECEIPT-WRITE-CONTRADICTION",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 returns SOURCE_PROVENANCE_VARIANT exit 75 on changed observation metadata and preserves old reference/proposed observation hash without creating a duplicate canonical association.",
+      "id": "REUSE-PROVENANCE-HISTORY",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 compares full prior association before reused, including registration and extraction references.",
+      "id": "REGISTRATION-PROOF-REUSE-BINDING",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 freezes exact closed root/row fields, enums, dates, paths, target identity and no-wall-clock behavior; later pinned validation remains separate.",
+      "id": "HISTORICAL-LEDGER-CLOSED-PROJECTION",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 freezes stable codes, exit codes, pointer details and phase precedence.",
+      "id": "ERROR-PRECEDENCE-TABLE",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 freezes 来源版本 section, frontmatter placement, evidence bullet content, span/hash rendering and exact provisional wording.",
+      "id": "V2-COMPILER-RENDERING-SHAPE",
+      "result": "resolved"
+    },
+    {
+      "evidence": "R2 binds exact claim text and complete historic event objects/content-derived IDs; first v2 event links actual v1 terminal and later publisher checks immutable prefix.",
+      "id": "V2-MIGRATION-SNAPSHOT",
+      "result": "resolved"
+    }
+  ],
+  "revision": "R2-independent",
+  "schema": "full-todo.source-semantics-contract-review-r2-five-agent.v1",
+  "scope": "Independent read-only exact-freeze review of SOURCE-SEMANTICS-R2 against accepted SOURCE-CAPTURE-R1 interfaces. No implementation, source, schema, Git, Vault, network or external runtime changes."
+}

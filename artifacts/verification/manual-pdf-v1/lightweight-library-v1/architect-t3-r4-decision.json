@@ -1,0 +1,35 @@
+{
+  "recorded_at_utc": "2026-09-08T06:17:27.380968+00:00",
+  "decision": "NOT_ACCEPTED_T3_R4_INTEGRATED_CANDIDATE_PENDING_UNICODE_BACKUP_CORRECTION",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/final-candidate-r1.json",
+    "sha256": "1a140c1164a028470644df63b30940d64300db4350fe6c4b423d378a0c98b3ad",
+    "size_bytes": 95063
+  },
+  "snapshot_sha256": "02f0040e8b81879743456019f57a7663bb1312467e8b9301af3ffc6feeb3895c",
+  "t3_handoff": {
+    "path": ".work/parallel/lightweight-library-v1/terminal-3/source/.work/verification/lightweight-library-v1/terminal-3/r4/handoff.json",
+    "sha256": "c235be3ffed9fd01731219faf0304da89edc0dd2875cd9456a0ed3784fec7c50",
+    "size_bytes": 5721
+  },
+  "builder_report": {
+    "path": ".work/parallel/lightweight-library-v1/terminal-3/source/.work/verification/lightweight-library-v1/terminal-3/r4/report.md",
+    "sha256": "78b348f9989b7460b4e1ba48e67e5283e35ba42b413cac342f2e46ec8bb9c5dd",
+    "size_bytes": 3307
+  },
+  "builder_checks": {
+    "path": ".work/parallel/lightweight-library-v1/terminal-3/source/.work/verification/lightweight-library-v1/terminal-3/r4/checks.json",
+    "sha256": "558c3bfd1ffec3b78cf4d78b623a5d7b30f6164cb032c2be8a9fc66398ae4933",
+    "size_bytes": 4034
+  },
+  "facts": [
+    "Root collected actual T3 R4 exit 0 and verified exact Cursor model/session",
+    "Complete 26-path source and complete owner manifests matched the frozen inputs",
+    "Builder both full suites passed 2588 tests but installed/pipeline fixtures intentionally used ASCII after a reported Unicode ZIP verifier defect"
+  ],
+  "blocker": "The deterministic verifier rejects stdlib writer UTF-8 filename flag 0x0800. Supported non-ASCII user filenames must roundtrip without renaming or fixture avoidance.",
+  "scope": "Only T2 verifier/test surgical successor, then T3 imports and actual installed/pipeline Unicode regression; existing R4 successes remain evidence for this rejected candidate only.",
+  "accepted_for_real_trial": false,
+  "final_acceptance": false,
+  "merge_authorized": false
+}

@@ -1,0 +1,83 @@
+{
+  "schema": "full-todo.code-io-independent-returned-production-review.v1",
+  "recorded_at_utc": "2026-09-11T04:01:00Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "REJECTED_INCOMPLETE_TWO_FILE_DELIVERY_AND_PRODUCTION_BLOCKERS",
+  "scope": "Read-only review of final verification, finalizer/error facade/lifetime, prior metadata views, original BaseException identity, descriptor cleanup ordering, and install-phase preservation. Acquisition, scan, and installer review remain with Architect.",
+  "source": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/returned-r1-incomplete/code_proof_io.py",
+    "size_bytes": 155603,
+    "sha256": "a5113bf49b469a5d8f62df599b40c6c13c5162e2f29be131a2b894ad1757e431",
+    "diagnostic_only": true,
+    "production_ast_passed": true
+  },
+  "frozen_inputs": {
+    "inspection": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/returned-r1-incomplete/inspection.json",
+      "size_bytes": 3135,
+      "sha256": "0e4ee3dfac732f4109a489ba24d9bc2a6f78b84db3898aaf2b9de30f486ca979"
+    },
+    "contract": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-IO-IMPLEMENTATION-R2.md",
+      "sha256": "0d1f0a30df7c097be05b5e03fe0813d4a929385b90e94896733316f7802c39d7"
+    },
+    "freeze": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-freeze-r1.json",
+      "sha256": "267cd82f8dccb673eb07bdaabddcb4de0c4a38ba6fcd8055474c11e5dca9ad07"
+    }
+  },
+  "findings": [
+    {
+      "id": "IO-R1-FINALIZER-PHASE-IDLE-AFTER-FAILED-INSTALL",
+      "severity": "high",
+      "lines": "3334-3342, 3398-3423",
+      "description": "install marks the install record phase idle before the fallible parent setup and second peak check. If _ensure_install_parent or that check fails, the exception path sets failed=True but leaves phase=idle. _require_idle_views checks only phase, so snapshot() and layout_state() can succeed after the failed install; a later install reports phase=idle as well. The contract requires no idle state after failed installation and no successful metadata view during an in-flight/failed installer phase.",
+      "bounded_reproduction": {
+        "fixture": "Locked Python 3.12 with a disposable synthetic checkout containing .git, valid pyproject.toml, and pre-created .work/phaseBug/code-evidence-v1; diagnostic module loaded from the approved mirror.",
+        "injection": "Inside an active session, replace only session._ensure_install_parent with a function raising RuntimeError after set_output_limits, then call install('request.json', b'{}\\n').",
+        "observed": "After catching the install RuntimeError, session.snapshot() returned {} instead of raising phase_mismatch or an inactive/failed-session refusal.",
+        "expected": "Preserve a non-idle failed install phase and reject snapshot/layout_state until finalization."
+      }
+    },
+    {
+      "id": "IO-R1-FINALIZER-EXCEPTION-SKIPS-LATER-GROUPS",
+      "severity": "high",
+      "lines": "4488-4540",
+      "description": "The entire two-pass reached-group verification loop is inside one try block. An unexpected BaseException from one group's final name/byte check exits both loops immediately; the outer handler records it as original only when no original exists, but does not continue with later reached groups. This violates the requirement that finalizer failures do not skip later reached groups or descriptor cleanup.",
+      "bounded_reproduction": {
+        "fixture": "Locked Python 3.12 with a disposable synthetic checkout and active diagnostic session from the approved mirror.",
+        "injection": "Wrap session._verify_group_names to record calls and raise RuntimeError on the checkout group; invoke session._finalize(None) with the normal descriptor cleanup path.",
+        "observed": "The call list was ['checkout'] and _finalize returned the injected RuntimeError; no later reached group was attempted.",
+        "expected": "Record the verifier failure in bounded form, continue all reached groups in fixed order, then perform cleanup and deterministic selection."
+      }
+    },
+    {
+      "id": "IO-R1-RESOURCE-REFERENCES-NOT-CLEARED",
+      "severity": "medium",
+      "lines": "1324-1365, 4564-4570",
+      "description": "Finalization clears only _resource_context before marking the session closed. _resource_plan, the eleven-entry _resource_records (including retained data), _schemas_directory, _profiles_directory, and the node/fd tracking containers remain referenced after reverse closes. The contract requires clearing context/resource-set references after final verification and cleanup.",
+      "bounded_reproduction": {
+        "fixture": "Locked Python 3.12 with a disposable synthetic checkout and an otherwise successful empty session from the approved mirror.",
+        "observed": "After __exit__, _state was closed and _resource_context was None, but _resource_plan was non-None, _resource_records length was 11, schema/profile directory references remained, _nodes length was 33, and _fd_order length was 26.",
+        "expected": "Close descriptors in the required order, then clear resource plan/records and other retained resource references before exposing the closed session."
+      }
+    }
+  ],
+  "checks_that_passed_in_bounded_reproduction": {
+    "original_base_exception_identity": "PASS: a custom BaseException raised inside the active context was re-observed as the identical object.",
+    "reverse_descriptor_cleanup": "PASS: observed _fd_order closed in reverse order and lock duplicate fd 7 closed last.",
+    "metadata_getters_after_close": "STATIC_PASS: snapshot/layout_state/profile_sha256 require active lifetime; no acceptance inferred because the complete test module is missing."
+  },
+  "incomplete_delivery": {
+    "test_fragment": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/returned-r1-incomplete/test_code_proof_io.incomplete.py",
+      "sha256": "9088a197902acca0e7219c1a612c04c2e72c11b85245bce83ba3ca10e62c156e",
+      "status": "incomplete_and_syntax_invalid",
+      "syntax_error_line": 230
+    },
+    "tests_run": false,
+    "candidate_accepted": false,
+    "reason": "The Grok response was truncated during tests; the strict two-file extractor exited 1 and produced no complete test module. The production file remains diagnostic-only and cannot establish implementation acceptance."
+  },
+  "execution_boundary": "Only bounded diagnostic reproductions ran against the approved disposable mirror with locked Python 3.12. No returned source was imported from the real checkout or Vault, no product file was changed, and no Git/model/lease/status action was performed."
+}

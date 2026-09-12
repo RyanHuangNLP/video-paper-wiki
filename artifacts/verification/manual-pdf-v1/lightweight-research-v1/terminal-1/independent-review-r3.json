@@ -1,0 +1,156 @@
+{
+  "architect_accepted": false,
+  "at_utc": "2026-09-08T13:15:03.143835+00:00",
+  "candidate": {
+    "base": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+    "handoff_sha256": "cfcbcce15f2d28870ccb279d7b3449203b43dde4fc6922cd111a9d0c89d4c029",
+    "official_focused_tests": {
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-c",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/pyproject.toml",
+        "--rootdir",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source",
+        "-o",
+        "pythonpath=/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/src",
+        "--basetemp=/private/tmp/t1-r3.official/basetemp",
+        "-o",
+        "cache_dir=/private/tmp/t1-r3.official/cache",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/tests/research/test_light_query.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/tests/research/test_light_context.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/tests/research/test_light_index.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/tests/research/test_light_qa.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source/tests/research/test_light_writing.py",
+        "-q",
+        "--tb=short"
+      ],
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 69,
+      "summary": "69 passed in 0.36s"
+    },
+    "r3_checks_sha256": "ed54329cccf43786d974d41740a11e0d2ba285d0f3d039acbf109064e76c1d0c",
+    "r3_report_sha256": "4a531a17b56f8337a263af4e19e1a8994f699932d4ba40af460f1cbc418e994c",
+    "revision": 3,
+    "snapshot_sha256": "5bf01318533d4e17beecd338fe4cd8f9c36392ebbb8c5b7b237351970410422d",
+    "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source"
+  },
+  "decision": "GO_FOR_ARCHITECT_REVIEW",
+  "frozen_inputs": {
+    "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+    "freeze_sha256": "9760f6627e59573428251a9723fe039ebe09b227f6db2e891f228c0a1b047e13",
+    "previous_snapshot_sha256": "7c2aea0be5b74eb394670625d4839381c444c471ccb9a8188fcad702ebee1992",
+    "repair_specification_sha256": "88eafd96da71e2fd81fd0fa7525b7313bb2d4348573b821bb5ff2afe15a7873c"
+  },
+  "independent_runtime_checks": {
+    "forty_case_harness": {
+      "all_cases_passed": true,
+      "candidate_snapshot": "5bf01318533d4e17beecd338fe4cd8f9c36392ebbb8c5b7b237351970410422d",
+      "passed": 40,
+      "report": "/private/tmp/t1-independent-r3.json",
+      "report_sha256": "1bc3b8d8052e67237b94586028f53d2cf8d07623a749630d1eaab72f5277afe6",
+      "total": 40
+    },
+    "four_path_real_dotdot": {
+      "all_outputs_preserved": true,
+      "all_workspace_invalid": true,
+      "given_path": "/private/tmp/t1-independent-dotdot-r3.li72x7z5/real/.work/link/../ws",
+      "legitimate_workspace": "/private/tmp/t1-independent-dotdot-r3.li72x7z5/real/.work/ws",
+      "operations": [
+        "export",
+        "validate",
+        "render",
+        "import"
+      ],
+      "report": "/private/tmp/t1-dotdot-independent-r3.json",
+      "report_sha256": "0bccf80c4dd7056a1c9f144038142bb195092e2fa90bd623043c6168b5c2d41e",
+      "resolved_path": "/private/tmp/t1-independent-dotdot-r3.li72x7z5/other/ws"
+    }
+  },
+  "integration_draft_review": {
+    "decision": "CONDITIONAL_GO",
+    "gaps": [
+      {
+        "finding": "The owner handoff is not explicit enough: light_backup.py/test_light_backup.py are T2-owned transfers, while T1 does not own those paths. The later freeze should name old owner T2, new sole integration owner, exact accepted source/hash rows, and the handoff point; preserve T1 light_context.py as a read-only accepted input.",
+        "lines": "11-13",
+        "severity": "required-clarification"
+      },
+      {
+        "finding": "The draft references the exact CONTRACT CLI subsection but should state the no-CLI boundaries explicitly in the integration freeze/tests: --rewrite only on workspace qa/writing export; reject it on Vault/catalog routes; raw handoffs are Skill-driven with no new workflow request/session kinds or fields; every listed workspace command requires --workspace.",
+        "lines": "30-39",
+        "severity": "acceptance-checklist"
+      }
+    ],
+    "no_unbounded_source_or_cli_scope_found": true,
+    "path_scope": {
+      "note": "The 12 proposed integration-owned paths are separate from the 16 accepted owner inputs (T1 six, T2 eight, T3 two), and the draft asks for both lists to be recorded.",
+      "status": "coherent"
+    }
+  },
+  "no_source_or_git_mutation": true,
+  "schema": "lightweight-research-t1-independent-review-r3.v1",
+  "scope": "Read-only independent R3 code/scope review; no source or Git mutation. Disposable fixtures and reports stayed under /private/tmp.",
+  "source_files": [
+    {
+      "path": "src/video_paper_wiki_research/light_context.py",
+      "sha256": "c6bb9bf429b4279d429fc4b916adc7bbd24d53dbca1e28d1fb1e3372e0b0bb35",
+      "size_bytes": 25660
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_index.py",
+      "sha256": "2a7027baa26681034473955935c1888103289bb0f076dd7f9c380028fa7ce768",
+      "size_bytes": 37413
+    },
+    {
+      "path": "src/video_paper_wiki_research/light_query.py",
+      "sha256": "0eb4082b9af39d427c411a0de66f9b9bc92ad6656980c4be1c65d0478a3a3f6c",
+      "size_bytes": 41286
+    },
+    {
+      "path": "tests/research/test_light_context.py",
+      "sha256": "c2be96b8194b7426db9d40b91215424a5e420c5fe1965ed80b5f0f1a37e8f849",
+      "size_bytes": 37034
+    },
+    {
+      "path": "tests/research/test_light_index.py",
+      "sha256": "87081aa4cc87d5a9b3ca26689636e8ce7941668591a756bd0d405b53ad84435a",
+      "size_bytes": 27370
+    },
+    {
+      "path": "tests/research/test_light_query.py",
+      "sha256": "ef842242418b431e4b951e193e06a0333c7f6dcbc8052042ffba2ecd994adf17",
+      "size_bytes": 30218
+    }
+  ],
+  "static_review": {
+    "evidence_score_preflight": {
+      "basis": "The traced validation path checks every dict evidence row with _is_finite_number before copy_evidence; huge ints catch OverflowError during float conversion and return LIGHT_CONTEXT_INVALID. Legacy contexts without query_plan still use the prior copy_evidence path.",
+      "entrypoints": [
+        "validate_live_context",
+        "render_document",
+        "import_document"
+      ],
+      "status": "closed"
+    },
+    "legacy_scope": {
+      "basis": "The new score guard is conditional on query_plan; _workspace_for_context selects _require_workspace for legacy contexts. The added regressions retain huge-score legacy OverflowError and legacy export success.",
+      "status": "preserved"
+    },
+    "output_safety": {
+      "basis": "R3 tests and independent probes retain preexisting output bytes for all refusal paths.",
+      "status": "preserved"
+    },
+    "raw_parent_edge_preflight": {
+      "basis": "_absolute_given preserves caller path components, _has_parent_traversal runs before lexical normalization/resolve, and _workspace_for_context routes query_plan contexts through _require_traced_workspace.",
+      "entrypoints": [
+        "export_rewritten_context",
+        "validate_live_context",
+        "render_document",
+        "import_document"
+      ],
+      "status": "closed"
+    }
+  }
+}

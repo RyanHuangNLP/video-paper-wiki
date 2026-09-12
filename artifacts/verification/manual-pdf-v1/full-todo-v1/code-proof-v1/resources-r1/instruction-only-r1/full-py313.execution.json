@@ -1,0 +1,39 @@
+{
+  "schema": "full-todo.code-resource-local-full-regression.v1",
+  "started_at_utc": "2026-09-10T15:38:58.567954+00:00",
+  "completed_at_utc": "2026-09-10T15:41:40.272102+00:00",
+  "command": [
+    "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "--basetemp",
+    "/private/tmp/cf313-4k5m205k/p",
+    "-o",
+    "cache_dir=/private/tmp/cf313-4k5m205k/cache"
+  ],
+  "cwd": "/private/tmp/cr1.lQxPNM/source",
+  "snapshot_sha256": "324a37b10e3053ad3e47f1af2a622832bb3fd502f07582b5d56e9a1c7c6a0c3b",
+  "exit_code": 2,
+  "before": {
+    "all_expected_files_equal": 1376,
+    "source_and_mirror_unchanged": true
+  },
+  "after": {
+    "all_expected_files_equal": 1376,
+    "source_and_mirror_unchanged": true
+  },
+  "stdout": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/full-py313.stdout.log",
+    "size_bytes": 39837,
+    "sha256": "2ae404f1a6f2ea2155e7ed929c4b93765b5172c238e2c286cb1cbe3ea050f266"
+  },
+  "stderr": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/full-py313.stderr.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "tail": "thFactory(_given_basetemp=PosixPath('/private/tmp/cf313-4k5m205k/p'), _trace=<pluggy._tracing.TagTracerSub object at 0x1023fde00>, _basetemp=PosixPath('/private/tmp/cf313-4k5m205k/p'), _retention_count=3, _retention_policy='all')\n\n    @pytest.fixture(scope='session')\n    def installed_cli(tmp_path_factory):\n        # CI installs the locked environment before switching uv to offline mode.\n        # Its build cache supplies the pinned wheel backend; runtime dependencies\n        # are exposed from that locked environment through the path-only bridge\n        # below.  Product installation itself explicitly bypasses uv's cache.\n        uv_raw=shutil.which('uv')\n>       assert uv_raw is not None,'the test job must provide its pinned uv on PATH'\nE       AssertionError: the test job must provide its pinned uv on PATH\nE       assert None is not None\n\ntests/closure/test_installed_vertical.py:93: AssertionError\n=================================== FAILURES ===================================\n_________________ test_every_declared_object_schema_is_closed __________________\n\nschema_paths = [PosixPath('/private/tmp/cr1.lQxPNM/source/schemas/video-paper-wiki.assessment-event.v1.schema.json'), PosixPath('/pri...schema.json'), PosixPath('/private/tmp/cr1.lQxPNM/source/schemas/video-paper-wiki.catalog-report.v1.schema.json'), ...]\n\n    def test_every_declared_object_schema_is_closed(schema_paths: list[Path]) -> None:\n        for schema_path in schema_paths:\n            schema = load_json(schema_path)\n            for node, path in _walk(schema):\n                if node.get(\"type\") == \"object\" or \"properties\" in node:\n                    if schema_path.name == \"video-paper-wiki.cli-envelope.v1.schema.json\" and path in ENVELOPE_EXCEPTIONS:\n                        assert node.get(\"additionalProperties\") is True\n                    elif (schema_path.name == \"video-paper-wiki.projection-generation.v1.schema.json\"\n                          and path in RUNTIME_OVERLAYS):\n                        assert \"additionalProperties\" not in node\n                    else:\n>                       assert node.get(\"additionalProperties\") is False, f\"{schema_path}:{'/'.join(path)}\"\nE                       AssertionError: /private/tmp/cr1.lQxPNM/source/schemas/video-paper-wiki.code-proof-common.v1.schema.json:$defs/request_target/if\nE                       assert None is False\nE                        +  where None = <built-in method get of dict object at 0x105355280>('additionalProperties')\nE                        +    where <built-in method get of dict object at 0x105355280> = {'properties': {'allow_executable_source': {'const': True}}, 'required': ['allow_executable_source']}.get\n\ntests/contract/test_additional_properties.py:37: AssertionError\n=========================== short test summary info ============================\nFAILED tests/contract/test_additional_properties.py::test_every_declared_object_schema_is_closed\nERROR tests/closure/test_closure_direct.py::test_prospective_agent_verify_no_build\nERROR tests/closure/test_closure_direct.py::test_prospective_gate_inspect_genesis\nERROR tests/closure/test_closure_direct.py::test_prospective_gate_inspect_successor\nERROR tests/closure/test_closure_direct.py::test_gate_successor_changed_baseline_claims_both_receipt_backed_baselines\nERROR tests/closure/test_closure_direct.py::test_gate_successor_changed_baseline_missing_prior_claim_is_rejected\nERROR tests/closure/test_closure_direct.py::test_gate_successor_second_extra_baseline_claim_is_rejected\nERROR tests/closure/test_closure_direct.py::test_prospective_gate_inspect_fork\nERROR tests/closure/test_closure_direct.py::test_external_gates_remain_open\nERROR tests/closure/test_installed_operator_exact.py::test_operator_nontty_catalog_build\nERROR tests/closure/test_installed_operator_exact.py::test_gate_apply_real_nontty\nERROR tests/closure/test_installed_skills.py::test_skills_fresh_path - Assert...\nERROR tests/closure/test_installed_skills.py::test_skills_no_admin - Assertio...\nERROR tests/closure/test_installed_skills.py::test_skills_no_egress - Asserti...\nERROR tests/closure/test_installed_skills.py::test_skills_no_vault_write - As...\nERROR tests/closure/test_installed_skills.py::test_skills_stale_report - Asse...\nERROR tests/closure/test_installed_skills.py::test_prospective_wheel_skill_phase\nERROR tests/closure/test_installed_vertical.py::test_prospective_wheel_operator_phase\nERROR tests/closure/test_installed_vertical.py::test_three_paper_one_repo - A...\nERROR tests/closure/test_installed_vertical.py::test_postrestore_domain_audit\nERROR tests/closure/test_installed_vertical.py::test_postrestore_locator_resolution\nERROR tests/closure/test_installed_vertical.py::test_postrestore_compile - As...\nERROR tests/closure/test_installed_vertical.py::test_postrestore_strict_lint\nERROR tests/closure/test_installed_vertical.py::test_postrestore_runtime_rebuild\nERROR tests/closure/test_installed_vertical.py::test_postrestore_query - Asse...\nERROR tests/closure/test_installed_vertical.py::test_delete_projections - Ass...\nERROR tests/closure/test_installed_vertical.py::test_rebuild_markdown - Asser...\nERROR tests/closure/test_installed_vertical.py::test_rebuild_export - Asserti...\nERROR tests/closure/test_installed_vertical.py::test_rebuild_runtime - Assert...\nERROR tests/closure/test_installed_vertical.py::test_rebuild_mapping_query - ...\nERROR tests/closure/test_installed_vertical.py::test_delete_truth - Assertion...\nERROR tests/closure/test_installed_vertical.py::test_catalog_stale_head - Ass...\nERROR tests/closure/test_installed_vertical.py::test_catalog_stale_index - As...\nERROR tests/closure/test_installed_vertical.py::test_prospective_operator_restore_rebuild\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! KeyboardInterrupt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n/Users/huangzhanpeng/miniconda3/lib/python3.13/urllib/parse.py:119: KeyboardInterrupt\n(to show a full traceback on KeyboardInterrupt use --full-trace)\n1 failed, 828 passed, 33 errors in 161.31s (0:02:41)\n",
+  "remote_ci": false
+}

@@ -1,0 +1,73 @@
+{
+  "recorded_at_utc": "2026-09-08T17:11:18.198357+00:00",
+  "records": {
+    "repo_api": {
+      "argv": [
+        "gh",
+        "api",
+        "repos/RyanHuangNLP/video-paper-wiki",
+        "--jq",
+        "{full_name,html_url,private,visibility,default_branch,owner,permissions,archived,disabled}"
+      ],
+      "returncode": 0,
+      "stdout": "{\"archived\":false,\"default_branch\":\"main\",\"disabled\":false,\"full_name\":\"RyanHuangNLP/video-paper-wiki\",\"html_url\":\"https://github.com/RyanHuangNLP/video-paper-wiki\",\"owner\":{\"avatar_url\":\"https://avatars.githubusercontent.com/u/49582480?v=4\",\"events_url\":\"https://api.github.com/users/RyanHuangNLP/events{/privacy}\",\"followers_url\":\"https://api.github.com/users/RyanHuangNLP/followers\",\"following_url\":\"https://api.github.com/users/RyanHuangNLP/following{/other_user}\",\"gists_url\":\"https://api.github.com/users/RyanHuangNLP/gists{/gist_id}\",\"gravatar_id\":\"\",\"html_url\":\"https://github.com/RyanHuangNLP\",\"id\":49582480,\"login\":\"RyanHuangNLP\",\"node_id\":\"MDQ6VXNlcjQ5NTgyNDgw\",\"organizations_url\":\"https://api.github.com/users/RyanHuangNLP/orgs\",\"received_events_url\":\"https://api.github.com/users/RyanHuangNLP/received_events\",\"repos_url\":\"https://api.github.com/users/RyanHuangNLP/repos\",\"site_admin\":false,\"starred_url\":\"https://api.github.com/users/RyanHuangNLP/starred{/owner}{/repo}\",\"subscriptions_url\":\"https://api.github.com/users/RyanHuangNLP/subscriptions\",\"type\":\"User\",\"url\":\"https://api.github.com/users/RyanHuangNLP\",\"user_view_type\":\"public\"},\"permissions\":{\"admin\":true,\"maintain\":true,\"pull\":true,\"push\":true,\"triage\":true},\"private\":false,\"visibility\":\"public\"}\n",
+      "stderr": ""
+    },
+    "repo_view": {
+      "argv": [
+        "gh",
+        "repo",
+        "view",
+        "RyanHuangNLP/video-paper-wiki",
+        "--json",
+        "nameWithOwner,isPrivate,visibility,url,defaultBranchRef,owner,viewerPermission"
+      ],
+      "returncode": 0,
+      "stdout": "{\"defaultBranchRef\":{\"name\":\"main\"},\"isPrivate\":false,\"nameWithOwner\":\"RyanHuangNLP/video-paper-wiki\",\"owner\":{\"id\":\"MDQ6VXNlcjQ5NTgyNDgw\",\"login\":\"RyanHuangNLP\"},\"url\":\"https://github.com/RyanHuangNLP/video-paper-wiki\",\"viewerPermission\":\"ADMIN\",\"visibility\":\"PUBLIC\"}\n",
+      "stderr": ""
+    },
+    "pr_view": {
+      "argv": [
+        "gh",
+        "pr",
+        "view",
+        "95",
+        "--repo",
+        "RyanHuangNLP/video-paper-wiki",
+        "--json",
+        "number,state,isDraft,baseRefName,baseRefOid,headRefName,headRefOid,title,body,url,updatedAt"
+      ],
+      "returncode": 0,
+      "stdout": "{\"baseRefName\":\"integration\",\"baseRefOid\":\"08709894adfb20ec07e976783f0ba436d975b74f\",\"body\":\"## Summary\\n\\nThis increment completes the lightweight paper research flow on top of the manual-PDF and lightweight-library work already accumulated in draft PR #95. It provides Chinese-to-English retrieval handoffs that preserve the original and rewritten search evidence, bounded processing for long papers, selective knowledge refresh, and cited writing workflows with outline and section history.\\n\\nThe flow processes extracted text in batches, supports explicit refresh choices, preserves notes and prior content, and restores writing history through lightweight backups. The 67-entry catalog and overlays remain unchanged.\\n\\n## Validation\\n\\n- 2,685 tests pass on Python 3.12.14 and 3.13.13, with no failures, errors, or skips.\\n- 38 independent CLI checks pass; 22 actual CLI replay commands and four installed-console workspace reads pass.\\n- Three real papers produced 147 extracted chunks processed in five batches and five merges: Video Diffusion Models (19), VBench (72), and Stable Video Diffusion (56).\\n- Four Chinese QA cases, 14 citation-link checks, two writing sections, and four writing revisions pass.\\n- Selective refresh covers metadata-only changes and a controlled source change with explicit section/concept choices.\\n- The initial backup restores 68 payload files byte-for-byte; the 69-file archive rebuilt from restored history verifies and byte-matches its source workspace; the isolated wheel is byte-exact across nine tested modules on both Python versions, and Skill validation passes.\\n\\nThe frozen delivery manifest records 26 product files and six sanitized metadata files. The local Architect acceptance record (`ae1b5db65cb48929b6c118369134c491823341c501b760e9475840b2ba0ef13d`) binds this validation to the candidate snapshot.\\n\\n## Delivery status\\n\\nFresh Linux/macOS × Python 3.12/3.13 CI for commit `b7c9764` is **BLOCKED BEFORE EXECUTION** by a GitHub Actions account-level restriction. All four jobs in [Tests run 34250402474](https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/34250402474) failed before checkout or test steps, so there are no cloud test results for this head. Local validation remains unchanged. This PR remains draft against `integration`; no merge or auto-merge is requested. Human scientific and page-image review remains open, and this increment does not claim OCR, formula/layout completeness, or full scientific acceptance.\\n\",\"headRefName\":\"integrate/manual-pdf-pipeline\",\"headRefOid\":\"b7c9764fc68a08d0b20089572b87b094fc32e104\",\"isDraft\":true,\"number\":95,\"state\":\"OPEN\",\"title\":\"feat(research): complete lightweight paper research flow\",\"updatedAt\":\"2026-09-08T16:25:32Z\",\"url\":\"https://github.com/RyanHuangNLP/video-paper-wiki/pull/95\"}\n",
+      "stderr": ""
+    },
+    "run_view": {
+      "argv": [
+        "gh",
+        "run",
+        "view",
+        "34250402474",
+        "--repo",
+        "RyanHuangNLP/video-paper-wiki",
+        "--json",
+        "databaseId,number,attempt,status,conclusion,headSha,headBranch,event,createdAt,updatedAt,url,workflowName"
+      ],
+      "returncode": 0,
+      "stdout": "{\"attempt\":2,\"conclusion\":\"success\",\"createdAt\":\"2026-09-08T16:20:02Z\",\"databaseId\":34250402474,\"event\":\"pull_request\",\"headBranch\":\"integrate/manual-pdf-pipeline\",\"headSha\":\"b7c9764fc68a08d0b20089572b87b094fc32e104\",\"number\":26,\"status\":\"completed\",\"updatedAt\":\"2026-09-08T16:47:19Z\",\"url\":\"https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/34250402474\",\"workflowName\":\"Tests\"}\n",
+      "stderr": ""
+    },
+    "run_jobs": {
+      "argv": [
+        "gh",
+        "api",
+        "repos/RyanHuangNLP/video-paper-wiki/actions/runs/34250402474/jobs",
+        "--paginate",
+        "--jq",
+        ".jobs[] | {id,name,status,conclusion,started_at,completed_at,runner_name}"
+      ],
+      "returncode": 0,
+      "stdout": "{\"completed_at\":\"2026-09-08T16:47:07Z\",\"conclusion\":\"success\",\"id\":102149790574,\"name\":\"macos-15 / Python 3.13\",\"runner_name\":\"GitHub Actions 1000000127\",\"started_at\":\"2026-09-08T16:39:48Z\",\"status\":\"completed\"}\n{\"completed_at\":\"2026-09-08T16:46:15Z\",\"conclusion\":\"success\",\"id\":102149790878,\"name\":\"ubuntu-24.04 / Python 3.13\",\"runner_name\":\"GitHub Actions 1000000125\",\"started_at\":\"2026-09-08T16:39:42Z\",\"status\":\"completed\"}\n{\"completed_at\":\"2026-09-08T16:46:40Z\",\"conclusion\":\"success\",\"id\":102149790947,\"name\":\"macos-15 / Python 3.12\",\"runner_name\":\"GitHub Actions 1000000128\",\"started_at\":\"2026-09-08T16:39:46Z\",\"status\":\"completed\"}\n{\"completed_at\":\"2026-09-08T16:47:19Z\",\"conclusion\":\"success\",\"id\":102149790974,\"name\":\"ubuntu-24.04 / Python 3.12\",\"runner_name\":\"GitHub Actions 1000000126\",\"started_at\":\"2026-09-08T16:39:54Z\",\"status\":\"completed\"}\n",
+      "stderr": ""
+    }
+  }
+}

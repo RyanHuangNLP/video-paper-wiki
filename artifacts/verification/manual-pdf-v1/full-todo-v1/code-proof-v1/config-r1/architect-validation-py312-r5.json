@@ -1,0 +1,84 @@
+{
+  "schema": "full-todo.code-config-architect-validation.v1",
+  "revision": 5,
+  "label": "py312",
+  "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+  "recorded_at_utc": "2026-09-10T08:07:47.623616+00:00",
+  "candidate_snapshot_sha256": "99a1d3bf14461ba39d14a6c0f49604484ef99fffcc1b2abebeb4fbe186daea73",
+  "handoff_sha256": "683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb",
+  "verified_source_references": 564,
+  "source_unchanged": true,
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "focused",
+      "command": [
+        "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "--color=no",
+        "tests/unit/test_code_config_parser.py",
+        "-o",
+        "cache_dir=/private/tmp/cv5-6ug4uyh8/cache",
+        "--basetemp=/private/tmp/cv5-6ug4uyh8/base"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.25362141616642475,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-focused-py312-r5.log",
+      "log_sha256": "99cbda5a164633522ba237edbf9b59766d2aa4c954613ad44504a7b4b8df273e",
+      "tail": ".................                    [100%]\n17 passed, 108 subtests passed in 0.10s\n"
+    },
+    {
+      "check": "generated",
+      "command": [
+        "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+        "-I",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r2.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r5.json",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py312-r5.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.0852551250718534,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py312-r5.log",
+      "log_sha256": "526cfcfe28f1b652a768af98034bb53a4cd7bbd972babebbefe2ce575029812e",
+      "tail": "{\"status\": \"PASS\", \"runtime\": \"3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]\", \"candidate_snapshot_sha256\": \"99a1d3bf14461ba39d14a6c0f49604484ef99fffcc1b2abebeb4fbe186daea73\", \"handoff_sha256\": \"683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb\", \"cases\": 64}\n"
+    },
+    {
+      "check": "adversarial",
+      "command": [
+        "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+        "-I",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-r1.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r5.json",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py312-r5.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08341883402317762,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py312-r5.log",
+      "log_sha256": "8e538ea23eb09962b049aac9ae6fee8995816d954a0f474d7b2ee6d9d833f78b",
+      "tail": "{\"status\": \"PASS\", \"runtime\": \"3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]\", \"candidate_snapshot_sha256\": \"99a1d3bf14461ba39d14a6c0f49604484ef99fffcc1b2abebeb4fbe186daea73\", \"handoff_sha256\": \"683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb\", \"checks\": 67, \"candidate_files_unchanged\": true}\n"
+    },
+    {
+      "check": "stdlib-key",
+      "command": [
+        "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "from pathlib import Path\nimport importlib.util,json\np=Path(__import__('sys').argv[1]);out=Path(__import__('sys').argv[2]);assert not out.exists()\nspec=importlib.util.spec_from_file_location('independent_key_probe',p);m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m);m.OUT=out;m.main()\nd=json.loads(out.read_bytes());assert d['integrity']['unchanged']\nfor value in d['probes'].values():\n assert value['outcome']=='CODE_CONFIG_ERROR' and value['code']=='CODE_CONFIG_PARSER_MISMATCH'\n assert value['details']=={'instance_pointer':'/payload','reason':'object key type mismatch'}\nassert d['probes']['str_subclass_callback']['callbacks']==[]\nprint('PASS: original independent probe now rejects both keys with bounded mismatch and zero callbacks')\n",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-probe-py312-r5.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.09909995878115296,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-py312-r5.log",
+      "log_sha256": "b2f504ccac708737064efa5ef80c4dade13edc8c7a30f8016501811afab87f23",
+      "tail": "{\n  \"output\": \"artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stdlib-key-probe-py312-r5.json\",\n  \"sha256\": \"6903d21653f78f3b1ba924dffc951b131cc6eadbe7358a0c24eb6f339a8f416a\",\n  \"bytes\": 3211\n}\nPASS: original independent probe now rejects both keys with bounded mismatch and zero callbacks\n"
+    }
+  ]
+}

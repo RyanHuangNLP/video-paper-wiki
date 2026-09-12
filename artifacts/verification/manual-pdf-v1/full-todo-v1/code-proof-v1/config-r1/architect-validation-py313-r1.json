@@ -1,0 +1,64 @@
+{
+  "schema": "full-todo.code-config-architect-validation.v1",
+  "label": "py313",
+  "python": "Python 3.13.13",
+  "recorded_at_utc": "2026-09-10T04:53:34.655256+00:00",
+  "candidate_snapshot_sha256": "066ab1403b9278f56c5ccae00ee348c3978623d5cc446f254b48cd45af3b55fc",
+  "source_unchanged": true,
+  "status": "FAILED_DIAGNOSTIC",
+  "checks": [
+    {
+      "check": "focused",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "--tb=short",
+        "--color=no",
+        "tests/unit/test_code_config_parser.py",
+        "-o",
+        "cache_dir=/private/tmp/cfg-py313-cbvfqk2c/cache",
+        "--basetemp=/private/tmp/cfg-py313-cbvfqk2c/base"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 0.27600675029680133,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-focused-py313-r1.log",
+      "log_sha256": "fadfe5ee7bd0adf4864ecf468cff7a7d27c071547a0c1676904b1bf260861954",
+      "tail": "}}]}] != [{'pa[314 chars]rt': 15, 'byte_end': 16, 'codepoint_start': 15[5906 chars] []}]\nE   \nE   First differing element 1:\nE   {'pat[176 chars]rt': 25, 'byte_end': 26, 'codepoint_start': 25[950 chars]'}}]}\nE   {'pat[176 chars]rt': 15, 'byte_end': 16, 'codepoint_start': 15[950 chars]'}}]}\nE   \nE   Diff is 12625 characters long. Set self.maxDiff to None to see it.\n_________ TestCodeConfigParser.test_unicode_surrogates_crlf_and_empty __________\ntests/unit/test_code_config_parser.py:805: in test_unicode_surrogates_crlf_and_empty\n    self.assertEqual(reversed_keys[\"nodes\"], result[\"nodes\"])\nE   AssertionError: Lists differ: [{'pa[262 chars]6': 'd347334b81cc0a6a99a8242e54b2aef661ebd3ea2[1685 chars]}}]}] != [{'pa[262 chars]6': '4dad51ac41eb73862fce375fae85ba13711fd19f1[1685 chars]}}]}]\nE   \nE   First differing element 0:\nE   {'pat[261 chars]6': 'd347334b81cc0a6a99a8242e54b2aef661ebd3ea2[127 chars]: []}\nE   {'pat[261 chars]6': '4dad51ac41eb73862fce375fae85ba13711fd19f1[127 chars]: []}\nE   \nE   Diff is 5072 characters long. Set self.maxDiff to None to see it.\n=========================== short test summary info ============================\nSUBFAILED[json-tuple-exponent-over] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[json-bom] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[json-bare-cr] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[json-comment] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[toml-underscore-leading] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[toml-duplicate-header] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[toml-inline-extension] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors\nSUBFAILED[toml-dotted-promotion] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_success_vectors\nFAILED tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_unicode_surrogates_crlf_and_empty\n9 failed, 14 passed, 83 subtests passed in 0.10s\n"
+    },
+    {
+      "check": "generated",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-I",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r2.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r1.json",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py313-r1.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.08452483313158154,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py313-r1.log",
+      "log_sha256": "c61357ea3211d46dd6bf13cd5a63781ace70dedee14d7b19101ad8f624312c96",
+      "tail": "{\"status\": \"PASS\", \"runtime\": \"3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]\", \"candidate_snapshot_sha256\": \"066ab1403b9278f56c5ccae00ee348c3978623d5cc446f254b48cd45af3b55fc\", \"handoff_sha256\": \"90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73\", \"cases\": 64}\n"
+    },
+    {
+      "check": "adversarial",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-I",
+        "-B",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-r1.py",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r1.json",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py313-r1.json"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.05354462517425418,
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py313-r1.log",
+      "log_sha256": "d5154f5c1bf66d67cc3490c182e0310f3fff92bcd6eb56a9f5be233f327e3ae1",
+      "tail": "{\"status\": \"PASS\", \"runtime\": \"3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]\", \"candidate_snapshot_sha256\": \"066ab1403b9278f56c5ccae00ee348c3978623d5cc446f254b48cd45af3b55fc\", \"handoff_sha256\": \"90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73\", \"checks\": 67, \"candidate_files_unchanged\": true}\n"
+    }
+  ]
+}

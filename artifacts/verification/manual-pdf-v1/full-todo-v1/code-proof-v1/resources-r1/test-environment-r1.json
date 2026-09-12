@@ -1,0 +1,100 @@
+{
+  "schema": "full-todo.code-resource-test-environment.v1",
+  "revision": 1,
+  "status": "PREPARED_NO_TESTS_RUN",
+  "recorded_at_utc": "2026-09-10T08:55:25.579203+00:00",
+  "source_freeze": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-freeze-r1.json",
+    "size_bytes": 610328,
+    "sha256": "294180fbdd1c76d9e23969fd12299f9050712035cc86b4676b481a0f2f109830"
+  },
+  "source": {
+    "root_checkout": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+      "head": "bcff631ce12fe777ab6db7a4dd6531db3bbaea3f",
+      "tree": "21165f21c3cb079af0e0f55befe9ae60d3c45df0",
+      "clean": false,
+      "status_entry_count": 65
+    },
+    "accepted_W": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+      "head": "4ab1830939cd41981983909763434d5612df6070",
+      "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+      "clean": true,
+      "expected_head": "4ab1830939cd41981983909763434d5612df6070",
+      "expected_tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392"
+    },
+    "test_source": {
+      "path": "/private/tmp/cr1.lQxPNM/source",
+      "head": "4ab1830939cd41981983909763434d5612df6070",
+      "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+      "clean": true,
+      "clone_method": "git clone --local --no-hardlinks --no-tags W test-source; git checkout --detach 4ab1830939cd41981983909763434d5612df6070"
+    },
+    "upstream_vendor": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/vendor/claude-obsidian",
+      "head": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+      "tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+      "clean": true,
+      "expected_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+    },
+    "test_vendor": {
+      "path": "/private/tmp/cr1.lQxPNM/source/vendor/claude-obsidian",
+      "head": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+      "tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+      "clean": true,
+      "clone_method": "git clone --local --no-hardlinks --no-tags root/vendor/claude-obsidian test-source/vendor/claude-obsidian; git checkout --detach 9f8c1199047eac2c3828496279fbb7ba9540b90b",
+      "physical_initialized": true
+    }
+  },
+  "gitlink": {
+    "path": "vendor/claude-obsidian",
+    "W_index_entry": "160000 9f8c1199047eac2c3828496279fbb7ba9540b90b 0\tvendor/claude-obsidian",
+    "test_source_index_entry": "160000 9f8c1199047eac2c3828496279fbb7ba9540b90b 0\tvendor/claude-obsidian",
+    "oid_unchanged": true,
+    "test_physical_checkout_present": true
+  },
+  "source_pin_comparison": {
+    "ordinary_tracked_count_W": 1363,
+    "ordinary_tracked_count_test_source": 1363,
+    "ordinary_pins_equal": true,
+    "pin_digest_sha256": "378825f15d6796ca8ec8808262bc84420aa3c9d359824e6a6e52de4f45f85eb6",
+    "source_and_tests_count": 564,
+    "schema_count": 71
+  },
+  "runtime": {
+    "locked_python_312": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+    "locked_python_312_version": "Python 3.12.14",
+    "locked_python_313": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "locked_python_313_version": "Python 3.13.13"
+  },
+  "commands": [
+    "GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null git clone --local --no-hardlinks --no-tags W <temp>/source",
+    "git -C <temp>/source checkout --detach 4ab1830939cd41981983909763434d5612df6070",
+    "GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null git clone --local --no-hardlinks --no-tags root/vendor/claude-obsidian <temp>/source/vendor/claude-obsidian",
+    "git -C <temp>/source/vendor/claude-obsidian checkout --detach 9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "locked Python 3.12 byte-pin comparison of all ordinary tracked files; no test suite executed"
+  ],
+  "network_and_model": {
+    "network_used": false,
+    "fetch_used": false,
+    "submodule_network_update": false,
+    "model_launched": false
+  },
+  "tests": {
+    "product_tests_run": false,
+    "reason": "Environment preparation only; new product files were not copied and no test command was run."
+  },
+  "scope": {
+    "only_new_temp_clone_and_vendor_clone_created": true,
+    "W_modified": false,
+    "root_source_modified": false,
+    "root_git_mutated": false,
+    "upstream_vendor_modified": false,
+    "product_files_copied_to_test_source": false
+  },
+  "limitations": [
+    "Root checkout is not clean because it carries the surrounding task work; accepted W, test source, upstream vendor and test vendor are clean.",
+    "The physical vendor checkout is a standalone local clone beneath the gitlink path; the superproject gitlink OID remains unchanged."
+  ]
+}

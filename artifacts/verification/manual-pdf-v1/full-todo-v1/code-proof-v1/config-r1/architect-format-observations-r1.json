@@ -1,0 +1,452 @@
+{
+  "schema": "full-todo.code-config-architect-stdlib-observations.v1",
+  "recorded_at_utc": "2026-09-09T15:19:17.014998+00:00",
+  "runtime": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+  "implementation_imported": false,
+  "meaning": "Independent format/runtime observations, not a CODE parser implementation or acceptance. Project profile can reject stdlib-accepted cases as explicitly named.",
+  "toml_cases": [
+    {
+      "name": "implicit_header_parent_promotion",
+      "source": "[a.b]\nv=1\n[a]\nw=2\n",
+      "source_sha256": "199430d3a0110b9f35a99d5ea792be59217102f5c24655204f7a8ff6ac3303cf",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a": {
+              "type": "object",
+              "value": {
+                "b": {
+                  "type": "object",
+                  "value": {
+                    "v": {
+                      "type": "int",
+                      "value": 1
+                    }
+                  }
+                },
+                "w": {
+                  "type": "int",
+                  "value": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "dotted_parent_header_refusal",
+      "source": "a.b=1\n[a]\nw=2\n",
+      "source_sha256": "cfc5e52f61bc88728a4982495e3ad70bdf8e84429c8991ec5c9f5d28fab70d02",
+      "stdlib": {
+        "accepted": false,
+        "error_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "name": "dotted_parent_child_header",
+      "source": "a.b=1\n[a.c]\nw=2\n",
+      "source_sha256": "0ef753aa918baa5e436d4662024006c0ecb428c48260dec30070c6818f295783",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a": {
+              "type": "object",
+              "value": {
+                "b": {
+                  "type": "int",
+                  "value": 1
+                },
+                "c": {
+                  "type": "object",
+                  "value": {
+                    "w": {
+                      "type": "int",
+                      "value": 2
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "dotted_descendant_header",
+      "source": "[a]\nb.c=1\n[a.b.d]\ne=2\n",
+      "source_sha256": "e5934b0ca6f2c1770e38ec93334c366479d8dc5e1a5101c6fc9f137972970826",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a": {
+              "type": "object",
+              "value": {
+                "b": {
+                  "type": "object",
+                  "value": {
+                    "c": {
+                      "type": "int",
+                      "value": 1
+                    },
+                    "d": {
+                      "type": "object",
+                      "value": {
+                        "e": {
+                          "type": "int",
+                          "value": 2
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "inline_extension_refusal",
+      "source": "a={b=1}\na.c=2\n",
+      "source_sha256": "56439422f598b2f8e675dc3719a366f73257d62980d7e1214ca674cdbb57d15f",
+      "stdlib": {
+        "accepted": false,
+        "error_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "name": "quoted_dotted_duplicate",
+      "source": "a.\"b\"=1\na.b=2\n",
+      "source_sha256": "9f38cbbad69b50e3f6bf40a1931d2e75d4298452b2ec866e044fd1cbac3ea673",
+      "stdlib": {
+        "accepted": false,
+        "error_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "name": "literal_dot_distinct",
+      "source": "\"a.b\"=1\na.b=2\n",
+      "source_sha256": "7230bde4f4af34c4fc655132635ae96754d627833d8c6f8839827c66c0c6eea3",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a.b": {
+              "type": "int",
+              "value": 1
+            },
+            "a": {
+              "type": "object",
+              "value": {
+                "b": {
+                  "type": "int",
+                  "value": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "empty_quoted_key",
+      "source": "\"\"=1\n",
+      "source_sha256": "567cb2d5872e2091c80f852b75108ebc7006ea3ab1b5e3a95cab05194f57a4f1",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "": {
+              "type": "int",
+              "value": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "same_line_trailing_array",
+      "source": "a=[1, true, 0.9,]\n",
+      "source_sha256": "c359e037d9ff4dcf2386d16e92e5d34e4ac8e4601a74e8dfb597d0d5e9a9f7d6",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "int",
+                  "value": 1
+                },
+                {
+                  "type": "bool",
+                  "value": true
+                },
+                {
+                  "type": "decimal",
+                  "tuple": [
+                    0,
+                    [
+                      9
+                    ],
+                    -1
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "inline_trailing_comma_refusal",
+      "source": "a={b=1,}\n",
+      "source_sha256": "a7c891cf04000d7dca5571a23ed7d63f435f3b8d328065278ec17bccc8e38512",
+      "stdlib": {
+        "accepted": false,
+        "error_type": "TOMLDecodeError"
+      }
+    },
+    {
+      "name": "multiline_array_stdlib_valid_profile_unsupported",
+      "source": "a=[\n1,2\n]\n",
+      "source_sha256": "1637824f81bb250caf1e9e03ef140d0802b0737be21156d3cb5b5744f07c064f",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a": {
+              "type": "array",
+              "value": [
+                {
+                  "type": "int",
+                  "value": 1
+                },
+                {
+                  "type": "int",
+                  "value": 2
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "comment_only_stdlib_valid_profile_empty",
+      "source": "# a comment\n",
+      "source_sha256": "9cc842a14139b290f1e06e9d27c0eba12d02de96dbd3233e8478358f67e428a3",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {}
+        }
+      }
+    },
+    {
+      "name": "ordinary_empty_table",
+      "source": "[a]\n",
+      "source_sha256": "24d4941e67d5965d270eaebdb9816b994311e0f2f0e79ef6bb626f362c52842e",
+      "stdlib": {
+        "accepted": true,
+        "typed": {
+          "type": "object",
+          "value": {
+            "a": {
+              "type": "object",
+              "value": {}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "decimal_cases": [
+    {
+      "lexeme": "1e-4",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            1
+          ],
+          -4
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "0.9",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            9
+          ],
+          -1
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "0.999",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            9,
+            9,
+            9
+          ],
+          -3
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "1e0",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            1
+          ],
+          0
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "0.0001e-128",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            1
+          ],
+          -132
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "1e128",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            1
+          ],
+          128
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "0e128",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            0
+          ],
+          128
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "-0.0",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          1,
+          [
+            0
+          ],
+          -1
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    },
+    {
+      "lexeme": "123456789012345678901234567890.000000000000001",
+      "exact": {
+        "type": "decimal",
+        "tuple": [
+          0,
+          [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1
+          ],
+          -15
+        ]
+      },
+      "hostile_context_tuple_equal": true
+    }
+  ],
+  "status": "PASS_STDLIB_OBSERVATIONS"
+}

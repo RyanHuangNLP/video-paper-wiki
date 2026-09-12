@@ -1,0 +1,2603 @@
+I'll start from the invocation descriptor and then read every listed prepared input so the two Python outputs match the closed R12 contract.I'll read the output contract, generation plan, and R12 resource contract first so the generator shape is fixed before the kernel and example files.Next I’ll read the public contracts R2–R11 plus the kernel documents so the schemas keep the closed wire and result shapes.I’ll keep reading the coverage inventory and the selected positive examples so the schemas match the actual fixture shapes.I’ll keep going through the positive examples, focusing on saved envelopes, git proofs, configs, handoffs, and command-result payloads.I’ll finish the remaining inventory and the typed config examples so the schemas cover every closed node shape.I have the closed shapes. Next I’ll write the self-contained generator and the read-only contract tests from the R12 inventory and kernel result records.I have the closed inventory, wire shapes, and kernel results. The two Python files below are the complete generator and the read-only contract tests.
+
+BEGIN_FILE generate_code_proof_resources.py
+```python
+"""Generate the CODE-PROOF Draft 2020-12 schemas and installed profile."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+
+DRAFT = "https://json-schema.org/draft/2020-12/schema"
+ID_PREFIX = "https://video-paper-wiki.dev/schemas/"
+
+COMMON_FILENAME = "video-paper-wiki.code-proof-common.v1.schema.json"
+REQUEST_INPUT_FILENAME = "video-paper-wiki.code-proof-request-input.v1.schema.json"
+OBSERVE_INPUT_FILENAME = "video-paper-wiki.code-proof-observe-input.v1.schema.json"
+COMMAND_RESULT_FILENAME = "video-paper-wiki.code-proof-command-result.v1.schema.json"
+
+SCHEMA_FILENAMES: tuple[str, ...] = (
+    COMMON_FILENAME,
+    REQUEST_INPUT_FILENAME,
+    OBSERVE_INPUT_FILENAME,
+    COMMAND_RESULT_FILENAME,
+    "video-paper-wiki.code-proof-request.v1.schema.json",
+    "video-paper-wiki.code-git-bundle.v1.schema.json",
+    "video-paper-wiki.code-acquisition-intent.v1.schema.json",
+    "video-paper-wiki.code-proof-observation.v1.schema.json",
+    "video-paper-wiki.code-config-evidence.v1.schema.json",
+    "video-paper-wiki.code-source-handoff.v1.schema.json",
+)
+
+GIT_LIMITS: dict[str, int] = {
+    "max_targets": 32,
+    "max_objects": 2048,
+    "max_tree_entries": 32768,
+    "max_object_bytes": 8388608,
+    "max_total_object_bytes": 33554432,
+}
+CONFIG_LIMITS: dict[str, int] = {
+    "max_source_bytes": 262144,
+    "max_depth": 32,
+    "max_nodes": 1024,
+    "max_array_items": 256,
+    "max_object_keys": 1024,
+    "max_key_bytes": 256,
+    "max_string_codepoints": 16384,
+    "max_scalars": 512,
+    "max_numeric_lexeme_bytes": 128,
+    "max_numeric_coefficient_digits": 64,
+    "max_numeric_abs_exponent": 128,
+    "max_numeric_canonical_bytes": 256,
+    "max_declarations": 4096,
+}
+PUBLIC_LIMITS: dict[str, int] = {
+    "max_bundle_bytes": 1048576,
+    "max_inline_normalized_bytes": 16384,
+    "max_request_bytes": 65536,
+    "max_intent_bytes": 1048576,
+    "max_observation_bytes": 2097152,
+    "max_config_document_bytes": 2097152,
+    "max_handoff_bytes": 131072,
+    "max_output_peak_bytes": 134217728,
+}
+
+ROLES: tuple[str, ...] = (
+    "readme",
+    "citation",
+    "license",
+    "implementation",
+    "configuration",
+    "entrypoint",
+)
+GIT_MODES: tuple[str, ...] = (
+    "40000",
+    "100644",
+    "100755",
+    "120000",
+    "160000",
+)
+UNSAFE_REASONS: tuple[str, ...] = (
+    "executable_without_permission",
+    "symlink",
+    "gitlink",
+    "directory",
+    "non_directory_intermediate",
+)
+UNAVAILABLE_REASONS: tuple[str, ...] = (
+    "not_returned",
+    "capability_unavailable",
+    "request_failed",
+)
+
+_SEGMENT = r"[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?"
+_GIT_COMPONENT = (
+    r"(?!(?:\.|\.\.|\.[Gg][Ii][Tt])(?:/|\Z))"
+    r"[A-Za-z0-9._-]+"
+)
+_GIT_PATH = _GIT_COMPONENT + r"(?:/" + _GIT_COMPONENT + r"){0,31}"
+_OWNER_SAVED = r"(?!(?:\.|\.\.)\Z)[a-z0-9._-]{1,100}"
+_NAME_SAVED = r"(?!(?:\.|\.\.)\Z)(?!.*\.git\Z)[a-z0-9._-]{1,100}"
+_OWNER_INPUT = r"(?!(?:\.|\.\.)\Z)[A-Za-z0-9._-]{1,100}"
+_NAME_INPUT = r"(?!(?:\.|\.\.)\Z)(?!.*\.[Gg][Ii][Tt]\Z)[A-Za-z0-9._-]{1,100}"
+_REPOSITORY_SAVED = _OWNER_SAVED + "/" + _NAME_SAVED
+_REPOSITORY_INPUT = _OWNER_INPUT + "/" + _NAME_INPUT
+_OID = r"[0-9a-f]{40}(?:[0-9a-f]{24})?"
+_CHECKOUT_REL = r"\.work(?:/" + _SEGMENT + r")+"
+_NO_CONTROLS = r"[^\x00-\x1F\x7F-\x9F\u2028\u2029]+"
+_STATEMENT = r"[^\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\u2028\u2029]+"
+_YEAR = r"(?:000[1-9]|00[1-9][0-9]|0[1-9][0-9]{2}|[1-9][0-9]{3})"
+_MONTH = r"(?:0[1-9]|1[0-2])"
+_DAY = r"(?:0[1-9]|[12][0-9]|3[01])"
+_HMS = r"(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]"
+_DATETIME = _YEAR + "-" + _MONTH + "-" + _DAY + "T" + _HMS + "Z"
+_JSON_POINTER = r"(?:|(?:/(?:[^/~]|~0|~1)*)+)"
+
+
+def _schema_id(filename: str) -> str:
+    return ID_PREFIX + filename
+
+
+def _title(filename: str) -> str:
+    return filename[: -len(".schema.json")]
+
+
+def _anchored(pattern: str) -> str:
+    return r"\A(?:" + pattern + r")\Z"
+
+
+def _str_pattern(
+    pattern: str,
+    *,
+    min_length: int | None = None,
+    max_length: int | None = None,
+) -> dict:
+    out: dict = {"type": "string", "pattern": _anchored(pattern)}
+    if min_length is not None:
+        out["minLength"] = min_length
+    if max_length is not None:
+        out["maxLength"] = max_length
+    return out
+
+
+def _integer(minimum: int | None = None, maximum: int | None = None) -> dict:
+    out: dict = {"type": "integer"}
+    if minimum is not None:
+        out["minimum"] = minimum
+    if maximum is not None:
+        out["maximum"] = maximum
+    return out
+
+
+def _closed(
+    properties: dict,
+    *,
+    required: list[str] | None = None,
+    extras: dict | None = None,
+) -> dict:
+    schema: dict = {
+        "type": "object",
+        "additionalProperties": False,
+        "properties": properties,
+        "required": list(properties if required is None else required),
+    }
+    if extras:
+        schema.update(extras)
+    return schema
+
+
+def _lref(name: str) -> dict:
+    return {"$ref": "#/$defs/" + name}
+
+
+def _cref(name: str) -> dict:
+    return {"$ref": _schema_id(COMMON_FILENAME) + "#/$defs/" + name}
+
+
+def _hex(n: int) -> dict:
+    return _str_pattern(rf"[0-9a-f]{{{n}}}", min_length=n, max_length=n)
+
+
+def _ce1_id(kind: str) -> dict:
+    size = 4 + len(kind) + 1 + 64
+    return _str_pattern(rf"ce1:{kind}:[0-9a-f]{{64}}", min_length=size, max_length=size)
+
+
+def _limit_map(spec: dict[str, int]) -> dict:
+    return _closed(
+        {key: _integer(minimum=1, maximum=maximum) for key, maximum in spec.items()}
+    )
+
+
+def _const_limit_map(spec: dict[str, int]) -> dict:
+    return _closed(
+        {
+            key: {"type": "integer", "const": maximum}
+            for key, maximum in spec.items()
+        }
+    )
+
+
+def _nullable(schema: dict) -> dict:
+    return {"oneOf": [schema, {"type": "null"}]}
+
+
+def _array(items: dict, *, min_items: int | None = None, max_items: int | None = None, unique: bool = False) -> dict:
+    out: dict = {"type": "array", "items": items}
+    if min_items is not None:
+        out["minItems"] = min_items
+    if max_items is not None:
+        out["maxItems"] = max_items
+    if unique:
+        out["uniqueItems"] = True
+    return out
+
+
+def _dump(value: object) -> bytes:
+    return (
+        json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
+    ).encode("utf-8")
+
+
+def _common_defs() -> dict:
+    blob_url = _str_pattern(
+        r"https://github.com/"
+        + _REPOSITORY_SAVED
+        + r"/blob/"
+        + _OID
+        + "/"
+        + _GIT_PATH,
+        min_length=1,
+        max_length=2048,
+    )
+    raw_url = _str_pattern(
+        r"https://raw.githubusercontent.com/"
+        + _REPOSITORY_SAVED
+        + "/"
+        + _OID
+        + "/"
+        + _GIT_PATH,
+        min_length=1,
+        max_length=2048,
+    )
+    commit_url = _str_pattern(
+        r"https://github.com/" + _REPOSITORY_SAVED + r"/commit/" + _OID,
+        min_length=1,
+        max_length=2048,
+    )
+    defs: dict = {}
+    defs["sha256"] = _hex(64)
+    defs["oid"] = {"oneOf": [_hex(40), _hex(64)]}
+    defs["name_hex"] = _str_pattern(
+        r"(?:[0-9a-f]{2})+", min_length=2, max_length=1024
+    )
+    defs["paper_id"] = {
+        "oneOf": [
+            _str_pattern(
+                r"arxiv:(?:[0-9]{4}\.[0-9]{4,5}|[a-z-]+(?:\.[a-z]{2})?/[0-9]{7})",
+                min_length=1,
+                max_length=512,
+            ),
+            _str_pattern(
+                r"doi:10\.[0-9]{4,9}/[\x21-\x40\x5b-\x7e]+",
+                min_length=1,
+                max_length=512,
+            ),
+            _str_pattern(r"openalex:W[0-9]+", min_length=1, max_length=512),
+            _str_pattern(r"sha256:[0-9a-f]{64}", min_length=71, max_length=71),
+        ]
+    }
+    defs["repository_input"] = _str_pattern(
+        _REPOSITORY_INPUT, min_length=3, max_length=201
+    )
+    defs["repository_saved"] = _str_pattern(
+        _REPOSITORY_SAVED, min_length=3, max_length=201
+    )
+    defs["git_path"] = _str_pattern(_GIT_PATH, min_length=1, max_length=512)
+    defs["object_format"] = {"enum": ["sha1", "sha256"]}
+    defs["batch_id"] = _str_pattern(_SEGMENT, min_length=1, max_length=128)
+    defs["utc_datetime"] = _str_pattern(_DATETIME, min_length=20, max_length=20)
+    defs["json_pointer"] = _str_pattern(_JSON_POINTER, max_length=16384)
+    defs["git_role"] = {"enum": list(ROLES)}
+    defs["git_roles"] = _array(
+        defs["git_role"], min_items=1, max_items=6, unique=True
+    )
+    defs["request_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "roles": _lref("git_roles"),
+            "allow_executable_source": {"type": "boolean"},
+        },
+        extras={
+            "if": {
+                "properties": {"allow_executable_source": {"const": True}},
+                "required": ["allow_executable_source"],
+            },
+            "then": {
+                "properties": {
+                    "roles": {
+                        "items": {"enum": ["implementation", "entrypoint"]}
+                    }
+                }
+            },
+        },
+    )
+    defs["request_targets"] = _array(
+        _lref("request_target"), min_items=1, max_items=32
+    )
+    defs["git_limits"] = _limit_map(GIT_LIMITS)
+    defs["config_limits"] = _limit_map(CONFIG_LIMITS)
+    defs["public_limits"] = _limit_map(PUBLIC_LIMITS)
+    defs["limits"] = _closed(
+        {
+            "git": _lref("git_limits"),
+            "config": _lref("config_limits"),
+            "public": _lref("public_limits"),
+        }
+    )
+    defs["source_association"] = _nullable(
+        _closed(
+            {
+                "association_id": _str_pattern(
+                    r"sva-[0-9a-f]{64}", min_length=68, max_length=68
+                ),
+                "sha256": _lref("sha256"),
+            }
+        )
+    )
+    for kind in (
+        "code-proof-request",
+        "code-git-bundle",
+        "code-acquisition-intent",
+        "code-proof-observation",
+        "code-config-evidence",
+        "code-source-handoff",
+    ):
+        key = "ref_" + kind.replace("-", "_")
+        defs[key] = _closed({"id": _ce1_id(kind), "sha256": _lref("sha256")})
+        defs["nullable_" + key] = _nullable(_lref(key))
+    defs["executor"] = {
+        "oneOf": [
+            _closed(
+                {
+                    "kind": {"enum": ["human", "host_tool"]},
+                    "id": _str_pattern(_NO_CONTROLS, min_length=1, max_length=128),
+                }
+            ),
+            _closed({"kind": {"const": "unknown"}, "id": {"type": "null"}}),
+        ]
+    }
+    defs["hosting_assertion"] = _nullable(
+        _closed(
+            {
+                "provider": {"const": "github"},
+                "actor": _lref("executor"),
+                "repository": _lref("repository_saved"),
+                "object_format": _lref("object_format"),
+                "commit_oid": _lref("oid"),
+                "locator": commit_url,
+                "statement": _str_pattern(
+                    _STATEMENT, min_length=1, max_length=2048
+                ),
+            }
+        )
+    )
+    defs["text_metadata"] = _closed(
+        {
+            "normalized_size_bytes": _integer(minimum=0, maximum=8388608),
+            "normalized_sha256": _lref("sha256"),
+            "newline_style": {"enum": ["none", "lf", "crlf", "mixed"]},
+            "ends_with_newline": {"type": "boolean"},
+            "line_count": _integer(minimum=0, maximum=8388608),
+        }
+    )
+    defs["github_blob_url"] = blob_url
+    defs["github_raw_url"] = raw_url
+    defs["github_commit_url"] = commit_url
+    defs["acquisition_locator"] = {"oneOf": [blob_url, raw_url]}
+    defs["nullable_acquisition_locator"] = _nullable(_lref("acquisition_locator"))
+    defs["object_declaration"] = _closed(
+        {
+            "oid": _lref("oid"),
+            "object_type": {"enum": ["commit", "tree", "blob"]},
+            "body_size_bytes": _integer(minimum=0, maximum=8388608),
+            "body_sha256": _lref("sha256"),
+            "framed_sha256": _lref("sha256"),
+        }
+    )
+    defs["git_blob"] = _closed(
+        {
+            "oid": _lref("oid"),
+            "body_size_bytes": _integer(minimum=0, maximum=8388608),
+            "body_sha256": _lref("sha256"),
+            "framed_sha256": _lref("sha256"),
+        }
+    )
+    defs["git_walk_edge"] = _closed(
+        {
+            "tree_oid": _lref("oid"),
+            "name_hex": _lref("name_hex"),
+            "mode": {"enum": list(GIT_MODES)},
+            "oid": _lref("oid"),
+        }
+    )
+    defs["git_stopped_at"] = _closed(
+        {
+            "component_index": _integer(minimum=0, maximum=31),
+            "tree_oid": _lref("oid"),
+            "name_hex": _lref("name_hex"),
+            "mode": _nullable({"enum": list(GIT_MODES)}),
+            "oid": _nullable(_lref("oid")),
+        },
+        extras={
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {"mode": {"type": "null"}},
+                        "required": ["mode"],
+                    },
+                    "then": {"properties": {"oid": {"type": "null"}}},
+                },
+                {
+                    "if": {
+                        "properties": {"mode": {"enum": list(GIT_MODES)}},
+                        "required": ["mode"],
+                    },
+                    "then": {"properties": {"oid": _lref("oid")}},
+                },
+            ]
+        },
+    )
+    defs["git_target_permitted"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "outcome": {"const": "permitted_regular_blob"},
+            "reason": {"type": "null"},
+            "walk": _array(_lref("git_walk_edge"), min_items=1, max_items=32),
+            "stopped_at": _lref("git_stopped_at"),
+            "blob": _lref("git_blob"),
+        }
+    )
+    defs["git_target_missing"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "outcome": {"const": "missing"},
+            "reason": {"const": "absent_entry"},
+            "walk": _array(_lref("git_walk_edge"), min_items=0, max_items=32),
+            "stopped_at": _lref("git_stopped_at"),
+            "blob": {"type": "null"},
+        }
+    )
+    defs["git_target_unsafe"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "outcome": {"const": "unsafe"},
+            "reason": {"enum": list(UNSAFE_REASONS)},
+            "walk": _array(_lref("git_walk_edge"), min_items=1, max_items=32),
+            "stopped_at": _lref("git_stopped_at"),
+            "blob": {"type": "null"},
+        }
+    )
+    defs["git_target"] = {
+        "oneOf": [
+            _lref("git_target_permitted"),
+            _lref("git_target_missing"),
+            _lref("git_target_unsafe"),
+        ]
+    }
+    defs["git_budget"] = _closed(
+        {
+            "object_count": _integer(minimum=1, maximum=2048),
+            "declared_body_bytes": _integer(minimum=0, maximum=33554432),
+            "actual_body_bytes": _integer(minimum=0, maximum=33554432),
+            "parsed_tree_entries": _integer(minimum=0, maximum=32768),
+            "target_count": _integer(minimum=1, maximum=32),
+            "walk_edges": _integer(minimum=0, maximum=1024),
+        }
+    )
+    defs["git_proof"] = _closed(
+        {
+            "object_format": _lref("object_format"),
+            "commit_oid": _lref("oid"),
+            "root_tree_oid": _lref("oid"),
+            "object_records": _array(
+                _lref("object_declaration"), min_items=1, max_items=2048
+            ),
+            "consumed_oids": _array(
+                _lref("oid"), min_items=1, max_items=2048, unique=True
+            ),
+            "budget": _lref("git_budget"),
+            "targets": _array(_lref("git_target"), min_items=1, max_items=32),
+        }
+    )
+    defs["span"] = _closed(
+        {
+            "byte_start": _integer(minimum=0, maximum=262144),
+            "byte_end": _integer(minimum=1, maximum=262144),
+            "codepoint_start": _integer(minimum=0, maximum=262144),
+            "codepoint_end": _integer(minimum=1, maximum=262144),
+            "line_start": _integer(minimum=1, maximum=262144),
+            "column_start": _integer(minimum=1, maximum=262144),
+            "line_end": _integer(minimum=1, maximum=262144),
+            "column_end": _integer(minimum=1, maximum=262144),
+            "raw_sha256": _lref("sha256"),
+            "snippet_sha256": _lref("sha256"),
+        }
+    )
+    defs["config_declaration"] = _closed(
+        {
+            "kind": {"enum": ["json_key", "toml_key", "toml_table"]},
+            "span": _lref("span"),
+        }
+    )
+    defs["config_declarations"] = _array(
+        _lref("config_declaration"), min_items=0, max_items=4096
+    )
+    defs["config_node_object"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "object"},
+            "value": {"type": "null"},
+            "numeric_lexeme": {"type": "null"},
+            "children": _array(_lref("json_pointer"), min_items=0, max_items=1024),
+            "value_span": _nullable(_lref("span")),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node_array"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "array"},
+            "value": {"type": "null"},
+            "numeric_lexeme": {"type": "null"},
+            "children": _array(_lref("json_pointer"), min_items=0, max_items=256),
+            "value_span": _lref("span"),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node_string"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "string"},
+            "value": {"type": "string", "maxLength": 16384},
+            "numeric_lexeme": {"type": "null"},
+            "children": {"const": []},
+            "value_span": _lref("span"),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node_integer"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "integer"},
+            "value": {"type": "string", "minLength": 1, "maxLength": 256},
+            "numeric_lexeme": {"type": "string", "minLength": 1, "maxLength": 128},
+            "children": {"const": []},
+            "value_span": _lref("span"),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node_decimal"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "decimal"},
+            "value": {"type": "string", "minLength": 1, "maxLength": 256},
+            "numeric_lexeme": {"type": "string", "minLength": 1, "maxLength": 128},
+            "children": {"const": []},
+            "value_span": _lref("span"),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node_boolean"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "boolean"},
+            "value": {"type": "boolean"},
+            "numeric_lexeme": {"type": "null"},
+            "children": {"const": []},
+            "value_span": _lref("span"),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node_null"] = _closed(
+        {
+            "path": _lref("json_pointer"),
+            "kind": {"const": "null"},
+            "value": {"type": "null"},
+            "numeric_lexeme": {"type": "null"},
+            "children": {"const": []},
+            "value_span": _lref("span"),
+            "declarations": _lref("config_declarations"),
+        }
+    )
+    defs["config_node"] = {
+        "oneOf": [
+            _lref("config_node_object"),
+            _lref("config_node_array"),
+            _lref("config_node_string"),
+            _lref("config_node_integer"),
+            _lref("config_node_decimal"),
+            _lref("config_node_boolean"),
+            _lref("config_node_null"),
+        ]
+    }
+    defs["config_source"] = _closed(
+        {
+            "body_size_bytes": _integer(minimum=1, maximum=262144),
+            "body_sha256": _lref("sha256"),
+            "normalized_sha256": _lref("sha256"),
+            "newline_style": {"enum": ["none", "lf", "crlf", "mixed"]},
+            "ends_with_newline": {"type": "boolean"},
+            "line_count": _integer(minimum=0, maximum=262144),
+        }
+    )
+    defs["config_budget"] = _closed(
+        {
+            "node_count": _integer(minimum=1, maximum=1024),
+            "scalar_count": _integer(minimum=0, maximum=512),
+            "max_depth_observed": _integer(minimum=0, maximum=32),
+            "declaration_count": _integer(minimum=0, maximum=4096),
+            "max_array_items_observed": _integer(minimum=0, maximum=256),
+            "max_object_keys_observed": _integer(minimum=0, maximum=1024),
+        }
+    )
+    defs["config_result"] = _closed(
+        {
+            "config_format": {"enum": ["json", "toml"]},
+            "source": _lref("config_source"),
+            "budget": _lref("config_budget"),
+            "nodes": _array(_lref("config_node"), min_items=1, max_items=1024),
+        }
+    )
+    defs["stored_body_path"] = _str_pattern(
+        _CHECKOUT_REL
+        + r"/code-evidence-v1/objects/"
+        + _OID
+        + r"\.body",
+        min_length=1,
+        max_length=512,
+    )
+    defs["stored_derived_path"] = _str_pattern(
+        _CHECKOUT_REL
+        + r"/code-evidence-v1/(?:configs|handoffs)/[0-9a-f]{64}\.json",
+        min_length=1,
+        max_length=512,
+    )
+    defs["bundle_directory"] = _str_pattern(
+        _CHECKOUT_REL, min_length=8, max_length=512
+    )
+    defs["raw_body"] = _closed(
+        {
+            "path": _lref("stored_body_path"),
+            "size_bytes": _integer(minimum=0, maximum=8388608),
+            "sha256": _lref("sha256"),
+        }
+    )
+    defs["observe_present_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "present"},
+            "locator": _lref("acquisition_locator"),
+            "text": {"type": "string", "maxLength": 16384},
+        }
+    )
+    defs["observe_missing_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "missing"},
+            "locator": _lref("nullable_acquisition_locator"),
+            "reason": {"const": "host_reported_missing"},
+        }
+    )
+    defs["observe_inaccessible_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "inaccessible"},
+            "locator": _lref("nullable_acquisition_locator"),
+            "reason": {"const": "permission_denied"},
+        }
+    )
+    defs["observe_unavailable_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "unavailable"},
+            "locator": _lref("nullable_acquisition_locator"),
+            "reason": {"enum": list(UNAVAILABLE_REASONS)},
+        }
+    )
+    defs["normalized_observe_target"] = {
+        "oneOf": [
+            _lref("observe_present_target"),
+            _lref("observe_missing_target"),
+            _lref("observe_inaccessible_target"),
+            _lref("observe_unavailable_target"),
+        ]
+    }
+    defs["observe_input_git_objects"] = _closed(
+        {
+            "mode": {"const": "git_objects"},
+            "observed_at": _lref("utc_datetime"),
+            "executor": _lref("executor"),
+            "hosting_assertion": _lref("hosting_assertion"),
+        }
+    )
+    defs["observe_input_normalized"] = _closed(
+        {
+            "mode": {"const": "normalized_text"},
+            "observed_at": _lref("utc_datetime"),
+            "executor": _lref("executor"),
+            "hosting_assertion": _lref("hosting_assertion"),
+            "targets": _array(
+                _lref("normalized_observe_target"), min_items=1, max_items=32
+            ),
+        }
+    )
+    defs["observe_input"] = {
+        "oneOf": [
+            _lref("observe_input_git_objects"),
+            _lref("observe_input_normalized"),
+        ]
+    }
+    defs["observation_source_text"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "source_text"},
+            "reason": {"type": "null"},
+            "text": _lref("text_metadata"),
+        }
+    )
+    defs["observation_unsupported"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "unsupported_source_bytes"},
+            "reason": {"const": "unsupported_source_bytes"},
+            "text": {"type": "null"},
+        }
+    )
+    defs["observation_missing"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "missing"},
+            "reason": {"const": "absent_entry"},
+            "text": {"type": "null"},
+        }
+    )
+    defs["observation_unsafe"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "unsafe"},
+            "reason": {"enum": list(UNSAFE_REASONS)},
+            "text": {"type": "null"},
+        }
+    )
+    defs["observation_normalized_text"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "normalized_text"},
+            "reason": {"type": "null"},
+            "text": _lref("text_metadata"),
+        }
+    )
+    defs["observation_host_missing"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "host_missing"},
+            "reason": {"const": "host_reported_missing"},
+            "text": {"type": "null"},
+        }
+    )
+    defs["observation_host_inaccessible"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "host_inaccessible"},
+            "reason": {"const": "permission_denied"},
+            "text": {"type": "null"},
+        }
+    )
+    defs["observation_host_unavailable"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "host_unavailable"},
+            "reason": {"enum": list(UNAVAILABLE_REASONS)},
+            "text": {"type": "null"},
+        }
+    )
+    defs["raw_observation_target"] = {
+        "oneOf": [
+            _lref("observation_source_text"),
+            _lref("observation_unsupported"),
+            _lref("observation_missing"),
+            _lref("observation_unsafe"),
+        ]
+    }
+    defs["normalized_observation_target"] = {
+        "oneOf": [
+            _lref("observation_normalized_text"),
+            _lref("observation_host_missing"),
+            _lref("observation_host_inaccessible"),
+            _lref("observation_host_unavailable"),
+        ]
+    }
+    defs["observation_target"] = {
+        "oneOf": [
+            _lref("raw_observation_target"),
+            _lref("normalized_observation_target"),
+        ]
+    }
+    defs["unobserved_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "status": {"const": "unobserved"},
+            "reason": {"type": "null"},
+            "text": {"type": "null"},
+        }
+    )
+    defs["status_target"] = {
+        "oneOf": [_lref("unobserved_target"), _lref("observation_target")]
+    }
+    defs["capabilities_raw"] = _closed(
+        {
+            "git_objects_verified": {"const": True, "type": "boolean"},
+            "raw_bytes_retained": {"const": True, "type": "boolean"},
+            "repository_assertion": {"enum": ["host_asserted", "unverified"]},
+            "source_association_verified": {"const": False, "type": "boolean"},
+        }
+    )
+    defs["capabilities_normalized"] = _closed(
+        {
+            "git_objects_verified": {"const": False, "type": "boolean"},
+            "raw_bytes_retained": {"const": False, "type": "boolean"},
+            "repository_assertion": {"enum": ["host_asserted", "unverified"]},
+            "source_association_verified": {"const": False, "type": "boolean"},
+        }
+    )
+    defs["capabilities"] = {
+        "oneOf": [_lref("capabilities_raw"), _lref("capabilities_normalized")]
+    }
+    defs["eligibility"] = _closed(
+        {
+            "complete_target_set": {"type": "boolean"},
+            "repository_requirement_met": {"type": "boolean"},
+            "source_handoff_eligible": {"type": "boolean"},
+        }
+    )
+    defs["request_input"] = _closed(
+        {
+            "paper_id": _lref("paper_id"),
+            "source_association": _lref("source_association"),
+            "repository": _lref("repository_input"),
+            "object_format": _lref("object_format"),
+            "commit_oid": _lref("oid"),
+            "targets": _lref("request_targets"),
+            "require_repository_assertion": {"type": "boolean"},
+            "limits": _lref("limits"),
+        },
+        required=[
+            "paper_id",
+            "source_association",
+            "repository",
+            "object_format",
+            "commit_oid",
+            "targets",
+            "require_repository_assertion",
+        ],
+    )
+    defs["request_data"] = _closed(
+        {
+            "paper_id": _lref("paper_id"),
+            "source_association": _lref("source_association"),
+            "repository": _lref("repository_saved"),
+            "object_format": _lref("object_format"),
+            "commit_oid": _lref("oid"),
+            "targets": _lref("request_targets"),
+            "require_repository_assertion": {"type": "boolean"},
+            "limits": _lref("limits"),
+            "profile_sha256": _lref("sha256"),
+        }
+    )
+    defs["bundle_data"] = _closed(
+        {
+            "request": _lref("ref_code_proof_request"),
+            "object_format": _lref("object_format"),
+            "repository": _lref("repository_saved"),
+            "commit_oid": _lref("oid"),
+            "root_tree_oid": _lref("oid"),
+            "objects": _array(
+                _lref("object_declaration"), min_items=1, max_items=2048
+            ),
+        }
+    )
+    defs["intent_bundle"] = _closed(
+        {
+            "directory": _lref("bundle_directory"),
+            "reference": _lref("ref_code_git_bundle"),
+        }
+    )
+    defs["intent_data"] = {
+        "oneOf": [
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "mode": {"const": "git_objects"},
+                    "acquisition": _lref("observe_input_git_objects"),
+                    "bundle": _lref("intent_bundle"),
+                }
+            ),
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "mode": {"const": "normalized_text"},
+                    "acquisition": _lref("observe_input_normalized"),
+                    "bundle": {"type": "null"},
+                }
+            ),
+        ]
+    }
+    defs["observation_data"] = {
+        "oneOf": [
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "intent": _lref("ref_code_acquisition_intent"),
+                    "bundle": _lref("ref_code_git_bundle"),
+                    "mode": {"const": "git_objects"},
+                    "git_proof": _lref("git_proof"),
+                    "targets": _array(
+                        _lref("raw_observation_target"), min_items=1, max_items=32
+                    ),
+                    "capabilities": _lref("capabilities_raw"),
+                    "eligibility": _lref("eligibility"),
+                }
+            ),
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "intent": _lref("ref_code_acquisition_intent"),
+                    "bundle": {"type": "null"},
+                    "mode": {"const": "normalized_text"},
+                    "git_proof": {"type": "null"},
+                    "targets": _array(
+                        _lref("normalized_observation_target"),
+                        min_items=1,
+                        max_items=32,
+                    ),
+                    "capabilities": _lref("capabilities_normalized"),
+                    "eligibility": _lref("eligibility"),
+                }
+            ),
+        ]
+    }
+    defs["config_data"] = {
+        "oneOf": [
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "observation": _lref("ref_code_proof_observation"),
+                    "bundle": _lref("ref_code_git_bundle"),
+                    "path": _lref("git_path"),
+                    "object_format": _lref("object_format"),
+                    "blob_oid": _lref("oid"),
+                    "raw_body": _lref("raw_body"),
+                    "format": {"const": "source-only"},
+                    "result": {"type": "null"},
+                    "source_only_reason": {"const": "explicit_source_only"},
+                }
+            ),
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "observation": _lref("ref_code_proof_observation"),
+                    "bundle": _lref("ref_code_git_bundle"),
+                    "path": _lref("git_path"),
+                    "object_format": _lref("object_format"),
+                    "blob_oid": _lref("oid"),
+                    "raw_body": _lref("raw_body"),
+                    "format": {"const": "json"},
+                    "result": _lref("config_result"),
+                    "source_only_reason": {"type": "null"},
+                }
+            ),
+            _closed(
+                {
+                    "request": _lref("ref_code_proof_request"),
+                    "observation": _lref("ref_code_proof_observation"),
+                    "bundle": _lref("ref_code_git_bundle"),
+                    "path": _lref("git_path"),
+                    "object_format": _lref("object_format"),
+                    "blob_oid": _lref("oid"),
+                    "raw_body": _lref("raw_body"),
+                    "format": {"const": "toml"},
+                    "result": _lref("config_result"),
+                    "source_only_reason": {"type": "null"},
+                }
+            ),
+        ]
+    }
+    defs["handoff_data"] = _closed(
+        {
+            "successor_only": {"const": True, "type": "boolean"},
+            "request": _lref("ref_code_proof_request"),
+            "observation": _lref("ref_code_proof_observation"),
+            "bundle": _lref("ref_code_git_bundle"),
+            "paper_id": _lref("paper_id"),
+            "source_association": _lref("source_association"),
+            "repository": _lref("repository_saved"),
+            "object_format": _lref("object_format"),
+            "commit_oid": _lref("oid"),
+            "root_tree_oid": _lref("oid"),
+            "path": _lref("git_path"),
+            "roles": _lref("git_roles"),
+            "allow_executable_source": {"type": "boolean"},
+            "blob": _lref("git_blob"),
+            "raw_body": _lref("raw_body"),
+            "text": _lref("text_metadata"),
+            "proof": _lref("git_target_permitted"),
+            "repository_assertion": {"enum": ["host_asserted", "unverified"]},
+            "source_association_verified": {"const": False, "type": "boolean"},
+        }
+    )
+    defs["missing_name"] = _str_pattern(
+        r"intent\.json|bundle\.json|observation\.json|objects/"
+        + _OID
+        + r"\.body",
+        min_length=11,
+        max_length=77,
+    )
+    defs["derived_config"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "reference": _lref("ref_code_config_evidence"),
+            "stored_path": _lref("stored_derived_path"),
+        }
+    )
+    defs["derived_handoff"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "reference": _lref("ref_code_source_handoff"),
+            "stored_path": _lref("stored_derived_path"),
+        }
+    )
+    defs["status_payload"] = _closed(
+        {
+            "batch_id": _lref("batch_id"),
+            "state": {
+                "enum": [
+                    "empty",
+                    "requested",
+                    "pending_normalized",
+                    "pending_raw_bundle",
+                    "pending_raw_bodies",
+                    "observed",
+                ]
+            },
+            "request": _lref("nullable_ref_code_proof_request"),
+            "intent": _lref("nullable_ref_code_acquisition_intent"),
+            "bundle": _lref("nullable_ref_code_git_bundle"),
+            "observation": _lref("nullable_ref_code_proof_observation"),
+            "mode": _nullable({"enum": ["git_objects", "normalized_text"]}),
+            "missing": _array(_lref("missing_name"), min_items=0, max_items=2049),
+            "targets": _array(_lref("status_target"), min_items=0, max_items=32),
+            "capabilities": _nullable(_lref("capabilities")),
+            "eligibility": _nullable(_lref("eligibility")),
+            "configs": _array(_lref("derived_config"), min_items=0, max_items=32),
+            "handoffs": _array(_lref("derived_handoff"), min_items=0, max_items=32),
+            "next_action": {
+                "enum": [
+                    "prepare_request",
+                    "supply_observation",
+                    "resume_same_observation",
+                    "prepare_source_handoff",
+                    "successor_capture",
+                    "new_request_or_acquisition_required",
+                ]
+            },
+        },
+        extras={
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {"state": {"const": "empty"}},
+                        "required": ["state"],
+                    },
+                    "then": {
+                        "properties": {
+                            "request": {"type": "null"},
+                            "intent": {"type": "null"},
+                            "bundle": {"type": "null"},
+                            "observation": {"type": "null"},
+                            "mode": {"type": "null"},
+                            "missing": {"type": "array", "maxItems": 0},
+                            "targets": {"type": "array", "maxItems": 0},
+                            "capabilities": {"type": "null"},
+                            "eligibility": {"type": "null"},
+                            "configs": {"type": "array", "maxItems": 0},
+                            "handoffs": {"type": "array", "maxItems": 0},
+                            "next_action": {"const": "prepare_request"},
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {"state": {"const": "requested"}},
+                        "required": ["state"],
+                    },
+                    "then": {
+                        "properties": {
+                            "request": _lref("ref_code_proof_request"),
+                            "intent": {"type": "null"},
+                            "bundle": {"type": "null"},
+                            "observation": {"type": "null"},
+                            "mode": {"type": "null"},
+                            "missing": {"const": ["intent.json"]},
+                            "targets": _array(
+                                _lref("unobserved_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                            "capabilities": {"type": "null"},
+                            "eligibility": {"type": "null"},
+                            "configs": {"type": "array", "maxItems": 0},
+                            "handoffs": {"type": "array", "maxItems": 0},
+                            "next_action": {"const": "supply_observation"},
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {"state": {"const": "pending_normalized"}},
+                        "required": ["state"],
+                    },
+                    "then": {
+                        "properties": {
+                            "request": _lref("ref_code_proof_request"),
+                            "intent": _lref("ref_code_acquisition_intent"),
+                            "bundle": {"type": "null"},
+                            "observation": {"type": "null"},
+                            "mode": {"const": "normalized_text"},
+                            "missing": {"const": ["observation.json"]},
+                            "targets": _array(
+                                _lref("unobserved_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                            "capabilities": {"type": "null"},
+                            "eligibility": {"type": "null"},
+                            "configs": {"type": "array", "maxItems": 0},
+                            "handoffs": {"type": "array", "maxItems": 0},
+                            "next_action": {"const": "resume_same_observation"},
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {"state": {"const": "pending_raw_bundle"}},
+                        "required": ["state"],
+                    },
+                    "then": {
+                        "properties": {
+                            "request": _lref("ref_code_proof_request"),
+                            "intent": _lref("ref_code_acquisition_intent"),
+                            "bundle": {"type": "null"},
+                            "observation": {"type": "null"},
+                            "mode": {"const": "git_objects"},
+                            "missing": {
+                                "const": ["bundle.json", "observation.json"]
+                            },
+                            "targets": _array(
+                                _lref("unobserved_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                            "capabilities": {"type": "null"},
+                            "eligibility": {"type": "null"},
+                            "configs": {"type": "array", "maxItems": 0},
+                            "handoffs": {"type": "array", "maxItems": 0},
+                            "next_action": {"const": "resume_same_observation"},
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {"state": {"const": "pending_raw_bodies"}},
+                        "required": ["state"],
+                    },
+                    "then": {
+                        "properties": {
+                            "request": _lref("ref_code_proof_request"),
+                            "intent": _lref("ref_code_acquisition_intent"),
+                            "bundle": _lref("ref_code_git_bundle"),
+                            "observation": {"type": "null"},
+                            "mode": {"const": "git_objects"},
+                            "missing": _array(
+                                _lref("missing_name"), min_items=1, max_items=2049
+                            ),
+                            "targets": _array(
+                                _lref("unobserved_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                            "capabilities": {"type": "null"},
+                            "eligibility": {"type": "null"},
+                            "configs": {"type": "array", "maxItems": 0},
+                            "handoffs": {"type": "array", "maxItems": 0},
+                            "next_action": {"const": "resume_same_observation"},
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {"state": {"const": "observed"}},
+                        "required": ["state"],
+                    },
+                    "then": {
+                        "properties": {
+                            "request": _lref("ref_code_proof_request"),
+                            "intent": _lref("ref_code_acquisition_intent"),
+                            "observation": _lref("ref_code_proof_observation"),
+                            "mode": {"enum": ["git_objects", "normalized_text"]},
+                            "missing": {"type": "array", "maxItems": 0},
+                            "targets": _array(
+                                _lref("observation_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                            "capabilities": _lref("capabilities"),
+                            "eligibility": _lref("eligibility"),
+                            "next_action": {
+                                "enum": [
+                                    "prepare_source_handoff",
+                                    "successor_capture",
+                                    "new_request_or_acquisition_required",
+                                ]
+                            },
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "state": {"const": "observed"},
+                            "mode": {"const": "git_objects"},
+                        },
+                        "required": ["state", "mode"],
+                    },
+                    "then": {
+                        "properties": {
+                            "bundle": _lref("ref_code_git_bundle"),
+                            "capabilities": _lref("capabilities_raw"),
+                            "targets": _array(
+                                _lref("raw_observation_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                        }
+                    },
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "state": {"const": "observed"},
+                            "mode": {"const": "normalized_text"},
+                        },
+                        "required": ["state", "mode"],
+                    },
+                    "then": {
+                        "properties": {
+                            "bundle": {"type": "null"},
+                            "capabilities": _lref("capabilities_normalized"),
+                            "targets": _array(
+                                _lref("normalized_observation_target"),
+                                min_items=1,
+                                max_items=32,
+                            ),
+                        }
+                    },
+                },
+            ]
+        },
+    )
+    defs["acquisition_target"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "github_url": _lref("github_blob_url"),
+            "raw_url": _lref("github_raw_url"),
+        }
+    )
+    defs["command_result_request"] = _closed(
+        {
+            "batch_id": _lref("batch_id"),
+            "request": _lref("ref_code_proof_request"),
+            "already_staged": {"type": "boolean"},
+            "acquisition_targets": _array(
+                _lref("acquisition_target"), min_items=1, max_items=32
+            ),
+        }
+    )
+    defs["command_result_observe"] = _closed(
+        {
+            "batch_id": _lref("batch_id"),
+            "observation": _lref("ref_code_proof_observation"),
+            "status": _lref("status_payload"),
+        }
+    )
+    defs["command_result_status"] = _lref("status_payload")
+    defs["command_result_config"] = _closed(
+        {
+            "batch_id": _lref("batch_id"),
+            "path": _lref("git_path"),
+            "config": _lref("ref_code_config_evidence"),
+            "stored_path": _lref("stored_derived_path"),
+            "already_staged": {"type": "boolean"},
+        }
+    )
+    defs["command_result_handoff_row"] = _closed(
+        {
+            "path": _lref("git_path"),
+            "handoff": _lref("ref_code_source_handoff"),
+            "stored_path": _lref("stored_derived_path"),
+            "source_body_path": _lref("stored_body_path"),
+            "already_staged": {"type": "boolean"},
+        }
+    )
+    defs["command_result_handoff"] = _closed(
+        {
+            "batch_id": _lref("batch_id"),
+            "handoffs": _array(
+                _lref("command_result_handoff_row"), min_items=1, max_items=32
+            ),
+        }
+    )
+    defs["command_result"] = {
+        "oneOf": [
+            _lref("command_result_request"),
+            _lref("command_result_observe"),
+            _lref("command_result_status"),
+            _lref("command_result_config"),
+            _lref("command_result_handoff"),
+        ]
+    }
+    defs["profile_git_limits"] = _const_limit_map(GIT_LIMITS)
+    defs["profile_config_limits"] = _const_limit_map(CONFIG_LIMITS)
+    defs["profile_public_limits"] = _const_limit_map(PUBLIC_LIMITS)
+    defs["profile_limits"] = _closed(
+        {
+            "git": _lref("profile_git_limits"),
+            "config": _lref("profile_config_limits"),
+            "public": _lref("profile_public_limits"),
+        }
+    )
+    defs["profile_admission"] = _closed(
+        {
+            "max_request_input_bytes": {"type": "integer", "const": 65536},
+            "max_observe_input_bytes": {"type": "integer", "const": 1048576},
+        }
+    )
+    defs["profile_schema_row"] = {
+        "oneOf": [
+            _closed(
+                {
+                    "title": {"const": _title(filename)},
+                    "filename": {"const": filename},
+                    "size_bytes": _integer(minimum=1),
+                    "sha256": _lref("sha256"),
+                }
+            )
+            for filename in SCHEMA_FILENAMES
+        ]
+    }
+    defs["profile"] = _closed(
+        {
+            "schema": {"const": "video-paper-wiki.code-proof-profile.v1"},
+            "profile": {"const": "code-proof-v1"},
+            "revision": {"type": "integer", "const": 1},
+            "limits": _lref("profile_limits"),
+            "admission": _lref("profile_admission"),
+            "schemas": _array(
+                _lref("profile_schema_row"), min_items=10, max_items=10
+            ),
+        }
+    )
+    return defs
+
+
+def _root(filename: str, extra: dict) -> dict:
+    document = {
+        "$schema": DRAFT,
+        "$id": _schema_id(filename),
+        "title": _title(filename),
+    }
+    document.update(extra)
+    return document
+
+
+def _envelope(kind: str, data_def: str) -> dict:
+    filename = f"video-paper-wiki.{kind}.v1.schema.json"
+    return _root(
+        filename,
+        _closed(
+            {
+                "schema": {"const": f"video-paper-wiki.{kind}.v1"},
+                "kind": {"const": kind},
+                "id": _ce1_id(kind),
+                "data": _cref(data_def),
+            }
+        ),
+    )
+
+
+def build_schema_documents() -> dict[str, dict]:
+    common = _root(COMMON_FILENAME, {"$defs": _common_defs()})
+    documents = {
+        COMMON_FILENAME: common,
+        REQUEST_INPUT_FILENAME: _root(
+            REQUEST_INPUT_FILENAME, _cref("request_input")
+        ),
+        OBSERVE_INPUT_FILENAME: _root(
+            OBSERVE_INPUT_FILENAME, _cref("observe_input")
+        ),
+        COMMAND_RESULT_FILENAME: _root(
+            COMMAND_RESULT_FILENAME, _cref("command_result")
+        ),
+        "video-paper-wiki.code-proof-request.v1.schema.json": _envelope(
+            "code-proof-request", "request_data"
+        ),
+        "video-paper-wiki.code-git-bundle.v1.schema.json": _envelope(
+            "code-git-bundle", "bundle_data"
+        ),
+        "video-paper-wiki.code-acquisition-intent.v1.schema.json": _envelope(
+            "code-acquisition-intent", "intent_data"
+        ),
+        "video-paper-wiki.code-proof-observation.v1.schema.json": _envelope(
+            "code-proof-observation", "observation_data"
+        ),
+        "video-paper-wiki.code-config-evidence.v1.schema.json": _envelope(
+            "code-config-evidence", "config_data"
+        ),
+        "video-paper-wiki.code-source-handoff.v1.schema.json": _envelope(
+            "code-source-handoff", "handoff_data"
+        ),
+    }
+    if tuple(documents) != SCHEMA_FILENAMES:
+        raise RuntimeError("schema document inventory does not match R12")
+    return documents
+
+
+def build_profile(inventory: list[dict]) -> dict:
+    return {
+        "schema": "video-paper-wiki.code-proof-profile.v1",
+        "profile": "code-proof-v1",
+        "revision": 1,
+        "limits": {
+            "git": dict(GIT_LIMITS),
+            "config": dict(CONFIG_LIMITS),
+            "public": dict(PUBLIC_LIMITS),
+        },
+        "admission": {
+            "max_request_input_bytes": 65536,
+            "max_observe_input_bytes": 1048576,
+        },
+        "schemas": inventory,
+    }
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
+    parser.add_argument("--output-dir", required=True)
+    args = parser.parse_args(argv)
+    output_dir = Path(args.output_dir)
+    if output_dir.exists() or output_dir.is_symlink():
+        raise SystemExit(f"refusing existing output path: {output_dir}")
+    try:
+        output_dir.mkdir()
+        schema_dir = output_dir / "schemas"
+        schema_dir.mkdir()
+        profile_dir = output_dir / "src" / "video_paper_wiki" / "profiles"
+        profile_dir.mkdir(parents=True)
+        documents = build_schema_documents()
+        inventory = []
+        for filename in sorted(documents):
+            blob = _dump(documents[filename])
+            (schema_dir / filename).write_bytes(blob)
+            inventory.append(
+                {
+                    "title": _title(filename),
+                    "filename": filename,
+                    "size_bytes": len(blob),
+                    "sha256": hashlib.sha256(blob).hexdigest(),
+                }
+            )
+        profile_blob = _dump(build_profile(inventory))
+        (profile_dir / "code-proof-v1.json").write_bytes(profile_blob)
+    except OSError as exc:
+        raise SystemExit(f"failed to write resources: {exc}") from exc
+
+
+if __name__ == "__main__":
+    main()
+```
+END_FILE generate_code_proof_resources.py
+
+BEGIN_FILE tests/contract/test_code_proof_resources.py
+```python
+"""Contract tests for the CODE-PROOF schema set and installed profile."""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+from pathlib import Path
+from typing import Any, Iterator
+
+import pytest
+from jsonschema import Draft202012Validator, validators
+from jsonschema.exceptions import ValidationError
+from referencing import Registry, Resource
+from referencing.exceptions import NoSuchResource
+from referencing.jsonschema import DRAFT202012
+
+import video_paper_wiki
+from video_paper_wiki.code_config_parser import CODE_CONFIG_PROFILE_LIMITS
+from video_paper_wiki.code_git_objects import CODE_GIT_PROFILE_LIMITS
+
+
+DRAFT = "https://json-schema.org/draft/2020-12/schema"
+ID_PREFIX = "https://video-paper-wiki.dev/schemas/"
+COMMON_FILENAME = "video-paper-wiki.code-proof-common.v1.schema.json"
+COMMON_ID = ID_PREFIX + COMMON_FILENAME
+PROFILE_SCHEMA = "video-paper-wiki.code-proof-profile.v1"
+FIXTURE_SCHEMA = "video-paper-wiki.code-proof-resource-fixtures.v1"
+
+SCHEMA_FILENAMES: tuple[str, ...] = (
+    "video-paper-wiki.code-proof-common.v1.schema.json",
+    "video-paper-wiki.code-proof-request-input.v1.schema.json",
+    "video-paper-wiki.code-proof-observe-input.v1.schema.json",
+    "video-paper-wiki.code-proof-command-result.v1.schema.json",
+    "video-paper-wiki.code-proof-request.v1.schema.json",
+    "video-paper-wiki.code-git-bundle.v1.schema.json",
+    "video-paper-wiki.code-acquisition-intent.v1.schema.json",
+    "video-paper-wiki.code-proof-observation.v1.schema.json",
+    "video-paper-wiki.code-config-evidence.v1.schema.json",
+    "video-paper-wiki.code-source-handoff.v1.schema.json",
+)
+INSTANCE_TITLES: tuple[str, ...] = tuple(
+    name[: -len(".schema.json")]
+    for name in SCHEMA_FILENAMES
+    if name != COMMON_FILENAME
+)
+SAVED_KINDS: tuple[str, ...] = (
+    "code-proof-request",
+    "code-git-bundle",
+    "code-acquisition-intent",
+    "code-proof-observation",
+    "code-config-evidence",
+    "code-source-handoff",
+)
+COMMAND_BRANCHES: tuple[str, ...] = (
+    "request",
+    "observe",
+    "status",
+    "config",
+    "handoff",
+)
+STATUS_STATES: tuple[str, ...] = (
+    "empty",
+    "requested",
+    "pending_normalized",
+    "pending_raw_bundle",
+    "pending_raw_bodies",
+    "observed",
+)
+TYPED_MARKERS: tuple[str, ...] = (
+    "json-nested-lf",
+    "json-pointer-escaping",
+    "json-unicode-crlf-tabs",
+    "toml-dotted-promotion",
+    "toml-nested-lf",
+    "toml-numeric-boundaries",
+    "toml-unicode-crlf-inline",
+)
+LINE_SEPARATORS: tuple[str, ...] = ("\n", "\r", "\r\n", "\u2028", "\u2029")
+FORBIDDEN_KEYWORDS: tuple[str, ...] = (
+    "$anchor",
+    "$dynamicAnchor",
+    "$dynamicRef",
+    "$recursiveAnchor",
+    "$recursiveRef",
+)
+GIT_LIMITS = {
+    "max_targets": 32,
+    "max_objects": 2048,
+    "max_tree_entries": 32768,
+    "max_object_bytes": 8388608,
+    "max_total_object_bytes": 33554432,
+}
+CONFIG_LIMITS = {
+    "max_source_bytes": 262144,
+    "max_depth": 32,
+    "max_nodes": 1024,
+    "max_array_items": 256,
+    "max_object_keys": 1024,
+    "max_key_bytes": 256,
+    "max_string_codepoints": 16384,
+    "max_scalars": 512,
+    "max_numeric_lexeme_bytes": 128,
+    "max_numeric_coefficient_digits": 64,
+    "max_numeric_abs_exponent": 128,
+    "max_numeric_canonical_bytes": 256,
+    "max_declarations": 4096,
+}
+PUBLIC_LIMITS = {
+    "max_bundle_bytes": 1048576,
+    "max_inline_normalized_bytes": 16384,
+    "max_request_bytes": 65536,
+    "max_intent_bytes": 1048576,
+    "max_observation_bytes": 2097152,
+    "max_config_document_bytes": 2097152,
+    "max_handoff_bytes": 131072,
+    "max_output_peak_bytes": 134217728,
+}
+
+
+class IntSubclass(int):
+    """Integer subclass rejected by the exact-int type checker."""
+
+
+def _is_exact_int(_checker: object, instance: object) -> bool:
+    return type(instance) is int
+
+
+ExactDraft202012Validator = validators.extend(
+    Draft202012Validator,
+    type_checker=Draft202012Validator.TYPE_CHECKER.redefine(
+        "integer", _is_exact_int
+    ),
+)
+
+
+def _package_dir() -> Path:
+    return Path(video_paper_wiki.__file__).resolve().parent
+
+
+def _profile_path() -> Path:
+    return _package_dir() / "profiles" / "code-proof-v1.json"
+
+
+def _schemas_dir() -> Path:
+    package_dir = _package_dir()
+    src_dir = package_dir.parent
+    if src_dir.name == "src":
+        return src_dir.parent / "schemas"
+    return package_dir / "schemas"
+
+
+def _fixture_path() -> Path:
+    return Path(__file__).resolve().parent.parent / "fixtures" / "code-proof-resource-v1.json"
+
+
+def _title_of(filename: str) -> str:
+    return filename[: -len(".schema.json")]
+
+
+def _schema_id(filename: str) -> str:
+    return ID_PREFIX + filename
+
+
+def _dump(value: object) -> bytes:
+    return (
+        json.dumps(value, indent=2, ensure_ascii=False, allow_nan=False) + "\n"
+    ).encode("utf-8")
+
+
+def _load_json(path: Path) -> tuple[bytes, Any]:
+    raw = path.read_bytes()
+    return raw, json.loads(raw.decode("utf-8"))
+
+
+def _deny_retrieve(uri: str) -> Resource:
+    raise NoSuchResource(ref=uri)
+
+
+def _pointer_escape(part: str) -> str:
+    return part.replace("~", "~0").replace("/", "~1")
+
+
+def _resolve_pointer(document: Any, pointer: str) -> Any:
+    if pointer in ("", "#"):
+        return document
+    if pointer.startswith("#"):
+        pointer = pointer[1:]
+    if not pointer:
+        return document
+    if not pointer.startswith("/"):
+        raise AssertionError(f"invalid JSON Pointer {pointer!r}")
+    node = document
+    for raw_part in pointer[1:].split("/"):
+        part = raw_part.replace("~1", "/").replace("~0", "~")
+        if isinstance(node, dict):
+            if part not in node:
+                raise AssertionError(f"missing pointer part {part!r} in {pointer!r}")
+            node = node[part]
+        elif isinstance(node, list):
+            node = node[int(part)]
+        else:
+            raise AssertionError(f"cannot descend into {type(node)!r} at {pointer!r}")
+    return node
+
+
+def _walk(value: Any, pointer: str = "") -> Iterator[tuple[str, Any]]:
+    yield pointer, value
+    if isinstance(value, dict):
+        for key, child in value.items():
+            yield from _walk(child, pointer + "/" + _pointer_escape(str(key)))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            yield from _walk(child, pointer + "/" + str(index))
+
+
+def _get_path(obj: Any, path: tuple[Any, ...]) -> Any:
+    node = obj
+    for part in path:
+        node = node[part]
+    return node
+
+
+def _set_path(obj: Any, path: tuple[Any, ...], value: Any) -> None:
+    node = obj
+    for part in path[:-1]:
+        node = node[part]
+    node[path[-1]] = value
+
+
+def _del_path(obj: Any, path: tuple[Any, ...]) -> None:
+    node = obj
+    for part in path[:-1]:
+        node = node[part]
+    del node[path[-1]]
+
+
+def _add_key(obj: Any, path: tuple[Any, ...], key: str, value: Any) -> None:
+    node = _get_path(obj, path) if path else obj
+    node[key] = value
+
+
+def _command_branch(instance: dict) -> str:
+    if "acquisition_targets" in instance:
+        return "request"
+    if "config" in instance and "stored_path" in instance:
+        return "config"
+    if "handoffs" in instance and "state" not in instance and "status" not in instance:
+        return "handoff"
+    if "state" in instance:
+        return "status"
+    if "observation" in instance and "status" in instance:
+        return "observe"
+    raise AssertionError(f"unrecognized command-result keys {sorted(instance)}")
+
+
+@pytest.fixture(scope="session")
+def schema_documents() -> dict[str, dict]:
+    directory = _schemas_dir()
+    documents = {}
+    for filename in SCHEMA_FILENAMES:
+        path = directory / filename
+        _raw, document = _load_json(path)
+        documents[filename] = document
+    return documents
+
+
+@pytest.fixture(scope="session")
+def schema_bytes() -> dict[str, bytes]:
+    directory = _schemas_dir()
+    return {
+        filename: (directory / filename).read_bytes()
+        for filename in SCHEMA_FILENAMES
+    }
+
+
+@pytest.fixture(scope="session")
+def profile_bytes() -> bytes:
+    return _profile_path().read_bytes()
+
+
+@pytest.fixture(scope="session")
+def profile(profile_bytes: bytes) -> dict:
+    return json.loads(profile_bytes.decode("utf-8"))
+
+
+@pytest.fixture(scope="session")
+def registry(schema_documents: dict[str, dict]) -> Registry:
+    pairs = []
+    for filename, document in schema_documents.items():
+        resource = Resource.from_contents(
+            document, default_specification=DRAFT202012
+        )
+        pairs.append((_schema_id(filename), resource))
+    return Registry(retrieve=_deny_retrieve).with_resources(pairs)
+
+
+@pytest.fixture(scope="session")
+def validators_by_title(
+    schema_documents: dict[str, dict], registry: Registry
+) -> dict[str, Any]:
+    mapping = {}
+    for filename, document in schema_documents.items():
+        mapping[_title_of(filename)] = ExactDraft202012Validator(
+            document, registry=registry
+        )
+    return mapping
+
+
+@pytest.fixture(scope="session")
+def fixture_bundle() -> dict:
+    raw, bundle = _load_json(_fixture_path())
+    del raw
+    return bundle
+
+
+def _validate(validators_by_title: dict[str, Any], title: str, instance: Any) -> None:
+    validators_by_title[title].validate(instance)
+
+
+def _is_valid(validators_by_title: dict[str, Any], title: str, instance: Any) -> bool:
+    return validators_by_title[title].is_valid(instance)
+
+
+def _validate_def(registry: Registry, def_name: str, instance: Any) -> None:
+    schema = {"$schema": DRAFT, "$ref": f"{COMMON_ID}#/$defs/{def_name}"}
+    ExactDraft202012Validator(schema, registry=registry).validate(instance)
+
+
+def _def_is_valid(registry: Registry, def_name: str, instance: Any) -> bool:
+    schema = {"$schema": DRAFT, "$ref": f"{COMMON_ID}#/$defs/{def_name}"}
+    return ExactDraft202012Validator(schema, registry=registry).is_valid(instance)
+
+
+def test_schema_root_metadata(schema_documents: dict[str, dict]) -> None:
+    assert list(schema_documents) == list(SCHEMA_FILENAMES)
+    for filename, document in schema_documents.items():
+        assert document["$schema"] == DRAFT
+        assert document["$id"] == _schema_id(filename)
+        assert document["title"] == _title_of(filename)
+
+
+def test_draft_2020_12_validity(schema_documents: dict[str, dict]) -> None:
+    for document in schema_documents.values():
+        Draft202012Validator.check_schema(document)
+
+
+def test_no_nested_ids_anchors_or_dynamic_refs(
+    schema_documents: dict[str, dict],
+) -> None:
+    for filename, document in schema_documents.items():
+        for pointer, node in _walk(document):
+            if not isinstance(node, dict):
+                continue
+            for keyword in FORBIDDEN_KEYWORDS:
+                assert keyword not in node, f"{filename} {pointer} {keyword}"
+            if "$id" in node:
+                assert pointer == "", f"nested $id at {filename} {pointer}"
+
+
+def test_all_refs_resolve(schema_documents: dict[str, dict]) -> None:
+    known_ids = {_schema_id(name) for name in SCHEMA_FILENAMES}
+    for filename, document in schema_documents.items():
+        base = _schema_id(filename)
+        for pointer, node in _walk(document):
+            if not isinstance(node, dict) or "$ref" not in node:
+                continue
+            ref = node["$ref"]
+            assert isinstance(ref, str)
+            if ref.startswith("#"):
+                target_id = base
+                fragment = ref
+            else:
+                if "#" in ref:
+                    target_id, fragment = ref.split("#", 1)
+                    fragment = "#" + fragment
+                else:
+                    target_id, fragment = ref, ""
+            assert target_id in known_ids, f"{filename} {pointer} {ref}"
+            target_name = target_id[len(ID_PREFIX) :]
+            _resolve_pointer(schema_documents[target_name], fragment)
+
+
+def test_undeclared_retrieval_denied(registry: Registry) -> None:
+    with pytest.raises(NoSuchResource):
+        registry["https://video-paper-wiki.dev/schemas/not-declared.schema.json"]
+
+
+def test_exact_integer_type_checker(registry: Registry) -> None:
+    valid = {
+        "max_targets": 1,
+        "max_objects": 1,
+        "max_tree_entries": 1,
+        "max_object_bytes": 1,
+        "max_total_object_bytes": 1,
+    }
+    _validate_def(registry, "git_limits", valid)
+    for bad in (True, False, 1.0, IntSubclass(1)):
+        mutated = dict(valid)
+        mutated["max_targets"] = bad
+        assert not _def_is_valid(registry, "git_limits", mutated)
+    assert not _def_is_valid(registry, "profile", {"revision": True})
+    profile_revision = {
+        "schema": PROFILE_SCHEMA,
+        "profile": "code-proof-v1",
+        "revision": 1.0,
+        "limits": {
+            "git": GIT_LIMITS,
+            "config": CONFIG_LIMITS,
+            "public": PUBLIC_LIMITS,
+        },
+        "admission": {
+            "max_request_input_bytes": 65536,
+            "max_observe_input_bytes": 1048576,
+        },
+        "schemas": [],
+    }
+    assert not _def_is_valid(registry, "profile", profile_revision)
+
+
+def test_profile_constants_and_inventory(
+    profile: dict, schema_bytes: dict[str, bytes], registry: Registry
+) -> None:
+    _validate_def(registry, "profile", profile)
+    assert profile["schema"] == PROFILE_SCHEMA
+    assert profile["profile"] == "code-proof-v1"
+    assert type(profile["revision"]) is int
+    assert profile["revision"] == 1
+    assert profile["limits"]["git"] == GIT_LIMITS
+    assert profile["limits"]["config"] == CONFIG_LIMITS
+    assert profile["limits"]["public"] == PUBLIC_LIMITS
+    assert profile["admission"] == {
+        "max_request_input_bytes": 65536,
+        "max_observe_input_bytes": 1048576,
+    }
+    rows = profile["schemas"]
+    assert len(rows) == 10
+    filenames = [row["filename"] for row in rows]
+    assert filenames == sorted(filenames)
+    assert filenames == sorted(SCHEMA_FILENAMES)
+    titles = [row["title"] for row in rows]
+    assert titles == [_title_of(name) for name in filenames]
+    assert len(set(titles)) == 10
+    assert len(set(filenames)) == 10
+    for row in rows:
+        raw = schema_bytes[row["filename"]]
+        assert type(row["size_bytes"]) is int
+        assert row["size_bytes"] > 0
+        assert row["size_bytes"] == len(raw)
+        assert row["sha256"] == hashlib.sha256(raw).hexdigest()
+        assert row["title"] == _title_of(row["filename"])
+
+
+def test_kernel_profile_limit_maps(profile: dict) -> None:
+    assert dict(CODE_GIT_PROFILE_LIMITS) == profile["limits"]["git"]
+    assert dict(CODE_CONFIG_PROFILE_LIMITS) == profile["limits"]["config"]
+    assert dict(CODE_GIT_PROFILE_LIMITS) == GIT_LIMITS
+    assert dict(CODE_CONFIG_PROFILE_LIMITS) == CONFIG_LIMITS
+
+
+def test_serialization_one_lf(
+    schema_bytes: dict[str, bytes],
+    schema_documents: dict[str, dict],
+    profile_bytes: bytes,
+    profile: dict,
+) -> None:
+    for filename, raw in schema_bytes.items():
+        assert raw.endswith(b"\n")
+        assert not raw.endswith(b"\n\n")
+        assert _dump(schema_documents[filename]) == raw
+    assert profile_bytes.endswith(b"\n")
+    assert not profile_bytes.endswith(b"\n\n")
+    assert _dump(profile) == profile_bytes
+
+
+def test_profile_definition_validates_installed_profile(
+    profile: dict, registry: Registry
+) -> None:
+    _validate_def(registry, "profile", profile)
+    mutated = copy.deepcopy(profile)
+    mutated["limits"]["git"]["extra"] = 1
+    assert not _def_is_valid(registry, "profile", mutated)
+    mutated = copy.deepcopy(profile)
+    del mutated["limits"]["config"]["max_nodes"]
+    assert not _def_is_valid(registry, "profile", mutated)
+    mutated = copy.deepcopy(profile)
+    mutated["limits"]["git"]["max_targets"] = 33
+    assert not _def_is_valid(registry, "profile", mutated)
+    mutated = copy.deepcopy(profile)
+    mutated["admission"]["max_observe_input_bytes"] = 1048577
+    assert not _def_is_valid(registry, "profile", mutated)
+    swapped = copy.deepcopy(profile)
+    swapped["schemas"][0], swapped["schemas"][1] = (
+        swapped["schemas"][1],
+        swapped["schemas"][0],
+    )
+    assert _def_is_valid(registry, "profile", swapped)
+    hashed = copy.deepcopy(profile)
+    hashed["schemas"][0]["sha256"] = "a" * 63 + "b"
+    if hashed["schemas"][0]["sha256"] != profile["schemas"][0]["sha256"]:
+        assert _def_is_valid(registry, "profile", hashed)
+
+
+def test_fixture_transport_and_all_cases_validate(
+    fixture_bundle: dict,
+    profile_bytes: bytes,
+    validators_by_title: dict[str, Any],
+) -> None:
+    assert set(fixture_bundle) == {"schema", "profile_sha256", "cases"}
+    assert fixture_bundle["schema"] == FIXTURE_SCHEMA
+    assert fixture_bundle["profile_sha256"] == hashlib.sha256(profile_bytes).hexdigest()
+    cases = fixture_bundle["cases"]
+    names = [case["name"] for case in cases]
+    assert names == sorted(names)
+    assert len(names) == len(set(names))
+    for name in names:
+        assert name.isascii()
+    for case in cases:
+        assert set(case) == {"name", "title", "instance"}
+        assert case["title"] in INSTANCE_TITLES
+        _validate(validators_by_title, case["title"], case["instance"])
+
+
+def test_positive_coverage(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    cases = fixture_bundle["cases"]
+    titles = {case["title"] for case in cases}
+    for title in INSTANCE_TITLES:
+        assert title in titles
+    kinds = set()
+    branches = set()
+    states = set()
+    formats = set()
+    object_formats = set()
+    pending_raw_body_kinds = set()
+    normalized_other = set()
+    input_other = set()
+    mixed = False
+    source_only = False
+    typed_seen = set()
+    for case in cases:
+        instance = case["instance"]
+        title = case["title"]
+        if title.endswith(
+            (
+                ".code-proof-request.v1",
+                ".code-git-bundle.v1",
+                ".code-acquisition-intent.v1",
+                ".code-proof-observation.v1",
+                ".code-config-evidence.v1",
+                ".code-source-handoff.v1",
+            )
+        ) or (
+            isinstance(instance, dict) and instance.get("kind") in SAVED_KINDS
+        ):
+            if isinstance(instance, dict) and "kind" in instance:
+                kinds.add(instance["kind"])
+        if title == "video-paper-wiki.code-proof-command-result.v1":
+            branch = _command_branch(instance)
+            branches.add(branch)
+            if branch == "status":
+                states.add(instance["state"])
+                if instance["state"] == "pending_raw_bodies":
+                    if any(
+                        item.startswith("objects/") for item in instance["missing"]
+                    ):
+                        pending_raw_body_kinds.add("missing_bodies")
+                    else:
+                        pending_raw_body_kinds.add("bodies_complete")
+            if branch == "observe":
+                states.add(instance["status"]["state"])
+        if isinstance(instance, dict):
+            data = instance.get("data", instance)
+            if isinstance(data, dict):
+                if data.get("object_format") in ("sha1", "sha256"):
+                    object_formats.add(data["object_format"])
+                if data.get("format") in ("json", "toml", "source-only"):
+                    formats.add(data["format"])
+                    if data.get("format") == "source-only":
+                        source_only = True
+                if data.get("mode") in ("git_objects", "normalized_text"):
+                    pass
+                targets = data.get("targets")
+                if isinstance(targets, list):
+                    statuses = {
+                        row.get("status")
+                        for row in targets
+                        if isinstance(row, dict)
+                    }
+                    normalized_other.update(
+                        statuses
+                        & {"host_missing", "host_inaccessible", "host_unavailable"}
+                    )
+                    if "source_text" in statuses and (
+                        "missing" in statuses or "unsafe" in statuses
+                    ):
+                        mixed = True
+                if title == "video-paper-wiki.code-proof-observe-input.v1":
+                    for row in data.get("targets") or []:
+                        if isinstance(row, dict) and row.get("status") in {
+                            "missing",
+                            "inaccessible",
+                            "unavailable",
+                        }:
+                            input_other.add(row["status"])
+        for marker in TYPED_MARKERS:
+            if marker in case["name"] and title.endswith("code-config-evidence.v1"):
+                typed_seen.add(marker)
+                _validate(validators_by_title, title, instance)
+    assert kinds == set(SAVED_KINDS)
+    assert branches == set(COMMAND_BRANCHES)
+    assert states == set(STATUS_STATES)
+    assert pending_raw_body_kinds == {"missing_bodies", "bodies_complete"}
+    assert normalized_other == {
+        "host_missing",
+        "host_inaccessible",
+        "host_unavailable",
+    }
+    assert input_other == {"missing", "inaccessible", "unavailable"}
+    assert mixed
+    assert object_formats == {"sha1", "sha256"}
+    assert source_only
+    assert "json" in formats
+    assert "toml" in formats
+    assert typed_seen == set(TYPED_MARKERS)
+
+
+def test_lexical_line_separators_rejected(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    seed = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request-input.v1"
+    )
+    fields = ("paper_id", "repository", "commit_oid")
+    for field in fields:
+        original = seed["instance"][field]
+        for separator in LINE_SEPARATORS:
+            mutated = copy.deepcopy(seed["instance"])
+            mutated[field] = original + separator
+            assert not _is_valid(
+                validators_by_title, seed["title"], mutated
+            ), f"{field} {separator!r}"
+    envelope = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request.v1"
+    )
+    for separator in LINE_SEPARATORS:
+        mutated = copy.deepcopy(envelope["instance"])
+        mutated["id"] = mutated["id"] + separator
+        assert not _is_valid(validators_by_title, envelope["title"], mutated)
+        mutated = copy.deepcopy(envelope["instance"])
+        mutated["data"]["profile_sha256"] = mutated["data"]["profile_sha256"] + separator
+        assert not _is_valid(validators_by_title, envelope["title"], mutated)
+    status = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-command-result.v1"
+        and "state" in case["instance"]
+        and case["instance"]["state"] == "empty"
+    )
+    for separator in LINE_SEPARATORS:
+        mutated = copy.deepcopy(status["instance"])
+        mutated["batch_id"] = mutated["batch_id"] + separator
+        assert not _is_valid(validators_by_title, status["title"], mutated)
+    observe = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observe-input.v1"
+    )
+    for separator in LINE_SEPARATORS:
+        mutated = copy.deepcopy(observe["instance"])
+        mutated["observed_at"] = mutated["observed_at"] + separator
+        assert not _is_valid(validators_by_title, observe["title"], mutated)
+
+
+def test_unknown_and_missing_fields(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    validated = []
+    for case in fixture_bundle["cases"]:
+        _validate(validators_by_title, case["title"], case["instance"])
+        validated.append(case)
+    seen_paths: set[tuple[str, str]] = set()
+    for case in validated:
+        title = case["title"]
+        for pointer, node in _walk(case["instance"]):
+            if not isinstance(node, dict):
+                continue
+            marker = (title, pointer)
+            if marker in seen_paths:
+                continue
+            seen_paths.add(marker)
+            mutated = copy.deepcopy(case["instance"])
+            target = mutated if pointer == "" else _resolve_pointer(mutated, "#" + pointer)
+            target["x"] = True
+            assert not _is_valid(validators_by_title, title, mutated), pointer
+            for key in list(node):
+                omitted = copy.deepcopy(case["instance"])
+                container = (
+                    omitted if pointer == "" else _resolve_pointer(omitted, "#" + pointer)
+                )
+                del container[key]
+                still_valid = _is_valid(validators_by_title, title, omitted)
+                if still_valid:
+                    assert title == "video-paper-wiki.code-proof-request-input.v1"
+                    assert pointer == ""
+                    assert key == "limits"
+
+
+def test_strict_integers_in_instances(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    for case in fixture_bundle["cases"]:
+        for pointer, node in _walk(case["instance"]):
+            if type(node) is not int:
+                continue
+            if pointer == "":
+                continue
+            parts = pointer.lstrip("/").split("/")
+            path: list[Any] = []
+            for part in parts:
+                path.append(int(part) if part.isdigit() else part.replace("~1", "/").replace("~0", "~"))
+            for bad in (True, 1.0, IntSubclass(node)):
+                mutated = copy.deepcopy(case["instance"])
+                _set_path(mutated, tuple(path), bad)
+                assert not _is_valid(
+                    validators_by_title, case["title"], mutated
+                ), pointer
+
+
+def test_wrong_ref_kinds(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    observation = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observation.v1"
+        and case["instance"]["data"]["mode"] == "git_objects"
+    )
+    mutated = copy.deepcopy(observation["instance"])
+    original = mutated["data"]["intent"]["id"]
+    mutated["data"]["intent"]["id"] = original.replace(
+        "ce1:code-acquisition-intent:", "ce1:code-proof-request:", 1
+    )
+    assert not _is_valid(validators_by_title, observation["title"], mutated)
+    config = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-config-evidence.v1"
+    )
+    mutated = copy.deepcopy(config["instance"])
+    mutated["data"]["request"]["id"] = mutated["data"]["request"]["id"].replace(
+        "ce1:code-proof-request:", "ce1:code-git-bundle:", 1
+    )
+    assert not _is_valid(validators_by_title, config["title"], mutated)
+
+
+def test_invalid_enums(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    observe = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observe-input.v1"
+    )
+    mutated = copy.deepcopy(observe["instance"])
+    mutated["mode"] = "other"
+    assert not _is_valid(validators_by_title, observe["title"], mutated)
+    status = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-command-result.v1"
+        and case["instance"].get("state") == "observed"
+    )
+    mutated = copy.deepcopy(status["instance"])
+    mutated["state"] = "complete"
+    assert not _is_valid(validators_by_title, status["title"], mutated)
+    request = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request-input.v1"
+    )
+    mutated = copy.deepcopy(request["instance"])
+    mutated["object_format"] = "sha512"
+    assert not _is_valid(validators_by_title, request["title"], mutated)
+    mutated = copy.deepcopy(request["instance"])
+    mutated["targets"][0]["roles"] = ["documentation"]
+    assert not _is_valid(validators_by_title, request["title"], mutated)
+
+
+def test_excess_arrays(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    request = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request-input.v1"
+    )
+    mutated = copy.deepcopy(request["instance"])
+    seed = mutated["targets"][0]
+    mutated["targets"] = []
+    for index in range(33):
+        item = copy.deepcopy(seed)
+        item["path"] = f"p{index}.json" if index else seed["path"]
+        mutated["targets"].append(item)
+    assert not _is_valid(validators_by_title, request["title"], mutated)
+    bundle = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-git-bundle.v1"
+    )
+    mutated = copy.deepcopy(bundle["instance"])
+    record = copy.deepcopy(mutated["data"]["objects"][0])
+    mutated["data"]["objects"] = [copy.deepcopy(record) for _ in range(2049)]
+    assert not _is_valid(validators_by_title, bundle["title"], mutated)
+    observation = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observation.v1"
+        and case["instance"]["data"].get("git_proof")
+    )
+    mutated = copy.deepcopy(observation["instance"])
+    edge = mutated["data"]["git_proof"]["targets"][0]["walk"][0]
+    mutated["data"]["git_proof"]["targets"][0]["walk"] = [copy.deepcopy(edge) for _ in range(33)]
+    assert not _is_valid(validators_by_title, observation["title"], mutated)
+    typed = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-config-evidence.v1"
+        and case["instance"]["data"]["format"] in ("json", "toml")
+    )
+    mutated = copy.deepcopy(typed["instance"])
+    node = copy.deepcopy(mutated["data"]["result"]["nodes"][0])
+    mutated["data"]["result"]["nodes"] = [copy.deepcopy(node) for _ in range(1025)]
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+
+
+def test_impossible_nulls(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    present = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observe-input.v1"
+        and case["instance"].get("mode") == "normalized_text"
+        and case["instance"]["targets"][0]["status"] == "present"
+    )
+    mutated = copy.deepcopy(present["instance"])
+    mutated["targets"][0]["text"] = None
+    assert not _is_valid(validators_by_title, present["title"], mutated)
+    raw_intent = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-acquisition-intent.v1"
+        and case["instance"]["data"]["mode"] == "git_objects"
+    )
+    mutated = copy.deepcopy(raw_intent["instance"])
+    mutated["data"]["bundle"] = None
+    assert not _is_valid(validators_by_title, raw_intent["title"], mutated)
+    normalized_intent = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-acquisition-intent.v1"
+        and case["instance"]["data"]["mode"] == "normalized_text"
+    )
+    mutated = copy.deepcopy(normalized_intent["instance"])
+    mutated["data"]["bundle"] = copy.deepcopy(raw_intent["instance"]["data"]["bundle"])
+    assert not _is_valid(validators_by_title, normalized_intent["title"], mutated)
+    observation = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observation.v1"
+        and case["instance"]["data"]["mode"] == "git_objects"
+        and case["instance"]["data"]["targets"][0]["status"] == "source_text"
+    )
+    mutated = copy.deepcopy(observation["instance"])
+    mutated["data"]["targets"][0]["text"] = None
+    assert not _is_valid(validators_by_title, observation["title"], mutated)
+    source_only = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-config-evidence.v1"
+        and case["instance"]["data"]["format"] == "source-only"
+    )
+    typed = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-config-evidence.v1"
+        and case["instance"]["data"]["format"] in ("json", "toml")
+    )
+    mutated = copy.deepcopy(source_only["instance"])
+    mutated["data"]["result"] = copy.deepcopy(typed["instance"]["data"]["result"])
+    assert not _is_valid(validators_by_title, source_only["title"], mutated)
+    mutated = copy.deepcopy(typed["instance"])
+    mutated["data"]["result"] = None
+    mutated["data"]["source_only_reason"] = "explicit_source_only"
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+    git_objects = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observe-input.v1"
+        and case["instance"]["mode"] == "git_objects"
+    )
+    mutated = copy.deepcopy(git_objects["instance"])
+    mutated["targets"] = copy.deepcopy(present["instance"]["targets"])
+    assert not _is_valid(validators_by_title, git_objects["title"], mutated)
+    mutated = copy.deepcopy(present["instance"])
+    del mutated["targets"]
+    assert not _is_valid(validators_by_title, present["title"], mutated)
+
+
+def test_malformed_typed_config_results(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    typed = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-config-evidence.v1"
+        and case["instance"]["data"]["format"] in ("json", "toml")
+    )
+    mutated = copy.deepcopy(typed["instance"])
+    mutated["data"]["result"]["nodes"][0]["kind"] = "float"
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+    integer_index = next(
+        index
+        for index, node in enumerate(typed["instance"]["data"]["result"]["nodes"])
+        if node["kind"] == "integer"
+    )
+    mutated = copy.deepcopy(typed["instance"])
+    mutated["data"]["result"]["nodes"][integer_index]["value"] = 1
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+    mutated = copy.deepcopy(typed["instance"])
+    mutated["data"]["result"]["nodes"][integer_index]["value_span"] = None
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+    mutated = copy.deepcopy(typed["instance"])
+    del mutated["data"]["result"]["nodes"][0]["path"]
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+    mutated = copy.deepcopy(typed["instance"])
+    del mutated["data"]["result"]["source"]["body_sha256"]
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+    scalar = next(
+        node
+        for node in typed["instance"]["data"]["result"]["nodes"]
+        if node["kind"] in ("integer", "decimal", "string", "boolean", "null")
+    )
+    mutated = copy.deepcopy(typed["instance"])
+    span_index = typed["instance"]["data"]["result"]["nodes"].index(scalar)
+    del mutated["data"]["result"]["nodes"][span_index]["value_span"]["byte_start"]
+    assert not _is_valid(validators_by_title, typed["title"], mutated)
+
+
+def test_request_input_omits_limits_and_forbids_profile_hash(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    request = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request-input.v1"
+    )
+    omitted = copy.deepcopy(request["instance"])
+    omitted.pop("limits", None)
+    _validate(validators_by_title, request["title"], omitted)
+    mutated = copy.deepcopy(omitted)
+    mutated["profile_sha256"] = "a" * 64
+    assert not _is_valid(validators_by_title, request["title"], mutated)
+    saved = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request.v1"
+    )
+    mutated = copy.deepcopy(saved["instance"])
+    del mutated["data"]["profile_sha256"]
+    assert not _is_valid(validators_by_title, saved["title"], mutated)
+    mutated = copy.deepcopy(saved["instance"])
+    del mutated["data"]["limits"]
+    assert not _is_valid(validators_by_title, saved["title"], mutated)
+    mutated = copy.deepcopy(request["instance"])
+    mutated["limits"]["public"]["max_request_bytes"] = 65537
+    assert not _is_valid(validators_by_title, request["title"], mutated)
+
+
+def test_structurally_valid_semantic_forgeries(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    request = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request-input.v1"
+        and case["instance"]["object_format"] == "sha1"
+    )
+    mutated = copy.deepcopy(request["instance"])
+    mutated["commit_oid"] = "b" * 64
+    _validate(validators_by_title, request["title"], mutated)
+    envelope = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request.v1"
+    )
+    mutated = copy.deepcopy(envelope["instance"])
+    mutated["id"] = "ce1:code-proof-request:" + ("a" * 64)
+    _validate(validators_by_title, envelope["title"], mutated)
+    config = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-config-evidence.v1"
+    )
+    mutated = copy.deepcopy(config["instance"])
+    mutated["data"]["request"]["sha256"] = "c" * 64
+    _validate(validators_by_title, config["title"], mutated)
+    sha256_request = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-request-input.v1"
+        and case["instance"]["object_format"] == "sha256"
+    )
+    mutated = copy.deepcopy(sha256_request["instance"])
+    mutated["commit_oid"] = "a" * 40
+    _validate(validators_by_title, sha256_request["title"], mutated)
+
+
+def test_unicode_source_keys_not_nfc_forced(
+    fixture_bundle: dict, validators_by_title: dict[str, Any], registry: Registry
+) -> None:
+    unicode_case = next(
+        case
+        for case in fixture_bundle["cases"]
+        if "json-unicode-crlf-tabs" in case["name"]
+        and case["title"] == "video-paper-wiki.code-config-evidence.v1"
+    )
+    _validate(validators_by_title, unicode_case["title"], unicode_case["instance"])
+    paths = {
+        node["path"] for node in unicode_case["instance"]["data"]["result"]["nodes"]
+    }
+    assert "/备注" in paths
+    assert "/学习率" in paths
+    pointer_case = next(
+        case
+        for case in fixture_bundle["cases"]
+        if "json-pointer-escaping" in case["name"]
+        and case["title"] == "video-paper-wiki.code-config-evidence.v1"
+    )
+    pointer_paths = {
+        node["path"] for node in pointer_case["instance"]["data"]["result"]["nodes"]
+    }
+    assert "/a~1b" in pointer_paths
+    assert "/a~1b/~0key" in pointer_paths
+    _validate_def(registry, "json_pointer", "/A\u0301")
+    _validate_def(registry, "json_pointer", "/\u00c1")
+
+
+def test_mixed_config_remains_valid_with_missing_sibling(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    config = next(
+        case
+        for case in fixture_bundle["cases"]
+        if "raw-mixed-incomplete" in case["name"]
+        and case["title"] == "video-paper-wiki.code-config-evidence.v1"
+    )
+    observation = next(
+        case
+        for case in fixture_bundle["cases"]
+        if "raw-mixed-incomplete" in case["name"]
+        and case["title"] == "video-paper-wiki.code-proof-observation.v1"
+    )
+    statuses = {row["status"] for row in observation["instance"]["data"]["targets"]}
+    assert "source_text" in statuses
+    assert "missing" in statuses
+    _validate(validators_by_title, config["title"], config["instance"])
+    _validate(validators_by_title, observation["title"], observation["instance"])
+
+
+def test_schema_does_not_claim_byte_budget_or_oid_format_agreement(
+    fixture_bundle: dict, validators_by_title: dict[str, Any]
+) -> None:
+    observe = next(
+        case
+        for case in fixture_bundle["cases"]
+        if case["title"] == "video-paper-wiki.code-proof-observe-input.v1"
+        and case["instance"].get("mode") == "normalized_text"
+        and case["instance"]["targets"][0]["status"] == "present"
+    )
+    mutated = copy.deepcopy(observe["instance"])
+    mutated["targets"][0]["text"] = "a" * 16384
+    _validate(validators_by_title, observe["title"], mutated)
+    mutated["targets"][0]["text"] = "a" * 16385
+    assert not _is_valid(validators_by_title, observe["title"], mutated)
+```
+END_FILE tests/contract/test_code_proof_resources.py
+
+The two outputs are `generate_code_proof_resources.py` and `tests/contract/test_code_proof_resources.py`. Tests were not run.
+
+No unresolved contract contradiction blocked a complete candidate. Schema `pattern` values use `\A`/`\Z` so the installed Python jsonschema matcher rejects a terminal LF; that is required because an unqualified `$` would not. OID width versus `object_format`, ce1 digest identity, inventory order, and retained-byte derivation stay outside schema rejection, matching the R3 errata.

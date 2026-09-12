@@ -1,0 +1,513 @@
+{
+  "schema": "video-paper-wiki.code-proof-resource-prerequisite-audit.v1",
+  "revision": 1,
+  "generated_at_utc": "2026-09-10T04:16:44Z",
+  "scope": {
+    "worktree": ".work/parallel/code-proof-v1/terminal-1/source",
+    "head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "status": "clean"
+  },
+  "design_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md",
+      "sha256": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04"
+    }
+  ],
+  "required_resources": {
+    "schema_filenames": [
+      "video-paper-wiki.code-proof-common.v1.schema.json",
+      "video-paper-wiki.code-proof-request-input.v1.schema.json",
+      "video-paper-wiki.code-proof-observe-input.v1.schema.json",
+      "video-paper-wiki.code-proof-command-result.v1.schema.json",
+      "video-paper-wiki.code-proof-request.v1.schema.json",
+      "video-paper-wiki.code-git-bundle.v1.schema.json",
+      "video-paper-wiki.code-acquisition-intent.v1.schema.json",
+      "video-paper-wiki.code-proof-observation.v1.schema.json",
+      "video-paper-wiki.code-config-evidence.v1.schema.json",
+      "video-paper-wiki.code-source-handoff.v1.schema.json"
+    ],
+    "root_schemas_present": {
+      "video-paper-wiki.code-proof-common.v1.schema.json": false,
+      "video-paper-wiki.code-proof-request-input.v1.schema.json": false,
+      "video-paper-wiki.code-proof-observe-input.v1.schema.json": false,
+      "video-paper-wiki.code-proof-command-result.v1.schema.json": false,
+      "video-paper-wiki.code-proof-request.v1.schema.json": false,
+      "video-paper-wiki.code-git-bundle.v1.schema.json": false,
+      "video-paper-wiki.code-acquisition-intent.v1.schema.json": false,
+      "video-paper-wiki.code-proof-observation.v1.schema.json": false,
+      "video-paper-wiki.code-config-evidence.v1.schema.json": false,
+      "video-paper-wiki.code-source-handoff.v1.schema.json": false
+    },
+    "package_schemas_present": {
+      "video-paper-wiki.code-proof-common.v1.schema.json": false,
+      "video-paper-wiki.code-proof-request-input.v1.schema.json": false,
+      "video-paper-wiki.code-proof-observe-input.v1.schema.json": false,
+      "video-paper-wiki.code-proof-command-result.v1.schema.json": false,
+      "video-paper-wiki.code-proof-request.v1.schema.json": false,
+      "video-paper-wiki.code-git-bundle.v1.schema.json": false,
+      "video-paper-wiki.code-acquisition-intent.v1.schema.json": false,
+      "video-paper-wiki.code-proof-observation.v1.schema.json": false,
+      "video-paper-wiki.code-config-evidence.v1.schema.json": false,
+      "video-paper-wiki.code-source-handoff.v1.schema.json": false
+    },
+    "profile_source": {
+      "path": "src/video_paper_wiki/profiles/code-proof-v1.json",
+      "present": false
+    },
+    "profile_wheel_path": "video_paper_wiki/profiles/code-proof-v1.json",
+    "observed_root_schema_count": 71
+  },
+  "packaging": {
+    "pyproject_sha256": "da3765ef066d5e431862ad1854aa018d54db0574102823502e940b89fa87c9f6",
+    "exact_lines": [
+      {
+        "line": 28,
+        "text": "[tool.hatch.build.targets.wheel]"
+      },
+      {
+        "line": 29,
+        "text": "packages = [\"src/video_paper_wiki\", \"src/video_paper_wiki_research\"]"
+      },
+      {
+        "line": 31,
+        "text": "[tool.hatch.build.targets.wheel.force-include]"
+      },
+      {
+        "line": 32,
+        "text": "\"docs/seed\" = \"video_paper_wiki/seed\""
+      },
+      {
+        "line": 33,
+        "text": "\"schemas\" = \"video_paper_wiki/schemas\""
+      },
+      {
+        "line": 34,
+        "text": "\"taxonomy/v1.json\" = \"video_paper_wiki/taxonomy/v1.json\""
+      },
+      {
+        "line": 35,
+        "text": "\"catalog\" = \"video_paper_wiki/catalog\""
+      }
+    ],
+    "interpretation": "Hatch packages both src packages and force-includes checkout schemas/ as video_paper_wiki/schemas/. No core profiles mapping exists at this baseline.",
+    "reference_wheel": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/wheel/video_paper_wiki-0.1.0-py3-none-any.whl",
+      "sha256": "8c614ad633f386c826b877e002b8f7b24148a8a4ced4743d8f11154a544705e3",
+      "core_schema_members": 71,
+      "core_profile_members": []
+    }
+  },
+  "existing_apis": {
+    "resources.py": {
+      "path": "src/video_paper_wiki/resources.py",
+      "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+      "exact_lines": [
+        {
+          "line": 34,
+          "text": "@contextmanager"
+        },
+        {
+          "line": 35,
+          "text": "def _retained_resource_view(material, schema_names):"
+        },
+        {
+          "line": 36,
+          "text": "    \"\"\"Use one private captured resource set, without filesystem fallback.\"\"\""
+        },
+        {
+          "line": 40,
+          "text": "    view = _ResourceView(MappingProxyType(dict(material)), tuple(schema_names))"
+        },
+        {
+          "line": 41,
+          "text": "    token = _RESOURCE_VIEW.set(view)"
+        },
+        {
+          "line": 45,
+          "text": "        _RESOURCE_VIEW.reset(token)"
+        },
+        {
+          "line": 108,
+          "text": "def _schema_text_without_cwd(filename: str) -> str | None:"
+        },
+        {
+          "line": 114,
+          "text": "    view = _RESOURCE_VIEW.get()"
+        },
+        {
+          "line": 116,
+          "text": "        raw = view.material.get((\"schema\", filename))"
+        },
+        {
+          "line": 118,
+          "text": "    text = _package_text(_SCHEMA_DIR, filename)"
+        },
+        {
+          "line": 121,
+          "text": "    root = _source_checkout_root()"
+        },
+        {
+          "line": 122,
+          "text": "    candidate = root / _REPO_SCHEMAS / filename if root is not None else None"
+        },
+        {
+          "line": 123,
+          "text": "    if candidate is not None and candidate.is_file():"
+        },
+        {
+          "line": 130,
+          "text": "    return None"
+        },
+        {
+          "line": 133,
+          "text": "def read_schema_text(filename: str) -> str | None:"
+        },
+        {
+          "line": 135,
+          "text": "    text = _schema_text_without_cwd(filename)"
+        },
+        {
+          "line": 136,
+          "text": "    if text is not None or _RESOURCE_VIEW.get() is not None:"
+        },
+        {
+          "line": 141,
+          "text": "def load_schema_json(filename: str) -> dict[str, Any] | None:"
+        },
+        {
+          "line": 142,
+          "text": "    text = _schema_text_without_cwd(filename)"
+        },
+        {
+          "line": 152,
+          "text": "def read_projection_resource_bytes(kind: str, filename: str) -> bytes | None:"
+        },
+        {
+          "line": 156,
+          "text": "        \"schema\": (_SCHEMA_DIR, _REPO_SCHEMAS),"
+        },
+        {
+          "line": 162,
+          "text": "    view = _RESOURCE_VIEW.get()"
+        },
+        {
+          "line": 164,
+          "text": "        return view.material.get((kind, filename))"
+        },
+        {
+          "line": 165,
+          "text": "    package_dir, repo_dir = choices[kind]"
+        },
+        {
+          "line": 167,
+          "text": "        traversable = resources.files(_PACKAGE).joinpath(package_dir, filename)"
+        },
+        {
+          "line": 172,
+          "text": "    root = _source_checkout_root()"
+        },
+        {
+          "line": 174,
+          "text": "    if candidate is not None and candidate.is_file():"
+        },
+        {
+          "line": 179,
+          "text": "    return None"
+        },
+        {
+          "line": 182,
+          "text": "def schema_resource_names() -> tuple[str, ...]:"
+        },
+        {
+          "line": 185,
+          "text": "        return view.schema_names"
+        },
+        {
+          "line": 188,
+          "text": "        traversable = resources.files(_PACKAGE).joinpath(_SCHEMA_DIR)"
+        },
+        {
+          "line": 190,
+          "text": "            names.extend(sorted(item.name for item in traversable.iterdir() if item.name.endswith(\".schema.json\")))"
+        },
+        {
+          "line": 193,
+          "text": "    if names:"
+        },
+        {
+          "line": 195,
+          "text": "    root = _source_checkout_root()"
+        },
+        {
+          "line": 197,
+          "text": "    if directory is not None and directory.is_dir():"
+        },
+        {
+          "line": 198,
+          "text": "        return tuple(sorted(path.name for path in directory.glob(\"*.schema.json\")))"
+        },
+        {
+          "line": 199,
+          "text": "    return ()"
+        }
+      ]
+    },
+    "contracts.py": {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "1f27c01706aace27fa55972cb3d0a51ce74351a40131e2611e132b1a08cd1655",
+      "exact_lines": [
+        {
+          "line": 156,
+          "text": "def _schema_registry() -> tuple[Registry, dict[str, dict[str, Any]]]:"
+        },
+        {
+          "line": 159,
+          "text": "    for filename in schema_resource_names():"
+        },
+        {
+          "line": 160,
+          "text": "        schema = load_schema_json(filename)"
+        },
+        {
+          "line": 162,
+          "text": "            raise ContractError("
+        },
+        {
+          "line": 175,
+          "text": "        resources.append((schema_id, Resource.from_contents(schema)))"
+        },
+        {
+          "line": 178,
+          "text": "    return Registry().with_resources(resources), by_title"
+        },
+        {
+          "line": 181,
+          "text": "@lru_cache(maxsize=1)"
+        },
+        {
+          "line": 183,
+          "text": "    return _schema_registry()"
+        },
+        {
+          "line": 186,
+          "text": "def _registry() -> tuple[Registry, dict[str, dict[str, Any]]]:"
+        },
+        {
+          "line": 187,
+          "text": "    view = _RESOURCE_VIEW.get()"
+        },
+        {
+          "line": 189,
+          "text": "        return _default_registry()"
+        },
+        {
+          "line": 192,
+          "text": "    return _schema_registry()"
+        },
+        {
+          "line": 195,
+          "text": "def schema_by_title(title: str) -> dict[str, Any]:"
+        },
+        {
+          "line": 196,
+          "text": "    _registry_obj, by_title = _registry()"
+        },
+        {
+          "line": 197,
+          "text": "    schema = by_title.get(title)"
+        },
+        {
+          "line": 199,
+          "text": "        raise _schema_error("
+        },
+        {
+          "line": 203,
+          "text": "        )"
+        },
+        {
+          "line": 1010,
+          "text": "    schema = schema_by_title(schema_name)"
+        },
+        {
+          "line": 1011,
+          "text": "    validator = _validator_for(schema)"
+        },
+        {
+          "line": 1013,
+          "text": "        errors = list(validator.iter_errors(document))"
+        }
+      ]
+    },
+    "envelope.py": {
+      "path": "src/video_paper_wiki/envelope.py",
+      "sha256": "ec49483cb86f24ef873e3612e85ac83e0537940e6a2b0d64e2c334f56579df24",
+      "exact_lines": [
+        {
+          "line": 15,
+          "text": "def _dump(payload: Mapping[str, Any]) -> None:"
+        },
+        {
+          "line": 16,
+          "text": "    sys.stdout.write(json.dumps(payload, ensure_ascii=False, separators=(\",\", \":\")))"
+        },
+        {
+          "line": 21,
+          "text": "def emit_success(command: str, data: dict[str, Any]) -> int:"
+        },
+        {
+          "line": 22,
+          "text": "    _dump({\"ok\": True, \"command\": command, \"data\": data})"
+        },
+        {
+          "line": 26,
+          "text": "def emit_error("
+        },
+        {
+          "line": 30,
+          "text": "    details: dict[str, Any] | None = None,"
+        },
+        {
+          "line": 31,
+          "text": "    exit_code: int = EXIT_REFUSAL,"
+        },
+        {
+          "line": 33,
+          "text": "    _dump("
+        },
+        {
+          "line": 35,
+          "text": "            \"ok\": False,"
+        },
+        {
+          "line": 37,
+          "text": "            \"error\": {"
+        },
+        {
+          "line": 40,
+          "text": "                \"details\": {} if details is None else details,"
+        },
+        {
+          "line": 44,
+          "text": "    return exit_code"
+        },
+        {
+          "line": 47,
+          "text": "def emit_staging_error(command: str, exc: object) -> int:"
+        },
+        {
+          "line": 48,
+          "text": "    code = str(getattr(exc, \"code\", \"WORK_PATH_UNSAFE\"))"
+        },
+        {
+          "line": 50,
+          "text": "    raw_details = getattr(exc, \"details\", None)"
+        },
+        {
+          "line": 51,
+          "text": "    details = dict(raw_details) if isinstance(raw_details, Mapping) else {}"
+        },
+        {
+          "line": 52,
+          "text": "    exit_code = EXIT_TEMPORARY_FAILURE if code == \"STAGING_CONFLICT\" else EXIT_REFUSAL"
+        },
+        {
+          "line": 53,
+          "text": "    return emit_error(command, code, message, details, exit_code=exit_code)"
+        }
+      ]
+    },
+    "cli.py": {
+      "path": "src/video_paper_wiki/cli.py",
+      "sha256": "2b7698d3ff89fabc65a2582c4a7d2b4f5f2f731bcbdf19e25c6798ca9f958a53",
+      "exact_lines": [
+        {
+          "line": 258,
+          "text": "def main(argv: list[str] | None = None) -> int:"
+        },
+        {
+          "line": 263,
+          "text": "    except UsageError as exc:"
+        },
+        {
+          "line": 266,
+          "text": "        return emit_error(command, \"USAGE\", exc.message)"
+        },
+        {
+          "line": 274,
+          "text": "    try:"
+        },
+        {
+          "line": 276,
+          "text": "    except StagingError as exc:"
+        },
+        {
+          "line": 278,
+          "text": "        return emit_staging_error(_command_from_argv(args), exc)"
+        },
+        {
+          "line": 280,
+          "text": "        command = _command_from_argv(args)"
+        },
+        {
+          "line": 283,
+          "text": "            \"INVALID_ENCODING\","
+        },
+        {
+          "line": 285,
+          "text": "            {\"path\": exc.path.as_posix()},"
+        },
+        {
+          "line": 287,
+          "text": "    except NotADirectoryError:"
+        },
+        {
+          "line": 288,
+          "text": "        return emit_error("
+        },
+        {
+          "line": 291,
+          "text": "            \"directory slot is not a directory\","
+        }
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "RESOURCES_ABSENT",
+      "status": "open",
+      "finding": "All ten R12 schemas and the core profile are absent from both accepted checkout/resource locations. No bytes, hashes, reference closure, or wheel parity can be checked yet."
+    },
+    {
+      "id": "PROFILE_INSTALL_RULE",
+      "status": "open",
+      "finding": "R12 requires src/video_paper_wiki/profiles/code-proof-v1.json and wheel video_paper_wiki/profiles/code-proof-v1.json. The baseline package rule covers schemas only; generation must add and verify profile inclusion."
+    },
+    {
+      "id": "REGISTRY_SCOPE",
+      "status": "open",
+      "finding": "Legacy schema_resource_names() enumerates every package/source *.schema.json and contracts builds one registry from that set. Public CODE must bind an exact retained ten-schema set or an explicit filtered registry so unrelated schemas cannot satisfy references."
+    },
+    {
+      "id": "ERROR_ENVELOPE",
+      "status": "defined",
+      "finding": "Existing envelope is exact: success {ok,command,data}; error {ok:false,command,error:{code,message,details}}. R9/R11 command-result schema must validate successful data only and preserve this wrapper/error passthrough."
+    }
+  ],
+  "disposition": "PENDING_RESOURCE_GENERATION_AND_INDEPENDENT_RESOURCE_CHECKS",
+  "not_in_scope": [
+    "implementation",
+    "resource generation",
+    "tests",
+    "Git",
+    "CLI launch"
+  ]
+}

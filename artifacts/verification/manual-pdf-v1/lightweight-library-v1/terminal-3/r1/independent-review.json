@@ -1,0 +1,45 @@
+{
+  "schema": "lightweight-library-v1-terminal-3-independent-review.v1",
+  "reviewer": "five_agent_config_review",
+  "status": "findings",
+  "reviewed": {
+    "t1_compare_path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/r1/files/src/video_paper_wiki_research/light_compare.py",
+    "t1_compare_sha256": "9e333f86b0bf42377704c3a587c3da5d470e1337f637a37e90d72613ec0d207d",
+    "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "t3_snapshot_sha256": "fc867e8c9031c7a273af07a026dc3c4ff1b9df0f2ca3656fd47d29edd3b09c6a",
+    "acceptance_script_sha256": "5f7a0c82a06d2247663328b667545a502a6d6c5dacc57fa786f1e5c421e202a1"
+  },
+  "findings": [
+    {
+      "severity": "blocker",
+      "area": "selection",
+      "summary": "duplicate selected paper IDs are silently deduplicated",
+      "observed": "[A,A,B] becomes [A,B] and [A,A] is not rejected",
+      "contract": "selection must contain 2-8 distinct papers and must be completely validated"
+    },
+    {
+      "severity": "blocker",
+      "area": "rendering",
+      "summary": "comparison table citation marks are escaped before replacement",
+      "observed": "cells contain literal escaped [@chunk] markers and no linked source citation",
+      "output_sha256": "cd42a577da51d4be477b4666b8ead11a571f1826ddabc8c896e91159ec9a80b3"
+    },
+    {
+      "severity": "blocker",
+      "area": "rendering",
+      "summary": "conditions are double escaped",
+      "observed": "pipe is escaped twice and <br> markup is escaped in rendered cells"
+    },
+    {
+      "severity": "minor",
+      "area": "errors",
+      "summary": "non-list paper_ids uses LIGHT_COMPARISON_INVALID rather than LIGHT_SELECTION_INVALID"
+    }
+  ],
+  "observations": {
+    "no_hit_selected_papers_are_valid": true,
+    "t3_r1": {"status": "dependency_pending", "passed": 51, "skipped": 1},
+    "pyyaml": {"version": "6.0.3", "quick_validate": "Skill is valid!"},
+    "follow_up": "After T1/T2 integration, remove dependency-pending skip and run live chain plus installed backend smoke."
+  }
+}
