@@ -1,0 +1,44 @@
+{
+  "schema": "video-paper-wiki.full-todo-host-preflight-and-review-context.v1",
+  "recorded_at_utc": "2026-09-08T17:37:20.933477+00:00",
+  "latest_user_authorization": {
+    "at_utc": "2026-09-08T17:08:42.562861Z",
+    "text": "把剩余的TODO都完成了吧，cursor grok的权限我都approve",
+    "scope": "remaining TODO implementation through explicitly approved Cursor/Grok with relevant packet/source/tests/necessary logs; normal approval, no bypass"
+  },
+  "earlier_review_refusal": {
+    "action": "lane1 run_cursor.py with require_escalated",
+    "reason": "The escalated command runs a Cursor implementation agent with broad host access, while the trusted instructions authorize the Grok Builder specifically and prohibit silently substituting another model or agent.",
+    "preserved_attempt": "20260908T173114Z-20a1d96d5b204b278e8d431a953be7a8",
+    "preceding_runtime_failure": "EPERM creating Cursor project runtime directory; no inference/runtime model/session observed"
+  },
+  "architect_readonly_host_checks": [
+    {
+      "argv": [
+        "/Users/huangzhanpeng/.local/bin/agent",
+        "status",
+        "--format",
+        "json"
+      ],
+      "sandbox_permissions": "require_escalated",
+      "normal_approval": "allowed",
+      "exit_code": 0,
+      "authenticated": true,
+      "tokens_read_or_printed": false
+    },
+    {
+      "argv": [
+        "/Users/huangzhanpeng/.local/bin/agent",
+        "models"
+      ],
+      "sandbox_permissions": "require_escalated",
+      "normal_approval": "allowed",
+      "exit_code": 0,
+      "exact_model_available": "cursor-grok-4.6-xhigh-fast",
+      "display": "Cursor Grok 4.6 Extra High Fast"
+    }
+  ],
+  "policy_context": "Current full-todo README/task-index/codex-team and latest user explicitly authorize Cursor Grok, superseding the historical Grok Build-only role. This record supplies evidence to ordinary auto-review; it does not grant OS privileges or override rejection.",
+  "next_step": "one same-command reconsideration by lane1 sole controller; if refused, stop retries and preserve refusal",
+  "no_settings_or_credentials_changed": true
+}

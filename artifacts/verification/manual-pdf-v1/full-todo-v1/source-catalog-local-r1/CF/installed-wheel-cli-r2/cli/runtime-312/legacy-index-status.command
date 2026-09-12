@@ -1,0 +1,1 @@
+vpwiki index status --vault-root /private/tmp/vpwiki-source-catalog-cli-r2/legacy-vault --upstream-root /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-catalog-v1/terminal-1/source/vendor/claude-obsidian --config /private/tmp/vpwiki-source-catalog-cli-r2/legacy-config.json

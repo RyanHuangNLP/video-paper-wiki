@@ -1,0 +1,47 @@
+{
+  "imported_t2_final": {
+    "handoff": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/handoffs/r2/handoff.json",
+    "handoff_sha256": "e66e68af1c098c61c124952d0b60317ea3da3dc71c7aa9aaa53609f48dc49675",
+    "phase": "final",
+    "status": "ready",
+    "files": {
+      "src/video_paper_wiki_research/light_index.py": "c05abaa47217ca4007c38ecf1072d60479eb1f0c424ec2eebbcdf4e10ee26ac1",
+      "src/video_paper_wiki_research/light_context.py": "ef8e41eefb00a66542ec0882e7710c4684e77dd4f6378d10fc8d7b7164b53cc3",
+      "tests/research/test_light_index.py": "752a27686daf7002c6064cfebdcf59d79928a09e1d86f42e436f095e5825a2c2",
+      "tests/research/test_light_context.py": "dd9e035bb36a44d1b1e3baca9b12e4aabae4cdcdf3696ae187adc73016a6e941",
+      "tests/research/test_light_selection.py": "ad7188061a8335a958cd6984b23b9e91db7b79b173416be80b7dc9f136156ee0"
+    }
+  },
+  "cli_import_gap_after_t2": [
+    {
+      "name": "valid_control",
+      "exit_code": 0,
+      "ok": true,
+      "status": "OK",
+      "output_created": true
+    },
+    {
+      "name": "tampered_context_text_and_hash",
+      "exit_code": 2,
+      "ok": false,
+      "status": "LIGHT_CONTEXT_INVALID",
+      "output_created": false
+    },
+    {
+      "name": "source_changed_without_reindex",
+      "exit_code": 2,
+      "ok": false,
+      "status": "INDEX_STALE",
+      "output_created": false
+    },
+    {
+      "name": "old_context_after_reindex",
+      "exit_code": 2,
+      "ok": false,
+      "status": "INDEX_STALE",
+      "output_created": false
+    }
+  ],
+  "pytest_after_t2": "70 passed, 4 skipped",
+  "skipped": "live workflow tests waiting for T1 inspect_workspace and T3 prepare/status/complete"
+}

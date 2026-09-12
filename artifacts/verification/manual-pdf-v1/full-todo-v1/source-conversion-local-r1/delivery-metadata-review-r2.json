@@ -1,0 +1,155 @@
+{
+  "schema": "video-paper-wiki.source-conversion-delivery-metadata-review.v1",
+  "reviewed_at_utc": "2026-09-09T07:49:03.407616+00:00",
+  "scope": "Independent read-only preflight of the frozen source-conversion R2 candidate, exact delivery manifest/allowlist and carried predecessor evidence. No source, worktree, Git index, commit, push, PR, CI or Vault mutation.",
+  "status": "PASS_METADATA_PREFLIGHT",
+  "delivery_decision": "GO_FOR_METADATA_PREFLIGHT",
+  "findings": [],
+  "inputs": {
+    "candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r2.json",
+      "sha256": "b6d426a541204cb8f0191796c12ec7dca1fab0ebf2da12bb4c2823f81914719b",
+      "size_bytes": 5915
+    },
+    "manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/delivery-manifest-r2.json",
+      "sha256": "6085c5601729dc011a929338075d7ff8c1de97a9c9ee07193a5c784e448fb7a2"
+    },
+    "allowlist": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/delivery-allowlist-r2.json",
+      "sha256": "612fd3a4f65075ba76eb89c9e865187140147e45f6524a3acf9c4d7d29421f04"
+    },
+    "architect_local_acceptance": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-local-acceptance-r2.json",
+      "sha256": "d10fefbe7d55b0ebf040a357f64c66fc0f3349a3c1f023ea54a3b89c0d7338de"
+    }
+  },
+  "manifest_scope": {
+    "revision": 2,
+    "status": "FROZEN_FOR_INDEPENDENT_METADATA_AND_EXACT_DELIVERY_PREFLIGHT",
+    "delivery_root": ".work/parallel/source-semantics-v1/delivery/source",
+    "baseline_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "baseline_tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "target": {
+      "pr": 95,
+      "branch": "integrate/manual-pdf-pipeline",
+      "base": "integration",
+      "expected_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+      "expected_base": "08709894adfb20ec07e976783f0ba436d975b74f",
+      "draft": true
+    },
+    "source_path_count": 13,
+    "manifest_file_rows": 78,
+    "delivery_path_count_including_self": 79,
+    "manifest_self_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/delivery-manifest-r2.json",
+    "source_snapshot_sha256": "4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c",
+    "merge_authorized": false
+  },
+  "checks": [
+    {
+      "id": "JSON_PARSE_AND_KEY_UNIQUENESS",
+      "passed": true,
+      "details": "Candidate, manifest, allowlist, acceptance and all referenced JSON metadata parsed; no duplicate keys observed."
+    },
+    {
+      "id": "ALLOWLIST_MANIFEST_EXACT_SET",
+      "passed": true,
+      "details": "Allowlist has 79 unique paths and equals the 78 manifest file rows plus the manifest self path; no omitted or extra path."
+    },
+    {
+      "id": "SOURCE_CANDIDATE_BINDING",
+      "passed": true,
+      "details": "The 13 candidate file rows exactly match the manifest source rows and recomputed canonical compact source snapshot SHA-256 4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c."
+    },
+    {
+      "id": "SOURCE_AND_DESTINATION_INTEGRITY",
+      "passed": true,
+      "details": "All manifest source_absolute rows and all delivery-root destination rows match recorded SHA-256 and byte sizes; rows are regular non-symlink files."
+    },
+    {
+      "id": "PUBLICATION_BOUNDARY_SCAN",
+      "passed": true,
+      "details": "No logical .work path or PDF-suffixed path is allowlisted; no allowlisted file begins with %PDF-; no source or delivery row is a symlink or nonregular file."
+    },
+    {
+      "id": "R1_HISTORY_AND_R2_DELTA",
+      "passed": true,
+      "details": "R1 candidate/rejected source and rejection evidence remain immutable. R2 changes exactly the three approved paths: source_conversion.py, tests/security/test_source_conversion_boundary.py and tests/upstream/test_source_conversion.py; contract semantics remain unchanged."
+    },
+    {
+      "id": "LOCAL_VALIDATION_BINDING",
+      "passed": true,
+      "details": "R2 local acceptance binds 3,383 passing tests on locked Python 3.12.14 and 3.13.13 with zero skips/failures, 48 focused checks, six independent lineage cases, and the installed Hatchling wheel byte-parity probe."
+    },
+    {
+      "id": "WHEEL_METADATA",
+      "passed": true,
+      "details": "Independent carried wheel evidence identifies Hatchling, 244 package payload files, 70 schema resources and 248 RECORD entries; installed imports resolve to locked origins and match source bytes."
+    },
+    {
+      "id": "PREDECESSOR_CARRIAGE",
+      "passed": true,
+      "details": "Five source-publication predecessor post-CI rows are carried unchanged with manifest-bound hashes and are labeled historical: architect acceptance 2ef3d01b98ff2950e83f402219dc7b38f4c3833c2b3ef70f6507221ffcd4c193; CI R1 8c09bf3bb136aaacb37fb677b825b6e1374b041e15b2c3313edd00e40cdc5f37; CI R2 f77ab14c2ce7a23a4f38e0adcb345c839c2ad1b7438c27ce34abc151fe51a247; parents R1 a4cf4f4b8d107b308269b1e59f32d13088dfce9110771327af4bb871e5d9e6ab; parents R2 11ab34f3a9248b6e9f9abfe763a529b4a40741137366cc852b896d63cc3b8ee9."
+    },
+    {
+      "id": "CURRENT_CI_AND_ACCEPTANCE_BOUNDARY",
+      "passed": true,
+      "details": "No source-conversion CI run or exact-head acceptance is claimed: local acceptance has actual_ci_checkout null and exact_head_acceptance_issued false; fresh four-job CI and separate exact-head Architect acceptance remain required."
+    }
+  ],
+  "claims_and_gates": {
+    "manifest_current_fresh_ci_claim": false,
+    "conversion_exact_head_acceptance_issued": false,
+    "historical_predecessor_ci_labeled_historical": true,
+    "fresh_four_job_ci_required": true,
+    "separate_exact_head_architect_acceptance_required": true,
+    "merge_authorized": false,
+    "human_gates_closed": false,
+    "real_vault_used": false,
+    "source_writes_stopped": true
+  },
+  "local_validation": {
+    "full_tests_per_locked_python": {
+      "Python3.12.14": 3383,
+      "Python3.13.13": 3383
+    },
+    "skips_or_failures": 0,
+    "focused_checks": 48,
+    "independent_lineage_cases": 6,
+    "wheel": {
+      "actual_backend": "hatchling.build",
+      "package_payload_files": 244,
+      "schema_resources": 70,
+      "record_entries": 248,
+      "byte_exact_installed_imports": true
+    }
+  },
+  "predecessor_ci_carriage": {
+    "source_publication_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "run_id": 34318336303,
+    "attempt": 1,
+    "merge_preview": "e209c35a1c860cc2ce304bdfb9ec107e28850ff4",
+    "passed_per_job": 3285,
+    "jobs": 4,
+    "generated_after_tested_commit": true,
+    "contained_in_current_conversion_head": false,
+    "fresh_evidence_required_for_new_head": true
+  },
+  "remaining_gates": [
+    "Recheck PR95 head/base and delivery baseline immediately before exact allowlisted delivery.",
+    "After explicit root delivery instruction, commit once and non-force push the 79-path manifest to draft PR95 -> integration.",
+    "Run fresh four-job CI against the new exact commit, recording actual merge checkout SHA, parents, tree, run/attempt/jobs and 3383 expected tests per job.",
+    "Issue separate Architect exact-head acceptance only after fresh CI evidence binds the delivered head.",
+    "Keep source catalog, later full-TODO engineering, real-source trials and human/external gates open."
+  ],
+  "mutations": {
+    "source": false,
+    "worktree": false,
+    "git_index": false,
+    "git": false,
+    "pr": false,
+    "ci": false,
+    "vault": false
+  },
+  "reviewer_conclusion": "GO. The R2 candidate, manifest and allowlist are internally bound at exact hashes; all 79 delivery paths (78 rows plus self) resolve with matching bytes, and the 13-file source snapshot recomputes exactly. The historical predecessor CI carriage is explicitly labeled and does not satisfy current conversion CI. Delivery may proceed only through the frozen manifest and the required fresh CI plus separate exact-head acceptance gates."
+}

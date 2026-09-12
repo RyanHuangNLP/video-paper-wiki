@@ -1,0 +1,55 @@
+{
+  "$schema": "full-todo.code-resource-steward-patch-applier-review-r2-corrected.v1",
+  "schema": "full-todo.code-resource-steward-patch-applier-review-r2-corrected.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T13:06:34.514799Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_STANDALONE_MECHANICAL_PATCH_APPLIER",
+  "reviewed": {
+    "current_helper": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/apply_exact_resource_patch.py",
+      "size_bytes": 6116,
+      "sha256": "f8b86d4d04f805c97806eadce3fdaea149edd85fd746810b6d64c17560536b12"
+    },
+    "archived_pre_review_helper": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/apply_exact_resource_patch.pre-review-r2.py",
+      "size_bytes": 6001,
+      "sha256": "b098cdcbbec3b7976295663cf55eba13a4d57b6794f185043c901d1ce8ca51cb"
+    },
+    "prior_review": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/repair-r2/steward-patch-applier-review-r2.json",
+      "sha256": "6f6d14b2660d0f68a33272507148611d6685a7bffe5fb30b55c99c2b360ec2e1"
+    }
+  },
+  "delta_review": {
+    "changed_lines": "The only delta replaces non-overlapping str.count(old) == 1 with first=find(old) plus find(old, first + 1) < 0 before the unchanged replace(old, new, 1).",
+    "overlapping_example_rejected": "old='aa' in current='aaa' finds starts at 0 and 1 and is rejected.",
+    "single_occurrence_example_accepted": "A nonempty old substring with exactly one start position passes and keeps the original first replacement operation.",
+    "sequential_edits_preserved": true,
+    "ambiguous_match_blocker_closed": true
+  },
+  "static_checks": {
+    "ast_parse_current_helper": "PASS",
+    "closed_patch_root_and_brief": true,
+    "duplicate_json_keys_rejected": true,
+    "noninteger_json_numbers_rejected": true,
+    "exact_base_hash_map_and_two_owned_names": true,
+    "ordered_sequential_edits": true,
+    "both_files_must_be_touched": true,
+    "fresh_output_directory_required": true,
+    "hardcoded_output_names_prevent_path_traversal": true,
+    "one_final_lf_and_262144_byte_result_cap": true,
+    "syntax_only_ast_check_no_returned_code_execution": true,
+    "base_and_response_rechecked_before_output": true,
+    "no_normalization_or_schema_byte_editing": true
+  },
+  "scope_boundaries": {
+    "helper_executed": false,
+    "model_or_generator_executed": false,
+    "product_or_tests_executed": false,
+    "git_or_network_used": false,
+    "parent_ownership_and_ancestor_freezing": "external coordinator obligations, not reaudited here",
+    "prior_no_go_record_preserved": true
+  },
+  "conclusion": "The minimal overlapping-match repair closes the sole static blocker identified in the first review. The helper is approved for its standalone mechanical patch role; later response review, fresh output-copy application, generator review, and resource acceptance remain separate gates."
+}

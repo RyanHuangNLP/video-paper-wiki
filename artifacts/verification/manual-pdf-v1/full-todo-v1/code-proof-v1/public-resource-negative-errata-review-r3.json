@@ -1,0 +1,75 @@
+{
+  "$schema": "video-paper-wiki.public-resource-negative-errata-review-r3.v1",
+  "schema": "video-paper-wiki.public-resource-negative-errata-review-r3.v1",
+  "revision": 3,
+  "recorded_at_utc": "2026-09-10T05:15:20.601870Z",
+  "decision": "GO_ERRATA_R3_PLANNING_ONLY",
+  "scope": "Read-only review of the R2 negative-case planning vectors and R3 errata. This review creates no fixtures, schema/runtime result, public command acceptance, provider call, source/test/Git change, or resealed resource.",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded public-resource negative-case errata reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "inputs": {
+    "negative_cases_r2": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-negative-cases-r2.json",
+      "size_bytes": 24027,
+      "sha256": "9c7248fb31ccbb4c9a94c30bccf847d1b414e038d8114cad9defe5db51728006"
+    },
+    "errata_r3": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-negative-case-errata-r3.md",
+      "size_bytes": 1853,
+      "sha256": "dec8acefcd428fe229847b243a3e046768ba50f35727691dda77fce0cc876152"
+    },
+    "r2_status": "planning_only_additive_correction",
+    "r2_scope": "Additive correction to R1. The cases remain planning vectors for the future R12 ten-schema/profile packet; no public command, installed resource, remote acquisition, or runtime result is claimed.",
+    "case_count": 40
+  },
+  "checks": [
+    {
+      "id": "NEG-009",
+      "status": "PASS_ERRATUM_CORRECTS_VECTOR",
+      "r2_observation": "Set a present target's text to null while leaving reason null.",
+      "r3_rule": "Set the present normalized target text to null, preserve the target as present, and add no reason field. The present target shape has no reason property; leaving reason:null would test the wrong object shape.",
+      "enforcement": "schema_only",
+      "planning_boundary": "No public schema validator or runtime replay is run here."
+    },
+    {
+      "id": "NEG-021",
+      "status": "PASS_ERRATUM_PRESERVES_TARGET_FAULT",
+      "r2_observation": "Replace a bound Ref sha256 with a different valid lowercase 64-hex digest.",
+      "r3_rule": "Keep the deliberately wrong bound Ref.sha256. After the mutation, recompute only the containing config envelope ce1 ID and complete saved-byte hash, then update consumers that point to that config. Never restore the corrupted Ref from the referenced file.",
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "isolation": "The invalid Ref digest remains wrong immediately before later validation; consumer resealing must not repair it."
+    },
+    {
+      "id": "NEG-022",
+      "status": "PASS_ERRATUM_PRESERVES_TARGET_FAULT",
+      "r2_observation": "Change the ce1 request id's digest while keeping its kind, schema, and data unchanged.",
+      "r3_rule": "Keep the intentionally wrong request envelope id while retaining schema, kind and data. Do not reseal that request id. Compute the invalid request’s actual saved-byte hash and update consumers to those saved bytes together with the intentionally wrong id.",
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "isolation": "Do not globally reseal the request or derive a corrected id; only dependent saved-byte/consumer references may change."
+    }
+  ],
+  "protocol_review": {
+    "starting_point": "An otherwise valid dependency set is required before each mutation.",
+    "single_mutation": "Apply exactly one listed mutation and explicitly select the target field.",
+    "reseal_scope": "Recompute only non-target IDs, saved-byte hashes and containing/consumer references needed to bind the mutated graph.",
+    "target_assertion": "Assert the selected target remains invalid immediately before later validation/replay.",
+    "semantic_replay": "Run only after full reseal/rebind with unchanged dependencies valid; R2 intentionally asserts rejection, not a public error code or precedence.",
+    "future_profile_dependencies": "Cases requiring unavailable R12 profile/resources remain unavailable and are not fabricated here."
+  },
+  "boundary_conclusion": "The R3 errata are internally consistent and correctly repair the three requested vectors. NEG-009 is structural schema preparation; NEG-021 and NEG-022 remain semantic rejection vectors. This is planning evidence only and does not establish schema, public runtime, resource, or provider behavior.",
+  "scope_controls": {
+    "source_modified": false,
+    "tests_modified": false,
+    "fixtures_generated": false,
+    "git_mutation": false,
+    "provider_called": false,
+    "runtime_executed": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

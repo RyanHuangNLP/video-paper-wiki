@@ -1,0 +1,74 @@
+{
+  "schema": "video-paper-wiki.architect-code-canonical-prerequisite-audit.v1",
+  "recorded_at_utc": "2026-09-10T04:45:53.651366+00:00",
+  "scope": "Read-only downstream compatibility inventory; no changes to the active CONFIG packet or accepted CODE-PROOF contracts.",
+  "baseline_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+  "source_refs": [
+    {
+      "path": "schemas/video-paper-wiki.common.v1.schema.json",
+      "size_bytes": 6581,
+      "sha256": "d004a55546358dde8315e9ee552083d27d3a2b35a6825d028bc7ad7b6c1d7dfa"
+    },
+    {
+      "path": "schemas/video-paper-wiki.code-evidence-manifest.v1.schema.json",
+      "size_bytes": 4398,
+      "sha256": "d6faf83a8316a63f6abd50cbea8cb322a85b74cfc310888caea0af082c25aeb7"
+    },
+    {
+      "path": "schemas/video-paper-wiki.paper-code-alignment.v1.schema.json",
+      "size_bytes": 5584,
+      "sha256": "fca2793254cddb09f2b2c92a0d70454c64ab74f6165863c9929314b742781783"
+    },
+    {
+      "path": "schemas/video-paper-wiki.markdown-source-observation.v1.schema.json",
+      "size_bytes": 3410,
+      "sha256": "8da92711aac250ccb0ef26bf7e78a8d91e687c92649f7b211c38ea45c4b2445a"
+    },
+    {
+      "path": "schemas/video-paper-wiki.source-version-association.v1.schema.json",
+      "size_bytes": 3632,
+      "sha256": "31d8bc1befad4506ea14cfdfd63dac6ab49a453919b62d53aa8d5c777d0d1d00"
+    },
+    {
+      "path": "src/video_paper_wiki/code_evidence_contracts.py",
+      "size_bytes": 10125,
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a"
+    },
+    {
+      "path": "src/video_paper_wiki/canonical_compiler.py",
+      "size_bytes": 14184,
+      "sha256": "f4dde9f914796006af6b4b03c2d969f3686859e911854a49e69995e53e046291"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CANONICAL-CODE-01",
+      "fact": "Legacy full_commit, code_locator and code-evidence-manifest.v1 require 40-hex commit; production _origin independently enforces exactly 40 hex.",
+      "implication": "Both Git object formats remain valid in CODE-PROOF, but successor_only handoffs must not be passed to legacy capture even for SHA-1. A separately frozen successor capture/locator contract must bind object_format and full-width commit/tree/blob IDs; no truncation or widening legacy v1."
+    },
+    {
+      "id": "CANONICAL-CODE-02",
+      "fact": "paper-code-alignment.v1 officiality evidence is pdf_locator only. Existing Markdown source observations carry paper pages and paper/source-version identity, not generic web acquisition provenance.",
+      "implication": "Relation A may bind existing source-version/Markdown evidence through a compatible successor. B/D web evidence needs a separately specified retained observation and locator; do not invent PDF/page identities for web content."
+    },
+    {
+      "id": "CANONICAL-CODE-03",
+      "fact": "Legacy canonical_compiler._code consumes one inspected manifest, repo-record.v1 and alignment.v1. Each capability locator must share that manifest source_id; output path is one wiki/code/<repo-slug>.md per repo.",
+      "implication": "A multi-file relation/collection needs deliberate joins and page identity so distinct path manifests cannot collapse or collide. This is later CODE-CANONICAL work, not proof-kernel acceptance."
+    },
+    {
+      "id": "CANONICAL-CODE-04",
+      "fact": "R4/R7 intentionally leave source_association_verified=false and retain only the legacy association reference in CODE-PROOF.",
+      "implication": "The canonical successor must resolve the original association_reference digest and retained receipt/source-ledger/extraction bindings. A valid ce1 reference or Git proof does not supply that authority."
+    }
+  ],
+  "required_later_vectors": [
+    "SHA-256 capture/locator round trip; reject narrowing into legacy 40-hex input.",
+    "Same blob at two logical source paths retains distinct manifest/locator identity.",
+    "Multi-file capability evidence resolves each cited source ID/path/commit.",
+    "Web A/B/C/D provenance does not counterfeit PDF/Markdown-page captures.",
+    "Association from another paper/version and mismatched registration material refuses."
+  ],
+  "implementation_dispatched": false,
+  "code_complete": false
+}

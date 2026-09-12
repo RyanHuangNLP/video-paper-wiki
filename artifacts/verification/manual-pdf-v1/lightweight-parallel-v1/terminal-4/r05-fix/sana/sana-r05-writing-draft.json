@@ -1,0 +1,17 @@
+{
+  "markdown": "混合注意力把双向门控线性层与 softmax 锚点按 3:1 交错：线性层维持 O(N) 混合，锚点周期性补回压缩状态无法表示的交互。[@chk-21851a9eb546fd6a84ed8417]\n\nAttnRes 在 block 粒度路由完成摘要和 running partial sum。[@chk-ff4524f9fdb8ecfe867b9289] 共享 query 与 S=8 把跨层历史压到按 block 计数。[@chk-1a4a582534aac5622fec20cc] 固定 3:1 后，短跑探针去掉显式 timestep 输入，并把 S=8 当作覆盖两个周期的工程默认。[@chk-21034d8692adc0bf4fc616ac]",
+  "citations": [
+    {
+      "chunk_id": "chk-21851a9eb546fd6a84ed8417"
+    },
+    {
+      "chunk_id": "chk-ff4524f9fdb8ecfe867b9289"
+    },
+    {
+      "chunk_id": "chk-1a4a582534aac5622fec20cc"
+    },
+    {
+      "chunk_id": "chk-21034d8692adc0bf4fc616ac"
+    }
+  ]
+}

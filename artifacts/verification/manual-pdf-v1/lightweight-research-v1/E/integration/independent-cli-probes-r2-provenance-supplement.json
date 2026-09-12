@@ -1,0 +1,105 @@
+{
+  "schema": "lightweight-research-v1-cli-preacceptance-probe-r2-provenance-supplement.v1",
+  "recorded_at_utc": "2026-09-08T15:07:10.825591+00:00",
+  "clock_source": "datetime.now(timezone.utc) on the review host",
+  "scope": "Evidence-integrity supplement for the R3 harness lineage and stopped-R2 dynamic report. No product/test/Git/external mutation and no rerun in this supplement.",
+  "immutability_statement": {
+    "current_final_harness_preserved": true,
+    "current_final_report_preserved": true,
+    "current_final_amendment_preserved": true,
+    "prior_r1_r2_harnesses_preserved": true
+  },
+  "historical_original_recovery": {
+    "original_r3_harness_new_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/probes/cli_preacceptance_harness_r3-original.py",
+    "original_r3_harness_sha256": "adee03f1e50d0e5df38678d77e45c0a8f9e0ac584617c4ee06a64ebaa28d24ab",
+    "original_r3_harness_size_bytes": 40718,
+    "original_r3_harness_expected_sha256": "adee03f1e50d0e5df38678d77e45c0a8f9e0ac584617c4ee06a64ebaa28d24ab",
+    "original_r3_harness_hash_verified": true,
+    "original_amendment_new_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/cli-preacceptance-harness-r3-amendment-original.json",
+    "original_amendment_sha256": "4254b6b4aa6e5ce861359ba93300dfc0ec0daf6118934f97832225939c439295",
+    "original_amendment_size_bytes": 3934,
+    "original_amendment_expected_sha256": "4254b6b4aa6e5ce861359ba93300dfc0ec0daf6118934f97832225939c439295",
+    "original_amendment_hash_verified": true,
+    "r1_harness_sha256": "e95aadd25404f3da49d3436b332dd9c84ac5da8e4c62e21239b9b8b2d39e3973",
+    "r2_harness_sha256": "753ce4a085e5309a1a10ed5134f7f2959cd224790b24a0a828f83e4b9c6d7f7b"
+  },
+  "final_current_lineage": {
+    "final_r3_harness_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/probes/cli_preacceptance_harness_r3.py",
+    "final_r3_harness_sha256": "df3027de7553950bdc021d5ad0e73d2916df3bfe6015346aaed3d3f61e1b86fc",
+    "final_report_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r2.json",
+    "final_report_sha256": "cb6e0a2acbbc40ee5612c56c546f7cd6a130d4172f652c26901f5302b34df408",
+    "final_amendment_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/cli-preacceptance-harness-r3-amendment.json",
+    "final_amendment_sha256": "b41667e329d11680dc236956c3ced8acf7e13485ebdc8fb92cad9b564e4bd7aa",
+    "final_decision": "PASS_CLI_PREACCEPTANCE_PROBES",
+    "final_reviewed_at_utc": "2026-09-08T15:00:57.561883+00:00",
+    "final_case_count": 38,
+    "final_failure_count": 0
+  },
+  "execution_lineage": [
+    {
+      "stage": "original_r3_fixture_preflight",
+      "harness_sha256": "adee03f1e50d0e5df38678d77e45c0a8f9e0ac584617c4ee06a64ebaa28d24ab",
+      "report_path": "/private/tmp/cli-r3-dynamic-run.json",
+      "report_sha256": "c919de475fbf64065e4fe143620041df23428e935c3bd3dbb1bbd0b0e21af80b",
+      "reviewed_at_utc": "2026-09-08T14:58:55.821987+00:00",
+      "process_exit_observed": 1,
+      "decision": "FAIL_CLI_PREACCEPTANCE_PROBE",
+      "dynamic_present": false,
+      "case_count": 0,
+      "dynamic_failure": "qa fixture did not contain a query_plan",
+      "meaning": "Harness-only fixture preflight stopped because direct light-context seeding did not contain query_plan; no candidate CLI case ran."
+    },
+    {
+      "stage": "query_plan_fixture_correction",
+      "harness_sha256": "3b6c8886eb42bbb2f9d51e1ed30fb55f7bbf0704b3a289740e85d0b1904c3829",
+      "report_path": "/private/tmp/cli-r3-dynamic-run-2.json",
+      "report_sha256": "6d3b44c8793bb20e478a25406a8d43ae17c8f0a89762989b2f64ad25f9730414",
+      "reviewed_at_utc": "2026-09-08T15:00:22.379235+00:00",
+      "process_exit_observed": 1,
+      "decision": "FAIL_CLI_PREACCEPTANCE_PROBE",
+      "dynamic_present": true,
+      "case_count": 38,
+      "failure_count": 2,
+      "failure_summary": "Both strict duplicate rewrite cases returned closed USAGE, which the then-current expected-code set did not yet allow.",
+      "meaning": "Real candidate CLI cases ran; this report is preserved as intermediate harness evidence."
+    },
+    {
+      "stage": "final_stopped_r2_dynamic_run",
+      "harness_sha256": "df3027de7553950bdc021d5ad0e73d2916df3bfe6015346aaed3d3f61e1b86fc",
+      "report_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r2.json",
+      "absolute_report_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r2.json",
+      "report_sha256": "cb6e0a2acbbc40ee5612c56c546f7cd6a130d4172f652c26901f5302b34df408",
+      "reviewed_at_utc": "2026-09-08T15:00:57.561883+00:00",
+      "process_exit_observed": 0,
+      "decision": "PASS_CLI_PREACCEPTANCE_PROBES",
+      "dynamic_present": true,
+      "case_count": 38,
+      "failure_count": 0,
+      "meaning": "Final corrected R3 dynamic report on the exact stopped R2 source."
+    }
+  ],
+  "correction_summary": {
+    "original_direct_seed_issue": "The original R3 fixture used direct light_context.export_context, which omits query_plan; strict inner-field probes therefore failed before any candidate case.",
+    "final_seed_route": "The final R3 fixture uses the real light_query.export_rewritten_context route for QA and writing contexts.",
+    "duplicate_refusal_code_correction": "The stopped CLI returns closed USAGE for duplicate --paper-id arguments before the rewrite selector guard; final R3 accepts USAGE as a valid refusal."
+  },
+  "stopped_candidate_binding": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source",
+    "head": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+    "source_check_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-source-check-r2.json",
+    "source_check_sha256": "c1f2c5c67f6ed5ac824fd40d965672c33cfb438e94d3aec3dfe2beb6c274232a",
+    "source_check_owned_snapshot_sha256": "b872c621cc426a079f795ac26c407d6501790636479fee4398ca274a24ea74dc",
+    "combined_26path_snapshot_sha256": "963f9f4237be0c572b447f005465889ed9dfc48b9283f1ebde10ff3013ec8402",
+    "handoff_sha256": "dd52085e5acdd472a4ed08176e0d21df9bb32bbbf987ce4d8b4ace319a40ed05",
+    "all_26_source_and_copy_hashes_match": true,
+    "exact_26_product_paths": true
+  },
+  "location_binding": {
+    "true_dynamic_report_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r2.json",
+    "relative_dynamic_report_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r2.json",
+    "literal_E_directory_is_historical_actual": true,
+    "report_moved": false,
+    "prior_reports_preserved": true
+  },
+  "decision": "PROVENANCE_SUPPLEMENT_COMPLETE_ORIGINAL_R3_BYTES_AND_AMENDMENT_HASH_VERIFIED"
+}

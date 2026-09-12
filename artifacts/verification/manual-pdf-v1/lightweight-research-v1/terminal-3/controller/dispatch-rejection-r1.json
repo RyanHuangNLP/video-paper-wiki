@@ -1,0 +1,60 @@
+{
+  "automatic_review": {
+    "decision": "rejected",
+    "reason": "This launches an external Cursor/Grok process with repository workspace access, potentially exporting sensitive source and prompt data to an unverified destination; the trusted instructions approve Grok Build generally but do not clearly authorize this exact Cursor endpoint, payload, or egress. The agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input."
+  },
+  "command": {
+    "argv": [
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-research-v1/run_cursor.py",
+      "--lane",
+      "3",
+      "--controller-id",
+      "five_agent_config_review",
+      "--prompt-file",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-research-v1/prompts/T3-r1.md"
+    ],
+    "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+    "environment": {
+      "GIT_OPTIONAL_LOCKS": "0",
+      "LW2_UV_CACHE": "/Users/huangzhanpeng/.cache/uv",
+      "PATH": "/Users/huangzhanpeng/.hermes/bin:/Users/huangzhanpeng/.local/bin:/usr/bin:/bin",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source/src",
+      "UV_CACHE_DIR": "/Users/huangzhanpeng/.cache/uv",
+      "UV_OFFLINE": "1",
+      "UV_PYTHON_DOWNLOADS": "never"
+    },
+    "justification": "May I launch the explicitly authorized pinned Cursor/Grok Builder for T3 R1 using the frozen prompt and lane-3 worktree?",
+    "sandbox_permissions": "require_escalated"
+  },
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "controller_id": "five_agent_config_review",
+  "freeze_sha256": "8b9b257080d01b69b4ea683728acfea9ba559c00a0292f4db034623e8e53c5a8",
+  "lane": 3,
+  "next_action": "Paused pending a materially safer approved dispatch path or explicit user authorization addressing the automatic-review concern.",
+  "packet": "lightweight-research-v1",
+  "recorded_at_utc": "2026-09-08T10:29:24.954522Z",
+  "revision": 1,
+  "schema": "lightweight-research-v1-controller-dispatch-rejection.v1",
+  "source": {
+    "clean": true,
+    "head": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source",
+    "tree": "13776b52053133056a9a98664e517049802a4be9",
+    "vendor_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+  },
+  "start_state": {
+    "active_lease_present": false,
+    "child_pid": null,
+    "lease_acquired": false,
+    "process_started": false,
+    "reroute_permitted": false,
+    "retry_permitted": false,
+    "source_mutated": false,
+    "stderr_created": false,
+    "stdout_created": false
+  },
+  "status": "rejected_before_process_start"
+}

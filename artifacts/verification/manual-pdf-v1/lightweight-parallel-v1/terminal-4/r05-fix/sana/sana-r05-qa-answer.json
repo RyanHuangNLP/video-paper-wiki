@@ -1,0 +1,17 @@
+{
+  "text": "SANA-Video 2.0 用 Hybrid Linear–Softmax Attention 把门控线性注意力（O(N) 主导）和周期性 softmax 锚点按 3:1 交错，避免全程二次注意力，并补回纯线性栈缺少的满秩交互。[@chk-196a88c90113505c95ba40f3] 布局上约 75% 线性、25% softmax，每四层一个锚点，让压缩线性状态无法表示的交互被周期性刷新。[@chk-21851a9eb546fd6a84ed8417] AttnRes 再把已完成 block 摘要和块内 residual 路由到后续层，先进入 attention 分支再进入 FFN。[@chk-ff4524f9fdb8ecfe867b9289] 视频实现共享跨深度 routing query，并以 S=8 组成 block，把历史从 O(NLd) 降到约 O(N⌈L/S⌉d)。[@chk-1a4a582534aac5622fec20cc]",
+  "citations": [
+    {
+      "chunk_id": "chk-196a88c90113505c95ba40f3"
+    },
+    {
+      "chunk_id": "chk-21851a9eb546fd6a84ed8417"
+    },
+    {
+      "chunk_id": "chk-ff4524f9fdb8ecfe867b9289"
+    },
+    {
+      "chunk_id": "chk-1a4a582534aac5622fec20cc"
+    }
+  ]
+}

@@ -1,0 +1,301 @@
+I'll start by reading the four authorized design/review inputs, then check production interfaces only if a concrete reuse question remains. No files will be edited.The four design inputs are in. Next I’ll check a few production interfaces so the kernel API can reuse existing hashing, UTF-8, and error patterns instead of inventing a parallel contract.# CODE-PROOF implementation-readiness review
+
+**Decision:** `KERNEL_PACKET_FEASIBLE_AFTER_KERNEL_CONTRACT_FREEZE; PUBLIC_CODE_PROOF_STILL_CHANGES_REQUIRED`
+
+The R2 review verdict stands: public CODE-PROOF schemas, output layout, repair identity, text/config caps, JSON/TOML wire rules, and SHA-256 handoff fields are **not frozen**. A pure in-memory Git-object verification kernel **can** be the first implementation packet **if Architect freezes the kernel contract below** and keeps envelope, retained I/O, config spans, and public commands out of that packet. This review is not a freeze.
+
+## Files read
+
+| Path | Role |
+|---|---|
+| `docs/ai/packets/full-todo-v1/GROK-CLI-OWNERSHIP-R3.json` | ownership / no-write constraint |
+| `docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md` | design under review (stated SHA-256 `eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57`; not re-hashed here) |
+| `artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-design-review-r2.json` | nine R2 findings |
+| `artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json` | advice-only config/span grammar |
+| `src/video_paper_wiki/code_evidence_contracts.py` | reuse check: UTF-8 text / 40-hex origin |
+| `src/video_paper_wiki/capture_contracts.py` | reuse check: `PATH_PATTERN`, `SHA_PATTERN`, `MAX_BYTES` |
+| `src/video_paper_wiki/contracts.py` | `ContractError` shape |
+| `src/video_paper_wiki/envelope.py` | refusal envelope shape |
+| `src/video_paper_wiki/identity.py` | error shape / repo regex |
+
+No other files. Design SHA-256 is bound by the user prompt and the R2 review artifact, not recomputed in this session.
+
+## Production reuse (kernel)
+
+Reuse only:
+
+- exception shape `code` / `message` / `details` / `exit_code=2` (same attributes as `ContractError`; do **not** import the schema registry just to raise)
+- stdlib `hashlib.sha256` and `hashlib.sha1(data, usedforsecurity=False)`
+
+Do **not** reuse in the kernel:
+
+- `normalize_code_bytes` / `code_text_metadata` (text packet)
+- origin commit regex `[0-9a-f]{40}` (legacy 40-hex)
+- `capture_contracts.PATH_PATTERN` (rejects `.github/...`)
+- `_bounded_bytes` / `MAX_BYTES` = 64 MiB
+- legacy code manifest, staged-code capture, `secure_io`, staging, CLI, resources, envelope
+
+## Closure of the nine R2 findings
+
+| ID | Blocks kernel? | Recommended freeze |
+|---|---|---|
+| **CPR2-MANIFEST-PATH-001** | No | Persist output `.work/<batch>/code-evidence-v1/bundle.json` as the saved `code-git-bundle` envelope (private 0600). Observation/intent reference `{id, sha256}` of those exact saved bytes. Replay reads output `bundle.json` + output `objects/<oid>.body`, never the caller’s original directory. Enumerate the real allowlist (do not assume “12 families”). |
+| **CPR2-BUNDLE-OVERLAP-002** | No (I/O) | After a no-symlink descriptor walk, bundle root must be a real directory strictly inside checkout `.work/`, and must not equal, contain, or be contained by the output `code-evidence-v1` root. Reject any shared family name (`objects/`, `manifest.json` vs `bundle.json`, etc.). Capture bundle-root and `objects/` complete sets before classification; re-check those descriptors on every exit. |
+| **CPR2-REPAIR-IDENTITY-003** | No (I/O) | `intent.json` must store: `mode`, bundle envelope `{id,sha256}`, **manifest saved-byte SHA-256**, ordered declared object records (oid/type/size/body_sha256/framed_sha256), and the target set. Repair re-retains the caller bundle and refuses **before any write** if mode, path spelling, complete set, or any digest differs. `normalized_text` intent rejects any later bundle. |
+| **CPR2-TEXT-CONFIG-CAP-004** | No if kernel keeps raw bytes | Split caps: **16 KiB = normalized text / source-handoff only**; **256 KiB = config source bytes**; Git body cap remains 8 MiB. A 100 KiB JSON file can be a complete raw blob and config-eligible while failing the 16 KiB handoff cap. Target outcomes need separate flags (`raw_blob`, `normalized_text`, `config_eligible`). Do **not** adopt advice-r3 `max_source_bytes=1048576`; R2’s 256 KiB is the tighter candidate until Architect picks. |
+| **CPR2-PREFLIGHT-BUDGET-005** | Object half yes | Kernel preflight (before hashing bodies): `len(objects) ≤ max_objects`, each `body_size_bytes` is a non-bool `int` with `0 ≤ size ≤ max_object_bytes`, `sum(declared sizes) ≤ max_total_object_bytes`. Charge actual `len(body)` while verifying. Tree-entry cap is actual parsed entries (hard stop), not a size heuristic. **128 MiB output + atomic temp duplicate** stays in the I/O packet: charge `pending_temp + final` before each install; unlink temps on every exit. |
+| **CPR2-NUMERIC-GRAMMAR-006** | No | Later config packet. Promote advice-r3 regexes: JSON RFC 8259 (no `+`, no `_`, no leading zero); TOML decimal with explicit `_` placement; integer vs decimal from **source grammar**; context-free `Decimal` tuple; refuse `-0` / nonfinite; keep lexeme + raw span. |
+| **CPR2-SPAN-COORD-007** | No | Later config packet. Offsets/columns over strict decoded Unicode **before** newline normalization, Python codepoints (not UTF-16/graphemes); raw spans slice original bytes; CRLF = 2 bytes + 2 codepoints + 1 line; bare CR refuse; tab = 1 codepoint; no synthetic implicit-table value span. |
+| **CPR2-TOML-SUBSET-008** | No | Later config packet. **Reject** multiline arrays, multiline strings, comments-only if they are out of subset? Freeze: reject multiline arrays **and** comments if the scanner is single-line, **or** admit `#` comments + multiline arrays with exact spans — pick one. Refuse dotted/table redefinition and quoted/dotted decoded-key collision before stdlib cross-check. |
+| **CPR2-HANDOFF-SHA256-009** | No | Later handoff packet. `code-source-handoff` must carry `object_format` and exact-width `commit_oid`/`tree_oid`/`blob_oid`, plus `body_sha256`/`framed_sha256`/raw body ref. Successor-only; refuse any adapter into the legacy 40-hex code manifest until CODE-CANONICAL.
+
+Findings 001–004 and 006–009 are public-envelope/config/I/O work. They do not have to be closed before a kernel packet. Finding 005’s **object** formula must be in the kernel freeze.
+
+## Kernel-first packet: yes, with a kernel freeze
+
+Implement first:
+
+`src/video_paper_wiki/code_git_objects.py` + `tests/unit/test_code_git_objects.py`
+
+That module may use only stdlib + a local error class. It must not import `os`, `pathlib`, `subprocess`, `socket`, staging, Git, or `code_evidence_contracts`. Tests must use **static fixture bytes** (Git-produced offline is fine). Tests must not spawn `git`.
+
+Architect can freeze envelope/I/O/config in parallel. Do not start that work until a new packet names exact paths.
+
+## Proposed kernel API
+
+```python
+CODE_GIT_PROFILE_MAX_TARGETS = 32
+CODE_GIT_PROFILE_MAX_OBJECTS = 2048
+CODE_GIT_PROFILE_MAX_TREE_ENTRIES = 32768
+CODE_GIT_PROFILE_MAX_OBJECT_BYTES = 8 * 1024 * 1024
+CODE_GIT_PROFILE_MAX_TOTAL_OBJECT_BYTES = 32 * 1024 * 1024
+CODE_GIT_PROFILE_MAX_PATH_BYTES = 512
+CODE_GIT_PROFILE_MAX_PATH_COMPONENTS = 32
+
+def frame_git_object(object_type: str, body: bytes) -> bytes:
+    """type + SP + canonical_decimal(len(body)) + NUL + body.
+    canonical_decimal: ASCII [0-9]+, no sign, no leading zeros; empty body uses b'0'.
+    object_type in {commit, tree, blob}."""
+
+def git_object_ids(object_format: str, object_type: str, body: bytes) -> tuple[str, str, str]:
+    """Return (git_oid_hex, body_sha256_hex, framed_sha256_hex).
+    sha1: git_oid = sha1(framed) 40 hex; sha256: git_oid = sha256(framed) 64 hex
+    and git_oid == framed_sha256. body_sha256 is always sha256(body), never the Git OID
+    except by chance on empty/trivial bodies."""
+
+def verify_code_git_objects(
+    *,
+    object_format: str,          # "sha1" | "sha256"
+    commit_oid: str,             # lowercase hex, width 40 or 64
+    root_tree_oid: str,          # same width
+    objects: Sequence[Mapping[str, object]],
+    bodies: Mapping[str, bytes], # oid -> exact body B (not framed)
+    targets: Sequence[Mapping[str, object]],
+    limits: Mapping[str, object],
+) -> dict:
+    ...
+```
+
+**`objects` records** (already decoded; no JCS): sorted unique `oid`, exact fields
+`oid, object_type, body_size_bytes, body_sha256, framed_sha256`.
+Exactly one `object_type=commit` and it must be `commit_oid`. Others are `tree` or `blob`.
+
+**`targets`:** `{path, allow_executable_source}` only. Roles stay in the request packet. `path` is portable ASCII, 1–32 components, ≤512 bytes, `/`-separated, leading-dot components allowed, no `.` / `..` / `.git` component.
+
+**`limits`:** complete materialized ints, each a non-bool `int`, `1..profile_max` (sizes may be 0 only for `body_size_bytes`, not for caps):
+`max_objects, max_object_bytes, max_total_object_bytes, max_tree_entries, max_targets`.
+
+**Success return** (no filesystem paths, no text/config derivation):
+
+```text
+{
+  "object_format": "sha1"|"sha256",
+  "commit_oid": str,
+  "root_tree_oid": str,
+  "consumed_oids": [sorted hex],
+  "declared_oids": [sorted hex],          # equal to consumed_oids on success
+  "budget": {
+    "declared_objects": int,
+    "declared_body_bytes": int,
+    "actual_body_bytes": int,
+    "parsed_tree_entries": int,
+    "per_object": [{"oid", "object_type", "declared_body_bytes", "actual_body_bytes"}]
+  },
+  "targets": [
+    {
+      "path": str,
+      "outcome": "permitted_regular_blob"|"missing"|"unsafe",
+      "unsafe_reason": null|"executable_without_permission"|"symlink"|"gitlink"
+                      |"directory"|"non_directory_intermediate",
+      "visited_edges": [{"name_bytes_hex", "mode", "oid"}],
+      "blocking_edge": null|{...},        # required when missing/unsafe
+      "terminal_mode": null|"100644"|"100755"|...,
+      "terminal_oid": null|str,
+      "body": null|bytes,                 # only permitted_regular_blob; raw, uninterpreted
+      "body_sha256": null|str,
+      "framed_sha256": null|str
+    }
+  ]
+}
+```
+
+Hard graph/budget/syntax failure raises; **do not** return partial target lists.
+
+### Kernel algorithm (required order)
+
+1. Validate `object_format`, OID widths, record shape/sort/uniqueness, limits vs profile, `len(targets)`, path grammar. Reject `bool` sizes/limits (`True == 1`).
+2. **Preflight:** object count, each declared size, sum of declared sizes. Refuse before any hash.
+3. `bodies.keys()` must equal declared OIDs. Extra mapping keys → extra. Missing key → unavailable.
+4. For each declared object: `len(B)==declared`, recompute framed IDs, require `oid`, `body_sha256`, `framed_sha256`, and framed type to match. Never accept `body_sha256` as a Git OID stand-in.
+5. Parse **every** declared tree (syntax + sort + unique names + closed modes). Parse the single commit.
+6. Walk each target from `root_tree_oid` by raw path components (byte compare, no casefold, no Unicode decode of sibling names). Bound by the path’s own components; repeated tree OIDs do not unbounded-recurse.
+7. `consumed` = `{commit_oid, every visited tree OID, blob OIDs of permitted regular targets}`. Shared blobs count once. **Must equal** the declared set.
+
+### Commit syntax
+
+- Body is bytes. Headers are LF-oriented.
+- First bytes exactly `tree SP <root_tree_oid> LF`.
+- Header block ends at the first `LF LF`. Absence → invalid.
+- Top-level header = line that does **not** start with `SP`. Only `SP` is a continuation (`gpgsig` / `mergetag`). `TAB`-prefixed → invalid.
+- No CR in the header section.
+- No second top-level `tree` header.
+- Each `parent` line is exactly `parent SP <same-width lowercase hex> LF`. Zero or more parents. Uppercase, wrong width, extra tokens → invalid.
+- Other headers and the message are uninterpreted tail. No author/date/signature/ref checks.
+- Commit `tree` OID must equal `root_tree_oid`.
+
+### Tree syntax
+
+Entry: `mode SP name NUL binary_oid` with `binary_oid` 20 bytes (`sha1`) or 32 (`sha256`).
+
+- Names nonempty; no `/`, NUL, `.`, `..`.
+- Unique **raw** names.
+- Closed modes, exact ASCII tokens: `40000`, `100644`, `100755`, `120000`, `160000`. Not `040000`, `100664`, `100640`, `644`.
+- Sort with Git `base_name_compare`: compare `name + b'/'` if mode `40000`, else `name + b'\0'`. Unsorted → invalid tree, do not auto-sort.
+- Truncation / leftover bytes → invalid.
+- Unknown mode → **invalid tree**, not an `unsafe` target (cannot prove a missing edge from an illegal tree).
+
+### Target outcomes (not exceptions)
+
+| Edge | Outcome | Consume blob/child tree? |
+|---|---|---|
+| name absent in a **verified** tree | `missing` | no |
+| `100644` | `permitted_regular_blob` | yes, blob |
+| `100755` and `allow_executable_source=True` | `permitted_regular_blob` | yes, blob |
+| `100755` and flag false | `unsafe` / `executable_without_permission` | **no** |
+| `120000` | `unsafe` / `symlink` | **no** (do not read symlink body) |
+| `160000` | `unsafe` / `gitlink` | no |
+| requested path is `40000` | `unsafe` / `directory` | **no** child tree |
+| intermediate not `40000` | `unsafe` / `non_directory_intermediate` | no |
+
+Needed tree/blob **declared but body absent**, or **needed but not declared** → exception `CODE_PROOF_OBJECT_UNAVAILABLE` / `CODE_PROOF_CONSUMED_SET_MISMATCH`, **not** `missing`. `missing` is only a proven absent name.
+
+Raw blob bytes are returned only for `permitted_regular_blob`. No UTF-8, CRLF, 16 KiB, JSON/TOML, shebang, or import checks.
+
+## Explicit error surface
+
+Raise `CodeGitProofError` (same attribute shape as `ContractError`; `exit_code=2`). Closed codes:
+
+| code | when |
+|---|---|
+| `CODE_PROOF_OBJECT_FORMAT_INVALID` | not `sha1`/`sha256`; mixed widths |
+| `CODE_PROOF_OID_INVALID` | not lowercase hex of required width; abbreviation; `sha256:` prefix |
+| `CODE_PROOF_OBJECT_RECORD_INVALID` | field set, sort, duplicates, non-int/`bool` sizes, extra commit |
+| `CODE_PROOF_TARGET_INVALID` | path/flag grammar |
+| `CODE_PROOF_LIMIT_INVALID` | limits missing, `bool`, non-positive, above profile |
+| `CODE_PROOF_BUDGET_EXCEEDED` | objects / per-object / aggregate declared or actual / tree entries / targets |
+| `CODE_PROOF_OBJECT_HASH_MISMATCH` | oid / body_sha256 / framed_sha256 |
+| `CODE_PROOF_OBJECT_SIZE_MISMATCH` | `len(B) != body_size_bytes` |
+| `CODE_PROOF_OBJECT_TYPE_MISMATCH` | framed type ≠ declared type |
+| `CODE_PROOF_OBJECT_UNAVAILABLE` | required oid not in `bodies` |
+| `CODE_PROOF_OBJECT_EXTRA` | `bodies` has undeclared keys |
+| `CODE_PROOF_CONSUMED_SET_MISMATCH` | after a valid walk, consumed ≠ declared (unused trees/blobs/parents) |
+| `CODE_PROOF_FRAMING_INVALID` | type/SP/length/NUL; leading zeros in length |
+| `CODE_PROOF_COMMIT_INVALID` | first header, `LF LF`, CR, second `tree`, parent grammar |
+| `CODE_PROOF_TREE_INVALID` | truncation, mode, names, duplicates, sort, OID width |
+| `CODE_PROOF_ROOT_TREE_MISMATCH` | commit tree ≠ `root_tree_oid` |
+
+`details` always include the discriminating fields (`oid`, `path`, `limit_name`, `limit`, `observed`, `extra_oids`, `omitted_oids`, `mode`). No target outcomes on these codes.
+
+## Kernel tests (static bytes only)
+
+Must include Git-recorded **and** hand-built objects. A test that checks `body_sha256 == oid` as success is itself a failure.
+
+Minimum vectors:
+
+1. SHA-1 empty blob `e69de29bb2d1d6434b8b29ae775ad8c2e48c5391` from framing `blob 0\0`.
+2. SHA-256 nonempty blob: `oid == framed_sha256 != body_sha256`.
+3. SHA-1 nonempty: `oid != framed_sha256`; both declared and checked.
+4. Correct `body_sha256` with wrong Git OID → `OBJECT_HASH_MISMATCH`.
+5. Framing length `blob 07\0` vs 7-byte body → `FRAMING_INVALID` / hash mismatch.
+6. Root commit, merge with two parents, empty message after `LF LF`.
+7. Second top-level `tree` refuses; `gpgsig` continuation containing `tree ` does not.
+8. Uppercase / truncated / wrong-width parent refuses.
+9. Header CR / missing `LF LF` refuses.
+10. Tree sort: file `foo.bar`, dir `foo`, file `foo0` in that Git order; swapped order refuses.
+11. Duplicate names, `.` / `..` names, truncated entry refuse.
+12. Mode `040000` and `100664` → `TREE_INVALID`, not `unsafe`.
+13. `100755` without permission → `unsafe`, blob **not** in consumed; with permission → body returned.
+14. Symlink / gitlink / requested directory → `unsafe`; child body/tree if supplied → `CONSUMED_SET_MISMATCH`.
+15. Missing name in verified root tree → `missing`; consumed = `{commit, root_tree}` only.
+16. Intermediate tree oid absent → `OBJECT_UNAVAILABLE`, not `missing`.
+17. Unused extra blob/tree in `objects` → `CONSUMED_SET_MISMATCH`.
+18. Extra `bodies` key → `OBJECT_EXTRA`.
+19. Two paths, one blob OID → one consumed blob, two target records.
+20. Cyclic tree OIDs with a 2-component path terminate; no infinite walk.
+21. Non-UTF-8 sibling name ignored; ASCII target still matches.
+22. `body_size_bytes=True` refuses.
+23. Declared sum > `max_total_object_bytes` refuses **before** hashing.
+24. Parsed tree-entry cap hard-stops.
+25. Mixed 40/64 hex in one call refuses.
+26. Abbreviated OID refuses.
+27. `allow_executable_source` on `100644` still permitted.
+
+## Additional correctness blockers (not frozen)
+
+**1. Git directory sort (kernel).**  
+Counterexample: file `foo.bar` and dir `foo`. Naive `name` sort puts `foo` first; Git puts `foo.bar` first because `.` (0x2e) `<` `/` (0x2f). **Rule:** `base_name_compare` as above; unsorted trees are invalid.
+
+**2. Noncanonical modes are invalid trees.**  
+Counterexample: mode `040000` at `src/`. Treating it as a directory `unsafe`/`missing` fabricates proof from a tree Git would not write in canonical form. **Rule:** only the five tokens; otherwise `CODE_PROOF_TREE_INVALID`.
+
+**3. Unsafe/missing targets do not consume child objects.**  
+Counterexample: requested `link` is `120000` and the bundle also contains the symlink blob. If consumed omits that blob, declared≠consumed → invalid bundle. If the kernel “needs” the blob, it has dereferenced a symlink. **Rule:** do not consume symlink/gitlink/directory/executable-refused/missing bodies; supplying them is `CODE_PROOF_CONSUMED_SET_MISMATCH`.
+
+**4. Unavailable ≠ missing.**  
+Counterexample: path `a/b.py`; root lists `a` as `40000` → `T`; `T` not in `objects`. Returning `missing` claims a proven absent file. **Rule:** that is `CODE_PROOF_OBJECT_UNAVAILABLE`.
+
+**5. `bool` is not an int cap.**  
+Counterexample: `max_objects=True` or `body_size_bytes=True` passes `isinstance(..., int)` and becomes 1. **Rule:** `type(x) is int`.
+
+**6. Do not reuse `PATH_PATTERN` in the later request packet.**  
+Counterexample: `.github/workflows/ci.yml` is allowed by R2 and rejected by `capture_contracts.PATH_PATTERN` (`[A-Za-z0-9]` first). **Rule:** new path grammar; leading-dot components allowed; still no `.git`.
+
+**7. Advice-r3 vs R2 config source cap.**  
+Advice `max_source_bytes=1 MiB` vs R2 `256 KiB`. Advice is `ADVICE_ONLY_NOT_FROZEN`. **Rule:** pick one in the config packet; default to R2 256 KiB unless explicitly raised.
+
+**8. Framing length zeros.**  
+Counterexample: Git OID of `blob 7\0`+7 bytes vs bytes `blob 07\0`+7 bytes. **Rule:** canonical decimal only.
+
+**9. Exactly one declared commit.**  
+Counterexample: include parent commit objects “for completeness”. Walk will not consume them. **Rule:** declared set has exactly one commit, `oid==commit_oid`; parents are not objects in this kernel.
+
+**10. Advice interpolation marker `}}`.**  
+Counterexample: JSON string `"dict['a']}}"` in a config file. Config packet must not use a marker that refuses ordinary braces unless Architect really wants that. Not a kernel issue.
+
+## Still unfrozen (do not implement as if frozen)
+
+- public `vpwiki code-evidence` commands and schemas
+- `code-git-bundle` saved path /  output allowlist
+- bundle vs output descriptor overlap
+- repair input identity
+- 16 KiB vs 256 KiB eligibility flags
+- JSON/TOML numeric, span, and subset grammar
+- SHA-256 source-handoff fields
+- 128 MiB atomic-install accounting
+- this kernel API, until Architect copies it into a frozen packet
+
+## Constraints observed
+
+Ownership R3: implementation owner is this Grok CLI, but **no source writes** before a new exact packet. Discovery R3 31-path candidate remains untouched. Zero-egress, no Git, no providers, no subprocess, no extra agents, no Vault.
+
+**No files written. No commands run. No implementation started.** Stop. Architect should send a frozen kernel packet (paths, this API, these codes) before any Builder work.

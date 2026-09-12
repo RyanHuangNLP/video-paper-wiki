@@ -1,0 +1,763 @@
+{
+  "schema": "full-todo.discovery-installed-wheel-review-r3.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": 3,
+  "recorded_at_utc": "2026-09-09T14:30:48.604531Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent offline installed-wheel verifier",
+    "scope": "R3 frozen Discovery wording candidate"
+  },
+  "decision": "PASS_ENGINEERING_R3_WHEEL_AND_PUBLIC_OUTPUT_SMOKE_PENDING_LOCAL_ARCHITECT_ACCEPTANCE",
+  "verdict": "Fresh offline R3 wheel build, dual isolated runtime installs, exact candidate manifest parity, 23-resource byte parity, import origins, and strengthened public CLI output vectors passed. This remains engineering evidence only; no scientific, human, real-source, Vault, CI or merge acceptance is implied.",
+  "source_candidate": {
+    "manifest": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r3.json",
+    "manifest_sha256": "fc2952b225f81e3006fd87918def4557c5a84def531e5997ca000b834691469d",
+    "snapshot_sha256": "7c4351482a3a77276fe83b268ac1eb9e32dc72b83c2063d699ad92cb94f8234c",
+    "baseline_head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source",
+    "file_count": 31,
+    "manifest_rows_all_match": true,
+    "changed_from_r1": [
+      "docs/discovery-expansion.md",
+      "src/video_paper_wiki_research/discovery.py",
+      "tests/research/test_discovery_workflow.py"
+    ],
+    "changed_count_from_r1": 3,
+    "held_from_r1": 28,
+    "changed_from_r2": [
+      "src/video_paper_wiki_research/discovery.py",
+      "tests/research/test_discovery_workflow.py"
+    ],
+    "changed_count_from_r2": 2,
+    "held_from_r2": 29,
+    "repair_packet": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-OUTPUT-WORDING-R3.json",
+      "sha256": "a3016480e42d3946a7cf95f8dd4112a38813d2a4739ddce691494ab10b43a957"
+    },
+    "source_writes_stopped": true
+  },
+  "build": {
+    "tool": "/Users/huangzhanpeng/.hermes/bin/uv",
+    "tool_version": "0.12.7",
+    "command": "uv build --offline --wheel --out-dir <artifact>/wheel <frozen-source-root>",
+    "returncode": 0,
+    "stdout": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/build/build.stdout",
+    "stderr": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/build/build.stderr",
+    "network_used": false,
+    "wheel": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/wheel/video_paper_wiki-0.1.0-py3-none-any.whl",
+    "wheel_sha256": "8c614ad633f386c826b877e002b8f7b24148a8a4ced4743d8f11154a544705e3",
+    "wheel_size_bytes": 759142
+  },
+  "resource_parity": {
+    "record": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/resource-parity.json",
+    "record_sha256": "6e6bd1acd6329e83940fc3910968869877f83235d51db6928f9745d67709d4c6",
+    "module_count": 8,
+    "schema_count": 13,
+    "resource_count": 23,
+    "missing_count": 0,
+    "mismatch_count": 0,
+    "byte_exact": true
+  },
+  "runtimes": [
+    {
+      "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312/venv/bin/python",
+      "environment": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312/venv",
+      "repository_cwd_origins": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-origins.json",
+      "fixture_cwd_origins": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-origins-fixture.json",
+      "pythonpath": null,
+      "cli": {
+        "command_count": 10,
+        "commands": {
+          "help-discovery": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/help-discovery.json",
+            "artifact_sha256": "466fa315d3237e290b0251b4b9d2622723f986d056e359c3cdb19d99c0e0be37",
+            "envelope_ok": null,
+            "leaf_commands": [
+              "init",
+              "plan",
+              "observe",
+              "context",
+              "finish",
+              "status",
+              "resume",
+              "control",
+              "decide",
+              "handoff",
+              "render"
+            ],
+            "stdout_nonempty_line_count": 9
+          },
+          "init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/init.json",
+            "artifact_sha256": "ee297ae2bb2d7a8433c7fce9aa1e9b4e1aa2b45b451ca2cff7cfeaecdc0e21a9",
+            "envelope_ok": true,
+            "command": "discovery.init",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false
+          },
+          "status-after-init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/status-after-init.json",
+            "artifact_sha256": "be6c6b479a85743ef217423d88f4887e894e7fbf0166195587756d37b9856aa4",
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false
+          },
+          "plan": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/plan.json",
+            "artifact_sha256": "cc1ea38bcc692c12bfeafcf123b12e99b4a7ebe5f1e54d882a941479f21f0f07",
+            "envelope_ok": true,
+            "command": "discovery.plan",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false
+          },
+          "observe-0": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/observe-0.json",
+            "artifact_sha256": "72483680604696dceff92d46aedc75bf44aa950a532f797f43c27d419ac59791",
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false
+          },
+          "observe-1": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/observe-1.json",
+            "artifact_sha256": "18d2c4ea3b8c6f747ae04610677dc67c8316d1b73e97eaa3589aa83a2a47206c",
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "assessment_required",
+            "effective_state": "assessment_required",
+            "next_action": "assess",
+            "assessment_required": true
+          },
+          "finish": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/finish.json",
+            "artifact_sha256": "a5c9cb1cfade48dc82f3d8b47cc6d587765ff160b96e7d704ae1e991407f6776",
+            "envelope_ok": true,
+            "command": "discovery.finish",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          },
+          "status": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/status.json",
+            "artifact_sha256": "b79c1771a7e093f72dadf5200dba10e6ad94685722ef9b182ab3410b6bc042a5",
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          },
+          "render": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/render.json",
+            "artifact_sha256": "251394baf8f16b47022d6152cae8ec77e7c634830ff414141beba002edaede99",
+            "envelope_ok": true,
+            "command": "discovery.render",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          },
+          "context": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/context.json",
+            "artifact_sha256": "c50ac6058d93ca7ac383ea7280f0e8fd597bf1706e525018e4253d1cedf5332d",
+            "envelope_ok": true,
+            "command": "discovery.context",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          }
+        },
+        "leaf_count": 11,
+        "leaf_commands": [
+          "init",
+          "plan",
+          "observe",
+          "context",
+          "finish",
+          "status",
+          "resume",
+          "control",
+          "decide",
+          "handoff",
+          "render"
+        ],
+        "request_count": 2,
+        "retained_file_count": 12,
+        "summary": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/summary.json",
+        "summary_sha256": "b69808c73d52026721af7eca175e7720cc5ddd1f95a02e94cba52d2eb1849715",
+        "terminal_state": "calculated_stopped",
+        "assessment_reference": {
+          "id": "rw3:research-assessment:23dd03c1ce16b31f741e5fb5e1aab0746404ac88cf0b73921ee23d0915ff101e",
+          "sha256": "ff60f6a231b93961a7a2829839b69c1d14341c50bdfa417a44a3afabba8b19d2"
+        },
+        "assessment_lens_states": {
+          "method": "covered",
+          "benchmark": "gap",
+          "implementation": "gap",
+          "counterevidence": "gap",
+          "reproduction": "gap"
+        },
+        "operation_health_outcomes": [
+          "timeout",
+          "success"
+        ],
+        "operation_health_failure_codes": [
+          "timeout"
+        ],
+        "render_flags": {
+          "Completed provisional coverage": true,
+          "method: covered": true,
+          "benchmark: gap": true,
+          "## Operation health": true,
+          "timeout": true,
+          "Complete candidate evidence:": true,
+          "Why found": true,
+          "Contributions (first 1 of 1; 0 omitted):": true,
+          "Suppressed (first 0 of 0; 0 omitted):": true,
+          "Why found (first 1 of 1; 0 omitted; complete set in candidate evidence above):": true
+        }
+      }
+    },
+    {
+      "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+      "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313/venv-clean/bin/python",
+      "environment": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313/venv-clean",
+      "repository_cwd_origins": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-origins.json",
+      "fixture_cwd_origins": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-origins-fixture.json",
+      "pythonpath": null,
+      "cli": {
+        "command_count": 10,
+        "commands": {
+          "help-discovery": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/help-discovery.json",
+            "artifact_sha256": "488589e081dd1646f0d24dfbb8706f08f4ba3f4984788ea0586334fb7ddc4e7b",
+            "envelope_ok": null,
+            "leaf_commands": [
+              "init",
+              "plan",
+              "observe",
+              "context",
+              "finish",
+              "status",
+              "resume",
+              "control",
+              "decide",
+              "handoff",
+              "render"
+            ],
+            "stdout_nonempty_line_count": 8
+          },
+          "init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/init.json",
+            "artifact_sha256": "040ad099a71262536b6ade5146839edb2dbe989c69883ab8181fa4d80ad524f8",
+            "envelope_ok": true,
+            "command": "discovery.init",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false
+          },
+          "status-after-init": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/status-after-init.json",
+            "artifact_sha256": "7149b48f8d814fac512848a8f0c713e3526057c5a8e55a3554a893eb52a9b464",
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "session_ready",
+            "effective_state": "session_ready",
+            "next_action": "plan",
+            "assessment_required": false
+          },
+          "plan": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/plan.json",
+            "artifact_sha256": "67a42779d1ad471de28cc1a17754bb80d0bd470afda36487b54dcec819a3eae2",
+            "envelope_ok": true,
+            "command": "discovery.plan",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false
+          },
+          "observe-0": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/observe-0.json",
+            "artifact_sha256": "e5df99b366a725e7b06555537fdcc7c3c33a69877591fdf3baed034b16a999ee",
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "plan_pending_observations",
+            "effective_state": "plan_pending_observations",
+            "next_action": "observe",
+            "assessment_required": false
+          },
+          "observe-1": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/observe-1.json",
+            "artifact_sha256": "272a67d2e33424c7b14e533925a84563c6e5d0f19cb011f30ac6fe0a85b81dfb",
+            "envelope_ok": true,
+            "command": "discovery.observe",
+            "base_state": "assessment_required",
+            "effective_state": "assessment_required",
+            "next_action": "assess",
+            "assessment_required": true
+          },
+          "finish": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/finish.json",
+            "artifact_sha256": "b3dc61fee90a143247d2a736bea410bfce01ae66c68092141162f9af06c05704",
+            "envelope_ok": true,
+            "command": "discovery.finish",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          },
+          "status": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/status.json",
+            "artifact_sha256": "e3ab1e1df1ac7bf845a5304223220c6985375b4f8840087dab2acd08af0cacbf",
+            "envelope_ok": true,
+            "command": "discovery.status",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          },
+          "render": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/render.json",
+            "artifact_sha256": "3ba0cd6eb05ab7b5f599973a644a89ca8008badab3ce5157e4dd39a6c64cc29e",
+            "envelope_ok": true,
+            "command": "discovery.render",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          },
+          "context": {
+            "returncode": 0,
+            "stderr_empty": true,
+            "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/context.json",
+            "artifact_sha256": "d3c7ef19e91e04aa8af7d1c30f49465a8551bf1fd1a29bbef12ae1bb4579022c",
+            "envelope_ok": true,
+            "command": "discovery.context",
+            "base_state": "calculated_stopped",
+            "effective_state": "calculated_stopped",
+            "next_action": "stop",
+            "assessment_required": false
+          }
+        },
+        "leaf_count": 11,
+        "leaf_commands": [
+          "init",
+          "plan",
+          "observe",
+          "context",
+          "finish",
+          "status",
+          "resume",
+          "control",
+          "decide",
+          "handoff",
+          "render"
+        ],
+        "request_count": 2,
+        "retained_file_count": 12,
+        "summary": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/summary.json",
+        "summary_sha256": "2c250dccae83b833575acc4e8a44f5e0abc952b4f34f69c5e35f54e7869805c8",
+        "terminal_state": "calculated_stopped",
+        "assessment_reference": {
+          "id": "rw3:research-assessment:23dd03c1ce16b31f741e5fb5e1aab0746404ac88cf0b73921ee23d0915ff101e",
+          "sha256": "ff60f6a231b93961a7a2829839b69c1d14341c50bdfa417a44a3afabba8b19d2"
+        },
+        "assessment_lens_states": {
+          "method": "covered",
+          "benchmark": "gap",
+          "implementation": "gap",
+          "counterevidence": "gap",
+          "reproduction": "gap"
+        },
+        "operation_health_outcomes": [
+          "timeout",
+          "success"
+        ],
+        "operation_health_failure_codes": [
+          "timeout"
+        ],
+        "render_flags": {
+          "Completed provisional coverage": true,
+          "method: covered": true,
+          "benchmark: gap": true,
+          "## Operation health": true,
+          "timeout": true,
+          "Complete candidate evidence:": true,
+          "Why found": true,
+          "Contributions (first 1 of 1; 0 omitted):": true,
+          "Suppressed (first 0 of 0; 0 omitted):": true,
+          "Why found (first 1 of 1; 0 omitted; complete set in candidate evidence above):": true
+        }
+      }
+    }
+  ],
+  "strengthened_cli_assertions": {
+    "fixture": "synthetic local two-request/two-observation chain; first observation success, second timeout; no provider/network call",
+    "python_versions": [
+      "3.12.14",
+      "3.13.13"
+    ],
+    "command_count_per_runtime": 10,
+    "leaf_commands": [
+      "init",
+      "plan",
+      "observe",
+      "context",
+      "finish",
+      "status",
+      "resume",
+      "control",
+      "decide",
+      "handoff",
+      "render"
+    ],
+    "leaf_count": 11,
+    "all_returncodes_zero": true,
+    "all_json_envelopes_ok": true,
+    "terminal_state": "calculated_stopped",
+    "last_completed_assessment": "present with five lenses and mixed covered/gap states",
+    "operation_health": "present with terminal success and timeout plus timeout failure code",
+    "render": "contains provisional coverage, lens gap/covered states, operation health, timeout, candidate evidence, Why found provenance, and explicit per-list omitted counts",
+    "formal_admission": false,
+    "retained_files_per_runtime": 12
+  },
+  "evidence_reference_verification": {
+    "reference_count": 27,
+    "all_refs_ok": true,
+    "refs": [
+      {
+        "label": "runtime-312.0",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-origins.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "3ac45d0de8ea7cd26d43241f549052e4007e4d08f1d7debd9957c2642bc5311f",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.1",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-origins-fixture.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "a00d3b8e56067993ad332c35baf7eb550c9ce73ae245cd843da61059023ff30b",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.2",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-venv.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.3",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-venv.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "aa24245e6308ca6249444bbbaf74928ed1f30edafee433a1a4b00780bb05f343",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.4",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-install.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.5",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-install.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "4156b822cb2758bbb4bcb72542d2b5db44a788ad5d972d28c60df287aff73d3f",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.6",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-deps.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "b0344bde0e69e744fd5a3a2596eb689e63a5bbfb4fff5fd580a8330c94b8c8a6",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.7",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-312-deps.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-312.8",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-312/summary.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "b69808c73d52026721af7eca175e7720cc5ddd1f95a02e94cba52d2eb1849715",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.0",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-origins.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "492f27249df26e683386b67b9205ecc255f50c9c46d4539b40f0dcffa6d8fc33",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.1",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-origins-fixture.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "222a965b0f13c677575ac6f702e9037038fefe67c9ce7113e3ebb5cc7be2c255",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.2",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-venv.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.3",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-venv.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "c03e0a970e9a7449501fa8b2679d47aac848afd9fa2ad4dd1d787375faa857ae",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.4",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-install.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.5",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-install.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "b19103f027bcbd729185157f939ea1872bb883fcc7b6d89cef0840b39cf31df7",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.6",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-deps.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "19b62069375bb10bfe55ed96b69b8591fc1979b8dd801d0640db9233381b2d91",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.7",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/runtime-313-deps.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "runtime-313.8",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/cli/runtime-313/summary.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "2c250dccae83b833575acc4e8a44f5e0abc952b4f34f69c5e35f54e7869805c8",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "candidate_manifest",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r3.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "fc2952b225f81e3006fd87918def4557c5a84def531e5997ca000b834691469d",
+        "expected_sha256": "fc2952b225f81e3006fd87918def4557c5a84def531e5997ca000b834691469d",
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "r1_candidate_manifest",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r1.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54",
+        "expected_sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54",
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "r2_candidate_manifest",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r2.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "98917ee28bb207a36abfbdf1a64fae6bae9e3645a6a0cbd6b22bd6bab08981fd",
+        "expected_sha256": "98917ee28bb207a36abfbdf1a64fae6bae9e3645a6a0cbd6b22bd6bab08981fd",
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "repair_packet",
+        "path": "docs/ai/packets/full-todo-v1/DISCOVERY-OUTPUT-WORDING-R3.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "a3016480e42d3946a7cf95f8dd4112a38813d2a4739ddce691494ab10b43a957",
+        "expected_sha256": "a3016480e42d3946a7cf95f8dd4112a38813d2a4739ddce691494ab10b43a957",
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "build.returncode",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/build/build.returncode",
+        "exists": true,
+        "is_file": true,
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "build.stdout",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/build/build.stdout",
+        "exists": true,
+        "is_file": true,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "build.stderr",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/build/build.stderr",
+        "exists": true,
+        "is_file": true,
+        "sha256": "3bdf52ae0825a392b59ab090c164ee2a6b23305efc57ccda4fb1174063603203",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "wheel",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/wheel/video_paper_wiki-0.1.0-py3-none-any.whl",
+        "exists": true,
+        "is_file": true,
+        "sha256": "8c614ad633f386c826b877e002b8f7b24148a8a4ced4743d8f11154a544705e3",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      },
+      {
+        "label": "resource_parity",
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3/resource-parity.json",
+        "exists": true,
+        "is_file": true,
+        "sha256": "6e6bd1acd6329e83940fc3910968869877f83235d51db6928f9745d67709d4c6",
+        "expected_sha256": null,
+        "hash_match": true,
+        "ok": true
+      }
+    ]
+  },
+  "controls": {
+    "source_writes": false,
+    "git_mutations": false,
+    "network_or_connector_calls": false,
+    "real_vault_mutation": false,
+    "real_pdf_or_repository_provenance": false,
+    "human_gate_closed": false,
+    "artifacts_written": [
+      "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/installed-wheel-r3"
+    ]
+  }
+}

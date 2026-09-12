@@ -1,0 +1,113 @@
+{
+  "schema": "lightweight-library-delivery-preparation-review.v1",
+  "reviewed_at_utc": "2026-09-08T06:13:57Z",
+  "status": "PASS_PREPARATION_ONLY",
+  "final_source_acceptance": false,
+  "final_ci_acceptance": false,
+  "git_mutation_performed": false,
+  "active_t3_read": false,
+  "input": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-preparation-r1.json",
+    "sha256": "70905829bd466ed7a952a204b865b43d8051340e53a45af0682ae7241b7c5342",
+    "sha256_matches_requested": true,
+    "status": "PREPARATION_ONLY_PENDING_FINAL_SOURCE_AND_LOCAL_ACCEPTANCE"
+  },
+  "scope": {
+    "product_path_count": 26,
+    "architect_metadata_path_count": 6,
+    "product_paths_unique": true,
+    "architect_metadata_paths_unique": true,
+    "overlap": [],
+    "target": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+    "baseline": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "baseline_tree": "fc317f13ad781a9121c15503c4f1d945c5fafe2a",
+    "target_head_equals_baseline": true,
+    "target_tree_equals_record": true,
+    "target_worktree_clean": true
+  },
+  "coordination_files": {
+    "delivery_baseline_commit": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "delivery_baseline_tree": "fc317f13ad781a9121c15503c4f1d945c5fafe2a",
+    "body_source": "target baseline commit 3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "root_historical_body_used": false,
+    "files": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "42a43a971ab9ead60c516d0fd144ef87ef5dc13d8c267f4a02778a0fa0646c51",
+        "size_bytes": 16277,
+        "matches_delivery_baseline_commit": true,
+        "current_header_marker": "# Current four-agent Cursor CLI coordination"
+      },
+      {
+        "path": "docs/ai/task-index.yaml",
+        "sha256": "3e0f68bc057eea7c2decac260b75f15630723f9e8924ada0c8e90f2f96fa06d9",
+        "size_bytes": 79142,
+        "matches_delivery_baseline_commit": true,
+        "current_header_marker": "# Current coordination; historical handoff records below keep their original revision."
+      },
+      {
+        "path": "docs/ai/codex-team.md",
+        "sha256": "f3b4c3c2cd16adf2f6a8351ca227089c200a36ecda1db364895ad21262cd149d",
+        "size_bytes": 18997,
+        "matches_delivery_baseline_commit": true,
+        "current_header_marker": "# 当前：Astra + 三个 Luna 控制四路 Cursor CLI"
+      }
+    ],
+    "root_copy_hashes_observed_for_divergence_check": {
+      "AGENTS.md": {
+        "sha256": "173146845d277ecd0d50619b4b0e58013953b452badfe33f7d97da4940626064",
+        "size_bytes": 17445
+      },
+      "docs/ai/task-index.yaml": {
+        "sha256": "9718539450f0f4bffffe0f448ccc871e9004d71c491b3bb01f9b3afaaaf03f06",
+        "size_bytes": 79220
+      },
+      "docs/ai/codex-team.md": {
+        "sha256": "bd5a9f255fb7aa186e8acfe9c73fcc68f56b382f975c9f4f5adcf5a4df2eedc6",
+        "size_bytes": 20953
+      }
+    },
+    "finding": "The three planned coordination files match the immutable delivery-3368 bodies, whose current headers identify the four-agent coordination. Root copies were not used as delivery bodies."
+  },
+  "protected_material_review": {
+    "forbidden_path_matches": [],
+    "raw_pdfs_in_plan": false,
+    "raw_logs_in_plan": false,
+    "local_source_bundles_in_plan": false,
+    "old_protected_evidence_in_plan": false,
+    "explicit_allowed_acceptance_record": [
+      "artifacts/verification/lightweight-library-v1/local-acceptance.json"
+    ],
+    "finding": "The allowlist contains only product files plus six named architecture metadata files; the verification metadata entry is the explicitly planned local-acceptance record, not a raw/evidence bundle."
+  },
+  "contract": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+    "sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "expected_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "byte_exact_match": true,
+    "carry_verbatim": true
+  },
+  "release_requirements": {
+    "execution_freeze_is_historical_local_record": true,
+    "execution_freeze_is_new_dispatch_authority": false,
+    "release_must_state_fresh_exact_head_ci_pending": true,
+    "release_must_state_post_ci_acceptance_separate": true,
+    "local_acceptance_must_bind_snapshot_only": true,
+    "basis": "delivery-preparation metadata_policy and existing snapshot-bound T2 R7 local acceptance record"
+  },
+  "local_acceptance_reference": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-local-acceptance.json",
+    "sha256": "24e93615ea1d4f4162b9a29be8a64da3305c74fd84673b8149b147f8a3e07305",
+    "snapshot_sha256": "a3d06ca1aeee2673d6057a7bd619562e4a32d9569dba9ee2f50dd41ea81d7f34",
+    "final_product_accepted": false,
+    "merge_authorized": false,
+    "fresh_ci_record_present": false,
+    "finding": "Existing local acceptance is snapshot-bound and explicitly not final product acceptance; fresh exact-head CI remains a separate later gate."
+  },
+  "limitations": [
+    "This is a preparation review only; it does not accept a final source head.",
+    "No active T3 source was inspected.",
+    "No Git mutation, commit, push, merge, or CI action was performed.",
+    "The future release file must preserve the stated historical-freeze and fresh-CI wording."
+  ]
+}

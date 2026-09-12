@@ -1,0 +1,395 @@
+{
+  "$schema": "full-todo.code-observation-contract-advice-r1.v1",
+  "packet": "CODE-OBSERVATION",
+  "revision": "R1-contract-advice-read-only",
+  "recorded_at_utc": "2026-09-09T08:05:00Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent read-only code-observation contract reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Design advice only. No production source, tests, Git state, network, connector, real Vault, or human relation review was mutated.",
+  "verdict": "DESIGN_ADVICE_READY_PENDING_ARCHITECT_FREEZE",
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90",
+      "size_bytes": 5206
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-code-scope-review-r1.json",
+      "sha256": "2b60f8d0222ef2664909081d6710172f33426a179626f48b15dcb0fafa24e2b5",
+      "size_bytes": 23891
+    },
+    {
+      "path": "docs/ai/TODO-manual-pdf-v1.md",
+      "sha256": "92e650ed6651ecdfa8985c093c2429dc9162f236d27ef8a9f4bdfd79fa4f81f7",
+      "size_bytes": 2528
+    },
+    {
+      "path": "docs/ai/video-generation-research-wiki-v1-prd-r3.3.md",
+      "sha256": "8f70a7e845e0cb3cd61b6d2ddbe12b36816c934ba3e4ea4eb370c05a62c3d8ff",
+      "size_bytes": 58066
+    },
+    {
+      "path": ".work/parallel/source-conversion-v1/terminal-1/source/src/video_paper_wiki/code_evidence_contracts.py",
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "size_bytes": 10125
+    },
+    {
+      "path": ".work/parallel/source-conversion-v1/terminal-1/source/src/video_paper_wiki/staged_code_capture.py",
+      "sha256": "f3f713c47740c8ddf83168a777c6e8bed71dde017d2a60c2c32be222de0530bb",
+      "size_bytes": 15134
+    },
+    {
+      "path": ".work/parallel/source-conversion-v1/terminal-1/source/src/video_paper_wiki/commands/prepare.py",
+      "sha256": "d5f46367e484872e5743d790330bc6537b60e94cbfd9977b3451f263af83143e",
+      "size_bytes": 15476
+    },
+    {
+      "path": ".work/parallel/source-conversion-v1/terminal-1/source/src/video_paper_wiki/commands/plan.py",
+      "sha256": "b480c74c2c058163c1f5ac221cac74db5574901e4040c6bf6759ecc72f444c65",
+      "size_bytes": 5726
+    },
+    {
+      "path": ".work/parallel/source-conversion-v1/terminal-1/source/schemas/video-paper-wiki.code-evidence-manifest.v1.schema.json",
+      "sha256": "d6faf83a8316a63f6abd50cbea8cb322a85b74cfc310888caea0af082c25aeb7",
+      "size_bytes": 4398
+    }
+  ],
+  "baseline": {
+    "source_root": ".work/parallel/source-conversion-v1/terminal-1/source",
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "working_tree": "dirty conversion WIP is present; this advice depends only on the listed baseline files and must not imply acceptance of the WIP",
+    "existing_boundary": "code-map prepare accepts caller source-path bytes and caller-declared repository/commit/path; staged capture is content-addressed and transaction-inspected, but neither proves that bytes are the Git blob at the declared commit nor records a multi-file same-commit observation"
+  },
+  "contract_advice": {
+    "purpose": "Add a zero-egress request/observation boundary for bounded official-code and configuration evidence while preserving the existing code-evidence-manifest.v1 and staged capture semantics.",
+    "non_goals": [
+      "Do not add an agent-side GitHub or Git fetcher, clone, archive download, shell command, recursive repository traversal, model loader, or weights download.",
+      "Do not make a connector observation a human officiality judgment or automatically publish a paper-to-repository relation.",
+      "Do not alter legacy manifest, locator, repo-record, paper-code-alignment, or retrieval schemas in place.",
+      "Do not treat a normalized web page or excerpt as proof of exact source bytes or as a Git blob.",
+      "Do not write a real Vault; all generated material remains under the approved .work boundary until a separately accepted publication transaction."
+    ],
+    "request": {
+      "schema": "video-paper-wiki.code-observation-request.v1",
+      "root_keys": [
+        "schema",
+        "state",
+        "request_id",
+        "paper_id",
+        "source_association",
+        "repository",
+        "commit",
+        "targets",
+        "budgets",
+        "transport"
+      ],
+      "state": "request",
+      "binding": "Bind paper_id, canonical repository and one explicit full commit. If source_association is supplied, it is an exact immutable source association/version reference; changing display head cannot retarget this request.",
+      "repository": "Canonical owner/name only, normalized once and retained verbatim in the request; no alternate repository is selected by observation.",
+      "commit": "Explicit full lowercase Git object ID. The request records git_object_format=sha1 or sha256 and the declared ID must have the corresponding 40 or 64 hex length. Existing legacy manifests remain subject to their 40-character commit contract.",
+      "roles": [
+        "readme",
+        "citation",
+        "license",
+        "implementation",
+        "configuration",
+        "entrypoint"
+      ],
+      "target_shape": {
+        "required": [
+          "ordinal",
+          "role",
+          "path"
+        ],
+        "optional": [
+          "requested_url",
+          "expected_media_type",
+          "expected_encoding",
+          "capability"
+        ],
+        "path_rules": "Relative normalized POSIX path, no leading slash, empty component, dot component, dot-dot component, backslash, NUL, URL query, glob, wildcard, or recursive pattern. Each target is one file path; duplicate path/role entries refuse unless the request explicitly records a distinct bounded representation target.",
+        "capability_enum": [
+          "raw_bytes",
+          "normalized_text",
+          "metadata_only"
+        ]
+      },
+      "budgets": {
+        "required": [
+          "max_targets",
+          "max_requests",
+          "max_bytes_per_file",
+          "max_total_bytes",
+          "max_excerpt_bytes",
+          "max_config_nodes"
+        ],
+        "rule": "All limits are positive bounded integers and are part of the request digest. Refuse before connector invocation when target count or declared limits exceed the frozen profile; never silently truncate or omit a target."
+      },
+      "transport": {
+        "meaning": "Requested connector constraints only; they are not observations.",
+        "allowed_keys": [
+          "provider",
+          "api_version",
+          "allowed_hosts",
+          "read_only",
+          "offline_connector"
+        ],
+        "rules": [
+          "read_only and offline_connector must be true for the public agent boundary.",
+          "URLs, if present, are bounded target hints and must use an allowlisted host; URL content never substitutes for Git identity.",
+          "No arbitrary command, archive, clone, recursive path, or unbounded search field is accepted."
+        ]
+      },
+      "identity": "Canonical request bytes are hashed with a domain-separated digest. Request identity includes every target, role, path, commit, association reference and limit so a caller cannot reuse an observation for a different source set."
+    },
+    "observation": {
+      "schema": "video-paper-wiki.code-observation.v1",
+      "root_keys": [
+        "schema",
+        "state",
+        "observation_id",
+        "request_sha256",
+        "observed_at",
+        "connector",
+        "repository",
+        "commit",
+        "tree",
+        "targets",
+        "coverage",
+        "capability",
+        "officiality_signals",
+        "config_evidence",
+        "observation_sha256"
+      ],
+      "state_enum": [
+        "observed",
+        "partial",
+        "failed"
+      ],
+      "lineage": "One immutable observation records one connector/session lineage. repository, commit, tree and object-format facts are observed once and every target must prove membership in that same commit/tree. A per-file call that could cross a directory replacement is not a valid collection.",
+      "commit_facts": [
+        "repository",
+        "git_object_format",
+        "commit_oid",
+        "tree_oid",
+        "commit_parent_oids",
+        "commit_author_or_source_metadata",
+        "commit_timestamp"
+      ],
+      "target_fact_shape": {
+        "required": [
+          "ordinal",
+          "role",
+          "requested_path",
+          "status",
+          "observed_path",
+          "git_type",
+          "mode",
+          "blob_oid",
+          "raw_sha256",
+          "normalized_sha256",
+          "line_count",
+          "evidence"
+        ],
+        "status_enum": [
+          "present",
+          "missing",
+          "inaccessible",
+          "mismatch",
+          "unsafe"
+        ],
+        "rules": [
+          "present requires git_type=file, a regular supported mode, exact observed_path equality, a blob_oid matching the declared object format, and evidence of the requested capability.",
+          "missing or inaccessible retains the requested path, reason code and bounded search/inventory scope; it never disappears from coverage.",
+          "mismatch records both requested and observed repository/commit/tree/path/blob facts and refuses success.",
+          "unsafe covers symlink, submodule, tree, executable or other non-approved mode/type according to the frozen role policy; no bytes are handed to code capture.",
+          "mode and git_type are independently checked. A same-content duplicate at another path is not the requested target."
+        ]
+      },
+      "git_proof": {
+        "required_for_raw": [
+          "commit_oid",
+          "tree_oid",
+          "path",
+          "mode",
+          "git_type",
+          "blob_oid",
+          "raw_sha256"
+        ],
+        "verification": "For raw bytes, the host connector proves the commit/tree/path entry and Git blob object identity using the repository object-format header plus exact bytes. The contract stores the Git blob OID and ordinary SHA-256 of the raw payload separately; neither is substituted for normalized_sha256.",
+        "normalized_only": "A normalized text view may carry UTF-8, line, newline and normalized_sha256 evidence, but it cannot claim blob_oid proof or exact source authority. It remains unverified for byte-bound capture.",
+        "duplicate_content": "Two requested paths may legitimately report equal raw_sha256, normalized_sha256 and blob_oid. They still produce two logical target records and, when handed off, two manifests whose origin paths remain distinct.",
+        "crlf": "Preserve raw bytes and raw_sha256. Derive newline_style, ends_with_newline, line_count and normalized_sha256 with existing normalize_code_bytes/code_text_metadata. CRLF-to-LF normalization never changes the raw Git proof."
+      },
+      "coverage": "coverage.complete is true only when every requested target is present with all required evidence. coverage.partial is explicit when any target is missing, inaccessible, normalized-only, unsafe or mismatched; no successful complete observation is manufactured from a subset.",
+      "observation_hash": "Hash the complete canonical observation, including target failures, connector facts, requested-path coverage, excerpts, capability flags and config evidence. Omitting a failed target or replacing an observed value after handoff invalidates the hash."
+    },
+    "workflow": [
+      "Resolve and validate paper_id and optional source_association against immutable local records; reject an unresolved or display-only reference before creating a request.",
+      "Construct one bounded request with one repository, one exact commit, explicit role-grouped paths and frozen budgets. Canonicalize and hash it before any observation.",
+      "Pass only the request bytes/reference to an approved host connector or external operator. The public Python process performs no network or repository access.",
+      "Receive one immutable observation. Verify request_sha256, repository, commit, tree, complete target set, path safety, mode/type, capability, byte limits and observation_sha256 in one retained session.",
+      "For each raw present target, verify Git commit/tree/path/blob facts and exact raw bytes. For normalized-only or metadata-only targets, retain the insufficiency state and do not upgrade it to source authority.",
+      "Run only the frozen data-only config parser on explicitly observed configuration files. Record parser profile, config SHA-256, exact line spans and rejected constructs; never import, execute, interpolate, instantiate or load a model.",
+      "Create an explicit source-file handoff for each raw, verified implementation/config/entrypoint file. The handoff carries observation_id, request_sha256, repository, commit, path, mode, git_type, blob_oid, raw_sha256 and exact source bytes into the existing staged capture request.",
+      "Let independent relation review evaluate officiality and paper/code claims. Only an accepted relation-review successor can enter the canonical publication flow and later catalog projection.",
+      "Keep the request, observation, handoffs and review as immutable evidence. A source-version or commit change creates a new request/observation/review lineage; it never mutates the old one."
+    ],
+    "outcomes_and_errors": {
+      "complete_success": "OBSERVED_COMPLETE only when every requested target has present status and required capability/proof.",
+      "partial": "OBSERVED_PARTIAL when bounded observation returns any missing, inaccessible, normalized-only or otherwise incomplete target; retain all reasons and prohibit publication as complete source evidence.",
+      "errors": [
+        {
+          "code": "CODE_OBSERVATION_REQUEST_INVALID",
+          "when": "Malformed identity, path, role, budget, URL, duplicate target or unsupported transport."
+        },
+        {
+          "code": "CODE_OBSERVATION_REQUEST_STALE",
+          "when": "The selected source association/version or request basis is no longer current; observed data cannot be rebound silently."
+        },
+        {
+          "code": "CODE_OBSERVATION_REPOSITORY_MISMATCH",
+          "when": "Observed repository differs from the requested canonical repository."
+        },
+        {
+          "code": "CODE_OBSERVATION_COMMIT_MISMATCH",
+          "when": "Observed commit or object format differs from the request."
+        },
+        {
+          "code": "CODE_OBSERVATION_TREE_MISMATCH",
+          "when": "A target is not proven against the one observed commit tree."
+        },
+        {
+          "code": "CODE_OBSERVATION_PATH_MISMATCH",
+          "when": "Observed path differs from requested path or path normalization is ambiguous."
+        },
+        {
+          "code": "CODE_OBSERVATION_BLOB_MISMATCH",
+          "when": "Raw bytes, Git mode/type or blob OID do not agree."
+        },
+        {
+          "code": "CODE_OBSERVATION_CAPABILITY_INSUFFICIENT",
+          "when": "Only normalized text or metadata was supplied where raw Git-verified bytes were required."
+        },
+        {
+          "code": "CODE_OBSERVATION_CONFIG_UNSAFE",
+          "when": "The config is outside the closed data-only grammar or exceeds parser limits."
+        },
+        {
+          "code": "CODE_OBSERVATION_COMPLETE_SET_REQUIRED",
+          "when": "A caller tries to publish or hand off a partial target set as complete."
+        }
+      ],
+      "refusal_rule": "Every mismatch, missing, partial, unsafe and stale case is a typed refusal or explicit partial state with requested and observed facts retained. Never substitute an empty success, guessed locator, caller assertion or later display head."
+    },
+    "officiality_review": {
+      "schema": "video-paper-wiki.code-relation-review.v1",
+      "separate_from_observation": true,
+      "evidence_types": {
+        "A": "The paper itself explicitly presents the repository as its implementation.",
+        "B": "A paper-linked project page explicitly identifies the repository as the implementation.",
+        "C": "Repository README or CITATION precisely refers back to the paper.",
+        "D": "Independently evidenced author/control identity and an explicit implementation declaration."
+      },
+      "decision_enum": [
+        "official",
+        "unofficial",
+        "unverified_candidate",
+        "evidence_insufficient"
+      ],
+      "rules": [
+        "Store each signal with exact source URL/path, observed commit/version, line or excerpt locator, source hash, evidence role and reviewer identity.",
+        "A/B plus C is a preferred combination but not an automatic formula. A reviewed direct release without a reverse backlink may be official when the reviewer records the evidence gap and rationale.",
+        "C alone, same organization, similar names, a dependency/baseline link or a model-generated suggestion cannot establish officiality.",
+        "Explicit third-party reproduction may support unofficial; absence of evidence remains unverified_candidate or evidence_insufficient according to the review record.",
+        "Only an independent human or separately authorized relation reviewer can issue the decision. Observation code may propose signals but never upgrades canonical officiality."
+      ]
+    },
+    "capability_and_config": {
+      "capability_dimensions": [
+        "training",
+        "inference",
+        "preprocessing",
+        "evaluation",
+        "checkpoints"
+      ],
+      "claim_rule": "Present or partial capability claims cite exact observed source/config line spans or a clearly marked README-only statement. Absence requires an observed inventory and declared bounded search scope; an unfetched path is unverified, not absent.",
+      "config_schema": "video-paper-wiki.config-evidence.v1",
+      "safe_formats": [
+        "json",
+        "toml"
+      ],
+      "safe_parser": "Use a frozen data-only parser profile with depth/node/string/byte limits. Reject imports, includes, tags, anchors, object constructors, interpolation, scripts, callable values, duplicate-key ambiguity and unknown executable extensions. Python model loading and arbitrary YAML constructors are forbidden.",
+      "checkpoint_rule": "Checkpoint URL, revision, license and observed metadata may be recorded without downloading weights; source code cannot claim checkpoint support without an exact cited observation."
+    },
+    "handoff_and_publication": {
+      "handoff_schema": "video-paper-wiki.code-source-file-handoff.v1",
+      "handoff_rule": "One verified raw target yields one handoff and remains one logical origin path in the existing code-evidence-manifest.v1. A multi-file observation is the shared lineage container; it does not merge distinct manifests or permit path substitution.",
+      "legacy_policy": "Keep validate_code_evidence_manifest, validate_code_capture_binding, validate_code_locator, repo-record.v1 and paper-code-alignment.v1 byte-compatible. Legacy caller-declared manifests without an observation/handoff remain valid historical capture only and cannot be upgraded to Git-verified official source evidence.",
+      "publication_requirements": [
+        "exact request and observation references",
+        "source association/version reference when selected",
+        "verified per-file capture/manifests",
+        "independent relation review",
+        "receipt-backed create/reuse transaction",
+        "prospective catalog, retrieval and backup/restore validation"
+      ],
+      "version_rule": "A new source commit, repository, path, display association or observation capability creates a successor relation. Existing code evidence and review records are never retargeted."
+    }
+  },
+  "proposed_files": {
+    "schemas": [
+      "schemas/video-paper-wiki.code-observation-common.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation-request.v1.schema.json",
+      "schemas/video-paper-wiki.code-observation.v1.schema.json",
+      "schemas/video-paper-wiki.code-source-file-handoff.v1.schema.json",
+      "schemas/video-paper-wiki.code-relation-review.v1.schema.json",
+      "schemas/video-paper-wiki.config-evidence.v1.schema.json"
+    ],
+    "implementation": [
+      "src/video_paper_wiki/code_observation_contracts.py",
+      "src/video_paper_wiki/code_observation.py",
+      "src/video_paper_wiki/config_evidence.py",
+      "src/video_paper_wiki/staged_code_capture.py",
+      "src/video_paper_wiki/commands/prepare.py"
+    ],
+    "tests_and_fixtures": [
+      "tests/contract/test_code_observation_contracts.py",
+      "tests/unit/test_code_observation.py",
+      "tests/unit/test_config_evidence.py",
+      "tests/security/test_code_observation_boundary.py",
+      "tests/fixtures/contracts/valid/video-paper-wiki.code-observation-request.v1.json",
+      "tests/fixtures/contracts/valid/video-paper-wiki.code-observation.v1.json",
+      "tests/fixtures/contracts/invalid/video-paper-wiki.code-observation-hostile-path.v1.json"
+    ],
+    "ownership_note": "These are prospective paths for a separately frozen implementation packet; this review created none of them. Connector transport and human relation review remain outside public Python."
+  },
+  "acceptance_cases": [
+    "Same-commit multi-file collection succeeds only with one retained commit/tree lineage and complete target set.",
+    "Directory replacement between target observations cannot split the collection; commit/tree/path checks refuse it.",
+    "Repository, commit, object-format, tree, mode, type, path and blob mismatches each produce the named refusal with both sides retained.",
+    "Missing target, inaccessible target, partial collection and complete-set publication attempt remain explicit and cannot be silently omitted.",
+    "CRLF raw bytes preserve raw_sha256 and Git blob proof while normalized_sha256 and line metadata follow existing code contracts.",
+    "Duplicate bytes at two distinct logical paths remain two targets and two origin paths.",
+    "Normalized-only web text cannot create a byte-verified manifest or claim exact Git source authority.",
+    "Hostile traversal, symlink, submodule, tree, executable-mode and unbounded URL/path inputs refuse before handoff.",
+    "Config imports, constructors, tags, anchors, interpolation, scripts, duplicate-key ambiguity and limit overflow are rejected without execution.",
+    "Officiality shortcuts fail; direct-release-without-backlink can be reviewed with an explicit evidence gap; third-party reproduction remains unofficial or unverified per review.",
+    "Source-version change and display-head change create new lineage and do not retarget historical code evidence.",
+    "Zero-egress and no-real-Vault-write sentinels pass for request validation, observation validation, config parsing and source-file handoff."
+  ],
+  "blockers": [
+    "Architect must freeze the successor schema and exact allowed implementation/test paths before any Builder writes.",
+    "The source-conversion clone is dirty and has no exact-head acceptance for its WIP; this advice relies only on the listed baseline files.",
+    "Actual official repository trials and human relation judgments remain open gates and are not represented by this design review."
+  ],
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false,
+  "network_used": false,
+  "real_vault_touched": false
+}

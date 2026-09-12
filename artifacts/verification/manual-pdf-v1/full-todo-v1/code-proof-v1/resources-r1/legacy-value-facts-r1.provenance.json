@@ -1,0 +1,269 @@
+{
+  "$schema": "full-todo.code-proof-legacy-value-facts.v1",
+  "schema": "full-todo.code-proof-legacy-value-facts.v1",
+  "revision": 1,
+  "reviewed_at_utc": "2026-09-10T08:36:05.473Z",
+  "decision": "PASS_LEGACY_VALUE_FACTS_CAPSULE",
+  "scope": "Read-only capsule of the accepted legacy paper-ID predicates and raw-source metadata helper needed as resource-generation inputs. No source, test, schema, profile, Git, provider, or runtime mutation was performed.",
+  "artifact_paths": {
+    "markdown": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/legacy-value-facts-r1.md",
+    "provenance": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/legacy-value-facts-r1.provenance.json"
+  },
+  "accepted_source": {
+    "worktree": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "head": "4ab1830939cd41981983909763434d5612df6070",
+    "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+    "clean_at_read": true
+  },
+  "provenance": {
+    "contract_inputs": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+        "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2",
+        "size_bytes": 20246
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-interface-facts-review-r1.json",
+        "sha256": "f8c26a63c581e23debc5ec9571a2e17f0e504729e33669b08727aeac66b9be5f",
+        "size_bytes": 7578
+      }
+    ],
+    "source_files": [
+      {
+        "path": "src/video_paper_wiki/identity.py",
+        "sha256": "660fe48b29f983eb14f61a33747107f948f4568783f11885465c091ea4cea6f6",
+        "size_bytes": 22115,
+        "lines": "29-43,122-145,233-269"
+      },
+      {
+        "path": "src/video_paper_wiki/code_evidence_contracts.py",
+        "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+        "size_bytes": 10125,
+        "lines": "43-75"
+      }
+    ],
+    "auxiliary_files": [
+      {
+        "path": "src/video_paper_wiki/capture_contracts.py",
+        "sha256": "ae257bed78036511ef12a70fee15e718522bc95e9dc300f53ea5bdb628cd85af",
+        "size_bytes": 7759,
+        "lines": "12-17,124-128",
+        "used_for": "MAX_BYTES and _bounded_bytes"
+      },
+      {
+        "path": "src/video_paper_wiki/contracts.py",
+        "sha256": "1f27c01706aace27fa55972cb3d0a51ce74351a40131e2611e132b1a08cd1655",
+        "size_bytes": 81936,
+        "used_for": "direct import dependency of code_evidence_contracts"
+      },
+      {
+        "path": "src/video_paper_wiki/jcs.py",
+        "sha256": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6",
+        "size_bytes": 2255,
+        "used_for": "direct import dependency of identity/capture code paths"
+      }
+    ]
+  },
+  "paper_id_facts": {
+    "predicate": "is_canonical_paper_id(value)",
+    "raw_conversion": "raw = str(value)",
+    "regexes": [
+      {
+        "scheme": "arxiv",
+        "symbol": "_ARXIV_CANON",
+        "pattern": "^arxiv:(?:[0-9]{4}\\.[0-9]{4,5}|[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7})$",
+        "matcher": "_ARXIV_CANON.fullmatch(raw)",
+        "version_suffix": "rejected by canonical predicate"
+      },
+      {
+        "scheme": "doi",
+        "symbol": "_DOI_CANON",
+        "pattern": "^doi:10\\.[0-9]{4,9}/[\\x21-\\x40\\x5b-\\x7e]+$",
+        "matcher": "_doi_is_sealed_canonical(raw), then normalize_doi(raw) == raw",
+        "suffix_class": "[\\x21-\\x40\\x5b-\\x7e] (printable ASCII except space and A-Z)"
+      },
+      {
+        "scheme": "openalex",
+        "symbol": "_OPENALEX_CANON",
+        "pattern": "^openalex:W[0-9]+$",
+        "matcher": "_OPENALEX_CANON.fullmatch(raw)"
+      },
+      {
+        "scheme": "sha256",
+        "symbol": "_SHA_CANON",
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "matcher": "_SHA_CANON.fullmatch(raw)"
+      }
+    ],
+    "doi_fixed_point": {
+      "sealed_check": "_DOI_CANON.fullmatch(value) and _doi_is_lowercase_ascii(value)",
+      "lowercase_ascii_check": "value.isascii() and value == unicodedata.normalize('NFKC', value).casefold() and not any(unicodedata.category(c) == 'Lu' for c in value)",
+      "normalizer": "normalize_doi: strip, case-insensitive DOI alias removal, NFKC+casefold body, rebuild doi:<body>",
+      "acceptance": "normalize_doi(raw) == raw",
+      "aliases": [
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+        "doi.org/",
+        "dx.doi.org/",
+        "doi:"
+      ]
+    },
+    "probe_examples": {
+      "accepted": [
+        "arxiv:2401.01234",
+        "arxiv:hep-th/9901001",
+        "doi:10.1000/xyz",
+        "openalex:W123",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "rejected": [
+        "doi:10.1000/XYZ",
+        "doi:10.1000/x\n"
+      ],
+      "normalizer_probe": {
+        "input": "HTTPS://DOI.ORG/10.1000/AbC",
+        "normalized": "doi:10.1000/abc"
+      }
+    },
+    "public_boundary_caveat": "The legacy helper's str() coercion is evidence of existing implementation behavior only; R7 exact-builtin-string and UTF-8-byte limits remain public-layer obligations."
+  },
+  "raw_source_text_facts": {
+    "legacy_function": "code_text_metadata(payload)",
+    "legacy_return_keys_in_order": [
+      "newline_style",
+      "ends_with_newline",
+      "line_count",
+      "normalized_sha256"
+    ],
+    "legacy_return_types": {
+      "newline_style": "str",
+      "ends_with_newline": "bool",
+      "line_count": "int",
+      "normalized_sha256": "str"
+    },
+    "newline_style_enum": [
+      "none",
+      "lf",
+      "crlf",
+      "mixed"
+    ],
+    "style_formula": {
+      "crlf": "payload.count(b'\\r\\n')",
+      "lf": "payload.count(b'\\n') - crlf",
+      "selection": "mixed if crlf and lf, else crlf if crlf, else lf if lf, else none"
+    },
+    "normalization": {
+      "operation": "strict UTF-8 decode, reject BOM/forbidden controls/bare CR, replace CRLF with LF, encode UTF-8",
+      "forbidden_controls": "[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f-\\x9f\\u2028\\u2029]",
+      "normalized_sha256": "sha256(normalized bytes)",
+      "ends_with_newline": "normalized.endswith(b'\\n')"
+    },
+    "line_count": {
+      "formula": "0 if normalized is empty, else normalized.count(b'\\n') + (not normalized.endswith(b'\\n'))",
+      "boundaries": {
+        "empty": 0,
+        "nonempty_without_lf": 1,
+        "ending_lf": "number of LF bytes",
+        "not_ending_lf": "number of LF bytes plus one"
+      }
+    },
+    "raw_byte_gate": {
+      "helper": "capture_contracts._bounded_bytes",
+      "type_check": "isinstance(payload, bytes)",
+      "max_bytes": 67108864,
+      "max_bytes_label": "64 MiB"
+    },
+    "r7_wire_shape": {
+      "keys_in_order": [
+        "normalized_size_bytes",
+        "normalized_sha256",
+        "newline_style",
+        "ends_with_newline",
+        "line_count"
+      ],
+      "normalized_size_bytes": "len(normalized) after CRLF-to-LF only",
+      "legacy_helper_emits_normalized_size_bytes": false,
+      "required_public_action": "derive and validate this fifth field at the public boundary without changing the legacy helper"
+    },
+    "probe_metadata": [
+      {
+        "raw_repr": "b''",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 0,
+        "normalized_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "raw_repr": "b'a'",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1,
+        "normalized_sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+      },
+      {
+        "raw_repr": "b'a\\n'",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 1,
+        "normalized_sha256": "87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7"
+      },
+      {
+        "raw_repr": "b'a\\n\\n'",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 2,
+        "normalized_sha256": "a7da489976d0047490617adb4f7a1f27f7af8b52a5176fd002ffe471863520ab"
+      },
+      {
+        "raw_repr": "b'a\\r\\n'",
+        "newline_style": "crlf",
+        "ends_with_newline": true,
+        "line_count": 1,
+        "normalized_sha256": "87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7"
+      },
+      {
+        "raw_repr": "b'a\\r\\nb\\n'",
+        "newline_style": "mixed",
+        "ends_with_newline": true,
+        "line_count": 2,
+        "normalized_sha256": "911169ddaaf146aff539f58c26c489af3b892dff0fe283c1c264c65ae5aa59a2"
+      },
+      {
+        "raw_repr": "b'a\\r\\nb\\r\\n'",
+        "newline_style": "crlf",
+        "ends_with_newline": true,
+        "line_count": 2,
+        "normalized_sha256": "911169ddaaf146aff539f58c26c489af3b892dff0fe283c1c264c65ae5aa59a2"
+      }
+    ]
+  },
+  "locked_python_probes": [
+    {
+      "executable": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+      "version": "Python 3.12.14",
+      "paper_id_and_metadata_checks": "passed"
+    },
+    {
+      "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "version": "Python 3.13.13",
+      "paper_id_and_metadata_checks": "passed"
+    }
+  ],
+  "caveats": [
+    "This capsule records source behavior; it does not implement or approve the future public CODE API.",
+    "R7 exact-builtin-string checks and UTF-8 byte caps remain public-layer obligations.",
+    "The legacy helper returns four metadata keys; R7's normalized_size_bytes must be derived separately.",
+    "No real Vault, provider, network, Git, or public command was used."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "schemas": false,
+    "profiles": false,
+    "git": false,
+    "provider": false,
+    "runtime": false
+  }
+}

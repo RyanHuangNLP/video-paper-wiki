@@ -1,0 +1,229 @@
+{
+  "$schema": "full-todo.code-config-steward-patch-dispatch-review-r4.v1",
+  "schema": "full-todo.code-config-steward-patch-dispatch-review-r4.v1",
+  "revision": 4,
+  "packet": "GROK-CODE-CONFIG-KERNEL-PATCH-R4",
+  "recorded_at_utc": "2026-09-10T00:00:00Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent read-only patch dispatch and launcher reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "READY_FOR_ROOT_GO_LAUNCH_REVIEW",
+  "status": "PREPARATION_AND_LAUNCHER_GO_PENDING_ARCHITECT_GO",
+  "scope": "Read-only review of the frozen R4 repair preparation and launch-patch-r4.py. The launcher was not run; no source, test, fixture or Git mutation occurred.",
+  "preparation": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-patch-preparation-r4.json",
+    "size_bytes": 6317,
+    "sha256": "5497ea7f4fd16531d8da7495ccdafd2fe77e4133e962b56929c65586491203b7",
+    "expected_sha256": "5497ea7f4fd16531d8da7495ccdafd2fe77e4133e962b56929c65586491203b7",
+    "actual_matches_expected": true,
+    "status": "FROZEN_REPAIR_PREPARATION_PENDING_INDEPENDENT_LAUNCH_REVIEW",
+    "launch_authorized_field": false
+  },
+  "launcher": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/launch-patch-r4.py",
+    "size_bytes": 3489,
+    "sha256": "0f8e0112b20bf980004e3e78bd94bae327187bd37f17a9258ac2c7f7bd95da9b",
+    "ast_parse": "PASS",
+    "executed": false,
+    "guard_review": {
+      "preparation_hash_guard": "PASS: hashes preparation bytes before JSON use",
+      "root_go_guard": "PASS: requires architect-patch-dispatch-go-r4.json and decision GO_FOR_ONE_NORMAL_REVIEW_CONFIG_PATCH_R4_CALL",
+      "go_binding_guard": "PASS: checks GO preparation hash and preparation/launcher/independent_review refs via exact size/SHA",
+      "all_control_reference_guards": "PASS: checks prompt, freeze, preimage, rejection, prior stop, user confirmation and prior stdout refs",
+      "all_original_baseline_refs": "PASS: 561/561 actual size and SHA matches from CODE-CONFIG-KERNEL-freeze-r1.json",
+      "all_candidate_refs": "PASS: 3/3 candidate source/test/fixture actual size and SHA matches",
+      "baseline_git_guard": "PASS: HEAD and tree compared with frozen baseline",
+      "worktree_guard": "PASS: exact three expected untracked candidate paths",
+      "stopped_attempt_guard": "PASS: uses stopped.attempt.launcher_exit_code, launcher_exit_observed and grok_process_exit_observed",
+      "empty_cwd_guard": "PASS: chdir(record[cwd]) before exec; record cwd currently exists and is empty",
+      "runtime_executable_guard": "PASS: exact executable size/SHA checked",
+      "exclusive_output_guard": "PASS: stdout/stderr opened with xb before exec"
+    },
+    "command_policy": {
+      "model": "grok-4.6",
+      "reasoning_effort": "xhigh",
+      "permission_mode": "default",
+      "max_turns": 2,
+      "single": true,
+      "output_format": "plain",
+      "no_plan": true,
+      "no_subagents": true,
+      "disable_web_search": true,
+      "no_auto_update": true,
+      "tools": "read_file",
+      "disallowed_tools": "read_file",
+      "source_writes_env": "GROK_WRITE_FILE=0",
+      "subagents_env": "GROK_SUBAGENTS=0",
+      "memory_env": "GROK_MEMORY=0",
+      "tool_filter": "sole allowlisted builtin read_file is removed by disallowed-tools read_file; MCP/Web tools also denied in command",
+      "cwd_binding": "top-level preparation cwd is used for actual launch; recorded runtime cwd is historical prepared-input metadata and is not used by launcher"
+    }
+  },
+  "hash_audit": {
+    "control_refs_checked": 7,
+    "control_ref_mismatches": 0,
+    "original_baseline_source_test_files_checked": 561,
+    "original_mismatches": 0,
+    "candidate_source_test_fixture_files_checked": 3,
+    "candidate_mismatches": 0,
+    "total_original_plus_candidate_files": 564,
+    "total_mismatches": 0,
+    "candidate_snapshot_sha256": "066ab1403b9278f56c5ccae00ee348c3978623d5cc446f254b48cd45af3b55fc",
+    "existing_candidate_evidence_binds_snapshot": true,
+    "control_refs": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-PATCH-R4.md",
+        "reported_size_bytes": 5915,
+        "reported_sha256": "bc0112b679e2c782e1b30fe79293f7988e70488b320cc9681551145657095f6d",
+        "exists": true,
+        "actual_size_bytes": 5915,
+        "actual_sha256": "bc0112b679e2c782e1b30fe79293f7988e70488b320cc9681551145657095f6d",
+        "matches": true
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-freeze-r1.json",
+        "reported_size_bytes": 168829,
+        "reported_sha256": "def0a0e66576cc56d7f3900836e9f6a4eeef3f843e15ed74118bf473d2de139d",
+        "exists": true,
+        "actual_size_bytes": 168829,
+        "actual_sha256": "def0a0e66576cc56d7f3900836e9f6a4eeef3f843e15ed74118bf473d2de139d",
+        "matches": true
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r1.json",
+        "reported_size_bytes": 2526,
+        "reported_sha256": "90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73",
+        "exists": true,
+        "actual_size_bytes": 2526,
+        "actual_sha256": "90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73",
+        "matches": true
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-candidate-rejection-r1.json",
+        "reported_size_bytes": 3447,
+        "reported_sha256": "b7f3b4417cde00ab1e9598ed0c655c813b90cd26513fcd52ea0ec9fc749b8e96",
+        "exists": true,
+        "actual_size_bytes": 3447,
+        "actual_sha256": "b7f3b4417cde00ab1e9598ed0c655c813b90cd26513fcd52ea0ec9fc749b8e96",
+        "matches": true
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-exit-observation-r2.json",
+        "reported_size_bytes": 9790,
+        "reported_sha256": "5f5c4928c1e7759316cbfb5baf74c9039f7cccf9f89736a3b850953141401dbd",
+        "exists": true,
+        "actual_size_bytes": 9790,
+        "actual_sha256": "5f5c4928c1e7759316cbfb5baf74c9039f7cccf9f89736a3b850953141401dbd",
+        "matches": true
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/user-exact-config-egress-confirmation-r1.json",
+        "reported_size_bytes": 2612,
+        "reported_sha256": "b11ff5ee03539e8dae554397af692713eb00c10f9554ef127599d29abfc4103c",
+        "exists": true,
+        "actual_size_bytes": 2612,
+        "actual_sha256": "b11ff5ee03539e8dae554397af692713eb00c10f9554ef127599d29abfc4103c",
+        "matches": true
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-r1.stdout.log",
+        "reported_size_bytes": 97541,
+        "reported_sha256": "8643e0599663a4a03611ab5296a5a3a0dada747b0e51b86455210de40b9dfc83",
+        "exists": true,
+        "actual_size_bytes": 97541,
+        "actual_sha256": "8643e0599663a4a03611ab5296a5a3a0dada747b0e51b86455210de40b9dfc83",
+        "matches": true
+      }
+    ],
+    "candidate_files_exact": [
+      {
+        "path": "src/video_paper_wiki/code_config_parser.py",
+        "size_bytes": 61224,
+        "sha256": "b46fbd198dc8a4fcbe25a58443d24c460ec00dcb4a75609b94858efc5f835b21",
+        "matches_preparation": true
+      },
+      {
+        "path": "tests/fixtures/code-config-vectors-v1.json",
+        "size_bytes": 125029,
+        "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37",
+        "matches_preparation": true
+      },
+      {
+        "path": "tests/unit/test_code_config_parser.py",
+        "size_bytes": 32993,
+        "sha256": "0c58af204300850125f1a52e40461019ca0488334e7ce5e95926a2e86f9a5491",
+        "matches_preparation": true
+      }
+    ]
+  },
+  "baseline_and_status": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "recorded_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "actual_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "recorded_tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "actual_tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "head_matches": true,
+    "tree_matches": true,
+    "expected_status": [
+      "?? src/video_paper_wiki/code_config_parser.py",
+      "?? tests/fixtures/code-config-vectors-v1.json",
+      "?? tests/unit/test_code_config_parser.py"
+    ],
+    "actual_status": [
+      "?? src/video_paper_wiki/code_config_parser.py",
+      "?? tests/fixtures/code-config-vectors-v1.json",
+      "?? tests/unit/test_code_config_parser.py"
+    ],
+    "status_matches": true,
+    "current_preparation_status": "FROZEN_REPAIR_PREPARATION_PENDING_INDEPENDENT_LAUNCH_REVIEW",
+    "launch_authorized": false
+  },
+  "stopped_attempt": {
+    "source": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-exit-observation-r2.json",
+    "launcher_exit_code": 0,
+    "launcher_exit_observed": true,
+    "grok_process_exit_observed": true,
+    "no_second_process": true,
+    "no_retry_after_completion": true,
+    "verified_fields": "attempt.launcher_exit_code and companion observed flags"
+  },
+  "directories": {
+    "launch_cwd": "/private/tmp/grok-cfg-patch-r4-n7ephcvn",
+    "launch_cwd_exists": true,
+    "launch_cwd_entries": [],
+    "launch_cwd_empty": true,
+    "recorded_runtime_cwd": "/private/tmp/grok-config-r1-pl34bcng",
+    "recorded_runtime_cwd_entries": [
+      "CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+      "CODE-CONFIG-KERNEL-R1.md",
+      "CODE-CONFIG-TOML-MATRIX-R2.json",
+      "CODE-PROOF-CLOSURE-R3.md",
+      "invocation-inputs.json",
+      "legacy-helper-interface.md",
+      "static-vectors-r2.json"
+    ],
+    "stdout_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-patch-r4.stdout.log",
+    "stdout_exists_before_launch": false,
+    "stderr_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-patch-r4.stderr.log",
+    "stderr_exists_before_launch": false
+  },
+  "architect_go_gate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-patch-dispatch-go-r4.json",
+    "exists": false,
+    "required_before_launch": true,
+    "note": "The launcher must stop at its GO-file read until Root creates and independently signs the exact GO record. This review does not create or imply that GO."
+  },
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixture": false,
+    "git": false,
+    "launcher_run": false,
+    "network": false,
+    "provider": false,
+    "review_artifact_only": true
+  }
+}

@@ -1,0 +1,202 @@
+{
+  "$schema": "full-todo.code-config-kernel-contract-review-r2.v1",
+  "schema": "full-todo.code-config-kernel-contract-review-r2.v1",
+  "packet": "CODE-CONFIG-KERNEL-R1",
+  "supplements": [
+    "CODE-CONFIG-CLARIFICATIONS-R2",
+    "CODE-CONFIG-TOML-MATRIX-R2"
+  ],
+  "revision": "R2-independent-read-only-closure-review",
+  "recorded_at_utc": "2026-09-09T15:25:40.651274Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent pure in-memory CODE configuration-kernel contract reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Bounded re-review of only the two R1 semantic findings against the R2 clarification and hand-authored TOML transition matrix. No implementation dispatch, source/test/fixture/Git/network/connector/public-wire mutation or extra-agent activity.",
+  "decision": "CONDITIONAL_GO_SEMANTIC_CLOSURE_PENDING_SEPARATE_FREEZE",
+  "verdict": "R2 closes both semantic findings from the R1 config review. Dynamic refusal positions and reason precedence are exact, and TOML table/prefix state transitions are explicit and exercised by 26 hand-authored vectors replayed 26/26 on both recorded Python 3.12 and 3.13 runtimes without importing production code. No remaining semantic blocker was found. The candidate still requires its separate static span fixture, matrix hashes, successor source snapshot and final allowed-path freeze before any implementation dispatch.",
+  "closure_result": {
+    "status": "PASS_R1_SEMANTIC_FINDINGS_CLOSED",
+    "findings_closed": [
+      {
+        "r1_id": "CCK-R1-CONTRACT-001",
+        "status": "CLOSED",
+        "r2_lines": {
+          "start": 7,
+          "end": 23
+        },
+        "resolution": "Every CODE_CONFIG_DYNAMIC_UNSUPPORTED error points to the start of the complete original source token that produced the offending decoded key/value; quoted tokens use opening quote, bare keys first character, and dotted/header errors use the exact component token. Decoded-match offsets are never mapped into raw escapes. instance_pointer is /payload; reasons are dynamic_key, dynamic_marker or callable_string; marker reason wins callable_string.",
+        "review_check": "This closes the earlier ambiguity for substring markers, full stripped-callable matches, escaped-newline values and escaped-dollar values while preserving token-limit and Unicode checks before dynamic evaluation."
+      },
+      {
+        "r1_id": "CCK-R1-CONTRACT-002",
+        "status": "CLOSED",
+        "r2_lines": {
+          "start": 25,
+          "end": 70
+        },
+        "resolution": "Ordinary headers finalize dotted prefixes from the section left; explicit header-declared tables, current-section dotted prefixes, finalized dotted prefixes, implicit header parents and closed inline/value boundaries are distinct. Header ancestors may be normal/finalized tables; terminals may only be absent or implicit parents. Dotted assignments resolve relative to the current table/local inline root and cannot reopen explicit/finalized prefixes; inline containers close at completion.",
+        "review_check": "The state machine covers parent promotion, child headers below dotted-created tables, current-section sibling assignments, scalar/array/inline descent refusal, repeated header/value redefinition and decoded quoted/dotted collisions. All 26 matrix cases have unique IDs and exact expected semantic map or CODE_CONFIG_DUPLICATE_KEY refusal."
+      }
+    ],
+    "matrix_replay": {
+      "matrix_path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+      "matrix_sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+      "matrix_size_bytes": 6831,
+      "case_count": 26,
+      "unique_case_ids": 26,
+      "positive_cases": 12,
+      "negative_cases": 14,
+      "negative_code": "CODE_CONFIG_DUPLICATE_KEY",
+      "python312": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py312-r2.json",
+        "sha256": "64c695830774b933524d043ef08eae65fc244788c420833bc861aa9a38f36fac",
+        "case_count": 26,
+        "passed": 26,
+        "production_imported": false
+      },
+      "python313": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py313-r2.json",
+        "sha256": "492cb659ce7eb82a9b68e4151ca28a38acd47da9764ff5592d5a85c9ec6c9194",
+        "case_count": 26,
+        "passed": 26,
+        "production_imported": false
+      },
+      "coverage_categories": [
+        "header parent promotion at one and multiple depths",
+        "header child descent under header-declared and finalized/dotted-created ancestors",
+        "current-section dotted sibling sharing and child headers",
+        "sealed dotted parent new child without reopening the parent",
+        "quoted components and literal-dot distinction",
+        "inline local dotted siblings and closed nested/outer inline boundaries",
+        "repeated explicit headers and quoted-header duplicates",
+        "dotted parent/descendant redefinition and explicit child via parent dotted refusal",
+        "scalar/array descent and scalar terminal header refusal",
+        "dotted map-to-scalar refusal"
+      ]
+    },
+    "dynamic_rule_check": {
+      "token_start_rule": "PASS",
+      "reason_precedence": "dynamic_marker before callable_string for the same value",
+      "pointer": "/payload",
+      "marker_set": [
+        "${",
+        "$(",
+        "{{",
+        "}}",
+        "%("
+      ],
+      "callable_regex_dotall": "PASS",
+      "escaped_newline_and_dollar_coverage": "explicitly covered by R2 wording; no decoded-to-raw offset remapping",
+      "vector_packet": {
+        "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+        "sha256": "6a1d0215e994f0f4d4c559eb0c4e859944645899d78a6617372acc0dfbe470f8",
+        "size_bytes": 2879,
+        "case_count": 9,
+        "coverage": [
+          "escaped marker",
+          "escaped-newline callable",
+          "escaped dynamic key",
+          "dotted component start",
+          "header component start",
+          "marker-before-callable precedence",
+          "astral prefix byte/codepoint offset",
+          "harmless near matches",
+          "comment markers ignored"
+        ],
+        "review_basis": "Hand-authored source-token offsets and classifications are explicit; recorded root replay additionally validated stdlib behavior and manual token anchors without production import."
+      }
+    },
+    "unchanged_semantics_confirmed": [
+      "MappingProxyType profile and all 13 strict positive limits",
+      "declaration attribution: json_key, toml_key and toml_table records, unique-record charging before insertion",
+      "comment-only/whitespace-only TOML returns CODE_CONFIG_EMPTY while explicit empty tables/arrays remain valid",
+      "JSON/TOML numeric grammar, exact Decimal tuple bounds, negative-zero refusal and context independence",
+      "source span byte/codepoint/line-column shape and no synthetic implicit-table value span",
+      "scanner-before-stdlib cross-check and CODE_CONFIG_DUPLICATE_KEY for explicit transition refusals"
+    ]
+  },
+  "remaining_gate": {
+    "id": "CCK-R2-PROC-001",
+    "severity": "PROCEDURAL_FREEZE_GATE",
+    "status": "OPEN",
+    "title": "Static fixture and successor implementation freeze remain unbound",
+    "evidence": {
+      "clarification_lines": {
+        "start": 72,
+        "end": 75
+      },
+      "observation": "R2 requires exact static span fixture, matrix hashes, successor source snapshot and final allowed paths in a separate freeze; code_config_parser.py and its unit test are not present in the root checkout."
+    },
+    "required_resolution": "Bind fixture content/provenance/size/SHA-256, matrix hashes, exact successor worktree/head/tree and allowed production/test paths before any builder dispatch. This does not weaken the semantic GO for the candidate."
+  },
+  "supporting_observations": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-format-observations-r1.json",
+    "sha256": "c172aa66076e46ad99b9d0d12b5aad2cb406ade188c6ce7007cadd10b356e517",
+    "meaning": "Independent Python 3.13 stdlib/Decimal observations only; not parser implementation or acceptance.",
+    "use": "Supports baseline parent-promotion, dotted-child, inline-boundary, comments-only and Decimal context cases; R2 matrix remains the authoritative hand-authored transition input."
+  },
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "size_bytes": 17799
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d",
+      "size_bytes": 4710
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+      "sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+      "size_bytes": 6831
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-kernel-contract-review-r1.json",
+      "sha256": "da78c46876af59f26c68517120a9110c10e61cf118b518598e1cb7d8e2ebadbe",
+      "size_bytes": 14012
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py312-r2.json",
+      "sha256": "64c695830774b933524d043ef08eae65fc244788c420833bc861aa9a38f36fac",
+      "size_bytes": 6274
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py313-r2.json",
+      "sha256": "492cb659ce7eb82a9b68e4151ca28a38acd47da9764ff5592d5a85c9ec6c9194",
+      "size_bytes": 6305
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+      "sha256": "6a1d0215e994f0f4d4c559eb0c4e859944645899d78a6617372acc0dfbe470f8",
+      "size_bytes": 2879
+    }
+  ],
+  "implementation_observation": {
+    "status": "PRE_IMPLEMENTATION_EXPECTED",
+    "paths_checked": [
+      {
+        "path": "src/video_paper_wiki/code_config_parser.py",
+        "exists": false
+      },
+      {
+        "path": "tests/unit/test_code_config_parser.py",
+        "exists": false
+      }
+    ]
+  },
+  "evidence_integrity": {
+    "no_source_or_git_mutation": true,
+    "no_network_or_external_connector": true,
+    "no_dispatch": true,
+    "no_extra_agents": true,
+    "user_authorization_pending": true
+  }
+}

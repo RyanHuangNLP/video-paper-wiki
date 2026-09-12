@@ -1,0 +1,291 @@
+{
+  "$schema": "full-todo.discovery-output-review-r2.v1",
+  "schema": "full-todo.discovery-output-review-r2.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R2-independent-output-repair-review",
+  "recorded_at_utc": "2026-09-09T11:20:26Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "bounded independent Discovery R2 output implementation reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_WITH_ONE_MEDIUM_RENDER_LIMIT_FINDING",
+  "verdict": "The exact R2 candidate is frozen and hash-verified across all 31 paths, including all 28 paths declared unchanged from R1. The four R1 public-output findings are closed by the new status/render projections and the 15 workflow tests pass. One narrow R2 contract issue remains: bounded per-list provenance reports \"first N of M\" without explicitly stating the omitted count required by the repair packet.",
+  "scope": "Read-only review of only discovery.py, tests/research/test_discovery_workflow.py and docs/discovery-expansion.md in the frozen R2 source, compared with the retained R1 source snapshot and the frozen repair packet. Included public complete-round status/render/context replay, a retained-store no-write probe, the focused workflow tests, hostile-text escaping coverage and exact 31-path hash verification. No source, tests, Git, provider, network, connector, Vault or human-gate mutation.",
+  "scope_controls": {
+    "source_edits": false,
+    "tests_edits": false,
+    "schema_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_mutation": false,
+    "real_provider_used": false,
+    "review_artifact_only": true
+  },
+  "frozen_inputs": {
+    "repair_packet": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-OUTPUT-REPAIR-R2.json",
+      "sha256": "6ed104eb6d99e93ec5782d4cdc9131e4661d8b75c3a6c4abc55719c41cbbb6ae",
+      "size_bytes": 9497
+    },
+    "candidate_r2": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r2.json",
+      "sha256": "98917ee28bb207a36abfbdf1a64fae6bae9e3645a6a0cbd6b22bd6bab08981fd",
+      "declared_snapshot_sha256": "e2f383d56e648d3dbe9b254b59165de379d2d59d891d93a9dcfbb3096acbe0f1",
+      "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source",
+      "status": "FROZEN_PENDING_R2_OUTPUT_REVIEW_DUAL_FULL_SUITES_WHEEL_AND_EXACT_LOCAL_DELIVERY",
+      "source_writes_stopped": true
+    },
+    "candidate_r1": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r1.json",
+      "sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54"
+    },
+    "r2_requirements": {
+      "assessment_and_health": "repairs[0-2]",
+      "render_and_escaping": "repairs[3-4]",
+      "docs_tests_replay": "repairs[5]"
+    }
+  },
+  "source_snapshot": {
+    "root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+    "baseline_head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+    "baseline_tree": "04fd8375510d73a9633cadd66c54f80d253e28ba",
+    "files": [
+      {
+        "path": "src/video_paper_wiki_research/discovery.py",
+        "sha256": "dd412f20aab74542f401308c82e261e8ec109dd51c6fa8d435aef3a05f846981",
+        "size_bytes": 29006,
+        "lines": 496
+      },
+      {
+        "path": "tests/research/test_discovery_workflow.py",
+        "sha256": "a49e510b297e387ba9dc74dbf0ab6237eeeaed6239617d0b064ff6683ccf5ff7",
+        "size_bytes": 16303,
+        "lines": 259
+      },
+      {
+        "path": "docs/discovery-expansion.md",
+        "sha256": "15f69b914eb9f338eae7bf54b1e6872bcdc743a1787560aecb05c07814e9dcc5",
+        "size_bytes": 14239,
+        "lines": 246
+      }
+    ],
+    "all_31_current_hashes_match_candidate_r2": true,
+    "current_match_count": 31,
+    "current_mismatch_count": 0,
+    "mismatches": [],
+    "declared_changed_from_r1": [
+      "docs/discovery-expansion.md",
+      "src/video_paper_wiki_research/discovery.py",
+      "tests/research/test_discovery_workflow.py"
+    ],
+    "declared_unchanged_from_r1": 28,
+    "actual_unchanged_from_r1_count": 28,
+    "actual_unchanged_from_r1_paths": [
+      "src/video_paper_wiki_research/cli.py",
+      "src/video_paper_wiki_research/discovery_candidates.py",
+      "src/video_paper_wiki_research/discovery_cli.py",
+      "src/video_paper_wiki_research/discovery_contracts.py",
+      "src/video_paper_wiki_research/discovery_graph.py",
+      "src/video_paper_wiki_research/discovery_plan.py",
+      "src/video_paper_wiki_research/discovery_storage.py",
+      "src/video_paper_wiki_research/profiles/discovery-v1.json",
+      "src/video_paper_wiki_research/prompts/discovery-assessment-v1.md",
+      "src/video_paper_wiki_research/schemas/candidate-decision.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/discovery-common.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/discovery-observation.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/discovery-request.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/paper-candidate-set.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/paper-rank.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-assessment.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-config.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-control-event.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-round-event.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-round-plan.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-session.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/research-stop-decision.v1.schema.json",
+      "tests/research/discovery_fixture.py",
+      "tests/research/test_discovery_candidates.py",
+      "tests/research/test_discovery_contracts.py",
+      "tests/research/test_discovery_plan.py",
+      "tests/research/test_discovery_recovery.py",
+      "tests/security/test_discovery_boundary.py"
+    ],
+    "all_28_unchanged_paths_verified": true
+  },
+  "live_complete_round": {
+    "session": "svd-holdout-r2",
+    "root": ".work/parallel/discovery-expansion-v1/terminal-1/source/.work/research/svd-holdout-r2/discovery-v1",
+    "last_complete_round": {
+      "id": "rw3:research-round-event:8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13",
+      "sha256": "36d1e733e908114d7f98ce538f54eb8b80f75d3b99fa8bf776f76a57135069d0"
+    },
+    "assessment": {
+      "id": "rw3:research-assessment:b5fd7e6215a0dda42418887e50d5e65063448f4fd5bcf1d87b37fc127e234170",
+      "sha256": "d799b2eb9b7b6e8154ee59ee49ccabbccadd803cd2c3d17e834d77bc1f04a1ee",
+      "lens_states": [
+        "gap",
+        "gap",
+        "gap",
+        "gap",
+        "gap"
+      ]
+    },
+    "stop": {
+      "id": "rw3:research-stop-decision:daf00093b772f4f952e0eaf0c60becaa21b15cdcbb80dcbc0a683a1d713d4ef1",
+      "sha256": "e03c1206fdc89d972fe0772a9d8ff8c902833de6795e723972299f103ced794c",
+      "primary_reason": "budget_exhausted",
+      "failed_requests": 1
+    },
+    "candidate_set": {
+      "id": "rw3:paper-candidate-set:6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914",
+      "sha256": "d8d803529bbd1225aec58ca5795cfa5bd7f6bc15af019968cc7900456ce4ec22"
+    },
+    "rank": {
+      "id": "rw3:paper-rank:ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6",
+      "sha256": "6ef3d732959f0f73cdf2078ebb020a170e69c005711c05f25f309cdea37eea19"
+    },
+    "operation_health": [
+      {
+        "slot": 0,
+        "provider": "platform-web-search-normalized-v1",
+        "state": "terminal",
+        "outcome": "success",
+        "failure": null
+      },
+      {
+        "slot": 1,
+        "provider": "openalex-rest-normalized-v1",
+        "state": "terminal",
+        "outcome": "capability_unavailable",
+        "failure_code": "HOST_SAFE_OPEN_UNAVAILABLE"
+      }
+    ]
+  },
+  "probes": {
+    "public_replay_capture": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python public status/render/context for session svd-holdout-r2",
+      "capture_sha256": "4b46ab6075863df7b2fcf73bf8f33ecfe8bb78907999c5d615055bf02e6b987a",
+      "observed_status": {
+        "effective_state": "calculated_stopped",
+        "matched_reasons": [
+          "budget_exhausted"
+        ],
+        "last_completed_assessment_present": true,
+        "last_completed_stop_present": true,
+        "operation_health_slots": 2,
+        "operation_health_outcomes": [
+          "success",
+          "capability_unavailable"
+        ],
+        "all_five_lens_states_present": true
+      },
+      "observed_render": {
+        "format": "markdown",
+        "displayed_candidates": 1,
+        "omitted_candidates": 0,
+        "contains_completed_provisional_coverage": true,
+        "contains_operation_health": true,
+        "contains_failure_code": true,
+        "contains_candidate_identifiers": true,
+        "contains_rank_and_rrf_fraction": true,
+        "contains_why_found": true,
+        "contains_complete_candidate_and_rank_refs": true,
+        "literal_dynamic_text_escaped": true
+      },
+      "context_health_crosscheck": "context operation_health retains the same two outcomes and exact HOST_SAFE_OPEN_UNAVAILABLE failure."
+    },
+    "retained_store_no_write": {
+      "method": "Hash all retained session files before status+render and after status+render.",
+      "session_file_count_before": 12,
+      "session_file_count_after": 12,
+      "stored_artifacts_identical": true,
+      "render_format": "markdown",
+      "render_utf8_bytes": 11719
+    },
+    "workflow_tests": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src .venv/bin/python -m pytest -q tests/research/test_discovery_workflow.py --basetemp=/private/tmp/discovery-output-r2-review-tests/base -o cache_dir=/private/tmp/discovery-output-r2-review-tests/cache",
+      "result": "15 passed in 15.71s",
+      "coverage_observed": [
+        "complete status retains all five lens entries and terminal operation outcomes",
+        "request_pending and observation_pending are distinct with null outcome/refs",
+        "pending assessment is separate and becomes completed only after deterministic repair",
+        "hostile question/title/summary/failure/assessment text stays literal in Markdown",
+        "candidate preview reports 20 of 22 plus 2 omitted and complete artifact refs"
+      ]
+    }
+  },
+  "finding_closure": [
+    {
+      "id": "DOUT-STATUS-ASSESSMENT-001",
+      "status": "CLOSED_BY_R2",
+      "evidence": "discovery.py:111-149 adds last_completed_assessment and pending_assessment with exact artifact reference, round, plan/input digest, generator, timestamp and full five lens entries; the complete live round exposes all five gap states."
+    },
+    {
+      "id": "DOUT-OPERATION-HEALTH-002",
+      "status": "CLOSED_BY_R2",
+      "evidence": "discovery.py:152-170 adds deterministic per-slot request/observation state and exact outcome/failure; the live status/render preserve capability_unavailable and HOST_SAFE_OPEN_UNAVAILABLE."
+    },
+    {
+      "id": "DOUT-RENDER-CANDIDATE-PROVENANCE-003",
+      "status": "CLOSED_WITH_LIMITATION",
+      "evidence": "discovery.py:457-493 renders identifiers, versions, relevance/signals, rank/RRF fraction, suppression counts, contributions and why-found excerpts, with complete candidate/rank refs and preview counts.",
+      "limitation": "Per-list excerpts use first N of M wording but do not print an explicit omitted count; see OR2-RENDER-LIMITS-001."
+    },
+    {
+      "id": "DOUT-RENDER-HEALTH-COVERAGE-004",
+      "status": "CLOSED_BY_R2",
+      "evidence": "The live Markdown includes Completed provisional coverage, all five lens states/reasons, Operation health and the exact failure code; pending coverage is exercised by the workflow tests."
+    }
+  ],
+  "checks": [
+    {
+      "id": "OR2-SNAPSHOT-001",
+      "status": "PASS",
+      "evidence": "All 31 current files match local-candidate-r2.json exactly; all 28 declared unchanged paths match their R1 hashes."
+    },
+    {
+      "id": "OR2-COMPLETE-OUTPUT-002",
+      "status": "PASS",
+      "evidence": "Live complete status/render/context replay exposes assessment, stop metrics, per-slot health, failure details, candidate/rank refs and provisional Markdown coverage without writing session artifacts."
+    },
+    {
+      "id": "OR2-PENDING-OUTPUT-003",
+      "status": "PASS",
+      "evidence": "15 workflow tests pass, including request_pending, observation_pending and pending_assessment states with exact repair transition and no fabricated terminal outcomes."
+    },
+    {
+      "id": "OR2-ESCAPING-004",
+      "status": "PASS",
+      "evidence": "The hostile-text workflow test passes for question/title/summary/failure/assessment fields; _literal escapes HTML and Markdown metacharacters and normalizes line/control separators, while _json_literal escapes canonical provenance JSON."
+    },
+    {
+      "id": "OR2-RENDER-LIMITS-001",
+      "status": "OPEN_MEDIUM",
+      "evidence": "The live Markdown says \"Suppressed (first 3 of 4)\" and \"Why found (first 3 of 5; complete set in candidate evidence above)\". It does not state \"1 omitted\" or \"2 omitted\" for those bounded lists.",
+      "contract_impact": "DISCOVERY-OUTPUT-REPAIR-R2.json repairs[3] requires bounded provenance excerpts to explicitly report omitted counts and exact complete artifact refs; only the global candidate preview prints an omitted count.",
+      "required_fix": "Render an explicit omitted count for each truncated provenance/contribution/suppression/why-found list, e.g. \"first 3 of 5; 2 omitted\", while retaining the complete artifact references.",
+      "lines": "discovery.py:485-493",
+      "severity": "medium"
+    }
+  ],
+  "actual_findings": [
+    "OR2-RENDER-LIMITS-001: per-list bounded provenance output omits explicit omitted counts despite the frozen R2 repair requirement."
+  ],
+  "limitations_and_remaining_gates": [
+    "This review is local engineering evidence only; it is not scientific, formal-admission, Vault, human or remote-CI acceptance.",
+    "The complete held-out round was replayed from retained local artifacts; no new provider request was made.",
+    "The focused 15-test result does not replace both full dual-Python suites, installed-wheel parity or fresh CI.",
+    "The one open omission-count wording issue must be closed and re-reviewed against the exact candidate snapshot before final output acceptance."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

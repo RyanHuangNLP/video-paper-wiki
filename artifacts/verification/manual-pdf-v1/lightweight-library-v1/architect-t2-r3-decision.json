@@ -1,0 +1,63 @@
+{
+  "recorded_at_utc": "2026-09-08T05:12:36.334252+00:00",
+  "decision": "REJECTED_T2_R3_REQUIRES_BOUNDED_PRECAPTURE_STAGE_OWNERSHIP_FIX",
+  "snapshot_sha256": "59a62f696bc75b5b4ff0346612dbd380ec45b68f16f73fc7f5546e407123851e",
+  "handoff_sha256": "dd8768cb9328f5c966d8414ddbdecdb73ee538ed68d06ea72b5acb1879db09d6",
+  "evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r3-replay/checks.json",
+      "sha256": "00d5ac58b94accff6079fcde5cc8c17980b861d8e3109e55b1e72e7cd035a788",
+      "size_bytes": 3884
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r3-history-corrected/checks.json",
+      "sha256": "8947fc9a130b96067ce48a562bc6b2def7a33fbb8495e6e773168d49bd330c76",
+      "size_bytes": 3649
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r3-precapture/checks.json",
+      "sha256": "e284692feba72f710b398838c08f37036e08f86f127acf178763c14d1d5bb3e3",
+      "size_bytes": 3638
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r3-postextract/checks.json",
+      "sha256": "071c229fa35dc574de41fc259a3b5f6ce929e5cb6033d8ac9b5fe2ad8731d65a",
+      "size_bytes": 3398
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/controller-review-r3.json",
+      "sha256": "59215737e4675518c75c02e1a02142a324d3cf74af2458f8bd9f53838c93561c",
+      "size_bytes": 4415
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/t2-backup-review-r3.json",
+      "sha256": "992fc9f42ae5e5e786702c27dd86a625fb847d3d75881fcab0671587131dd35c",
+      "size_bytes": 5829
+    }
+  ],
+  "acceptance": {
+    "accumulated_regression_history_checks": 55,
+    "corrected_history_script": "architect_t2_history_checks_r2.py (32hex successor identity)",
+    "precapture": {
+      "failed": 2,
+      "passed": 1
+    },
+    "postextract": {
+      "failed": 4,
+      "passed": 0
+    },
+    "independent_backup": {
+      "passed": 21
+    }
+  },
+  "blockers": [
+    "Unknown after_intent file/empty directory adopted and deleted by fresh stage inventory.",
+    "Postextract unknown file/directory, preexisting prior notes and modified workspace lock adopted or overwritten before inventory freeze."
+  ],
+  "not_claimed": [
+    "Prior-note introduced before extraction already refuses; the separate after-extraction case now reproduces the overwrite.",
+    "No T2 acceptance, T3 integration, final product acceptance or remote CI."
+  ],
+  "next_revision": "FIX-T2-R4.md",
+  "merge_authorized": false
+}

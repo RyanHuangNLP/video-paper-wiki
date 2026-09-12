@@ -1,0 +1,37 @@
+I'll start by inspecting the project layout, any prior review, and how existing functions and tests are structured.Existing helpers are simple Python functions with unittest files. I'll match that pattern and add `multiply` with decimal support.I'll add `multiply` and tests that cover the PRD cases, using the same unittest style as the rest of the project.Implemented `multiply(a, b)` in this project only. No prior review file was present.
+
+**What landed**
+- `multiply.py`: `multiply(a, b)` returns `a * b` with no extra side effects.
+- `test_multiply.py`: covers the PRD cases (positive, negative, zero, decimal).
+
+**Tests (actual command output)**
+
+`python` was not available (`command not found`). Ran:
+
+```text
+python3 -m unittest discover -v
+```
+
+```text
+test_add_positive (test_add.AddTests) ... ok
+test_add_zero (test_add.AddTests) ... ok
+test_multiply_decimal (test_multiply.MultiplyTests) ... ok
+test_multiply_negative (test_multiply.MultiplyTests) ... ok
+test_multiply_positive (test_multiply.MultiplyTests) ... ok
+test_multiply_zero (test_multiply.MultiplyTests) ... ok
+test_subtract_negative_result (test_subtract.SubtractTests) ... ok
+test_subtract_positive_result (test_subtract.SubtractTests) ... ok
+test_subtract_zeros (test_subtract.SubtractTests) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.000s
+
+OK
+```
+
+Exit code: `0`
+
+**Not done (as requested)**
+- No git commit / push / PR / merge
+- No Vault access
+- No provider or credential changes

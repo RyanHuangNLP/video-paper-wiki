@@ -1,0 +1,239 @@
+{
+  "at_utc": "2026-09-08T13:13:21.298665+00:00",
+  "current_model_authored_rewrites": true,
+  "queries": [
+    {
+      "evidence": [
+        {
+          "chunk_id": "chk-a0d951dc7a64436f1ca48db6",
+          "excerpt": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets\nAndreas Blattmann* Tim Dockhorn* Sumith Kulal* Daniel Mendelevitch\nMaciej Kilian Dominik Lorenz Yam Levi Zion English Vikram V oleti\nAdam Letts Varun Jampani Robin Rombach\nStability AI\nFigure 1. Stable Video Diffusion samples. Top: Text-to-Video generation. Middle: (Text-to-)Image-to-Video generation. Bottom: Multi-\nview synthesis via Image-to-Video finetuning.\nAbstract\nWe present Stable Video Diffusion — a latent video diffu-\nsion model for high-resolution, state-of-the-art text-to-video\nand image-to-video generation. Recently, latent diffusion\nmodels trained for",
+          "page": 1
+        },
+        {
+          "chunk_id": "chk-cf5d5f73818c9cc794aabbe9",
+          "excerpt": "directly addresses these previously uncharted territories.\nWe believe that the significant contribution ofdata selec-\ntion is heavily underrepresented in today’s video research\nlandscape despite being well-recognized among practition-\ners when training video models at scale. Thus, in contrast\nto previous works, we draw on simple latent video diffu-\nsion baselines [9] for which we fix architecture and training\nscheme and assess the effect of data curation. To this end,\nwe first identify three different video training stages that\nwe find crucial for good performance: text-to-image pre-\ntraining, video pretraining on a large dataset at low resol",
+          "page": 2
+        },
+        {
+          "chunk_id": "chk-5ecd5e0d7214f3e22ed4e5d0",
+          "excerpt": "trained image diffusion model - namely Stable Diffusion\n2.1 [71] - to equip it with a strong visual representation.\nTo analyze the effects of image pretraining, we train and\ncompare two identical video models as detailed in App. D\non a 10M subset of LVD; one with and one without pre-\ntrained spatial weights. We compare these models using\na human preference study (see App. E for details) in Fig-\nure 3a, which clearly shows that the image-pretrained model\nis preferred in both quality and prompt-following.\n3.3. Stage II: Curating a Video Pretraining Dataset\nA systematic approach to video data curation. For mul-\ntimodal image modeling, data curat",
+          "page": 4
+        },
+        {
+          "chunk_id": "chk-ea0eef37197a5b1dbcf2bfa8",
+          "excerpt": "generative image modeling [13, 64, 80]. However, dis-\ncussions on such data curation strategies have largely been\nmissing in the video generation literature [41, 43, 82, 94],\nand processing and filtering strategies have been intro-\nduced in an ad-hoc manner. Among the publicly acces-\nsible video datasets, WebVid-10M [7] dataset has been a\npopular choice [9, 82, 115] despite being watermarked and\nsuboptimal in size. Additionally, WebVid-10M is often\nused in combination with image data [80], to enable joint\nimage-video training. However, this amplifies the diffi-\nculty of separating the effects of image and video data on\nthe final model. To add",
+          "page": 3
+        },
+        {
+          "chunk_id": "chk-d1ba6147c73d59b9a8d07725",
+          "excerpt": "ration strategy from above also works on larger, more prac-\ntically relevant datasets, we repeat the experiment above\nand train a video diffusion model on a filtered subset with\n50M examples and a non-curated one of the same size. We\nconduct a human preference study and summarize the re-\nsults of this study in Figure 4c, where we can see that the\nadvantages of data curation also come into play with larger\namounts of data. Finally, we show that dataset size is also\na crucial factor when training on curated data in Figure 4d,\nwhere a model trained on 50M curated samples is superior\nto a model trained on LVD-10M-F for the same number of\nsteps.\n3",
+          "page": 5
+        },
+        {
+          "chunk_id": "chk-b51d137689016af13d59fd84",
+          "excerpt": "of video data and turn large and noisy video collection into\nsuitable datasets for generative video models. Furthermore,\nwe introduce three distinct stages of video model training\nwhich we separately analyze to assess their impact on the\nfinal model performance. Stable Video Diffusion provides\na powerful video representation from which we finetune\nvideo models for state-of-the-art image-to-video synthesis\nand other highly relevant applications such as LoRAs for\ncamera control. Finally we provide a pioneering study on\nmulti-view finetuning of video diffusion models and show\nthat SVD constitutes a strong 3D prior, which obtains state-\nof-the-ar",
+          "page": 8
+        },
+        {
+          "chunk_id": "chk-e75845dd16708a54e2cc9db1",
+          "excerpt": "human-preference-based ranking of latent video diffusion\nmodels trained on these datasets.\nMore specifically, for each type of annotation introduced\nin Section 3.1 (i.e., CLIP scores, aesthetic scores, OCR de-\ntection rates, synthetic captions, optical flow scores), we\nstart from an unfiltered, randomly sampled 9.8M-sized sub-\nset of LVD, LVD-10M, and systematically remove the bot-\ntom 12.5, 25 and 50% of examples. Note that for the syn-\nthetic captions, we cannot filter in this sense. Instead, we\nassess Elo rankings [21] for the different captioning meth-\nods from Section 3.1. To keep the number of total subsets\ntractable, we apply this sche",
+          "page": 4
+        },
+        {
+          "chunk_id": "chk-0840ed9fa1c69479f9aa404f",
+          "excerpt": "Prompt Alignment Quality Aggregated\n0.0\n0.1\n0.2\n0.3\n0.4\n0.5\n0.6\n0.7User Preference\nLVD-10M-F\nWebVid-10M\n(a) User preference for LVD-\n10M-F and WebVid [7].\nPrompt Alignment Quality Aggregated\n0.0\n0.1\n0.2\n0.3\n0.4\n0.5\n0.6\n0.7User Preference\nLVD-10M-F\nInternVid-10M\n(b) User preference for LVD-\n10M-F and InternVid [100].\nPrompt Alignment Quality Aggregated\n0.0\n0.1\n0.2\n0.3\n0.4\n0.5\n0.6\n0.7User Preference\nCurated-50M\nUncurated-50M\n(c) User preference at 50M\nsamples scales.\nPrompt Alignment Quality Aggregated\n0.0\n0.1\n0.2\n0.3\n0.4\n0.5\n0.6\n0.7User Preference\nLVD-50M-F\nLVD-10M-F\n(d) User preference on scal-\ning datasets.\n10k steps 50k steps\n0\n20\n40\n60\n80\n",
+          "page": 5
+        }
+      ],
+      "name": "svd-training-curation",
+      "original_hits": 0,
+      "original_status": "NO_RESULTS",
+      "paper_id": "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e",
+      "query": "稳定视频扩散采用哪些训练阶段和数据筛选方法？",
+      "rewrite": {
+        "language": "en",
+        "original_query": "稳定视频扩散采用哪些训练阶段和数据筛选方法？",
+        "rewritten_query": "Stable Video Diffusion training stages image pretraining video pretraining finetuning data curation filtering",
+        "schema": "video-paper-wiki.light-query-rewrite.v1"
+      },
+      "rewritten_hits": 8,
+      "rewritten_status": "OK"
+    },
+    {
+      "evidence": [
+        {
+          "chunk_id": "chk-fc35244929f1038f6e0156a4",
+          "excerpt": "ing the prompt into the VLM and asking: “ Give the\nappropriate evaluation metrics ”, we obtain\nthe dimensions to be evaluated from Chain of Thought, as\nshown in Table A4. We feed the derived metrics along with\nthe video into the VLM, and ask two additional questions:\n“Please observe the video and describe\nit based on the provided metrics. ” and\n“Predict the assessment score of the\nvideo within these metrics. ” We show exam-\nples of before and after VLM Tuning in Figure A25\nData Preparation. We organize human preference anno-\ntations and model scores across different dimensions into\ntraining datasets. For model scores, each video’s ratings\nare",
+          "page": 22
+        },
+        {
+          "chunk_id": "chk-527652910ef6d90593518ca6",
+          "excerpt": "3.1.1 Video Quality\nWe split “Video Quality” into two disentangled aspects,\n“Temporal Quality” and “Frame-Wise Quality”, where the\nformer only considers the cross-frame consistency and dy-\nnamics, and the latter only considers the quality of each\nindividual frame without taking temporal quality into con-\ncern. For “Temporal Quality”, we further devise five dif-\nferent evaluation dimensions, where each focusing on a dif-\nferent aspect of temporal quality. We briefly introduce each\ndimension here. Please refer to the Supplementary File for\nthe detailed definition and evaluation method of each di-\nmension.\nTemporal Quality - Subject Consistency.",
+          "page": 4
+        },
+        {
+          "chunk_id": "chk-15065f6b90ae857b4f435ac0",
+          "excerpt": "results are displayed in Table 1 in the main paper, and Ta-\nble A6 in this Supplementary File. We provide additional\ndetails on approximating these values as follows.\nEmpirical Max. (1) WebVid-10M’s Maximum. For dimen-\nsions where the 100% score is unlikely to be achieved by\nany video, we retrieve WebVid-10M’s real videos and report\nthe highest-scoring video’s result. Examples of such dimen-\nsions include Motion Smoothness, Scene, Appearance Style,\nTemporal Style, and Overall Consistency. (2) Theoretical\n100%. For dimensions where there exist videos that can\nachieve 100%, we directly use 100% as the empirical max-\nimum value. For temporal con",
+          "page": 26
+        },
+        {
+          "chunk_id": "chk-8a877b7b3a3f9d0025086869",
+          "excerpt": "VBench: Comprehensive Benchmark Suite for Video Generative Models\nZiqi Huang1∗ Yinan He2∗ Jiashuo Yu2∗ Fan Zhang2∗ Chenyang Si1 Yuming Jiang1\nYuanhan Zhang1 Tianxing Wu1 Qingyang Jin1 Nattapol Chanpaisit1\nYaohui Wang2 Xinyuan Chen2 Limin Wang4,2 Dahua Lin2,3B Yu Qiao2B Ziwei Liu1B\n1S-Lab, Nanyang Technological University 2Shanghai Artificial Intelligence Laboratory\n3The Chinese University of Hong Kong 4Nanjing University\nhttps://vchitect.github.io/VBench-project/\nEvaluation \nMethod Suite\nHuman Preference \nAnnotation\nGenerated Videos\nPrompt SuiteEvaluation Dimension Suite\nAlignment \nVerification\nseparate prompts for:\n•each evaluation dimension",
+          "page": 1
+        },
+        {
+          "chunk_id": "chk-5e191123b586766d8e2ce49f",
+          "excerpt": "limited number of prompts. The selected scenes contain in-\ndoor, modern, rural, and various other settings, thereby en-\nsuring the representation of a wide range of environmental\ncontexts. This prompt suite is applied to both the Back-\nground Consistency dimension and the Scene dimension.\nTemporal Flickering. To more effectively evaluate tempo-\nral flickering, it is essential to eliminate interference from\nother temporal dimensions. According to observations in\nSection G, whether the scene is static does not affect the\ntemporal flickering ranking among models. Ultimately, we\nselected a set of prompts, covering various topics, scenar-\nios, and",
+          "page": 20
+        },
+        {
+          "chunk_id": "chk-22ec70ab990f08888ec34bcb",
+          "excerpt": "WebVid-10M [5] videos to form a video with dynamically\nshifting content. This procedure is repeated 1000 times,\nand the minimum score among all videos obtained serves\nas the empirical minimum reference. (3) Theoretical 0%.\nFor dimensions where there exist videos that can achieve\n0%, we directly use 0% as the empirical minimum value.\nFor Dynamic Degree, a set of static videos can achieve the\n0% ratio of dynamic degree. For the frame-wise dimen-\nsions Aesthetic Quality and Imaging Quality, a video con-\nsisting of 0%-scoring frames results in a final 0% score.\nFor video-text semantics dimensions Object Class, Multi-\nple Objects, Color, Spatial R",
+          "page": 26
+        },
+        {
+          "chunk_id": "chk-9bd39fb5a365a719e69edafb",
+          "excerpt": "sion, we calculate the model win ratio based on (1) VBench\nevaluation results, and (2) human annotation results, respec-\ntively, and compute their correlations, as shown in Figure 5.\nWe observe thatVBench’s per-dimension evaluation results\nare highly correlated with human preference annotations.\n4.3. Per-Category Evaluation\nWe evaluate the T2V models across eight different con-\ntent categories, by generating videos based onPrompt Suite\nper Category described in Section 3.2, and then calculating\ntheir performance across different evaluation dimensions.\nFigure 7 visualizes the evaluation results of each model in\nterms of the eight content categ",
+          "page": 7
+        },
+        {
+          "chunk_id": "chk-265a1679ad4019c790c2a8a6",
+          "excerpt": "Figure A26. VBench Results across Eight Content Categories (by Category per Chart) (best viewed in color). For each chart, we plot\nthe VBench evaluation results across different models on the same content category.\nTable A5. Validate VBench’s Human Alignment. We report VBench Win Ratios (left) / Human Win Ratios (right) for each dimension\nand each model. Our experiments show that VBench evaluations across all dimensions closely match human perceptions.\nModels Consistency\nSubject\nConsistency\nBackground\nFlickering\nTemporal\nSmoothness\nMotion\nDegree\nDynamic\nQuality\nAesthetic\nQuality\nImaging\nClass\nObject\nLaVie [104] 67.87% / 69.95% 85.27% / 65.04%",
+          "page": 24
+        }
+      ],
+      "name": "vbench-evaluation",
+      "original_hits": 0,
+      "original_status": "NO_RESULTS",
+      "paper_id": "sha256:6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235",
+      "query": "视频生成基准从哪些维度评估视频质量与一致性？",
+      "rewrite": {
+        "language": "en",
+        "original_query": "视频生成基准从哪些维度评估视频质量与一致性？",
+        "rewritten_query": "VBench evaluation dimensions subject consistency background consistency temporal flickering motion smoothness dynamic degree",
+        "schema": "video-paper-wiki.light-query-rewrite.v1"
+      },
+      "rewritten_hits": 8,
+      "rewritten_status": "OK"
+    },
+    {
+      "evidence": [
+        {
+          "chunk_id": "chk-8a877b7b3a3f9d0025086869",
+          "excerpt": "VBench: Comprehensive Benchmark Suite for Video Generative Models\nZiqi Huang1∗ Yinan He2∗ Jiashuo Yu2∗ Fan Zhang2∗ Chenyang Si1 Yuming Jiang1\nYuanhan Zhang1 Tianxing Wu1 Qingyang Jin1 Nattapol Chanpaisit1\nYaohui Wang2 Xinyuan Chen2 Limin Wang4,2 Dahua Lin2,3B Yu Qiao2B Ziwei Liu1B\n1S-Lab, Nanyang Technological University 2Shanghai Artificial Intelligence Laboratory\n3The Chinese University of Hong Kong 4Nanjing University\nhttps://vchitect.github.io/VBench-project/\nEvaluation \nMethod Suite\nHuman Preference \nAnnotation\nGenerated Videos\nPrompt SuiteEvaluation Dimension Suite\nAlignment \nVerification\nseparate prompts for:\n•each evaluation dimension",
+          "page": 1
+        },
+        {
+          "chunk_id": "chk-1001719386a2ea2078d32f0f",
+          "excerpt": "report the highest-scoring video’s result as Empirical Max.\nEmpirical Min. To approximate the minimum achiev-\nable values, we use randomly generated 2-second Gaus-\nsian noise clips to calculate results for the“Video-Condition\nConsistency” dimensions. For most “Video Quality” di-\nmensions, we select frames from real videos and design\nframe concatenation for each dimension, approximating the\nminimum score achievable for each VBench dimension.\nWebVid-Avg. Similar to Empirical Max , we compute\nthe average for each dimension on retrieved WebVid-\n10M [5] videos. This baseline could reflect the average per-\ndimension quality of the commonly used vid",
+          "page": 6
+        },
+        {
+          "chunk_id": "chk-49f337315e548f3a8c860bae",
+          "excerpt": "0.5 1.0\n0.0\n0.5\n1.0\n = 0.9651\nSubject\nConsistency\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9480\nBackground\nConsistency\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.8873\nTemporal Flickering\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9980\nMotion Smoothness\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.8209\nDynamic Degree\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9865\nAesthetic Quality\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9216\nImaging Quality\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.8037\nObject Class\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9898\nMultiple Objects\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.8915\nHuman Action\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.6073\nColor\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9759\nSpatial Relationship\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9407\nScene\n0.5 1.0\n0.0\n0.5\n1.0\n = 0.9965\nAppearance Style\n0.5 1.0",
+          "page": 7
+        },
+        {
+          "chunk_id": "chk-d7c9d82a4f9996654957cd7c",
+          "excerpt": "promised due to inconsistency introduced by their move-\nments or changing locations. For the dimension “Object\nClass”, we ensure the existence of a specific class of object\nin every prompt. For “Human Action”, each test prompt\ncontains a human subject performing a well-defined action\nfrom the Kinetics-400 dataset [56], where 100 representa-\ntive actions are selected with minimal semantic overlaps\namong themselves. Please refer to the Supplementary File\nfor the design rationale of the prompt suite for each of the\n16 dimensions.\nPrompt Suite per Category. When designing prompts for\neach dimension, the focus was to showcase models’ ability\nin th",
+          "page": 5
+        },
+        {
+          "chunk_id": "chk-63a2b4936033df169c7d1279",
+          "excerpt": "ten serve as text prompts for IS, FID, and FVD, whereas\nMSR-VTT [120]’s human-labeled video captions are used\nfor CLIPSIM. Despite covering various real-world scenar-\nios, these prompts lack diversity and specificity, limiting ac-\ncurate and fine-grained evaluation of video generation. For\ntext-to-image (T2I) models, several benchmarks [6, 7, 44,\n61, 86, 99] are proposed to assess various capabilities like\ncompositionality [44] and editing ability [7, 99]. However,\nvideo generative models still lack comprehensive evaluation\nbenchmarks for detailed and human-aligned feedback. Our\nwork differs from concurrent research [70, 71] in three key\nways",
+          "page": 3
+        },
+        {
+          "chunk_id": "chk-a81bf45e0564c3e85d63cc89",
+          "excerpt": "structions Update: We update the labeling instructions ac-\ncording to feedback from the human annotators, and sup-\nplement the wrongly labeled samples into the labeling in-\nstructions. 4) Post-Labeling Checks by Annotators: Upon\nlabeling all samples for a particular dimension, the samples\nare grouped as 60 samples per package. In each package of\n60 samples, human annotators go through 20% of randomly\nselected samples for quality checking. If for any package\nthe error rate exceeds 10%, the entire package is sent back\nfor re-labeling conducted by a different annotator. 5) Post-\nLabeling Checks by Authors: Upon labeling and possible\nre-labelings",
+          "page": 22
+        },
+        {
+          "chunk_id": "chk-5c75f9471c0a3dadd03e7f07",
+          "excerpt": "lected human preference annotations for each dimension.\nSpecifically, we use various T2V models to sample videos\nfrom our prompt suites. Then given two videos sampled\nfrom the same prompt, we ask human annotators to indicate\npreferences according to each VBench dimension respec-\ntively. We show that VBench evaluations highly correlate\nwith human preferences. Additionally, the human prefer-\nence annotations can be utilized for multiple purposes, such\nas fine-tuning generation or evaluation models to enhance\nalignment with human perceptions. For instance, we utilize\nthe annotations to implement Instruction Tuning within a\nVisual-Language Model ",
+          "page": 2
+        },
+        {
+          "chunk_id": "chk-9b8e805a0651fbc8f39a3ef7",
+          "excerpt": "quality”). Second, we explain the dimension of interest.\nSince we want to verify the human alignment of VBench\nin each fine-grained dimension, we conduct the labeling of\ndifferent dimensions separately. In each document, we elab-\norate on the definition of the current dimension, including\naspects to consider or discard. For instance, for the Subject\nConsistency dimension, annotators are asked to only focus\non the look of the main subject, and not to consider the de-\ngree of temporal flickering, or the video alignment with the\ntext prompt, and many other irrelevant dimensions. Each\naspect to consider or discard is illustrated by both text de-\n",
+          "page": 21
+        }
+      ],
+      "name": "vbench-human-alignment",
+      "original_hits": 0,
+      "original_status": "NO_RESULTS",
+      "paper_id": "sha256:6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235",
+      "query": "视频生成基准如何验证自动评估与人类判断的一致性？",
+      "rewrite": {
+        "language": "en",
+        "original_query": "视频生成基准如何验证自动评估与人类判断的一致性？",
+        "rewritten_query": "VBench human preference annotation alignment evaluation correlation",
+        "schema": "video-paper-wiki.light-query-rewrite.v1"
+      },
+      "rewritten_hits": 8,
+      "rewritten_status": "OK"
+    },
+    {
+      "evidence": [
+        {
+          "chunk_id": "chk-e097b566e01ffd0fec3adf37",
+          "excerpt": "extend sampling to longer sequences of frames or higher spatial resolutions, we will repurpose our\nmodels with a conditioning technique described later in Section 3.1.\nIn prior work on image modeling, the standard architecture for ˆxθ in an image diffusion model is a\nU-Net [38, 44], which is a neural network architecture constructed as a spatial downsampling pass\nfollowed by a spatial upsampling pass with skip connections to the downsampling pass activations.\nThe network is built from layers of 2D convolutional residual blocks, for example in the style\nof the Wide ResNet [ 65], and each such convolutional block is followed by a spatial attent",
+          "page": 3
+        },
+        {
+          "chunk_id": "chk-430415dc6800d59b2cf890ad",
+          "excerpt": "Figure 4: Comparing the replacement method (left) vs the reconstruction guidance method (right) for\nconditioning for block-autoregressive generation of 64 frames from a 16 frame model. Video frames\nare displayed over time from left to right; each row is an independent sample. The replacement\nmethod suffers from a lack of temporal coherence, unlike the reconstruction guidance method.\n5 Related work\nPrior work on video generation has usually employed other types of generative models, notably,\nautoregressive models, V AEs, GANs, and normalizing ﬂows [e.g. 3, 4, 32, 30, 14, 59, 62, 57].\nRelated work on model classes similar to diffusion models in",
+          "page": 9
+        },
+        {
+          "chunk_id": "chk-76846ae3e921e0e43c2c09a9",
+          "excerpt": "Video Diffusion (ours)\nancestral, 256 steps 18.6 15.39\nLangevin, 128 steps 16.2± 0.34 15.64\n4.3 Text-conditioned video generation\nThe remaining experiments reported are on text-conditioned video generation. In this text-conditioned\nvideo generation setting, we employ a dataset of 10 million captioned videos, and we condition the\ndiffusion model on captions in the form of BERT-large embeddings [15] processed using attention\npooling. We consider two model sizes: a small model for the joint training ablation, and a large model\nfor generating the remaining results (both architectures are described in detail in Appendix A), and\nwe explore the effe",
+          "page": 6
+        },
+        {
+          "chunk_id": "chk-8570fd87ae39bc12200b2d71",
+          "excerpt": "Video Diffusion Models\nJonathan Ho∗\njonathanho@google.com\nTim Salimans∗\nsalimans@google.com\nAlexey Gritsenko\nagritsenko@google.com\nWilliam Chan\nwilliamchan@google.com\nMohammad Norouzi\nmnorouzi@google.com\nDavid J. Fleet\ndavidfleet@google.com\nAbstract\nGenerating temporally coherent high ﬁdelity video is an important milestone in\ngenerative modeling research. We make progress towards this milestone by propos-\ning a diffusion model for video generation that shows very promising initial results.\nOur model is a natural extension of the standard image diffusion architecture, and\nit enables jointly training from image and video data, which we ﬁnd to ",
+          "page": 1
+        },
+        {
+          "chunk_id": "chk-45deb6460fc64985c07917be",
+          "excerpt": "A.3 Kinetics\nBase channels: 256 Optimizer: Adam ( β1 = 0.9,β 2 = 0.99)\nChannel multipliers: 1, 2, 4, 8 Learning rate: 0.0002\nBlocks per resolution: 2 Batch size: 256\nAttention resolutions: 8, 16, 32 EMA: 0.9999\nAttention head dimension: 64 Dropout: 0.1\nConditioning embedding dimension: 1024 Training hardware: 256 TPU-v4 chips\nConditioning embedding MLP layers: 2 Training steps: 220,000\nDiffusion noise schedule: cosine Joint training independent images per video: 8\nNoise schedule log SNR range: [−20, 20] Sampling timesteps: 128 (+128 Langevin cor.)\nVideo resolution: 16x64x64 frameskip 1 Sampling log-variance interpolation: γ = 0.0\nWeight decay",
+          "page": 15
+        },
+        {
+          "chunk_id": "chk-576d76c5a89a182b7d802ea8",
+          "excerpt": "A Details and hyperparameters\nFigure 5: More samples accompanying Fig. 2.\nHere, we list the hyperparameters, training details, and compute resources used for each model.\nA.1 UCF101\nBase channels: 256 Optimizer: Adam ( β1 = 0.9,β 2 = 0.99)\nChannel multipliers: 1, 2, 4, 8 Learning rate: 0.0003\nBlocks per resolution: 2 Batch size: 128\nAttention resolutions: 8, 16, 32 EMA: 0.9999\nAttention head dimension: 64 Dropout: 0.1\nConditioning embedding dimension: 1024 Training hardware: 128 TPU-v4 chips\nConditioning embedding MLP layers: 4 Training steps: 60000\nDiffusion noise schedule: cosine Joint training independent images per video: 8\nNoise schedule ",
+          "page": 14
+        },
+        {
+          "chunk_id": "chk-7e8e8f87990ebe1e90ca6735",
+          "excerpt": "4 Experiments\nWe report our results on video diffusion models for unconditional video generation (Section 4.1),\nconditional video generation (video prediction) (Section 4.2), and text-conditioned video genera-\ntion (Section 4.3). We evaluate our models using standard metrics such as FVD [54], FID [19], and\nIS [43]; details on evaluation are provided below alongside each benchmark. Samples and additional\nresults are provided at https://video-diffusion.github.io/. Architecture hyperparameters,\ntraining details, and compute resources are listed in Appendix A.\n4.1 Unconditional video modeling\nTo demonstrate our approach on unconditional generatio",
+          "page": 5
+        },
+        {
+          "chunk_id": "chk-6d8c9edeffbea987af2e8109",
+          "excerpt": "[16] Prafulla Dhariwal and Alexander Nichol. Diffusion models beat GANs on image synthesis.\nAdvances in Neural Information Processing Systems, 34, 2021.\n[17] Frederik Ebert, Chelsea Finn, Alex X Lee, and Sergey Levine. Self-supervised visual planning\nwith temporal skip connections. In CoRL, pages 344–356, 2017.\n[18] Cade Gordon and Natalie Parde. Latent neural differential equations for video generation. In\nNeurIPS 2020 Workshop on Pre-registration in Machine Learning, pages 73–86. PMLR, 2021.\n[19] Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter.\nGANs trained by a two time-scale update rule converge t",
+          "page": 11
+        }
+      ],
+      "name": "vdm-spatial-temporal",
+      "original_hits": 0,
+      "original_status": "NO_RESULTS",
+      "paper_id": "sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f",
+      "query": "视频扩散模型如何同时处理空间和时间信息？",
+      "rewrite": {
+        "language": "en",
+        "original_query": "视频扩散模型如何同时处理空间和时间信息？",
+        "rewritten_query": "video diffusion spatial temporal factorized attention architecture",
+        "schema": "video-paper-wiki.light-query-rewrite.v1"
+      },
+      "rewritten_hits": 8,
+      "rewritten_status": "OK"
+    }
+  ],
+  "schema": "lightweight-research-real-query-engineering-trial.v1",
+  "scope": "Actual supplied PDF derived source, lexical retrieval and live citation identity. Relevance reviewed separately; not a translation/QA accuracy benchmark or final integrated acceptance.",
+  "source_hashes_verified_before_after": true,
+  "source_snapshot": "5bf01318533d4e17beecd338fe4cd8f9c36392ebbb8c5b7b237351970410422d",
+  "workspace": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/workspace"
+}

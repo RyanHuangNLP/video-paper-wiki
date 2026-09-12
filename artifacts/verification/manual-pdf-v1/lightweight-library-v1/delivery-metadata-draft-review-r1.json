@@ -1,0 +1,171 @@
+{
+  "schema": "video-paper-wiki.lightweight-library-delivery-metadata-draft-review.v1",
+  "reviewed_at_utc": "2026-09-08T06:38:00Z",
+  "status": "PASS_DRAFT_REVIEW",
+  "delivery_decision": "GO_FOR_METADATA_DELIVERY_PENDING_RELEASE_AND_LOCAL_ACCEPTANCE",
+  "source_mutation_by_review": false,
+  "git_mutation_by_review": false,
+  "ci_acceptance": false,
+  "scope": {
+    "reviewed_files": [
+      {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-metadata-r1/files/AGENTS.md",
+        "sha256": "9f9103386da42402f00b9cbfb8921625136ab2c41fea7e78fe8dd4fa16af7479",
+        "size_bytes": 17428
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-metadata-r1/files/docs/ai/task-index.yaml",
+        "sha256": "76b3a346b508539414635921666ae45528ecd9191dd543b53aa777ef30ce4db7",
+        "size_bytes": 80240
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-metadata-r1/files/docs/ai/codex-team.md",
+        "sha256": "02c74409061e2a4c930d0f8f3e9b1821b25e6eebf7f6c7ac822c234e2532d9b8",
+        "size_bytes": 19872
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-metadata-r1/files/docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+        "sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+        "size_bytes": 34489
+      }
+    ],
+    "reviewed_file_count": 4,
+    "expected_final_metadata_paths": [
+      "AGENTS.md",
+      "docs/ai/task-index.yaml",
+      "docs/ai/codex-team.md",
+      "docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+      "docs/ai/lightweight-library-release-2026-09-08.md",
+      "artifacts/verification/lightweight-library-v1/local-acceptance.json"
+    ],
+    "draft_only_paths_present": true,
+    "baseline_commit": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "baseline_tree": "fc317f13ad781a9121c15503c4f1d945c5fafe2a",
+    "preparation_record": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-preparation-r1.json",
+      "sha256": "70905829bd466ed7a952a204b865b43d8051340e53a45af0682ae7241b7c5342",
+      "size_bytes": 3100
+    },
+    "preparation_review": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/delivery-preparation-review-r1.json",
+      "sha256": "764772905041c89cdc29348f50972cc190c75c95f1a06f189cd566cb4ecb43d0",
+      "size_bytes": 5483
+    }
+  },
+  "body_history_review": {
+    "baseline_source": "delivery baseline commit 3368c6435db166a285b4b0e2df00f5d6a7491956",
+    "AGENTS.md": {
+      "baseline_body_sha256": "42a43a971ab9ead60c516d0fd144ef87ef5dc13d8c267f4a02778a0fa0646c51",
+      "baseline_body_size_bytes": 16277,
+      "new_header_then_baseline_body_exact": true,
+      "new_header_bytes": 1151
+    },
+    "docs/ai/codex-team.md": {
+      "baseline_body_sha256": "f3b4c3c2cd16adf2f6a8351ca227089c200a36ecda1db364895ad21262cd149d",
+      "baseline_body_size_bytes": 18997,
+      "new_header_then_baseline_body_exact": true,
+      "new_header_bytes": 875
+    },
+    "docs/ai/task-index.yaml": {
+      "baseline_body_sha256": "3e0f68bc057eea7c2decac260b75f15630723f9e8924ada0c8e90f2f96fa06d9",
+      "baseline_body_size_bytes": 79142,
+      "historical_tail_exact_after_previous_block_rename": true,
+      "current_coordination_count": 1,
+      "previous_coordination_workflow_v2_count": 1
+    },
+    "root_historical_bodies_used": false,
+    "finding": "The three coordination drafts preserve the delivery-3368 bodies and history; only the requested current increment headers and YAML historical-block rename were added."
+  },
+  "current_increment_review": {
+    "product_scope": "lightweight-library-v1-knowledge-maintenance-backup-comparison",
+    "contract_path": "docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+    "release_record_path": "docs/ai/lightweight-library-release-2026-09-08.md",
+    "source_validation_record_path": "artifacts/verification/lightweight-library-v1/local-acceptance.json",
+    "status": "candidate-awaiting-final-validation",
+    "delivery": {
+      "pull_request": 95,
+      "draft": true,
+      "target": "integration",
+      "merge_authorized": false
+    },
+    "continuation_heartbeat": "paused",
+    "models": {
+      "primary": {
+        "model": "gpt-6-astra",
+        "reasoning_effort": "ultra",
+        "service_tier": "priority"
+      },
+      "controllers": {
+        "count": 3,
+        "model": "gpt-5.6-luna",
+        "reasoning_effort": "xhigh"
+      },
+      "builders": {
+        "maximum_concurrent": 3,
+        "runtime": "cursor-cli",
+        "model": "cursor-grok-4.6-xhigh-fast"
+      }
+    },
+    "scope_header_present_in": [
+      "AGENTS.md",
+      "docs/ai/task-index.yaml",
+      "docs/ai/codex-team.md"
+    ],
+    "finding": "The current increment is clearly scoped and does not restart the historical dispatch workflow or claim merge/final validation."
+  },
+  "yaml_review": {
+    "path": "docs/ai/task-index.yaml",
+    "one_current_coordination_block": true,
+    "historical_block_renamed_to_previous": true,
+    "current_block_fields_present": true,
+    "syntax_note": "PyYAML is unavailable in the locked environment; structural marker and byte-level historical-tail checks passed."
+  },
+  "contract_review": {
+    "path": "docs/ai/packets/lightweight-library-v1/CONTRACT.md",
+    "draft_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "root_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "expected_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "byte_exact_match_root": true,
+    "final_single_lf": true
+  },
+  "link_targets": {
+    "targets_checked_from_repository_root": {
+      "docs/ai/packets/lightweight-library-v1/CONTRACT.md": {
+        "exists": true,
+        "required_now": true
+      },
+      "docs/ai/packets/four-agent-cursor-cli-v1/README.md": {
+        "exists": true,
+        "required_now": true
+      },
+      "docs/ai/packets/four-agent-cursor-cli-v1/CONTROLLER.md": {
+        "exists": true,
+        "required_now": true
+      },
+      "docs/ai/packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md": {
+        "exists": true,
+        "required_now": true
+      },
+      "docs/ai/lightweight-library-release-2026-09-08.md": {
+        "exists": false,
+        "required_now": false
+      },
+      "artifacts/verification/lightweight-library-v1/local-acceptance.json": {
+        "exists": false,
+        "required_now": false
+      }
+    },
+    "historical_and_contract_targets_present": true,
+    "pending_current_increment_targets_absent_as_expected": true,
+    "finding": "Existing packet/contract links resolve. The release record and final local-acceptance target are intentionally pending and must be supplied by the later metadata delivery; their absence does not fail this four-file draft review."
+  },
+  "gates_and_limitations": {
+    "fresh_exact_head_ci_pending": true,
+    "final_local_source_acceptance_pending": true,
+    "post_ci_architect_acceptance_pending": true,
+    "human_gates_unchanged": true,
+    "no_release_or_acceptance_claim_made": true,
+    "review_scope_excludes_source_git_ci_pr_vault_and_merge": true,
+    "finding": "PASS applies only to the metadata drafts. It is not source acceptance, CI acceptance, release completion, human-gate closure or merge authorization."
+  }
+}

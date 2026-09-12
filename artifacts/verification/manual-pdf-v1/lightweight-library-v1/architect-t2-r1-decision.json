@@ -1,0 +1,111 @@
+{
+  "schema": "video-paper-wiki.library-architect-decision.v1",
+  "recorded_at_utc": "2026-09-08T04:14:15.421230+00:00",
+  "decision": "REJECTED_T2_R1_REQUIRES_PRESERVATION_RECOVERY_AND_BACKUP_VALIDATION_FIXES",
+  "candidate_snapshot": "f8b2808ed47394434af430de74c499ab541b66ac859610c5ad550c19f191fb02",
+  "handoff_sha256": "b96148bf64ca8eed27ff13d47fb4bf3d72da1de830171abe88f59a77e07ded58",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "official_builder_tests": "16 focused and95 related passed; insufficient for independent acceptance",
+  "architect_tests": {
+    "failed": 23,
+    "passed": 0,
+    "cases": [
+      {
+        "name": "test_metadata_never_overwrites_unowned_temporary_file[False]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_metadata_never_overwrites_unowned_temporary_file[True]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_native_add_workspace_lock_precedes_paper_layout",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_archive_recovery_checks_moved_payload_again",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_restore_recovery_checks_live_payload_again",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_replace_recovery_validates_staged_inventory_before_old_move",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_pre_staging_recovery_preserves_foreign_nested_content",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_changed_journal_paths_are_refused_before_move",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_exact_replace_retry_reuses_same_event",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_backup_rechecks_after_archive_construction_before_publish",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_restore_preserves_existing_archived_restoration_record",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_backup_of_restored_workspace_preserves_prior_record",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_validates_all_manifest_identity_and_rows[workspace-id]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_validates_all_manifest_identity_and_rows[workspace-root]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_validates_all_manifest_identity_and_rows[extra-row]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_validates_all_manifest_identity_and_rows[exclusions]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_validates_all_manifest_identity_and_rows[trailing-nonobject-file]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_enforces_fixed_zip_member_metadata[symlink-mode]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_enforces_fixed_zip_member_metadata[public-mode]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_enforces_fixed_zip_member_metadata[manifest-time]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_enforces_fixed_zip_member_metadata[extra-field]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_verify_enforces_fixed_zip_member_metadata[zip64-version]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_backup_input_chain_cannot_traverse_symlink",
+        "outcome": "failed"
+      }
+    ],
+    "checks": "architect-t2-r1-replay/checks.json"
+  },
+  "source_writer_stopped": true,
+  "accepted_for_integration": false,
+  "next": "T2 r2 same contract, nine-path owner allowlist; preserve r1 bytes/evidence and add independent regressions; no T3 import."
+}

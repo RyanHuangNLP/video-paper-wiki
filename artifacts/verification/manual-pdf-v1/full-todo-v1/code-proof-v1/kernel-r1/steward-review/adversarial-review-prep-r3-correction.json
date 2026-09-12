@@ -1,0 +1,82 @@
+{
+  "$schema": "full-todo.code-git-kernel-steward-review-prep-r3-correction.v1",
+  "schema": "full-todo.code-git-kernel-steward-review-prep-r3-correction.v1",
+  "revision": 3,
+  "recorded_at_utc": "2026-09-09T16:14:02.169509000Z",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "phase": "preparation_only",
+  "status": "SUCCESSOR_HARNESS_READY_WAITING_FOR_EXACT_CANDIDATE_HANDOFF",
+  "scope": "Successor-only correction to the immutable R2 adversarial-review harness; no candidate import, execution, Git mutation, production/test write, or acceptance.",
+  "historical_r2": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/steward-adversarial-review-r2.py",
+    "size_bytes": 43083,
+    "sha256": "75a6a7175d40e9310de86a5e24cef0eb6c549af110051df60008fedf8750cfd5",
+    "preserved_byte_for_byte": true
+  },
+  "successor_r3": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/steward-adversarial-review-r3.py",
+    "size_bytes": 43566,
+    "sha256": "38eea82fab54624f82e2ef16c6b810d1b57b7352a9ca89c9d8df9b0c25002dea",
+    "candidate_run": false,
+    "ast_parse_py312": true,
+    "ast_parse_py313": true
+  },
+  "corrections": [
+    {
+      "id": "R3-HARNESS-OBJECT-TYPE-001",
+      "finding": "R2 helper_type_checks used object_type=tree while expecting CODE_PROOF_INPUT_INVALID. tree is a valid enum, so an oversized body correctly reaches CODE_PROOF_LIMIT_EXCEEDED and would falsely reject a conforming implementation.",
+      "change": "Use unsupported object_type=tag for the /object_type validation-order cases in both helper APIs; the oversized body is then irrelevant to the expected input-type refusal.",
+      "contract_basis": "CODE-GIT-KERNEL-R1 and CODE-GIT-KERNEL-CLARIFICATIONS-R2 allow exactly commit, tree and blob.",
+      "r2_lines": [296, 299],
+      "r3_lines": [309, 311]
+    },
+    {
+      "id": "R3-HARNESS-MESSAGE-002",
+      "finding": "R2 keyed one exact message by code, conflating distinct refusal pointers, reasons, fields, limits and type contexts. The contract fixes a non-source-echoing message but permits validation wording to vary across meaningful contexts.",
+      "change": "Key message consistency by code plus instance_pointer, reason, field, limit_name, expected_type and actual_type, preserving repeated-condition checking without requiring one text across different refusal reasons.",
+      "contract_basis": "CODE-GIT-KERNEL-R1 closed-error section and its final paragraph distinguish fixed non-source-echoing messages from context-bearing validation wording.",
+      "r2_lines": [164, 222],
+      "r3_lines": [165, 222, 235]
+    },
+    {
+      "id": "R3-HARNESS-ERROR-ORDER-003",
+      "finding": "R2 required the insertion order of helper cap error details even though the error contract freezes required fields and values, not error-detail mapping order.",
+      "change": "Retain exact helper cap detail keys and values while removing the invented list(error.details) insertion-order assertion.",
+      "contract_basis": "CODE-GIT-KERNEL-CLARIFICATIONS-R2 freezes success-result construction order separately; helper cap details are specified by exact fields and values.",
+      "r2_lines": [307],
+      "r3_lines": [318]
+    }
+  ],
+  "handbuilt_expectation_audit": {
+    "performed": true,
+    "result": "No additional validity mistakes found in the remaining hand-built mutations and expected refusal/success outcomes.",
+    "checked": [
+      "hash-valid tree ordering, duplicate-name, truncation and invalid-mode mutations",
+      "hash-valid commit CR/NUL/root-mismatch/header-cap/line-count/continuation cases",
+      "duplicate valid parent acceptance",
+      "type-mismatch root walk with an actual empty tree OID",
+      "declared-body removal, extra-body precedence and consumed-set mismatch",
+      "strict container/count/cap precedence and purity guards",
+      "tree-name and binary-OID truncation mutations",
+      "fixture-derived helper vectors and empty blob identity"
+    ]
+  },
+  "freeze_gate": {
+    "exact_candidate_handoff_required": true,
+    "candidate_files_must_remain_stopped_and_byte_stable": true,
+    "candidate_run_authorized": false,
+    "independent_review_result": "PENDING_EXACT_CANDIDATE_HANDOFF"
+  },
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "publication": false,
+    "review_artifact_only": true
+  }
+}

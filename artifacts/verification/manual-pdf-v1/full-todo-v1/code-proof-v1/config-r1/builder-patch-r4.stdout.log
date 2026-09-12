@@ -1,0 +1,196 @@
+*** Begin Patch
+*** Update File: /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py
+@@
+     def _compare(self, node: _Node, std: object) -> None:
+         kind = node.kind
+         if kind == "object":
+             if type(std) is not dict:
+                 self._mismatch("object kind mismatch")
++            for std_key in std:
++                if type(std_key) is not str:
++                    self._mismatch("object key type mismatch")
+             ours = set(node.members)
+             theirs = set(std)
+             if ours != theirs:
+                 self._mismatch("object key set mismatch")
+             for key, child in node.members.items():
+                 self._compare(child, std[key])
+             return
+         if kind == "array":
+*** Update File: /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_config_parser.py
+@@
++    def test_stdlib_object_keys_must_be_exact_str(self) -> None:
++        import video_paper_wiki.code_config_parser as mod
++
++        callbacks = []
++
++        class OrdinaryKey(str):
++            pass
++
++        class HostileKey(str):
++            pass
++
++        def trap(self, *args, **kwargs):
++            callbacks.append("trap")
++            raise AssertionError("hostile stdlib object key")
++
++        ordinary_root = {OrdinaryKey("a"): True}
++        hostile_root = {HostileKey("a"): True}
++        ordinary_nested = {"outer": {OrdinaryKey("a"): True}}
++        hostile_nested = {"outer": {HostileKey("a"): True}}
++        int_root = {1: True}
++        int_nested = {"outer": {1: True}}
++
++        HostileKey.__hash__ = trap
++        HostileKey.__eq__ = trap
++        HostileKey.__str__ = trap
++        HostileKey.__repr__ = trap
++
++        cases = (
++            ("json-root-ordinary", "json", "json", b'{"a":true}', ordinary_root),
++            ("json-root-hostile", "json", "json", b'{"a":true}', hostile_root),
++            (
++                "json-nested-ordinary",
++                "json",
++                "json",
++                b'{"outer":{"a":true}}',
++                ordinary_nested,
++            ),
++            (
++                "json-nested-hostile",
++                "json",
++                "json",
++                b'{"outer":{"a":true}}',
++                hostile_nested,
++            ),
++            ("toml-root-ordinary", "toml", "tomllib", b"a = true\n", ordinary_root),
++            ("toml-root-hostile", "toml", "tomllib", b"a = true\n", hostile_root),
++            (
++                "toml-nested-ordinary",
++                "toml",
++                "tomllib",
++                b"[outer]\na = true\n",
++                ordinary_nested,
++            ),
++            (
++                "toml-nested-hostile",
++                "toml",
++                "tomllib",
++                b"[outer]\na = true\n",
++                hostile_nested,
++            ),
++            ("json-root-int", "json", "json", b'{"a":true}', int_root),
++            ("json-nested-int", "json", "json", b'{"outer":{"a":true}}', int_nested),
++            ("toml-root-int", "toml", "tomllib", b"a = true\n", int_root),
++            ("toml-nested-int", "toml", "tomllib", b"[outer]\na = true\n", int_nested),
++        )
++
++        for label, fmt, loader_name, payload, crafted in cases:
++            with self.subTest(label=label):
++                loader = getattr(mod, loader_name)
++                with patch.object(loader, "loads", return_value=crafted):
++                    with self.assertRaises(CodeConfigError) as caught:
++                        self._parse(payload, fmt)
++                err = caught.exception
++                self.assertEqual(err.exit_code, 2)
++                self.assertEqual(err.code, mod.CODE_CONFIG_PARSER_MISMATCH)
++                self.assertEqual(
++                    set(err.details), {"instance_pointer", "reason"}
++                )
++                self.assertEqual(err.details["instance_pointer"], "/payload")
++                reason = err.details["reason"]
++                self.assertIsInstance(reason, str)
++                self.assertTrue(reason)
++                self.assertEqual(callbacks, [])
++                self._parse(payload, fmt)
++                self.assertEqual(callbacks, [])
++
++    def test_scanner_error_content_omits_source_sentinels(self) -> None:
++        import video_paper_wiki.code_config_parser as mod
++
++        cases = (
++            (
++                "duplicate-key",
++                b'{"zzDupKeyQ9":true,"zzDupKeyQ9":false}',
++                mod.CODE_CONFIG_DUPLICATE_KEY,
++                20,
++                20,
++                ("zzDupKeyQ9",),
++                None,
++            ),
++            (
++                "trailing-comma",
++                b'{"zzSynTokW7":true,}',
++                mod.CODE_CONFIG_SYNTAX_INVALID,
++                19,
++                19,
++                ("zzSynTokW7",),
++                None,
++            ),
++            (
++                "dynamic-string",
++                b'{"zzDynKeyM3":"pre${zzDynValN5}"}',
++                mod.CODE_CONFIG_DYNAMIC_UNSUPPORTED,
++                14,
++                14,
++                ("zzDynKeyM3", "zzDynValN5", "pre${zzDynValN5}"),
++                "dynamic_marker",
++            ),
++            (
++                "negative-zero",
++                b'{"zzNumKeyP2":-0.0}',
++                mod.CODE_CONFIG_NUMBER_INVALID,
++                14,
++                14,
++                ("zzNumKeyP2", "-0.0"),
++                None,
++            ),
++        )
++
++        for (
++            label,
++            payload,
++            code,
++            byte_offset,
++            codepoint_offset,
++            forbidden,
++            reason_token,
++        ) in cases:
++            with self.subTest(label=label):
++                with self.assertRaises(CodeConfigError) as caught:
++                    self._parse(payload, "json")
++                err = caught.exception
++                self.assertEqual(err.exit_code, 2)
++                self.assertEqual(err.code, code)
++                self.assertEqual(
++                    set(err.details),
++                    {
++                        "instance_pointer",
++                        "reason",
++                        "byte_offset",
++                        "codepoint_offset",
++                    },
++                )
++                self.assertEqual(err.details["instance_pointer"], "/payload")
++                reason = err.details["reason"]
++                self.assertIsInstance(reason, str)
++                self.assertTrue(reason)
++                if reason_token is not None:
++                    self.assertIn(reason_token, reason)
++                self.assertIsInstance(err.details["byte_offset"], int)
++                self.assertIsInstance(err.details["codepoint_offset"], int)
++                self.assertEqual(err.details["byte_offset"], byte_offset)
++                self.assertEqual(
++                    err.details["codepoint_offset"], codepoint_offset
++                )
++                raw = payload.decode("utf-8")
++                serialized = json.dumps(err.details)
++                for haystack in (err.message, str(err), serialized):
++                    self.assertNotIn(raw, haystack)
++                    for token in forbidden:
++                        self.assertNotIn(token, haystack)
++
+     def test_hostile_decimal_context(self) -> None:
+         before = getcontext().copy()
+         payload = b"1e-4"
+*** End Patch

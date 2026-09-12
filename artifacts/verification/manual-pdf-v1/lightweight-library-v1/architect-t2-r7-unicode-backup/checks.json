@@ -1,0 +1,55 @@
+{
+  "schema": "video-paper-wiki.architect-t2-r7-unicode-backup-checks.v1",
+  "recorded_at_utc": "2026-09-08T06:17:09Z",
+  "status": "PRODUCT_BLOCKER_REPRODUCED",
+  "final_product_acceptance": false,
+  "unicode_case": {
+    "member": "notes-α-中文.md",
+    "create_ok": true,
+    "central_and_local_utf8_flag_bits": "0x800",
+    "verify_ok": false,
+    "verify_status": "LIGHT_BACKUP_INVALID",
+    "verify_message": "ZIP64, encrypted, compressed, or data-descriptor members are refused",
+    "restore_ok": false,
+    "restore_status": "LIGHT_BACKUP_INVALID",
+    "restore_destination_created": false
+  },
+  "ascii_control": {
+    "member": "notes-alpha.md",
+    "create_ok": true,
+    "flag_bits": [
+      0,
+      0
+    ],
+    "verify_ok": true,
+    "restore_ok": true,
+    "restored_bytes_match": true
+  },
+  "refusal_controls": {
+    "encrypted_flag_0x001": {
+      "mutated_local_and_central_headers": true,
+      "verify_ok": false,
+      "status": "LIGHT_BACKUP_INVALID",
+      "message": "ZIP64, encrypted, compressed, or data-descriptor members are refused"
+    },
+    "unknown_flag_0x020": {
+      "mutated_local_and_central_headers": true,
+      "verify_ok": false,
+      "status": "LIGHT_BACKUP_INVALID",
+      "message": "ZIP64, encrypted, compressed, or data-descriptor members are refused"
+    }
+  },
+  "code_contract_observation": {
+    "writer": "_zip_info() does not set flag_bits; stdlib zipfile emits 0x800 for non-ASCII names.",
+    "parser": "_parse_deterministic_zip() rejects any central/local flags value other than zero.",
+    "contract_clause": "CONTRACT.md §T2 requires deterministic stdlib ZIP, bounded UTF-8 text/code members, and refusal of encrypted/unsafe metadata; it does not ban valid UTF-8 filename encoding flag 0x800.",
+    "minimum_fix": "Allow flags exactly 0 or 0x800 in both local and central headers; retain rejection of encryption, data descriptor, compression, ZIP64 and unknown flags; add Unicode create/verify/restore regression and the two refusal controls."
+  },
+  "product_mutation": {
+    "source_edits": false,
+    "git_mutations": false,
+    "real_corpus_reads": false,
+    "vault_writes": false,
+    "builder_started": false
+  }
+}

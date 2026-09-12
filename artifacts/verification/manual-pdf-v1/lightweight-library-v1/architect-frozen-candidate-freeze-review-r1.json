@@ -1,0 +1,104 @@
+{
+  "schema": "video-paper-wiki.lightweight-library-v1-frozen-candidate-freeze-review-r1.v1",
+  "recorded_at_utc": "2026-09-08T14:16:00+00:00",
+  "review_mode": "read_only_static_orchestration_review",
+  "source_executed": false,
+  "active_t3_source_read": false,
+  "active_t3_source_executed": false,
+  "status": "CONDITIONAL_GO_FOR_CONTROLLED_FINAL_FREEZE_WITH_METADATA_BINDING_NOTES",
+  "script": {
+    "path": ".work/acceptance/lightweight-library-v1/freeze_final_candidate.py",
+    "sha256": "71d590df5fcab7b4d134ab16e25de89af5706606f211572644aa8b3842fa7ca6",
+    "size_bytes": 7059,
+    "line_count": 131,
+    "syntax": "not executed; source text inspected read-only"
+  },
+  "positive_checks": [
+    {
+      "id": "FFC-P01",
+      "evidence": "freeze_final_candidate.py:53-89",
+      "summary": "The script binds the 11 T3 handoff rows and 15 accepted owner-import rows to the original lane allowlists, checks exact SHA-256/size, checks source and bundle copies, rejects path escape through resolved containment, and requires regular single-link files.",
+      "result": "pass"
+    },
+    {
+      "id": "FFC-P02",
+      "evidence": "freeze_final_candidate.py:83-89,93-95",
+      "summary": "The flattened owner set must be exactly 26 unique paths, the candidate source must match every row, HEAD must equal the original baseline, and all Git changed/untracked non-ignored paths must be within the 26-path allowlist.",
+      "result": "pass"
+    },
+    {
+      "id": "FFC-P03",
+      "evidence": "freeze_final_candidate.py:100-106",
+      "summary": "The two named locked interpreters are checked for Python 3.13.13 and 3.12.14, and the pinned uv executable is checked for 0.12.7.",
+      "result": "pass"
+    },
+    {
+      "id": "FFC-P04",
+      "evidence": "freeze_final_candidate.py:41-52",
+      "summary": "The stopped T3 handoff, byte-identical ready record, baseline contract, Cursor run exit/status, requested model, observed model, and no-architect-acceptance state are checked before writing the manifest.",
+      "result": "pass"
+    },
+    {
+      "id": "FFC-P05",
+      "evidence": "freeze_final_candidate.py:118-121",
+      "summary": "The resulting record prehashes the frozen-checks orchestrator, captures all architect harness files present at freeze time, records both interpreters and uv, and declares the 125 independent and 21 separate-backup expectations.",
+      "result": "pass_with_notes"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FFC-H01",
+      "severity": "P1",
+      "status": "must_bind_before_final_acceptance",
+      "evidence": "freeze_final_candidate.py:118-122",
+      "summary": "The frozen record declares expected_independent_tests=125 and expected_separate_backup_tests=21 but has no expected_full_tests=2588 field.",
+      "required_binding": "The outer final acceptance record must explicitly declare 2588 as the expected count for each full Python run and require zero failures, errors, and skips; the run records must be bound to this frozen candidate."
+    },
+    {
+      "id": "FFC-H02",
+      "severity": "P1",
+      "status": "must_bind_before_final_acceptance",
+      "evidence": "freeze_final_candidate.py:41-46,115-116",
+      "summary": "The Cursor final record is checked for success and exact model identity, then copied into the manifest, but its source/head/workspace identity is not compared to the candidate source or baseline. A successful run record from another stopped source would satisfy the current assertions.",
+      "required_binding": "Require final.json's source, baseline/head, run identifier, and workspace to match the R4 candidate and bind the final record digest to the acceptance record."
+    },
+    {
+      "id": "FFC-H03",
+      "severity": "P2",
+      "status": "controlled_invocation_note",
+      "evidence": "freeze_final_candidate.py:98,118",
+      "summary": "Harness prehashing uses every architect_*.py file present in the acceptance directory. It does not assert the exact 13 independent plus one backup file names or their expected pre-freeze digest set.",
+      "required_binding": "The controlled outer invocation should require the exact 13 independent and one backup harness list, verify each expected digest before execution, and reject missing or extra selected harnesses."
+    },
+    {
+      "id": "FFC-H04",
+      "severity": "P2",
+      "status": "controlled_invocation_note",
+      "evidence": "freeze_final_candidate.py:48-73",
+      "summary": "The script checks stopped_writing and snapshots but does not explicitly require dependency_pending=false, ready_for_architect=true, or ready_for_final_acceptance=true on the T3 handoff, nor does it independently assert accepted-owner acceptance decisions.",
+      "required_binding": "The final acceptance record should carry and require the handoff readiness fields and accepted-owner decision fields before treating this manifest as deliverable."
+    },
+    {
+      "id": "FFC-H05",
+      "severity": "P2",
+      "status": "evidence_binding_note",
+      "evidence": "freeze_final_candidate.py:118-120",
+      "summary": "The manifest hashes run_frozen_checks.py but does not hash freeze_final_candidate.py itself, so the outer freeze procedure is not self-bound by the generated record.",
+      "required_binding": "The release/acceptance record should include this script's SHA-256 (`71d590df5fcab7b4d134ab16e25de89af5706606f211572644aa8b3842fa7ca6`) alongside the generated manifest hash."
+    },
+    {
+      "id": "FFC-H06",
+      "severity": "P2",
+      "status": "brittleness_note",
+      "evidence": "freeze_final_candidate.py:47-49",
+      "summary": "Handoff and ready files are required to be byte-identical, rather than semantically equivalent. This is valid only if the R4 handoff protocol guarantees byte-identical copies.",
+      "required_binding": "Keep the assertion only if the R4 handoff contract explicitly guarantees identical bytes; otherwise compare the required fields and bind both file digests separately."
+    }
+  ],
+  "review_limits": [
+    "The freeze script was not executed.",
+    "No active T3 R4 source was read or tested.",
+    "No source, Git, Vault, runner, or PR mutation was performed."
+  ],
+  "disposition": "READY_FOR_PARENT_CONTROLLED_FREEZE_WITH_FFC-H01_AND_FFC-H02_BOUND_IN_FINAL_ACCEPTANCE"
+}

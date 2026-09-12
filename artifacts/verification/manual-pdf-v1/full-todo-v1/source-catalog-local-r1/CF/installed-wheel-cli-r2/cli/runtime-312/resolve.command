@@ -1,0 +1,1 @@
+vpwiki source-catalog resolve --vault-root /private/tmp/vpwiki-source-catalog-cli-r2/fixture-checkout/fixture-vault --batch-id cli-catalog --claim-id clm-6f5a4f2b0c75cab18ac3 --evidence-ordinal 0 --catalog-sha256 b50d779e8592957085c34708b0b8284a813634634a32d08e45da67dcf161ca65

@@ -1,0 +1,265 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-implementation-work-package.v1",
+  "revision": 3,
+  "issued_at_utc": "2026-09-01T11:42:07Z",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "staged-pdf-capture-inspect-v1",
+  "status": "AUTHORIZED_FOR_BUILDER_CORRECTION_AND_TESTS_ONLY",
+  "supersedes": {
+    "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r2.json",
+    "revision": 2,
+    "sha256": "6b6453efd41547cba9cded18301887b7390f5cb8bfd7a2edfb54bc173c7255e1",
+    "size_bytes": 20276,
+    "immutability": "historical R2 bytes preserved exactly"
+  },
+  "preserved_history": [
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r1.json",
+      "revision": 1,
+      "sha256": "ddb0ecb1aab3da105fe6eb5f7606036d8605111973e42fd41540e7ff110e013e",
+      "size_bytes": 17824,
+      "immutability": "carry byte-for-byte"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate.json",
+      "revision": 2,
+      "sha256": "20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437",
+      "size_bytes": 13633,
+      "source_snapshot_sha256": "eb228e6d5a0d76117d3f769deaba393f2c52190336218d22a1f76bd1f8b8a373",
+      "verdict": "REJECTED_MISSING_FIXED_SLOT_IDENTITY_WINDOW",
+      "immutability": "carry byte-for-byte"
+    }
+  ],
+  "roles": {
+    "architect": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "ultra",
+      "owns": ["architecture", "work-package correction", "integration review", "final acceptance"]
+    },
+    "builder": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "owns": ["main correction implementation", "bounded regression tests", "builder candidate evidence"]
+    },
+    "repo_steward": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "owns": ["independent review", "exact delivery audit", "Git and CI after Architect GO"]
+    }
+  },
+  "accepted_architecture": {
+    "decision": "ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD",
+    "head": "4168e151c332cdcf89227bf086d4a6bc5308e649",
+    "tree": "78d43e20f8937a96c6cc86357729c72d295658cb",
+    "fresh_ci_run_id": 33497663181,
+    "tested_merge_sha": "f48d3cc3323958270f2e249d8e6a71f853df2150",
+    "tests_per_job": 1901
+  },
+  "frozen_authority": {
+    "contract": {
+      "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+      "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f",
+      "mutable": false
+    },
+    "request_schema": {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f",
+      "mutable": false
+    },
+    "authority_schema": {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+      "mutable": false
+    },
+    "architecture_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+      "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421",
+      "mutable": false
+    },
+    "architecture_ci_observation": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-ci-observation.json",
+      "sha256": "b1413e978123804f8d071fa1f078c665bbad4a73c7c8ba9afa9afd32b3254ea3",
+      "size_bytes": 7713,
+      "mutable": false
+    },
+    "architecture_merge_parents": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-merge-parents.json",
+      "sha256": "1c8b5c7c59169542993c154640e3f635346318ed056c26784187846f06d0cbbb",
+      "size_bytes": 3474,
+      "mutable": false
+    },
+    "architecture_acceptance": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-architect-acceptance.json",
+      "sha256": "3e18f60f70b759e03ead8cb14fa2882afc15036e4bd52062b940c64557ad5432",
+      "size_bytes": 12528,
+      "mutable": false
+    }
+  },
+  "architect_blocker": {
+    "id": "MISSING_FIXED_SLOT_IDENTITY_WINDOW_001",
+    "discovered_against": {
+      "builder_candidate_path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate.json",
+      "builder_candidate_sha256": "20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437",
+      "source_snapshot_sha256": "eb228e6d5a0d76117d3f769deaba393f2c52190336218d22a1f76bd1f8b8a373"
+    },
+    "minimal_reproduction": {
+      "setup": "Call _stage_prepared_pdf_capture with both prepared fixed slots initially absent; wrap _atomic_install so that after a successful missing-blob install it unlinks the installed target and writes the same bytes to a new inode before returning.",
+      "observed": "The wrapper returned success after the blob inode changed from 5639116 to 5639119.",
+      "expected": "WORK_PATH_UNSAFE and no success result.",
+      "scope": "The same gap exists for an initially missing request slot."
+    },
+    "root_cause": "For an initially missing fixed slot, _stage_prepared_pdf_capture adopts a fresh named stat only after _atomic_install returns. It therefore cannot distinguish the inode installed by the trusted primitive from a same-byte replacement that occurs before that first caller-side stat.",
+    "contract_disposition": "The accepted contract, schemas, public surface, failure order and production behavior remain unchanged. This is an implementation correction required by the frozen any-named-lineage-replacement fail-closed rule.",
+    "required_correction": [
+      "Have the trusted atomic-install boundary capture and return the exact regular-file identity it installed or reused while preserving the existing default boolean behavior for every pre-existing caller.",
+      "For each initially missing prepared fixed slot, compare the returned installed identity with the current no-follow named edge immediately after the call and before adopting it as the retained baseline.",
+      "Reject a missing blob or missing request that was replaced with the same bytes and a different inode at that boundary using WORK_PATH_UNSAFE.",
+      "Continue to revalidate the adopted identity and exact bytes at every later retained boundary and on every exception exit.",
+      "Preserve blob-first/request-last publication, exact idempotent reuse, missing-blob repair, safe exact-blob orphan behavior, and all accepted standalone staging bytes and return values."
+    ],
+    "forbidden_correction": [
+      "Do not change any public function signature, schema, contract, CLI, error ordering or semantic code set.",
+      "Do not weaken exact-byte or inode checks, accept replacement because bytes match, delete an exact safe orphan, or add rollback.",
+      "Do not change production outside src/video_paper_wiki/staging.py.",
+      "Do not refactor unrelated staging, transaction, capture, prepare, adapter or validator behavior."
+    ]
+  },
+  "builder_owned_paths": {
+    "production": ["src/video_paper_wiki/staging.py"],
+    "tests": ["tests/unit/test_prepare.py"],
+    "evidence": [
+      "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r3.json"
+    ],
+    "path_rules": [
+      "Builder may edit only the two exact source/test paths above and create only builder-candidate-r3.json.",
+      "All other source/test bytes in the rejected R2 17-path snapshot are frozen.",
+      "Do not edit builder-candidate.json, either archived work package, frozen contract/schema/architecture evidence, status documents, task index or AGENTS.md.",
+      "Do not stage, commit, push, alter PR state, access a real Vault, or use network/models.",
+      "If the two-path scope cannot close the blocker without public or architectural change, stop and report the exact blocker."
+    ]
+  },
+  "required_regression_probes": [
+    {
+      "name": "missing blob same-byte inode replacement after atomic install",
+      "expected": "CLI exit 2, WORK_PATH_UNSAFE, no request publication"
+    },
+    {
+      "name": "missing request same-byte inode replacement after atomic install",
+      "expected": "CLI exit 2, WORK_PATH_UNSAFE, exact blob may remain as the permitted safe orphan"
+    },
+    {
+      "name": "atomic install compatibility",
+      "expected": "All existing callers retain their exact boolean return behavior and accepted staging vectors remain byte-identical"
+    }
+  ],
+  "candidate_snapshot": {
+    "algorithm": "SHA-256 over UTF-8 lines path + TAB + file_sha256 + TAB + decimal_size + LF, paths sorted by raw repository-relative UTF-8 bytes",
+    "path_count": 17,
+    "paths": [
+      "src/video_paper_wiki/captured_snapshot.py",
+      "src/video_paper_wiki/cli.py",
+      "src/video_paper_wiki/commands/capture.py",
+      "src/video_paper_wiki/commands/prepare.py",
+      "src/video_paper_wiki/contracts.py",
+      "src/video_paper_wiki/staged_capture.py",
+      "src/video_paper_wiki/staging.py",
+      "src/video_paper_wiki/transaction_staging.py",
+      "src/video_paper_wiki/upstream_adapter.py",
+      "tests/contract/test_staged_pdf_capture.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/support.py",
+      "tests/unit/test_json_boundary.py",
+      "tests/unit/test_prepare.py",
+      "tests/unit/test_staged_capture.py",
+      "tests/unit/test_transaction_staging.py",
+      "tests/upstream/test_vpkb001_staged_pdf_capture.py"
+    ],
+    "candidate_itself_excluded": true
+  },
+  "acceptance_tests": {
+    "builder_targeted": [
+      "the two new missing-slot replacement probes",
+      "tests/unit/test_prepare.py",
+      "tests/security/test_work_staging_boundary.py",
+      "tests/unit/test_transaction_staging.py"
+    ],
+    "builder_focused": [
+      "tests/unit/test_staged_capture.py",
+      "tests/contract/test_staged_pdf_capture.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/upstream/test_vpkb001_staged_pdf_capture.py",
+      "tests/unit/test_prepare.py",
+      "tests/security/test_prepare_offline.py",
+      "tests/security/test_work_staging_boundary.py",
+      "tests/security/test_cli_isolation.py",
+      "tests/contract/test_agent_command_tree.py",
+      "tests/unit/test_transaction_staging.py",
+      "tests/security/test_transaction_staging_boundary.py",
+      "tests/upstream/test_vpkb001_staged_transaction_inspect.py",
+      "tests/unit/test_upstream_adapter_capture.py",
+      "tests/security/test_upstream_adapter_boundary.py",
+      "tests/unit/test_json_boundary.py"
+    ],
+    "builder_complete": [
+      "Run the complete locked Python 3.13 suite without deselection.",
+      "Run the complete locked Python 3.12 suite without deselection."
+    ],
+    "architect_final": [
+      "replay both hostile missing-slot windows independently",
+      "independent diff and contract review",
+      "focused/adversarial/real-pinned selections",
+      "complete Python 3.12 and 3.13 suites",
+      "fresh offline wheel install/resource/API smoke",
+      "exact-path manifest and cached diff audit",
+      "fresh four-job merge-ref CI",
+      "separate exact-head acceptance"
+    ]
+  },
+  "builder_candidate_requirements": [
+    "Write builder-candidate-r3.json only after all source/test writes stop.",
+    "Bind this exact revision-3 work-package SHA-256 and size plus the preserved R2 candidate SHA/size.",
+    "Record the exact 17-path per-file SHA256/size and computed snapshot SHA-256.",
+    "Record the exact targeted, focused and complete commands, interpreter versions, counts and JUnit/log hashes.",
+    "Verify frozen contract/schema/architecture records and both archived work packages remain unchanged.",
+    "Record catalog count 67, git diff --check, empty index, protected paths untouched, and no real Vault/network use.",
+    "Return control without staging, committing, pushing, editing status files or changing PR state."
+  ],
+  "absolute_exclusions": [
+    ".DS_Store",
+    "docs/feishu-multi-bot-phase1-plan.md",
+    "docs/hermes-subscription-collaboration-prd.md",
+    "docs/pi-feishu-cli-assessment.md",
+    "docs/video-paper-wiki-development-plan-v0.3.2.md",
+    "docs/video-paper-wiki-development-plan.md",
+    "inbox/**",
+    "tools/**",
+    ".github/workflows/**",
+    "pyproject.toml",
+    "uv.lock",
+    "vendor/**",
+    "catalog/**",
+    "schemas/**",
+    "docs/ai/contracts/**",
+    "all source/test paths except src/video_paper_wiki/staging.py and tests/unit/test_prepare.py",
+    "builder-candidate.json",
+    "implementation-work-package-r1.json",
+    "implementation-work-package-r2.json",
+    "accepted architecture evidence",
+    "real Vault/**",
+    ".work runtime outputs",
+    "manual-inbox semantic changes",
+    "staged code capture",
+    "transaction apply/recover/admin/runtime result",
+    "ledger/audit/integrity/mapper/index/retrieval",
+    "PR state/merge/human-gate changes"
+  ],
+  "handoff": {
+    "on_success": "Builder writes only builder-candidate-r3.json and reports exact paths/tests/hashes. Architect reviews; Repo Steward then performs a fresh independent R3 candidate review.",
+    "on_blocker": "Stop before broadening the two-path correction or changing architecture and report the smallest reproducible missing capability.",
+    "git_owner": "Repo Steward only after Architect exact-delivery GO.",
+    "implementation_complete_by_this_package_alone": false
+  }
+}

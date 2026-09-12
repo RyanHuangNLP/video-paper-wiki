@@ -1,0 +1,135 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python
+cachedir: /private/tmp/vpwiki-t2-r08-red-cache
+rootdir: /Users/huangzhanpeng/python_code/video-paper-wiki
+configfile: pyproject.toml
+collecting ... collected 7 items
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_identity_cli_invokes_selected_verifier PASSED [ 14%]
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_valid_source_link_alone_succeeds PASSED [ 28%]
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_missing_source_md_without_query_or_title_is_refused PASSED [ 42%]
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_valid_plus_missing_nonsource_link_still_succeeds PASSED [ 57%]
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_mixed_query_missing_source_is_refused FAILED [ 71%]
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_mixed_markdown_title_missing_source_is_refused FAILED [ 85%]
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_mixed_unquoted_html_missing_anchor_is_refused FAILED [100%]
+
+=================================== FAILURES ===================================
+__________________ test_mixed_query_missing_source_is_refused __________________
+
+verifier = PosixPath('/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py')
+tmp_path = PosixPath('/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0')
+
+    def test_mixed_query_missing_source_is_refused(verifier: Path, tmp_path: Path) -> None:
+        workspace, output_dir = _write_workspace(tmp_path)
+        output = output_dir / "answer.md"
+        bad = _missing_source() + "?x=1#page-1"
+        output.write_text(f"[ok]({_good_href()})\n[bad]({bad})\n", encoding="utf-8")
+        target = _resolve_file(output.parent, bad)
+        assert not target.exists(), "disk oracle: query href path without ?x=1 must not exist"
+        report_path = tmp_path / "mixed-query.json"
+        proc = _run_cli(verifier, workspace, output, report_path)
+        _persist_report("mixed_query", report_path)
+        report = _load_report(report_path)
+>       _assert_refused_bad_source(proc=proc, report_path=report_path, report=report, needle="missing/papers")
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+proc = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpe...'/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/mixed-query.json'], returncode=0, stdout='', stderr='')
+report_path = PosixPath('/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/mixed-query.json')
+report = {'ok': True, 'source_link_count': 1, 'checked': [{'href': '../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md', 'anchor': 'page-1', 'exists': True}], 'errors': []}
+needle = 'missing/papers'
+
+    def _assert_refused_bad_source(*, proc: subprocess.CompletedProcess[str], report_path: Path, report: dict | None, needle: str) -> None:
+        assert report_path.is_file(), "CLI must write a report; a crash without a report is not a correct refusal"
+        assert report is not None, "report must be JSON object"
+>       assert proc.returncode != 0, f"mixed bad source link must be nonzero, got {proc.returncode}"
+E       AssertionError: mixed bad source link must be nonzero, got 0
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py', '--workspace', '/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/ws', '--output', '/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/out/answer.md', '--report', '/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/mixed-query.json'], returncode=0, stdout='', stderr='').returncode
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py:119: AssertionError
+_____________ test_mixed_markdown_title_missing_source_is_refused ______________
+
+verifier = PosixPath('/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py')
+tmp_path = PosixPath('/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0')
+
+    def test_mixed_markdown_title_missing_source_is_refused(verifier: Path, tmp_path: Path) -> None:
+        workspace, output_dir = _write_workspace(tmp_path)
+        output = output_dir / "answer.md"
+        missing = _missing_source()
+        output.write_text(f'[ok]({_good_href()})\n[bad]({missing}#page-1 "missing")\n', encoding="utf-8")
+        target = _resolve_file(output.parent, missing + "#page-1")
+        assert not target.exists(), "disk oracle: titled missing source.md does not exist"
+        report_path = tmp_path / "mixed-title.json"
+        proc = _run_cli(verifier, workspace, output, report_path)
+        _persist_report("mixed_title", report_path)
+        report = _load_report(report_path)
+        blob_needles = (HEX, "missing", "unsupported", "illegal", "source.md")
+>       _assert_refused_bad_source(proc=proc, report_path=report_path, report=report, needle=HEX)
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+proc = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpe...'/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/mixed-title.json'], returncode=0, stdout='', stderr='')
+report_path = PosixPath('/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/mixed-title.json')
+report = {'ok': True, 'source_link_count': 1, 'checked': [{'href': '../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md', 'anchor': 'page-1', 'exists': True}], 'errors': []}
+needle = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+
+    def _assert_refused_bad_source(*, proc: subprocess.CompletedProcess[str], report_path: Path, report: dict | None, needle: str) -> None:
+        assert report_path.is_file(), "CLI must write a report; a crash without a report is not a correct refusal"
+        assert report is not None, "report must be JSON object"
+>       assert proc.returncode != 0, f"mixed bad source link must be nonzero, got {proc.returncode}"
+E       AssertionError: mixed bad source link must be nonzero, got 0
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py', '--workspace', '/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/ws', '--output', '/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/out/answer.md', '--report', '/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/mixed-title.json'], returncode=0, stdout='', stderr='').returncode
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py:119: AssertionError
+______________ test_mixed_unquoted_html_missing_anchor_is_refused ______________
+
+verifier = PosixPath('/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py')
+tmp_path = PosixPath('/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0')
+
+    def test_mixed_unquoted_html_missing_anchor_is_refused(verifier: Path, tmp_path: Path) -> None:
+        workspace, output_dir = _write_workspace(tmp_path)
+        output = output_dir / "answer.md"
+        html_href = f"../ws/papers/{HEX}/source.md#page-2"
+        output.write_text(f"[ok]({_good_href()})\n<a href={html_href}>bad</a>\n", encoding="utf-8")
+        target = _resolve_file(output.parent, html_href)
+        assert target.is_file(), "disk oracle: HTML href file exists"
+        assert '<a id="page-2"></a>' not in target.read_text(encoding="utf-8"), "disk oracle: page-2 is absent"
+        report_path = tmp_path / "mixed-html.json"
+        proc = _run_cli(verifier, workspace, output, report_path)
+        _persist_report("mixed_html", report_path)
+        report = _load_report(report_path)
+>       _assert_refused_bad_source(proc=proc, report_path=report_path, report=report, needle="page-2")
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py:233: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+proc = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpe... '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/mixed-html.json'], returncode=0, stdout='', stderr='')
+report_path = PosixPath('/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/mixed-html.json')
+report = {'ok': True, 'source_link_count': 1, 'checked': [{'href': '../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa...aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md', 'anchor': 'page-1', 'exists': True}], 'errors': []}
+needle = 'page-2'
+
+    def _assert_refused_bad_source(*, proc: subprocess.CompletedProcess[str], report_path: Path, report: dict | None, needle: str) -> None:
+        assert report_path.is_file(), "CLI must write a report; a crash without a report is not a correct refusal"
+        assert report is not None, "report must be JSON object"
+>       assert proc.returncode != 0, f"mixed bad source link must be nonzero, got {proc.returncode}"
+E       AssertionError: mixed bad source link must be nonzero, got 0
+E       assert 0 != 0
+E        +  where 0 = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py', '--workspace', '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/ws', '--output', '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/out/answer.md', '--report', '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/mixed-html.json'], returncode=0, stdout='', stderr='').returncode
+
+.work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py:119: AssertionError
+=========================== short test summary info ============================
+FAILED .work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_mixed_query_missing_source_is_refused - AssertionError: mixed bad source link must be nonzero, got 0
+assert 0 != 0
+ +  where 0 = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py', '--workspace', '/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/ws', '--output', '/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/out/answer.md', '--report', '/private/tmp/vpwiki-t2-r08-red/test_mixed_query_missing_sourc0/mixed-query.json'], returncode=0, stdout='', stderr='').returncode
+FAILED .work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_mixed_markdown_title_missing_source_is_refused - AssertionError: mixed bad source link must be nonzero, got 0
+assert 0 != 0
+ +  where 0 = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py', '--workspace', '/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/ws', '--output', '/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/out/answer.md', '--report', '/private/tmp/vpwiki-t2-r08-red/test_mixed_markdown_title_miss0/mixed-title.json'], returncode=0, stdout='', stderr='').returncode
+FAILED .work/parallel/lightweight-r08-fix-parallel-v1/terminal-2/test_mixed_links.py::test_mixed_unquoted_html_missing_anchor_is_refused - AssertionError: mixed bad source link must be nonzero, got 0
+assert 0 != 0
+ +  where 0 = CompletedProcess(args=['/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python', '-B', '/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/architect/r08/observed-inputs/verify_links.py', '--workspace', '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/ws', '--output', '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/out/answer.md', '--report', '/private/tmp/vpwiki-t2-r08-red/test_mixed_unquoted_html_missi0/mixed-html.json'], returncode=0, stdout='', stderr='').returncode
+========================= 3 failed, 4 passed in 0.19s ==========================
+RED_EXIT=1

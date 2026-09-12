@@ -1,0 +1,65 @@
+{
+  "status": "REJECTED_R3_KERNEL_CANDIDATE_PENDING_BOUNDED_REPAIR",
+  "authority": "Architect/root",
+  "handoff": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-failing-handoff-r3.json",
+    "sha256": "6c999a3f776928614efc5b2aa760173849d6719a4da6b2201a3b0aaa7f2853b0",
+    "size_bytes": 1691
+  },
+  "diagnostic": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-diagnostic-r3.json",
+    "sha256": "ec9f432ea40589c2ccd72f35b54b98946617bab811629d7bcac637e3b687c179",
+    "size_bytes": 2909
+  },
+  "terminal_snapshot": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-r3-stopped.terminal.log",
+    "sha256": "d7a86cbcf57e5d53b88a899e4d93968ff8d9a3ff7bb92efb1f39a0a5e082974a",
+    "size_bytes": 1858930
+  },
+  "stop_observation": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-completion-exit-observation-r3.json",
+    "sha256": "25f2235ac5eb673b30289f01b8563e776006f64736380844ad54da71b1c5364d",
+    "size_bytes": 4502
+  },
+  "stop_correction": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-completion-exit-observation-r3-correction-r1.json",
+    "sha256": "da0cee759ad22ccb819d257b5272d2f0d8accff61052fb070a3e203ff1697d08",
+    "size_bytes": 2106
+  },
+  "findings": [
+    {
+      "id": "R3-STRICT-KEYS",
+      "kind": "implementation",
+      "evidence": "Exact-str key checks missing before lookup/set equality in limits, target and object records; independent strict-input script invokes object-key callback."
+    },
+    {
+      "id": "R3-CAP-INSTRUMENTATION",
+      "kind": "test",
+      "evidence": "Two fixture records invoke six hashes before verification; actual-size setup can first fail another declared-size cap."
+    },
+    {
+      "id": "R3-UNUSED-TREE",
+      "kind": "test",
+      "evidence": "Extra empty tree duplicates empty root OID; duplicate-record refusal replaces intended unused-object test."
+    },
+    {
+      "id": "R3-VACUOUS-ASSERTION",
+      "kind": "test",
+      "evidence": "Assertion with or True cannot verify JSON-compatible output."
+    }
+  ],
+  "independent_valid_graph_cases_passed": 128,
+  "focused_py313": {
+    "passed": 33,
+    "failed": 2
+  },
+  "source_writes_stopped": true,
+  "repair_prompt": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-REPAIR-R4.md",
+    "sha256": "7870e7779f07923734250508199fb07d66e829b229d671a75c7372367e90ef57",
+    "size_bytes": 6236
+  },
+  "repair_dispatch_authorized": false,
+  "local_acceptance": false,
+  "git_delivery": false
+}

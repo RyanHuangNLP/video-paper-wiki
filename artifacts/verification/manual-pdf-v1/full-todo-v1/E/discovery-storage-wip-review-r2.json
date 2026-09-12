@@ -1,0 +1,163 @@
+{
+  "$schema": "full-todo.discovery-storage-wip-review-r2.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R2-retained-storage-probe-review",
+  "reviewed_at_utc": "2026-09-09T10:29:00Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded discovery storage probe reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "PROBE_GO_STORAGE_GRAPH_RESERVATION_INTEGRATION_OPEN",
+  "verdict": "The stabilized storage source passes all three requested /private/tmp adversarial probe groups. R1 storage blockers for retained checkout validation, cleanup lock lifetime and foreign-byte boundary are closed in this source. Pending-plan reservation reconstruction/binding remains an explicitly deferred graph integration gate and is not raised as a new storage defect in this review.",
+  "scope": "Read-only review of the stabilized discovery_storage.py source with isolated temporary checkout/process probes only. No source, schema, test, Git, network, connector, real Vault, or human gate was mutated.",
+  "source": {
+    "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_storage.py",
+    "sha256": "07f23cb862b511f8b6e162f6c868bfdb64942ac6f838c74f72e222da62e6c245",
+    "size_bytes": 20487,
+    "lines": 458
+  },
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-storage-wip-review-r1.json",
+      "sha256": "b374bff94f4279e39f53397e233a07c5022ca92f4b411634d1e460d82d7fe626",
+      "size_bytes": 12830
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "size_bytes": 54827
+    }
+  ],
+  "closed_r1_findings": [
+    {
+      "id": "DSTORAGE-WIP-001",
+      "status": "DEFERRED_GRAPH_INTEGRATION",
+      "note": "Pending-plan reservation remains intentionally awaiting the validated graph binding on open and each prospective install; this R2 storage-only review does not reclassify it."
+    },
+    {
+      "id": "DSTORAGE-WIP-002",
+      "status": "CLOSED_BY_SOURCE",
+      "evidence": "open_store parses retained pyproject bytes with tomllib.loads after descriptor-relative tree.file; no resolve_checkout_root pathname validator remains (lines 403-425)."
+    },
+    {
+      "id": "DSTORAGE-WIP-003",
+      "status": "CLOSED_BY_SOURCE_AND_PROBE",
+      "evidence": "open_store duplicates checkout_fd for the flock and closes tree descriptors before closing the duplicate lock descriptor (lines 405-410, 444-454); the cleanup-window probe kept the contender busy."
+    },
+    {
+      "id": "DSTORAGE-WIP-004",
+      "status": "CLOSED_BY_SOURCE_AND_FINAL_PRIORITY",
+      "evidence": "The exception boundary maps STAGING_CONFLICT to DISCOVERY_CONFLICT (lines 439-442), while final retained-tree verification still has WORK_PATH_UNSAFE precedence for a foreign set change."
+    }
+  ],
+  "probes": [
+    {
+      "id": "R2-LOCK-BUSY-CLEANUP",
+      "kind": "two-process lock contention with delayed descriptor cleanup",
+      "temporary_root": "/private/tmp/discovery-r2-lock-30omjb2w",
+      "method": "Process A entered open_store, then its patched first close_fd call wrote cleanup-started and slept 2 seconds. Process B attempted open_store while A was in tree.close; no .work/research was present.",
+      "observed": {
+        "process_a_exit": 0,
+        "cleanup_signal": "cleanup-started",
+        "process_b_exit": 0,
+        "process_b_error": "DISCOVERY_BUSY",
+        "busy_no_work": "PASS",
+        "work_path_created": false
+      },
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:8-26"
+      ]
+    },
+    {
+      "id": "R2-RETAINED-CHECKOUT-SWAP",
+      "kind": "rename/replacement and outside-path read sentinel",
+      "temporary_root": "/private/tmp/discovery-r2-swap-nhcpdwcz/checkout",
+      "method": "After retained descriptor-relative pyproject capture, the checkout directory was renamed and replaced; the replacement pyproject.toml was a symlink to an outside temporary file. os.open was instrumented to count pathname opens of the replacement path.",
+      "observed": {
+        "error_code": "WORK_PATH_UNSAFE",
+        "message": "retained named edge changed",
+        "replacement_pyproject_is_symlink": true,
+        "outside_replacement_path_open_count": 0,
+        "swap_completed": true
+      },
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:28-33"
+      ]
+    },
+    {
+      "id": "R2-FOREIGN-FIRST-ABSENCE-SAME-BYTES",
+      "kind": "foreign exact-byte appearance after retained missing target",
+      "temporary_root": "/private/tmp/discovery-r2-foreign-5b25r8mt",
+      "method": "Patched the atomic installer to create the target with foreign bytes equal to the requested bytes before invoking the real installer.",
+      "observed": {
+        "error_code": "WORK_PATH_UNSAFE",
+        "message": "retained named edge changed",
+        "foreign_bytes_adopted": false
+      },
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-DESIGN-R2:329-356"
+      ]
+    },
+    {
+      "id": "R2-FOREIGN-FIRST-ABSENCE-DIFFERING-BYTES",
+      "kind": "foreign differing-byte appearance after retained missing target",
+      "temporary_root": "/private/tmp/discovery-r2-foreign-bifj1lo4",
+      "method": "Patched the atomic installer to create the target with differing foreign bytes before invoking the real installer.",
+      "observed": {
+        "error_code": "WORK_PATH_UNSAFE",
+        "message": "retained named edge changed",
+        "foreign_bytes_adopted": false,
+        "final_work_path_priority": "PRESERVED"
+      },
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-DESIGN-R2:329-356",
+        "DISCOVERY-EXPANSION-RECOVERY-R3:28-33"
+      ]
+    }
+  ],
+  "probe_interpretation": [
+    "The cleanup probe establishes that the duplicate flock descriptor remains live through tree.close; no lock file or lease artifact is written.",
+    "The checkout swap probe exercises the retained named checkout edge and confirms the replacement path is never opened by the validator.",
+    "Both foreign-target races are refused by final retained named-edge/set verification. Same-byte appearance is not treated as idempotent reuse; differing-byte internal staging conflict is normalized but final WORK_PATH_UNSAFE correctly wins."
+  ],
+  "remaining_gates": [
+    "Bind a validated graph-derived pending plan on open and before every prospective install, then re-run capacity/recovery vectors; this is the parent-declared integration gate.",
+    "Run full local Python suites, installed-wheel/resource parity and fresh four-job CI against the exact integrated head; Linux flock behavior remains a delivery gate.",
+    "Provider capability, real-data, Vault/admin and human scientific gates remain outside this storage probe review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

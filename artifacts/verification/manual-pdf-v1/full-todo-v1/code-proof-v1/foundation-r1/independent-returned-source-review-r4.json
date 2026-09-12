@@ -1,0 +1,136 @@
+{
+  "schema": "full-todo.code-proof-foundation-independent-source-review.v1",
+  "recorded_at_utc": "2026-09-11T02:10:00Z",
+  "decision": "REJECTED_PENDING_BOUNDED_SOURCE_FIXES",
+  "scope": {
+    "production_source": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/returned-r4-code_proof_resources.py",
+      "size_bytes": 28080,
+      "sha256": "3baa70b3867a71611215dc51a303ff63d2fe8c0c564247fe69d72cead7aae21f"
+    },
+    "test_source": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/returned-r4-test_code_proof_resources.py",
+      "size_bytes": 33305,
+      "sha256": "a38b8b81b5ec3f1877b7a01a97fe457136eb7b0e704edd58e6e8e6779fd07a71"
+    },
+    "contract_sources": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-R1.md",
+        "sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-CLARIFICATIONS-R2.md",
+        "sha256": "66b675218af715d0ecc82295f905f5a961cb80305748ca273649ec425b1905b0"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R2.md",
+        "sha256": "effd4fa9a8d3f2bd93f1b2154c0e486f21e0441e00836def25fe329329889163"
+      }
+    ]
+  },
+  "method": {
+    "description": "Read-only importlib loading of the returned module under a synthetic video_paper_wiki package; no source installation, product writes, build, Git, or model action.",
+    "interpreters": [
+      {
+        "name": "py312",
+        "path": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+        "version": "3.12.14"
+      },
+      {
+        "name": "py313",
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "version": "3.13.13"
+      }
+    ],
+    "cycle_timeout_seconds": 1.5
+  },
+  "findings": [
+    {
+      "id": "F-R4-01",
+      "severity": "contract_blocking_public_input",
+      "status": "reproduced_py312_and_py313",
+      "location": {
+        "production_lines": [
+          756,
+          761,
+          767
+        ],
+        "helper_line": 575
+      },
+      "contract": "materialize_limits requires exact builtin group/key strings; _require_exact_mapping is a named exact-map helper.",
+      "observation": "frozenset(value) == frozenset(expected_keys) treats str subclasses as equal to builtin strings, so subclass group/key maps are accepted.",
+      "reproduction": {
+        "materialize_limits_subclass_map": "accepted and returned a full map",
+        "require_exact_mapping_subclass_key": "accepted"
+      },
+      "scope": "The public materialize_limits path is directly caller-reachable; ordinary JSON cannot create a str subclass, but the Python contract explicitly requires exact builtins. The same defect affects profile helper inputs."
+    },
+    {
+      "id": "F-R4-02",
+      "severity": "contract_blocking_private_helper",
+      "status": "reproduced_py312_and_py313",
+      "location": {
+        "production_lines": [
+          463,
+          468
+        ]
+      },
+      "contract": "Malformed named private helpers must map invalid reference input to CodeProofResourceError(resource_shape) without raw conversion errors.",
+      "observation": "_canonical_list_index('9' * 5000) raises ValueError from Python's integer-string digit limit instead of CodeProofResourceError(resource_shape).",
+      "reproduction": {
+        "exception": "ValueError",
+        "message_prefix": "Exceeds the limit (4300 digits) for integer string conversion"
+      },
+      "scope": "Pinned production schemas cannot supply this malformed pointer, but the explicitly named private reference helper is a permitted test surface and the current failure leaks the wrong exception."
+    },
+    {
+      "id": "F-R4-03",
+      "severity": "contract_blocking_public_constructor",
+      "status": "reproduced_py312_and_py313",
+      "location": {
+        "production_lines": [
+          721,
+          724,
+          731,
+          734
+        ]
+      },
+      "contract": "No caller-supplied pins, profile, validator, registry, callback, or validation configuration may construct a CodeProofResources context; retained inputs must remain owned by the compiled context.",
+      "observation": "The exported public class constructor accepts arbitrary profile_sha256, resource_pins, validators, and hard_limits without validation or copying.",
+      "reproduction": {
+        "injected_validator_accepts": true,
+        "mutated_hard_limit_observed": 999,
+        "injected_resource_pin": "evil",
+        "injected_profile": "attacker-profile"
+      },
+      "scope": "This is directly reachable without monkeypatching: a caller can create a context that accepts an injected validator and can mutate the caller-owned hard-limit dict after construction. The compiler itself supplies trusted values, but the public constructor bypasses that trust boundary."
+    },
+    {
+      "id": "F-R4-04",
+      "severity": "contract_blocking_private_helper_hang",
+      "status": "reproduced_bounded_py312_and_py313",
+      "location": {
+        "production_lines": [
+          511,
+          516,
+          529
+        ]
+      },
+      "contract": "_validate_schema_references is a pure malformed-input helper and must reject invalid structures with CodeProofResourceError(resource_shape).",
+      "observation": "A nested dictionary containing a self-reference is repeatedly pushed by _walk_schema_document because no visited/active-cycle guard exists.",
+      "reproduction": {
+        "input": "exact ten synthetic schema roots with one nested self-cycle",
+        "timeout_seconds": 1.5,
+        "py312": "timed out and was terminated",
+        "py313": "timed out and was terminated"
+      },
+      "scope": "Pinned production schemas are acyclic, but the named private helper is explicitly authorized for malformed synthetic inputs; this is an unbounded hang on that contract surface."
+    }
+  ],
+  "non_findings": [
+    "The returned module imports under a synthetic package in both locked runtimes.",
+    "No production source path, wheel, Git state, or Grok process was modified or executed by this review.",
+    "No public product acceptance, CI, real-data gate, or human gate is claimed."
+  ],
+  "accepted": false
+}

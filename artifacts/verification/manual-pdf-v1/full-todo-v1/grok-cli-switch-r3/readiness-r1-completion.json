@@ -1,0 +1,49 @@
+{
+  "$schema": "full-todo.grok-readiness-completion.v1",
+  "revision": "R1-monitor-capture",
+  "recorded_at_utc": "2026-09-09T14:43:00.000000000Z",
+  "task": {
+    "grok_uuid": "6e8c7211-4a23-4af5-9cee-c1e3b883223f",
+    "parent_exec_session_id": 60398,
+    "model": "grok-4.6",
+    "reasoning_effort": "xhigh",
+    "permission_mode": "default",
+    "no_subagents": true,
+    "disable_web_search": true,
+    "max_turns": 12
+  },
+  "status": "RESULT_CAPTURED_EXIT_UNVERIFIED",
+  "exit_code": null,
+  "exit_code_status": "The parent PTY session is not addressable from this controller; write_stdin returned Unknown process id 60398. No exit code is inferred.",
+  "stdout": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/grok-cli-switch-r3/readiness-r1.stdout.log",
+    "size_bytes": 20725,
+    "sha256": "806c1b38cbeaedc9f18be461895b7f1ea36d57ade3b1c5648b7aa828b7eb1b87"
+  },
+  "stderr": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/grok-cli-switch-r3/readiness-r1.stderr.log",
+    "size_bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "dispatch": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/grok-cli-switch-r3/dispatch.json",
+    "exists": false,
+    "note": "dispatch.json was not present when the log was finalized."
+  },
+  "output_checks": {
+    "stdout_nonempty": true,
+    "stderr_empty": true,
+    "final_stop_marker_present": false,
+    "max_turns_reached_marker": false,
+    "readiness_decision": "KERNEL_PACKET_FEASIBLE_AFTER_KERNEL_CONTRACT_FREEZE; PUBLIC_CODE_PROOF_STILL_CHANGES_REQUIRED"
+  },
+  "monitor_controls": {
+    "restarted": false,
+    "resumed": false,
+    "prompt_changed": false,
+    "permissions_changed": false,
+    "source_or_git_mutated": false,
+    "provider_or_network_used": false
+  },
+  "limitation": "This is a captured-output completion record, not a successful CLI exit claim. Root should obtain the terminal exit from the original PTY if it becomes available."
+}

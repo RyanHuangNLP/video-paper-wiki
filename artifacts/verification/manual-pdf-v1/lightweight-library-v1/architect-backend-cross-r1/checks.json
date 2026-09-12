@@ -1,0 +1,66 @@
+{
+  "schema": "video-paper-wiki.architect-backend-cross-r1-checks.v1",
+  "recorded_at_utc": "2026-09-08T05:34:41Z",
+  "overlay_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/acceptance/lightweight-library-v1/backends-r1/source",
+  "overlay_digest_sha256": "e49a1d044746eeeadc5ad61be3066b0d3f3a534efe970f243487cd95b109c300",
+  "command": [
+    "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "architect_crossfeature_checks_r2.py",
+    "--tb=short",
+    "--basetemp=/private/tmp/architect-backend-cross-r1.qaliCA/b",
+    "-o",
+    "cache_dir=/private/tmp/architect-backend-cross-r1.qaliCA/c",
+    "--junitxml=/private/tmp/architect-backend-cross-r1.qaliCA/junit.xml"
+  ],
+  "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/acceptance/lightweight-library-v1",
+  "python": "3.13.13",
+  "python_executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+  "pythonpath": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/acceptance/lightweight-library-v1/backends-r1/source/src",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+    "UV_OFFLINE": "1",
+    "UV_PYTHON_DOWNLOADS": "never",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "result": {
+    "tests": 8,
+    "passed": 7,
+    "failed": 1,
+    "skipped": 0,
+    "errors": 0,
+    "exit_code": 1,
+    "status": "GAP_FOUND",
+    "junit_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-backend-cross-r1/junit.xml",
+    "junit_sha256": "a497abd58ace71bd0aced8996d0ee4802c492769e040807ca75dd828ab616570"
+  },
+  "failure": {
+    "test": "test_archive_restore_preserves_complete_paper_and_retry",
+    "location": "architect_crossfeature_checks_r2.py:149",
+    "operation": "library.archive_paper(workspace, paper_id)",
+    "observed": {
+      "ok": false,
+      "status": "LIGHT_LIBRARY_INVALID",
+      "message": "unexpected dir nested",
+      "paper_id": "sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f"
+    },
+    "fixture_action": "test adds nested/example.py under a valid paper and expects archive/restore to preserve the complete paper and retry idempotently.",
+    "precise_gap": "The integrated backend rejects a nested directory during classify_paper_dir before archive_paper can scan, archive, restore, and compare its directory inventory. The accepted cross-feature contract therefore lacks complete-paper roundtrip support for nested directories."
+  },
+  "real_corpus": {
+    "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/acceptance/lightweight-library-v1/real-corpus-r1/library",
+    "source_treated_as_read_only": true,
+    "fixtures_copied_to_temp_by_test_fixture": true,
+    "raw_logs_transmitted_to_cursor": false
+  },
+  "product_mutation": {
+    "source_edits": false,
+    "git_mutations": false,
+    "vault_writes": false,
+    "t3_import": false
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "full-todo.code-config-patch-review-r5.v1",
+  "schema": "full-todo.code-config-patch-review-r5.v1",
+  "reviewed_at_utc": "2026-09-10T08:05:19.054386Z",
+  "status": "PASS_INDEPENDENT_BOUNDED_REVIEW",
+  "decision": "GO_APPLY_TEST_ONLY_R5_PATCH",
+  "production_blocker": {
+    "status": "CLOSED_IN_SCOPE",
+    "statement": "The exact-str builtin-key guard closes the reviewed stdlib-tree object-key mismatch and hostile-subclass callback blocker.",
+    "production_path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py",
+    "production_sha256": "d1b8764b165ff7bfd35e743653fb2d8c40bf9b35dc24ba7b480dbc3e89f1ea9c",
+    "production_size_bytes": 61364,
+    "delta_basis": "The applied production file differs from the frozen original by exactly the three-line type(std_key) is str guard in _CrossChecker._compare; no other production delta was observed."
+  },
+  "reviewed_inputs": {
+    "r1_contract": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "size_bytes": 17799
+    },
+    "r4_amendment": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-AMENDMENT-R4.json",
+      "sha256": "f54873296dd11e52a93ffa27088e31674d83659e2272767e952448e820a8587b",
+      "size_bytes": 3958
+    },
+    "original_production": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/candidate-original-r1/src/video_paper_wiki/code_config_parser.py",
+      "sha256": "b46fbd198dc8a4fcbe25a58443d24c460ec00dcb4a75609b94858efc5f835b21",
+      "size_bytes": 61224
+    },
+    "original_independent_probe": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.py",
+      "sha256": "3cabe6c8daa5f9ad7bfbabfc2e5f53ec791feeea8e6e970a48eb15ecea99dc4c",
+      "size_bytes": 5395
+    },
+    "original_probe_result": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.json",
+      "sha256": "f6a8b8c02157ce3af5d90fb475956f4d6c7246c6b4fcb27d6a0188a5b655f3fa",
+      "size_bytes": 2978
+    },
+    "grok_patch_diagnostic": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-patch-diagnostic-r4.json",
+      "sha256": "0e7738ef92907d8be79fe883bc1309e7c9d992208594ee1d4f87d342207a8ff4",
+      "size_bytes": 2768
+    },
+    "test_patch": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-regression-correction-r5.patch",
+      "sha256": "cc606d86057ed1d5cdaac199c0d8b18114f4d22312835f42dace7ed7a19c447d",
+      "size_bytes": 3584
+    },
+    "proposed_test": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-regression-correction-r5.proposed.py",
+      "sha256": "207e917ea37239fcc1db2e862a2b36e612c236bc23ca41a07a2cdff32ef2ac76",
+      "size_bytes": 43085
+    }
+  },
+  "checks": [
+    {
+      "id": "R5-PRODUCTION-GUARD",
+      "status": "PASS",
+      "evidence": "The guard rejects every stdlib object key whose exact type is not str before set(std) or std[key] can invoke hostile key methods. Exact str keys continue through the existing complete semantic comparison. CodeConfigError remains bounded with CODE_CONFIG_PARSER_MISMATCH, /payload and fixed object key type mismatch reason."
+    },
+    {
+      "id": "R5-ORIGINAL-PROBE-CLOSURE",
+      "status": "PASS",
+      "evidence": "The preserved independent R1 probe recorded acceptance of a str subclass and a raw eq callback. The new guard directly addresses both observations; the isolated R5 test covers root and nested str subclasses, hostile subclasses and integer keys, then re-parses ordinary inputs to prove recovery with zero callbacks."
+    },
+    {
+      "id": "R5-TEST-PATCH-APPLICATION",
+      "status": "PASS",
+      "evidence": "The proposed patch applied cleanly in each temporary copy, and both resulting test files are byte-identical to architect-grok-regression-correction-r5.proposed.py (SHA-256 207e917ea37239fcc1db2e862a2b36e612c236bc23ca41a07a2cdff32ef2ac76)."
+    },
+    {
+      "id": "R5-PY312-FOCUSED",
+      "status": "PASS",
+      "python": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+      "version": "Python 3.12.14",
+      "result": "2 tests passed",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "33d6cda14dfa4f8bcb0c8197e4b2386eb4a3bbd02c6f108a1c24e1adfeabc9f1",
+      "stderr_size_bytes": 412
+    },
+    {
+      "id": "R5-PY313-FOCUSED",
+      "status": "PASS",
+      "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+      "version": "Python 3.13.13",
+      "result": "2 tests passed",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "33d6cda14dfa4f8bcb0c8197e4b2386eb4a3bbd02c6f108a1c24e1adfeabc9f1",
+      "stderr_size_bytes": 412
+    },
+    {
+      "id": "R5-TEST-CONTENT",
+      "status": "PASS",
+      "evidence": "The two reviewed methods enforce exact literal error codes, exact fixed mismatch reason, bounded nonempty reason, exact dynamic_marker reason, corrected duplicate-key opening-quote offsets 19/19, exact scanner offsets and source-sentinel exclusion, zero hostile callbacks, and ordinary-input recovery."
+    }
+  ],
+  "replay_harness": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-patch-review-r5/replay-r5.sh",
+    "sha256": "04656b3d3410c108685506faddc1714fad6ff6a8137c18433509df769916964a",
+    "temporary_copies": {
+      "py312": "/private/tmp/config-r5-replay-M6tPHo",
+      "py313": "/private/tmp/config-r5-replay-lRfcdG"
+    },
+    "source_writes": false,
+    "candidate_git_mutation": false
+  },
+  "findings": [],
+  "controls": {
+    "source_modified": false,
+    "candidate_test_modified": false,
+    "fixture_modified": false,
+    "test_patch_applied_to_candidate": false,
+    "git_mutation": false,
+    "network": false,
+    "production_installed_or_tested_in_place": false
+  },
+  "remaining_gates": [
+    "Root may apply exactly this test-only patch while preserving the Grok regression additions.",
+    "Root still owns the resulting three-file freeze, dual-Python focused suite, 64-case JSON oracle, 67-check adversarial suite and subsequent acceptance review.",
+    "This bounded review does not claim full parser, wheel, CI, delivery or human acceptance."
+  ]
+}

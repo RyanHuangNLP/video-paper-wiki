@@ -1,0 +1,200 @@
+{
+  "$schema": "full-todo.discovery-expansion-recovery-r3-review.v1",
+  "schema": "full-todo.discovery-expansion-recovery-r3-review.v1",
+  "reviewed_at_utc": "2026-09-09T09:28:02Z",
+  "scope": "Bounded read-only review of DISCOVERY-EXPANSION-DESIGN-R2 together with DISCOVERY-EXPANSION-RECOVERY-R3. Checked whether R3 closes the R2 IO blockers for control serialization, initialization recovery, control-head event membership, reservation counters, candidate component introductions and state recovery. No source, schema, test, Git, connector, Vault or network mutation.",
+  "decision": "CONDITIONAL_GO_WITH_PHYSICAL_RESERVE_AND_CROSS_PLATFORM_ACCEPTANCE_OPEN",
+  "status": "READ_ONLY_AMENDMENT_REVIEW",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_amendment": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r2_io_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-design-r2-io-review.json",
+      "sha256": "76f416b55caefa11799c61053dea5cda4147874c5116898a0fb8912e077eb390"
+    },
+    "r1_recovery_detail": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-recovery-detail-r1.json",
+      "sha256": "f3b3cd82d6ea5a9192ae62774ac9099e4bb15515c1ce5bac2a2937acab2d62e6"
+    },
+    "observed_preview_storage": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_storage.py",
+      "sha256": "f44ce4e39950dfaf72c7ef38a9a0c430dc7a6b21ba25109458c23e25971eed31"
+    }
+  },
+  "amendment_effect": "R3 explicitly prevails over conflicting R2 text. It changes config to carry seeds, removes control_head/user_stop from the calculated stop artifact, adds event.control_head, introduces one checkout-root advisory flock protocol, replaces the 256-file decisions limit with a 512-file physical limit plus semantic sublimits, and defines component-introduction accounting.",
+  "checks": [
+    {
+      "id": "DISC-R3-FLOCK-SERIALIZATION",
+      "status": "CLOSED_DESIGN_PENDING_CROSS_PLATFORM_ACCEPTANCE",
+      "evidence": "R3 lines 8-33 require every discovery reader and writer to take the same non-blocking LOCK_EX|LOCK_NB on the retained checkout-root directory descriptor before observing .work, hold it through all graph/input/resource checks, installs, final checks and cleanup, and return DISCOVERY_BUSY without scanning or writing. R3 also states the lock is advisory/cooperative and that retained named-edge/set/byte checks remain authoritative for uncooperative filesystem changes.",
+      "closure": "This supplies the missing linearization boundary for cooperative control, plan, observation and event commands. A control installed before event installation is seen by the later operation; a control installed after the event must target the new completed event. The no-lock-file/no-stale-lock rule avoids a mutable lock artifact.",
+      "remaining_acceptance": [
+        "Run the two-process busy/release probe on both supported macOS and Linux environments; the local macOS feasibility observation does not prove Linux behavior.",
+        "Prove that all status/context/render/handoff readers acquire the same lock and that busy acquisition performs no .work creation or store scan.",
+        "Replace the named checkout root while a descriptor is held and verify actual approved checkout identity plus final named-edge checks yield WORK_PATH_UNSAFE rather than permitting two aliased roots."
+      ]
+    },
+    {
+      "id": "DISC-R3-CONFIG-SEEDS-INIT-RECOVERY",
+      "status": "CLOSED_DESIGN_PENDING_SCHEMA_IMPLEMENTATION",
+      "evidence": "R3 lines 35-55 puts exact canonical seeds into research-config.data, reduces research-session.data to {session_key,config}, and defines absent, config-only/init_pending, matching ready, session-only, multi-artifact, wrong-ref and changed-input states. A config-only tree therefore contains all facts needed to reconstruct one expected session.",
+      "closure": "The R2 config/session information split is removed. Different seed inputs change config bytes; exact config reuse can derive the session under the shared lock; foreign or incomplete trees are refusal states. Plain resume is an exact session repair in init_pending and read-only status remains non-creating.",
+      "remaining_acceptance": [
+        "Freeze the canonical seed ordering/normalization and require session_key to equal the retained directory slug before deriving the session.",
+        "Test config-only same-byte init/resume, changed seeds, changed config, session-only/config-missing, wrong config ref, multiple configs and foreign artifacts.",
+        "Include config itself in the initial physical-size reserve or prove the global config bound separately; the pending-plan reserve described later cannot cover an absent initial config unless this is explicit."
+      ]
+    },
+    {
+      "id": "DISC-R3-CONTROL-SEPARATION",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R3 lines 57-73 removes control_head and user_stop from research-stop-decision, limits the calculated artifact to four deterministic reasons, gives active user_stop status overlay precedence, and makes assessment/candidate/rank/stop bytes independent of control advancement.",
+      "closure": "Calculated stop projections remain reproducible after user_stop/resume and do not pretend that a user instruction was part of the semantic calculation. The historical control state is carried by plan/event, while effective status is derived separately.",
+      "remaining_acceptance": [
+        "Update the successor schema/validator so a stop containing the old R2 control fields is rejected and event.control_head is required.",
+        "Prove a pending exact projection set can finish after user_stop then explicit control.resume without rewriting sealed plan or projection bytes."
+      ]
+    },
+    {
+      "id": "DISC-R3-EVENT-CONTROL-HEAD-GROUPING",
+      "status": "CLOSED_DESIGN_PENDING_RACE_TESTS",
+      "evidence": "R3 lines 65-67 adds event.control_head as the actual head observed at event installation while holding the shared lock, and requires plan.control_head to be an ancestor or equal. Lines 75-98 define sequence/previous ordering, global event_id uniqueness, round membership, user_stop/resume preconditions, and historical group checks.",
+      "closure": "The final event now records the linearized current control head rather than inheriting a stale plan head. A control command that wins the lock before finish is in the event head; one that follows event installation references the new completed event. `control.round` is null before the first event or exactly the last completed event, and event heads are checked against the preceding-round control group without filesystem mtime.",
+      "remaining_acceptance": [
+        "Race control install immediately before/during/after event installation and verify the three allowed outcomes: event includes the preceding head, later control targets the completed event, or an unsafe foreign change refuses.",
+        "Check two controls in one pending-round group, controls across rounds, equal recorded_at values, duplicate exact retries and same event_id with changed fields.",
+        "Validate the event.control_head field itself and the no-current-event back-edge in the rw3 graph."
+      ]
+    },
+    {
+      "id": "DISC-R3-COMPLETE-SET-MEMBERSHIP",
+      "status": "CLOSED_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R3 lines 100-142 freezes canonical byte ordering, zero-based plan slots, domain-separated request keys, exact request regeneration, one terminal observation per slot, the full cumulative terminal observation set, exact assessment/candidate-set/event memberships, pending subset rules, deterministic projection bytes and active-ancestry validation.",
+      "closure": "R2 membership blockers are materially closed. Missing expected files remain pending; extra/alternate/foreign files conflict; an event cannot authorize a successor until its complete child set exists. Failed, partial, timeout, rate-limited, unavailable and empty terminal observations are part of the cumulative context, while assessment evidence is only a citation subset.",
+      "remaining_acceptance": [
+        "Replay all partial install points and assert exact missing slots/children, no arrival-order selection and no event with a missing child.",
+        "Verify all historical input_set_sha256 values and candidate/rank/stop projections are recomputed in sequence before memo-cache reuse."
+      ]
+    },
+    {
+      "id": "DISC-R3-RESERVED-COUNTERS",
+      "status": "CLOSED_SEMANTICALLY_PHYSICAL_RESERVE_OPEN",
+      "evidence": "R3 lines 144-167 defines reservation_after as four exact plan-time counters, reserves every request and terminal-observation slot before request materialization, and defines event budget_after counters including completed rounds, materialized/pending request and observation counts, retries, result records, normalized payload bytes, candidate reservations and current components. Lines 163-167 distinguish normalized payload bytes, stored failure bytes and invalid uninstalled input, with no refund.",
+      "closure": "The R2 reservation ambiguity is resolved: plans debit declared slots atomically; terminal failures/partial/empty outcomes debit observation slots; malformed input with no artifact leaves the slot pending; retries are fresh later-plan slots; exact reuse adds zero; no round/request/observation/retry reservation is refunded.",
+      "remaining_acceptance": [
+        "Bind each counter to one schema type and validator formula, including the configured 32-request/32-observation/16MiB payload/2048-result limits inherited from R2.",
+        "Show status counters for a pending-ready projection and prove candidate semantic slots are not refunded when later identity facts bridge or alias components."
+      ]
+    },
+    {
+      "id": "DISC-R3-CANDIDATE-COMPONENT-NO-REFUND",
+      "status": "CLOSED_DESIGN_PENDING_GRAPH_VECTORS",
+      "evidence": "R3 lines 169-179 replaces literal key-union counting with cumulative identity-component introductions: a component consumes a slot only when its identifier set is disjoint from all earlier identifiers; a bridge merging prior components and aliases joining an existing component do not refund or consume a new slot; every conflict counts.",
+      "closure": "This closes the R2 concern that an explicit same_work bridge could silently change a candidate key or refund an earlier candidate. Historical snapshots and keys remain immutable, while each current snapshot is derived from the complete graph and must stay at <=256 components and <=256 cumulative introduced slots.",
+      "remaining_acceptance": [
+        "Exercise first-round component introduction, same_work bridge with a new alias, bridge joining two old components, conflicting namespaces and a 257th disjoint component.",
+        "Verify candidate decisions remain bound to their historical snapshot even when a later snapshot has a changed component key."
+      ]
+    },
+    {
+      "id": "DISC-R3-DECISIONS-CAPACITY",
+      "status": "CLOSED_DESIGN_PENDING_CAPACITY_TEST",
+      "evidence": "R3 lines 181-190 changes physical decisions capacity to 512 saved files and sets semantic maxima of 256 candidate decisions, 64 controls and 8 assessments, for a maximum 328 decisions-family files. It explicitly reserves one assessment slot per plan and prevents controls/candidate decisions from consuming that reserved assessment capacity.",
+      "closure": "The R2 arithmetic contradiction (eight assessments plus 256 candidate decisions plus controls in a 256-file family) is removed. The declared 512 physical ceiling has room for the 328 semantic maximum, subject to byte limits and the final exact schema/path allowlist.",
+      "remaining_acceptance": [
+        "Test 8 assessments + 256 candidate decisions + 64 controls and refusal at the 512-file/32MiB/64MiB boundaries.",
+        "Prove candidate/control writes cannot consume a pending plan's reserved finalization bytes; a capacity refusal never deletes the existing assessment or candidate evidence."
+      ]
+    },
+    {
+      "id": "DISC-R3-STATE-ACTION-MATRIX",
+      "status": "CLOSED_DESIGN_PENDING_BEHAVIOR_TESTS",
+      "evidence": "R3 lines 202-235 supplies the complete base state/action table, current user_stop precedence, explicit control.resume requirement, pending plan/assessment/projection behavior, candidate decision allowance on completed rounds, operation payload fields and DISCOVERY_BUSY/DISCOVERY_PENDING/STOPPED handling.",
+      "closure": "R2 state ambiguity is materially resolved. No successor plan appears before a complete predecessor; no empty frontier plan is written; plain resume repairs only when permitted; user_stop blocks all mutating research actions and only explicit control.resume clears that overlay. Calculated stops remain reviewable for candidate decisions.",
+      "remaining_acceptance": [
+        "Verify every matrix cell and effective user_stop overlay, including config-only init_pending and a stop arriving during each pending stage.",
+        "Ensure status/context/render/handoff stay non-creating and report base_state, effective_state, control_head and all pending sets."
+      ]
+    },
+    {
+      "id": "DISC-R3-PHYSICAL-SPACE-RESERVE",
+      "status": "OPEN_FREEZE_BLOCKER",
+      "evidence": "R3 lines 192-200 requires an explicit conservative byte reserve before a plan and says controls/other files must not strand valid observations, but gives no numeric reserve constants or schema-size proof. The amendment therefore leaves the final physical-capacity contract open.",
+      "finding": "A semantic reservation ledger alone cannot guarantee that a valid terminal observation can still finalize candidate/rank/stop/event. The reserve must cover exact saved bytes, inherited aggregate payload/result limits, per-family 32MiB limits, total 64MiB, initial config/session installation, and non-reserved control/decision writes.",
+      "review_note_on_proposed_values": {
+        "pending_plan_values_not_yet_bound_in_r3": {
+          "plan": "64 KiB",
+          "requests": "8 x 64 KiB",
+          "observations": "8 x (1 MiB + 64 KiB)",
+          "assessment": "256 KiB",
+          "candidate_set": "2 MiB",
+          "rank": "1 MiB",
+          "stop": "256 KiB",
+          "event": "64 KiB",
+          "session": "64 KiB"
+        },
+        "nominal_sum_before_slack": "12992 KiB (12.6875 MiB), leaving 1344 KiB below a 14 MiB pending-plan reserve.",
+        "required_consistency": "The proof must also apply the inherited 16 MiB total normalized_payload_bytes bound; otherwise 32 observations at 1 MiB payload plus 64 KiB file headroom would exceed the 32 MiB observations-family limit. A separate initial-config reserve and a non-reserved control/decision byte budget are required."
+      },
+      "required_freeze": [
+        "Bind numeric maxima to exact serialized envelope bytes, including config/session, and define rounding/slack and remaining-space formulas.",
+        "Reserve one pending plan only; preflight prospective candidate-set/rank bounds before accepting a terminal observation; prevent controls/candidate decisions from consuming that reserve.",
+        "Prove the reserve against all inherited semantic limits and both per-family/total store byte scans, including failure-object bytes and event bytes.",
+        "Specify what happens when a user control cannot fit in non-reserved physical space; it must not silently consume finalization reserve or overwrite evidence."
+      ]
+    }
+  ],
+  "r3_closure_summary": {
+    "closed_or_materially_closed": [
+      "Cooperative control/round serialization via one checkout-root flock, with event.control_head as the linearized event head.",
+      "Config-only initialization reconstruction because config now carries canonical seeds.",
+      "Separate deterministic stop projection and effective user-stop overlay.",
+      "Exact pending memberships and cumulative terminal observation inputs.",
+      "Plan/event reservation counters and no-refund semantic debits.",
+      "Candidate component-introduction counting without refunds after bridge/alias facts.",
+      "Decisions-family arithmetic via the 512-file physical cap and semantic sublimits.",
+      "State/action transition matrix and explicit control.resume behavior."
+    ],
+    "still_open_before_freeze": [
+      "Numeric physical pending-plan/config/control reserve and exact byte proof.",
+      "Linux flock and full implementation race acceptance; macOS feasibility alone is insufficient.",
+      "Schema/resource/path updates for the amended stop/event/config shapes.",
+      "Provider target grammar remains a separate freeze item from R2."
+    ]
+  },
+  "acceptance_vectors": [
+    "Two-process checkout-directory flock on macOS and Linux: busy command returns DISCOVERY_BUSY without .work creation; release permits the next command.",
+    "Uncooperative checkout/.work/family replacement while a lock-held command runs; actual approved identity and final named-edge checks yield WORK_PATH_UNSAFE.",
+    "Absent/config-only/session-only/multiple/wrong-ref init trees with same-byte and changed-input retries; status remains non-creating.",
+    "Control inserted before, during and after finish; event.control_head, control.round grouping and later control predecessor must be exact, with no stale finish.",
+    "Interrupt after every install edge; verify reservation counters, pending sets, complete memberships, event-last behavior and no refunds.",
+    "Introduce components, merge with same_work, add aliases, create conflicts and exceed 256 disjoint components; verify candidate_slots_reserved never decreases.",
+    "Fill 8 assessments, 256 candidate decisions and 64 controls; test 512-file, per-family-byte and total-store-byte refusal without deletion or reserve consumption.",
+    "Use full/partial/failure/empty observations under total payload/result caps; preflight candidate/rank/stop/event bounds before observation install and compare exact replay bytes."
+  ],
+  "remaining_gates": [
+    "Architect must add and freeze the numeric physical reserve and initial-config/non-reserved-control accounting before implementation freeze.",
+    "Implementation must provide cross-platform flock, retained descriptor and all-exit named-set tests; design feasibility is not product acceptance.",
+    "Successor schemas/resources and exact final path allowlist must reflect config seeds, stop-field removal and event.control_head.",
+    "No builder dispatch, source implementation, Git mutation, live provider access, real Vault use or scientific/human gate closure follows from this review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

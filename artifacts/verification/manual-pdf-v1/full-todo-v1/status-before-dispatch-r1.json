@@ -1,0 +1,107 @@
+{
+  "schema": "research-wiki-remaining-todo-status.v1",
+  "recorded_at_utc": "2026-09-08T17:11:28.710981+00:00",
+  "user_authorization": "把剩余的TODO都完成了吧，cursor grok的权限我都approve",
+  "baseline_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+  "items": [
+    {
+      "id": "NPDF",
+      "objective": "Remove tracked PDF assets and generate test samples at runtime",
+      "status": "validation-running",
+      "dependencies": [],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "SOURCE",
+      "objective": "Lightweight formal source binding, canonical knowledge publication and versions",
+      "status": "architecture-inspection",
+      "dependencies": [
+        "NPDF"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "DISCOVERY",
+      "objective": "Online paper preview, observation, version selection and candidate expansion",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "CODE",
+      "objective": "Official repository, commit, code/config evidence and mapping",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "DOMAIN",
+      "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "CODE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "SYNTHESIS",
+      "objective": "Cited full articles and source-bound reproduction plans",
+      "status": "pending-contract",
+      "dependencies": [
+        "DOMAIN"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "QUALITY",
+      "objective": "Corpus, independent gold interfaces, model runs and semantic evaluation",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "PRODUCT",
+      "objective": "Obsidian views, status and all-namespace backup/restore integration",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    }
+  ],
+  "constraints": {
+    "zero_egress_python": true,
+    "no_committed_pdfs": true,
+    "no_models_or_ocr_install": true,
+    "catalog_count": 67,
+    "no_real_vault_mutation": true,
+    "no_merge": true
+  }
+}

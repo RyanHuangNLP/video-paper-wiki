@@ -1,0 +1,99 @@
+{
+  "schema": "lightweight-workflow-v2-lane4-keep-venv-followup.v1",
+  "review": "lane-4-installed-keep-venv-followup",
+  "observed_at_utc": "2026-09-07T17:16:47Z",
+  "decision": "BLOCKED_KEEP_VENV_OBSERVATION_NOT_PROVEN",
+  "scope": "Read-only review of the appended LW2_INSTALLED_KEEP block against frozen terminal-4 r2, with a tiny local synthetic venv. No wheel build, product execution, full suite, source edit, or Git mutation.",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+  "source_file": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/research/test_light_workflow_installed.py",
+    "current_sha256": "5ae026600276b843703615467a8dbef399a58aef5043478bfc8599b34c9e03e4",
+    "frozen_r2_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/handoffs/r2/files/tests/research/test_light_workflow_installed.py",
+    "frozen_r2_sha256": "e23a1a13d4dd621e3246aa561beb49ddafc08bbc44d3fdf9ca7003bbccc7cb86",
+    "unified_diff_sha256": "1248611ed37775c2ba421d56d90fbcafc7ff6cb5b976513fc1d9775b324322f0",
+    "diff_scope": "Only the appended observation/keep block at current lines 387-419 is beyond frozen r2.",
+    "current_lines": {
+      "observation_start": 387,
+      "keep_start": 400,
+      "rmtree": 406,
+      "copytree": 408,
+      "relabel_end": 419
+    }
+  },
+  "findings": [
+    {
+      "id": "KEPT_VENV_CONSOLE_SHEBANG_STALE",
+      "severity": "blocker",
+      "lines": [
+        408,
+        413,
+        418
+      ],
+      "detail": "copytree(..., symlinks=True) copies the console script bytes without rewriting its pip-generated absolute shebang. The kept observation merely relabels console_script to the copied path; it never executes that copied path or checks its shebang.",
+      "evidence_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-preflight-r2/keep-venv-followup/mini-venv-evidence.json",
+      "evidence_sha256": "4c54bc986478873ae7faf9c16bb401a9bcd14d475d9298c7be367524d0569bfb",
+      "observed": {
+        "copied_shebang": "#!/private/tmp/lw2-keep-followup-j5fp3e2i/original-venv/bin/python",
+        "required_for_copy": "#!/private/tmp/lw2-keep-followup-j5fp3e2i/kept-venv/bin/python",
+        "stale": true
+      }
+    },
+    {
+      "id": "KEPT_VENV_MODULE_OBSERVATION_STALE",
+      "severity": "blocker",
+      "lines": [
+        395,
+        409,
+        418
+      ],
+      "detail": "kept_observation is a shallow dict copy and only venv/venv_python/console_script are replaced. modules remains payload[\"modules\"], whose __file__ values point into the original temporary environment. The record therefore cannot establish module imports from the copied environment.",
+      "evidence_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-preflight-r2/keep-venv-followup/mini-venv-evidence.json",
+      "evidence_sha256": "4c54bc986478873ae7faf9c16bb401a9bcd14d475d9298c7be367524d0569bfb",
+      "observed": {
+        "copied_module_exists": true,
+        "recorded_module_file": "/private/tmp/lw2-keep-followup-j5fp3e2i/original-venv/lib/python3.13/site-packages/video_paper_wiki_research/light_context.py",
+        "recorded_module_targets_original": true,
+        "recorded_module_targets_kept": false
+      }
+    },
+    {
+      "id": "KEPT_VENV_UNOWNED_RMTREE",
+      "severity": "blocker",
+      "lines": [
+        405,
+        406,
+        407
+      ],
+      "detail": "The block calls shutil.rmtree(kept_venv) whenever the caller-selected destination already exists. There is no per-run ownership marker, token, identity check, or refusal path. A pre-existing destination can therefore be deleted before copytree.",
+      "source_ast_evidence": [
+        {
+          "if_line": 406,
+          "rmtree_lines": [
+            407
+          ],
+          "condition_source": "kept_venv.exists()",
+          "body_source": "if kept_venv.exists():\n    shutil.rmtree(kept_venv)"
+        }
+      ],
+      "evidence_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-preflight-r2/keep-venv-followup/mini-venv-evidence.json",
+      "evidence_sha256": "4c54bc986478873ae7faf9c16bb401a9bcd14d475d9298c7be367524d0569bfb",
+      "preexisting_destination_scenario": {
+        "kept_venv_exists": true,
+        "current_run_ownership_marker_present": false,
+        "would_enter_rmtree_branch": true
+      }
+    }
+  ],
+  "minimal_fix_recommendations": [
+    "Use a unique per-run keep destination or a marker containing the current run token; if the requested destination exists without a matching marker, fail safely instead of removing it.",
+    "After copying, validate the copied environment itself: execute the copied Python and copied vpwiki-research entry, inspect the copied modules from that run, and record their actual __file__ values and hashes. Do not rewrite observation paths without re-running the checks.",
+    "Either regenerate/relocate the console entry shebang for the copied environment or retain the original venv as the tested environment; symlink-preserving copy alone does not create an independently validated venv."
+  ],
+  "no_additional_validation": {
+    "wheel_built": false,
+    "full_suite_run": false,
+    "product_source_changed": false,
+    "git_mutation": false
+  },
+  "stop_writing": true
+}

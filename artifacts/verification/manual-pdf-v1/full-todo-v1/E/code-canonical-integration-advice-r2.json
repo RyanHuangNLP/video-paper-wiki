@@ -1,0 +1,381 @@
+{
+  "$schema": "full-todo.code-canonical-integration-advice-r2.v1",
+  "packet": "CODE-CANONICAL-INTEGRATION",
+  "revision": "R2-read-only-successor-integration-advice",
+  "recorded_at_utc": "2026-09-09T10:20:00Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent read-only canonical code/source integration reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Design advice only. No production source, tests, Git state, network, connector, real Vault, or human relation review was mutated.",
+  "verdict": "DESIGN_ADVICE_READY_PENDING_ARCHITECT_FREEZE",
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-observation-contract-advice-r1.json",
+      "sha256": "cd75bbca34cb14d43b177b46bd4c34fbae53c6119028fd3c5fa080de9bb45597"
+    }
+  ],
+  "observed_source": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "working_tree": "dirty: six tracked files modified and source-catalog files/resources/tests untracked; this WIP is observed only and is not accepted",
+    "accepted_boundary": "The successor packet must rebase on the exact accepted staged-pdf-capture-inspect implementation head fb2cbcb565195a232f22d02c0474ac1b1b34f7d3 and separately integrate the source-catalog WIP only after its own freeze; this advice does not promote 7ed55cfc to an accepted product head.",
+    "source_hashes": [
+      {
+        "path": "src/video_paper_wiki/code_evidence_contracts.py",
+        "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+        "lines": "19-197"
+      },
+      {
+        "path": "src/video_paper_wiki/canonical_compiler.py",
+        "sha256": "f4dde9f914796006af6b4b03c2d969f3686859e911854a49e69995e53e046291",
+        "lines": "124-199"
+      },
+      {
+        "path": "src/video_paper_wiki/canonical_compiler_v2.py",
+        "sha256": "7b6449b3416188843684a681e238439dacc7adc788737b68e690e4e87e5e7241",
+        "lines": "209-268"
+      },
+      {
+        "path": "src/video_paper_wiki/staged_code_capture.py",
+        "sha256": "f3f713c47740c8ddf83168a777c6e8bed71dde017d2a60c2c32be222de0530bb",
+        "lines": "58-162"
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d",
+        "lines": "37-130,268-496,499-560"
+      },
+      {
+        "path": "src/video_paper_wiki/source_publication.py",
+        "sha256": "71f12cb3e3bf22d1d73124dbd3ac9033edc8fd482f2d091152d2c42595eadf7d",
+        "lines": "75-227,240-331"
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog.py",
+        "sha256": "34787c3a163a1ecd1ad7daf756509fda120ee8042bf10a34c33b99fc775cc1ee",
+        "lines": "44-118"
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog_contracts.py",
+        "sha256": "947f4b1976d51556e8c336cd939dba1b8749861806bc04263c9337f320d292e9",
+        "lines": "11-145"
+      },
+      {
+        "path": "src/video_paper_wiki/source_catalog_projection.py",
+        "sha256": "7086a93f119eeb030f93d46a34ee9b850571be7ce03cb9c62e3acb0a101c9341",
+        "lines": "91-121,211-380"
+      },
+      {
+        "path": "src/video_paper_wiki/receipt_audit.py",
+        "sha256": "561ce75adbd6f5c5dff1be6ca5eebef2c9064ab87280ea2abcb107279e58275a",
+        "lines": "267-371"
+      },
+      {
+        "path": "src/video_paper_wiki/source_versions.py",
+        "sha256": "c93765c6940d1e1e0a6719d4e56d99c6e6d045fe37b2f1cd2fac6e150889cbb1",
+        "lines": "17-126,129-177"
+      },
+      {
+        "path": "src/video_paper_wiki/backup_manifest.py",
+        "sha256": "a3109492f0f14ae6aadb0da2257739ee1e25447e4017c1aa0aaf5c00ab0c7de5",
+        "lines": "114-179"
+      },
+      {
+        "path": "src/video_paper_wiki/backup_archive.py",
+        "sha256": "e6a2ea0e5411ddadd4c4b8182762bd70a4e681ef640d30b3cae2c758185e6d47",
+        "lines": "41-62,122-171,184-220"
+      },
+      {
+        "path": "src/video_paper_wiki/restore_verification.py",
+        "sha256": "b21bf0e523d61ee4fac0f2dce9e69537122a7fe17738e5d3fe109a89da72318a",
+        "lines": "12-24"
+      }
+    ]
+  },
+  "current_contract_findings": [
+    {
+      "area": "legacy code identity",
+      "evidence": "code_evidence_contracts.py:97-100,170-197",
+      "finding": "v1 origin and code_locator require a 40-character lowercase commit, one portable path, one inspected manifest, one source_id, and a line-snippet SHA-256 that resolves against the captured bytes. The common.v1 code_locator and code-evidence-manifest.v1 schema therefore cannot carry a 64-character Git SHA-256 object ID, tree/blob proof, mode, or Git type.",
+      "consequence": "Never widen v1 regexes or overwrite an old manifest. A SHA-256 Git repository or any target needing tree/blob/mode proof requires the v2 manifest and locator below."
+    },
+    {
+      "area": "legacy compiler",
+      "evidence": "canonical_compiler.py:124-150,152-187",
+      "finding": "_code accepts exactly manifest/repo_record/alignment, requires an inspected v1 manifest to match the repo_record canonical repository/commit and alignment officiality/license, and emits one wiki/code/<repo_page_slug>.md page. stage_compilation at 189-199 is explicitly preview-only.",
+      "consequence": "Do not feed a v2 relation into legacy._code or treat stage_compilation as a publication receipt. Add a separate v2 adapter and retain legacy page bytes."
+    },
+    {
+      "area": "source-aware compiler",
+      "evidence": "canonical_compiler_v2.py:209-268",
+      "finding": "The v2 compiler validates complete paper source associations/raw/extraction/head/receipt/registration sets, but its code loop still calls legacy._code at 242-243 and paper links still derive from repo_record.paper_ids at 251-256.",
+      "consequence": "The minimum integration is a v2 code relation group and page adapter in the source-aware compiler. Legacy code groups remain accepted unchanged; v2 pages must carry their own relation identity and never silently replace a prior repo page."
+    },
+    {
+      "area": "staged code boundary",
+      "evidence": "staged_code_capture.py:58-106,120-162",
+      "finding": "The current staged capture validates a proposal, retained prepared/plan/blob paths, one batch/session, pinned transaction inspect, and capture source_id. It produces content capture, not Git commit/tree/blob or officiality proof.",
+      "consequence": "A v2 handoff must carry the observation's same-session complete-set and Git facts into v2 manifests. It may reuse the existing .raw/captured/<payload-sha>.bin/.blob bytes and transaction inspection, but cannot upgrade caller-declared origin facts by itself."
+    },
+    {
+      "area": "source-state inventory",
+      "evidence": "source_state.py:37-53,72-130,268-331,334-383,386-496,499-560",
+      "finding": "The current semantic prefixes and schema registry admit only v1 code manifests/alignment manifests. _legacy_artifacts requires each manifest's actual capture and code source-ledger row; _code_groups requires exactly one v1 manifest and alignment per repo commit; _locators resolves only an actual inspected v1 manifest and rejects repository Markdown evidence; collect_source_state requires receipt-backed ledger snapshots and exact rendered pages; preserve_history protects existing repo/source/claim/page identities.",
+      "consequence": "Add explicit v2 roles and complete-set checks rather than broadening v1 patterns. Existing repo records, source rows, receipts, pages, and locators remain immutable."
+    },
+    {
+      "area": "publication authority",
+      "evidence": "source_publication.py:159-191,194-227,240-331",
+      "finding": "_prospective validates the exact payload overlay and source-history rules before collect_source_state; _transport_limits constructs the next ingest receipt/head/bundle bounds; prepare_source_publication and inspect_source_publication re-audit the retained Vault, recheck basis, assemble the shared transaction, and bind the complete read set.",
+      "consequence": "Code evidence, source-ledger registration, relation/config/capability records, and versioned compiled pages must enter one source-publication payload/receipt. No direct Vault write or separate unbound code publication is acceptable."
+    },
+    {
+      "area": "catalog",
+      "evidence": "source_catalog.py:44-71,74-118; source_catalog_contracts.py:11-17,20-145; source_catalog_projection.py:91-121,211-380",
+      "finding": "The source catalog re-audits current state, reconstructs exact rows, installs only a .work cache, and requires canonical ordering/self-digests. Existing code evidence resolution requires one v1 manifest and exact line bytes.",
+      "consequence": "Keep source-catalog-v1 and its keys/resources byte-compatible. Introduce a source-catalog-v2 profile/contract and explicit v2 relation/manifests/config/capability rows; add a v2 locator resolver without changing v1 resolution."
+    },
+    {
+      "area": "integrity and recovery",
+      "evidence": "receipt_audit.py:267-371; backup_manifest.py:114-179; backup_archive.py:41-62,122-171; restore_verification.py:12-24",
+      "finding": "audit_integrity replays the complete receipt chain, current managed paths, ever-claimed raw paths, orphans, and optional runtime correlation. Backup requires receipt-backed truth and exact raw complete-set coverage anchored to the head receipt; archive and restore revalidate the embedded manifest. Restore verification currently checks the legacy catalog/runtime path.",
+      "consequence": "Every new raw capture must be a receipt write or a valid captured raw claim, every semantic v2 artifact must be a receipt write, and restore verification must invoke the v2 catalog/relation closure before accepting a restored tree."
+    }
+  ],
+  "successor_contracts": {
+    "consumed_unchanged": [
+      {
+        "schema": "video-paper-wiki.code-observation-request.v1",
+        "path_pattern": ".raw/derived/code-observation-requests/<request_sha256>.json",
+        "binding": "One paper_id, optional exact source association reference, one canonical repository, one full commit/object format, explicit bounded role/path set, complete budgets, and canonical request digest. This is the R1 observation request; do not infer a new path or commit from a display head."
+      },
+      {
+        "schema": "video-paper-wiki.code-observation.v1",
+        "path_pattern": ".raw/derived/code-observations/<observation_sha256>.json",
+        "binding": "One retained connector/session lineage, one repository/commit/tree, every requested target retained including missing/inaccessible/unsafe states, and a complete observation hash. A normalized-only target is not raw Git authority."
+      },
+      {
+        "schema": "video-paper-wiki.code-source-file-handoff.v1",
+        "path_pattern": ".raw/derived/code-handoffs/<handoff_sha256>.json",
+        "binding": "One handoff per present raw target. Carry observation_id, request_sha256, repository, object format, commit/tree/path/mode/git_type/blob_oid, raw and normalized hashes, capture proposal and source-file identity. A multi-file observation is the shared lineage container, not a merged manifest."
+      }
+    ],
+    "new_successor_schemas": [
+      {
+        "schema": "video-paper-wiki.code-evidence-manifest.v2",
+        "path_pattern": ".raw/derived/code-manifests-v2/<manifest_sha256>.json",
+        "purpose": "Capture manifest for a verified raw handoff when v1 cannot represent the Git object identity.",
+        "required_identity": ["repository", "git_object_format", "commit_oid", "tree_oid", "path", "mode", "git_type", "blob_oid", "raw_sha256", "normalized_sha256", "capture_source_id", "handoff_sha256", "observation_sha256"],
+        "rules": ["Accept sha1/40 or sha256/64 commit_oid only according to git_object_format.", "Keep Git blob_oid separate from ordinary raw_sha256 and normalized_sha256.", "Require exact path/mode/type and same observation commit/tree for every member of a relation.", "Bind stored raw bytes through the existing capture identity and source-ledger code row.", "A v2 manifest cannot be projected into a v1 locator by truncation, rehashing, or guessed commit text."]
+      },
+      {
+        "schema": "video-paper-wiki.code-locator.v2",
+        "path_pattern": "embedded in code-capability-evidence.v2 or code-relation.v2",
+        "purpose": "Exact source citation for v2 code bytes, including object-format/tree/blob and handoff identity.",
+        "required_identity": ["kind", "source_id", "repository", "git_object_format", "commit_oid", "tree_oid", "path", "lines", "snippet_sha256", "manifest_sha256", "handoff_sha256"],
+        "rules": ["Resolve only against the one named v2 manifest and exact stored raw bytes.", "Retain one logical locator per requested path even when duplicate files have equal bytes.", "Keep v1 common.code_locator untouched for accepted historical 40-hex evidence."]
+      },
+      {
+        "schema": "video-paper-wiki.code-config-evidence.v2",
+        "path_pattern": ".raw/derived/code-config-evidence/<config_evidence_sha256>.json",
+        "purpose": "Data-only parser result for an explicitly observed configuration target.",
+        "required_identity": ["config_evidence_sha256", "manifest_sha256", "path", "raw_sha256", "normalized_sha256", "parser_profile", "line_spans", "parsed_value_sha256", "rejected_constructs", "status"],
+        "rules": ["Only the frozen closed JSON/TOML profile is eligible unless a separately accepted profile is named.", "Reject imports, includes, tags, anchors, constructors, interpolation, scripts, callables, duplicate-key ambiguity, model loading, and parser limits without execution.", "Config evidence may support a capability proposal but never establishes officiality or checkpoint artifact verification."]
+      },
+      {
+        "schema": "video-paper-wiki.code-capability-evidence.v2",
+        "path_pattern": ".raw/derived/code-capability-evidence/<capability_evidence_sha256>.json",
+        "purpose": "Versioned capability evidence and bounded absence record.",
+        "required_identity": ["capability_evidence_sha256", "paper_id", "relation_candidate_sha256", "capability", "status", "locators", "config_refs", "absence_scope", "checkpoint_kind"],
+        "rules": ["Use training, inference, data, evaluation, or checkpoints with present/absent/partial/unverified status.", "Present/partial claims need v2 locator or an explicitly marked README-only observation; absence requires observed inventory, commit/tree scope, patterns and inventory digest.", "Checkpoint URL/revision/license metadata may be retained without downloading weights; artifact_verified requires exact observed artifact evidence."]
+      },
+      {
+        "schema": "video-paper-wiki.code-relation-review.v2",
+        "path_pattern": ".raw/derived/code-relation-reviews/<review_sha256>.json",
+        "purpose": "Immutable independent review of paper-to-repository officiality and evidence gaps.",
+        "required_identity": ["review_sha256", "paper_id", "relation_candidate_sha256", "signals", "decision", "reviewer", "reviewed_at", "rationale", "evidence_gap"],
+        "rules": ["Signals A-D retain exact source refs, observed version/commit, line/excerpt locator and source hash.", "Only an authorized independent human/relation reviewer can issue official/unofficial/unverified_candidate/evidence_insufficient.", "A/B plus C is preferred evidence, not an automatic formula; same organization, name similarity, dependency/baseline, or model suggestion is insufficient."]
+      },
+      {
+        "schema": "video-paper-wiki.code-relation.v2",
+        "path_pattern": ".raw/derived/code-relations/<relation_sha256>.json",
+        "purpose": "Canonical successor join consumed by source-aware publication/compiler/catalog.",
+        "required_identity": ["relation_sha256", "paper_id", "source_association", "repository", "git_object_format", "commit_oid", "tree_oid", "observation_ref", "handoff_refs", "manifest_refs", "config_refs", "capability_refs", "review_ref", "decision", "page_path", "created_at"],
+        "rules": ["source_association is an exact association_id plus association_sha256 from source_versions, not a mutable current display head.", "All refs are content-addressed, all manifests/handoffs form one complete target set, and review decision is copied only after independent review.", "page_path must be a portable versioned wiki/code path; use a relation-specific path such as wiki/code/<repo_page_slug>/<relation_sha256>.md when an older page already exists.", "relation_sha256 covers the complete canonical relation and cannot be edited in place."]
+      }
+    ],
+    "record_path_policy": "These successor artifacts remain under .raw/derived content-addressed namespaces until source_state role patterns, receipt closure, catalog projection, backup, and restore verification are implemented and accepted together. Do not place them in legacy repo-record.v1/alignment-manifest.v1 slots or mutate v1 files."
+  },
+  "receipt_backed_join": {
+    "single_transaction_rule": "A code publication is one source-publication prepare/inspect transaction containing the new raw capture writes or valid captured-input claims, v2 manifests, observation/handoff/config/capability/review/relation artifacts, any new source-ledger snapshot and source-ledger bytes, and the versioned compiled page set.",
+    "prepare_phase": [
+      "Validate every successor document before acquiring current-state authority, exactly as source_publication.prepare_source_publication does at lines 240-250.",
+      "Retain one _Snapshot and audited current state. Recompute the complete prospective overlay and reject immutable replacements, duplicate source IDs, duplicate paths/digests, incomplete target sets, stale association refs, and page collisions.",
+      "For each new code raw path, require a source-ledger row with origin={kind:file,locator:<captured path>}, content_kind=code, content_sha256=raw SHA-256, a new source_id, and the exact generated ledger snapshot. Preserve the old source-ledger snapshot when replacing the ledger, as required by source_publication.py:172-179 and source_state.py:554-557.",
+      "Include all code raw captures in the receipt's claimed_inputs only when they are existing captured paths with the exact payload digest; semantic v2 records are transaction writes. Do not invent a claimed input for an unobserved .raw/derived path.",
+      "Use the existing ingest receipt/head/bundle size proof. The operation must have a distinct batch and operation identity from the observation/capture operation, matching the existing registration distinction at source_publication.py:75-93."
+    ],
+    "inspect_phase": [
+      "Reaudit the same Vault, require the request basis and prospective inventory digest to match, and retain the complete read set before constructing the shared transaction, following source_publication.py:290-331.",
+      "Require transaction business writes to equal the exact v2 overlay and read preconditions to equal every current non-write path. Bind the external operation result with operation_result.bind_operation_result when an upstream runtime result is supplied.",
+      "Only after complete relation review and source joins pass may the relation be included in canonical page/catalog input. A prepared proposal is not publication authority."
+    ],
+    "audit_requirements": [
+      "audit_integrity must replay all receipts, verify the head and receipt digests, reject unreachable receipts, compare the complete managed path set, preserve every ever-claimed raw capture, and report orphan captured files; see receipt_audit.py:314-363.",
+      "A code relation with no receipt write, no source-ledger binding, or an orphan capture is invalid even if its JSON self-hash is correct.",
+      "No source publication function may write the real Vault directly; only the accepted upstream transaction applies inspected writes after the external human/system gate."
+    ],
+    "refusal_codes": ["CODE_V2_COMPLETE_SET_REQUIRED", "CODE_V2_GIT_IDENTITY_MISMATCH", "CODE_V2_HANDOFF_MISMATCH", "CODE_V2_SOURCE_ASSOCIATION_STALE", "SOURCE_HISTORY_CONFLICT", "SOURCE_PUBLICATION_STALE", "RECEIPT_CHAIN_INVALID", "OUT_OF_BAND_WRITE", "RUNTIME_CORRELATION_INVALID"]
+  },
+  "compiler_and_page_integration": {
+    "legacy_preservation": "Leave canonical_compiler._code and canonical_compiler.compile_pages unchanged for v1 inputs. Legacy repo-record.v1 and paper-code-alignment.v1 continue to render their existing wiki/code/<repo_page_slug>.md bytes.",
+    "v2_material": "Extend the source-aware compile-input successor with a closed code_relations group. Each relation references the complete observed v2 manifest/handoff set, config/capability evidence, accepted review and exact source association. The compiler validates refs and emits the relation.page_path deterministically.",
+    "page_policy": [
+      "Do not overwrite an existing wiki/code page when a new commit/tree relation is accepted; use relation-specific versioned page paths and retain the old page in history.",
+      "A relation page must display relation_sha256, paper_id, repository, object format, commit_oid, tree_oid, source association, review decision, capability status, config evidence refs, and exact manifest/handoff refs.",
+      "Paper related links must be derived from accepted relation records and relation.page_path. Keep old repo_record.paper_ids links for legacy pages and add v2 links as additional rows.",
+      "Page bytes must remain NFC/UTF-8/portable and be included in collect_source_state's exact rendered-page comparison."
+    ],
+    "minimal_v2_compiler_changes": [
+      "Add a code-v2 contract validator and a v2 code-page renderer alongside legacy._code.",
+      "Add a source-aware code relation group to the compile input schema and validate complete raw/source association/receipt refs before rendering.",
+      "Replace only the source-aware compiler's `for item in doc[code]: add(*legacy._code(item))` path with a dispatch that accepts a legacy group or a v2 relation group; do not alter legacy._code semantics.",
+      "Extend paper link derivation to include accepted relation page paths while preserving legacy repo links.",
+      "Add source_state v2 role documents and exact relation/ref closure checks before compile_pages returns."
+    ]
+  },
+  "source_state_and_source_version_integration": {
+    "roles_to_add": [
+      "code-observation-request-v1",
+      "code-observation-v1",
+      "code-source-file-handoff-v1",
+      "code-evidence-manifest-v2",
+      "code-config-evidence-v2",
+      "code-capability-evidence-v2",
+      "code-relation-review-v2",
+      "code-relation-v2"
+    ],
+    "required_checks": [
+      "Extend _PREFIXES, _SCHEMAS, PATTERNS and _document without accepting arbitrary filenames. Each content-addressed path must match the exact document digest; each v2 manifest must bind one actual raw capture and code source-ledger row.",
+      "Add a v2 complete-set collector parallel to _legacy_artifacts/_code_groups. It must prove one observation commit/tree, exact requested ordinals, no target omission, one handoff/manifest per raw target, and relation refs that are all present and unique.",
+      "Extend _locators with a v2 branch that resolves code-locator.v2 only against v2 manifests. Continue rejecting repository Markdown claims in the legacy branch.",
+      "Extend _ancestry and _artifact_kind so v2 records, raw captures, manifests, configs, capabilities, reviews and relations receive source IDs, paper/relation owners, referenced/derived status, and coverage rows.",
+      "Extend preserve_history so old v1 repos, claims, source identity fields, relation pages and source-ledger snapshots cannot be replaced; relation changes are additive successor writes."
+    ],
+    "source_version_rule": "source_versions.associate_source at lines 44-88 creates/reuses an immutable paper source association only after raw/head/receipt/ledger proof. Code relation source_association must copy an exact association reference plus digest. A changed paper source association, display decision, repository, commit, tree, target set, path, raw bytes, config parser profile, or relation review creates a new code observation/handoff/relation lineage. derive_display_heads at lines 144-177 chooses an explicit display chain and must never retarget an old code relation."
+  },
+  "catalog_integration": {
+    "profile": "video-paper-wiki.source-catalog.v2 / source-catalog-v2",
+    "compatibility": "Do not widen source-catalog.v1 schema, KEYS, PROFILE, resource digest, cache parser, or legacy source-catalog-v1 query result in place. A v2 profile and resource manifest must carry the new row groups and a distinct catalog digest.",
+    "new_row_groups": [
+      "code_relations keyed by relation_sha256",
+      "code_observations keyed by observation_sha256",
+      "code_handoffs keyed by handoff_sha256",
+      "code_manifests keyed by manifest_sha256",
+      "code_config_evidence keyed by config_evidence_sha256",
+      "code_capability_evidence keyed by capability_evidence_sha256",
+      "code_relation_reviews keyed by review_sha256"
+    ],
+    "row_bindings": [
+      "Every row includes exact artifact path and SHA-256, paper_id/repository/relation identity where applicable, source association ID/digest, source IDs, and receipt/head basis.",
+      "Capability and locator rows include exact resolution state and bounded excerpt/line metadata; unresolved or normalized-only evidence is explicit and cannot be silently dropped.",
+      "Coverage adds relation/artifact states such as relation_reviewed, relation_unreviewed, code_capture_registered, code_capture_unregistered, code_derived_referenced, and code_derived_unreferenced with deterministic reason codes."
+    ],
+    "resolver": "Keep source_catalog_projection._code_match/_code_resolution at lines 91-121 as the v1 resolver. Add `_code_v2_match`/`_code_v2_resolution` that require relation_sha256, manifest_sha256, handoff_sha256, exact Git fields and raw bytes; no heuristic path or excerpt lookup.",
+    "reconstruction": "source_catalog._perform at lines 44-71 must continue to audit and reconstruct current state before cache status/lookup/query. Build is the only .work cache write; query/lookup/resolve must refuse absent or stale v2 cache with the v2 catalog digest."
+  },
+  "backup_restore_integration": {
+    "backup": [
+      "Ensure every v2 artifact is under a managed .raw/derived namespace and appears in receipt writes. Ensure every code capture is either a receipt write or an exact captured raw claimed input. This satisfies backup_manifest.py:122-141's authorized_raw == actual_raw complete-set rule.",
+      "Retain relation/review/config/capability/manifests in the archive. They are semantic evidence, not disposable cache files; do not put them under .work.",
+      "Keep source_anchor equal to the current head receipt SHA-256. backup_archive.py:41-62 and 122-171 must continue to validate the embedded manifest, exact member set, modes and bytes."
+    ],
+    "restore": [
+      "verify_restored_tree must compare the v2-inclusive manifest and source anchor before semantic checks.",
+      "restore_verification.verify_restored_vault currently calls the legacy catalog_store status/query/report at lines 12-24. Add a source-catalog-v2 current/status/query/coverage check and require all relation/manifests/config/capability/review row identities and catalog digest to match the restored bytes.",
+      "Restored relation pages and source evidence must pass audit_integrity, strict lint and exact compiler/state closure; a structurally valid ZIP is not sufficient."
+    ]
+  },
+  "legacy_and_refusal_policy": {
+    "must_remain_byte_compatible": [
+      "video-paper-wiki.code-evidence-manifest.v1",
+      "video-paper-wiki.common.v1#/$defs/code_locator",
+      "video-paper-wiki.repo-record.v1",
+      "video-paper-wiki.paper-code-alignment.v1",
+      "legacy canonical_compiler._code and legacy page path",
+      "source-catalog-v1 and existing catalog rows"
+    ],
+    "refusals": [
+      "A v2 observation with a 64-hex commit cannot be coerced into v1 by truncating, rehashing, or changing the declared repository.",
+      "A normalized web/README excerpt cannot create a raw Git-verified manifest, source-ledger code capture, or official relation.",
+      "A partial target set cannot publish a complete relation; all missing/inaccessible/unsafe targets remain in observation coverage.",
+      "A code relation cannot inherit officiality from repo name, same organization, dependency/baseline link, display head, or model suggestion.",
+      "A new code relation cannot mutate an old repo record, alignment, source association, claim, page, receipt, or catalog row."
+    ],
+    "legacy_projection": "A 40-hex v2 observation may receive an explicit legacy projection only if it independently satisfies every v1 manifest/locator/repo/alignment condition and a deliberate compatibility adapter records the v2 relation as its source. The adapter must not fabricate PDF evidence or claim that v1 carries Git tree/blob proof."
+  },
+  "minimal_implementation_delta": {
+    "prospective_only": true,
+    "production_touchpoints": [
+      "schemas/video-paper-wiki.code-evidence-manifest.v2.schema.json",
+      "schemas/video-paper-wiki.code-locator.v2.schema.json or a common successor definition",
+      "schemas/video-paper-wiki.code-config-evidence.v2.schema.json",
+      "schemas/video-paper-wiki.code-capability-evidence.v2.schema.json",
+      "schemas/video-paper-wiki.code-relation-review.v2.schema.json",
+      "schemas/video-paper-wiki.code-relation.v2.schema.json",
+      "src/video_paper_wiki/code_v2_contracts.py",
+      "src/video_paper_wiki/code_v2_projection.py",
+      "src/video_paper_wiki/source_state.py",
+      "src/video_paper_wiki/source_publication.py",
+      "src/video_paper_wiki/canonical_compiler_v2.py",
+      "src/video_paper_wiki/source_catalog_v2.py",
+      "src/video_paper_wiki/source_catalog_projection.py",
+      "src/video_paper_wiki/backup_manifest.py",
+      "src/video_paper_wiki/restore_verification.py"
+    ],
+    "implementation_order": [
+      "Freeze successor schemas, path patterns, digest domains, source association join and versioned page policy.",
+      "Implement pure v2 validators/resolvers and adversarial fixtures first; keep v1 validators untouched.",
+      "Add source_state role/inventory/ancestry/complete-set closure and compiler dispatch.",
+      "Add one receipt-backed source-publication code-registration branch and inspect-time transaction/read-set checks.",
+      "Add v2 catalog profile/projection/query and backup/restore closure; only then expose commands."
+    ],
+    "non_goals": [
+      "No GitHub/API fetcher, clone, archive download, shell command, recursive traversal, model loader, or weights download in public Python.",
+      "No automatic human officiality decision or relation publication from an observation alone.",
+      "No direct real Vault mutation, vpwiki-admin installation, network call, or connector invocation by this design artifact."
+    ]
+  },
+  "acceptance_cases": [
+    "A 64-hex Git SHA-256 commit/tree/blob observation succeeds only through v2; v1 rejects it without truncation or substitution.",
+    "One retained observation/session proves a complete same-commit multi-file target set; directory replacement or cross-lineage responses refuse before handoff.",
+    "Repository, object format, commit, tree, path, mode, Git type, blob, raw bytes, normalized bytes and source_id mismatches each retain both sides and refuse publication.",
+    "CRLF raw bytes preserve raw_sha256 and Git blob proof while normalized_sha256 and line metadata use the existing UTF-8/LF rules.",
+    "Duplicate content at distinct paths remains two logical targets, two manifests and two locator origins.",
+    "Normalized-only, missing, inaccessible, unsafe, partial and stale targets cannot become complete source evidence.",
+    "Config imports, constructors, tags, anchors, interpolation, scripts, duplicate keys, unknown extensions and parser-limit overflow are rejected without execution.",
+    "Officiality shortcuts fail; a direct reviewed release without reverse backlink can retain an explicit evidence gap; third-party reproduction cannot become official.",
+    "A new source association, display decision, commit/tree, target set, config profile or relation review creates a new immutable relation and leaves old source evidence/pages/catalog rows unchanged.",
+    "A code publication's receipt claims raw captures and writes every derived artifact; audit_integrity, current source state, compiler page bytes, source-catalog-v2 and backup manifest agree.",
+    "Restored trees pass source anchor, receipt audit, strict lint, v2 catalog current/query/report and relation complete-set checks.",
+    "Legacy v1 fixtures and source-catalog-v1 fixtures remain byte-identical and resolve only through their original v1 paths.",
+    "Zero-egress and no-real-Vault-write sentinels pass for validation, handoff, publication prepare/inspect, catalog reconstruction and backup/restore verification."
+  ],
+  "open_gates": [
+    "Architect must freeze exact successor schemas, path patterns, digest domains, source-publication payload shape, and allowed implementation/test paths before Builder writes.",
+    "The source-catalog worktree is dirty WIP without an exact-head acceptance; this advice is an interface review, not acceptance of that WIP.",
+    "Actual official repository trials, connector observations, human relation review and all real-data gates remain open and cannot be represented by this artifact."
+  ],
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false,
+  "network_used": false,
+  "real_vault_touched": false
+}

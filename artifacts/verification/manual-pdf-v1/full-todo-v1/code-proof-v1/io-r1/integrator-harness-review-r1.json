@@ -1,0 +1,75 @@
+{
+  "schema": "full-todo.code-proof-io-integrator-harness-review.v1",
+  "recorded_at_utc": "2026-09-11T03:11:00.191348Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "NEEDS_BOUNDED_HARNESS_CORRECTIONS",
+  "scope": "Read-only review of the prepared extraction/AST assembler and five black-box probe harnesses. Neither script was executed. No source, product path, Git, model, network, UI, or implementation action was performed.",
+  "reviewed_inputs": [
+    {
+      "label": "assembler",
+      "expected_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/assemble_returned_io_r1.py",
+      "expected_size_bytes": 2150,
+      "expected_sha256": "4fc50571df9d9254cf756f5e4e05405b6af9acf758094da2260fa93a19f8a58",
+      "actual": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/assemble_returned_io_r1.py",
+        "size_bytes": 2150,
+        "sha256": "4fc50571df9d9254cf756f5e4e05405b6af9acf758094da2260fa93a19f8a58a"
+      }
+    },
+    {
+      "label": "smoke_probes",
+      "expected_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_smoke_probes_r1.py",
+      "expected_size_bytes": 9634,
+      "expected_sha256": "ff37ad9f736b9011a4b6676227bd16bc6600f203c09bb7adff256e96116ec750",
+      "actual": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_smoke_probes_r1.py",
+        "size_bytes": 9634,
+        "sha256": "ff37ad9f736b9011a4b6676227bd16bc6600f203c09bb7adff256e96116ec750"
+      }
+    }
+  ],
+  "assembler_review": {
+    "status": "PASS_WITH_ONE_ROBUSTNESS_NOTE",
+    "exact_two_blocks": "Uses strict UTF-8 decode, requires exactly two python fenced blocks, removes only the matched blocks, requires remaining text to be exactly Tests not run., maps block order to code_proof_io.py then test_code_proof_io.py, and AST-parses both payloads before writing.",
+    "byte_preservation": "Payload bytes are re-encoded from strict UTF-8 text without transformations; report records byte_transformations=[] and product_paths_written=False. It writes only an explicitly supplied review directory using exclusive file creation and records pins.",
+    "ast_scope": "AST parsing is syntactic only and does not execute returned code.",
+    "robustness_note": "The closing-fence regex accepts LF but does not consume an optional CR before the multiline end anchor, even though the opening fence permits CRLF. A valid CRLF-formatted response can therefore be rejected. Either require LF explicitly in the invocation contract or make the closing fence CRLF-symmetric before using this harness."
+  },
+  "probe_review": {
+    "status": "MEANINGFUL_FIXTURE_DESIGN_WITH_ONE_EXECUTION_BLOCKER",
+    "genuine_resources": "Copies code_proof_resources.py and all eleven files selected by the real resource_origin_plan(), asserts each copied file size/SHA against its live pin, preserves source lexical layout (root/r/src/video_paper_wiki plus root/r/schemas) and profile layout, and patches only the scoped foundation __file__ seam.",
+    "scratch_scope": "Uses tempfile.mkdtemp under /private/tmp, creates unique work checkouts, writes only scratch fixtures, and patches io._getcwd to a fixture checkout. It does not target the real checkout or Vault.",
+    "live_inode_replacement": "The resource replacement probe writes a distinct replacement while the original inode remains live, renames original to .old, installs replacement at the original name, raises a saved semantic exception, asserts WORK_PATH_UNSAFE/resources precedence, and restores the original in finally.",
+    "private_api_coverage": "The five probes exercise empty snapshot/layout deep-copy and inactive context, fresh install/reuse/stable conflict with exact conflict details, C+2*N peak refusal before any .work creation, exact KeyboardInterrupt identity, and resource lineage override.",
+    "expected_result_shapes": "The assertions align with the instruction: exact layout_state key set, copied state, CODE_PROOF_CONFLICT artifact_changed, CODE_PROOF_LIMIT_EXCEEDED /output max_output_peak_bytes observed=8, saved interruption identity, and WORK_PATH_UNSAFE resources failed group.",
+    "execution_issue": "run() catches BaseException, records one failed row, and immediately re-raises. The outer finally writes a report but the for-loop stops at the first failing probe, so the harness cannot complete all five independent probes or provide a full five-row result after one failure. Catch and record each probe while continuing, with per-probe cleanup/isolation preserved; exit nonzero only after all five rows are collected."
+  },
+  "findings": [
+    {
+      "id": "IO-HARNESS-R1-001",
+      "severity": "medium",
+      "status": "OPEN",
+      "area": "crlf_fence_extraction",
+      "problem": "The assembler permits CRLF after an opening ```python line but its closing fence pattern is ```[ \\t]*$ under re.M, leaving a CR before the end anchor unmatched.",
+      "impact": "A valid exact two-block response with CRLF line endings is rejected before AST parsing, despite the instruction not requiring LF-only output.",
+      "required_closure": "Make both fence patterns line-ending symmetric or explicitly freeze LF-only output in the assembler contract and review metadata.",
+      "evidence": "assemble_returned_io_r1.py regex at the single blocks=re.finditer call."
+    },
+    {
+      "id": "IO-HARNESS-R1-002",
+      "severity": "high",
+      "status": "OPEN",
+      "area": "independent_probe_completion",
+      "problem": "The probe runner re-raises the first BaseException from run(), causing the loop to stop and leaving later independent probes unexecuted; the report can contain fewer than five check_groups.",
+      "impact": "A single failure prevents complete black-box coverage and makes all_passed false because of missing rows rather than evidence from every probe. This conflicts with the requirement for five independent probes.",
+      "required_closure": "Record each failure, continue to the remaining isolated probes, preserve the exact exception class/code, and return a final nonzero status only after all five rows and cleanup have been recorded.",
+      "evidence": "architect_io_smoke_probes_r1.py run() catches BaseException, appends a failed row, then raises; the outer for-loop does not catch it."
+    }
+  ],
+  "safety_observations": [
+    "The assembler itself writes only review artifacts under a caller-provided empty directory and never writes product paths.",
+    "The smoke probe uses genuine resource bytes and no global os/fcntl patching; its scoped __file__ and _getcwd patches match the instruction.",
+    "Neither harness is authorized for execution by this review; no runtime result or acceptance is claimed."
+  ],
+  "conclusion": "The extraction/AST design is otherwise exact and the five probes are meaningful and fixture-feasible, but the harness should be corrected for CRLF policy and must continue through all five probes before integrator use. This review does not authorize execution or source writes."
+}

@@ -1,0 +1,177 @@
+{
+  "$schema": "full-todo.source-catalog-contract-advice-r2.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R2-contract-advice-read-only",
+  "recorded_at_utc": "2026-09-09T06:53:54Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent read-only source-catalog contract reviewer"
+  },
+  "scope": "Advice only. No production source, test source, real Vault, operator receipt, Git, network or human-gate mutation was performed.",
+  "verdict": "BLOCKED_PENDING_SOURCE_CATALOG_FREEZE",
+  "baseline": {
+    "source_root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "draft_path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-DRAFT-R1.md",
+    "prior_review": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/source-catalog-design-review-r1.json",
+    "prior_review_supplement": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/source-catalog-design-review-r1-supplement-r1.json",
+    "compatibility_rule": "Keep base-catalog-v1 and search-catalog-v1 profiles, schemas, SQL, column meanings and legacy index/status/query behavior unchanged. source-catalog-v1 is a separate closed successor projection."
+  },
+  "contract_advice": {
+    "profile_and_material": {
+      "profile_id": "source-catalog-v1",
+      "artifact_relative_path": ".work/<batch>/source-catalog/catalog.json",
+      "artifact_kind": "replaceable deterministic cache",
+      "canonical_bytes": "JCS JSON UTF-8, no BOM, one LF terminator; every embedded byte payload is base64url without padding and is hashed separately",
+      "artifact_root_keys": ["schema", "profile", "basis", "generation", "rows", "coverage", "catalog_sha256"],
+      "basis_keys": ["operation_head_sha256", "inventory_sha256", "inventory_entries", "receipt_entries", "historical_snapshot_entries"],
+      "generation_keys": ["profile_sha256", "resource_entries", "schema_entries", "taxonomy_entries", "implementation_entries", "dependency_profile", "runtime_profile", "tokenization_profile", "row_digest"],
+      "row_groups": ["papers", "repositories", "claims", "claim_ownership", "claim_evidence", "assessment_events", "assessment_heads", "source_registrations", "source_associations", "display_decisions", "display_heads", "captured_artifacts", "compiled_pages", "coverage_rows"],
+      "ordering": "Every group is sorted by its declared stable key encoded as UTF-8 bytes; duplicate keys refuse. Group order is the order above. Nested arrays use explicit ordinal fields and are sorted by (owner identity, ordinal).",
+      "digest_domain": "catalog_sha256 = SHA-256(ASCII('video-paper-wiki.source-catalog-v1\\0') || canonical root with catalog_sha256 omitted); basis and generation digests include complete path/hash/size/mode inventory and all rows, never a truncated projection.",
+      "minimum_limits": {
+        "artifact_bytes": 67108864,
+        "row_count": 1000000,
+        "inventory_entries": 100000,
+        "embedded_bytes_per_value": 8388608,
+        "query_limit": 1000,
+        "resolve_excerpt_bytes": 65536
+      },
+      "limit_rule": "Refuse with SOURCE_CATALOG_LIMIT before omission, truncation or partial artifact creation. Limits must be part of the profile digest."
+    },
+    "row_contract": {
+      "paper": ["paper_id", "input_path", "schema", "title", "title_zh", "published_at", "aliases", "source_ids", "active_extraction", "lifecycle"],
+      "repository": ["repo_id", "input_path", "canonical_repository", "canonical_commit", "paper_ids", "officiality", "license", "archived"],
+      "claim": ["claim_id", "text", "risk", "confidence", "location", "assessment", "reviewed_at", "lifecycle", "owner_subject_id"],
+      "claim_evidence": ["claim_id", "ordinal", "source_id", "relation", "locator_kind", "locator_identity", "association_id", "excerpt_sha256", "unsupported_reason"],
+      "source_registration": ["source_id", "ledger_path", "origin", "content_kind", "title", "authority", "review_status", "content_sha256", "pages", "registration_proof", "coverage_state"],
+      "source_association": ["association_id", "paper_id", "source_id", "version", "raw", "observation_sha256", "extraction", "registration"],
+      "display_decision": ["decision_id", "paper_id", "sequence", "previous_decision_id", "association_reference", "actor", "choice", "decided_at", "reason"],
+      "coverage": ["coverage_id", "kind", "path", "source_id", "paper_id", "association_id", "state", "reason"]
+    },
+    "source_and_coverage_semantics": [
+      "Project every validated registration and association, including a registered source with no paper owner and every captured/parser artifact that has no canonical paper. Use state=registered_unclaimed, captured_uncovered, or orphan_invalid with a typed reason; never silently drop it.",
+      "Keep selected_display_association as a paper-level derived head. Keep citation_association_id on each evidence row. A historical citation is valid when its exact association, registration proof, raw bytes and locator data remain valid, even when display selection changes or rolls back.",
+      "Source registration rows are historical evidence, not authorization. Preserve receipt path, receipt hash, first registration ledger hash and source-ledger identity. Do not mint a new receipt or modify the Vault while building the cache.",
+      "For Markdown, resolve through decode_markdown_locator and resolve_markdown_locator, returning exact Unicode excerpt, charspan, page anchor, excerpt hash, source_id and association reference. For legacy PDF/code, use retained parser/manifest/capture locators; if exact text cannot be reconstructed, return UNSUPPORTED_LEGACY_RESOLUTION with no fabricated excerpt."
+    ],
+    "status_envelope": {
+      "success": ["schema", "profile", "state", "catalog_sha256", "basis", "generation", "counts", "coverage_counts"],
+      "states": ["ABSENT", "CURRENT", "STALE", "CONFLICT", "UNCOVERED"],
+      "error": ["schema", "code", "message", "path", "exit_code", "basis", "catalog_sha256"],
+      "rules": [
+        "ABSENT means the fixed cache slot is absent and the retained source basis was safely inspected; it is not a Vault error.",
+        "CURRENT requires reconstruction from one retained snapshot and exact catalog digest equality. A caller-supplied self-consistent descriptor is insufficient.",
+        "STALE means a previously valid cache no longer matches basis, generation material, profile/resources, runtime/dependency/tokenizer or complete rows.",
+        "CONFLICT is reserved for fixed-slot identity replacement, symlink/hardlink/non-regular file, parent replacement or differing bytes at an existing slot.",
+        "UNCOVERED is evidence-derived coverage state for a valid registered/captured object without canonical paper or citation owner; it is not a cache failure."
+      ],
+      "legacy_boundary": "Legacy index.status and collector retain SOURCE_PROFILE_REQUIRED (exit 75) for source-aware inputs. Source-catalog status uses its own envelope and never rewrites that code to CATALOG_STALE."
+    },
+    "lookup_and_query": {
+      "lookup_input": ["catalog_sha256", "basis", "paper_id", "repository", "title", "assessment", "lifecycle", "include_uncovered"],
+      "query_input": ["catalog_sha256", "basis", "text", "scope", "paper_id", "assessment", "lifecycle", "include_provisional", "limit", "cursor"],
+      "scope_enum": ["claims", "source_excerpts", "all"],
+      "result_envelope": ["schema", "profile", "catalog_sha256", "basis", "query", "results", "next_cursor"],
+      "result_row": ["kind", "identity", "paper_id", "repo_id", "claim_id", "source_id", "association_id", "text", "excerpt_sha256", "score", "assessment", "lifecycle", "selected_display_association_id", "citation_association_id"],
+      "ranking": "Normalize/tokenize using a frozen source-catalog tokenizer profile; rank by descending exact score, then kind rank, stable identity UTF-8 bytes, and locator ordinal. Freeze score representation and tie behavior in the profile. Do not call or alter legacy rank_hits semantics.",
+      "filters": "accepted-only evaluates the validated terminal assessment head and excludes provisional model/system claims; lifecycle filters evaluate the owning paper/repository reference. Caller-provided assessment fields never promote a claim.",
+      "validation": "Query and lookup reconstruct or verify the complete current catalog in the same retained session, validate catalog_sha256 and basis before returning, and refuse an unknown profile, stale generation, partial rows or unsupported limit."
+    },
+    "resolve_contract": {
+      "input": ["catalog_sha256", "basis", "claim_id", "evidence_ordinal", "association_id", "locator"],
+      "success": ["schema", "status", "claim_id", "source_id", "association_id", "association_reference", "raw_path", "raw_sha256", "locator_kind", "charspan", "page_anchor", "excerpt", "excerpt_sha256", "display_association_id"],
+      "unsupported": ["schema", "status", "claim_id", "source_id", "association_id", "locator_kind", "reason", "display_association_id"],
+      "statuses": ["RESOLVED", "UNSUPPORTED_LEGACY_RESOLUTION", "UNCOVERED", "STALE", "CONFLICT"],
+      "rules": [
+        "Resolve against the citation's association_id and exact retained bytes. selected display association is informational and cannot determine citation freshness.",
+        "Markdown returns Unicode charspan and exact excerpt only after observation interval, source hash, page anchor and excerpt hash all validate.",
+        "Legacy PDF/code returns exact established page/line/manifest locator when available. Otherwise return UNSUPPORTED_LEGACY_RESOLUTION with reason=legacy_locator_not_reconstructable; never return guessed text.",
+        "Missing valid source material is UNCOVERED or a typed error according to the row state, never an empty successful excerpt."
+      ]
+    },
+    "fixed_slot_state_machine": {
+      "path": ".work/<batch>/source-catalog/catalog.json",
+      "states": ["ABSENT", "PRESENT"],
+      "create": "Retain batch parent and slot parent descriptors; create one private regular file atomically only from ABSENT. Verify complete bytes and named edges before success.",
+      "reuse": "PRESENT with byte-identical canonical bytes and unchanged retained parent/slot identity returns reused/current.",
+      "conflict": "PRESENT with differing bytes, path replacement, symlink, hardlink, non-regular file, vanished file, parent replacement or unsafe permission refuses with CATALOG_SLOT_CONFLICT/CATALOG_STALE according to frozen precedence.",
+      "failure_finalizer": "On every success and exception, verify root, every named parent, fixed slot edge, complete inventory and original error precedence. A failed enumeration must not skip the final complete-set check; preserve the original typed error unless the safety check has higher frozen precedence."
+    }
+  },
+  "status_error_translation": {
+    "source_catalog_codes": {
+      "SOURCE_CATALOG_LIMIT": 75,
+      "SOURCE_CATALOG_INPUT_INVALID": 75,
+      "SOURCE_CATALOG_STALE": 75,
+      "SOURCE_CATALOG_CONFLICT": 75,
+      "SOURCE_CATALOG_UNCOVERED": 0,
+      "SOURCE_CATALOG_PROFILE_MISMATCH": 75,
+      "UNSUPPORTED_LEGACY_RESOLUTION": 0
+    },
+    "precedence": ["input/profile validation", "retained path safety", "complete inventory/edge mismatch", "history/registration conflict", "generation/catalog equality", "coverage or unsupported result"],
+    "legacy_translation_rule": "Do not pass source-aware errors through legacy catalog_status's catch-all ContractError-to-CATALOG_STALE adapter. Preserve SOURCE_PROFILE_REQUIRED at the legacy boundary and use source-catalog codes in the new boundary."
+  },
+  "recommended_test_matrix": [
+    {
+      "id": "CAT-R2-EMPTY",
+      "case": "Empty synthetic Vault with genesis receipt and no papers/sources",
+      "assert": "Deterministic zero-row catalog, CURRENT after create, no hidden taxonomy or orphan rows, stable digest across repeated build."
+    },
+    {
+      "id": "CAT-R2-LEGACY",
+      "case": "Fully rendered legacy paper/repository and old PDF/code artifacts",
+      "assert": "All legacy rows retained; display fields nullable; exact locator resolution or explicit unsupported result; legacy index.status still returns SOURCE_PROFILE_REQUIRED for source-aware input."
+    },
+    {
+      "id": "CAT-R2-MARKDOWN-MIXED",
+      "case": "Markdown v2 plus legacy records and mixed evidence",
+      "assert": "Association and observation rows bind exact bytes; Unicode span round-trip; compiled pages and complete source coverage are closed."
+    },
+    {
+      "id": "CAT-R2-UNCLAIMED",
+      "case": "Registered source without paper, captured artifact without canonical owner, and orphan parser artifact",
+      "assert": "Visible registered_unclaimed/captured_uncovered/orphan_invalid coverage rows with reason and stable identity; no silent filtering."
+    },
+    {
+      "id": "CAT-R2-DISPLAY-VS-CITATION",
+      "case": "Select association A, cite historical B, then rollback display to C",
+      "assert": "display_association_id changes while citation_association_id remains B and resolves against B; stale only after B bytes/history are actually unavailable or changed."
+    },
+    {
+      "id": "CAT-R2-ASSESSMENT",
+      "case": "Assessment forks, stale terminal heads, accepted provisional model claim, lifecycle retirement",
+      "assert": "Terminal validated head controls filters; accepted-only excludes provisional/model claims; actor/event IDs and review dates are preserved."
+    },
+    {
+      "id": "CAT-R2-CACHE-FORGERY",
+      "case": "Partial catalog, invented excerpt, changed row, self-consistent descriptor hashes, unknown semantic path",
+      "assert": "Reconstruction from retained bytes refuses with typed stale/input error; supplied hashes cannot authorize omission or invention."
+    },
+    {
+      "id": "CAT-R2-BASIS-CHANGES",
+      "case": "Change head, receipt, historical snapshot, profile/resource, compiler/query byte, dependency/tokenizer/runtime",
+      "assert": "Prior cache becomes STALE and status/query/resolve refuse until rebuilt; unchanged basis remains byte-stable."
+    },
+    {
+      "id": "CAT-R2-FIXED-SLOT",
+      "case": "Absent create, identical reuse, differing bytes, parent replacement, unlink/recreate, symlink, hardlink, permission and exception paths",
+      "assert": "One retained session detects every replacement; no arbitrary output path; original typed failure is preserved and final complete-set/edge verification always runs."
+    },
+    {
+      "id": "CAT-R2-QUERY",
+      "case": "Exact identity/title lookup, claim/source-excerpt lexical ranking, closed filters, limits and cursor ties",
+      "assert": "Frozen tokenizer/score/tie order; results carry catalog generation/basis; legacy query output remains unchanged."
+    },
+    {
+      "id": "CAT-R2-BACKUP-RESTORE",
+      "case": "Existing synthetic backup followed by isolated restore with unchanged runtime/profile",
+      "assert": "Restored retained source state rebuilds the same canonical catalog digest and rows; no real Vault or operator gate is touched."
+    }
+  ],
+  "implementation_boundary": {
+    "allowed": "This artifact records independent contract advice and a test matrix only.",
+    "forbidden": ["production source edits", "test edits", "Git mutations", "real Vault or operator writes", "network/external index actions", "human-gate closure"],
+    "stopped_writing": true
+  }
+}

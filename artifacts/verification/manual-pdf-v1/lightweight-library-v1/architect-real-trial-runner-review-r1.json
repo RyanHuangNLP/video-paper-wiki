@@ -1,0 +1,131 @@
+{
+  "schema": "video-paper-wiki.lightweight-library-v1-real-trial-runner-review-r1.v1",
+  "recorded_at_utc": "2026-09-08T05:36:59Z",
+  "review_mode": "read_only_static_harness_and_protected_input_review",
+  "source_executed": false,
+  "active_trial_executed": false,
+  "status": "REVIEWED_STATICALLY_READY_FOR_CONTROLLED_RUN_WITH_BOUNDED_NOTES",
+  "reviewed_harnesses": {
+    ".work/acceptance/lightweight-library-v1/run_real_trial.py": {
+      "sha256": "4c753882e14acc095a205136aeecb12316559d3dd2df141a0d05244ab057d499",
+      "size_bytes": 10325,
+      "line_count": 182,
+      "syntax": "AST parse succeeded with Python -B"
+    },
+    ".work/acceptance/lightweight-library-v1/run_frozen_checks.py": {
+      "sha256": "de19e043b7b55d99358b453abd91f1e9b53752909ef04e2cac1ff7b67b476225",
+      "size_bytes": 5959,
+      "line_count": 109,
+      "syntax": "AST parse succeeded with Python -B"
+    }
+  },
+  "protected_authorship_observations": {
+    "authorship_observation_r1_sha256": "1021ab9bf3b750de526705a12d29cb9121dd87ea395851f4809adf383014c047",
+    "comparison_authorship_observation_r1_sha256": "bf49f8999ad54fe3b1e7dc5e415fda6fa40d2197d70b623c2d045e0d0075677f",
+    "comparison_authorship_observation_r2_sha256": "643013e249452bc4503e7ea033bfa5e6d16680f1a6f3954b1dc276f3c788de9c",
+    "export_observation_r1_sha256": "1d03761333438e11a7da5e4863f9bf3bf422aee4f51d3b3134626935ae7cbe05",
+    "authorship_boundary": "Current conversation model authored the original knowledge/comparison documents from local exported evidence; external research/model calls are recorded false; human semantic acceptance remains false."
+  },
+  "protected_model_inputs": {
+    "knowledge_context_sha256": {
+      "564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f": "f856d35dab2cdfb61123dc17f5d5a493be04b219e134f37243b40b60289d06c3",
+      "6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235": "5095fc83148fb1c7c1e2fb96ac932061f202b840c2748c426134c804047cb127",
+      "654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e": "03e8c48dafaac17c51ab6e642e90a058f661376f8ce02598e32c59560c4f8e61"
+    },
+    "knowledge_document_sha256": {
+      "564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f": "203c1f0aa5fd557793d0b26894462be57b4cf19ed6bf2a024594e379dde886e5",
+      "6108d5964c6791d5d939cf4335eba3176d5a7748b98bdd6b268d285e44bb8235": "a33c80e37efbdbe6e3101cb263edcd5269ba64c978d80e5d27d66cd36d7986e6",
+      "654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e": "fd03d9582154cc3d423ff424faea27ee91a50e674fac8a38d7afabf96554a846"
+    },
+    "comparison_context_sha256": "42320ba274d1c8857da738b261715fd2e1b7d14dcd031de2e57c114a0987698b",
+    "comparison_document_r2_sha256": "6e1ec4363a1653b0dc415ee724162091a9f86cdc360393158655c2b5558ae970"
+  },
+  "positive_path_checks": [
+    {
+      "id": "RTL-001",
+      "result": "pass",
+      "evidence": "run_real_trial.py:45-53",
+      "summary": "Requires accepted_for_real_trial=true, checks every manifest file digest and size before creating an exist_ok=False trial directory, and preserves failed partial state for inspection."
+    },
+    {
+      "id": "RTL-002",
+      "result": "pass",
+      "evidence": "run_real_trial.py:58-65",
+      "summary": "Uses the stopped source through PYTHONPATH, the pinned repository virtualenv Python, -B, offline/no-download flags, disabled pytest plugin autoload, and source cwd."
+    },
+    {
+      "id": "RTL-003",
+      "result": "pass",
+      "evidence": "run_real_trial.py:81-109, 113-124",
+      "summary": "Adds exactly three fixed-hash PDFs with fixed page counts and requires fresh knowledge/comparison evidence, paper snapshots, and coverage to equal the protected model-reviewed contexts before import."
+    },
+    {
+      "id": "RTL-004",
+      "result": "pass",
+      "evidence": "run_real_trial.py:110-139",
+      "summary": "Checks three current records, builds views, imports the comparison, requires a five-line Markdown table and at least nine source-page links, and resolves local links for published pages."
+    },
+    {
+      "id": "RTL-005",
+      "result": "pass",
+      "evidence": "run_real_trial.py:140-177",
+      "summary": "Prepares a workflow session, creates/verifies/reuses/restores a backup, verifies every manifest row byte-for-byte against ZIP and restored content, checks session relocation/history, reindexes, checks current knowledge/views, preserves original paper files, and rejects PDF copies in the final inventory."
+    },
+    {
+      "id": "FZ-001",
+      "result": "pass",
+      "evidence": "run_frozen_checks.py:32-65, 81-102",
+      "summary": "Checks the stopped owner manifest before and after the selected suite, records source-local module provenance, exact command/environment, JUnit counts, stdout/stderr hashes, and source snapshot identity."
+    }
+  ],
+  "bounded_harness_notes": [
+    {
+      "id": "RTL-H1",
+      "severity": "P2",
+      "status": "non_blocking_for_controlled_invocation",
+      "evidence": "run_real_trial.py:51-53",
+      "summary": "The trial guard accepts any path containing a '.work' component, rather than requiring strict containment under ROOT/.work. The parent invocation must supply the approved ROOT/.work trial path; the harness itself does not enforce that boundary."
+    },
+    {
+      "id": "RTL-H2",
+      "severity": "P2",
+      "status": "non_blocking_for_controlled_invocation",
+      "evidence": "run_real_trial.py:143-147",
+      "summary": "The repeated backup create asserts reused=true but does not compare the archive SHA-256 before and after reuse. The resulting summary hashes the final archive only."
+    },
+    {
+      "id": "RTL-H3",
+      "severity": "P2",
+      "status": "non_blocking_for_controlled_invocation",
+      "evidence": "run_real_trial.py:132-161",
+      "summary": "Returned readable/index/page paths are checked for existence and links, but are not explicitly asserted to remain inside the trial workspace; restored verification checks every manifest row but does not reject extra restored files."
+    },
+    {
+      "id": "RTL-H4",
+      "severity": "P2",
+      "status": "non_blocking_for_controlled_invocation",
+      "evidence": "run_real_trial.py:88-90, 162-164",
+      "summary": "Original paper preservation compares files captured after each add, but does not separately assert that no unexpected extra paper files were introduced. Final inventory still rejects PDF files."
+    },
+    {
+      "id": "FZ-H1",
+      "severity": "P2",
+      "status": "non_blocking_evidence_shape_note",
+      "evidence": "run_frozen_checks.py:66-80, 98-99",
+      "summary": "The full suite selects the tests directory and therefore records no harness hash; selected independent/backup files are hashed only when they exist. Missing harness files are silently omitted from the evidence record."
+    },
+    {
+      "id": "FZ-H2",
+      "severity": "P2",
+      "status": "non_blocking_evidence_shape_note",
+      "evidence": "run_frozen_checks.py:33-40",
+      "summary": "The frozen recorder requires stopped_writing=true and file hashes, but does not independently require manifest schema, snapshot_sha256, or ready_for_final_acceptance fields. Those remain upstream manifest/parent checks."
+    }
+  ],
+  "review_limits": [
+    "No active T3 runner, real trial, Cursor process, network, Git mutation, Vault mutation, or source implementation was executed or changed.",
+    "No human claim, provenance, scientific correctness, visual quality, or semantic acceptance is inferred from the engineering harness.",
+    "The final accepted-for-real-trial manifest was not present at this review checkpoint; its exact hash and source rows must be recorded when the parent freezes it."
+  ],
+  "disposition": "GO_FOR_PARENT_CONTROLLED_REAL_TRIAL_AFTER_FINAL_ACCEPTED_MANIFEST_BINDING"
+}

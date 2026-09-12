@@ -1,0 +1,160 @@
+{
+  "schema": "full-todo.code-proof-foundation-contract-review.v2",
+  "record_type": "foundation-contract-review-r2",
+  "reviewed_at_utc": "2026-09-10T16:24:52Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_EXACT_FREEZE_AFTER_RESOURCE_ACCEPTANCE",
+  "implementation_authority": "not_granted",
+  "scope": "Additive closure review of the R1 foundation contract review against R2 clarifications and the corrected self-contained Builder instruction. No product/test source edits, Git mutation, model/UI/provider call, runtime change, or implementation/test execution was performed.",
+  "reviewed_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-R1.md",
+      "size_bytes": 10733,
+      "sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R1.md",
+      "size_bytes": 11224,
+      "sha256": "544ffee8777efc1f2fac95ad575566a82bae0bd5d8a20a014de1ec0da20649b3"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-CLARIFICATIONS-R2.md",
+      "size_bytes": 5064,
+      "sha256": "66b675218af715d0ecc82295f905f5a961cb80305748ca273649ec425b1905b0"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R2.md",
+      "size_bytes": 13634,
+      "sha256": "effd4fa9a8d3f2bd93f1b2154c0e486f21e0441e00836def25fe329329889163"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "size_bytes": 10225,
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "size_bytes": 20246,
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/architect-foundation-boundary-disposition-r1.json",
+      "size_bytes": 2664,
+      "sha256": "af854edba0e63b92ababaaa1d48770e8fa835c20caf123b9c9915c848bbcf2c5"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/I/foundation-contract-review-r1.json",
+      "size_bytes": 10400,
+      "sha256": "8c69b269e84e9165591891e01b689ba665da3fe99e6af8dee499ba7b47b344dc"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/fifteen-path-candidate-r2.json",
+      "size_bytes": 5414,
+      "sha256": "d7d11225c8a1a3d1a58bd5e459f29969e74cdb67ebc7bdddce690ad5ec862c9c"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/profiles/code-proof-v1.json",
+      "size_bytes": 3761,
+      "sha256": "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/tests/fixtures/code-proof-resource-v1.json",
+      "size_bytes": 726503,
+      "sha256": "712de225878c1dbfb83743a38be4a0cfdf883cae1a377d63b8b241933d39c52f"
+    }
+  ],
+  "r1_finding_closure": [
+    {
+      "r1_finding": "Post-pin parser/reference tests lacked named private surfaces.",
+      "r2_disposition": "Closed. R2 names _parse_resource_bytes(data), _validate_schema_references(schemas), and _validate_profile_inventory(profile), requires the compiler to invoke them after all eleven byte pins, and fixes their resource_shape error boundary.",
+      "status": "closed"
+    },
+    {
+      "r1_finding": "Installed-wheel parity lacked an isolated execution harness.",
+      "r2_disposition": "Closed and correctly moved out of Builder-owned unit tests. R2 specifies fresh source copy, offline explicit-Python wheel build, two isolated installs, -I -B empty-cwd probes, only fresh target on sys.path, module/resource origin checks, 81 schema comparisons, profile/fixture replay, and zero-I/O instrumentation.",
+      "status": "closed"
+    },
+    {
+      "r1_finding": "Profile fragment refs needed a common-root context.",
+      "r2_disposition": "Closed. R2 requires a validator schema with an exact common schema ID plus #/$defs/profile ref and the fresh ten-resource registry; detached fragment validation is forbidden.",
+      "status": "closed"
+    },
+    {
+      "r1_finding": "The 264 fixture omitted the common title.",
+      "r2_disposition": "Closed. R2 requires an explicit empty-object common-title structural probe and states that the definitions-only common root is not public evidence.",
+      "status": "closed"
+    },
+    {
+      "r1_finding": "Private error message strings were unspecified.",
+      "r2_disposition": "Closed. R2 fixes both message templates and invalid-constructor ValueError text, closed enums, marker suppression, and raw chaining suppression.",
+      "status": "closed"
+    }
+  ],
+  "current_candidate_pin_replay": {
+    "candidate_snapshot_sha256": "0499b45b6b4f40a3bb330dd6fa63687d1182db7dfebce3136f9e3f814aa6654f",
+    "candidate_path_count": 15,
+    "candidate_resource_path_count": 11,
+    "profile_sha256": "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32",
+    "profile_size_bytes": 3761,
+    "fixture_sha256": "712de225878c1dbfb83743a38be4a0cfdf883cae1a377d63b8b241933d39c52f",
+    "fixture_cases": 264,
+    "fixture_case_interface": "exact name/title/instance rows",
+    "literal_pin_rows_match_candidate_and_profile": true,
+    "profile_rows_ascii_sorted": true,
+    "profile_hash_matches_fixture": true,
+    "r12_limits_and_admission_match": true,
+    "common_probe_required_separately": true
+  },
+  "r2_contract_assessment": [
+    {
+      "area": "private_api_and_phase_boundary",
+      "status": "GO",
+      "finding": "The two-path scope remains exact. Foundation selects lexical origin and compiles retained bytes only; later I/O owns filesystem authority, descriptors, stamps, disjointness, cleanup and final lineage. No public command or future semantic workflow was pulled into scope."
+    },
+    {
+      "area": "lexical_origin_plan",
+      "status": "GO",
+      "finding": "The source-versus-installed __file__ rule remains unchanged and explicit, including no resolve/CWD/existence fallback and deliberate literal-src behavior. R2 external acceptance now checks actual installed origins instead of treating mocked plans as wheel evidence."
+    },
+    {
+      "area": "pins_profile_registry",
+      "status": "GO",
+      "finding": "The production constants still match all eleven current candidate resources. R2 preserves compare size/hash before parse/validator construction, exactly ten schema registry resources, common-root profile validation and retrieval denial."
+    },
+    {
+      "area": "strict_types_limits_errors",
+      "status": "GO",
+      "finding": "R2 preserves exact builtins, cycle/shared-container policy, independent lowered-limit copies, admission-cap separation, closed private reason enums and now fixes literal safe messages."
+    },
+    {
+      "area": "reference_and_profile_context",
+      "status": "GO",
+      "finding": "The named helper surfaces and common-ID profile ref remove the R1 ambiguity without changing the public semantic boundary. The helper hooks remain pure and cannot override production pins, registries or trust roots."
+    },
+    {
+      "area": "fixture_and_wheel_acceptance",
+      "status": "GO_PENDING_EXTERNAL_ACCEPTANCE",
+      "finding": "The common probe and external two-runtime installed-wheel harness are now concretely specified. They are acceptance evidence still pending the actual two-file candidate and resource acceptance, not claimed by this review."
+    },
+    {
+      "area": "natural_language_prompt",
+      "status": "GO",
+      "finding": "The corrected prompt is self-contained for Builder output: exact dataclasses/methods/constants, named private pure helpers, profile ref context, common probe, fixed errors, pure-only tests and explicit absence of wheel subprocess ownership. No source attachment is needed."
+    }
+  ],
+  "remaining_gates": [
+    "The exact resource successor must first pass its required local/full regression and installed-wheel resource acceptance; this review does not accept the resource candidate.",
+    "The later exact freeze must bind the R1 contract, R2 clarifications, corrected R2 instruction, exact candidate/profile/fixture pins and the external acceptance harness scope.",
+    "After Builder stops, independent review must verify the two returned source blocks and the external harness must complete both locked installed-origin probes before public CODE work proceeds."
+  ],
+  "contradictions_found": [],
+  "no_broadened_scope": [
+    "No retained-I/O implementation or public semantic validation was added.",
+    "No resource origin authority was moved into the foundation.",
+    "No public CODE completion, real-data verification, remote CI or human gate was closed."
+  ],
+  "limitations": [
+    "Architecture closure review only; no implementation or tests were run.",
+    "GO is for preparing the later exact freeze after resource acceptance, not authorization to dispatch or claim acceptance."
+  ]
+}

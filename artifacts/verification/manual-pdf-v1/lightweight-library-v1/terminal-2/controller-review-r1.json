@@ -1,0 +1,114 @@
+{
+  "schema": "video-paper-wiki.library-controller-review.v1",
+  "recorded_at_utc": "2026-09-08T04:20:00Z",
+  "lane": 2,
+  "packet": "lightweight-library-v1",
+  "revision": "r1",
+  "candidate_snapshot": "f8b2808ed47394434af430de74c499ab541b66ac859610c5ad550c19f191fb02",
+  "handoff_sha256": "b96148bf64ca8eed27ff13d47fb4bf3d72da1de830171abe88f59a77e07ded58",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "controller_actions": {
+    "git_mutations": false,
+    "source_edits": false,
+    "builder_launch": false,
+    "vault_writes": false
+  },
+  "scope_verification": {
+    "allowlist": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "src/video_paper_wiki_research/light_index.py",
+      "src/video_paper_wiki_research/light_library.py",
+      "src/video_paper_wiki_research/light_library_state.py",
+      "src/video_paper_wiki_research/light_pdf.py",
+      "src/video_paper_wiki_research/light_workspace.py",
+      "tests/research/test_light_backup.py",
+      "tests/research/test_light_library.py",
+      "tests/research/test_light_library_recovery.py"
+    ],
+    "handoff_file_hashes_match": true,
+    "source_hashes": [
+      {"path": "src/video_paper_wiki_research/light_backup.py", "sha256": "223796c68685f544640504fa65d816e4d3bb970ad7c938142157697be9a7f82a", "size_bytes": 35623},
+      {"path": "src/video_paper_wiki_research/light_index.py", "sha256": "ceac321f97c4820a2ddb0c5ec48231e7cfdf4e4d9f1e3f1ff46555d24011d9ef", "size_bytes": 32171},
+      {"path": "src/video_paper_wiki_research/light_library.py", "sha256": "565a495221ecf9c102e16e9a6756ea7380b31ec54ff0be16faaa5bf484dce17a", "size_bytes": 55121},
+      {"path": "src/video_paper_wiki_research/light_library_state.py", "sha256": "cc4cef34f5ef4fe403930c701794baa620bc6efef354f69253bc12a7ad5fb5db", "size_bytes": 28003},
+      {"path": "src/video_paper_wiki_research/light_pdf.py", "sha256": "a1234e72d321c7ba60adf285f5421fafc55039060094dab0ddf991faf6796876", "size_bytes": 32207},
+      {"path": "src/video_paper_wiki_research/light_workspace.py", "sha256": "ca99c74b4d64c2dd71fb9152ccd00f01b1d4af8ff7edc5430151eb3935d23ae6", "size_bytes": 11593},
+      {"path": "tests/research/test_light_backup.py", "sha256": "11936572f759505c10848e05ecde811fba5c6e4735ffcf2d6a931492e93a4191", "size_bytes": 10249},
+      {"path": "tests/research/test_light_library.py", "sha256": "412ca8f3bd7acb0e084387adca9bfa8dc139327aa0ac972a002071805a0f7858", "size_bytes": 9934},
+      {"path": "tests/research/test_light_library_recovery.py", "sha256": "e5aeddeb41c68a1b22f8b015ab95478d06b89ae4e994f20a9dc6a13d573394ae", "size_bytes": 6839}
+    ]
+  },
+  "independent_checks": {
+    "temporary_root": "/private/tmp/t2-audit-r1-b6yovggi",
+    "issue_count": 7,
+    "positive_or_refusal_check_count": 6,
+    "issues": [
+      {
+        "id": "T2-IND-01",
+        "status": "CONFIRMED",
+        "function": "light_library_state.write_persisted_atomic",
+        "evidence": "A pre-existing managed.json.tmp was overwritten; when the temporary path was a hardlink, the outside referent changed (outside_changed=true). The fixed destination.name+.tmp path has no exclusive-create or ownership/hash check."
+      },
+      {
+        "id": "T2-IND-02",
+        "status": "CONFIRMED",
+        "function": "light_pdf.extract_pdf/_prepare_workspace",
+        "evidence": "With the live workspace lock busy, extract_pdf returned LIGHT_WORKSPACE_BUSY but still created papers/. No transaction was published, but the refusal was not side-effect free."
+      },
+      {
+        "id": "T2-IND-03",
+        "status": "CONFIRMED",
+        "function": "light_library.recover_library/recognized_operation",
+        "evidence": "A forged complete archive journal with null operation and archive identifiers, empty owned paths, and an extra field was accepted as recovered with ok=true and reused=true."
+      },
+      {
+        "id": "T2-IND-04",
+        "status": "CONFIRMED",
+        "function": "light_library._validate_archive_payload",
+        "evidence": "An archive manifest with an unknown top-level field was accepted."
+      },
+      {
+        "id": "T2-IND-05",
+        "status": "CONFIRMED",
+        "function": "light_library._validate_archive_payload",
+        "evidence": "An archive manifest whose archive_id did not match the archive directory identity was accepted."
+      },
+      {
+        "id": "T2-IND-06",
+        "status": "CONFIRMED",
+        "function": "light_library._validate_archive_payload",
+        "evidence": "The archive validator accepted directories=[] and therefore did not require the declared directory inventory to describe the payload completely. A duplicate-file variant was refused with an unexpected-set error."
+      },
+      {
+        "id": "T2-IND-07",
+        "status": "CONFIRMED",
+        "function": "light_library.recover_library",
+        "evidence": "A completed archive journal was reported reused=true even when both the archive payload and a recreated live paper existed, so recovery did not reject the ambiguous two-sided state."
+      }
+    ],
+    "positive_or_refusal_checks": [
+      {"id": "T2-IND-P01", "status": "PASS", "case": "unknown foreign.bin", "observed": "backup refused the file"},
+      {"id": "T2-IND-P02", "status": "PASS", "case": "oversized huge.md (>8 MiB)", "observed": "backup refused the file"},
+      {"id": "T2-IND-P03", "status": "PASS", "case": "active workflow staging", "observed": "backup refused the workspace"},
+      {"id": "T2-IND-P04", "status": "PASS", "case": "unknown transaction", "observed": "backup refused the workspace"},
+      {"id": "T2-IND-P05", "status": "PASS", "case": "traversal ZIP", "observed": "restore/verification refused the archive"},
+      {"id": "T2-IND-P06", "status": "PASS", "case": "fresh backup/restore", "observed": "source.md, source.json, notes, and workflow session bytes were exact; history remap was present and active sessions were absent"}
+    ]
+  },
+  "architect_replay": {
+    "checks_path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r1-replay/checks.json",
+    "script": ".work/acceptance/lightweight-library-v1/architect_t2_regressions.py",
+    "script_sha256": "aa94f8337a6c6cec8312a0d2d6328a8e18722160abc74708eaf7a45437f26e03",
+    "stdout_sha256": "92ced8b6d9bf0a198796216eb383c7e0c8125b6b0407d1ab548ae3c7ff49313c",
+    "exit_code": 1,
+    "failed": 23,
+    "passed": 0,
+    "decision_path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r1-decision.json",
+    "decision_sha256": "59891d835c6ac6ad17a96773c8b02577ce9a16272a9167e4360b32b2b05c9910"
+  },
+  "decision": "REJECTED_T2_R1_REQUIRES_PRESERVATION_RECOVERY_AND_BACKUP_VALIDATION_FIXES",
+  "status": "R1_REJECTED_PENDING_BOUNDED_R2_FIXES",
+  "accepted_for_integration": false,
+  "source_writer_stopped": true,
+  "next": "Preserve this review and all R1 evidence byte-for-byte; repair the bounded T2 contract failures in the next revision and add regressions before any T3 import."
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "lightweight-library-v1-t3-r2-integration-review.v1",
+  "review_mode": "read_only_static",
+  "source_imported_or_executed": false,
+  "draft_sha256": "9e5834ac9c320577ccf65b884ddded42698349013cd22cbfa09773ab59d5dfc0",
+  "t3_r1_snapshot_sha256": "fc867e8c9031c7a273af07a026dc3c4ff1b9df0f2ca3656fd47d29edd3b09c6a",
+  "reviewed_files": {
+    "cli.py": "b20c0eeefb57d152ebb0a06ca8a296265c77634e5c87a02e32de41f89dabf7c3",
+    "test_light_library_cli.py": "8d7a2fd6ccda7e4a964151597a4e7780c0cf6b56337efd9787e45e5701c2293e",
+    "test_light_library_installed.py": "decb07ac7fcb43823b30899b5ace2f46fdac349269d96f37e3227a65a25f9db0",
+    "test_light_library_pipeline.py": "e9968ccfec29db5f6844ef0f2e499d7b5013d658af72481dabb0c93e63803437",
+    "SKILL.md": "e97ccc7abbdc9d2ee37a038ca7b4221e3f21b81b4f1282d252df11c323503c5e",
+    "references/library.md": "79e59418e22eda05ad00500d2b54c8896fe0872c55f61cd444aa6c203e19dfb8",
+    "lightweight-library-quickstart.md": "0047e849047b5225485ac1a07ef01f10918369c633c5f34f36ed5b3c83fcdf6c"
+  },
+  "findings": [
+    {"id": "T3-R2-INT-001", "severity": "P1", "area": "json_input_path_safety", "status": "open", "evidence": "cli.py:368-376, 920-924, 955-960", "summary": "context/document JSON paths accept arbitrary paths and symlink traversal instead of enforcing documented .work safety"},
+    {"id": "T3-R2-INT-002", "severity": "P1", "area": "backup_input_path_safety", "status": "open", "evidence": "cli.py:825-846", "summary": "--include-output does not require .work or reject parent symlink traversal"},
+    {"id": "T3-R2-INT-003", "severity": "P1", "area": "live_integration", "status": "open", "evidence": "test_light_library_pipeline.py:116-169", "summary": "live test skips when owners are missing and currently stops after compare export and backup verify"},
+    {"id": "T3-R2-INT-004", "severity": "P1", "area": "installed_wheel", "status": "open", "evidence": "test_light_library_installed.py:73-181", "summary": "installed test is missing backend package/hash checks and successful console/module operations"},
+    {"id": "T3-R2-INT-005", "severity": "P2", "area": "wrapper_retention", "status": "test_gap", "evidence": "cli.py:920-925, 955-961", "summary": "complete wrapper is passed through statically, but no live export-file-import retention assertion exists"},
+    {"id": "T3-R2-INT-006", "severity": "P2", "area": "documentation", "status": "open", "summary": "UTF-8/size, empty-directory file-only backup, and abandoned pre-staging no-replacement guidance are not explicit"}
+  ],
+  "disposition": "NO_GO_FOR_FINAL_T3_R2_INTEGRATION",
+  "owner_modules_edited": false
+}

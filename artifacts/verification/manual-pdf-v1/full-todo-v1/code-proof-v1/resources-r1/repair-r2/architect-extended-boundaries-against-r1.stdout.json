@@ -1,0 +1,1212 @@
+{
+  "schema": "full-todo.code-resource-independent-boundary-probes.v2",
+  "recorded_at_utc": "2026-09-10T13:04:15.544366+00:00",
+  "checks": [
+    {
+      "id": "repository_input:./repo",
+      "definition": "repository_input",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_input:../repo",
+      "definition": "repository_input",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_input:owner/.",
+      "definition": "repository_input",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_input:owner/..",
+      "definition": "repository_input",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_input:owner/name.git",
+      "definition": "repository_input",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_input:_owner/.github",
+      "definition": "repository_input",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_input:-/_repo",
+      "definition": "repository_input",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_input:o/r",
+      "definition": "repository_input",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_saved:./repo",
+      "definition": "repository_saved",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_saved:../repo",
+      "definition": "repository_saved",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_saved:owner/.",
+      "definition": "repository_saved",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_saved:owner/..",
+      "definition": "repository_saved",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_saved:owner/name.git",
+      "definition": "repository_saved",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repository_saved:_owner/.github",
+      "definition": "repository_saved",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_saved:-/_repo",
+      "definition": "repository_saved",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "repository_saved:o/r",
+      "definition": "repository_saved",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "uppercase-input",
+      "definition": "repository_input",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "Ordinary R9 input permits ASCII case; request preparation lowercases it once.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "uppercase-saved",
+      "definition": "repository_saved",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "Saved R9 repository spelling is lowercase.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "github_commit_url:valid",
+      "definition": "github_commit_url",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R7 exact permitted host locator syntax with a valid R9 origin.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_commit_url:./repo",
+      "definition": "github_commit_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_commit_url:../repo",
+      "definition": "github_commit_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_commit_url:owner/name.git",
+      "definition": "github_commit_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_commit_url:owner/.",
+      "definition": "github_commit_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_commit_url:owner/..",
+      "definition": "github_commit_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_blob_url:valid",
+      "definition": "github_blob_url",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R7 exact permitted host locator syntax with a valid R9 origin.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_blob_url:./repo",
+      "definition": "github_blob_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_blob_url:../repo",
+      "definition": "github_blob_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_blob_url:owner/name.git",
+      "definition": "github_blob_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_blob_url:owner/.",
+      "definition": "github_blob_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_blob_url:owner/..",
+      "definition": "github_blob_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_raw_url:valid",
+      "definition": "github_raw_url",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "R7 exact permitted host locator syntax with a valid R9 origin.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_raw_url:./repo",
+      "definition": "github_raw_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_raw_url:../repo",
+      "definition": "github_raw_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_raw_url:owner/name.git",
+      "definition": "github_raw_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_raw_url:owner/.",
+      "definition": "github_raw_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "github_raw_url:owner/..",
+      "definition": "github_raw_url",
+      "expected_valid": false,
+      "actual_valid": true,
+      "pass": false,
+      "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "minimum-bundle-directory",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R3 allows canonical relative raw bundle roots below .work; this one-character directory is disjoint from a separate batch output.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "minLength",
+          "instance_path": [],
+          "schema_path": [
+            "minLength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ordinary-bundle-directory",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": true,
+      "pass": true,
+      "basis": "Ordinary valid canonical relative input bundle directory.",
+      "error_leaf_count": 0,
+      "error_leaves_first_8": []
+    },
+    {
+      "id": "bundle-canonical:.work/input.v1",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/_input",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/-input",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/input_",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/input-",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/.input",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/.git",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/输入/源 文件",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-canonical:.work/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "definition": "bundle_directory",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "R2 Architect clarification: input directory components are not output batch identifiers.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 2,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        },
+        {
+          "validator": "minLength",
+          "instance_path": [],
+          "schema_path": [
+            "minLength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 2,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        },
+        {
+          "validator": "minLength",
+          "instance_path": [],
+          "schema_path": [
+            "minLength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work//a'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/a/'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/./a'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/a/../b'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/a\\\\b'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/a\\n'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bundle-noncanonical:'.work/a\\u2028'",
+      "definition": "bundle_directory",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "pattern",
+          "instance_path": [],
+          "schema_path": [
+            "pattern"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pointer-maximum-direct",
+      "definition": "json_pointer",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "32 times (one separator plus 512 escaped characters) equals 16416.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "maxLength",
+          "instance_path": [],
+          "schema_path": [
+            "maxLength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pointer-overmaximum-direct",
+      "definition": "json_pointer",
+      "expected_valid": false,
+      "actual_valid": false,
+      "pass": true,
+      "basis": "16417 exceeds the maximum reachable accepted CONFIG pointer bound.",
+      "error_leaf_count": 1,
+      "error_leaves_first_8": [
+        {
+          "validator": "maxLength",
+          "instance_path": [],
+          "schema_path": [
+            "maxLength"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "maximum-depth-and-key-length-json-pointer",
+      "definition": "config_result",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "Actual complete accepted CONFIG kernel output under all fixed profile maxima; resource schemas must admit it.",
+      "error_leaf_count": 41,
+      "error_leaves_first_8": [
+        {
+          "validator": "maxLength",
+          "instance_path": [
+            "nodes",
+            31,
+            "children",
+            0
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            0,
+            "properties",
+            "children",
+            "items",
+            "maxLength"
+          ]
+        },
+        {
+          "validator": "const",
+          "instance_path": [
+            "nodes",
+            31,
+            "kind"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            1,
+            "properties",
+            "kind",
+            "const"
+          ]
+        },
+        {
+          "validator": "maxLength",
+          "instance_path": [
+            "nodes",
+            31,
+            "children",
+            0
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            1,
+            "properties",
+            "children",
+            "items",
+            "maxLength"
+          ]
+        },
+        {
+          "validator": "const",
+          "instance_path": [
+            "nodes",
+            31,
+            "kind"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            2,
+            "properties",
+            "kind",
+            "const"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            31,
+            "value"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            2,
+            "properties",
+            "value",
+            "type"
+          ]
+        },
+        {
+          "validator": "const",
+          "instance_path": [
+            "nodes",
+            31,
+            "children"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            2,
+            "properties",
+            "children",
+            "const"
+          ]
+        },
+        {
+          "validator": "const",
+          "instance_path": [
+            "nodes",
+            31,
+            "kind"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            3,
+            "properties",
+            "kind",
+            "const"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            31,
+            "value"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            3,
+            "properties",
+            "value",
+            "type"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "maximum-source-bytes-exclusive-column-end",
+      "definition": "config_result",
+      "expected_valid": true,
+      "actual_valid": false,
+      "pass": false,
+      "basis": "Actual complete accepted CONFIG kernel output under all fixed profile maxima; resource schemas must admit it.",
+      "error_leaf_count": 23,
+      "error_leaves_first_8": [
+        {
+          "validator": "const",
+          "instance_path": [
+            "nodes",
+            0,
+            "kind"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            0,
+            "properties",
+            "kind",
+            "const"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            0,
+            "value"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            0,
+            "properties",
+            "value",
+            "type"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            0,
+            "numeric_lexeme"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            0,
+            "properties",
+            "numeric_lexeme",
+            "type"
+          ]
+        },
+        {
+          "validator": "maximum",
+          "instance_path": [
+            "nodes",
+            0,
+            "value_span",
+            "column_end"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            0,
+            "properties",
+            "value_span",
+            "oneOf",
+            0,
+            "properties",
+            "column_end",
+            "maximum"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            0,
+            "value_span"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            0,
+            "properties",
+            "value_span",
+            "oneOf",
+            1,
+            "type"
+          ]
+        },
+        {
+          "validator": "const",
+          "instance_path": [
+            "nodes",
+            0,
+            "kind"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            1,
+            "properties",
+            "kind",
+            "const"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            0,
+            "value"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            1,
+            "properties",
+            "value",
+            "type"
+          ]
+        },
+        {
+          "validator": "type",
+          "instance_path": [
+            "nodes",
+            0,
+            "numeric_lexeme"
+          ],
+          "schema_path": [
+            "properties",
+            "nodes",
+            "items",
+            "oneOf",
+            1,
+            "properties",
+            "numeric_lexeme",
+            "type"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_count": 60,
+  "mismatch_count": 32,
+  "resource_pins_before_and_after_equal": [
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-proof-common.v1.schema.json",
+      "size_bytes": 95659,
+      "sha256": "e3fd899f4922db6293bbf442e02edf48993e4d883d7c838576175dc574d22f93"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-proof-request-input.v1.schema.json",
+      "size_bytes": 350,
+      "sha256": "a0492606c26a681ef9c457d27708b7b797ea3de3bff11f0d6525fc5d48913339"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-proof-observe-input.v1.schema.json",
+      "size_bytes": 350,
+      "sha256": "146459e1da831ec6c7fb26382608686047085fe3de98f4101a1ba19f5e7be137"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-proof-command-result.v1.schema.json",
+      "size_bytes": 353,
+      "sha256": "a9040ea7362d2ca8d9f6a16a3e05f7d80b02a91c5ba086d4c925988c059641d2"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-proof-request.v1.schema.json",
+      "size_bytes": 794,
+      "sha256": "d3f34854069567640564ae000f6b7f71c77f903cf92588704bc579deb7429ad7"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-git-bundle.v1.schema.json",
+      "size_bytes": 778,
+      "sha256": "69f112e15e430a537bf05417281013bc1ce9d674c9dfc0521f3adb4884cf9aac"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json",
+      "size_bytes": 818,
+      "sha256": "acf785648ef3e8c085db3ec0863b0c67230464a15a24aa93f5e5a27418fedbef"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-proof-observation.v1.schema.json",
+      "size_bytes": 818,
+      "sha256": "da1f61febafe8a7601b63114c15c8523ff381db47549b072965066e14a8cb85b"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-config-evidence.v1.schema.json",
+      "size_bytes": 803,
+      "sha256": "86be2b14d9ef748283aa0c5671ac6b94ea038cc04eee553e1f5a93dd1ce2821b"
+    },
+    {
+      "path": "/private/tmp/crg-r1-9u333w92/generated/schemas/video-paper-wiki.code-source-handoff.v1.schema.json",
+      "size_bytes": 799,
+      "sha256": "27f5388be15eb78e3aced47f72832468d3a7b6b54bc352263afb7f5534402876"
+    }
+  ],
+  "oracle_pins": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-config-pointer-boundary-oracle-r1.json",
+      "size_bytes": 582590,
+      "sha256": "f676a37634ecf854b54bd43135a3028cb9a264bc6d532a103638d2c22f67b959"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-config-column-boundary-oracle-r1.json",
+      "size_bytes": 1785,
+      "sha256": "c56de0f267881dfe277a280619923e9f625fd0ce82b5119e619534fa5e51d407"
+    }
+  ],
+  "scope": "Schema-only independent probes; no public runtime, saved-byte identity, filesystem workflow, or resource acceptance claim."
+}

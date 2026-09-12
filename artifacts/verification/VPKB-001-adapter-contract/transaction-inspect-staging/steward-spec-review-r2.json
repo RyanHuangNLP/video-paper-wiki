@@ -1,0 +1,161 @@
+{
+  "schema": "video-paper-wiki.repo-steward-architecture-review.v1",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "deterministic-transaction-inspect-staging-v1",
+  "revision": 2,
+  "role": "Repo Steward",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "medium",
+  "reviewed_baseline": {
+    "head": "57c2519425dbccd6bb48a0f82e77699e17afcfb6",
+    "tree": "c77a7c6ccc8bae3292611c2b24c33255f248710c",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "remote_tracking_head": "57c2519425dbccd6bb48a0f82e77699e17afcfb6",
+    "pull_request": 94,
+    "base_branch": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "required_pr_state": "OPEN/draft",
+    "network_refresh_performed": false
+  },
+  "candidate_core": [
+    {
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "size_bytes": 16847,
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea"
+    },
+    {
+      "path": "schemas/video-paper-wiki.transaction-staging.v1.schema.json",
+      "size_bytes": 2470,
+      "sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78"
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json",
+      "size_bytes": 1186,
+      "sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5"
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json",
+      "size_bytes": 710,
+      "sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json",
+      "size_bytes": 15152,
+      "sha256": "34daa89c2a30ac04fe1082ca8faa38f1a1089da43b03254917f2a4f6cae5414f"
+    }
+  ],
+  "historical_r1": {
+    "steward_review_path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/steward-spec-review-r1.json",
+    "steward_review_size_bytes": 8354,
+    "steward_review_sha256": "3669b3447f2eb211d64b605fa4d8d85e350ed76413759ea3dfa963b6e20c3173",
+    "steward_verdict": "CHANGES_REQUIRED",
+    "builder_review_path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/builder-spec-review-r1.json",
+    "builder_review_size_bytes": 9315,
+    "builder_review_sha256": "9ff4dc799ebe3b0dc7a5baf495869efd3457fb175193d97a51eadcb8926d9260",
+    "builder_verdict": "CHANGES_REQUIRED"
+  },
+  "carried_exact_head_records": [
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/ci-observation.json",
+      "size_bytes": 12561,
+      "sha256": "35e7ef971ebb7d0b504705f650a8842d8800a7793a7ba72874d800c49ce7e5e6"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/merge-parents.json",
+      "size_bytes": 4259,
+      "sha256": "021c76c8f2bcad6e31e443335e766be9dbdf789ca0fb3b674397fd360d1ffc97"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-acceptance.json",
+      "size_bytes": 9995,
+      "sha256": "752a94704d167b3f6619267e87059e6e7dffd44ddc980b9ed5b9a74dfc301c0e"
+    }
+  ],
+  "accepted_frozen_inputs": [
+    {
+      "path": "docs/ai/contracts/transaction-facade-v1.md",
+      "sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67"
+    },
+    {
+      "path": "schemas/video-paper-wiki.transaction-facade.v1.schema.json",
+      "sha256": "8239fbec8be17093ed4594bd1f69adde6fd21ee37e641408d1dfb6beb6cf62f8"
+    },
+    {
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1"
+    }
+  ],
+  "scope_checks": {
+    "architecture_allowed_path_count": 21,
+    "architecture_allowed_paths_unique": true,
+    "owner_union_equals_allowed_paths": true,
+    "owner_assignments_disjoint": true,
+    "production_code_changed": true,
+    "structural_schema_registry_changed": true,
+    "semantic_dispatch_added": false,
+    "production_adapter_behavior_changed": false,
+    "contracts_py_delta": "one title-only addition to _SCHEMA_TITLES",
+    "staging_py_changed_in_architecture_candidate": false,
+    "future_staging_py_boundary": "additive retained-lineage multi-file helper only; public stage_bytes remains unchanged",
+    "future_paths_are_planning_ceiling_only": true,
+    "builder_implementation_authorized": false
+  },
+  "r1_blocker_closure": [
+    {
+      "id": "SCOPE-MACHINE-CLAIM-001",
+      "status": "closed",
+      "evidence": "The revised work package names the exact contracts.py registry exception and records production_code_changed=true, structural_schema_registry_changed=true, semantic_dispatch_added=false, and production_adapter_behavior_changed=false. The actual diff is exactly one _SCHEMA_TITLES entry."
+    },
+    {
+      "id": "CROSS-CALL-TRANSPORT-IDENTITY-001",
+      "status": "closed",
+      "evidence": "The revised contract forbids independent public stage_bytes calls and freezes one retained checkout/.work/batch/transaction-inspect/content descriptor lineage. It requires named no-follow dev/inode rechecks before and after every installation, a pre-bundle exact-content check, and a final same-lineage complete content-plus-bundle check. Any deletion, rename, replacement, symlink substitution or remapping during the invocation maps to WORK_PATH_UNSAFE."
+    },
+    {
+      "id": "README-RENDER-001",
+      "status": "closed",
+      "evidence": "The affected acceptance and carry prose is no longer indented as a Markdown code block."
+    }
+  ],
+  "validation_checks": {
+    "git_index_empty": true,
+    "git_diff_check": "passed",
+    "task_index_yaml_parse": "passed",
+    "schema_draft_2020_12_meta_validation": "passed",
+    "valid_fixture_schema_errors": 0,
+    "invalid_fixture_schema_errors": 0,
+    "invalid_fixture_note": "Schema-valid by design; future semantic validation rejects content_file/sha256 disagreement.",
+    "focused_schema_tests": "44 passed in 0.14s",
+    "catalog_paper_count": 67,
+    "protected_untracked_preserved": [
+      ".DS_Store",
+      "docs/feishu-multi-bot-phase1-plan.md",
+      "docs/hermes-subscription-collaboration-prd.md",
+      "docs/pi-feishu-cli-assessment.md",
+      "docs/video-paper-wiki-development-plan-v0.3.2.md",
+      "docs/video-paper-wiki-development-plan.md",
+      "inbox/",
+      "tools/"
+    ],
+    "fresh_four_job_ci_required_for_architecture_head": true,
+    "post_ci_architect_acceptance_required": true,
+    "merge_authorized": false,
+    "human_gate_changed": false
+  },
+  "implementability_assessment": {
+    "bundle_encoding_and_byte_map_correlation": "supported by accepted facade helpers and the accepted adapter byte domain",
+    "single_file_atomic_installation_primitives": "supported by existing staging internals",
+    "multi_file_same_lineage_session": "feasible as the narrowly authorized additive internal staging helper",
+    "content_first_bundle_last_and_safe_orphan_policy": "specified without rollback or overwrite",
+    "architecture_implementation_separation": "closed by the 21-path architecture scope and separate future implementation work-package gate"
+  },
+  "blockers": [],
+  "warnings": [],
+  "limitations": [
+    "This is architecture and repository-scope acceptance, not production implementation acceptance.",
+    "The future internal helper, adversarial replacement tests, dual-Python full suites, installed-wheel check and fresh merge-ref CI remain mandatory later gates.",
+    "No network refresh was performed because this review explicitly prohibited network access; the local remote-tracking head equals the reviewed baseline and the work package keeps PR state changes prohibited.",
+    "No filesystem staging mutation, real Vault, upstream process, Git mutation or PR mutation was performed."
+  ],
+  "verdict": "GO"
+}

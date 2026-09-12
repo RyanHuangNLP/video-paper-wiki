@@ -1,0 +1,84 @@
+{
+  "schema": "full-todo.code-resource-packer-architect-review.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T08:41:55.159322+00:00",
+  "decision": "ACCEPTED_PACKER_FOR_GUARDED_PREPARATION",
+  "inputs": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/pack_resource_fixtures.py",
+      "size_bytes": 12982,
+      "sha256": "a40772cd0498e3be91118d812c05ab986bc96e0e63422959141803ec538657d7"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/README.md",
+      "size_bytes": 2768,
+      "sha256": "a33d5cecc0d2bc7b7f94894335fe44066ed5962202972a5767fe30198c3d357d"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/packing-run-r1.json",
+      "size_bytes": 4195,
+      "sha256": "fccb7493101fcdf4bb58fc0a086e41a01828af50a2362841910531b493fe9c7a"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r3/manifest.json",
+      "size_bytes": 31712,
+      "sha256": "f53f4f6ef768732dc423da0ebf478716fab500cc716856a07fee21f7abb12136"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-typed-r2/manifest.json",
+      "size_bytes": 55711,
+      "sha256": "ba6f2f628f16b78c467bea7907cfcd2039616e0a852ace7abb79d6d40a56e00a"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/packed-zero-r1.json",
+      "size_bytes": 726503,
+      "sha256": "a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2"
+    }
+  ],
+  "independent_replay": {
+    "command": [
+      "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+      "-I",
+      "-B",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/pack_resource_fixtures.py",
+      "--base-dir",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r3",
+      "--typed-dir",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-typed-r2",
+      "--profile-sha256",
+      "0000000000000000000000000000000000000000000000000000000000000000",
+      "--base-manifest-sha256",
+      "f53f4f6ef768732dc423da0ebf478716fab500cc716856a07fee21f7abb12136",
+      "--typed-manifest-sha256",
+      "ba6f2f628f16b78c467bea7907cfcd2039616e0a852ace7abb79d6d40a56e00a",
+      "--output-file",
+      "/private/tmp/pack-review-r1-dqjy8mpp/bundle.json"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"base_json_cases\": 82,\n  \"case_count\": 264,\n  \"path\": \"/private/tmp/pack-review-r1-dqjy8mpp/bundle.json\",\n  \"profile_sha256\": \"0000000000000000000000000000000000000000000000000000000000000000\",\n  \"sha256\": \"a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2\",\n  \"size_bytes\": 726503,\n  \"typed_json_cases\": 182\n}\n",
+    "stderr": "",
+    "output": {
+      "path": "/private/tmp/pack-review-r1-dqjy8mpp/bundle.json",
+      "size_bytes": 726503,
+      "sha256": "a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2"
+    },
+    "same_bytes": true,
+    "cases": 264,
+    "all_instance_json_values_preserved": true,
+    "title_counts": {
+      "video-paper-wiki.code-acquisition-intent.v1": 25,
+      "video-paper-wiki.code-config-evidence.v1": 17,
+      "video-paper-wiki.code-git-bundle.v1": 19,
+      "video-paper-wiki.code-proof-command-result.v1": 103,
+      "video-paper-wiki.code-proof-observation.v1": 21,
+      "video-paper-wiki.code-proof-observe-input.v1": 21,
+      "video-paper-wiki.code-proof-request-input.v1": 16,
+      "video-paper-wiki.code-proof-request.v1": 26,
+      "video-paper-wiki.code-source-handoff.v1": 16
+    }
+  },
+  "scope": "Preparation artifact only; no schema generation or public workflow acceptance. No product or Git writes.",
+  "execution_guard": "Use only the two freshly generated reviewed fixture directories and an absent filename under a fresh coordinator-created temporary parent. Check manifest/script hashes before and after. The packer uses resolve plus exists/write_bytes; it is not an independently secure no-follow or race-resistant writer. This acceptance does not authorize arbitrary preexisting/symlink output paths.",
+  "documentation_correction": "README phrase raw-body entries are not read is inaccurate: raw bodies are read to check pins; they are never parsed as JSON or included as cases. Existing example relative directories require an appropriate invocation cwd; production invocation uses explicit absolute paths.",
+  "builder_source_writes_stopped": true
+}

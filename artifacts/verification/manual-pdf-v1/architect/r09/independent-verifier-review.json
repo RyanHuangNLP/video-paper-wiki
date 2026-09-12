@@ -1,0 +1,49 @@
+{
+  "verdict": "GO",
+  "scope": "Independent read-only R08-1 verifier/T1-T2 review",
+  "verifier": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+    "sha256": "1ca5f342517294c1d5ed3ed3974585bc6ede410a15b08d78f84f6ae285120197",
+    "expected_sha256": "1ca5f342517294c1d5ed3ed3974585bc6ede410a15b08d78f84f6ae285120197"
+  },
+  "regression": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-2/tests/test_mixed_links.py",
+    "sha256": "a04ded686c5507c49fb25da92b6727f3679f18d7e4e2c0966021a62d27e82531",
+    "expected_sha256": "a04ded686c5507c49fb25da92b6727f3679f18d7e4e2c0966021a62d27e82531"
+  },
+  "replays": [
+    {
+      "name": "T1 implementation/support matrix",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q artifacts/.../terminal-1/test_verify_links.py",
+      "result": "19 passed",
+      "exit_code": 0,
+      "temp_root": "/private/tmp/vp-r08-review-t1b.O7gtPU"
+    },
+    {
+      "name": "T2 parameterized mixed-link regression",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q artifacts/.../terminal-2/tests/test_mixed_links.py --verifier artifacts/.../terminal-1/verify_links.py",
+      "result": "7 passed",
+      "exit_code": 0,
+      "temp_root": "/private/tmp/vp-r08-review-t2b.SWTx5q"
+    }
+  ],
+  "frozen_evidence": {
+    "T1_ready_and_handoff_identical": true,
+    "T2_ready_and_handoff_identical": true,
+    "T2_tested_verifier_sha_matches": true,
+    "old_red_observation": "3 mixed cases failed; 4 controls passed",
+    "candidate_green_observation": "7 passed"
+  },
+  "checked_contracts": [
+    "query-bearing local source rejected and reported",
+    "Markdown title source rejected/checked rather than skipped",
+    "unquoted HTML source rejected/checked rather than skipped",
+    "valid source succeeds",
+    "missing source fails",
+    "ordinary non-source missing link ignored",
+    "original 15 support/rejection cases pass"
+  ],
+  "limitations": [
+    "No full product suite, Git, network, Grok, or product modifications performed"
+  ]
+}

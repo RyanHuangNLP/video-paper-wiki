@@ -1,0 +1,42 @@
+# Captured stdout from terminal-2 focused pytest (not a temp-dir link).
+# Original scratch logs under grok-goal-4a68dfc89778 were deleted with that goal session.
+# Interpreter: /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python
+# Python 3.13.13, pytest 9.1.1, PYTEST_DISABLE_PLUGIN_AUTOLOAD=1
+# Cwd: /Users/huangzhanpeng/python_code/video-paper-wiki
+# HEAD: bcff631ce12fe777ab6db7a4dd6531db3bbaea3f (working tree uncommitted)
+
+## Command (run 1)
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest \
+  tests/research/test_source_admission.py \
+  tests/research/test_publication_bridge.py \
+  tests/unit/test_publication_wave.py::test_publication_decodes_finite_float_docling_document_only \
+  tests/upstream/test_publication_wave.py \
+  --basetemp=/private/tmp/vpwiki-research-bridge-run1 -v
+
+collected 12 items
+tests/research/test_source_admission.py::test_admit_source_stages_inspectable_request_without_planted_receipts PASSED
+tests/research/test_source_admission.py::test_admit_source_missing_source_is_distinct PASSED
+tests/research/test_source_admission.py::test_admit_source_invalid_authority_is_distinct PASSED
+tests/research/test_source_admission.py::test_admit_source_duplicate_submission_is_distinct PASSED
+tests/research/test_publication_bridge.py::test_bridge_packages_float_document_and_prepares_inspectable_paper PASSED
+tests/research/test_publication_bridge.py::test_package_missing_source_is_distinct PASSED
+tests/research/test_publication_bridge.py::test_package_non_receipt_backed_pdf_is_invalid_authority PASSED
+tests/research/test_publication_bridge.py::test_package_conflicting_derived_bytes_is_duplicate PASSED
+tests/research/test_publication_bridge.py::test_paper_duplicate_and_float_envelope_split PASSED
+tests/unit/test_publication_wave.py::test_publication_decodes_finite_float_docling_document_only PASSED
+tests/upstream/test_publication_wave.py::test_pristine_genesis_successor_and_receipt_audit PASSED
+tests/upstream/test_publication_wave.py::test_inspect_accepts_finite_float_derived_document_json PASSED
+12 passed in 12.53s
+
+## Command (run 2)
+same tests, --basetemp=/private/tmp/vpwiki-research-bridge-run2 -v
+12 passed in 12.54s
+
+## publication-wave regression
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest \
+  tests/unit/test_publication_wave.py \
+  tests/upstream/test_publication_wave.py \
+  --basetemp=/private/tmp/vpwiki-research-bridge-wave -v
+12 passed in 1.69s
+
+No full-suite replay. No vpwiki-admin.

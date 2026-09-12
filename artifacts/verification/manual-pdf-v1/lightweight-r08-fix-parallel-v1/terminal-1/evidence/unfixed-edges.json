@@ -1,0 +1,78 @@
+{
+  "verifier": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-r08-fix-parallel-v1/terminal-1/verify_links.py",
+  "verifier_sha256": "51d67390e22dc3c21f2f4f85b12a9ab78d8c583eb3242f4c8e7c81248661f743",
+  "cases": [
+    {
+      "name": "missing_file_query",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n[bad](../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md?x=1#page-1)\n",
+      "independent_disk": {
+        "query_target_exists": false,
+        "source_exists": true
+      },
+      "expected_ok": false,
+      "exit_code": 0,
+      "report": {
+        "ok": true,
+        "source_link_count": 1,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.t1.unfixed/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          }
+        ],
+        "errors": []
+      },
+      "unfixed_false_success": true
+    },
+    {
+      "name": "missing_file_markdown_title",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n[bad](../missing/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1 \"missing\")\n",
+      "independent_disk": {
+        "title_target_exists": false,
+        "source_exists": true
+      },
+      "expected_ok": false,
+      "exit_code": 0,
+      "report": {
+        "ok": true,
+        "source_link_count": 1,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.t1.unfixed/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          }
+        ],
+        "errors": []
+      },
+      "unfixed_false_success": true
+    },
+    {
+      "name": "missing_anchor_unquoted_html",
+      "markdown": "[ok](../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1)\n<a href=../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-2>bad</a>\n",
+      "independent_disk": {
+        "page2_anchor_present": false,
+        "source_exists": true
+      },
+      "expected_ok": false,
+      "exit_code": 0,
+      "report": {
+        "ok": true,
+        "source_link_count": 1,
+        "checked": [
+          {
+            "href": "../ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md#page-1",
+            "resolved_path": "/private/tmp/vp.r08.t1.unfixed/ws/papers/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/source.md",
+            "anchor": "page-1",
+            "exists": true
+          }
+        ],
+        "errors": []
+      },
+      "unfixed_false_success": true
+    }
+  ]
+}

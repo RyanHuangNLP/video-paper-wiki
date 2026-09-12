@@ -1,0 +1,53 @@
+{
+  "schema": "full-todo.code-config-fixture-review.v1",
+  "decision": "REJECTED_TWO_R3_ORACLE_CORRECTIONS_NOT_APPLIED",
+  "fixture": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r3.json",
+    "size_bytes": 131347,
+    "sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e"
+  },
+  "report": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-correction-r3.json",
+    "sha256": "0e84891f36e47fe59443e036a01e3ba9ae807ac6c7420da4c083a66f71086616"
+  },
+  "findings": [
+    {
+      "id": "CFIX-R3-001",
+      "vector": "json-tuple-exponent-over",
+      "actual": {
+        "limit_name": "max_numeric_abs_exponent",
+        "limit": 128,
+        "observed": 129
+      },
+      "required": {
+        "limit_name": "max_numeric_lexeme_bytes",
+        "limit": 128,
+        "observed": 131
+      }
+    },
+    {
+      "id": "CFIX-R3-002",
+      "vector": "toml-duplicate-header",
+      "actual_byte_span": [
+        0,
+        3
+      ],
+      "required_byte_and_codepoint_span": [
+        10,
+        13
+      ],
+      "required_line_columns": [
+        3,
+        1,
+        3,
+        4
+      ]
+    }
+  ],
+  "preservation_verified": {
+    "all_31_original_sources_and_metadata_and_purposes_by_id": true,
+    "both_supplementary_groups": true
+  },
+  "candidate_source_mutated": false,
+  "production_acceptance": false
+}

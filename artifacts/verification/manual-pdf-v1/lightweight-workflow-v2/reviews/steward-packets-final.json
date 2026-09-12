@@ -1,0 +1,331 @@
+{
+  "baseline": {
+    "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+    "vendor_pin": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+  },
+  "blocking_findings": [
+    {
+      "finding": "freeze.json required by COMMON and CONTRACT is absent from both the packet directory and evidence root; contract says a proposed contract without that record is not dispatchable.",
+      "id": "PACKET-FREEZE-001",
+      "required_fix": "Create the exact freeze.json at a documented path and bind baseline head/tree/vendor, contract SHA, all six packet SHAs or one canonical packet SHA, allowlists, and dispatch permissions; include its SHA in every handoff.",
+      "severity": "blocking"
+    },
+    {
+      "finding": "COMMON/TERMINAL files instruct agents to read freeze.json but do not define its repository-relative or absolute path.",
+      "id": "PACKET-FREEZE-PATH-002",
+      "required_fix": "Document one exact path in COMMON and freeze record; ensure launch instructions and handoff inputs use that same path.",
+      "severity": "blocking"
+    }
+  ],
+  "decision_summary": "Packet ownership, allowlists, dependency order, handoff schema, and practical test lanes are sufficient in substance. Dispatch remains blocked because the packet requires a separate freeze.json binding exact contract/packet bytes, but no freeze.json is present and its path is not defined.",
+  "dependency_review": {
+    "graph": [
+      "T1 and T2 may start independently from frozen baseline.",
+      "T3 may implement independently, then consumes only final immutable T1/T2 files before integrated workflow tests.",
+      "T4 may implement CLI/docs independently, then consumes final immutable T1/T2/T3 files before end-to-end and final lanes.",
+      "T4 final acceptance candidate requires actual integrated backends, CLI tests, one new offline wheel smoke and one full local suite."
+    ],
+    "handoff_requirements": [
+      "schema lightweight-workflow-v2-handoff.v1",
+      "phase backend or final",
+      "status ready/needs_fix/needs_input",
+      "snapshot_stopped_writing=true",
+      "baseline_head + baseline_sha256 + contract_sha256 + freeze_sha256",
+      "files with relative_path/sha256/size_bytes",
+      "inputs and artifacts with hashes",
+      "commands and known_gaps/blocking_findings",
+      "ready byte-identical to handoff"
+    ],
+    "risks_and_mitigations": [
+      "A backend milestone is not final acceptance; T3/T4 must check final handoff hashes before use.",
+      "T4 cannot repair producer files; findings require producer revision.",
+      "Timeouts remain needs_input; no fabricated ready.",
+      "CLI protocol stubs must be clearly separated from real integrated CLI tests.",
+      "Current-model trial outputs and test workspaces stay outside integrated source file lists."
+    ],
+    "sufficient": true
+  },
+  "independent_source_protection": {
+    "all_four_clean": true,
+    "all_four_match": true,
+    "integration": {
+      "branch": "integrate/manual-pdf-pipeline",
+      "clean": true,
+      "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+      "path": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+      "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+      "unchanged": true
+    },
+    "worktrees": [
+      {
+        "branch": "codex/lightweight-workflow-v2-t1",
+        "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+        "matches_baseline": true,
+        "source_clean": true,
+        "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+        "terminal": 1,
+        "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+        "vendor_clean": true,
+        "vendor_detached": true,
+        "vendor_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+      },
+      {
+        "branch": "codex/lightweight-workflow-v2-t2",
+        "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+        "matches_baseline": true,
+        "source_clean": true,
+        "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source",
+        "terminal": 2,
+        "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+        "vendor_clean": true,
+        "vendor_detached": true,
+        "vendor_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+      },
+      {
+        "branch": "codex/lightweight-workflow-v2-t3",
+        "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+        "matches_baseline": true,
+        "source_clean": true,
+        "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-3/source",
+        "terminal": 3,
+        "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+        "vendor_clean": true,
+        "vendor_detached": true,
+        "vendor_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+      },
+      {
+        "branch": "codex/lightweight-workflow-v2-t4",
+        "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+        "matches_baseline": true,
+        "source_clean": true,
+        "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+        "terminal": 4,
+        "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+        "vendor_clean": true,
+        "vendor_detached": true,
+        "vendor_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+      }
+    ]
+  },
+  "nonblocking_clarifications": [
+    "The handoff `files.relative_path` should be explicitly stated as relative to source_root (and artifacts paths as absolute evidence paths) in freeze/launch instructions.",
+    "The final wheel lane should name the scratch wheel/dist and isolated Python evidence location; no old-revision wheel may satisfy the new candidate.",
+    "T4 should record the exact imported-file allowlist comparison result, not only copied hashes."
+  ],
+  "observed_at_utc": "2026-09-06T17:30:01.836651Z",
+  "ownership_allowlist_review": {
+    "T1": {
+      "assessment": "disjoint and contract-aligned; no T2/T3/T4 overlap",
+      "source_paths": [
+        "src/video_paper_wiki_research/light_pdf.py",
+        "src/video_paper_wiki_research/light_workspace.py",
+        "tests/research/test_light_pdf.py",
+        "tests/research/test_light_pdf_recovery.py",
+        "tests/research/test_light_workspace.py"
+      ]
+    },
+    "T2": {
+      "assessment": "disjoint and contract-aligned; preserves T1 private index helpers and pure qa/writing",
+      "source_paths": [
+        "src/video_paper_wiki_research/light_index.py",
+        "src/video_paper_wiki_research/light_context.py",
+        "tests/research/test_light_index.py",
+        "tests/research/test_light_context.py",
+        "tests/research/test_light_selection.py"
+      ]
+    },
+    "T3": {
+      "assessment": "disjoint from T1/T2 implementation; existing ingest/query Skill edits are explicitly owned by T3 and must not be touched by T4",
+      "source_paths": [
+        "src/video_paper_wiki_research/light_workflow.py",
+        "tests/research/test_light_workflow.py",
+        "tests/research/test_light_workflow_recovery.py",
+        "tests/research/test_light_skill_routing.py",
+        ".agents/skills/video-paper-read/SKILL.md",
+        ".agents/skills/video-paper-read/agents/openai.yaml",
+        ".agents/skills/video-paper-read/references/workflow.md",
+        ".agents/skills/video-paper-ingest/SKILL.md",
+        ".agents/skills/video-paper-query/SKILL.md"
+      ]
+    },
+    "T4": {
+      "assessment": "disjoint own paths; imported T1/T2/T3 files are byte-frozen and must remain outside own files list",
+      "source_paths": [
+        "src/video_paper_wiki_research/cli.py",
+        "tests/research/test_light_cli.py",
+        "tests/research/test_light_workflow_cli.py",
+        "tests/research/test_light_workflow_installed.py",
+        "README.md",
+        "docs/lightweight-pdf-quickstart.md"
+      ]
+    },
+    "allowlist_controls": [
+      "Use exact source-relative paths; reject extras before copy.",
+      "Copy only from stopped-writing immutable handoffs/<revision>/files, never from active source trees.",
+      "Record producer handoff/ready SHA, per-file SHA/size, baseline/contract/freeze SHAs and imported_files separately.",
+      "T4 must rehash imported files before and after final tests; any producer revision change requires a new import revision.",
+      "No shared conftest, dependency/lock, CI, canonical Vault, integration worktree, or old evidence writes."
+    ]
+  },
+  "packet_bytes": {
+    "combined_ordered_sha256": "f70dde788b15fab787521ed3bfda49986d7756a43ac6b3dd77e7934e49fca4e2",
+    "directory": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2",
+    "files": {
+      "COMMON.md": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/COMMON.md",
+        "sha256": "e9b51f7d4f71e5d25f5f9c06e477c8127797d2bdec3b122d51102669144ae724",
+        "size_bytes": 8225
+      },
+      "CONTRACT.md": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/CONTRACT.md",
+        "sha256": "5deb741f6fba972e71f317e8b598f6429ef8e1c50144cd2523c9f9a446d66378",
+        "size_bytes": 21409
+      },
+      "TERMINAL-1.md": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/TERMINAL-1.md",
+        "sha256": "ca8060fd8e7535274ddbf3ec18a98657f507f593ce049296e81d5a54abed2da2",
+        "size_bytes": 3626
+      },
+      "TERMINAL-2.md": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/TERMINAL-2.md",
+        "sha256": "5ba1f19d4d3cb4c923e2ce5eff9b86c724278e4cbba75ac748e7afa290de1637",
+        "size_bytes": 3842
+      },
+      "TERMINAL-3.md": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/TERMINAL-3.md",
+        "sha256": "11e2b9f74958b33cbfe9281135feeedbf61a24f7529c658fe8e71e06cb639330",
+        "size_bytes": 4253
+      },
+      "TERMINAL-4.md": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/TERMINAL-4.md",
+        "sha256": "10110bbd67faf8350651cb21dad59c0bf2e62f4adfc530880ed5a903d3e5c9a8",
+        "size_bytes": 4470
+      }
+    },
+    "freeze_candidates": []
+  },
+  "permission_limits_confirmed": [
+    "No Git mutation/fetch/push/PR/merge/remote CI.",
+    "No vpwiki-admin, apply, real Vault, OCR/Docling, external model/API/network.",
+    "No dependency/model/environment download or lockfile changes.",
+    "No PDF copy or historical-report copy into source/evidence delivery.",
+    "67 catalog/overlays and historical artifacts remain frozen."
+  ],
+  "practical_test_lanes": {
+    "T1": "tests/research/test_light_pdf.py tests/research/test_light_pdf_recovery.py tests/research/test_light_workspace.py tests/research/test_light_index.py tests/research/test_light_pipeline.py tests/research/test_light_cli.py",
+    "T2": "tests/research/test_light_index.py tests/research/test_light_context.py tests/research/test_light_selection.py tests/research/test_light_qa.py tests/research/test_light_writing.py tests/research/test_light_pipeline.py",
+    "T3": "tests/research/test_light_workflow.py tests/research/test_light_workflow_recovery.py tests/research/test_light_skill_routing.py tests/research/test_light_qa.py tests/research/test_light_writing.py tests/research/test_light_pipeline.py",
+    "T4": "tests/research/test_light_cli.py tests/research/test_light_workflow_cli.py tests/research/test_light_workflow_installed.py",
+    "common": {
+      "cwd": "<terminal-N>/source",
+      "env": [
+        "PYTHONPATH=$PWD/src",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1",
+        "UV_OFFLINE=1",
+        "UV_PYTHON_DOWNLOADS=never",
+        "GIT_OPTIONAL_LOCKS=0"
+      ],
+      "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -B -m pytest -q --basetemp \"$LW_TEST_TMP/base\" -o \"cache_dir=$LW_TEST_TMP/cache\"",
+      "tmp": "LW_TEST_TMP=$(mktemp -d /private/tmp/lw2.XXXXXX)"
+    },
+    "final_T4_full_suite": "After final immutable imports and source hash freeze: same Python with PYTHONPATH=\"$T4/src\" and README short-temp options, run the repository-wide pytest suite once; record actual count/failures and before/after source hash.",
+    "final_T4_offline_wheel": "Only after building the candidate wheel from frozen T4 bytes in scratch and one isolated environment is available: from a cwd outside source, env -u PYTHONPATH \"$WHEEL_PYTHON\" -I -B -c to import both entrypoints, print module __file__ and SHA-256, run --help and workflow smoke, and verify source tree is absent from sys.path. Do not install or rebuild during this steward review; reject reuse of old wheel evidence."
+  },
+  "review_commands": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+        "status",
+        "--porcelain=v1"
+      ],
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+      "exit": 0,
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0"
+    },
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b"
+    },
+    {
+      "argv": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+      "exit": 0,
+      "stderr": "",
+      "stdout": "worktree /Users/huangzhanpeng/python_code/video-paper-wiki\nHEAD bcff631ce12fe777ab6db7a4dd6531db3bbaea3f\nbranch refs/heads/repair/vpkb000-plan-approval-prepare-follow2\n\nworktree /Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration\nHEAD 0fcae592acb977c6b422e7de3b2c3e0cf79df5a0\nbranch refs/heads/integrate/manual-pdf-pipeline\n\nworktree /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source\nHEAD 0fcae592acb977c6b422e7de3b2c3e0cf79df5a0\nbranch refs/heads/codex/lightweight-workflow-v2-t1\n\nworktree /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source\nHEAD 0fcae592acb977c6b422e7de3b2c3e0cf79df5a0\nbranch refs/heads/codex/lightweight-workflow-v2-t2\n\nworktree /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-3/source\nHEAD 0fcae592acb977c6b422e7de3b2c3e0cf79df5a0\nbranch refs/heads/codex/lightweight-workflow-v2-t3\n\nworktree /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source\nHEAD 0fcae592acb977c6b422e7de3b2c3e0cf79df5a0\nbranch refs/heads/codex/lightweight-workflow-v2-t4"
+    }
+  ],
+  "reviewer_role": "Repo Steward (independent read-only packet review)",
+  "schema": "manual-pdf-v1/lightweight-workflow-v2/steward-packets-final-v1",
+  "scope": {
+    "fetch_push_pr_merge_remote_ci": false,
+    "git_mutations_executed": false,
+    "install_dependency_or_model_action": false,
+    "packet_modified": false,
+    "read_only": true,
+    "real_vault_or_admin_action": false,
+    "source_modified": false
+  },
+  "setup_evidence": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/setup.json",
+    "prior_review": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/reviews/steward-setup-source-protection.json",
+      "sha256": "d5af48205fdcf51f484ba9e30bed65d1fd5e472d37ef94f532f1d4827ba89014"
+    },
+    "sha256": "91b400299d27ad33bd8fa89cbad9c221bb10df41fb27b56b9dd4d5874c1eab66"
+  },
+  "source_document_hashes": {
+    "AGENTS.md": {
+      "sha256": "fca2afda412002e473b7ba29933065afd9c57979db7a550f84c046c195e9992e",
+      "size_bytes": 14847
+    },
+    "README.md": {
+      "sha256": "b05698260171e24f5a72b6c9e662bf2b16d2f04b81678bbc0421fc714fa68e53",
+      "size_bytes": 7926
+    },
+    "docs/ai/codex-team.md": {
+      "sha256": "cd1bb49edca7ab9c20f7a1d76dcb75ced56122876590c019761a04a75a56f6a5",
+      "size_bytes": 19218
+    },
+    "docs/ai/packets/MANUAL-PDF-8H-DEVELOPMENT.md": {
+      "sha256": "7cbfd2370c59f37f9c36ea12be0e61e317fc49cf83470c2d5f9fbe8d30a69954",
+      "size_bytes": 6425
+    },
+    "docs/ai/task-index.yaml": {
+      "sha256": "7edadabce8dcde4a0920d84aafb1e01771376a1afd6aa3ff72f593b39895bc1b",
+      "size_bytes": 78194
+    }
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

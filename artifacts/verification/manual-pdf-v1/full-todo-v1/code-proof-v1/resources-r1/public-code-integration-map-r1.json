@@ -1,0 +1,709 @@
+{
+  "schema": "full-todo.code-proof-public-code-integration-map.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T12:32:23Z",
+  "scope": {
+    "purpose": "Read-only integration map from the accepted CODE-PROOF kernel source snapshot to the future public code-evidence workflow.",
+    "phase": "PRE_IMPLEMENTATION_PUBLIC_INTEGRATION",
+    "source_snapshot_is_authoritative": true,
+    "only_output_written": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/public-code-integration-map-r1.json",
+    "excluded": [
+      "product/source implementation",
+      "new schemas or profile bytes",
+      "tests or fixture mutation",
+      "Git mutations, provider actions, network and subprocess execution",
+      "real repository acquisition, Vault writes and human-gate closure"
+    ]
+  },
+  "source_snapshot": {
+    "root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+    "head": "4ab1830939cd41981983909763434d5612df6070",
+    "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+    "parent": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "status": "clean",
+    "head_description": "Add CONFIG parser kernel candidate",
+    "observed_schema_count": 71,
+    "code_proof_resources_present_at_snapshot": false,
+    "code_proof_profile_present_at_snapshot": false
+  },
+  "design_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md",
+      "size_bytes": 19802,
+      "sha256": "eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57",
+      "line_refs": "31-57,61-80,209-242"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92",
+      "line_refs": "9-65,67-90"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "size_bytes": 20246,
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2",
+      "line_refs": "321-361"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f",
+      "line_refs": "9-90,192-243"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62",
+      "line_refs": "1-12,122-189"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-INPUT-CAPS-R10.md",
+      "size_bytes": 3502,
+      "sha256": "4c01d0803c638922b47b05a3efbc05c4e8c1dbe10375c4c883a0a77b582135e5",
+      "line_refs": "11-58"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md",
+      "size_bytes": 3633,
+      "sha256": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04",
+      "line_refs": "11-63"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "size_bytes": 10225,
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95",
+      "line_refs": "1-150"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-INTERFACE-FACTS-R1.md",
+      "size_bytes": 4428,
+      "sha256": "c2234fb2f30f70795485e0ea457c95b77a16a922292188d4b573a6a86cbd4288",
+      "line_refs": "1-120"
+    }
+  ],
+  "accepted_prerequisite_records": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-code-canonical-prerequisites-r1.json",
+      "size_bytes": 4202,
+      "sha256": "fda6654e6e05dfb4f1b64026b7289563eeee759ffc3277faed4a06cb14b8be18"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-prerequisite-audit-r1.json",
+      "size_bytes": 16515,
+      "sha256": "8bd45f414459d9036b822044b9a868b124be2267b17ed48d545f321424c50ece"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-resource-test-integration-prerequisite-r1.json",
+      "size_bytes": 1122,
+      "sha256": "cfb08a5569ddf66868914db34bf5bca7ad91484c773eb09765b74c5a30bc0f13"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-resource-contract-acceptance-r12.json",
+      "size_bytes": 2023,
+      "sha256": "09fe7942b3218f36646f665182aad4107d99f3eff7be0b1fdd56bcf96659563f"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-contract-review-r12.json",
+      "size_bytes": 5099,
+      "sha256": "192dd207f1c360c8359d380bdd12183364d846b2ecb895b4fac50deb230c5dc1"
+    }
+  ],
+  "existing_code_surfaces": [
+    {
+      "path": "src/video_paper_wiki/code_git_objects.py",
+      "size_bytes": 30702,
+      "sha256": "86c2c0b2e58239bb44b8b8a2bf302a8fd99478a9faaf3ea8d63586f29a8d861b",
+      "use": "Reuse the accepted pure Git framing, identity and full object proof after public request/bundle binding.",
+      "symbols": [
+        {
+          "name": "CODE_GIT_PROFILE_LIMITS",
+          "lines": "37-48"
+        },
+        {
+          "name": "CodeGitProofError",
+          "lines": "71-92"
+        },
+        {
+          "name": "frame_git_object",
+          "lines": "180-184"
+        },
+        {
+          "name": "git_object_ids",
+          "lines": "187-203"
+        },
+        {
+          "name": "verify_code_git_objects",
+          "lines": "812-910"
+        }
+      ],
+      "integration_rule": "Pass exact retained bytes and materialized five-key git limits; preserve kernel error codes/details and do not reinterpret a valid incomplete target result as an interrupted acquisition."
+    },
+    {
+      "path": "src/video_paper_wiki/code_config_parser.py",
+      "size_bytes": 61364,
+      "sha256": "d1b8764b165ff7bfd35e743653fb2d8c40bf9b35dc24ba7b480dbc3e89f1ea9c",
+      "use": "Reuse the accepted pure JSON/TOML typed configuration parser for one selected proved source blob.",
+      "symbols": [
+        {
+          "name": "CODE_CONFIG_PROFILE_LIMITS",
+          "lines": "34-51"
+        },
+        {
+          "name": "CodeConfigError",
+          "lines": "109-121"
+        },
+        {
+          "name": "parse_code_config_bytes",
+          "lines": "1735-1789"
+        }
+      ],
+      "integration_rule": "Feed only retained strict source bytes, exact json/toml mode and request.config limits; keep source-only explicit and install no config artifact on parser refusal."
+    },
+    {
+      "path": "src/video_paper_wiki/code_evidence_contracts.py",
+      "size_bytes": 10125,
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "use": "Reuse pure UTF-8/control/BOM/newline normalization and text metadata where the public contract permits it.",
+      "symbols": [
+        {
+          "name": "code_manifest_hash",
+          "lines": "38-40"
+        },
+        {
+          "name": "normalize_code_bytes",
+          "lines": "43-56"
+        },
+        {
+          "name": "code_text_metadata",
+          "lines": "65-75"
+        },
+        {
+          "name": "code_snippet_sha256",
+          "lines": "78-94"
+        },
+        {
+          "name": "validate_code_evidence_manifest",
+          "lines": "140-151"
+        }
+      ],
+      "integration_rule": "Do not use the legacy manifest/origin contract to narrow CODE successor IDs or to create public handoffs; public text metadata must bind the new request/observation records and profile limits."
+    },
+    {
+      "path": "src/video_paper_wiki/identity.py",
+      "size_bytes": 22115,
+      "sha256": "660fe48b29f983eb14f61a33747107f948f4568783f11885465c091ea4cea6f6",
+      "use": "Reuse canonical paper-ID acceptance only after exact-string/type checks.",
+      "symbols": [
+        {
+          "name": "is_canonical_paper_id",
+          "lines": "134-146"
+        },
+        {
+          "name": "is_repo_id",
+          "lines": "148-149"
+        }
+      ],
+      "integration_rule": "Do not use is_repo_id as the R9 repository validator; public CODE uses the frozen bounded owner/name grammar and lowercases only the ordinary request repository spelling."
+    },
+    {
+      "path": "src/video_paper_wiki/jcs.py",
+      "size_bytes": 2255,
+      "sha256": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6",
+      "use": "Use canonicalize for ce1 identity material and exact saved envelope bytes.",
+      "symbols": [
+        {
+          "name": "canonicalize",
+          "lines": "62-70"
+        }
+      ],
+      "integration_rule": "Apply strict JSON preflight/type checks before canonicalization; append one LF to each saved envelope and hash complete bytes for references."
+    },
+    {
+      "path": "src/video_paper_wiki/envelope.py",
+      "size_bytes": 1453,
+      "sha256": "ec49483cb86f24ef873e3612e85ac83e0537940e6a2b0d64e2c334f56579df24",
+      "use": "Preserve the existing outer CLI success/error envelope.",
+      "symbols": [
+        {
+          "name": "emit_success",
+          "lines": "21-23"
+        },
+        {
+          "name": "emit_error",
+          "lines": "26-44"
+        },
+        {
+          "name": "emit_staging_error",
+          "lines": "47-53"
+        }
+      ],
+      "integration_rule": "The new command-result schema validates successful data only; do not replace {ok,command,data} or {ok:false,command,error:{code,message,details}}."
+    },
+    {
+      "path": "src/video_paper_wiki/staging.py",
+      "size_bytes": 54827,
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "use": "Reference existing checkout/batch vocabulary and low-level descriptor helpers while implementing a distinct CODE retained session.",
+      "symbols": [
+        {
+          "name": "_RetainedBatchSession.verify",
+          "lines": "58-97"
+        },
+        {
+          "name": "_open_batch_session",
+          "lines": "100-137"
+        },
+        {
+          "name": "validate_batch_id",
+          "lines": "139-154"
+        },
+        {
+          "name": "resolve_checkout_root",
+          "lines": "157-220"
+        },
+        {
+          "name": "_stage_transaction_inspect_files_in_session",
+          "lines": "1128-1210"
+        }
+      ],
+      "integration_rule": "R6 requires one retained graph for the whole public command. Do not compose independent _open_batch_session calls, use path-only aliases, or reuse legacy _atomic_install for CODE publication. Existing validate_batch_id uses isinstance and needs an exact-type check in the public boundary."
+    },
+    {
+      "path": "src/video_paper_wiki/transaction_staging.py",
+      "size_bytes": 11104,
+      "sha256": "71d77db124be2673362a6186f68af1df7e354f975bcac985c4bf2237927694b1",
+      "use": "Reference the existing compact transaction-bundle encoding and retained staging semantics only where a future CODE adapter explicitly proves compatibility.",
+      "symbols": [
+        {
+          "name": "encode_transaction_inspect_bundle",
+          "lines": "58-132"
+        },
+        {
+          "name": "_stage_transaction_inspect_transport",
+          "lines": "186-280"
+        }
+      ],
+      "integration_rule": "This is an existing transaction-inspect transport, not the CODE public saved bundle or installer; do not silently route CODE handoffs through it."
+    },
+    {
+      "path": "src/video_paper_wiki/upstream_adapter.py",
+      "size_bytes": 64058,
+      "sha256": "4ffe8d84be005d25cc3d5e377e8a5ca9f79d5b9441e5075682552e884aa23406",
+      "use": "Keep the existing pinned claude-obsidian adapter as a separate legacy capture path.",
+      "symbols": [
+        {
+          "name": "inspect_pinned_transaction",
+          "lines": "722-771"
+        },
+        {
+          "name": "verify_pinned_source_id",
+          "lines": "788-827"
+        },
+        {
+          "name": "_check_upstream_authority_fields",
+          "lines": "835-857"
+        }
+      ],
+      "integration_rule": "CODE handoff is successor-only and zero-egress; it must not invoke this subprocess/provider authority path or the legacy manual capture flow."
+    },
+    {
+      "path": "src/video_paper_wiki/resources.py",
+      "size_bytes": 7579,
+      "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+      "use": "Reuse retained immutable resource-view mechanics only after selecting and pinning the exact CODE resource set.",
+      "symbols": [
+        {
+          "name": "_retained_resource_view",
+          "lines": "34-45"
+        },
+        {
+          "name": "read_projection_resource_bytes",
+          "lines": "152-179"
+        },
+        {
+          "name": "schema_resource_names",
+          "lines": "182-199"
+        }
+      ],
+      "integration_rule": "The default loader enumerates all package/source schemas and has CWD fallback in adjacent helpers; public CODE must use an explicit ten-name filtered view and retained bytes with no unrelated discovery or fallback."
+    },
+    {
+      "path": "src/video_paper_wiki/contracts.py",
+      "size_bytes": 81936,
+      "sha256": "1f27c01706aace27fa55972cb3d0a51ce74351a40131e2611e132b1a08cd1655",
+      "use": "Reference Draft 2020-12 Registry integration and error translation only.",
+      "symbols": [
+        {
+          "name": "_schema_registry",
+          "lines": "156-178"
+        },
+        {
+          "name": "_registry",
+          "lines": "186-192"
+        },
+        {
+          "name": "schema_by_title",
+          "lines": "195-204"
+        },
+        {
+          "name": "validate_document",
+          "lines": "926-1042"
+        }
+      ],
+      "integration_rule": "Do not reuse the cached legacy all-schema registry unchanged. Build a fresh registry from the retained exact ten schemas and deny undeclared retrieval; preserve strict semantic replay outside JSON Schema."
+    },
+    {
+      "path": "src/video_paper_wiki/canonical_compiler.py",
+      "size_bytes": 14184,
+      "sha256": "f4dde9f914796006af6b4b03c2d969f3686859e911854a49e69995e53e046291",
+      "use": "Inventory legacy canonical publication compatibility only.",
+      "symbols": [
+        {
+          "name": "_code",
+          "lines": "124-150"
+        }
+      ],
+      "integration_rule": "Leave unchanged. It consumes legacy inspected manifest, repo-record and alignment documents, requires legacy 40-hex commit semantics and officiality, and is not a CODE-PROOF handoff consumer."
+    },
+    {
+      "path": "src/video_paper_wiki/staged_code_capture.py",
+      "size_bytes": 15134,
+      "sha256": "f3f713c47740c8ddf83168a777c6e8bed71dde017d2a60c2c32be222de0530bb",
+      "use": "Keep existing staged code-map capture behavior intact.",
+      "symbols": [
+        {
+          "name": "inspect_staged_code_capture",
+          "lines": "120-162"
+        },
+        {
+          "name": "run_code_inspect_command",
+          "lines": "164-171"
+        }
+      ],
+      "integration_rule": "Do not add public CODE proof behavior here; existing code-map uses approval/plan/transaction/Vault authority and remains a distinct command family."
+    },
+    {
+      "path": "src/video_paper_wiki/cli.py",
+      "size_bytes": 16712,
+      "sha256": "2b7698d3ff89fabc65a2582c4a7d2b4f5f2f731bcbdf19e25c6798ca9f958a53",
+      "use": "Add one top-level code-evidence parser group and five leaf handler bindings.",
+      "symbols": [
+        {
+          "name": "build_parser",
+          "lines": "91-255"
+        },
+        {
+          "name": "existing code-map group",
+          "lines": "203-215"
+        },
+        {
+          "name": "main",
+          "lines": "258-293"
+        }
+      ],
+      "integration_rule": "Insert code-evidence alongside code-map; preserve all existing parser branches and the global envelope/error behavior. New handlers should expose only the R2 flags and should not require vault/upstream roots."
+    }
+  ],
+  "legacy_resource_and_packaging_facts": {
+    "pyproject": {
+      "path": "pyproject.toml",
+      "size_bytes": 938,
+      "sha256": "da3765ef066d5e431862ad1854aa018d54db0574102823502e940b89fa87c9f6",
+      "line_refs": "28-35"
+    },
+    "package_rule": "src/video_paper_wiki is already a Hatch wheel package; root schemas/ is force-included as video_paper_wiki/schemas/. A profile under src/video_paper_wiki/profiles/ needs no pyproject edit, but installed-wheel parity must be checked.",
+    "schema_count_test": {
+      "path": "tests/contract/test_schemas.py",
+      "size_bytes": 11651,
+      "sha256": "8c916239d2fba1c2c9fbddf41611a99b5eafed9cb6f3374f316334daa38a855e",
+      "line_refs": "30-37"
+    },
+    "permitted_test_change": "Change only the existing schema-count assertion from 71 to 81, and only after all ten exact new root schema files are present. Preserve all 71 prior schema bytes and all other assertions.",
+    "legacy_schema_files_kept_unchanged": 71
+  },
+  "public_workflow": {
+    "group": "vpwiki code-evidence",
+    "leaves": [
+      {
+        "command": "request",
+        "flags": [
+          "--input FILE",
+          "--batch-id NAME"
+        ],
+        "reads": "one ordinary request input",
+        "writes": [
+          ".work/<batch>/code-evidence-v1/request.json"
+        ],
+        "returns": [
+          "request ref",
+          "exact host acquisition targets"
+        ]
+      },
+      {
+        "command": "observe",
+        "flags": [
+          "--input FILE",
+          "--batch-id NAME",
+          "--bundle-dir DIR (raw mode only)"
+        ],
+        "reads": "one acquisition input and, only in git_objects mode, one retained external bundle directory",
+        "writes": [
+          "intent.json",
+          "sorted raw object bodies when raw mode",
+          "observation.json last"
+        ],
+        "returns": [
+          "complete observation",
+          "capabilities",
+          "eligibility"
+        ]
+      },
+      {
+        "command": "status",
+        "flags": [
+          "--batch-id NAME"
+        ],
+        "reads": "retained CODE state only",
+        "writes": [],
+        "returns": [
+          "state",
+          "request",
+          "intent",
+          "bundle",
+          "observation",
+          "mode",
+          "missing",
+          "targets",
+          "capabilities",
+          "eligibility",
+          "configs",
+          "handOffs",
+          "next_action"
+        ]
+      },
+      {
+        "command": "config",
+        "flags": [
+          "--path PATH",
+          "--format json|toml|source-only",
+          "--batch-id NAME"
+        ],
+        "reads": "complete retained raw observation and selected proved source blob",
+        "writes": [
+          "configs/<content-addressed-record>.json when derivation succeeds"
+        ],
+        "returns": [
+          "config evidence or explicit source-only result"
+        ]
+      },
+      {
+        "command": "handoff",
+        "flags": [
+          "--batch-id NAME"
+        ],
+        "reads": "complete retained raw observation and all required dependencies",
+        "writes": [
+          "handoffs/<path-ordered-record>.json",
+          "handoffs/<path-ordered-body>"
+        ],
+        "returns": [
+          "deterministic per-target handoffs and local source body paths"
+        ]
+      }
+    ],
+    "batch_rules": [
+      "One batch has one request, one intent and at most one completed observation.",
+      "Identical repeat input is idempotent; changed request/acquisition requires a new batch.",
+      "Normalized-only evidence cannot be upgraded to raw proof within the same batch.",
+      "Status is read-only and does not repair, create, delete or adopt entries.",
+      "No public command makes network calls, starts subprocesses, reads Git configuration, imports supplied code or writes a Vault."
+    ],
+    "saved_layout": ".work/<batch>/code-evidence-v1/{request.json,intent.json,observation.json,objects/,configs/,handoffs/}",
+    "document_kinds": [
+      "code-proof-request",
+      "code-git-bundle",
+      "code-acquisition-intent",
+      "code-proof-observation",
+      "code-config-evidence",
+      "code-source-handoff"
+    ],
+    "outer_envelope": {
+      "success": "{ok:true,command,data}",
+      "error": "{ok:false,command,error:{code,message,details}}",
+      "result_schema_scope": "successful data payloads for the five leaves only"
+    }
+  },
+  "proposed_minimal_integration_paths": {
+    "new_product_modules": [
+      {
+        "path": "src/video_paper_wiki/code_proof_resources.py",
+        "responsibility": "Read and retain the exact profile plus ten CODE schemas from the imported package/source origins, verify size/hash/shape/reference closure, and construct a fresh filtered registry.",
+        "must_not": [
+          "discover unrelated schemas",
+          "use CWD fallback",
+          "trust profile self-declared hashes as the sole root",
+          "cache a registry across resource generations"
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/code_proof_io.py",
+        "responsibility": "Own one retained descriptor/lineage graph and the fixed .work/<batch>/code-evidence-v1 namespace for each command, including all-exits verification and no-replace installation.",
+        "contract_source": "CODE-PROOF-RETAINED-IO-R6.md lines 9-65 and R8 lines 73-90",
+        "must_not": [
+          "compose independent batch sessions",
+          "reuse legacy _atomic_install/_unlink_at",
+          "follow symlinks or normalize caller path spelling",
+          "install before pure preflight and peak simulation"
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/code_proof_public.py",
+        "responsibility": "Pure public orchestration for request/observe/status/config/handoff: strict input admission, document identity, retained-state classification, kernel replay, derived equality and bounded public error contexts.",
+        "must_not": [
+          "invoke legacy capture/prepare/inspect",
+          "call providers/connectors/Git",
+          "reinterpret normalized text as Git proof",
+          "drop fields to satisfy a saved-byte cap"
+        ]
+      }
+    ],
+    "existing_files_to_modify": [
+      {
+        "path": "src/video_paper_wiki/cli.py",
+        "change": "Add the code-evidence group and five handler bindings at the existing parser layer; leave code-map and legacy handlers unchanged."
+      },
+      {
+        "path": "tests/contract/test_schemas.py",
+        "change": "Only 71 -> 81 count expectation after resource generation; no other legacy test edits."
+      }
+    ],
+    "files_not_to_modify_for_this_integration": [
+      "pyproject.toml",
+      "src/video_paper_wiki/staged_code_capture.py",
+      "src/video_paper_wiki/canonical_compiler.py",
+      "src/video_paper_wiki/contracts.py legacy global registry behavior",
+      "all existing 71 schema files",
+      "existing code kernel modules except explicitly reviewed adapter glue"
+    ],
+    "new_tests_suggested": [
+      "tests/contract/test_code_proof_resources.py",
+      "tests/contract/test_code_proof_public.py",
+      "tests/unit/test_code_proof_resources.py (only if resource loader needs isolated unit coverage)",
+      "tests/unit/test_code_proof_public.py (pure orchestration and refusal ordering)"
+    ],
+    "resource_inventory_pending": [
+      "schemas/video-paper-wiki.code-proof-common.v1.schema.json",
+      "schemas/video-paper-wiki.code-proof-request-input.v1.schema.json",
+      "schemas/video-paper-wiki.code-proof-observe-input.v1.schema.json",
+      "schemas/video-paper-wiki.code-proof-command-result.v1.schema.json",
+      "schemas/video-paper-wiki.code-proof-request.v1.schema.json",
+      "schemas/video-paper-wiki.code-git-bundle.v1.schema.json",
+      "schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json",
+      "schemas/video-paper-wiki.code-proof-observation.v1.schema.json",
+      "schemas/video-paper-wiki.code-config-evidence.v1.schema.json",
+      "schemas/video-paper-wiki.code-source-handoff.v1.schema.json",
+      "src/video_paper_wiki/profiles/code-proof-v1.json"
+    ]
+  },
+  "retained_io_integration_contract": {
+    "session_shape": [
+      "open_code_session(batch_id) retains checkout authority, installed CODE resources and initial output state before yielding.",
+      "retain_input retains one exact-spelled ordinary input and its named lineage.",
+      "retain_bundle_manifest retains one disjoint canonical raw bundle root/object set before reading its manifest.",
+      "retain_bundle_bodies reads only that retained root and validated inventory.",
+      "set_output_limits materializes one positive narrowing within hard maxima.",
+      "install publishes only owned payloads with initial-identical reuse; later arrivals are lineage failures.",
+      "verify and finalizer run on every success, refusal, parse, cap, install and cleanup path."
+    ],
+    "filesystem_policy": [
+      "Retain each lexical ancestor and first named edge/absence; do not resolve, realpath, normpath or repair spelling.",
+      "Acquire nonblocking checkout lock before resource/work scans and keep duplicate lock descriptor through cleanup.",
+      "Use descriptor-relative no-follow open/stat/mkdir/link/unlink and directory fsync; refuse unsupported primitives.",
+      "New .work, batch, namespace and family directories are 0700; generated files are 0600.",
+      "Install with no-replace hard-link publication and owned temporary cleanup; never replacing rename/copy.",
+      "Final persistent lineage failure overrides earlier semantic, parser, limit or I/O errors."
+    ],
+    "preflight_policy": [
+      "Cap raw request input at 65536 bytes and raw observe input at 1048576 bytes before JSON decoding.",
+      "Validate complete request/intent/observation/config/handoff derivations and canonical saved bytes before first new write.",
+      "Simulate deterministic install sequence from retained current byte count; require C+2*N <= max_output_peak_bytes for each absent payload.",
+      "Recheck saved caps for complete bytes; never truncate or omit evidence fields."
+    ],
+    "state_families": {
+      "fixed_files": [
+        "request.json",
+        "intent.json",
+        "observation.json"
+      ],
+      "derived_families": [
+        "objects",
+        "configs",
+        "handoffs"
+      ],
+      "raw_object_prefix": "Only an OID-sorted exact prefix is valid while raw acquisition is incomplete.",
+      "handoff_prefix": "Only a path-ordered prefix of requested targets is valid; late or non-prefix entries refuse.",
+      "normalized_mode": "Forbids raw objects/configs/handoffs and can never become raw proof."
+    }
+  },
+  "semantic_binding_and_compatibility": {
+    "request_identity": [
+      "Closed request data: paper_id, source_association, repository, object_format, commit_oid, targets, require_repository_assertion, limits, profile_sha256.",
+      "Repository uses R9 owner/name grammar and one lowercasing step; saved request/bundle/hosting spelling is then exact.",
+      "paper_id uses exact-string validation plus is_canonical_paper_id; association remains retained but source_association_verified is always false in phase 1."
+    ],
+    "raw_proof": [
+      "Raw bundle repeats request identity and stores exact commit/root tree/object declarations; body set is retained before verification.",
+      "verify_code_git_objects is replayed from stored body bytes for completed raw observations.",
+      "Complete_target_set means every requested target is source_text; missing/unsafe/unsupported observations remain valid evidence but cannot handoff."
+    ],
+    "normalized_observation": [
+      "Every requested target appears exactly once in request order with present or closed other outcome.",
+      "Normalized text is already LF-oriented strict source text; no Git/raw-byte/config-span authority is inferred."
+    ],
+    "configuration": [
+      "Requires complete raw observation, selected requested path and configuration role.",
+      "Source-only retains proved source bytes/ref/reason without invoking typed parser.",
+      "JSON/TOML results must equal pure parser output from retained blob bytes and request config limits."
+    ],
+    "handoff": [
+      "Successor-only handoff binds full-width SHA-1/SHA-256 commit/tree/blob IDs, object format, request, observation, body and proof.",
+      "Handoff requires complete source_text target set and any requested repository assertion; it does not call legacy capture or canonical compiler."
+    ],
+    "legacy_compatibility": [
+      "Do not narrow full-width successor IDs into code-evidence-manifest.v1 or canonical_compiler._code.",
+      "Do not claim officiality, repository ownership or source association verification from Git proof, host assertion or locator construction.",
+      "Do not alter existing code-map CLI behavior, outer envelope, 71 legacy schemas, kernel limits, kernel errors or transaction/upstream adapters."
+    ]
+  },
+  "verification_plan_for_future_implementation": {
+    "resource_gate": [
+      "Generate and independently verify exact ten Draft 2020-12 schemas plus profile bytes, hashes, titles, IDs, refs and no undeclared retrieval.",
+      "Verify package/source origins and isolated-wheel byte parity; source snapshot currently has none of these resources."
+    ],
+    "public_contract_gate": [
+      "Cover all five leaves, raw SHA-1/SHA-256 and normalized modes, incomplete states, target ineligibility, source-only/JSON/TOML config and handoff prefix repair.",
+      "Exercise input caps, saved caps, peak caps, canonical bytes, IDs/refs, wrong kinds, duplicate/unknown fields and semantic derivation forgery.",
+      "Exercise retained-lineage failures on checkout, resource, input, bundle, output directories/files, temp/link/cleanup and all-exits ordering."
+    ],
+    "regression_gate": [
+      "Run affected contract tests and both locked Python suites only after exact source/resource snapshot freeze.",
+      "Build isolated wheel and compare all old schema bytes plus ten new schemas/profile byte-for-byte.",
+      "Record exact implementation head/tree, CI checkout SHA and test run separately from this read-only map."
+    ],
+    "not_established_by_this_map": [
+      "resource byte acceptance",
+      "public implementation acceptance",
+      "remote CI or human review",
+      "real host/repository acquisition or canonical publication"
+    ]
+  },
+  "status": {
+    "map_status": "COMPLETE_READ_ONLY_INTEGRATION_INVENTORY",
+    "public_implementation": "PENDING",
+    "resource_pins": "PENDING_GENERATION_AND_INDEPENDENT_CHECK",
+    "source_association_verified": false,
+    "real_data_gate": "OPEN",
+    "human_gates": "OPEN"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "full-todo.code-proof-cap-disposition-review-r11.v1",
+  "schema": "full-todo.code-proof-cap-disposition-review-r11.v1",
+  "packet": "CODE-PROOF-CAP-DISPOSITION-R11",
+  "revision": "R11-independent-cap-disposition-review",
+  "recorded_at_utc": "2026-09-09T17:28:30.764290000Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded public-cap disposition reviewer",
+    "parent_authority": "Architect/root",
+    "attribution_note": "R10 was received from Progress Monitor cursor_lanes34_controller; its reviewer.agent field is historically incorrect. This R11 record uses the corrected attribution without modifying R10."
+  },
+  "decision": "GO_DESIGN_CLOSURE_RESOURCE_FREEZE_PENDING",
+  "verdict": "R11 closes both R10 contract gaps without conflicting with R4, R7 or R9. Fixed request and observe raw admission errors now have exact CODE_PROOF_LIMIT_EXCEEDED contexts with /input, the non-materialized names, limits 65536 and 1048576, and bounded cap+1 observed counts. max_request_bytes remains the complete sealed request-envelope cap. The bundle domain is explicitly the canonical saved code-git-bundle envelope, including exactly one terminal LF, with byte-identical output copy, /bundle pointer and measured-count rules for hard and lowered caps. No new implementation ambiguity was found. Generated schema/profile/resource bytes and their independent origin/hash checks remain the existing external freeze gate.",
+  "scope": "Read-only review of CODE-PROOF-CAP-DISPOSITION-R11 against CODE-PROOF-IDENTITY-LAYOUT-R4, CODE-PROOF-WIRE-R7, CODE-PROOF-PUBLIC-CLOSURE-R9, CODE-PROOF-INPUT-CAPS-R10 and the R10 independent review. No source, schema, test, fixture, Git, provider, network, connector, Vault or mutable kernel checkout access; only this review artifact was written.",
+  "frozen_inputs": [
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md", "sha256": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04", "size_bytes": 3633},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md", "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0", "size_bytes": 12868},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md", "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2", "size_bytes": 20246},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md", "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62", "size_bytes": 12611},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-INPUT-CAPS-R10.md", "sha256": "4c01d0803c638922b47b05a3efbc05c4e8c1dbe10375c4c883a0a77b582135e5", "size_bytes": 3502},
+    {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-input-caps-review-r10.json", "sha256": "302c4e9c6fc4600c6d432a68953c22109874d4553f3b316acc7939121ff96006", "size_bytes": 8306}
+  ],
+  "closure_matrix": [
+    {
+      "id": "R11-RAW-CAP-CONTEXT-001",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R11 fixes both raw admission contexts as CODE_PROOF_LIMIT_EXCEEDED, exit code 2, instance_pointer /input, limit_name max_request_input_bytes or max_observe_input_bytes, limit 65536 or 1048576, and observed 65537 or 1048577 for cap+1 bounded reads. It preserves raw-byte pre-decode precedence, equal-to-cap admission, malformed-oversize ordering and final retained-lineage priority from R10. This directly closes R10-RAW-CAP-CONTEXT-001."
+    },
+    {
+      "id": "R11-REQUEST-CAP-MAPPING-002",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R10 and R11 keep the R7 eight-key materialized public map unchanged. max_request_bytes applies only to the complete sealed request envelope, including canonical JSON and one LF, while the fixed raw request admission cap remains independent and non-lowerable. This resolves the R9 cap-name ambiguity without adding fixed parser names to limits.public."
+    },
+    {
+      "id": "R11-BUNDLE-CAP-DOMAIN-003",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R4/R7 require input manifest.json to be a canonical saved code-git-bundle envelope and bundle.json to be byte-identical. R11 explicitly includes the whole envelope and exactly one terminal LF, rejects whitespace/duplicate/noncanonical/extra-LF variants, binds the limit error to /bundle, and distinguishes hard-profile bounded-prefix observed counts from complete measured bytes under a validated lowered cap. This closes R10-BUNDLE-CAP-DOMAIN-002."
+    },
+    {
+      "id": "R11-RETAINED-IO-004",
+      "status": "CLOSED_DESIGN_WITH_IMPLEMENTATION_GATE",
+      "evidence": "R11 preserves R10's single retained descriptor, cap+1 finite read, no remainder drain, byte-count rather than decoded-character accounting, no-install refusal and unsafe-lineage precedence. These are implementable bindings, but require later retained-I/O and cap boundary evidence."
+    },
+    {
+      "id": "R11-ATTRIBUTION-005",
+      "status": "CLOSED_ADMINISTRATIVE",
+      "evidence": "R11 records that R10 was supplied by Progress Monitor cursor_lanes34_controller and leaves the historical R10 artifact immutable. Attribution correction does not alter contract semantics or evidence."
+    }
+  ],
+  "remaining_gate": {
+    "id": "R11-RESOURCE-FREEZE-006",
+    "status": "OPEN_EXTERNAL_FREEZE_GATE",
+    "severity": "medium",
+    "evidence": "R11 expressly preserves the existing requirement for generated ten-schema/profile bytes, exact source and installed origins, hashes, strict schema/resource checks and wire fixtures. No contradiction in the cap disposition removes that gate.",
+    "required_closure": "Generate and independently validate the exact public schema/profile/resource set, then verify source-to-wheel parity and cap/error boundary fixtures before public implementation acceptance."
+  },
+  "required_next_freezes": [
+    "Keep the two fixed raw input names as error labels only; do not add them to the eight-key materialized limits.public map.",
+    "Implement request/observe cap-1/equal/cap+1, oversized malformed JSON, whitespace-heavy, lowered sealed-request, bundle and no-install lineage vectors using the exact domains in R11.",
+    "Generate and independently check all public schema/profile/resource bytes and exact origins before implementation acceptance."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "grok": false,
+    "mutable_kernel_checkout": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T17:28:30.764290000Z",
+    "note": "Tool-observed UTC; no mutable kernel source was inspected or run for this review."
+  }
+}

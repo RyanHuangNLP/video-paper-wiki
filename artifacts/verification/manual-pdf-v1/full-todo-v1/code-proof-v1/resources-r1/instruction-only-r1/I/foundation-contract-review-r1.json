@@ -1,0 +1,138 @@
+{
+  "schema": "full-todo.code-proof-foundation-contract-review.v1",
+  "record_type": "foundation-contract-review-r1",
+  "reviewed_at_utc": "2026-09-10T16:21:02Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_LATER_EXACT_FREEZE_WITH_REQUIRED_CLARIFICATIONS",
+  "implementation_authority": "not_granted",
+  "scope": "Bounded independent architecture review of the two-path private resource foundation only. No product or test source edits, Git mutation, model/UI/provider call, global runtime change, or public CODE acceptance was performed.",
+  "reviewed_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-R1.md",
+      "size_bytes": 10733,
+      "sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INSTRUCTION-R1.md",
+      "size_bytes": 11224,
+      "sha256": "544ffee8777efc1f2fac95ad575566a82bae0bd5d8a20a014de1ec0da20649b3"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "size_bytes": 10225,
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "size_bytes": 20246,
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/architect-foundation-boundary-disposition-r1.json",
+      "size_bytes": 2664,
+      "sha256": "af854edba0e63b92ababaaa1d48770e8fa835c20caf123b9c9915c848bbcf2c5"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/fifteen-path-candidate-r2.json",
+      "size_bytes": 5414,
+      "sha256": "d7d11225c8a1a3d1a58bd5e459f29969e74cdb67ebc7bdddce690ad5ec862c9c"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/profiles/code-proof-v1.json",
+      "size_bytes": 3761,
+      "sha256": "650a6a51a1f08651d659262424577a90233649e4949bfc0cc4850d7a7777ee32"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/tests/fixtures/code-proof-resource-v1.json",
+      "size_bytes": 726503,
+      "sha256": "712de225878c1dbfb83743a38be4a0cfdf883cae1a377d63b8b241933d39c52f"
+    }
+  ],
+  "literal_11_constant_check": {
+    "candidate_snapshot_sha256": "0499b45b6b4f40a3bb330dd6fa63687d1182db7dfebce3136f9e3f814aa6654f",
+    "candidate_path_count": 15,
+    "candidate_resource_path_count": 11,
+    "profile_schema_row_count": 10,
+    "schema_pin_rows_equal_candidate": true,
+    "schema_rows_ascii_sorted": true,
+    "profile_hash_equals_fixture_profile_sha256": true,
+    "admission_caps_match_r12": true,
+    "git_config_public_hard_limits_match_r12": true,
+    "all_eleven_sizes_and_sha256_values_match_candidate": true,
+    "fixture_case_count": 264,
+    "fixture_case_names_unique": true,
+    "fixture_case_shape_exact_name_title_instance": true,
+    "fixture_unique_title_count": 9,
+    "fixture_titles_missing_from_positive_fixture": [
+      "video-paper-wiki.code-proof-common.v1"
+    ]
+  },
+  "findings": [
+    {
+      "area": "two_path_private_api_and_ownership",
+      "disposition": "GO",
+      "assessment": "The production/test allowlist is concrete: code_proof_resources.py and test_code_proof_resources.py only. The production module receives an exact builtin retained-byte mapping, returns an immutable compiled view, performs no filesystem/provider/legacy-loader work, and leaves descriptor/origin lineage to the later retained-I/O owner. This matches the boundary disposition and does not broaden future I/O/public semantics."
+    },
+    {
+      "area": "lexical_origin_choice",
+      "disposition": "GO_WITH_IMPLEMENTATION_ASSERTIONS",
+      "assessment": "The __file__ rule is explicit and safe: absolute lexical module path, package directly under video_paper_wiki, source when the package parent is literally src, installed otherwise, profile always package/profiles, no resolve/CWD/environment/existence fallback. The later owner must enforce filesystem/no-follow authority; the lexical plan must not probe or open anything. Tests should include a package lexically under src with absent resources to prove no installed fallback and an installed package with changed CWD."
+    },
+    {
+      "area": "compile_pins_profile_reference_closure",
+      "disposition": "GO",
+      "assessment": "The eleven literal production pins exactly match the current 15-path candidate: ten schema rows plus the 3761-byte profile; the profile rows and candidate rows match, and the fixture profile_sha256 matches the profile. Pin type/size/hash comparison precedes parsing and validator construction. Exactly ten schema IDs belong in the registry; profile validation is through common /$defs/profile, with no eleventh profile registration. The Draft dialect URI does not grant retrieval, and forbidden refs/anchors/nested IDs are covered."
+    },
+    {
+      "area": "strict_types_and_limits",
+      "disposition": "GO",
+      "assessment": "The exact builtin preflight, bool-before-int distinction, float/nonfinite rejection, surrogate/cycle checks, shared acyclic allowance, no mutation, fresh independent limit maps, positive hard-limit bounds, and fixed non-lowerable admission caps are sufficiently stated. No extra JCS-derived integer/depth policy is inferred."
+    },
+    {
+      "area": "private_error_separation",
+      "disposition": "GO_WITH_CLARIFICATION",
+      "assessment": "Resource and structure errors have disjoint closed reason sets and fixed safe messages; raw path/parser/resolver/validator details are excluded and later I/O/public mapping remains outside this increment. The exact literal safe message strings are not frozen, so exact tests should assert stable reason-only messages with marker suppression unless the next freeze names the strings."
+    },
+    {
+      "area": "profile_fragment_validation_context",
+      "disposition": "REQUIRED_CLARIFICATION",
+      "assessment": "The common profile definition contains refs such as #/$defs/profile_limits and #/$defs/profile_schema_row. The exact freeze must require validation with the common document as the base schema/resource context while selecting precisely /$defs/profile; passing a detached fragment as the validator schema would make those refs unresolved. This is an implementation invariant, not a new public semantic."
+    },
+    {
+      "area": "fixture_coverage",
+      "disposition": "REQUIRED_CLARIFICATION",
+      "assessment": "The pinned fixture has 264 unique rows with the exact name/title/instance interface and nine unique titles. It intentionally has no positive common-schema root row. Add one explicit common-title structural probe or state that the definitions-only common root is separately tested; do not claim the 264 rows alone cover all ten declared titles."
+    },
+    {
+      "area": "source_vs_wheel_test_execution",
+      "disposition": "BLOCKER_BEFORE_EXACT_FREEZE",
+      "assessment": "The instruction requires a fresh installed-wheel origin-plan/resource check, but the two-path test API gives no wheel path, isolated interpreter hook, or command context. Running pytest from the repository can load src through pyproject pythonpath and falsely exercise source origin. Define an external wheel replay harness/environment (with source src removed from import resolution) or explicitly move installed-wheel parity out of the Builder-owned test and bind it to the later wheel acceptance record."
+    },
+    {
+      "area": "post_pin_parser_reference_test_surface",
+      "disposition": "BLOCKER_BEFORE_EXACT_FREEZE",
+      "assessment": "Production pins are intentionally checked before parsing and registry construction, so malformed-format, forbidden-reference, and self-consistent profile/schema replacement branches cannot be reached through compile_code_proof_resources. The instruction permits direct tests of private parser/reference helpers but names none. Freeze those helper names/signatures or define a supported internal test hook; otherwise tests must guess internals or cannot substantiate the required negative branches."
+    },
+    {
+      "area": "natural_language_prompt_sufficiency",
+      "disposition": "GO_AFTER_THE_TWO_BLOCKERS",
+      "assessment": "Apart from the installed-wheel harness and post-pin helper surface, the instruction is self-contained: it carries exact dataclass/method names, all eleven constants, compile order, registry/ref rules, strict builtin policy, limits, error classes, no-I/O boundary, fixture interface, and source/wheel expectations. No repository attachment or hidden source context is required for the Builder to return the two blocks."
+    }
+  ],
+  "required_exact_freeze_actions": [
+    "Name the private parser/reference/profile-validation helpers used by tests, or remove the unreachable direct-helper test requirement and cover only externally reachable pinned behavior.",
+    "Bind a fresh installed-wheel test invocation that imports video_paper_wiki from site-packages with source/src absent from sys.path, while still supplying the pinned fixture bytes; alternatively move that parity check to a separately named wheel acceptance record.",
+    "Require the profile validator to retain common-schema root/$defs context when selecting /$defs/profile.",
+    "Add or explicitly account for a common-title structural probe because the current 264-case fixture covers nine unique titles.",
+    "Freeze literal private error messages if exact message equality is required; otherwise test fixed reason-only safe messages and absence of marker secrets."
+  ],
+  "no_broadened_scope": [
+    "No retained-I/O descriptor/session implementation was reviewed or requested here.",
+    "No public identity/JCS/canonical-byte/cross-document semantic validation was moved into the foundation.",
+    "No public CODE command, resource acceptance, real-data verification, remote CI, or human gate was closed."
+  ],
+  "limitations": [
+    "Architecture review only; no implementation or tests were run.",
+    "The current resource candidate remains pending full regression and later exact-head acceptance."
+  ]
+}

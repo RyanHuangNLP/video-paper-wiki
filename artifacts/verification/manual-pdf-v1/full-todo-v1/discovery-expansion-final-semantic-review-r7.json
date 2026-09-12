@@ -1,0 +1,137 @@
+{
+  "$schema": "full-todo.discovery-expansion-final-semantic-review-r7.v1",
+  "schema": "full-todo.discovery-expansion-final-semantic-review-r7.v1",
+  "reviewed_at_utc": "2026-09-09T09:54:03Z",
+  "reviewer": "Astra semantic review controller",
+  "scope": "Bounded read-only closure review of the R7 final admission and selection amendment against R2 through R6, the provider target notes, the preserved semantic and IO reviews, and the final discovery allowlist. R7 is evaluated for contract completeness and contradiction resolution; implementation, CI, provider, real-data, and human acceptance remain future gates. No source, schema, test, Git, connector, Vault, or network mutation was performed.",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "provider_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    },
+    "r5_wire": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    "r6_rank": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    "r7_final": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    "profile_r1": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951
+    },
+    "allowed_paths": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-allowed-paths-r1.json",
+      "sha256": "e7930638d4814f4a8389e2cf9ac0b4dd0e5fb07423c089a050004ebe85e490d5",
+      "size_bytes": 2207,
+      "path_count": 31
+    },
+    "prior_r6_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-final-semantic-review-r6.json",
+      "sha256": "308e4dcbc373b82b4d79fa7c7578433da52dab2fe7b353f104cd9a4e95026ce8"
+    },
+    "prior_r4_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-semantic-review-r4.json",
+      "sha256": "60d1c560a2ce1775f0b223b2eb04f0f0d1734ae2374f8ad5a6780cdfa851b7fb"
+    },
+    "r3_recovery_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-expansion-recovery-r3-review.json",
+      "sha256": "34ea7b9fcef2df387db577a899408f4fd7da3600a6cf46b06fbf4aab67ed8c89"
+    },
+    "r2_io_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-design-r2-io-review.json",
+      "sha256": "76f416b55caefa11799c61053dea5cda4147874c5116898a0fb8912e077eb390"
+    }
+  },
+  "closure_findings": [
+    {
+      "id": "DISC-R7-CAPACITY-OUTCOMES",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R7 distinguishes a feasible automatic prefix (largest N>=1, installed as a plan), eligible frontier with no feasible N (budget_exhausted, no plan or request), and no eligible frontier (needs_scope). Prior calculated and user stops retain precedence.",
+      "determination": "The R5 status wording ambiguity is closed. The three outcomes are mutually exclusive and preserve the no-empty-plan rule."
+    },
+    {
+      "id": "DISC-R7-STRICT-CANDIDATE-ADMISSION",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R7 makes unique_candidates a strict per-observation admission invariant. A prospective input exceeding current components or completed charges plus pending introductions is refused before observation installation; no provisional over-cap graph or candidate debit is retained. Later bridges cannot retroactively admit that refused input.",
+      "determination": "This resolves the pending-candidate accounting boundary while honestly acknowledging that admission can depend on observation order. Arrival-order byte identity is required for the same complete set of admitted observations whose tested prefixes satisfy the invariant, which is the implementable and deterministic scope. Permanent completed charges remain non-refundable."
+    },
+    {
+      "id": "DISC-R7-DUPLICATE-STOP",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R7 specifies total_hits>0 and inclusive repeated_hits*100 >= duplicate_percent*total_hits, requires the configured consecutive completed-round count, defines low yield as new_relevant < min_new_relevant, and excludes incomplete rounds.",
+      "determination": "The exact boundary operator and zero-hit behavior are now deterministic."
+    },
+    {
+      "id": "DISC-R7-SELECTION-LINEAGE",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R7 makes a selection durable only when a committed plan contains its first expanded spec with nonnull subject_origin. It reconstructs lineages by plan sequence and request-key order, retains origin/IDs/seed/depth, preserves all historical introductions after merges, and does not charge unavailable candidates without an executable expanded spec.",
+      "determination": "This closes the R6 restart/alias/capability ambiguity without adding a mutable selection artifact. A capability frontier remains tentative; once a real expanded spec is committed, its lineage and selection charge survive missing request materialization, repairs, aliases, bridges, and current-key changes. A fourth distinct introduction is refused even when current components later coalesce."
+    },
+    {
+      "id": "DISC-R7-LOGICAL-ATTEMPT-DEDUPE",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R7 explicitly ignores depth when comparing plain attempted operations after identity extension or merge, while retaining depth for provenance and initial selection. Only validated retry, cursor, and neighbor-slice specs bypass plain-attempt suppression and consume fresh plan slots; arbitrary origin/version/alias/depth changes do not.",
+      "determination": "The R6 logical-job ambiguity is closed. Committed plan slots mark attempts even if request files are missing, and exact repair remains idempotent."
+    },
+    {
+      "id": "DISC-R7-RRF-AND-RANKING",
+      "status": "CLOSED_DESIGN_FROM_R6",
+      "evidence": "R6 provides the complete all-list mirror-class, representative, suppression, exact-Fraction, fact-ranking, and component-based yield algorithm. R7 leaves those rules unchanged and ties implementation to the frozen contract.",
+      "determination": "The prior R4/R6 mirror and ranking concerns remain closed design rules; remaining work is implementation and acceptance evidence."
+    },
+    {
+      "id": "DISC-R7-DEPTH-FRONTIER",
+      "status": "CLOSED_DESIGN",
+      "evidence": "R7 retains initial selection depth from the exact origin snapshot, bounds it at two, reuses original depth for selected lineages, prevents reselection at a new depth, and excludes deeper components. R6 preserves exact current candidate-set/key refs for future requests while history retains the first origin.",
+      "determination": "Depth-two non-recursion and selection survival through later graph changes are now explicit."
+    },
+    {
+      "id": "DISC-R7-ALLOWLIST-BOUNDARY",
+      "status": "CLOSED_DESIGN_PENDING_IMPLEMENTATION_SCOPE_CHECK",
+      "evidence": "The final allowlist has 31 paths, declares root ownership, freezes no-source-edit-before-freeze, and confines discovery implementation/docs/schemas/prompts/provider resource/tests to the named paths. It explicitly preserves existing preview, catalog, staging, and protected local material. The reviewed profile input materializes the same 12 artifact families, 31-path implementation boundary, hard limits, 3 expansion selections, provider constants, rank constants, stop order, strict admission, and zero-egress flag.",
+      "determination": "The implementation boundary is concrete and compatible with the semantic freeze. Path-scope verification remains a delivery check, not a contract blocker. The profile is a frozen constants input for the allowlisted provider/profile resource and does not authorize edits outside that boundary."
+    }
+  ],
+  "remaining_acceptance": [
+    "Implement only the 31 allowlisted paths and verify every emitted object against the closed schemas, including malformed nested alternatives and exact saved-byte artifacts.",
+    "Run graph, strict admission, feasible-prefix, ranking/RRF, logical dedup, selection-lineage, stop, recovery, target-regeneration, security, both-Python, installed-wheel, and fresh CI vectors.",
+    "Keep local implementation evidence distinct from remote CI, held-out provider capability, real-data, and human scientific acceptance gates.",
+    "Preserve zero-egress execution and the approved .work boundary; no real Vault/admin action or human approval is implied."
+  ],
+  "decision": "GO_FOR_DISCOVERY_EXPANSION_R7_DESIGN_FREEZE",
+  "decision_basis": "R7 closes all three narrow R6 contract findings: zero-feasible-prefix status, inclusive duplicate stopping, and durable expansion-selection/depth/attempt lineage. Together with R5/R6, the discovery expansion contract is semantically freeze-ready. This is a design-freeze decision only; implementation, exact-head review, CI, provider held-out capability, real-data, and human gates remain open.",
+  "implementation_boundary": {
+    "source_files_changed": false,
+    "tests_changed": false,
+    "git_mutated": false,
+    "vault_mutated": false,
+    "network_or_connector_used": false,
+    "review_artifact_only": true
+  }
+}

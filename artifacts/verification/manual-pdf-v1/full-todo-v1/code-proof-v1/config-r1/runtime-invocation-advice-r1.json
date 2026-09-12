@@ -1,0 +1,305 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-runtime-invocation-advice-r1.v1",
+  "schema": "video-paper-wiki.code-config-kernel-runtime-invocation-advice-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T02:13:40Z",
+  "packet": "GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1",
+  "phase": "pre_dispatch_runtime_invocation_audit",
+  "decision": "READ_ONLY_ADVICE_NO_LAUNCH",
+  "scope": "Bounded audit of the installed Grok headless permission and tool-filtering behavior for the future configuration-kernel run. No Grok launch, prompt edit, source/test/fixture/brief write, Git mutation, network action, or candidate execution was performed.",
+  "reviewed_inputs": {
+    "implementation_prompt": {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md",
+      "size_bytes": 5319,
+      "sha256": "39b832c65480a8b5e7a7e91ce35b1939df7d392840319f1994c7e9762d1a3179"
+    },
+    "r1_contract": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "size_bytes": 17799,
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4"
+    },
+    "r2_clarifications": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "size_bytes": 4710,
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d"
+    },
+    "closure_contract": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "size_bytes": 13987,
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5"
+    },
+    "headless_docs": {
+      "path": "/Users/huangzhanpeng/.grok/docs/user-guide/14-headless-mode.md",
+      "size_bytes": 41301,
+      "sha256": "2dd1302d88dc39276866e09a7c34501ecbe0e53b34a17f49e6908356ba1c98a9"
+    },
+    "permission_docs": {
+      "path": "/Users/huangzhanpeng/.grok/docs/user-guide/22-permissions-and-safety.md",
+      "size_bytes": 33240,
+      "sha256": "4e1ebfe021c3128e6e6b328afe629aefc7849d587711055e55296845dc8b77e9"
+    },
+    "prior_runtime_failure": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-diagnostic-r2.json",
+      "sha256": "6aa21a3be1767426f8e4e36eea1b647b368f26aa1711424787585031985e6177",
+      "relevance": "The default headless session was cancelled at a permission prompt for a mutating run_terminal_command before the command executed; source and Git remained unchanged."
+    }
+  },
+  "runtime_snapshot": {
+    "executable": "/Users/huangzhanpeng/.local/bin/grok",
+    "version": "grok 1.0.24 (68e414c661e3) [stable]",
+    "executable_sha256": "4291021c1570a7c8610277a3d65490a5e54b50311e222c6b4614264f02a215b3",
+    "headless_entrypoint": "--single/--prompt-file/--prompt-json",
+    "verified_cli_modes": [
+      "default",
+      "acceptEdits",
+      "auto",
+      "dontAsk",
+      "bypassPermissions",
+      "plan"
+    ],
+    "source_of_runtime_facts": "Installed CLI --help plus the two hash-bound installed user-guide files; no remote lookup."
+  },
+  "documented_facts": [
+    {
+      "id": "tool_filtering",
+      "fact": "--tools is an allowlist for built-in tool IDs and --disallowed-tools removes built-ins; when both are present the disallow list wins. Always-on MCP meta-tools remain unless separately denied.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/14-headless-mode.md"]
+    },
+    {
+      "id": "permission_precedence",
+      "fact": "Permission rules are merged across sources and evaluated by severity, regardless of order or source: deny > ask > allow. A deny matching an exact allowed path still blocks that path.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/14-headless-mode.md", "/Users/huangzhanpeng/.grok/docs/user-guide/22-permissions-and-safety.md"]
+    },
+    {
+      "id": "allow_is_not_closed",
+      "fact": "--allow rules auto-approve matching calls but are not a closed allowlist. An unmatched call falls through to built-in auto-approvals and then the permission mode.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/22-permissions-and-safety.md"]
+    },
+    {
+      "id": "headless_approval",
+      "fact": "default mode asks for mutating edits and non-read-only shell commands. Headless mode has no interactive user to answer that prompt; the prior run recorded an immediate cancellation at the first mutating run_terminal_command.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/22-permissions-and-safety.md", "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-diagnostic-r2.json"]
+    },
+    {
+      "id": "accept_edits_scope",
+      "fact": "acceptEdits suppresses prompts for file edits, but shell commands still require their own permission handling. It is therefore insufficient by itself for the packet's fixture-copy and locked-Python test commands.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/22-permissions-and-safety.md"]
+    },
+    {
+      "id": "read_rules",
+      "fact": "Read(path) patterns use normalized paths; * does not cross '/', ** does. Read rules also govern grep. Exact Read allows approve named paths but do not by themselves prevent an unmatching read-only read_file call.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/22-permissions-and-safety.md"]
+    },
+    {
+      "id": "tool_name_warning",
+      "fact": "The installed getting-started/hooks documentation and observed traces use run_terminal_command. One headless-mode example spells the shell ID run_terminal_cmd; treat that example as a documentation inconsistency and use the observed/internal run_terminal_command ID after a launch-time tool inventory.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/01-getting-started.md", "/Users/huangzhanpeng/.grok/docs/user-guide/10-hooks.md", "/Users/huangzhanpeng/.grok/docs/user-guide/14-headless-mode.md"]
+    },
+    {
+      "id": "always_approve_policy",
+      "fact": "--always-approve/--yolo/bypassPermissions suppress ordinary prompts, but this audit does not recommend them; the packet requires normal permission handling and project coordination forbids a bypass-style launch.",
+      "evidence": ["/Users/huangzhanpeng/.grok/docs/user-guide/14-headless-mode.md", "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md"]
+    }
+  ],
+  "observed_failure_records": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-diagnostic-r2.json",
+      "failure": "default headless permission prompt cancelled before the mutating terminal command ran",
+      "effect": "no source, test, fixture, brief, Git, or network mutation"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-completion-exit-observation-r3.json",
+      "failure": "builder stopped after an edit failure and partial tests",
+      "effect": "no source or Git mutation; correction record preserves the observation"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-r4-stop-dispatch-observation.json",
+      "failure": "interactive TUI response loop after model-reported tests",
+      "effect": "no authorized edit or development brief"
+    }
+  ],
+  "authorized_read_paths_for_a_future_run": [
+    "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md",
+    "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+    "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+    "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+    "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+    "docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json",
+    "{HASH_BOUND_SOURCE_ROOT}/src/video_paper_wiki/code_config_parser.py",
+    "{HASH_BOUND_SOURCE_ROOT}/tests/unit/test_code_config_parser.py",
+    "{HASH_BOUND_SOURCE_ROOT}/tests/fixtures/code-config-vectors-v1.json"
+  ],
+  "options": [
+    {
+      "id": "read-only-direct-output-r1",
+      "recommendation": "RECOMMENDED_FOR_NEXT_ATTEMPT",
+      "classification": "inference from the recorded permission cancellation and later direct-output evidence; not a builder acceptance",
+      "purpose": "Let Grok inspect only the hash-bound contract and fixture inputs, then return complete new source/test file contents and a development brief for root-side review and mechanical installation. Root performs the fixture copy, edits, tests, and evidence writes after reviewing the returned bytes.",
+      "argv_template": [
+        "/Users/huangzhanpeng/.local/bin/grok",
+        "--prompt-file",
+        "{HASH_BOUND_DIRECT_OUTPUT_PROMPT}",
+        "--cwd",
+        "{HASH_BOUND_SOURCE_ROOT}",
+        "--model",
+        "grok-4.6",
+        "--reasoning-effort",
+        "xhigh",
+        "--permission-mode",
+        "dontAsk",
+        "--tools",
+        "read_file",
+        "--disallowed-tools",
+        "search_replace,write,run_terminal_command,grep,list_dir,todo_write,Agent",
+        "--no-subagents",
+        "--disable-web-search",
+        "--output-format",
+        "json",
+        "--max-turns",
+        "40",
+        "--deny",
+        "MCPTool(*)",
+        "--deny",
+        "WebFetch(*)",
+        "--deny",
+        "WebSearch(*)"
+        ,"--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json)",
+        "--allow",
+        "Read({HASH_BOUND_SOURCE_ROOT}/src/video_paper_wiki/code_config_parser.py)",
+        "--allow",
+        "Read({HASH_BOUND_SOURCE_ROOT}/tests/unit/test_code_config_parser.py)",
+        "--allow",
+        "Read({HASH_BOUND_SOURCE_ROOT}/tests/fixtures/code-config-vectors-v1.json)"
+      ],
+      "permission_read_rules": [
+        "Read(docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md)",
+        "Read(docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md)",
+        "Read(docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md)",
+        "Read(docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md)",
+        "Read(docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json)",
+        "Read(docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json)",
+        "Read(artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json)",
+        "Read(src/video_paper_wiki/code_config_parser.py)",
+        "Read(tests/unit/test_code_config_parser.py)",
+        "Read(tests/fixtures/code-config-vectors-v1.json)"
+      ],
+      "prompt_requirements": [
+        "Use read_file only; do not request shell, edit, write, grep, list_dir, subagents, web, or MCP tools.",
+        "Return complete UTF-8 contents for the two implementation paths only; the fixture is copied byte-for-byte by root from the hash-bound static-vectors-r2.json.",
+        "Return the brief as structured text with source_writes_stopped=true, exact paths/hashes only when computed from returned content, and explicit unrun checks.",
+        "Use a machine-parseable JSON result and do not wrap source contents in Markdown fences."
+      ],
+      "known_tradeoffs": [
+        "This avoids the previous write-classified terminal permission prompt and all builder-side mutation, but the two complete file bodies may exceed a single JSON response; a streaming-json capture or a bounded continuation policy must be decided before dispatch.",
+        "Exact Read allow rules are approval rules, not a closed filesystem allowlist because built-in read_file is auto-approved; a pre-tool path hook or an isolated input-only staging directory is required if exact-path enforcement is mandatory.",
+        "Root must independently install bytes, run both locked Python suites, verify the fixture hash, and write any evidence. The model response alone is not an implementation candidate."
+      ]
+    },
+    {
+      "id": "bounded-headless-edit-r1",
+      "recommendation": "CONDITIONAL_FALLBACK_ONLY",
+      "classification": "inference; requires a separately frozen source root, exact brief path, exact shell command list, and launch-time permission test",
+      "purpose": "Permit the builder to edit the three prospective paths and write the frozen brief while avoiding interactive prompts through explicit allow rules. Use only if direct output is rejected for size or completeness and the coordinator has an enforceable command/path hook.",
+      "argv_template": [
+        "/Users/huangzhanpeng/.local/bin/grok",
+        "--prompt-file",
+        "{HASH_BOUND_IMPLEMENTATION_PROMPT}",
+        "--cwd",
+        "{HASH_BOUND_SOURCE_ROOT}",
+        "--model",
+        "grok-4.6",
+        "--reasoning-effort",
+        "xhigh",
+        "--permission-mode",
+        "dontAsk",
+        "--tools",
+        "read_file,search_replace,write,grep,list_dir,run_terminal_command",
+        "--disallowed-tools",
+        "Agent",
+        "--no-subagents",
+        "--disable-web-search",
+        "--output-format",
+        "json",
+        "--max-turns",
+        "40",
+        "--deny",
+        "MCPTool(*)",
+        "--deny",
+        "WebFetch(*)",
+        "--deny",
+        "WebSearch(*)",
+        "--allow",
+        "Edit(src/video_paper_wiki/code_config_parser.py)",
+        "--allow",
+        "Edit(tests/unit/test_code_config_parser.py)",
+        "--allow",
+        "Edit(tests/fixtures/code-config-vectors-v1.json)",
+        "--allow",
+        "Write({FROZEN_BRIEF_PATH})"
+        ,"--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json)",
+        "--allow",
+        "Read(/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json)",
+        "--allow",
+        "Read({HASH_BOUND_SOURCE_ROOT}/src/video_paper_wiki/code_config_parser.py)",
+        "--allow",
+        "Read({HASH_BOUND_SOURCE_ROOT}/tests/unit/test_code_config_parser.py)",
+        "--allow",
+        "Read({HASH_BOUND_SOURCE_ROOT}/tests/fixtures/code-config-vectors-v1.json)"
+      ],
+      "required_shell_policy": [
+        "Do not use a broad Bash(*) allow. Every allowed command must be an exact full command or a narrowly reviewed prefix for the two locked-Python pytest commands, the exact fixture copy, and disposable /private/tmp setup.",
+        "Run one shell command per tool call; allow rules for chained commands are conjunctive and an unapproved segment falls through to dontAsk denial.",
+        "Do not add a catch-all deny such as Edit(**) or Write(**), because deny wins over the exact edit/brief allows.",
+        "Use an external launcher with direct argv transport (no shell interpolation), fresh UUID session, clean hash-bound source root, and a pre-tool hook that rejects paths/commands outside the freeze."
+      ],
+      "known_failures_and_limits": [
+        "acceptEdits alone does not authorize the fixture copy or pytest shell commands.",
+        "Default mode remains vulnerable to a non-interactive permission cancellation when any command is not covered by an allow rule.",
+        "The exact brief path is not present in the implementation draft; do not substitute a guessed path until the future freeze names it.",
+        "This option still writes source before independent review and therefore has a larger blast radius than read-only direct output."
+      ]
+    }
+  ],
+  "launch_gates": [
+    "Do not launch until the accepted Git-kernel baseline, configuration freeze, static fixture hash, exact source root, exact brief path, and final three-path allowlist are bound in a new immutable freeze.",
+    "Rehash the prompt, contracts, fixture, launcher, and all read-only evidence immediately before launch; verify the source root is clean and the three prospective paths are absent or match the freeze's stated preimage.",
+    "Confirm the live Grok executable/model/reasoning setting and tool inventory; resolve the run_terminal_cmd versus run_terminal_command documentation inconsistency before any edit-capable option.",
+    "For read-only direct output, capture the complete final response and reject any response that omits a source path, emits Markdown-fenced or truncated content, requests a denied tool, or claims tests it could not run.",
+    "Keep this advice, prior failure observations, and any future launch/response records separate; none is implementation acceptance or human approval."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixture": false,
+    "brief": false,
+    "git": false,
+    "network": false,
+    "provider": false,
+    "review_artifact_only": true
+  }
+}

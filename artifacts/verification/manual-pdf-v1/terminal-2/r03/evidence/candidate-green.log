@@ -1,0 +1,51 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python
+cachedir: /private/tmp/vpwiki-t2-r06-green-cache
+rootdir: /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-r06-v1/terminal-2
+configfile: pyproject.toml
+collecting ... collected 38 items
+
+tests/research/test_light_cli.py::test_light_commands_are_accepted_with_workspace PASSED
+tests/research/test_light_cli.py::test_old_qa_and_writing_modes_still_work_without_workspace PASSED
+tests/research/test_light_cli.py::test_workspace_cannot_mix_with_old_vault_args PASSED
+tests/research/test_light_cli.py::test_workspace_outside_work_is_rejected PASSED
+tests/research/test_light_cli.py::test_light_import_routes_by_schema_and_writes_markdown PASSED
+tests/research/test_light_cli.py::test_old_import_still_used_without_light_schema PASSED
+tests/research/test_light_cli.py::test_import_workspace_root_and_output_locations PASSED
+tests/research/test_light_cli.py::test_import_workspace_mismatch_neither_and_legacy_context PASSED
+tests/research/test_light_index.py::test_ranking_filter_and_stable_order INDEX_BYTES 2838
+PASSED
+tests/research/test_light_index.py::test_long_page_splits_same_page_chunks PASSED
+tests/research/test_light_index.py::test_chinese_query_retrieves_chinese_page PASSED
+tests/research/test_light_index.py::test_empty_query_and_no_match_are_no_results PASSED
+tests/research/test_light_index.py::test_markdown_change_and_paper_set_change_are_stale PASSED
+tests/research/test_light_index.py::test_inpage_insert_and_delete_keep_page_assignment PASSED
+tests/research/test_light_index.py::test_invalid_anchors_fail_without_rewriting_source_or_index PASSED
+tests/research/test_light_index.py::test_r06_legacy_misplaced_offsets_recover_from_current_markdown R06_BEFORE_REBUILD INDEX_STALE [] INDEX_STALE []
+R06_AFTER_REBUILD OK [1] OK [2]
+PASSED
+tests/research/test_light_index.py::test_invalid_second_paper_does_not_rewrite_first_source_or_index PASSED
+tests/research/test_light_pdf.py::test_multipage_offsets_match_slices PASSED
+tests/research/test_light_pdf.py::test_mixed_empty_page_keeps_offset_and_warning PASSED
+tests/research/test_light_pdf.py::test_all_empty_pdf_is_refused PASSED
+tests/research/test_light_pdf.py::test_invalid_and_encrypted_pdf_are_refused PASSED
+tests/research/test_light_pdf.py::test_rerun_overwrites_same_paper_dir_without_clobbering_notes PASSED
+tests/research/test_light_pipeline.py::test_shipped_extract_index_search_qa_writing PASSED
+tests/research/test_light_pipeline.py::test_preface_before_anchors_keeps_quasar_and_nebula_pages PASSED
+tests/research/test_light_qa.py::test_export_keeps_evidence_text_and_forbids_invented_sources PASSED
+tests/research/test_light_qa.py::test_legal_multi_cite_renders_text_and_page_anchor PASSED
+tests/research/test_light_qa.py::test_empty_evidence_is_insufficient PASSED
+tests/research/test_light_qa.py::test_invented_chunk_fails_distinctly PASSED
+tests/research/test_light_qa.py::test_body_list_mismatch_fails_distinctly PASSED
+tests/research/test_light_qa.py::test_cross_paper_identity_fails_distinctly PASSED
+tests/research/test_light_qa.py::test_retrieval_no_results_and_stale_are_distinct PASSED
+tests/research/test_light_qa.py::test_success_is_not_paper_analysis_draft_json PASSED
+tests/research/test_light_writing.py::test_empty_paper_ids_keeps_retrieval_hits PASSED
+tests/research/test_light_writing.py::test_nonempty_paper_ids_drops_other_papers PASSED
+tests/research/test_light_writing.py::test_unknown_paper_ids_are_insufficient PASSED
+tests/research/test_light_writing.py::test_chinese_multiparagraph_draft_is_editable_markdown PASSED
+tests/research/test_light_writing.py::test_writing_refusal_classes_match_qa PASSED
+tests/research/test_light_writing.py::test_output_is_not_paper_analysis_json PASSED
+
+============================== 38 passed in 0.27s ==============================
+GREEN_EXIT=0

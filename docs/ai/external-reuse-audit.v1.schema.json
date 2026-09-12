@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "video-paper-wiki.external-reuse-audit.v1",
+  "title": "Video Paper Wiki external reuse audit",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_path",
+    "observed_on",
+    "purpose",
+    "evidence_scope",
+    "gate_effect",
+    "external_provenance_license_gate",
+    "gate_status_at_observation",
+    "audit_method",
+    "copy_policy",
+    "repositories"
+  ],
+  "properties": {
+    "schema": {"const": "video-paper-wiki.external-reuse-audit.v1"},
+    "schema_path": {"const": "docs/ai/external-reuse-audit.v1.schema.json"},
+    "observed_on": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "purpose": {"type": "string", "minLength": 1},
+    "evidence_scope": {"type": "string", "minLength": 1},
+    "gate_effect": {"const": "none"},
+    "external_provenance_license_gate": {"const": "EXTERNAL-PROVENANCE-LICENSE-001"},
+    "gate_status_at_observation": {"const": "not-recorded"},
+    "audit_method": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit_resolution",
+        "tree_resolution",
+        "integrity_check",
+        "source_hash",
+        "retrieval",
+        "replay",
+        "tools"
+      ],
+      "properties": {
+        "commit_resolution": {"type": "string", "minLength": 1},
+        "tree_resolution": {"type": "string", "minLength": 1},
+        "integrity_check": {"const": "git fsck --full --no-progress"},
+        "source_hash": {"const": "SHA-256 over exact regular-file bytes"},
+        "retrieval": {"type": "string", "minLength": 1},
+        "replay": {"type": "string", "minLength": 1},
+        "tools": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["git", "shasum"],
+          "properties": {
+            "git": {"type": "string", "minLength": 1},
+            "shasum": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    },
+    "copy_policy": {"type": "string", "minLength": 1},
+    "repositories": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {"$ref": "#/$defs/repository"}
+    }
+  },
+  "$defs": {
+    "sha1": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdx", "path", "sha256"],
+      "properties": {
+        "spdx": {"const": "MIT"},
+        "path": {"const": "LICENSE"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit_object", "tree_object", "git_fsck_full", "listed_file_hashes"],
+      "properties": {
+        "commit_object": {"const": "present"},
+        "tree_object": {"const": "present"},
+        "git_fsck_full": {"const": "passed"},
+        "listed_file_hashes": {"const": "passed"}
+      }
+    },
+    "repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "url",
+        "default_branch",
+        "observed_remote_head",
+        "audited_commit",
+        "tree_sha1",
+        "source",
+        "verification",
+        "license",
+        "files",
+        "decision",
+        "do_not"
+      ],
+      "properties": {
+        "id": {"type": "string", "pattern": "^github:[a-z0-9._-]+/[a-z0-9._-]+$"},
+        "url": {"type": "string", "pattern": "^https://github\\.com/[^/]+/[^/]+$"},
+        "default_branch": {"type": "string", "minLength": 1},
+        "observed_remote_head": {"$ref": "#/$defs/sha1"},
+        "audited_commit": {"$ref": "#/$defs/sha1"},
+        "tree_sha1": {"$ref": "#/$defs/sha1"},
+        "source": {"enum": ["existing-pinned-submodule", "shallow-public-clone"]},
+        "verification": {"$ref": "#/$defs/verification"},
+        "license": {"$ref": "#/$defs/license"},
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/file"}
+        },
+        "decision": {"type": "string", "minLength": 1},
+        "do_not": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    }
+  }
+}

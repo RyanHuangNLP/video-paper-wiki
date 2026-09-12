@@ -1,0 +1,222 @@
+{
+  "artifacts": [
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/progress.md",
+      "sha256": "3e3cd8b0ac4ace45ab05da69a3956799e11f1e5b7e0ea7c0729537e6fdea8416",
+      "size_bytes": 2045
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/handoffs/r1/report.md",
+      "sha256": "0a62837364db591057f8956559c2ab7313eb988aae56499c2dc9a515ef76166f",
+      "size_bytes": 3260
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/logs/live-chain.json",
+      "sha256": "aaf62dc78527ceb782a3c2fe714c57876384a9125f463e26805551e8edf642cc",
+      "size_bytes": 2541
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/logs/r2-final-pytest.log",
+      "sha256": "1593ccbd9619db9dca9098a57de1e34142abeba558f09c87b7bde339258c967c",
+      "size_bytes": 180
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/progress.md",
+      "sha256": "8f3e92adda5a0e3ff423a55c58653bc034bea30a0a3081fa724d5f4ad45c6558",
+      "size_bytes": 2000
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/logs/import-t1-r3-t2-r4.json",
+      "sha256": "91c93c5d82310d5b6dce5830a2c37baf00d1249ab974f2e23a4c0e03d8227d54",
+      "size_bytes": 3822
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/logs/t1-import.json",
+      "sha256": "e3520aaf0c4f3ea6ca3b50a26361fed6fe98daec257d7b8dfd8b8868be7cdc32",
+      "size_bytes": 1191
+    },
+    {
+      "exists": true,
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/logs/t2-import-and-cli-gaps.json",
+      "sha256": "b0e815e77850ed6c6515c0a7f7e33ed5c4ef86a9624ffcb0967bcf14d714d428",
+      "size_bytes": 1750
+    }
+  ],
+  "decision": "BLOCKED_PENDING_LANE3_FINAL_AND_LANE4_COMPLETION",
+  "findings": [
+    {
+      "id": "L34-PREFLIGHT-1",
+      "lane": "3",
+      "severity": "BLOCKER",
+      "summary": "Lane 3 progress claims a final r2 handoff and stopped writing, but only partial r1/report.md and Skill copies exist; no handoff.json or ready.json is present. The modified source tree cannot be consumed as an immutable final."
+    },
+    {
+      "id": "L34-PREFLIGHT-2",
+      "lane": "4",
+      "severity": "BLOCKER",
+      "summary": "Lane 4 explicitly remains waiting on T3 and has four skipped live workflow tests plus multiple required validations outstanding. No final handoff/ready is present."
+    },
+    {
+      "id": "L34-PREFLIGHT-3",
+      "lane": "3/4",
+      "severity": "BLOCKER",
+      "summary": "The sandbox cannot enumerate macOS processes (sysmond/pgrep unavailable). Lane 3 has a textual stopped-writing declaration; lane 4 has no equivalent authoritative stopped-writing declaration. New controller startup must recheck per-lane lease/process ownership before launching."
+    },
+    {
+      "id": "L34-PREFLIGHT-4",
+      "lane": "3",
+      "severity": "INFO",
+      "summary": "Lane 3 structural model-document chain is explicitly labeled fixture-only; observed model is grok-4.6 while observed effort is null. Do not treat it as a current-model trial or xhigh evidence."
+    }
+  ],
+  "lanes": {
+    "3": {
+      "branch": "codex/lightweight-workflow-v2-t3",
+      "handoffs": {
+        "all_files_count": 15,
+        "handoff_json": [],
+        "official_final_ready": false,
+        "ready_json": [],
+        "root": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/handoffs"
+      },
+      "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+      "modified_paths": [
+        "M .agents/skills/video-paper-ingest/SKILL.md",
+        " M .agents/skills/video-paper-query/SKILL.md",
+        " M src/video_paper_wiki_research/light_index.py",
+        " M src/video_paper_wiki_research/light_pdf.py",
+        " M tests/research/test_light_index.py",
+        " M tests/research/test_light_pdf.py",
+        "?? .agents/skills/video-paper-read/",
+        "?? src/video_paper_wiki_research/light_context.py",
+        "?? src/video_paper_wiki_research/light_workflow.py",
+        "?? src/video_paper_wiki_research/light_workspace.py",
+        "?? tests/research/test_light_context.py",
+        "?? tests/research/test_light_pdf_recovery.py",
+        "?? tests/research/test_light_selection.py",
+        "?? tests/research/test_light_skill_routing.py",
+        "?? tests/research/test_light_workflow.py",
+        "?? tests/research/test_light_workflow_recovery.py",
+        "?? tests/research/test_light_workspace.py"
+      ],
+      "next_step_observed": "Produce the claimed immutable r2 handoff/ready; current r1 is partial and no formal final is present.",
+      "progress": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/progress.md",
+        "sha256": "3e3cd8b0ac4ace45ab05da69a3956799e11f1e5b7e0ea7c0729537e6fdea8416",
+        "size_bytes": 2045,
+        "text_declares_source_stopped": true
+      },
+      "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-3/source",
+      "status_count": 17,
+      "tracked_source_hashes": {
+        "src/video_paper_wiki_research/cli.py": {
+          "sha256": "27225bbc2f3f762e9513f17a24e5e6a264acba36a8fb3d3ed682834d3d6ce388",
+          "size_bytes": 21710
+        },
+        "src/video_paper_wiki_research/light_context.py": {
+          "sha256": "7c3b46b9323eb04297ea07eb44de319b40430f60cd12316e70f7ef06f66fecac",
+          "size_bytes": 21588
+        },
+        "src/video_paper_wiki_research/light_index.py": {
+          "sha256": "e03b05fe50a7e4793e9b4ab8ab9f0ec4b7fe046ce9865ca2dafdc7040dea07c9",
+          "size_bytes": 30312
+        },
+        "src/video_paper_wiki_research/light_pdf.py": {
+          "sha256": "6a50fbf237a1f28b3f0a58834a05cbfac3c38da02c0db2abbe4e1a1949f1ca80",
+          "size_bytes": 28463
+        },
+        "src/video_paper_wiki_research/light_workflow.py": {
+          "sha256": "73bc3982273189f739481473d786fea8499c626be9bf380c9b9178326cd729d0",
+          "size_bytes": 71814
+        },
+        "src/video_paper_wiki_research/light_workspace.py": {
+          "sha256": "96330683f89ad1d8ec4549eb170d5b130c5b9eeb625b985db9390def21623fd2",
+          "size_bytes": 11088
+        }
+      },
+      "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b"
+    },
+    "4": {
+      "branch": "codex/lightweight-workflow-v2-t4",
+      "handoffs": {
+        "all_files_count": 0,
+        "handoff_json": [],
+        "official_final_ready": false,
+        "ready_json": [],
+        "root": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/handoffs"
+      },
+      "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+      "modified_paths": [
+        "M README.md",
+        " M docs/lightweight-pdf-quickstart.md",
+        " M src/video_paper_wiki_research/cli.py",
+        " M src/video_paper_wiki_research/light_index.py",
+        " M src/video_paper_wiki_research/light_pdf.py",
+        " M tests/research/test_light_index.py",
+        " M tests/research/test_light_pdf.py",
+        "?? src/video_paper_wiki_research/light_context.py",
+        "?? src/video_paper_wiki_research/light_workspace.py",
+        "?? tests/research/test_light_context.py",
+        "?? tests/research/test_light_pdf_recovery.py",
+        "?? tests/research/test_light_selection.py",
+        "?? tests/research/test_light_workflow_cli.py",
+        "?? tests/research/test_light_workflow_installed.py",
+        "?? tests/research/test_light_workspace.py"
+      ],
+      "next_step_observed": "Wait for formal T3 final, then run live workflow CLI without skips, full Python 3.13 suite, new wheel, real-PDF current-session trial, Bash/zsh substitutions, and final handoff/ready.",
+      "progress": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/progress.md",
+        "sha256": "8f3e92adda5a0e3ff423a55c58653bc034bea30a0a3081fa724d5f4ad45c6558",
+        "size_bytes": 2000,
+        "text_declares_source_stopped": false
+      },
+      "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+      "status_count": 15,
+      "tracked_source_hashes": {
+        "src/video_paper_wiki_research/cli.py": {
+          "sha256": "1b2c8121cadd45241bedd6c8e89573183b7c23f74a5c2d65e06085b715b8b9ca",
+          "size_bytes": 27788
+        },
+        "src/video_paper_wiki_research/light_context.py": {
+          "sha256": "11049dee2c727fd8be2d310bba0a9a9817fb91c18b11c93dd1adf1df37ccd5fc",
+          "size_bytes": 21935
+        },
+        "src/video_paper_wiki_research/light_index.py": {
+          "sha256": "9817a819785fed967c8f1d74c48d38c3617d9a25c9d9698aa7a04fda8a26e9fc",
+          "size_bytes": 30632
+        },
+        "src/video_paper_wiki_research/light_pdf.py": {
+          "sha256": "6a50fbf237a1f28b3f0a58834a05cbfac3c38da02c0db2abbe4e1a1949f1ca80",
+          "size_bytes": 28463
+        },
+        "src/video_paper_wiki_research/light_workspace.py": {
+          "sha256": "96330683f89ad1d8ec4549eb170d5b130c5b9eeb625b985db9390def21623fd2",
+          "size_bytes": 11088
+        }
+      },
+      "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b"
+    }
+  },
+  "next_action": "Wait for new packet/controller instructions, then require lane-specific atomic lease and immutable handoff/ready before any of the four Cursor builders launch.",
+  "recorded_at_utc": "2026-09-07T16:34:35.384566+00:00",
+  "requested_topology": "Astra + three native Luna xhigh controllers; controller 1 lane1, controller 2 lane2, controller 3 owns lanes3+4; four Cursor CLI builder processes remain the execution target.",
+  "runtime_observation": {
+    "no_builder_launched_by_this_probe": true,
+    "process_probe": {
+      "command": "pgrep -af cursor-agent|/agent|grok|Codex",
+      "exit_code": 3,
+      "stderr": "sysmon request failed with error: sysmond service not found\npgrep: Cannot get process list",
+      "stdout": "",
+      "writer_process_state": "UNVERIFIABLE_IN_SANDBOX"
+    }
+  },
+  "schema": "four-agent-lanes34-preflight.v1",
+  "scope": "Read-only lane 3/4 preflight; no Cursor launch, model inference, source/config/Git edits, or process termination."
+}

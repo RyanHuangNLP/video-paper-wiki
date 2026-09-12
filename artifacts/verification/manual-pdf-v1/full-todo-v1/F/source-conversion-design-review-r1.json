@@ -1,0 +1,295 @@
+{
+  "$schema": "full-todo.source-conversion-design-review-r1.v1",
+  "packet": "SOURCE-CONVERSION",
+  "revision": "R1-read-only-design-review",
+  "recorded_at_utc": "2026-09-09T06:03:00Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent read-only design reviewer"
+  },
+  "scope": "Design inspection only. No production source, test source, real Vault, operator receipt, Git, network, or human-gate mutation was performed.",
+  "verdict": "DESIGN_READY_FOR_FINAL_FREEZE_WITH_EXPLICIT_BLOCKERS",
+  "baseline": {
+    "source_root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "tree": "d70b6efb5e8e65bb89760f9396f0d94ea8e56e6d",
+    "source_publication_candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/local-candidate-r2.json",
+      "sha256": "5ad4596b9e108eda54c29bf6d231fd1dc66a60a03fb6bab1af865b7d79744402",
+      "snapshot_sha256": "443d2cf980dd74aee8be235cac40d09e55de84e700697698c35d02ef392d21fb",
+      "r2_review_sha256": "3f36b81289a634d210256b29b654aa56b3ba6238dc0a57aafd97b94d2df9fef1",
+      "evidence_correction_sha256": "8dc5a9ff34253f2bd842bc2339d25718e78e12eccb84e6b3259f951b80a8a706"
+    },
+    "prior_design_draft": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-DRAFT-R1.md",
+      "sha256": "572929a18f5d703a4e7d7b8791a3f878d42966e9f2f3f2f1cfe2a73619653c2c",
+      "status": "review draft only; not an implementation freeze"
+    }
+  },
+  "reviewed_interfaces": {
+    "research_lightweight": {
+      "video_paper_wiki_research/light_knowledge.py": "b73ab71336e7ac5fa2843cdf750b81e4586ca8de244ea0f4faa1d19ef2cbd2c0",
+      "video_paper_wiki_research/light_knowledge_batch.py": "4c94eabbcbbeae84651542d94e0de53cf22ec23539461e1967c58c089fdad54c",
+      "video_paper_wiki_research/light_knowledge_refresh.py": "4a9a6cfcd8b78477b112ec1d4f1d1d9a2fc5d3d4ed0a47dd8e233b0807d51ac2",
+      "video_paper_wiki_research/light_index.py": "2a7027baa26681034473955935c1888103289bb0f076dd7f9c380028fa7ce768",
+      "video_paper_wiki_research/source_context.py": "6efca61b82b45cce72c6ba894e6689a2854d763b37ea82f324b3b9406607a50f",
+      "video_paper_wiki_research/locator_truth.py": "a644bbc61ffb4aa394ee747844524c597a317531442d8fe277e7e63550c229d8"
+    },
+    "formal_source_and_state": {
+      "video_paper_wiki/source_versions.py": "c93765c6940d1e1e0a6719d4e56d99c6e6d045fe37b2f1cd2fac6e150889cbb1",
+      "video_paper_wiki/source_state.py": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d",
+      "video_paper_wiki/source_publication.py": "28107980dfce8f5016f10f594d21843dd9c937d2cde0d605af0d82f5e0ae4c50",
+      "video_paper_wiki/source_publication_contracts.py": "c18020822baffce8124fb6786a5bd6c4eacb055efab2f1e963fc9b669bdc67a2",
+      "video_paper_wiki/source_semantics_contracts.py": "406a1c1b14e53dcaec7bd9f3656de877923a46575423fa5d37549cebd082b790",
+      "video_paper_wiki/markdown_source.py": "3df0df8db08383f3b775bd8d35a5e9d1a18fff0b6b27eeadd876924c8dc0e0b4",
+      "video_paper_wiki/markdown_locator.py": "18d8c79b8b779a7cc8cb33f6c55ba425270cfe561a4466871c84347efd87b0fb",
+      "video_paper_wiki/source_registration.py": "cde1f4e5460308b63b7669cafe180868e9789d125b916a20b131bd97b530bc7f",
+      "video_paper_wiki/captured_snapshot.py": "3455186ec7a87c29a67314779eeed941aedc91009ad224c0b79382068276d018",
+      "video_paper_wiki/receipt_audit.py": "561ce75adbd6f5c5dff1be6ca5eebef2c9064ab87280ea2abcb107279e58275a"
+    },
+    "schemas": {
+      "video-paper-wiki.markdown-source-observation.v1": "8da92711aac250ccb0ef26bf7e78a8d91e687c92649f7b211c38ea45c4b2445a",
+      "video-paper-wiki.source-version-association.v1": "31d8bc1befad4506ea14cfdfd63dac6ab49a453919b62d53aa8d5c777d0d1d00",
+      "video-paper-wiki.source-publication-request.v1": "8e487033c03ac40fecfe73f9afcdd1825a7ed86b3158a86d81803731d779ef22",
+      "video-paper-wiki.source-publication-authority.v1": "daee531097a5f9f973ca5bf5e86cb4b65e3fd15974d1fb5a62063b0161941a30",
+      "video-paper-wiki.paper-record.v2": "c239a0e80a23416afe67f81d829cd43ceeae3b5bbef26c1d556d051b4bd84dc0",
+      "video-paper-wiki.evidence-locator.v1": "76511b6b063c98441ad047604600dbccfe4d5a87117c7588251f823c8fe58e2f",
+      "video-paper-wiki.ledger-locator.v2": "d44406abbdc6f1dff451cf55e3699f26367c187edab706fc55aaed99770789b8",
+      "video-paper-wiki.knowledge-publication-request.v1": "598969fddf89ffa579e232447c9c821e7ea61db5773f3c80b0d9dc543641761b"
+    }
+  },
+  "findings": [
+    {
+      "id": "CONVERSION-BOUNDARY-001",
+      "finding": "The lightweight record is a validated, versioned product-workspace artifact, while source publication is a receipt-backed Vault transaction. Conversion is an adapter; a light record, index digest, or model proposal cannot be publication authority.",
+      "evidence": [
+        "light_knowledge._record_bundle_ok validates the five-file record bundle, paper snapshot, source identity, wrapper, coverage, ancestry and completed-batch provenance.",
+        "light_index._index_is_current recomputes live page intervals, chunks, text hashes, stored chunks and document frequency.",
+        "source_publication.prepare_source_publication and inspect_source_publication require an audited publication basis and create an inspect authority; neither applies a transaction."
+      ]
+    },
+    {
+      "id": "REGISTRATION-PREDECESSOR-001",
+      "finding": "Conversion requires an exact capture and source-registration predecessor. A raw .md sibling without an external capture result and receipt-backed ledger claim is insufficient.",
+      "required_material": [
+        "validated Markdown capture authority and approval-bound plan",
+        "validated capture operation-result authority when capture disposition is create",
+        "audited operation head bytes and complete receipt path-to-bytes map",
+        "earliest source-registration receipt and exact historical source-ledger snapshot bytes",
+        "current audited source ledger and registered raw Markdown bytes",
+        "all existing association, observation and extraction bytes"
+      ],
+      "refusal": "Missing, incomplete, orphaned, noncanonical, or nonmatching receipt history is a typed refusal; conversion never mints source IDs, registration receipts, associations, or published status."
+    },
+    {
+      "id": "SOURCE-OBSERVATION-001",
+      "finding": "Build the formal Markdown observation from exact retained source.md bytes and source.json metadata/pages, then run markdown_source.validate_payload before identity or association calculation.",
+      "rules": [
+        "paper_id and light_paper_id are the validated source.json identity; neither is a Vault source_id.",
+        "title/version come from explicit metadata; absent version is the closed unknown object, never an invented label.",
+        "markdown hash/size are computed from retained bytes; source_metadata_sha256 hashes exact source.json bytes, including spelling.",
+        "Pages are checked or re-derived from page-1..page-N anchors and headings. Citation offsets are Unicode character offsets; hashes use UTF-8 bytes.",
+        "original_pdf_sha256 is non-null only when a verified PDF digest from a capture/intake predecessor independently matches the retained metadata binding; a light source digest or directory name alone is not PDF evidence, otherwise null."
+      ]
+    },
+    {
+      "id": "CITATION-TRUTH-001",
+      "finding": "Only current, source-owned light chunks can become Markdown evidence locators.",
+      "rules": [
+        "Require current index and one complete current paper snapshot; validate each cited row against source.md, page, markdown path/hash, text_start/text_end and text_sha256.",
+        "Reject foreign paper IDs, non-source locators, unknown chunks, stale index/record, changed source path/hash, duplicate identities, empty spans and normalization collisions.",
+        "Translate each accepted chunk to a Markdown locator with source_id derived from .raw/captured/<markdown_sha256>.md, association reference, page anchor, half-open Unicode charspan and excerpt hash.",
+        "Run markdown_locator.resolve_markdown_locator against retained raw bytes before staging."
+      ]
+    },
+    {
+      "id": "ASSOCIATION-001",
+      "finding": "Use source_versions.associate_source with actual raw bytes and retained predecessor history; preserve its proposed/reused association as a payload.",
+      "rules": [
+        "source_id derives only from exact raw path/hash and content bytes.",
+        "Pass exact head, complete receipts, current and historical ledger bytes, all associations, raw sources, extraction artifacts and registration ledgers.",
+        "Identical version/bytes/proof/observation reuses byte-for-byte; different observation, proof, path/hash or owner is a typed conflict.",
+        "The extraction descriptor is canonical observation JSON at .raw/derived/markdown-source/<markdown_sha256>/<observation_sha256>.json; conversion never recreates the raw capture."
+      ]
+    },
+    {
+      "id": "CLAIM-MAPPING-001",
+      "finding": "Map only non-unknown light sections into stable canonical v2 provisional claims.",
+      "section_map": {
+        "summary": "one_sentence_conclusion",
+        "method": "method",
+        "architecture": "representation_architecture",
+        "training_data": "training_data",
+        "experiments": "experiments_results",
+        "limitations": "limitations",
+        "code_resources": "code_resources",
+        "open_questions": "research_question"
+      },
+      "rules": [
+        "Use exact validated section text; do not normalize it to defeat identity collisions.",
+        "Unknown sections emit no claim or citation. Every emitted claim has accepted Markdown evidence and remains provisional.",
+        "Only summary is a core candidate; model output does not imply core or acceptance.",
+        "Free-text concepts remain unmapped suggestions unless explicit frozen taxonomy mapping is supplied.",
+        "Duplicate text with incompatible section ownership/evidence is a typed refusal, not a merge."
+      ]
+    },
+    {
+      "id": "HISTORY-001",
+      "finding": "Genesis and invalidation are system events, not human assessment.",
+      "rules": [
+        "New claims receive deterministic v2 system genesis events with reviewed_at null and provisional lifecycle.",
+        "Changed evidence appends a v2 system evidence-invalidation successor and returns the claim to provisional with reviewed_at null.",
+        "Unchanged text/evidence retains prior claim/event/assessment-head bytes exactly.",
+        "Incompatible text, owner, section or lifecycle changes refuse. No human review, source review promotion, display choice, retirement reactivation or default display selection is created."
+      ]
+    },
+    {
+      "id": "COMPILATION-001",
+      "finding": "Compile complete current audited state plus the association and mapped claims, then use existing source-v1 state/compiler validation before prepare.",
+      "rules": [
+        "Preserve old papers, claims, associations, observations, snapshots, decisions, events, ledger rows and registry heads byte-for-byte unless an explicit derived successor is required.",
+        "Claims and paper references absent from this light record are retained, never deleted.",
+        "Include association, exact observation/extraction, source ledger successor where required, paper v2, claim ledger, provisional events, assessment-heads and complete generated pages; keep source-display decisions/heads unchanged.",
+        "Metadata must explicitly provide title/authors/published_at/aliases/taxonomy/code fields where required. Do not substitute conversion time, infer authors/taxonomy or use light paper ID as DOI/arXiv. v2 accepts a canonical date or UTC timestamp; source_state must validate that chosen grammar consistently.",
+        "Recompute complete compiler pages and derived registries; do not add another compiler or receipt constructor."
+      ]
+    },
+    {
+      "id": "TRANSACTION-001",
+      "finding": "Preparation and inspection use one retained snapshot and one current basis.",
+      "rules": [
+        "Open one retained audited Vault snapshot before current-state collection. Retain named directories and every input file required by source_state, compiler and source_versions through assembly, prepare and inspect.",
+        "Under one retention boundary retain papers/<digest>/source.md and source.json, .light-index/index.v1.json, .light-knowledge/HEADS.json, selected five-file record bundle, and referenced batch/refresh provenance and ancestor bundles.",
+        "Read only retained bytes after retention. On success and every exception path verify all retained directory edges and descriptors; replacement, missing, symlink, hardlink or special input yields typed refusal.",
+        "Call prepare_source_publication with sorted exact path-to-bytes payload. If registration already exists, do not use registration branch. Use its no_change envelope for empty effect; never construct a minItems=0 request.",
+        "Call inspect_source_publication on the staged request while retaining the same Vault/upstream snapshot. Basis, inventory, read preconditions, transport and upstream authority must derive from that snapshot. Applying receipt remains an operator action."
+      ]
+    }
+  ],
+  "retained_snapshot_contract": {
+    "light_workspace": {
+      "root": ".work/**/workspace",
+      "required_edges": [
+        "papers/",
+        "papers/<paper_digest>/source.md",
+        "papers/<paper_digest>/source.json",
+        ".light-index/index.v1.json",
+        ".light-knowledge/HEADS.json",
+        ".light-knowledge/records/<record_id>/document.json",
+        ".light-knowledge/records/<record_id>/context.json",
+        ".light-knowledge/records/<record_id>/identity.json",
+        ".light-knowledge/records/<record_id>/manifest.json",
+        ".light-knowledge/records/<record_id>/knowledge.md"
+      ],
+      "conditional_edges": [
+        ".light-knowledge/batch-jobs/<plan_id>/plan.json",
+        ".light-knowledge/batch-jobs/<plan_id>/batches/**",
+        ".light-knowledge/batch-jobs/<plan_id>/merges/**",
+        ".light-knowledge/batch-jobs/<plan_id>/completion.json",
+        "ancestor record bundles named by ancestry",
+        "refresh or selection provenance for extended wrappers"
+      ]
+    },
+    "record_selection": [
+      "Require pointer_head_record_id and current_head_record_id to agree.",
+      "Require _record_bundle_ok with ancestry, completed-job and job-result binding enabled for extended records.",
+      "Reject old heads, pointer/current mismatch, edited managed bytes, unexpected files, symlinks, hardlinks, traversal or incomplete ancestry.",
+      "Capture index_id and paper_snapshot and bind them to every mapped citation and output envelope."
+    ],
+    "vault_snapshot": {
+      "required": [
+        "validated operation HEAD",
+        "complete receipt map",
+        "current source ledger and all historical source-ledger snapshots",
+        "raw captured Markdown bytes",
+        "all existing associations, observations, extractions, decisions, papers, claim ledger, events, registry heads and generated pages required by source_state"
+      ],
+      "identity_rules": [
+        "Earliest registration receipt and ledger snapshot establish predecessor; a later ledger with matching content but missing history is not equivalent.",
+        "Current ledger may supply historical snapshot only when its exact hash is the required predecessor hash.",
+        "Retain every byte before parsing and verify again after assembly and inspect."
+      ]
+    }
+  },
+  "proposed_api_contract": {
+    "inputs": [
+      "workspace_root under .work/**",
+      "light paper_id",
+      "explicit current record_id",
+      "validated capture authority path and receipt-backed registration predecessor",
+      "explicit paper metadata object/path",
+      "batch_id and operation_id distinct from every predecessor",
+      "vault_root and upstream_root",
+      "caller-supplied canonical UTC proposal timestamp"
+    ],
+    "outputs": [
+      "no_change envelope when prospective bytes equal current audited state",
+      "otherwise staged source-publication request path and canonical request hash",
+      "after inspect, source-publication authority with request, transaction declaration/staging, complete read preconditions, receipt/head proposal and upstream authority",
+      "typed refusal with no durable authority on any retained-input, predecessor, basis, citation, history or metadata failure"
+    ],
+    "forbidden_outputs": [
+      "applied receipt or mutable Vault write",
+      "fabricated source ID/version",
+      "claim acceptance or human review",
+      "display selection",
+      "real-data/license claim",
+      "success after retained input changed or disappeared"
+    ]
+  },
+  "required_acceptance_vectors": [
+    "Synthetic isolated chain: completed light record -> capture authority -> receipt-backed Markdown registration -> conversion -> source-publication prepare -> inspect -> explicitly approved isolated fixture apply -> typed source-state audit. Never report fixtures as real authorization.",
+    "Run identical conversion twice; second run is byte-stable no_change with no new receipt/event.",
+    "Change light HEAD, source.md/source.json, page anchors, index bytes or cited Unicode text between reads; refuse stale/source/index and emit no authority.",
+    "Foreign citation, non-source locator, unknown chunk, changed path/hash, empty span, CRLF/Unicode offset mismatch and normalization collision all refuse without rewriting text.",
+    "Legacy and v2 histories: unchanged accepted evidence stays byte-identical; changed evidence appends only typed system invalidation and clears reviewed_at; incompatible text/owner/section refuses.",
+    "Duplicate incompatible section ownership, missing citation, all-unknown document and free-text concepts have explicit closed outcomes.",
+    "Capture reuse, association reuse, source-version conflict and missing/late/orphan registration receipt produce exact reuse or typed refusal; historical bytes are never overwritten.",
+    "Replacement/delete/symlink/hardlink/race on named light or Vault input during success and exception paths produces typed unsafe/stale and never a prepared request.",
+    "Payload/path/digest limits, stale operation head, changed read precondition, incomplete source inventory and installed-wheel schema/resource checks."
+  ],
+  "unresolved_freeze_questions": [
+    {
+      "id": "METADATA-001",
+      "question": "What closed metadata input is authoritative for title, authors, publication date, aliases, DOI/arXiv, code URLs and taxonomy, and how is its exact file/hash retained?",
+      "required_decision": "Freeze metadata schema/path; require explicit real published_at date or UTC timestamp. Missing/guessed fields refuse."
+    },
+    {
+      "id": "RETENTION-001",
+      "question": "Which batch/refresh provenance files and ancestor bundles are required for each extended record mode, and what bound applies to the retained tree?",
+      "required_decision": "Freeze recursive allowlist and byte/file limits; redirect validators to retained descriptors only."
+    },
+    {
+      "id": "HANDOFF-001",
+      "question": "How does one same-snapshot identity flow from light validation through Vault assembly, prepare and inspect without reopening live paths?",
+      "required_decision": "Freeze a retained-session descriptor with named edge identities, exact bytes or safe handles, input hashes, index_id, record_id, operation-head hash, receipt head and ledger predecessor; verify final edges on every exit."
+    },
+    {
+      "id": "COMPILER-001",
+      "question": "What exact canonical compiler entrypoint/input envelope accepts complete historical state plus new provisional rows without changing legacy pages?",
+      "required_decision": "Freeze entrypoint, registry mirrors and byte-stability rules before implementation; do not use publication_bridge's legacy generic-stage path."
+    },
+    {
+      "id": "REGISTRATION-002",
+      "question": "Does conversion accept only an already receipt-backed registration, or prepare a registration predecessor too?",
+      "required_decision": "This bounded package requires an already receipt-backed registration. Same-call registration would need a separate contract/freeze."
+    }
+  ],
+  "implementation_boundary": {
+    "status": "not_dispatchable_until_final_contract_freeze",
+    "must_not": [
+      "edit production files while this artifact is active",
+      "call legacy publication_bridge generic staging",
+      "read/write a real Vault or run vpwiki-admin",
+      "treat light digest, model proposal, test approval fixture or prospective source ID as authority",
+      "change frozen 67-entry catalog/overlays or source-publication contracts"
+    ],
+    "next_freeze_evidence": [
+      "metadata schema and retained-light-tree descriptor",
+      "same-snapshot handoff and race semantics",
+      "complete isolated historical registration fixture",
+      "compiler entrypoint and claim/history mapping contract",
+      "independent review of frozen successor"
+    ]
+  }
+}

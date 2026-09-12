@@ -1,0 +1,192 @@
+{
+  "$schema": "full-todo.discovery-storage-graph-wip-review-r3.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R3-storage-graph-integration-probe-review",
+  "reviewed_at_utc": "2026-09-09T10:37:00Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded storage/public-wiring probe reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "PROBE_GO_WITH_GRAPH_AND_FINAL_HANDOFF_GATES_OPEN",
+  "verdict": "The current retained storage plus the reviewed public init/plan/observe/finish/resume/control wiring passes the bounded R3 interruption, reservation, strict candidate-admission and partial-projection probes. No new storage blocker was reproduced. Graph semantic review remains owned by the separate agent; the parent handoff edit and exact final integrated hash/CI remain delivery gates.",
+  "scope": "Read-only review of discovery_storage.py and the public discovery workflow wiring, excluding the separately owned Graph semantic review and the parent-owned handoff implementation decision. All probes used only temporary checkouts under /private/tmp. No source, schema, test, Git, network, connector, real Vault or human gate was mutated.",
+  "source_snapshots": [
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_storage.py",
+      "sha256": "f62562765493cf58909d04c4224538b68b98052f0534fd6830872f8fd72ce74b",
+      "size_bytes": 21185,
+      "lines": 469,
+      "reviewed_scope": "retained storage, Graph binding, capacity/preflight, install and open_store"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery.py",
+      "sha256": "1491bd0385e465aa31aa106c96312ce35bc5a99d058e518ccd769c338536ef65",
+      "size_bytes": 21527,
+      "reviewed_scope": "_session, _sync, init, status, plan, observe, finish, resume and control; handoff excluded from semantic review"
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_graph.py",
+      "sha256": "043fe04b25b7eead681b9fecb038767ceed5dc61ab0eb3d8cc6462f7cb1513f6",
+      "size_bytes": 24266,
+      "reviewed_scope": "dependency only; Graph semantics remain under separate review"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-storage-wip-review-r2.json",
+      "sha256": "d7f222698360baaf4cf43f2d29c61813b38ee9f0b9df77a80fcc5362b4c1788f",
+      "size_bytes": 8024
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/tests/research/discovery_fixture.py",
+      "sha256": "20fabeb936a31c7c8d7aa8b50e7884b8e82d779a79f28bd53f036decdd8035c5",
+      "size_bytes": 5741
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/tests/research/test_discovery_workflow.py",
+      "sha256": "36be4d13d12844b9293ebf5c4f43fc6b167f925f9a5189c4870fda8a128530c5",
+      "size_bytes": 4652
+    }
+  ],
+  "observed_source_changes": [
+    {
+      "id": "R3-STORAGE-GRAPH-BIND",
+      "status": "PRESENT",
+      "evidence": "parse() binds Graph and pending_plan, while install() constructs a prospective Graph, preflights with old-or-new reservation, and updates graph/pending_plan only after retained install verification (discovery_storage.py:268-279, 366-407)."
+    },
+    {
+      "id": "R3-PUBLIC-SYNC",
+      "status": "PRESENT",
+      "evidence": "_sync() derives pending_plan from the current Graph and preflights it; plan reserves before plan installation, observe performs prospective Graph admission, and finish preflights assessment plus pending projections (discovery.py:18-28, 152-178, 181-203, 215-250)."
+    }
+  ],
+  "probes": [
+    {
+      "id": "R3-RESERVATION-INTERRUPTS",
+      "kind": "pending-plan reservation and reopen/repair at N=1 and N=8",
+      "method": "For each N, init used per_round_requests=N. DiscoveryStore.install was interrupted immediately after plan install and again after the first request install. Each failure was reopened through public status/open_store; resume then repaired exact request files.",
+      "cases": [
+        {
+          "n": 1,
+          "point": "after_plan",
+          "root": "/private/tmp/discovery-r3-n1-ov29tyko",
+          "error": "interrupt-after-plan",
+          "pending_after_reopen": true,
+          "missing_requests_after_reopen": 1,
+          "reserved_request_files": 1,
+          "charged_total_bytes": 14681813,
+          "request_files_after_repair": 1,
+          "repair_base_state": "plan_pending_observations",
+          "missing_observations_after_repair": 1
+        },
+        {
+          "n": 1,
+          "point": "after_first_request",
+          "root": "/private/tmp/discovery-r3-n1-mlxd6tdz",
+          "error": "interrupt-after-first-request",
+          "pending_after_reopen": true,
+          "missing_requests_after_reopen": 0,
+          "reserved_request_files": 1,
+          "charged_total_bytes": 14681813,
+          "request_files_after_repair": 1,
+          "repair_base_state": "plan_pending_observations",
+          "missing_observations_after_repair": 1
+        },
+        {
+          "n": 8,
+          "point": "after_plan",
+          "root": "/private/tmp/discovery-r3-n8-sxv7e_xo",
+          "error": "interrupt-after-plan",
+          "pending_after_reopen": true,
+          "missing_requests_after_reopen": 8,
+          "reserved_request_files": 8,
+          "charged_total_bytes": 14681813,
+          "request_files_after_repair": 8,
+          "repair_base_state": "plan_pending_observations",
+          "missing_observations_after_repair": 8
+        },
+        {
+          "n": 8,
+          "point": "after_first_request",
+          "root": "/private/tmp/discovery-r3-n8-9t9i_i4i",
+          "error": "interrupt-after-first-request",
+          "pending_after_reopen": true,
+          "missing_requests_after_reopen": 7,
+          "reserved_request_files": 8,
+          "charged_total_bytes": 14681813,
+          "request_files_after_repair": 8,
+          "repair_base_state": "plan_pending_observations",
+          "missing_observations_after_repair": 8
+        }
+      ],
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:100-141",
+        "DISCOVERY-EXPANSION-BOUNDS-R4:40-84"
+      ]
+    },
+    {
+      "id": "R3-STRICT-PROSPECTIVE-CANDIDATE-CAP",
+      "kind": "prospective candidate admission before observation installation",
+      "root": "/private/tmp/discovery-r3-cap-kpnnf3u3",
+      "method": "Configured unique_candidates=1 and submitted one terminal observation containing two distinct arXiv identities. The public observe path constructed its prospective Graph before store.install.",
+      "observed": {
+        "error_code": "DISCOVERY_LIMIT_EXCEEDED",
+        "observation_files": 0,
+        "missing_observations": 1,
+        "base_state": "plan_pending_observations",
+        "candidate_remaining": 1
+      },
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-FINAL-R7:17-27",
+        "DISCOVERY-EXPANSION-BOUNDS-R4:92-110"
+      ]
+    },
+    {
+      "id": "R3-PARTIAL-PROJECTION-CONTROL-RESUME",
+      "kind": "partial projection interruption followed by user_stop/resume and repair",
+      "root": "/private/tmp/discovery-r3-projection-gbp82s9u",
+      "method": "Completed one observation, interrupted finish after paper-candidate-set installation, reopened projection_pending, installed a user_stop control, installed an explicit resume control, then called resume to repair rank, stop and event.",
+      "observed": {
+        "interrupt": "interrupt-after-candidate-set",
+        "partial_base_state": "projection_pending",
+        "partial_candidate_count": 1,
+        "partial_event_count": 0,
+        "stopped_effective_state": "user_stopped",
+        "resumed_control_effective_state": "projection_pending",
+        "completed_base_state": "complete_continue",
+        "completed_event_count": 1,
+        "final_has_rank": true,
+        "final_has_stop": true
+      },
+      "result": "PASS",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:57-98",
+        "DISCOVERY-EXPANSION-DESIGN-R2:320-356"
+      ]
+    }
+  ],
+  "workflow_suite": {
+    "command": "PYTHONPATH=src /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -m pytest -q tests/research/test_discovery_workflow.py",
+    "result": "6 passed in 8.13s",
+    "scope": "Read-only execution of the existing six public discovery workflow tests in the parallel source checkout."
+  },
+  "findings": [],
+  "deferred_gates": [
+    "Separate Graph semantic review remains authoritative for complete membership, controls, projection identities and all graph stop/rank rules.",
+    "Parent handoff changes may still alter discovery.py; the discovery.py hash above is the reviewed snapshot only and is not a final integrated-head claim.",
+    "Re-run exact integrated source hashes, both local Python suites, installed-wheel/resource parity and fresh four-job CI before implementation acceptance."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

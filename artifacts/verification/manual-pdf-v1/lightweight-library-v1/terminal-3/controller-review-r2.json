@@ -1,0 +1,163 @@
+{
+  "architect_accepted": false,
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "bundle": {
+    "checks_sha256": "75eab2cfc816dba27adc4534ff5e302f026b8bc05ba1449187de6e7079f1e1a1",
+    "dependency_pending": true,
+    "files": [
+      {
+        "path": ".agents/skills/video-paper-read/SKILL.md",
+        "sha256": "42c111c31e2cc59a83d4616a8b052bcc457a7145dffe5e79a2044292316799fe",
+        "size_bytes": 4478
+      },
+      {
+        "path": ".agents/skills/video-paper-read/references/library.md",
+        "sha256": "998cfcaafe75f114f1c7252ec7d2ba04fb79bc79e642cec25444846839eaee6f",
+        "size_bytes": 7336
+      },
+      {
+        "path": ".agents/skills/video-paper-read/references/workflow.md",
+        "sha256": "0b407862829e34118a8fc3be820e7e3fda44a4b2737bb81238324237173e6449",
+        "size_bytes": 3603
+      },
+      {
+        "path": "README.md",
+        "sha256": "480ee3958ede31daf31d083d9298980fe4f0605a1aca0072044348a4f8e01e34",
+        "size_bytes": 14477
+      },
+      {
+        "path": "docs/lightweight-library-quickstart.md",
+        "sha256": "4c1739faa85099ad8590c73cade3624e2a531de55c0e694de864cad8a07ebc7b",
+        "size_bytes": 7121
+      },
+      {
+        "path": "docs/lightweight-pdf-quickstart.md",
+        "sha256": "5d13be0c34c956f45e21a6bf22f68db63bad455e0926c8554985477cb5fb0a4e",
+        "size_bytes": 10156
+      },
+      {
+        "path": "src/video_paper_wiki_research/cli.py",
+        "sha256": "79f691eac77fddb5f0439a2dd0bc73e91cf15799e97ecec7eee74263f26fa21f",
+        "size_bytes": 47606
+      },
+      {
+        "path": "tests/research/test_light_library_cli.py",
+        "sha256": "d84b494e4dce7e660456286e5e5a12e541fedd003d0861218d827287133a22da",
+        "size_bytes": 37106
+      },
+      {
+        "path": "tests/research/test_light_library_installed.py",
+        "sha256": "c61b61c28b56e2669c47da526956309dce3e4aec5f3b568354030415c7db9d91",
+        "size_bytes": 6732
+      },
+      {
+        "path": "tests/research/test_light_library_pipeline.py",
+        "sha256": "25496a413bc5e9abff914e50d924850b531813ddc49d07c937c58ab071d451e2",
+        "size_bytes": 6583
+      }
+    ],
+    "handoff_ready_byte_identical": true,
+    "handoff_sha256": "b4ade57cbdd7734850b680b7b344ec0964b86d10801e07e389f553b52699ad02",
+    "imported_snapshots": [],
+    "inputs": [],
+    "ready_sha256": "b4ade57cbdd7734850b680b7b344ec0964b86d10801e07e389f553b52699ad02",
+    "report_sha256": "9432a6f0d9d1418417734bd0b330a786099d7134e1c3da2b60d41de335f9b7db",
+    "source_hashes_match_bundle": true,
+    "source_writer_stopped": true
+  },
+  "candidate_snapshot": "a6e114fde2195d22a7b1a3480b6d62394b4e3a675d1f7a30c9698b5f4c80ba56",
+  "checks": {
+    "focused_owned_and_regression": {
+      "note": "The single skip is the live owner pipeline dependency_pending path.",
+      "result": "73 passed, 1 skipped",
+      "status": "PASS"
+    },
+    "skill_quick_validate": {
+      "result": "Skill is valid!",
+      "status": "PASS"
+    },
+    "synthetic_input_and_json_safety": {
+      "cases": [
+        "valid outside-.work JSON forwarding",
+        "malformed, non-object, duplicate-key, NaN/Infinity, invalid UTF-8, BOM and oversize JSON refusal",
+        "final-edge and parent-edge symlink, hardlink, directory and FIFO JSON refusal",
+        "CLI JSON/nonzero response before backend dispatch for ordinary invalid inputs",
+        "valid wrapper forwarding and preservation of an explicit outside-.work .md extra output",
+        "extra-output symlink, hardlink, directory, FIFO, missing, invalid UTF-8 and oversize refusal",
+        "legacy qa/writing/workflow JSON NaN behavior remains unchanged"
+      ],
+      "status": "PASS"
+    }
+  },
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "disposition": "CHANGES_REQUIRED_FOR_T3_R3",
+  "environment": {
+    "git_mutations": false,
+    "interpreter": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "owner_modules_imported": false,
+    "python_version": "3.13.13",
+    "pythonpath": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-3/source/src",
+    "source_edits": false,
+    "vault_writes": false
+  },
+  "findings": [
+    {
+      "area": "json_parser_error_contract_and_resource_bound",
+      "evidence": "src/video_paper_wiki_research/cli.py:494-532, 1069-1074, 1160-1169",
+      "id": "T3-R2-CLI-JSON-001",
+      "impact": "The documented JSON/nonzero/no-traceback contract is violated for a small untrusted input; a parser recursion crash can be used as a denial-of-service input and is not reported as LIGHT_HANDOFF_INVALID.",
+      "reproduction": {
+        "backend_called": false,
+        "command": "python -m video_paper_wiki_research knowledge import --workspace <.work/ws> --context deep-array.json --document deep-array.json",
+        "input": "{\"a\":[ repeated 10000 times ]0] repeated 10000 times}",
+        "input_bytes": 20007,
+        "returncode": 1,
+        "stderr_tail": "RecursionError: maximum recursion depth exceeded while decoding a JSON array from a unicode string",
+        "stdout": ""
+      },
+      "required_fix": "Bound nesting before decode or catch RecursionError in _parse_library_json_object and map it to LIGHT_HANDOFF_INVALID; add a CLI regression asserting one JSON error object, nonzero exit and no stderr traceback.",
+      "severity": "P1",
+      "status": "open",
+      "summary": "A deeply nested but bounded JSON object escapes the CLI error envelope with RecursionError and a traceback."
+    },
+    {
+      "area": "json_parser_error_contract_and_integer_bound",
+      "evidence": "src/video_paper_wiki_research/cli.py:494-532, 1069-1074, 1160-1169",
+      "id": "T3-R2-CLI-JSON-002",
+      "impact": "The same documented JSON/nonzero/no-traceback contract fails for a valid JSON number exceeding the interpreter safety limit; callers receive no actionable JSON refusal.",
+      "reproduction": {
+        "backend_called": false,
+        "command": "python -m video_paper_wiki_research knowledge import --workspace <.work/ws> --context big-int.json --document big-int.json",
+        "input": "{\"a\":9 repeated 5001 times}",
+        "input_bytes": 5007,
+        "returncode": 1,
+        "stderr_tail": "ValueError: Exceeds the limit (4300 digits) for integer string conversion: value has 5001 digits; use sys.set_int_max_str_digits() to increase the limit",
+        "stdout": ""
+      },
+      "required_fix": "Use a bounded parse_int or catch ValueError in _parse_library_json_object and map it to LIGHT_HANDOFF_INVALID; add a regression for the interpreter digit-limit case.",
+      "severity": "P2",
+      "status": "open",
+      "summary": "A JSON integer beyond Python 3.13 digit limits escapes the CLI error envelope with ValueError and a traceback."
+    }
+  ],
+  "freeze_sha256": "e7711168f6f4f40c2f41a7bdffcd083ca1fd2dd6de5d840bdd2c9af824247fc4",
+  "lane": 3,
+  "next": "Preserve the R2 snapshot and this review. Add only bounded JSON parser handling/regression evidence in a new T3 R3 packet before final integration acceptance; do not import T1/T2 owners in this review.",
+  "non_findings": [
+    "A 5000-level nested array reached the expected LIGHT_MODULE_UNAVAILABLE stub boundary without traceback, so the defect threshold is the unhandled 10000-level recursion case.",
+    "No ordinary malformed/unsafe path or JSON case in the synthetic matrix produced a defect."
+  ],
+  "packet": "lightweight-library-v1",
+  "previous_snapshot": "fc867e8c9031c7a273af07a026dc3c4ff1b9df0f2ca3656fd47d29edd3b09c6a",
+  "recorded_at_utc": "2026-09-08T05:17:25Z",
+  "review_mode": "read_only_controller_review_with_locked_synthetic_cli_replay",
+  "revision": "r2",
+  "schema": "lightweight-library-v1-terminal-3-controller-review.v2",
+  "source_local_bundle": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-3/source/.work/verification/lightweight-library-v1/terminal-3/r2",
+  "static_review": {
+    "cli": "_read_library_json uses lstat path-edge checks, read_regular_file nofollow/single-hardlink regular-file validation, an 8 MiB bound, strict UTF-8, top-level object, duplicate-key, nonfinite and BOM refusal. New handlers parse JSON before owner dispatch and generated paths retain .work guards.",
+    "documentation": "The R2 Skill/docs describe retaining export stdout objects, internal model-authored JSON, strict UTF-8/8 MiB inputs, file-only backup, external PDFs, reindex/reprepare, and no replacement after pre-staging abort.",
+    "legacy_compatibility": "The legacy _read_json path remains unchanged and accepts NaN as before."
+  },
+  "status": "CHANGES_REQUIRED"
+}

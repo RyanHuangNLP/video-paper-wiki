@@ -1,0 +1,38 @@
+{
+  "record_type": "domain-preparation-review-r1",
+  "reviewed_at_utc": "2026-09-10T15:30:00Z",
+  "decision": "GO_FOR_PREPARATION_WITH_EXPLICIT_REVISIONS_BEFORE_FREEZE",
+  "consistency": [
+    "The preparation correctly preserves the supplement-r2 dispositions: light_compare remains provisional, live contexts remain available, and original/rewrite lexical RRF behavior is retained.",
+    "Its profile/head, annotation/assessment, condition comparability, typed relations, publication, projection, fusion, context budget, freshness, and compatibility cases align with PRD 7.1 and 8 and do not turn provisional artifacts into supported typed facts.",
+    "The preparation is explicitly non-freeze and keeps real corpus, scientific review, and QUALITY gates separate, consistent with both audits."
+  ],
+  "required_revisions_before_contract_freeze": [
+    {
+      "area": "PRD 7.1 taxonomy and claim contract",
+      "gap": "The cases bind claim text/evidence/assessment/profile heads but do not explicitly bind the typed concept inventory, claim_kind values, taxonomy-v1 no-in-place-expansion rule, proposal-to-v2 migration, or immutable claim-ID/history behavior.",
+      "action": "Add these fields and migration/history checks to the eventual profile/annotation contract."
+    },
+    {
+      "area": "PRD 7.2 paper/code officiality carried by the preparation",
+      "gap": "The paper/code case is conservatively worded but does not name evidence classes A-D, project-page/README locator handling, the no-reverse-citation exception, or the relation-review extension and linkage to existing alignment/receipt.",
+      "action": "Bind those evidence categories, locators, review state, and positive/unverified/unofficial branches before freezing officiality relations."
+    },
+    {
+      "area": "PRD 8 query and answer contract",
+      "gap": "Retrieval fusion and context provenance are covered, but the preparation does not explicitly bind the required intent/entity/filter vocabulary, answer proposal runtime/model/prompt/input summary, or exact existing stale refusal behavior (CATALOG_STALE and RETRIEVAL_GENERATION_MISMATCH).",
+      "action": "Add compatibility-preserving query/answer and stale-status obligations to the contract trace."
+    },
+    {
+      "area": "PRD 10 acceptance trace",
+      "gap": "The document defers the full QUALITY protocol but does not record the handoff obligations for W5a/W5b1/W5b2 gold thresholds, six-category coverage, three independent qualification rounds, support/coverage gates, corpus/distractor manifests, and versioned evaluators.",
+      "action": "Keep these outside the DOMAIN engine freeze, but bind them as explicit external acceptance gates and state that engine tests cannot satisfy them."
+    }
+  ],
+  "audit_disposition": {
+    "domain03": "consistent with supplement-r2 partial provisional comparison and typed-condition gap",
+    "domain09": "consistent with supplement-r2 live context and typed budget-pack gap",
+    "domain01_02_04_05_06_07_08_10": "not contradicted; the preparation cases are a forward contract checklist, not evidence that these missing capabilities already exist"
+  },
+  "scope": "Preparation review only; no source/product/schema/profile/Git/test changes."
+}

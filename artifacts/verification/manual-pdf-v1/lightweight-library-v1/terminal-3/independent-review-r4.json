@@ -1,0 +1,137 @@
+{
+  "schema": "video-paper-wiki.lightweight-library-v1-terminal-3-independent-review-r4.v1",
+  "recorded_at_utc": "2026-09-08T14:24:00+00:00",
+  "review_mode": "independent_stopped_source_delta_and_focused_cli_review",
+  "source_executed": true,
+  "active_t3_source": false,
+  "decision": "GO_FOR_ARCHITECT_R4_LOCAL_REVIEW_CONDITIONAL_ON_T2_UNICODE_OWNER_FIX",
+  "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-3/source",
+  "baseline": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "r3_t3_owner_snapshot_sha256": "c158ed42f5b836ac52f96083a74707dd419afc0baa6c59756d24955777b8f00f",
+  "r4_t3_owner_snapshot_sha256": "24d129d75ecf804bdc68fa9416de99a98575a9a02c6127f3fd6714a942c716ed",
+  "r4_full_candidate_snapshot_sha256": "02f0040e8b81879743456019f57a7663bb1312467e8b9301af3ffc6feeb3895c",
+  "final_candidate_artifact_sha256": "1a140c1164a028470644df63b30940d64300db4350fe6c4b423d378a0c98b3ad",
+  "r4_handoff_sha256": "c235be3ffed9fd01731219faf0304da89edc0dd2875cd9456a0ed3784fec7c50",
+  "r4_freeze_sha256": "bee3db550695a7cd12d49c087a2f7a90709c0dde643b2e1aa61401a2399ce8fd",
+  "source_scope": {
+    "status_path_count": 26,
+    "final_candidate_path_count": 26,
+    "status_matches_final_candidate": true,
+    "all_26_source_rows_match_final_candidate": true,
+    "recomputed_full_snapshot_matches_final_candidate": true,
+    "t3_owner_path_count": 11,
+    "accepted_import_path_count": 15,
+    "accepted_import_rows_match_bundle_and_imported_source": true,
+    "r4_handoff_ready_equals_handoff": true,
+    "r4_handoff_snapshot_recomputed": true
+  },
+  "actual_delta": {
+    "t3_owned_paths_changed_from_r3": [
+      ".agents/skills/video-paper-read/references/library.md",
+      "docs/lightweight-library-quickstart.md",
+      "tests/research/test_light_library_installed.py",
+      "tests/research/test_light_library_pipeline.py"
+    ],
+    "t3_owned_paths_unchanged_from_r3": [
+      ".agents/skills/video-paper-read/SKILL.md",
+      ".agents/skills/video-paper-read/agents/openai.yaml",
+      ".agents/skills/video-paper-read/references/workflow.md",
+      "README.md",
+      "docs/lightweight-pdf-quickstart.md",
+      "src/video_paper_wiki_research/cli.py",
+      "tests/research/test_light_library_cli.py"
+    ],
+    "accepted_t2_r7_replacements": [
+      "src/video_paper_wiki_research/light_library.py",
+      "src/video_paper_wiki_research/light_pdf.py",
+      "tests/research/test_light_library.py",
+      "tests/research/test_light_library_recovery.py"
+    ],
+    "t1_imports_unchanged": true,
+    "other_t2_imports_unchanged": true
+  },
+  "focused_checks": [
+    {
+      "name": "stopped-r4-focused-cli-pipeline-installed",
+      "result": "pass",
+      "command": "python -m pytest -q tests/research/test_light_library_cli.py tests/research/test_light_library_pipeline.py tests/research/test_light_library_installed.py",
+      "result_detail": "47 passed in 7.22s",
+      "environment": {
+        "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "python_version": "3.13.13",
+        "PYTHONPATH": "stopped R4 source/src",
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "1",
+        "UV_OFFLINE": "1",
+        "UV_PYTHON_DOWNLOADS": "never",
+        "UV_CACHE_DIR": "/Users/huangzhanpeng/.cache/uv",
+        "LW2_UV_CACHE": "/Users/huangzhanpeng/.cache/uv"
+      },
+      "coverage": [
+        "actual library/knowledge/compare/backup CLI routing",
+        "same-paper archive -> restore -> replace -> recover sequence",
+        "nested Markdown/code notes and empty directory inventory",
+        "fresh isolated wheel provenance and live module entrypoint operations",
+        "isolated console entrypoint library list",
+        "metadata/index staleness, cited comparison, backup history and external Markdown"
+      ]
+    },
+    {
+      "name": "r4-recorded-focused-integrated-suite",
+      "result": "pass",
+      "evidence": "stopped R4 checks.json",
+      "result_detail": "237 passed in 2.42s; no dependency-pending skip",
+      "note": "The independent replay above covers the owned CLI, pipeline, and installed tests; the handoff records the broader integrated focused suite."
+    },
+    {
+      "name": "official-skill-validator",
+      "result": "pass",
+      "command": "quick_validate.py stopped-R4/.agents/skills/video-paper-read",
+      "result_detail": "Skill is valid!"
+    },
+    {
+      "name": "r4-recorded-dual-full",
+      "result": "pass_recorded_not_replayed",
+      "result_detail": "2588 passed on Python 3.13.13 and 2588 passed on Python 3.12.14 with both UV_CACHE_DIR and LW2_UV_CACHE explicitly populated",
+      "note": "This review intentionally did not rerun dual full suites."
+    }
+  ],
+  "documentation_review": {
+    "result": "accurate_for_current_supported_flows_with_inherited_unicode_gap",
+    "evidence": [
+      "Skill routes knowledge export -> current-session model -> import -> build and compare export -> model -> import.",
+      "library reference and quickstart describe exact stdout context preservation, source-backed citations, stale states, nested-note/empty-directory archive/restore, same-paper restore successor replacement, file-only ZIPs, original-PDF exclusion, history relocation, and reindex/prepare after restore.",
+      "Docs and Skill validator passed; owned pipeline documentation assertions passed."
+    ]
+  },
+  "findings": [
+    {
+      "id": "R4-T2-UNICODE-ZIP-FLAG",
+      "severity": "P1_inherited_owner",
+      "status": "blocks_final_acceptance_until_T2_fix_and_unicode_regression",
+      "summary": "The T2 backup verifier rejects the UTF-8 language-encoding ZIP flag produced by Python zipfile for non-ASCII member names such as notes-α. R4 T3 pipeline and installed fixtures deliberately use ASCII notes-alpha paths, so their backup checks do not close this case.",
+      "ownership": "T2 light_backup owner behavior; no T3 backend edit or T3 delta is implicated.",
+      "required_next_evidence": "After the T2 owner fix, rerun a real non-ASCII filename/path create -> verify -> restore case through the integrated CLI and installed wheel; retain the ASCII nested-note checks as additional coverage."
+    },
+    {
+      "id": "R4-DOC-UNICODE-CAVEAT",
+      "severity": "P2_inherited_owner",
+      "status": "track_with_T2_fix",
+      "summary": "The Skill/library docs describe general file-only backup behavior but do not state the current non-ASCII ZIP limitation. They are accurate for the exercised ASCII and nested-note flows; final documentation acceptance should follow the T2 Unicode regression result."
+    },
+    {
+      "id": "R4-CONSOLE-BREADTH",
+      "severity": "P2_evidence_scope",
+      "status": "non_blocking",
+      "summary": "The installed test exercises all broad operations through the isolated module entrypoint and explicitly smokes the installed console script with library list. It does not repeat every operation through the console script, so the evidence should be described as module-wide coverage plus console-entrypoint smoke rather than full console parity."
+    }
+  ],
+  "limitations": [
+    "No real-paper/current-model trial was read or executed.",
+    "No dual full suite was rerun in this review; the 2588/2588 results are stopped-R4 recorded evidence.",
+    "No source, Git, Vault, PR, or runner mutation was performed."
+  ],
+  "ready_for_architect": true,
+  "architect_accepted": false,
+  "final_acceptance_blocker": "Inherited T2 non-ASCII ZIP flag fix and focused Unicode regression remain required before exact final acceptance."
+}

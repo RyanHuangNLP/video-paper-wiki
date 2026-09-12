@@ -1,0 +1,99 @@
+{
+  "schema": "video-paper-wiki.architect-t2-r8-bounded-review.v1",
+  "reviewed_at_utc": "2026-09-08T06:28:41Z",
+  "status": "GO_FOR_INDEPENDENT_ARCHITECT_REPLAY",
+  "architect_acceptance": false,
+  "ci_acceptance": false,
+  "source_mutation_by_review": false,
+  "runner": {
+    "run_id": "20260908T062135Z-122eb0fed9d840e9b79831d44e1ddf73",
+    "session_id": "fd52ece9-a232-401c-8607-333652384b19",
+    "model": "Cursor Grok 4.6 Extra High Fast",
+    "requested_model": "cursor-grok-4.6-xhigh-fast",
+    "freeze_sha256": "9e842807be919f2d5daf24aa74950c3a297ed6305a54ea7dbf6e6133b964df93",
+    "freeze_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-library-v1/t2-r8-freeze.json",
+    "actual_result_event_count": 1
+  },
+  "handoff": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r8/handoff.json",
+    "sha256": "ad90d7863cb677a2f9d313c74d0e5bafd0001a4e8eae8f9267b0a87766616a31",
+    "ready_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r8/ready.json",
+    "ready_sha256": "ad90d7863cb677a2f9d313c74d0e5bafd0001a4e8eae8f9267b0a87766616a31",
+    "byte_identical": true,
+    "snapshot_sha256": "feb270f1145c4405339d9c1b0bfdb8083a99bae3670e2f7280765c5d14d0dfb1",
+    "status": "ready_for_architect",
+    "architect_accepted": false,
+    "stopped_writing": true,
+    "owner_file_count": 9
+  },
+  "delta_review": {
+    "previous_snapshot_sha256": "a3d06ca1aeee2673d6057a7bd619562e4a32d9569dba9ee2f50dd41ea81d7f34",
+    "allowed_paths": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "tests/research/test_light_backup.py"
+    ],
+    "changed_paths": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "tests/research/test_light_backup.py"
+    ],
+    "exactly_two_allowed_paths": true,
+    "all_nine_bundle_manifest_hashes_match": true,
+    "bundle_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r8/files"
+  },
+  "tests": {
+    "checks_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r8/checks.json",
+    "checks_sha256": "ae6c069e3c5fc672fd4f0a44ff75ce10b3c17d9685d8516d7934d12607d70776",
+    "focused_passed": 109,
+    "related_passed": 95,
+    "failed": 0,
+    "commands_exit_zero": true,
+    "python_version": "3.13.13",
+    "synthetic_unicode_roundtrip_test": {
+      "path": "tests/research/test_light_backup.py",
+      "line": 619,
+      "assertions": [
+        "nested Chinese Markdown and Greek code-note names",
+        "outside-workspace Chinese report",
+        "0x800 emitted",
+        "create→verify→restore",
+        "same-snapshot reuse",
+        "exact restored bytes and untouched inputs"
+      ]
+    },
+    "ascii_control_test": {
+      "path": "tests/research/test_light_backup.py",
+      "line": 663,
+      "assertions": [
+        "all flags zero",
+        "verify and restore success",
+        "exact bytes"
+      ]
+    },
+    "mutation_refusal_test": {
+      "path": "tests/research/test_light_backup.py",
+      "line": 678,
+      "flag_mutation_matrix": "encrypted/data-descriptor/unknown × local-only/central-only/both",
+      "semantic_mutations": [
+        "missing UTF-8 flag",
+        "ASCII marked 0x800",
+        "local/central mismatch",
+        "malformed UTF-8 name"
+      ],
+      "restore_refusal_assertions": "verify and restore false with LIGHT_BACKUP_INVALID; destination absent; original archives, external report and workspace trees byte-identical"
+    }
+  },
+  "bounded_finding": {
+    "decision": "GO",
+    "finding": "R8 bundle matches the frozen exact-writer convention and includes the requested Unicode roundtrip and refusal-preservation assertions.",
+    "remaining_architect_work": [
+      "independent fixed-mode Unicode harness replay",
+      "backup independent 21-case replay",
+      "dual Python/full product/installed-wheel/real-trial checks as applicable"
+    ]
+  },
+  "limitations": [
+    "This is a bounded handoff review, not implementation acceptance or CI acceptance.",
+    "No active source was read after runner start; review used stopped R8 bundle manifests/evidence and test assertions.",
+    "No Git, PR, CI, Vault or merge operation was performed."
+  ]
+}

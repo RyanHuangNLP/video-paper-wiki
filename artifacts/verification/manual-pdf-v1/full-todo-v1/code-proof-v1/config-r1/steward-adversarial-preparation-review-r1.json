@@ -1,0 +1,212 @@
+{
+  "$schema": "full-todo.code-config-steward-adversarial-preparation-review-r1.v1",
+  "schema": "full-todo.code-config-steward-adversarial-preparation-review-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T02:40:44.374748Z",
+  "packet": "CODE-CONFIG-KERNEL-R1",
+  "phase": "pre_candidate_adversarial_harness_review",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded adversarial-preparation reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "GO_ADVERSARIAL_PREPARATION_NO_CONCRETE_BLOCKER",
+  "verdict": "The adversarial harness is structurally aligned with the frozen CONFIG semantics. It prepares every boundary input before arming patches or traps, checks first overshoot and equal-boundary acceptance across all 13 limits plus TOML implicit/declaration cases, guards scanner-before-stdlib behavior, and covers strict input types, full-tree cross-check corruption, Decimal-context preservation and negative zero. This is preparation evidence only; the candidate parser was not imported or executed.",
+  "reviewed_inputs": [
+    {
+      "label": "Architect adversarial harness",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-r1.py",
+      "resolved_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-r1.py",
+      "size_bytes": 8948,
+      "sha256": "f45662244bfda1e37e98960e43d5226c035619a7d8a2eaea1b76b5aa60f5eab5"
+    },
+    {
+      "label": "frozen CONFIG contract",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "resolved_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "size_bytes": 17799,
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4"
+    },
+    {
+      "label": "CONFIG clarifications R2",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "resolved_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "size_bytes": 4710,
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d"
+    }
+  ],
+  "ast_review": {
+    "script_ast_parse": true,
+    "candidate_import_call_found_only_inside_run": true,
+    "candidate_parser_imported": false,
+    "candidate_parser_executed": false,
+    "integrity_check_before_candidate_import": true,
+    "integrity_check_after_all_probes": true,
+    "source_write_calls": false,
+    "only_output_artifact_write": true,
+    "test_data_built_before_its_patch_or_decimal_trap": true
+  },
+  "limit_boundary_probes": {
+    "unique_profile_limits": 13,
+    "boundary_vector_rows": [
+      {
+        "id": "source",
+        "format": "json",
+        "limit_name": "max_source_bytes",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "depth",
+        "format": "json",
+        "limit_name": "max_depth",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "nodes",
+        "format": "json",
+        "limit_name": "max_nodes",
+        "cap": 2,
+        "observed": 3
+      },
+      {
+        "id": "array",
+        "format": "json",
+        "limit_name": "max_array_items",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "object",
+        "format": "json",
+        "limit_name": "max_object_keys",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "key_bytes",
+        "format": "json",
+        "limit_name": "max_key_bytes",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "string_points",
+        "format": "json",
+        "limit_name": "max_string_codepoints",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "scalars",
+        "format": "json",
+        "limit_name": "max_scalars",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "numeric_lexeme",
+        "format": "json",
+        "limit_name": "max_numeric_lexeme_bytes",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "coefficient",
+        "format": "json",
+        "limit_name": "max_numeric_coefficient_digits",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "explicit_exponent",
+        "format": "json",
+        "limit_name": "max_numeric_abs_exponent",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "tuple_exponent",
+        "format": "json",
+        "limit_name": "max_numeric_abs_exponent",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "canonical",
+        "format": "json",
+        "limit_name": "max_numeric_canonical_bytes",
+        "cap": 2,
+        "observed": 3
+      },
+      {
+        "id": "declarations",
+        "format": "json",
+        "limit_name": "max_declarations",
+        "cap": 1,
+        "observed": 2
+      },
+      {
+        "id": "toml_implicit",
+        "format": "toml",
+        "limit_name": "max_nodes",
+        "cap": 2,
+        "observed": 3
+      },
+      {
+        "id": "toml_declarations",
+        "format": "toml",
+        "limit_name": "max_declarations",
+        "cap": 6,
+        "observed": 7
+      }
+    ],
+    "first_overshoot_and_equal_cap_pair_each": true,
+    "scanner_refusal_patches": [
+      "json.loads",
+      "tomllib.loads"
+    ],
+    "stdlib_crosscheck_after_cap_refusal_only": true
+  },
+  "strict_input_and_callback_probes": {
+    "hostile_key_names": [
+      "max_source_bytes",
+      "max_declarations"
+    ],
+    "callbacks_armed_after_dict_construction": true,
+    "callback_list_must_remain_empty": true,
+    "bytes_str_dict_subclass_refusals": true,
+    "strict_limit_value_cases": [
+      "bool",
+      "int_subclass",
+      "0",
+      "-1",
+      "262145"
+    ]
+  },
+  "crosscheck_corruption_probes": {
+    "json_full_tree_variants": 7,
+    "json_array_order_variants": 1,
+    "toml_numeric_kind_or_value_variants": 4,
+    "full_tree_and_order_checks": true
+  },
+  "numeric_probes": {
+    "decimal_context_cases": 8,
+    "decimal_inputs_constructed_before_context_traps": true,
+    "context_state_compared_before_and_after": true,
+    "negative_zero_cases": 5,
+    "negative_zero_refusal_code_asserted": "CODE_CONFIG_NUMBER_INVALID"
+  },
+  "findings": [],
+  "scope_controls": {
+    "candidate_parser_imported": false,
+    "candidate_parser_executed": false,
+    "source_modified": false,
+    "tests_modified": false,
+    "fixture_modified": false,
+    "Git_mutations": false,
+    "network_or_connector_used": false,
+    "review_artifact_only": true
+  }
+}

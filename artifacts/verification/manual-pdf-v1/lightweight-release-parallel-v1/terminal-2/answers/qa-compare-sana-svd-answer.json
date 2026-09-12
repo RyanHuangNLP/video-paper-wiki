@@ -1,0 +1,17 @@
+{
+  "text": "The two papers describe different levers for video generation. Stable Video Diffusion is a latent video diffusion model for high-resolution text-to-video and image-to-video. It evaluates three training stages for video LDMs: text-to-image pretraining, video pretraining, and high-quality video finetuning, and emphasizes curated pretraining data. [@chk-eb70fc5d6d3660ae0f95ffa1] Those stages are further specified as text-to-image pretraining, low-resolution video pretraining on a large dataset, and high-resolution finetuning on a smaller higher-quality set. [@chk-aac6ae977da7da1ebb2d98e4] SANA-Video 2.0 instead targets efficiency with a hybrid-attention video diffusion transformer at 5B and 14B. It uses Hybrid Linear–Softmax Attention (gated linear mixing plus periodic softmax anchors at a 3:1 / 25% softmax ratio) and Block Attention Residuals, trained from scratch rather than linearizing a pretrained softmax model. [@chk-2de70a6c333fc1bc8f50367c] The same hybrid is described as a mostly-linear backbone with softmax anchors so that O(N) scaling is kept for long, high-resolution video. [@chk-ad295a399767a8361ec6d0dd] This comparison uses the labeled rewrite retrieval, which returned both papers; the first comparison query returned only SANA evidence.",
+  "citations": [
+    {
+      "chunk_id": "chk-eb70fc5d6d3660ae0f95ffa1"
+    },
+    {
+      "chunk_id": "chk-aac6ae977da7da1ebb2d98e4"
+    },
+    {
+      "chunk_id": "chk-2de70a6c333fc1bc8f50367c"
+    },
+    {
+      "chunk_id": "chk-ad295a399767a8361ec6d0dd"
+    }
+  ]
+}

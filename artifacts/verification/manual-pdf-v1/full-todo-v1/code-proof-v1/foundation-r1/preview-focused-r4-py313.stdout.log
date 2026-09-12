@@ -1,0 +1,73 @@
+..................................................F..................... [ 27%]
+........................................................................ [ 54%]
+........................................................................ [ 82%]
+..............................................                           [100%]
+=================================== FAILURES ===================================
+_____________________ test_structure_preflight_and_titles ______________________
+
+resources = <video_paper_wiki.code_proof_resources.CodeProofResources object at 0x1079c96c0>
+
+    def test_structure_preflight_and_titles(resources: cpr.CodeProofResources) -> None:
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure("https://video-paper-wiki.dev/schemas/x", {})
+        _assert_structure(caught.value, "shape")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_SCHEMA_ID, {})
+        _assert_structure(caught.value, "shape")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure("video-paper-wiki.code-proof-profile.v1", {})
+        _assert_structure(caught.value, "shape")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_Str(_COMMON_TITLE), {})
+        _assert_structure(caught.value, "shape")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE + "#/$defs/profile", {})
+        _assert_structure(caught.value, "shape")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, _Dict())
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, _List())
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, 1.0)
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, float("nan"))
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, _Int(1))
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, {"\ud800": "x"})
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, "\ud800")
+        _assert_structure(caught.value, "type")
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, {_Str("a"): 1})
+        _assert_structure(caught.value, "type")
+        cycle: dict[str, object] = {}
+        cycle["self"] = cycle
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, cycle)
+        _assert_structure(caught.value, "type")
+        nested_cycle: list[object] = []
+        nested_cycle.append(nested_cycle)
+        with pytest.raises(CodeProofStructureError) as caught:
+            resources.validate_structure(_COMMON_TITLE, nested_cycle)
+        _assert_structure(caught.value, "type")
+        shared = {"k": 1}
+        try:
+            resources.validate_structure(_COMMON_TITLE, {"a": shared, "b": shared})
+        except CodeProofStructureError as exc:
+            assert exc.reason != "type"
+            _assert_structure(exc, "shape")
+>       with pytest.raises(CodeProofStructureError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE CodeProofStructureError
+
+tests/unit/test_code_proof_resources.py:738: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/test_code_proof_resources.py::test_structure_preflight_and_titles
+1 failed, 261 passed in 0.96s

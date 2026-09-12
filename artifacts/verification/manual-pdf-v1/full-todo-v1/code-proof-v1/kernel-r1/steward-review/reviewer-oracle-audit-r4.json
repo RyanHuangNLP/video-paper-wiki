@@ -1,0 +1,149 @@
+{
+  "$schema": "full-todo.code-git-kernel-reviewer-oracle-audit-r4.v1",
+  "schema": "full-todo.code-git-kernel-reviewer-oracle-audit-r4.v1",
+  "revision": 4,
+  "recorded_at_utc": "2026-09-09T17:47:00Z",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "phase": "pre_candidate_steward_oracle_audit",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent read-only reviewer-oracle auditor",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Audit only the R3 successor adversarial-review harness against the frozen CODE-GIT-KERNEL R1 contract, R2 clarifications, the R3 correction record, and the immutable R2 harness. Focus was test-oracle validity, error precedence/detail strictness, repeated parent-header semantics, hand-built mutation validity, and expected result derivation. The live unchanged candidate was not imported or executed; no source, fixture, test, Git, network, connector, Vault, or prior evidence was mutated.",
+  "decision": "GO_ORACLE_R3_SUCCESSOR_NO_NEW_TEST_ORACLE_FINDING",
+  "verdict": "The R3 successor is sound for the requested adversarial review. Its three recorded corrections are materially correct: unsupported helper object types use `tag` so the expected input-invalid precedence is valid; message consistency is keyed by meaningful refusal context rather than incorrectly by code alone; and helper cap detail values are checked without inventing dictionary insertion-order requirements. The repeated-parent oracle accepts a valid duplicate parent header, as required by R1's zero-or-more parent rule, while the malformed cases still reject invalid continuation, duplicate tree and header grammar. Declared/actual cap precedence, body-map count precedence, helper order, success output order, and hand-built mutation expectations align with the frozen contract. No additional test-oracle finding was reproduced.",
+  "scope_controls": {
+    "candidate_imported": false,
+    "candidate_executed": false,
+    "harness_executed": false,
+    "source_edits": false,
+    "fixture_edits": false,
+    "tests_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "review_artifact_only": true
+  },
+  "reviewed_inputs": {
+    "successor_harness": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/steward-adversarial-review-r3.py",
+      "size_bytes": 43566,
+      "sha256": "38eea82fab54624f82e2ef16c6b810d1b57b7352a9ca89c9d8df9b0c25002dea",
+      "ast_parse": true
+    },
+    "correction_record": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/adversarial-review-prep-r3-correction.json",
+      "size_bytes": 4538,
+      "sha256": "6b0427ee5feb2544d10a3c4ae92bf48663581cecddb4e7ea56089aa7da1e87ef",
+      "successor_hash_matches_record": true,
+      "historical_r2_hash_matches_record": true
+    },
+    "historical_r2_harness": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/steward-adversarial-review-r2.py",
+      "size_bytes": 43083,
+      "sha256": "75a6a7175d40e9310de86a5e24cef0eb6c549af110051df60008fedf8750cfd5",
+      "preserved_by_correction_record": true
+    },
+    "contract_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "size_bytes": 17862,
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe"
+    },
+    "clarifications_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "size_bytes": 3659,
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568"
+    },
+    "independent_fixture": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/independent-git-fixture-v1.json",
+      "size_bytes": 52532,
+      "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0"
+    }
+  },
+  "correction_audit": [
+    {
+      "id": "R3-HARNESS-OBJECT-TYPE-001",
+      "status": "CONFIRMED",
+      "observation": "helper_type_checks now uses unsupported object_type=tag for oversized-body input-invalid precedence cases in both helpers.",
+      "contract_basis": "R2 helper order is object_format, object_type, body type, then body cap; supported object types are exactly commit, tree and blob.",
+      "oracle_result": "The expected /object_type CODE_PROOF_INPUT_INVALID refusal is valid."
+    },
+    {
+      "id": "R3-HARNESS-MESSAGE-002",
+      "status": "CONFIRMED",
+      "observation": "expect_error keys message consistency by code, instance_pointer, reason, field, limit_name, expected_type and actual_type.",
+      "contract_basis": "R1 fixes a non-source-echoing message while allowing validation wording to vary across meaningful structured contexts.",
+      "oracle_result": "No overstrict cross-context message equality remains; repeated identical contexts are still checked."
+    },
+    {
+      "id": "R3-HARNESS-ERROR-ORDER-003",
+      "status": "CONFIRMED",
+      "observation": "The successor removed the invented list(details) insertion-order assertion but retains exact helper cap detail keys and values through dictionary equality.",
+      "contract_basis": "R2 freezes success construction order separately; helper cap details are exact fields and values, not a serialized order requirement.",
+      "oracle_result": "No overstrict helper-detail ordering remains."
+    }
+  ],
+  "semantic_oracle_audit": {
+    "status": "PASS",
+    "checks": [
+      {
+        "area": "helper validation precedence",
+        "result": "PASS",
+        "evidence": "The helper cases distinguish unsupported format/type, non-exact body type and valid oversized bytes; the cap detail equality matches R2 exactly and hash traps cover cap-before-hash."
+      },
+      {
+        "area": "declared and actual cap precedence",
+        "result": "PASS",
+        "evidence": "Declared per-object and aggregate caps are exercised before body lookup; body-map count is exercised before key traversal; the helper cap and verify cap cases use valid preceding inputs and hash traps."
+      },
+      {
+        "area": "repeated parent headers",
+        "result": "PASS",
+        "evidence": "commit_grammar_checks builds two valid parent lines and expects success. R1 explicitly permits zero or more parent lines and says parents are not followed/authenticated. Invalid continuation after parent remains a separate COMMIT_INVALID case."
+      },
+      {
+        "area": "duplicate tree/header grammar",
+        "result": "PASS",
+        "evidence": "A repeated tree header remains invalid because R1 requires tree exactly once and first; this is distinct from repeated parent lines. Hash-valid CR, NUL, continuation, header-size and physical-line-count cases retain COMMIT_INVALID expectations."
+      },
+      {
+        "area": "tree mutation validity",
+        "result": "PASS",
+        "evidence": "Unsorted, duplicate-name, truncation, invalid-mode, invalid-name and truncated-OID mutations are rebuilt with fresh hash-valid root/commit records, so expected TREE_INVALID outcomes do not depend on hash failure."
+      },
+      {
+        "area": "type mismatch and consumed-set cases",
+        "result": "PASS",
+        "evidence": "The wrong-type branch declares an actual empty tree at a terminal blob path and expects OBJECT_TYPE_MISMATCH; unused supplied blob, missing declared tree/blob, and extra-body precedence branches match R1 verification order."
+      },
+      {
+        "area": "success oracle and ordering",
+        "result": "PASS",
+        "evidence": "derived_success_expected follows R1 consumed-set, walk, stopped_at, blob, budget and top-level orders; assert_success_shape checks exact values, nested key order, primitive output and no aliasing."
+      },
+      {
+        "area": "purity and repeated execution",
+        "result": "PASS",
+        "evidence": "The harness guards filesystem/network/subprocess/evaluation entry points around a complete success and refusal, checks repeat equality and input preservation, and statically rejects prohibited imports/evaluation calls in the candidate."
+      }
+    ]
+  },
+  "findings": [],
+  "residual_boundaries": [
+    "This artifact audits the oracle statically only; it does not authorize or claim a candidate run.",
+    "Candidate handoff, byte stability and actual implementation outcomes remain the separate Steward review gate.",
+    "The harness continues to trust Root/Steward for Git status/diff discovery as declared in the R2 non-goals."
+  ],
+  "writes_performed": [
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/reviewer-oracle-audit-r4.json"
+  ],
+  "writes_forbidden": [
+    "candidate source",
+    "candidate tests",
+    "fixture",
+    "Git state",
+    "network/provider",
+    "Vault/admin state",
+    "prior review artifacts"
+  ]
+}

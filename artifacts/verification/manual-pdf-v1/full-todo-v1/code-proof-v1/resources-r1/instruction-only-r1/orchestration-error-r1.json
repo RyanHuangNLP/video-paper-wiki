@@ -1,0 +1,60 @@
+{
+  "record_type": "instruction-only-orchestration-error-r1",
+  "submission_recorded_at_utc": "2026-09-10T14:46:46.379507Z",
+  "orchestration_error_observed_at_utc": "2026-09-10T14:47:08.861648Z",
+  "error": {
+    "type": "ReferenceError",
+    "message": "Buffer is not defined",
+    "source_point": "exec_main.mjs:54:36",
+    "source_expression": "Buffer.byteLength(prompt, \"utf8\")",
+    "phase": "after awaited tools.exec_command returned; failure occurred while formatting the result"
+  },
+  "submitted_command": {
+    "executable": "/Users/huangzhanpeng/.local/bin/grok",
+    "argv": [
+      "--model", "grok-4.6",
+      "--reasoning-effort", "xhigh",
+      "--permission-mode", "default",
+      "--single", "literal UTF-8 task text from GROK-CODE-RESOURCE-INSTRUCTION-ONLY-R1.md",
+      "--tools", "",
+      "--no-subagents",
+      "--disable-web-search",
+      "--no-plan",
+      "--no-auto-update",
+      "--session-id", "31263ce8-6c72-41cb-89d8-0d4817a32d3f",
+      "--output-format", "plain",
+      "--disallowed-tools", "read_file,grep,list_dir,search_replace,write,run_terminal_command,run_terminal_cmd,todo_write,web_search,web_fetch,Agent",
+      "--deny", "Read",
+      "--deny", "Grep",
+      "--deny", "Edit",
+      "--deny", "Write",
+      "--deny", "Bash",
+      "--deny", "MCPTool(*)",
+      "--deny", "WebFetch(*)",
+      "--deny", "WebSearch(*)"
+    ],
+    "cwd": "/private/tmp/grok-instruction-only-_9hcfb0p",
+    "environment": {
+      "GROK_MEMORY": "0",
+      "GROK_SUBAGENTS": "0",
+      "GROK_DISABLE_AUTOUPDATER": "1",
+      "GROK_WRITE_FILE": "0"
+    },
+    "prompt_sha256": "0e75a7e65e28e95161a43c8c26f78c07fd4afed20963f49d977509d0d5982e71",
+    "prompt_size_bytes": 7660,
+    "stdout_redirect": "grok-instruction-only-r1.stdout.log",
+    "stderr_redirect": "grok-instruction-only-r1.stderr.log"
+  },
+  "recoverable_exec_command_session_id": null,
+  "session_uuid": "31263ce8-6c72-41cb-89d8-0d4817a32d3f",
+  "current_log_metadata": {
+    "stdout_bytes": 0,
+    "stdout_mtime_local": "2026-09-10T22:46:58+0800",
+    "stderr_bytes": 640,
+    "stderr_mtime_local": "2026-09-10T22:46:59+0800",
+    "content_read": false
+  },
+  "launch_count": 1,
+  "duplicate_or_restart": false,
+  "model_processing_or_exit_claim": "unknown"
+}

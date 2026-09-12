@@ -1,0 +1,76 @@
+{
+  "schema": "lightweight-research-t3-independent-spec-review-r3.v1",
+  "reviewed_at_utc": "2026-09-08T13:32:23.604599Z",
+  "clock_source": "datetime.now(timezone.utc) on the review host",
+  "packet": "lightweight-research-v1",
+  "lane": 3,
+  "scope": "Read-only bounded specification review of the T3 R3 residual writing repair draft against the frozen T3 contract and exact stopped R2 evidence. No implementation, Builder/CLI dispatch, source/test/Git mutation, external, Vault, or network action; no tests run.",
+  "draft": {
+    "path": "docs/ai/packets/lightweight-research-v1/FIX-T3-R3-DRAFT.md",
+    "sha256": "371e42a6f5b78e151496e2a1a5fd3f9c774dc507462d79bdd2fcfba18e141e73",
+    "reviewed_r2_snapshot_sha256": "74343c8f1767e92833715c94ee5acba0cabfb8605c279e45bce8236a149b2d98"
+  },
+  "contract": {
+    "path": "docs/ai/packets/lightweight-research-v1/CONTRACT.md",
+    "sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab"
+  },
+  "r2_evidence": {
+    "handoff_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/r2/handoff.json",
+    "ready_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/r2/ready.json",
+    "handoff_ready_sha256": "313b8b969bc751b991dcae7dc1bb5c664a6e4835cb71d3163d21cd3601acc268",
+    "additional_probe_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/architect-additional-probes-r2.json",
+    "additional_probe_sha256": "a0d6c3cef35f3d4d308e9706e7c9fe58de3919b1bff2078937321335db764ed5",
+    "score_probe_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/architect-score-probe-r2.json",
+    "score_probe_sha256": "03be497546ec3f3edff61149d35296b7ef81bdfbe2afe394ecc96e93eb83a620",
+    "r2_decision": "CHANGES_REQUIRED",
+    "r2_residuals": [
+      "Initial outline publication can install its revision and fail before pending HEAD intent, so exact retry sees a missing unowned HEAD and refuses.",
+      "Stored document.kind=[] escapes _load_revision_bundle before its malformed-state guard and causes writing_backup_blockers to raise; ordinary untraced evidence.score=10**400 leaks OverflowError from export_writing_outline.",
+      "A self-consistent section child targeting an unwritten section is accepted by history, section export and backup because the stored-state validator returns early for unwritten."
+    ]
+  },
+  "requirements_review": [
+    {
+      "id": "R3-1",
+      "requirement": "The first outline publication must establish recognizable ownership before immutable revision publication and recover every recognized interruption by exact retry without recreating deleted or edited HEAD authority.",
+      "draft_section": "1",
+      "verdict": "PASS_WITH_P1_CLARIFICATION",
+      "coverage": "The draft fixes the observed ordering defect, requires pre-existing authority checks, retains intent through revision/HEAD/cleanup interruptions, rejects arbitrary missing or deleted HEAD, and requires first-outline and exact-retry regressions.",
+      "clarification": "Freeze the expected outcome for a fault before the intent payload is complete. Either require the owned marker/partial payload to be repairable by the exact retry, or require the attempt to remain closed without publishing a revision; in both cases test that no unowned revision/HEAD is adopted and that an exact retry reuses one identity."
+    },
+    {
+      "id": "R3-2",
+      "requirement": "All new public writing operations and read-only backup/history paths close malformed JSON-shaped live or stored values without leaking TypeError/OverflowError or mutating state.",
+      "draft_section": "2",
+      "verdict": "PASS_WITH_P2_CLARIFICATION",
+      "coverage": "The draft names the malformed enum, huge numeric evidence, nested/missing values, surrogates and filesystem errors; separates invalid live model/context values from conflict diagnostics for stored state; and requires live/history/backup coverage without changing legacy helpers.",
+      "clarification": "Freeze exact status/shape expectations per boundary, especially LIGHT_CONTEXT_INVALID for the malformed live evidence route and LIGHT_WRITING_PROJECT_CONFLICT plus bounded diagnostics for stored-state/history/backup failures. Add unchanged HEAD/revision/staging/output assertions for malformed live calls, not only the backup no-mutation assertion, and include bool/non-finite/oversized numeric score cases."
+    },
+    {
+      "id": "R3-3",
+      "requirement": "Every successor target is a legal section document and forged unwritten/no-op transitions are rejected consistently while exact retries and normal repeated edits remain valid.",
+      "draft_section": "3",
+      "verdict": "PASS_WITH_P2_CLARIFICATION",
+      "coverage": "The draft requires provisional or exact unknown target validation, allows unwritten only at the root or retained non-target positions, and applies replay to history/export/import/retry/backup.",
+      "clarification": "State explicitly that a published exact target revision is reusable on retry, while a newly forged child whose selected target remains unwritten is rejected; specify whether a newly submitted unknown-to-unknown no-op is rejected or is the deterministic exact retry case. This avoids conflict between 'even if its value equals the parent' and 'reject forged no-op' wording."
+    }
+  ],
+  "ownership": {
+    "expected_owned_paths": [
+      "src/video_paper_wiki_research/light_writing_project.py",
+      "tests/research/test_light_writing_project.py"
+    ],
+    "count": 2,
+    "draft_preserves_two_path_scope": true,
+    "contract_and_public_wire_storage_unchanged": true,
+    "other_lanes_excluded": true
+  },
+  "decision": "GO_FOR_R3_FREEZE_AND_DISPATCH_AFTER_THE_THREE_CLARIFICATIONS_ARE_BOUND",
+  "dispatch_authorized": false,
+  "implementation_started": false,
+  "limitations": [
+    "This is a specification completeness review only; it does not accept the R2 implementation, authorize Builder/CLI dispatch, accept source bytes, tests, CI, integration, real data, or human gates.",
+    "The R2 residual reports are historical CHANGES_REQUIRED evidence and must remain immutable; they are not retrofitted into the R2 handoff.",
+    "The R3 freeze/prompt should bind the exact draft and probe hashes above, preserve cumulative R2 evidence, and require stopped-writing handoff evidence before any implementation acceptance."
+  ]
+}

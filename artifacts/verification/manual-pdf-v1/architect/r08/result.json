@@ -1,0 +1,87 @@
+{
+  "decision": "CHANGES_REQUIRED_FOR_LIGHTWEIGHT_RELEASE_HANDOFF",
+  "source_root": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration",
+  "current_18_file_snapshot_sha256": "b8b644b0fed9fd0d116a8a427625d468558e3c949fd73258a01d3783a3843569",
+  "r07_product_source_acceptance_preserved": true,
+  "blocking_findings": [
+    {
+      "id": "R08-1",
+      "priority": 2,
+      "title": "Mixed source citations can evade the verifier",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-1/verify_links.py",
+      "line": 115,
+      "evidence": "verifier-edges.json"
+    },
+    {
+      "id": "R08-2",
+      "priority": 2,
+      "title": "Quickstart shell invocation is not executable as delivered",
+      "path": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/docs/lightweight-pdf-quickstart.md",
+      "line": 72,
+      "evidence": "documentation-shell-check.json"
+    },
+    {
+      "id": "R08-3",
+      "priority": 2,
+      "title": "T3/T4 frozen handoffs refer to different documentation revisions",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-4/ready.json",
+      "line": 43,
+      "evidence": "input-check.json"
+    }
+  ],
+  "nonblocking_record_corrections": [
+    "The rebuilt wheel does not contain README or quickstart; describe documentation separately.",
+    "Preserve pre-integration inventory as historical and regenerate final current CI input mapping."
+  ],
+  "verified": {
+    "source_inputs_stable_during_review": true,
+    "verifier_existing_tests_passed": 15,
+    "verifier_new_fail_open_cases": 3,
+    "real_papers": 4,
+    "pages": 104,
+    "isolated_wheel_context_replays": 8,
+    "claim_source_identity_checks": 15,
+    "t2_unique_source_targets": 13,
+    "t3_unique_source_targets": 5,
+    "wheel_package_members_byte_exact": 186,
+    "delivery_manifest_files_match": 70
+  },
+  "unrun": [
+    "Python 3.12 lane",
+    "new Python 3.13 full suite",
+    "remote four-job CI"
+  ],
+  "mutations": {
+    "product": false,
+    "documentation": false,
+    "frozen_terminal_artifacts": false,
+    "git": false,
+    "remote": false,
+    "grok": false
+  },
+  "observed_input_snapshots": {
+    "terminal-1-ready.json": "a5148386e518c7fa1be369306e1f756abffd2f1a33d3d98966cd219753cdb906",
+    "terminal-2-ready.json": "d0b8a6cd0756a69fd029ab4b7a2b58e0d404fc98e014d7347415edde795e0b58",
+    "terminal-3-ready.json": "99aca9687a8ad9e8bd9a1e7b044deb4a643cb6ac423f43a7f4e5ec911ffd3810",
+    "terminal-4-ready.json": "34b5c1e90d5c7fdbe408d6dd0f4e4a614a26390dbea3ea637220f361b7b32802",
+    "integrated-quickstart.md": "6c02145f0627020cf717048162f363a470d64d62fc41f2f71f0ce4b8d8569178",
+    "draft-quickstart.md": "82d44948d71f821317047b91fc17e9c3c74281acd695d97697ec541661ca1b74",
+    "verify_links.py": "51d67390e22dc3c21f2f4f85b12a9ab78d8c583eb3242f4c8e7c81248661f743"
+  },
+  "evidence_sha256": {
+    "check_inputs.py": "bea4cee3d3cb295b3fd27255ab3b36bc064445a628529a21289fa49604fbb5ab",
+    "check_trial.py": "f9715f4ee57fc8a3ccd7c0dd67f7b5e40d98a3e0c1d9677ddd7b7df94fbbcc92",
+    "check_verifier_edges.py": "44263559861d1df1c25f0629587ec4e8d05438a9fad5e5806edd35a583b35ceb",
+    "delivery-check.json": "0038d327f8741a6507c59c1e5aca314cd0e5ec7358cdf08281d241c821afc69b",
+    "documentation-shell-check.json": "b75378d1417fc1bf3153c2620a25b1122ef84e2ef155d8d3bef27784bd4fca66",
+    "input-check-after.json": "46d28631497c6bef116024449b86f3c095a28d6f69d8fe5523a017ea9fdc8f17",
+    "input-check.json": "46d28631497c6bef116024449b86f3c095a28d6f69d8fe5523a017ea9fdc8f17",
+    "output-links.json": "12fe10f0b72551fe66d07cf1641df0955870449fbc6e59f0c42fbf054b5d94f2",
+    "review.md": "39c4e77c2ec23f26ab739699bbfc517388ac19f3f804eaa757183699a1437a92",
+    "trial-check.json": "612862434487746e13091a994e3df1c7810935a9cf2f027f476e932550d60f20",
+    "verifier-edges.json": "a55a6250675e578071ed73246c47ed3921355f1526713d6d15683360de9f0ca1",
+    "verifier-pytest.json": "8ebc2f32384fe1859121e6a9aa675783b7c5a1c98659a335f959e60276427b6e",
+    "verifier-pytest.log": "8e3338ae5f30cd4f331e40faba25f2cccbf23a81056f10ae650f7b6e175bf73d",
+    "wheel-check.json": "d0a47601db9f158052c7bfdc87e7ecdc758fcdf1d0326f5c047e970d0e61647a"
+  }
+}

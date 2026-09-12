@@ -1,0 +1,128 @@
+=== fresh venv outside source trees ===
+venv python: /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/bin/python
+/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/bin/python
+3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]
+=== uv pip install wheel offline ===
+Using Python 3.13.13 environment at: /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv
+  × No solution found when resolving dependencies:
+  ╰─▶ Because jsonschema>=4.23.0 needs to be downloaded from a registry and
+      video-paper-wiki==0.1.0 depends on jsonschema>=4.23, we can conclude
+      that video-paper-wiki==0.1.0 cannot be used.
+      And because only video-paper-wiki==0.1.0 is available and you
+      require video-paper-wiki, we can conclude that your requirements are
+      unsatisfiable.
+
+hint: Packages were unavailable because the network was disabled. When the network is disabled, registry packages may only be read from the cache.
+=== import research from wheel ===
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    import video_paper_wiki_research as r
+ModuleNotFoundError: No module named 'video_paper_wiki_research'
+=== uv pip install --no-deps wheel ===
+Using Python 3.13.13 environment at: /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv
+Resolved 1 package in 1ms
+Prepared 1 package in 18ms
+Installed 1 package in 3ms
+ + video-paper-wiki==0.1.0 (from file:///Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/dist/video_paper_wiki-0.1.0-py3-none-any.whl)
+=== uv pip install jsonschema pypdf offline ===
+Using Python 3.13.13 environment at: /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv
+  × No solution found when resolving dependencies:
+  ╰─▶ Because all of:
+          jsonschema<=4.0.0a6
+          jsonschema>=4.0.1
+       need to be downloaded from a registry and only the following versions
+      of jsonschema are available:
+          jsonschema<=4.0.0a6
+          jsonschema==4.0.0
+          jsonschema>=4.0.1
+      we can conclude that all of:
+          jsonschema<4.0.0
+          jsonschema>4.0.0
+       cannot be used.
+      And because jsonschema==4.0.0 was yanked (reason: Improper
+      python_requires declaration) and you require jsonschema, we can conclude
+      that your requirements are unsatisfiable.
+
+hint: Packages were unavailable because the network was disabled. When the network is disabled, registry packages may only be read from the cache.
+=== import and call research ===
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    import video_paper_wiki_research as r
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/__init__.py", line 3, in <module>
+    from video_paper_wiki_research.catalog_index import build_published_catalog
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/catalog_index.py", line 17, in <module>
+    from video_paper_wiki.assessment_history import derive_assessment_heads
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki/assessment_history.py", line 12, in <module>
+    from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki/contracts.py", line 11, in <module>
+    from jsonschema import Draft202012Validator, FormatChecker, ValidationError
+ModuleNotFoundError: No module named 'jsonschema'
+=== install jsonschema from uv cache ===
+Using Python 3.13.13 environment at: /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv
+  × No solution found when resolving dependencies:
+  ╰─▶ Because jsonschema==4.26.0 needs to be downloaded from a registry and
+      you require jsonschema==4.26.0, we can conclude that your requirements
+      are unsatisfiable.
+
+hint: Packages were unavailable because the network was disabled. When the network is disabled, registry packages may only be read from the cache.
+=== copy pypdf from named venv ===
+=== import and call research from wheel venv ===
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    import video_paper_wiki_research as r
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/__init__.py", line 3, in <module>
+    from video_paper_wiki_research.catalog_index import build_published_catalog
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/catalog_index.py", line 17, in <module>
+    from video_paper_wiki.assessment_history import derive_assessment_heads
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki/assessment_history.py", line 12, in <module>
+    from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki/contracts.py", line 11, in <module>
+    from jsonschema import Draft202012Validator, FormatChecker, ValidationError
+ModuleNotFoundError: No module named 'jsonschema'
+=== copy jsonschema stack from named venv (runtime deps, not source prefix-copy) ===
+copied jsonschema
+copied jsonschema_specifications
+copied jsonschema-4.26.0.dist-info
+copied jsonschema_specifications-2025.9.1.dist-info
+copied attrs
+copied attrs-26.1.0.dist-info
+copied referencing
+copied referencing-0.37.0.dist-info
+copied rpds
+copied rpds_py-2026.6.3.dist-info
+=== import and call research from wheel ===
+Traceback (most recent call last):
+  File "<string>", line 2, in <module>
+    import video_paper_wiki_research as r
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/__init__.py", line 3, in <module>
+    from video_paper_wiki_research.catalog_index import build_published_catalog
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/catalog_index.py", line 17, in <module>
+    from video_paper_wiki.assessment_history import derive_assessment_heads
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki/assessment_history.py", line 12, in <module>
+    from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki/contracts.py", line 11, in <module>
+    from jsonschema import Draft202012Validator, FormatChecker, ValidationError
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/jsonschema/__init__.py", line 13, in <module>
+    from jsonschema._format import FormatChecker
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/jsonschema/_format.py", line 11, in <module>
+    from jsonschema.exceptions import FormatError
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/jsonschema/exceptions.py", line 14, in <module>
+    from attrs import define
+  File "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/attrs/__init__.py", line 3, in <module>
+    from attr import (
+    ...<20 lines>...
+    )
+ModuleNotFoundError: No module named 'attr'
+=== copy remaining jsonschema/attr deps ===
+copied attr
+attr
+attrs
+attrs-26.1.0.dist-info
+=== import again ===
+research /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/__init__.py
+cli /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/cli.py
+qa /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/qa.py
+manual_pdf /var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/grok-goal-653c1fed55a1/implementer/wheel-venv/lib/python3.13/site-packages/video_paper_wiki_research/manual_pdf.py
+version 0.1.0
+{"ok":false,"command":"vpwiki-research","error":{"code":"USAGE","message":"missing command","details":{}}}
+cli_empty_exit 2

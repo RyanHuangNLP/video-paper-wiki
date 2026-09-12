@@ -1,0 +1,92 @@
+{
+  "recorded_at": "2026-09-06T16:45:56Z",
+  "scope": "Read-only remote trust evidence for the authorized R09 delivery; no source upload or remote mutation was performed during these checks.",
+  "origin": {
+    "command": "git remote get-url origin",
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki.git",
+    "repository_full_name": "RyanHuangNLP/video-paper-wiki"
+  },
+  "current_login": {
+    "command": "gh api user --jq '.login'",
+    "login": "RyanHuangNLP"
+  },
+  "repo_view": {
+    "command": "gh repo view RyanHuangNLP/video-paper-wiki --json nameWithOwner,isPrivate,owner,viewerPermission",
+    "nameWithOwner": "RyanHuangNLP/video-paper-wiki",
+    "isPrivate": true,
+    "owner": {
+      "login": "RyanHuangNLP"
+    },
+    "viewerPermission": "ADMIN"
+  },
+  "repo_api": {
+    "command": "gh api repos/RyanHuangNLP/video-paper-wiki --jq '{full_name,private,owner:{login},permissions,viewerPermission}'",
+    "full_name": "RyanHuangNLP/video-paper-wiki",
+    "private": true,
+    "owner": {
+      "login": null
+    },
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "pull": true,
+      "push": true,
+      "triage": true
+    },
+    "viewerPermission": null,
+    "note": "The REST response exposed owner.login and viewerPermission as null in this jq projection; gh repo view independently returned owner.login RyanHuangNLP and viewerPermission ADMIN. No null REST field is used to claim identity or permission."
+  },
+  "target_trust_match": {
+    "origin_matches_repo": "yes",
+    "current_login_matches_repo_view_owner": "yes",
+    "repo_is_private": "yes",
+    "repo_view_permission": "ADMIN",
+    "user_confirmation": "目标仓库属于你或受信任的目标"
+  },
+  "remote_delivery_branch": {
+    "command": "git ls-remote --heads origin integrate/manual-pdf-pipeline",
+    "output": "",
+    "exists_before_push": false
+  },
+  "existing_pr_evidence": {
+    "command": "gh pr list --repo RyanHuangNLP/video-paper-wiki --head integrate/manual-pdf-pipeline --state all --json number,url,state,isDraft,baseRefName,headRefName,headRefOid,title",
+    "matching_prs": [],
+    "historical_pr_94": {
+      "number": 94,
+      "url": "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94",
+      "state": "OPEN",
+      "isDraft": true,
+      "title": "feat: complete roadmap runtime and acceptance closure",
+      "baseRefName": "integration",
+      "baseRefOid": "08709894adfb20ec07e976783f0ba436d975b74f",
+      "headRefName": "repair/vpkb000-plan-approval-prepare-follow2",
+      "headRefOid": "bcff631ce12fe777ab6db7a4dd6531db3bbaea3f",
+      "relevance": "Historical unrelated branch/PR; not authorization for the current delivery branch."
+    }
+  },
+  "prior_authorization_evidence": {
+    "r09_delivery_instruction_path": "artifacts/verification/manual-pdf-v1/architect/r09/steward-delivery.md",
+    "r09_delivery_instruction_sha256": "658982c8ebe57eed02e9a1fa7209cb50b625692013e743fe1eabe8ce3f0bb181",
+    "instruction_scope": "Authorizes serialized push and draft-PR operations targeting integration, but does not itself prove remote trust.",
+    "prior_successful_push_or_pr_for_this_branch": "none_found",
+    "prior_pr_94_is_current_branch": "no"
+  },
+  "previous_push_attempt": {
+    "command": "git push origin integrate/manual-pdf-pipeline",
+    "result": "automatic_approval_rejected",
+    "exact_rejection_text": "Rejected(\"This action was rejected due to unacceptable risk.\\nReason: This non-force push would export the full 70-file candidate to the GitHub remote, but the transcript does not establish that the repository is private and user-owned or otherwise trusted; authorization to prepare a draft PR does not authorize sensitive code egress to an unverified destination.\\nThe agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.\")",
+    "attempt_count": 1,
+    "no_workaround_or_indirect_push": true
+  },
+  "source_upload_performed": false,
+  "remote_mutation_performed_by_this_record": false,
+  "push_retry_after_trust_evidence": {
+    "recorded_at": "2026-09-06T16:46:44Z",
+    "command": "git push origin integrate/manual-pdf-pipeline",
+    "result": "succeeded",
+    "force": false,
+    "remote_branch": "integrate/manual-pdf-pipeline",
+    "pushed_commit": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "remote_ref_verification": "git ls-remote returned 0fcae592acb977c6b422e7de3b2c3e0cf79df5a0 refs/heads/integrate/manual-pdf-pipeline"
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "$schema": "video-paper-wiki.code-git-kernel-steward-review-prep-r2.v1",
+  "revision": 2,
+  "status": "PREPARATION_ONLY_HARNESS_R1_GAPS_RECORDED_WAITING_FOR_EXACT_CANDIDATE_HANDOFF",
+  "recorded_at_utc": "2026-09-09T16:03:49.885408Z",
+  "scope": "Read-only independent review of the prewritten R1 adversarial harness against CODE-GIT-KERNEL-R1, CODE-GIT-KERNEL-CLARIFICATIONS-R2 and the frozen fixture. No candidate implementation was imported or run.",
+  "inputs": {
+    "contract_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "size_bytes": 17862,
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe"
+    },
+    "clarifications_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "size_bytes": 3659,
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568"
+    },
+    "freeze_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-freeze-r1.json",
+      "size_bytes": 5542,
+      "sha256": "0ad3c58f2704caa0c0c2aee1aeb763c9a53c85cf2c592f8545d45b81b0664129"
+    },
+    "review_plan_r1": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/adversarial-review-plan-r1.json",
+      "size_bytes": 6902,
+      "sha256": "c946732491789ec5083b9a405317562e60fe9e2001c45563974e657b82637030"
+    },
+    "historical_harness_r1": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/steward-adversarial-review-r1.py",
+      "size_bytes": 27238,
+      "sha256": "352021612eb0d2f006cf56b16c3334c0900490f90b9506a1403a506cde7c6bd4"
+    },
+    "fixture": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/independent-git-fixture-v1.json",
+      "size_bytes": 52532,
+      "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0"
+    }
+  },
+  "static_preparation": {
+    "py312_ast_parse": true,
+    "py313_ast_parse": true,
+    "candidate_imported": false,
+    "candidate_run": false,
+    "network_or_git_commands": false,
+    "source_or_test_mutation": false,
+    "historical_harness_bytes_preserved": true
+  },
+  "findings": [
+    {
+      "id": "HARNESS-R1-001",
+      "severity": "BLOCKER",
+      "location": "steward-adversarial-review-r1.py:167-178",
+      "title": "Success-output assertion omits the proof-bearing fields",
+      "observation": "assert_success_shape checks only target path/outcome/reason and target key order. It does not compare object_records, consumed_oids, budget, walk edges, stopped_at, blob records, nested key order, or primitive field values against the fixture/contract. A candidate can therefore return incorrect closure, walk, missing-name_hex, or blob identity data and still pass all closure checks.",
+      "contract_refs": [
+        "CODE-GIT-KERNEL-R1.md exact success result and stopped_at",
+        "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md lines 41-74"
+      ],
+      "required_successor_change": "Deep-compare every closed result record, budget, consumed list, walk/stopped_at/blob shape and key order against independently derived expected facts; explicitly assert missing stopped_at name_hex."
+    },
+    {
+      "id": "HARNESS-R1-002",
+      "severity": "BLOCKER",
+      "location": "steward-adversarial-review-r1.py:90-101",
+      "title": "Candidate scope check is tautological and does not bind the handed-off snapshot",
+      "observation": "actual_changed is constructed from ALLOWED_PATHS itself and compared with the same set, so extra changed paths are never detected. The check also does not validate candidate_snapshot_sha256, reviewed_head/tree shape or source bytes against a frozen baseline.",
+      "contract_refs": [
+        "adversarial-review-plan-r1.json SR-PREFLIGHT",
+        "CODE-GIT-KERNEL-freeze-r1.json allowed_paths/source_freeze_on_builder_completion"
+      ],
+      "required_successor_change": "Require exact handoff hash/head/tree fields, validate the three allowed files only against the handoff snapshot/manifest, and reject candidate roots with any additional changed/untracked paths using a non-mutating inventory."
+    },
+    {
+      "id": "HARNESS-R1-003",
+      "severity": "HIGH",
+      "location": "steward-adversarial-review-r1.py:181-189, 217-245",
+      "title": "Helper validation-order and detail contracts are under-tested",
+      "observation": "Only five successful helper vectors per format are exercised. No helper bad object_format/object_type/body type ordering, exact instance pointers, exact limit details, empty-body boundary, or helper refusal surface is checked.",
+      "contract_refs": [
+        "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md lines 7-19"
+      ],
+      "required_successor_change": "Add independent helper type/enum/cap vectors for frame_git_object and git_object_ids, hash traps for each precedence edge, and exact code/details assertions without source echo."
+    },
+    {
+      "id": "HARNESS-R1-004",
+      "severity": "HIGH",
+      "location": "steward-adversarial-review-r1.py:137-147",
+      "title": "Error details and fixed-message constraints are not verified",
+      "observation": "expect_error checks exception class, code, exit_code and that details is a dict only. It does not enforce the required bounded instance_pointer/context fields, fixed non-source-echoing message, or exact context for each error code.",
+      "contract_refs": [
+        "CODE-GIT-KERNEL-R1.md closed error surface",
+        "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md helper/error details"
+      ],
+      "required_successor_change": "Assert exact allowed detail keys/values per case, bounded pointers, fixed message text, and absence of body/path/name repr leakage."
+    },
+    {
+      "id": "HARNESS-R1-005",
+      "severity": "HIGH",
+      "location": "steward-adversarial-review-r1.py:309-332",
+      "title": "Commit/tree grammar mutation coverage is materially incomplete",
+      "observation": "The harness covers four tree mutations and two commit mutations only. It omits CR/NUL/TAB header cases, malformed continuation, tree/parent continuation rules, header byte and line caps, duplicate tree/parent headers, invalid names and ordering variants beyond one unsorted case.",
+      "contract_refs": [
+        "adversarial-review-plan-r1 SR-GRAMMAR",
+        "CODE-GIT-KERNEL-R1.md commit syntax/tree syntax"
+      ],
+      "required_successor_change": "Add hash-valid mutations for each contract grammar/refusal category with independently recomputed records and exact byte_offset/reason checks."
+    },
+    {
+      "id": "HARNESS-R1-006",
+      "severity": "HIGH",
+      "location": "steward-adversarial-review-r1.py:335-389",
+      "title": "Closure assertions do not verify walk, unsafe outcomes, or consumed-set accounting",
+      "observation": "The closure path calls assert_success_shape, which ignores walk/stopped_at/blob/object_records/consumed_oids/budget. Missing, symlink, gitlink, executable refusal, directory and non-directory cases therefore do not prove the required edge or non-consumption semantics.",
+      "contract_refs": [
+        "CODE-GIT-KERNEL-R1.md verification order, walking and exact success result"
+      ],
+      "required_successor_change": "Derive expected walk/stopped_at/blob/consumed/budget independently from fixture tree facts and compare every field in every fixture case."
+    },
+    {
+      "id": "HARNESS-R1-007",
+      "severity": "MEDIUM",
+      "location": "steward-adversarial-review-r1.py:430-439",
+      "title": "Profile immutability/order checks are incomplete",
+      "observation": "The harness checks only type name, dict equality and one item assignment. It does not assert exact MappingProxyType identity, insertion order, deletion/update/pop/clear refusal, or that a lowered per-call copy leaves the profile and later calls unchanged.",
+      "contract_refs": [
+        "CODE-GIT-KERNEL-CLARIFICATIONS-R2.md lines 21-39"
+      ],
+      "required_successor_change": "Check type(profile) is types.MappingProxyType, list(profile) exact order, all mutation operations, and post-lowered-call profile/cap invariance."
+    },
+    {
+      "id": "HARNESS-R1-008",
+      "severity": "MEDIUM",
+      "location": "steward-adversarial-review-r1.py:104-115,392-417",
+      "title": "Purity/static import checks leave observable gaps",
+      "observation": "AST checks catch only direct import statements; dynamic __import__/importlib/eval/exec paths and import-time side effects are not audited. Runtime guards omit environment/resource-loader access, and input ownership is not checked after the refusal path.",
+      "contract_refs": [
+        "CODE-GIT-KERNEL-R1.md implementation boundary and pure API"
+      ],
+      "required_successor_change": "Expand static forbidden-call scan or run import/purity probes in an isolated module namespace; guard relevant resource/env entry points and assert all input snapshots after both success and refusal."
+    },
+    {
+      "id": "HARNESS-R1-009",
+      "severity": "MEDIUM",
+      "location": "steward-adversarial-review-r1.py:420-437",
+      "title": "Handoff/fixture preflight does not validate all exact bindings",
+      "observation": "The handoff checks required keys and path set but not exact head/tree/hash formats, candidate snapshot identity, allowed-path list order/duplicates, fixture schema/content counts, or frozen baseline relation.",
+      "contract_refs": [
+        "adversarial-review-plan-r1 SR-PREFLIGHT",
+        "CODE-GIT-KERNEL-freeze-r1.json"
+      ],
+      "required_successor_change": "Validate exact widths/patterns, manifest hash and baseline relation before importing candidate; preserve a preflight record bound to the handoff head/tree."
+    }
+  ],
+  "disposition": {
+    "r1_harness_usable_for_preflight_only": true,
+    "r1_harness_usable_for_final_acceptance": false,
+    "successor_required_before_candidate_acceptance": true,
+    "candidate_handoff_gate_remains_open": true
+  },
+  "next_action": "After Builder stops and supplies exact handoff, run a successor harness that closes HARNESS-R1-001/002/003/004/005/006; do not run historical R1 harness as final acceptance."
+}

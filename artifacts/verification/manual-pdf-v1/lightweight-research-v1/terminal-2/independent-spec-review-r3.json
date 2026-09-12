@@ -1,0 +1,113 @@
+{
+  "schema": "lightweight-research-t2-independent-spec-review-r3.v1",
+  "reviewed_at_utc": "2026-09-08T13:10:10.821191Z",
+  "clock_source": "datetime.now(timezone.utc) on the review host",
+  "scope": "Read-only review of the bounded T2 R3 raw-path repair draft. No implementation, Builder/CLI dispatch, source/test/Git mutation, or external action.",
+  "draft": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-research-v1/FIX-T2-R3-DRAFT.md",
+    "sha256": "2a92c63fa4e791e7daed12494a0b1bd729cb1f934bfd3df5442cf77cc5aa41a8",
+    "candidate_snapshot": "202c7fffafa4589f9a8db21fbf6f4ecc97a48c38f2f49b241dc319999da88532",
+    "prior_erratum_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/independent-review-r2-erratum.json",
+    "prior_erratum_sha256": "076ff0d29438cc391d5475c028561ee5e4c391d3e06555a1fe1fc4a287a5f4d1"
+  },
+  "ownership": {
+    "expected_owned_paths": [
+      "src/video_paper_wiki_research/light_backup.py",
+      "src/video_paper_wiki_research/light_knowledge.py",
+      "src/video_paper_wiki_research/light_knowledge_batch.py",
+      "src/video_paper_wiki_research/light_knowledge_refresh.py",
+      "tests/research/test_light_backup.py",
+      "tests/research/test_light_knowledge.py",
+      "tests/research/test_light_knowledge_batch.py",
+      "tests/research/test_light_knowledge_refresh.py"
+    ],
+    "count": 8,
+    "draft_preserves_eight_path_ownership": true,
+    "scope_restriction": "Only light_knowledge.py shared raw-path validation plus directly required regressions; no public API/schema/selection/merge/refresh semantic change."
+  },
+  "requirements_review": [
+    {
+      "id": "R3-1",
+      "requirement": "Repair the exact raw symlink/.. normalization bypass in shared product path validation.",
+      "draft_evidence": "Expected production edit is light_knowledge.py shared path validation; inspect supplied edges before normpath/resolve.",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R3-2",
+      "requirement": "Cover same-target raw symlink/../ws and symlink targets whose real resolution differs from lexical normalized workspace.",
+      "draft_evidence": "Explicit regressions for raw symlink/../ws with differing real resolution and same-target traversal.",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R3-3",
+      "requirement": "Reject raw parent components while keeping safe normal absolute and relative .work paths usable.",
+      "draft_evidence": "Draft explicitly permits rejecting raw .. and requires normal absolute/relative .work paths.",
+      "verdict": "PASS_WITH_FREEZE_CLARIFICATION"
+    },
+    {
+      "id": "R3-4",
+      "requirement": "Propagate refusal through all batch/refresh APIs, listing/blocker reads, and output helpers, with no state/output mutation.",
+      "draft_evidence": "Draft names all API classes and requires closed refusals plus unchanged plans/HEAD/notes/outputs and existing output sentinels.",
+      "verdict": "PASS_WITH_TEST_MATRIX_GAP"
+    },
+    {
+      "id": "R3-5",
+      "requirement": "Preserve R2 complete-inventory, zero-refresh, ancestry, merge and finalization behavior.",
+      "draft_evidence": "Draft explicitly says preserve all R2 tests and only repair raw-path class.",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R3-6",
+      "requirement": "Produce cumulative evidence with all eight owned source/test copies, including unchanged light_backup.py.",
+      "draft_evidence": "Evidence clarification explicitly requires eight R3 files and one byte-exact counterpart per handoff row.",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R3-7",
+      "requirement": "Use COMMON exact-source four-file suite with absolute test paths, config/rootdir/pythonpath, module __file__, interpreter, cwd, hashes and actual result.",
+      "draft_evidence": "Draft explicitly requires each item.",
+      "verdict": "PASS"
+    },
+    {
+      "id": "R3-8",
+      "requirement": "Remain a draft pending Root freeze, exact prompt, informed authorization and explicit dispatch.",
+      "draft_evidence": "Final paragraph says this is not dispatch and Root will freeze/dispatch.",
+      "verdict": "PASS"
+    }
+  ],
+  "concrete_gaps_to_close_before_dispatch": [
+    {
+      "id": "GAP-1",
+      "severity": "P1",
+      "finding": "Freeze/prompt must bind the exact eight R2 source/test hashes and explicitly require cumulative R3 copies for all eight. The draft gives the snapshot hash and policy but no per-path hash table.",
+      "required_action": "Freeze from the exact R2 handoff rows and make all eight R3 file-copy rows mandatory; reject a handoff with only changed-file copies."
+    },
+    {
+      "id": "GAP-2",
+      "severity": "P1",
+      "finding": "The output-helper requirement is scoped but not enumerated into a concrete test matrix.",
+      "required_action": "Prompt should name require_product_workspace and require_work_output plus at least one public output-producing API; assert refusal and unchanged sentinel bytes for each raw symlink/.. form."
+    },
+    {
+      "id": "GAP-3",
+      "severity": "P2",
+      "finding": "“Normal relative .work paths usable” and “reject raw ..” can be read ambiguously for relative paths containing parent components.",
+      "required_action": "Freeze the exact rule: plain relative `.work/ws` remains usable; any supplied raw `..` component at product boundaries is refused, with closed status and no mutation."
+    },
+    {
+      "id": "GAP-4",
+      "severity": "P2",
+      "finding": "The draft says check supplied and resolved `.work` boundaries but does not state the order for non-existent output parents or external symlink targets.",
+      "required_action": "Prompt should require raw component inspection before normalization, then resolved-boundary checks, for existing and non-existing output paths and both inside/outside symlink targets."
+    }
+  ],
+  "out_of_scope_confirmations": [
+    "Do not change complete live inventory/partition binding.",
+    "Do not change refresh seed/delta/ancestry semantics.",
+    "Do not change merge/finalization/completion or backup classification semantics except path-refusal propagation.",
+    "Do not modify CLI, Skill, schemas, other lanes, Git, CI, PR, real Vault/admin or human-gate state."
+  ],
+  "decision": "GO_FOR_R3_FREEZE_AND_DISPATCH_AFTER_GAPS_BOUND",
+  "dispatch_authorized": false,
+  "implementation_started": false
+}

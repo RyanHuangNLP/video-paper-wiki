@@ -1,0 +1,148 @@
+{
+  "kind": "real-pdf-acceptance-draft",
+  "status": "待核对的验收草案",
+  "not_a_human_confirmed_gold": true,
+  "human_gate_closed": false,
+  "pass_rate_claimed": null,
+  "notes": [
+    "This draft is for later integration-time verification of Q&A and writing, not a scored benchmark.",
+    "Citation structure against this PDF is not factual-correctness verification.",
+    "No HUMAN-* gate is closed by this document."
+  ],
+  "selection": {
+    "priority": "inbox/",
+    "inspected": [
+      "inbox/arxiv-2204.03458.pdf",
+      "inbox/arxiv-2311.15127.pdf",
+      "inbox/arxiv-2311.17982.pdf"
+    ],
+    "chosen": "inbox/arxiv-2311.15127.pdf",
+    "reason": "All three inbox PDFs yielded nonempty pypdf text; this file is fully extractable (30/30 pages) and is a video-generation methods paper with explicit training stages, dataset numbers, and reported results."
+  },
+  "extraction": {
+    "engine": "pypdf.PdfReader.extract_text",
+    "docling_used": false,
+    "model_downloaded": false,
+    "encrypted": false,
+    "nonempty_pages": 30,
+    "extracted_char_count": 104019
+  },
+  "paper": {
+    "path": "inbox/arxiv-2311.15127.pdf",
+    "absolute_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/inbox/arxiv-2311.15127.pdf",
+    "sha256": "654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e",
+    "page_count": 30,
+    "metadata_title": null,
+    "metadata_title_note": "PDF metadata title is absent; title below is taken from extracted page-1 text.",
+    "title": "Stable Video Diffusion: Scaling Latent Video Diffusion Models to Large Datasets",
+    "arxiv_id_on_page_1": "2311.15127v1",
+    "venue_line_on_page_1": "arXiv:2311.15127v1  [cs.CV]  25 Nov 2023",
+    "authors_extracted_from_page_1": "Andreas Blattmann, Tim Dockhorn, Sumith Kulal, Daniel Mendelevitch, Maciej Kilian, Dominik Lorenz, Yam Levi, Zion English, Vikram Voleti, Adam Letts, Varun Jampani, Robin Rombach"
+  },
+  "answerable_questions": [
+    {
+      "id": "Q1",
+      "question": "What is Stable Video Diffusion, and which generation tasks does the paper present it for?",
+      "page": 1,
+      "excerpt": "We present Stable Video Diffusion — a latent video diffu-",
+      "excerpt_continued_on_same_page": "and image-to-video generation.",
+      "expected_answer_points": [
+        "SVD is a latent video diffusion model.",
+        "The paper presents it for high-resolution text-to-video and image-to-video generation.",
+        "Do not invent later product names that are not on this page."
+      ]
+    },
+    {
+      "id": "Q2",
+      "question": "What three training stages do the authors identify for video LDMs?",
+      "page": 3,
+      "excerpt": "Stage I: image pretraining",
+      "supporting_excerpts_same_page": [
+        "Stage II: video pretraining, which trains on large amounts",
+        "Stage III: video finetuning, which refines the model on a"
+      ],
+      "expected_answer_points": [
+        "Stage I: image pretraining (a 2D text-to-image diffusion model).",
+        "Stage II: video pretraining on large amounts of videos.",
+        "Stage III: video finetuning on a smaller high-quality subset at higher resolution."
+      ]
+    },
+    {
+      "id": "Q3",
+      "question": "How do the authors turn a pretrained image LDM into their video model (temporal layers and which weights are trained)?",
+      "page": 3,
+      "excerpt": "insert temporal convolution and attention layers after every",
+      "supporting_excerpts_same_page": [
+        "we finetune the full model."
+      ],
+      "expected_answer_points": [
+        "They follow Blattmann et al. and insert temporal convolution and attention after every spatial convolution and attention layer.",
+        "Unlike works that train only temporal layers or are training-free, they finetune the full model."
+      ]
+    },
+    {
+      "id": "Q4",
+      "question": "How large is the initial Large Video Dataset, and which signals are used to filter low-quality clips?",
+      "page": 4,
+      "excerpt": "Dataset (LVD), consists of 580M annotated video clip pairs,",
+      "supporting_excerpts_same_page": [
+        "forming 212 years of content.",
+        "filter out static scenes by removing",
+        "weed out clips containing large amounts of written text."
+      ],
+      "expected_answer_points": [
+        "LVD is described as 580M annotated clip pairs / 212 years of content (Table 1 on the same page lists 577M clips before filtering).",
+        "Filtering uses optical-flow magnitude to drop near-static clips, OCR to drop text-heavy clips, and CLIP-based aesthetics / text-image similarity annotations."
+      ]
+    },
+    {
+      "id": "Q5",
+      "question": "What UCF-101 FVD does the paper report for SVD, and how do human voters rank the 25-frame image-to-video model against GEN-2 and PikaLabs?",
+      "page": 6,
+      "excerpt": "SVD (ours) 242.02",
+      "supporting_excerpts_same_page": [
+        "Our 25 frame Image-",
+        "human voters over GEN-2 [74]"
+      ],
+      "expected_answer_points": [
+        "Table 2 reports SVD FVD 242.02 on UCF-101 zero-shot text-to-video (lower than listed baselines).",
+        "Figure 6 caption states the 25-frame image-to-video model is preferred by human voters over GEN-2 and PikaLabs.",
+        "Do not turn this preference into a numeric win-rate that the page does not print."
+      ]
+    }
+  ],
+  "insufficient_questions": [
+    {
+      "id": "U1",
+      "question": "What is the measured wall-clock sampling time and peak VRAM for the 25-frame 576×1024 image-to-video model on an RTX 4090?",
+      "why_insufficient": "The paper states that video diffusion models are typically slow to sample and have high VRAM requirements, and that SVD is no exception, but it does not report RTX 4090 (or any specific consumer-GPU) latency or peak-memory numbers for that setting.",
+      "related_limitation_page": 15,
+      "related_limitation_excerpt": "VRAM requirements, and our model is no exception.",
+      "expected_refusal": "证据不足：本 PDF 未给出该硬件与分辨率下的测量延迟或峰值显存；只能复述第 15 页关于采样慢、显存高的定性局限，不能编造秒数或 GB。"
+    },
+    {
+      "id": "U2",
+      "question": "How does SVD compare numerically to OpenAI Sora or Kling on the same human-preference protocol?",
+      "why_insufficient": "Extracted text never names Sora or Kling. Closed-source comparisons in this PDF are GEN-2 and PikaLabs (page 6–7), which are not those later systems.",
+      "expected_refusal": "证据不足：论文未提及 Sora 或 Kling，也没有与它们的同协议数字；不能把对 GEN-2/PikaLabs 的偏好推广为对未出现模型的对比结果。"
+    }
+  ],
+  "writing_task": {
+    "topic": "Stable Video Diffusion 如何用三阶段训练和数据策展支撑 text-to-video 与 image-to-video",
+    "audience": "视频生成研究 wiki 的初读者（需要能核对来源页，不需要复现训练）",
+    "length": "约 600–900 汉字的可编辑短稿",
+    "structure": [
+      "一句话结论",
+      "方法：图像骨干、时间层、全模型微调",
+      "数据与三阶段训练",
+      "报告的结果（UCF-101 FVD 与 I2V 人类偏好）",
+      "局限（短视频、运动偏弱、采样慢/显存高）"
+    ],
+    "citation_requirements": [
+      "只引用本 PDF 已抽出的页码与证据摘录（Q1–Q5 / 第 15 页局限）。",
+      "数字必须能在对应页上找到，例如 580M、242.02、25 frame、GEN-2、PikaLabs。",
+      "禁止引入本 PDF 未出现的模型名、硬件基准或通过率。",
+      "输出可编辑 Markdown 和绑定到上述证据的基本参考文献，而不是 paper-analysis-draft JSON。"
+    ]
+  }
+}

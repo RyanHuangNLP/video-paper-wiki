@@ -1,0 +1,205 @@
+{
+  "$schema": "full-todo.discovery-contracts-wip-review-r1.v1",
+  "schema": "full-todo.discovery-contracts-wip-review-r1.v1",
+  "reviewed_at_utc": "2026-09-09T10:18:00Z",
+  "reviewer": "Astra discovery-contracts WIP review controller",
+  "scope": "Bounded read-only review of the current Discovery expansion WIP against the frozen R7 contract and profile. The review inspected the exact baseline checkout, the untracked contract/storage/candidate modules and resources, and ran only offline locked-environment probes. No production source, test source, Git, network, connector, Vault or catalog mutation was performed.",
+  "decision": "NO_GO_WIP_SEMANTIC_AND_WORKFLOW_GAPS",
+  "status": "READ_ONLY_WIP_REVIEW",
+  "inputs": {
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732,
+      "precedence": "R2,R3,R4,provider notes,R5,R6,R7 in freeze order"
+    },
+    "baseline": {
+      "source_root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+      "head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+      "tree": "04fd8375510d73a9633cadd66c54f80d253e28ba",
+      "matches_frozen_baseline": true,
+      "working_tree": "dirty only by the untracked WIP paths listed below"
+    },
+    "wip_files": [
+      {
+        "path": "src/video_paper_wiki_research/discovery_contracts.py",
+        "sha256": "50cb52980a2abc983330b5a01d5f56d73a355341654d3ed480ca26ee4482305b",
+        "size_bytes": 18336
+      },
+      {
+        "path": "src/video_paper_wiki_research/discovery_storage.py",
+        "sha256": "aa2369fc92c91f3f83a8063b677bbfce140e8133e1ee81a775e8d8bec303186b",
+        "size_bytes": 19966
+      },
+      {
+        "path": "src/video_paper_wiki_research/discovery_candidates.py",
+        "sha256": "c10a75ef54d2fe06a819b126e5f839abc7bfc7b5d280ac00f9fa6a2124ea4672",
+        "size_bytes": 13267
+      },
+      {
+        "path": "src/video_paper_wiki_research/profiles/discovery-v1.json",
+        "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+        "size_bytes": 2951
+      },
+      {
+        "path": "src/video_paper_wiki_research/prompts/discovery-assessment-v1.md",
+        "sha256": "8991b8af8b047d7d79df224f192f0d687c9ab4772ce2ed275180fa0c176ae588",
+        "size_bytes": 981
+      }
+    ],
+    "resource_hashes": {
+      "schemas": {
+        "candidate-decision.v1.schema.json": "72b9031a54463c703ac84c9434bfa34931de235c02afd193fdcb2b39d3ddba1f",
+        "discovery-common.v1.schema.json": "46b88583fd006b09dbbdd6e6cceb620766c48344ca87b8c2b9d5a992f5aba964",
+        "discovery-observation.v1.schema.json": "bc7aba7f61aa369d4734f6ae78de637626ef576087abe21b0556e2c294b9e147",
+        "discovery-request.v1.schema.json": "acc7c645c052d2556a66c3002e45cfb03187ae3976e4dad2eb10bf8861e712db",
+        "paper-candidate-set.v1.schema.json": "fd5ba3ff2f0c1c65165c2eadb0ead95f11527a2c0fabea332aef31a9c27e32df",
+        "paper-rank.v1.schema.json": "67469eed0dea01a360668afc476888dd2a91971c5082adb1ef965e8bc775e2b2",
+        "research-assessment.v1.schema.json": "0541ce1745ec4219a2bae52c899e961800e36a22bf22624fe9c5c26e61b1e4c2",
+        "research-config.v1.schema.json": "d9b2b6cf6c6a42107d325317f591df631bfcecbc6a85a23e9a849d531d2d4441",
+        "research-control-event.v1.schema.json": "06e42428240daeb207d243b9e966bb15167810df7db5d46af71c540a819adf1f",
+        "research-round-event.v1.schema.json": "577d7a4cebaa211ad2a1f64eb468c4348748eca516fb2ec6fda81273b1bc2e88",
+        "research-round-plan.v1.schema.json": "b057d7a4cebaa211ad2a1f64eb468c4348748eca516fb2ec6fda81273b1bc2e88",
+        "research-session.v1.schema.json": "65e0bbf86f4e357eaff6bb0c493dd8bb9149a4bae76dce0f529746a8bdc4d584",
+        "research-stop-decision.v1.schema.json": "163eabda8a7592006fcb521ec26d9db2b3849b3dcc217c228c2d32936f70eb34"
+      },
+      "registry_probe": "resource_state() loaded 13 schemas, the exact frozen profile SHA, and 15 retained resource paths (13 schemas plus profile and prompt)."
+    }
+  },
+  "positive_checks": [
+    {
+      "id": "DISC-WIP-RESOURCE-REGISTRY",
+      "status": "PASS_PARTIAL",
+      "evidence": "discovery_contracts.py:213-228 checks every allowlisted schema with _Validator.check_schema, binds the 13-schema registry, checks PROFILE_SHA b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599, compares KINDS/CAPS/HARD_LIMITS to the profile and refuses an empty prompt. The locked venv resource probe passed.",
+      "limit": "This proves resource consistency only; it does not prove cross-artifact graph semantics or CLI/resource installation parity."
+    },
+    {
+      "id": "DISC-WIP-STRICT-ENVELOPE",
+      "status": "PASS_PARTIAL",
+      "evidence": "discovery_contracts.py:84-130 applies depth/count, UTF-8/NFC/control, integer and strict-JSON checks; lines 251-263 validate closed schemas; lines 397-420 recompute content identity and saved bytes. discovery_storage.py:267-274 additionally checks family, filename, saved bytes and duplicate document identity on scan.",
+      "limit": "The checks are local envelope/file checks and do not establish references, ancestry, complete-set membership, or state transitions."
+    },
+    {
+      "id": "DISC-WIP-IDENTIFIER-AND-BASIC-OBSERVATION",
+      "status": "PASS_PARTIAL",
+      "evidence": "discovery_contracts.py:169-206 canonicalizes DOI/arXiv/OpenAlex identifiers; lines 335-354 enforce outcome branch shape, payload byte limit, provider ordinals 1..N, set ordering for ids/identity_links/neighbors, and identity-link endpoints occurring in the result.",
+      "limit": "Request/provider/observation references and cumulative input membership are not resolved against a store."
+    }
+  ],
+  "findings": [
+    {
+      "id": "DISC-WIP-CANDIDATE-KEY-UNENFORCED",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R7 requires candidate_key = SHA256(JCS(sorted unique unversioned {namespace,value} objects)). discovery_contracts.py:319-370 has no paper-candidate-set branch and never derives or compares candidate keys. The candidate schema only requires a 64-hex string. Offline probe sealed a paper-candidate-set with an intentionally wrong f...f candidate_key for one DOI component and returned an accepted artifact.",
+      "impact": "A sealed candidate set can contain a different identity key than its ids, so graph merges, durable expansion lineage, request deduplication and candidate decisions cannot be trusted from the stored artifact.",
+      "required": "Add deterministic candidate-set/component validation and tests for canonical key derivation, aliases, same_work bridges, conflicts and historical snapshot immutability."
+    },
+    {
+      "id": "DISC-WIP-RANK-FUSED-INTEGRITY-UNENFORCED",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R6 fixes list ranks, mirror classes, representative facts, suppression reasons, reduced Fraction numerator/denominator and score. discovery_contracts.py:319-370 does not branch on paper-rank. The schema checks shapes only; it does not check list-entry ordering/unique ranks, candidate/list membership, class membership, contribution/suppression partition, class-key derivation or score arithmetic. Offline probe sealed a rank with numerator 999, denominator 1 and score 0 for one 1/(k+rank) contribution and accepted it.",
+      "impact": "RRF ordering and tie results can be altered by caller-supplied values while retaining a valid content hash.",
+      "required": "Validate or construct rank projections from the complete candidate snapshot, with exact Fraction arithmetic, mirror closure and auditable suppression reasons."
+    },
+    {
+      "id": "DISC-WIP-IDENTITY-GRAPH-PROVENANCE",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R3/R5/R7 require explicit same_work-only joins, component introduction/no-refund accounting, exact why_found request/observation/ordinal provenance, conflict handling and durable expansion origins. discovery_candidates.py:73-104 computes a useful pure projection, but discovery_contracts.py does not validate nested why_found refs or their ordinals against retained observations, and no graph module/replay exists. discovery_storage.py:267-274 only indexes documents by id.",
+      "impact": "A caller can seal candidates with invented refs or provenance; a restart cannot reconstruct candidate components, selection lineages or no-refund charges from the retained tree.",
+      "required": "Add a retained-store graph replay that resolves every ref, validates fact ordinals/result membership, records historical component introductions and preserves old snapshot keys after bridges."
+    },
+    {
+      "id": "DISC-WIP-CONFIG-TERM-CANONICALIZATION",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "evidence": "R5/R6 require terms to be lowercase/NFC, non-whitespace, deduplicated and JCS-sorted. config_input at discovery_contracts.py:297-316 canonicalizes only seed ids and checks lens order/seed namespace uniqueness. It does not normalize query_terms, lens terms, author_terms or project_terms. Locked probe accepted query_terms ['Z term','a term'] and lens terms ['Zed','alpha'] unchanged.",
+      "impact": "Equivalent configurations can receive different sealed bytes and matching/ranking behavior, and deterministic plan/query regeneration is not guaranteed.",
+      "required": "Normalize and sort all declared terms at unsealed input, reject noncanonical sealed terms, and bind query construction to the normalized config."
+    },
+    {
+      "id": "DISC-WIP-REQUEST-EXECUTOR-CAPABILITY-BINDING",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "evidence": "R7 requires executor.capability_profile to exactly match the request provider and known/unknown identity/locator/reason branches. discovery_contracts.py:266-295 checks only local identity text and URL syntax; discovery-observation validation at 335-340 does not load or resolve the request ref and does not compare provider/capability. Locked probe sealed a capability_unavailable observation whose request ref was arbitrary and whose known executor profile was Web; it was accepted without a matching request.",
+      "impact": "An observation may claim capability or failure for a different provider/operation, undermining honest capability_unavailable handling and target provenance.",
+      "required": "Resolve request refs before observation install, compare provider profile exactly, enforce executor identity branches and retain request/observation lineage."
+    },
+    {
+      "id": "DISC-WIP-TARGET-REGENERATION-ABSENT",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R5/provider notes require fixed OpenAlex/Web target regeneration, exact query parameter order and encoding, singleton/cites/ID-batch/topic/project restrictions, cursor eligibility, bounded slices and rejection of arbitrary URLs. The current WIP has no planner/target builder module and discovery_contracts.py:266-295 only applies generic source_url syntax to locator/url strings. No target is regenerated from spec.",
+      "impact": "A valid-shaped request can carry an arbitrary HTTPS target, violating zero-egress host-operation provenance and provider profile boundaries.",
+      "required": "Implement a pure target compiler and validate every stored target byte-for-byte against the canonical spec; reject unsupported operation/provider combinations and arbitrary response links."
+    },
+    {
+      "id": "DISC-WIP-ROUND-METRICS-WRONG-HIT-UNIT",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "evidence": "R6 defines one hit per distinct current-round result component. discovery_candidates.py:266-278 sets total += len(current) and repeated += len(current) for prior components or len(current)-1 for new components, where current is every fact for that component. Two current observations reporting the same component therefore count as two hits rather than one component membership; the implementation has no canonical first-occurrence result-component set.",
+      "impact": "duplicate_ratio and yield_below_threshold stop decisions can differ from the frozen inclusive threshold semantics and vary with repeated facts/pages.",
+      "required": "Derive canonical result-component memberships first, count each current component once, then apply R7 total_hits>0 and inclusive repeated_hits*100 >= duplicate_percent*total_hits plus consecutive-round rules."
+    },
+    {
+      "id": "DISC-WIP-PENDING-INTRODUCTION-AND-SELECTION-LINEAGE",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R5/R7 make pending candidate introductions a strict per-observation admission invariant and make an expansion durable only when a committed plan contains its first expanded spec. No discovery plan, graph, workflow or selection-lineage module exists in the WIP. discovery_storage.py:226 initializes pending_plan=None and no caller assigns it; capacity at 299-359 therefore cannot protect a pending plan unless a future unreviewed caller supplies one.",
+      "impact": "The current files cannot enforce <=256 component admission, three historical expansion introductions, depth/seed/origin retention, or no-refund behavior across restart/repair.",
+      "required": "Implement plan installation with exact largest-feasible-prefix selection, durable origin fields, strict prospective graph admission, and replay from committed plan/request history."
+    },
+    {
+      "id": "DISC-WIP-RESERVATION-WIRING-INCOMPLETE",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R4/R5 require atomic N-slot family reservations, 14 MiB pending total reserve, config/session bootstrap accounting, prospective candidate/rank/assessment/event bounds and protected non-reserved control writes. discovery_storage.py:299-352 contains a partial arithmetic helper, but there is no init/plan/observe/finish command, no config/session install, no pending-plan state transition, no family-specific projection preflight and no interruption/recovery replay. `scan` only checks aggregate family bytes/counts and parses envelopes.",
+      "impact": "Passing helper arithmetic is not evidence that a pending plan cannot strand finalization or that an interrupted install recovers exact complete sets.",
+      "required": "Wire capacity checks into every mutation edge under the shared lock and test N=1/N=8, non-reserved decisions, all interruption points and no-refund counters."
+    },
+    {
+      "id": "DISC-WIP-RETAINED-TREE-STATE-RECOVERY-INCOMPLETE",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "R3 requires complete named-edge/set checks, init_pending/session recovery, ancestry/fork rejection, control/candidate streams, exact event child sets and WORK_PATH_UNSAFE precedence. discovery_storage.py:228-274 scans only known family names and validates each artifact locally; it does not classify absent/config-only/session-only/foreign/multi-head trees, verify stream predecessors, or recompute historical events. open_store at 399-445 provides the flock and retained descriptors but no state/action matrix.",
+      "impact": "A tree can be locally envelope-valid yet semantically forked, incomplete or stale while status/resume/finish would have no defined refusal.",
+      "required": "Implement graph/state replay and all-exits final verification before exposing any mutating or read-only command result."
+    },
+    {
+      "id": "DISC-WIP-CLI-AND-TEST-SCOPE-MISSING",
+      "severity": "BLOCKER",
+      "status": "OPEN",
+      "evidence": "The frozen allowlist has 31 paths. Current WIP status contains only discovery_candidates.py, discovery_contracts.py, discovery_storage.py, 13 schemas, profile and prompt. Missing allowlisted paths are docs/discovery-expansion.md, discovery.py, discovery_cli.py, discovery_graph.py, discovery_plan.py, research discovery tests (fixture/candidates/contracts/plan/recovery/workflow) and tests/security/test_discovery_boundary.py; existing cli.py has no discovery command registration. No implementation acceptance can be claimed from the current partial tree.",
+      "impact": "There is no user-facing init/plan/observe/finish/status/control/decision workflow or acceptance evidence for the frozen contracts and security boundary.",
+      "required": "Complete only the frozen allowlist, then run both local Python suites, installed resource/CLI checks and the fresh four-job CI required by the freeze."
+    }
+  ],
+  "implemented_pure_projection_notes": [
+    {
+      "path": "src/video_paper_wiki_research/discovery_candidates.py",
+      "lines": "73-258",
+      "observation": "The pure projection contains useful same_work graph construction, candidate key derivation, mirror-class closure and exact Fraction scoring paths.",
+      "qualification": "Those functions are not sufficient acceptance: they are not wired to retained artifact refs/state, do not validate caller-supplied sealed projections, and round_counts at lines 266-278 violates the frozen component-hit unit."
+    }
+  ],
+  "required_acceptance_before_re_review": [
+    "Add the missing allowlisted workflow, planner, graph, CLI and bounded test/security paths without changing frozen public kinds, fields, limits or outcomes.",
+    "Reject caller-supplied candidate/rank/assessment/projection inconsistencies by cross-artifact replay or construct projections only from retained complete inputs.",
+    "Implement exact target regeneration, logical plain-attempt suppression, validated retry/cursor/neighbor-slice continuation, executor/request capability binding and canonical term/config normalization.",
+    "Wire strict per-observation candidate admission, cumulative input digests, pending plan reservations, durable expansion selection lineages and R3 state/action recovery under the shared lock.",
+    "Run graph/frontier/rank/stop/recovery/security vectors on both supported Python versions, then verify installed resources/CLI and exact allowlist before CI."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "catalog": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

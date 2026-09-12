@@ -1,0 +1,763 @@
+{
+  "$schema": "full-todo.domain-product-scope-review.v1",
+  "revision": "R1",
+  "recorded_at_utc": "2026-09-09T07:44:00Z",
+  "scope": "Read-only audit of the remaining DOMAIN, SYNTHESIS, QUALITY and PRODUCT work against the full-todo packet and the accepted/frozen source-conversion checkout. No production source, tests, contracts, Git, Vault, network, model or external-builder mutation was performed.",
+  "method": {
+    "classification": "existing means the behavior is observable in the reviewed checkout and tests; gap means a new frozen contract and implementation is required; human_or_real_data means engineering can prepare the interface but cannot close the product gate with fixtures.",
+    "reviewed_commands": "Static source, schema, test-name and documentation inspection only; no test suite was run for this artifact.",
+    "source_checkout_dirty_reason": "The source-conversion checkout contains the separately reviewed conversion WIP and probe material. The domain/product observations below are anchored to its baseline commit/tree and do not treat those WIP files as accepted implementation."
+  },
+  "inputs": {
+    "docs/ai/packets/full-todo-v1/README.md": "7863876b46d193cec03f93469cc28b7d6f42f396c8e8487a7d565b8c5a86d6b4",
+    "docs/ai/TODO-manual-pdf-v1.md": "92e650ed6651ecdfa8985c093c2429dc9162f236d27ef8a9f4bdfd79fa4f81f7",
+    "docs/ai/development-inventory-2026-09-08.md": "d1ed50068cadd35cb2f2e052226198013303e48e079ecca211ef9499b57378d5",
+    "docs/ai/video-generation-research-wiki-v1-prd-r3.3.md": "8f70a7e845e0cb3cd61b6d2ddbe12b36816c934ba3e4ea4eb370c05a62c3d8ff",
+    "docs/ai/video-paper-wiki-manual-pdf-v1-addendum.md": "9c86d50772d0993d0fdfa1a56f4b3a0934693f1e4fe6e87e97703a40f1eed646",
+    "status": "docs/ai/packets/full-todo-v1/status.json: SOURCE conversion is r1-rejected-boundary-code-r2-repair-pending and catalog-pending; CODE is design-gap-review-complete-not-frozen; DOMAIN/SYNTHESIS/QUALITY/PRODUCT are pending-contract."
+  },
+  "baseline": {
+    "source_root": ".work/parallel/source-conversion-v1/terminal-1/source",
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "catalog_count": 67,
+    "constraints": [
+      "agent Python remains zero-egress",
+      "no committed PDFs or model/OCR installation",
+      "generated staging stays under approved .work/**",
+      "no real Vault/admin mutation",
+      "old closed v1 schemas and light entrypoints remain compatible"
+    ]
+  },
+  "current_capability_inventory": [
+    {
+      "id": "C-DOMAIN-SEED-COMPILER",
+      "status": "existing-metadata-and-page-shaping-only",
+      "refs": [
+        "src/video_paper_wiki/domain.py:40-113",
+        "src/video_paper_wiki/domain_cli.py:12-96",
+        "tests/unit/test_domain_integration.py",
+        "tests/unit/test_remaining_domain.py"
+      ],
+      "behavior": [
+        "Validates the pinned 67-paper seed and renders metadata-only provisional Paper/Concept pages under staging.",
+        "Compiles a paper page from paper-record.v1 claims, a code page from a code-evidence manifest and a taxonomy-validated concept page.",
+        "Shapes upstream BM25 query rows and rejects unsafe paths, non-finite scores and malformed chunk/hash identities."
+      ],
+      "boundary": "There is no canonical experiment-condition model, typed annotation/relation registry, profile head, support/contradiction graph or graph projection."
+    },
+    {
+      "id": "C-RETRIEVAL-LEGACY",
+      "status": "existing-legacy-bm25-and-four-track-evaluator",
+      "refs": [
+        "src/video_paper_wiki/retrieval.py:11-157",
+        "src/video_paper_wiki/catalog_store.py:582-716",
+        "src/video_paper_wiki/catalog_reporting.py:64-93",
+        "tests/unit/test_remaining_domain.py:110-157",
+        "tests/unit/test_catalog_reporting.py"
+      ],
+      "behavior": [
+        "Validates retrieval policy/config and gold bound to an evidence inventory and generation/mapping digests.",
+        "Ranks mapped BM25 chunk hits with stable score/paper/chunk ordering and evaluates exact-title, alias, named-title and topic-only tracks.",
+        "Reports evidence_recall_at_8, paper recall, MRR and nDCG over the legacy mapping."
+      ],
+      "boundary": "This is not typed-graph retrieval, evidence-unit Recall@10, support-aware context selection or research-level freshness/coverage diagnostics."
+    },
+    {
+      "id": "C-LIGHT-QUERY-RRF",
+      "status": "existing-and-tested-lightweight",
+      "refs": [
+        "src/video_paper_wiki_research/light_query.py:31-57,628-944",
+        "tests/research/test_light_query.py"
+      ],
+      "behavior": [
+        "Exports an immutable original plus optional English rewrite query plan.",
+        "Fuses the route rankings with rrf-v1, rank_constant 60, candidate_k 24 and top_k 8.",
+        "Binds routes, index, paper snapshots and evidence identities and refuses source/index drift."
+      ],
+      "boundary": "Keep this behavior; extend the formal research path with exact/BM25/typed-graph tracks and a separate generation/context contract instead of changing light_query.v1."
+    },
+    {
+      "id": "C-LIGHT-KNOWLEDGE",
+      "status": "existing-provisional-knowledge-workflow",
+      "refs": [
+        "src/video_paper_wiki_research/light_knowledge.py:52-159,637-709,2025-2135,2576-2952",
+        "tests/research/test_light_knowledge.py"
+      ],
+      "behavior": [
+        "Exports cited model context and imports a bounded knowledge document with summary, method, representation_architecture, training_data, experiments_results, limitations, code_resources and research_question sections.",
+        "Persists immutable record bundles, current/head pointers, concept views, source snapshots and history; provisional and unknown states stay visible."
+      ],
+      "boundary": "The section model is a cited proposal surface. It is not a reviewed domain annotation, comparison profile, typed relation or canonical graph."
+    },
+    {
+      "id": "C-LIGHT-KNOWLEDGE-BATCH-REFRESH",
+      "status": "existing-and-tested-selective-refresh",
+      "refs": [
+        "src/video_paper_wiki_research/light_knowledge_batch.py:1016-1121,1196-1314,1367-1618,1820-2048",
+        "src/video_paper_wiki_research/light_knowledge_refresh.py:1-349",
+        "tests/research/test_light_knowledge_batch.py",
+        "tests/research/test_light_knowledge_refresh.py"
+      ],
+      "behavior": [
+        "Plans bounded partition/merge/finalize jobs, preserves ancestry and citations, exposes resumable status, and refuses foreign or incomplete jobs.",
+        "Remaps unchanged evidence on source refresh, turns changed/deleted citations into unknown, and supports an explicit section/concept acceptance choice."
+      ],
+      "boundary": "No typed cross-paper relation or review-event publication is produced by these jobs."
+    },
+    {
+      "id": "C-LIGHT-COMPARISON",
+      "status": "existing-model-proposed-comparison-only",
+      "refs": [
+        "src/video_paper_wiki_research/light_compare.py:24-67,278-588",
+        "tests/research/test_light_compare.py"
+      ],
+      "behavior": [
+        "Exports a selected 2-8-paper context with default method/architecture/training_data/experiments/limitations dimensions.",
+        "Validates a model-proposed comparison document with one cited cell per paper, conditions, comparable/not_comparable/unknown and a nonblank reason.",
+        "Publishes create-only Markdown with escaped cell text and real evidence links under the lightweight workspace."
+      ],
+      "boundary": "It explicitly calls itself model-proposed, has no canonical comparison profile/head, no typed values/units, no independent review and no formal generated-article namespace."
+    },
+    {
+      "id": "C-LIGHT-WRITING",
+      "status": "existing-cited-draft-and-revision-workflow",
+      "refs": [
+        "src/video_paper_wiki_research/writing.py:107-299",
+        "src/video_paper_wiki_research/light_writing.py:1-85",
+        "src/video_paper_wiki_research/light_writing_project.py:68-78,1863-2737",
+        "tests/research/test_writing.py",
+        "tests/research/test_light_writing.py",
+        "tests/research/test_light_writing_project.py"
+      ],
+      "behavior": [
+        "Collects selected-paper evidence from the current catalog, exports a bounded model context and checks imported citations structurally.",
+        "Supports outline/section revisions, immutable history, stale-parent detection, create-only Markdown export and resumable project state."
+      ],
+      "boundary": "There is no article factual-unit support review, bibliography/source-version contract or source-bound reproduction-plan artifact."
+    },
+    {
+      "id": "C-LIGHT-MAINTENANCE-AND-WORKFLOW",
+      "status": "existing-lightweight-operations",
+      "refs": [
+        "src/video_paper_wiki_research/light_library.py:494-1010",
+        "src/video_paper_wiki_research/light_workflow.py:1401-1780",
+        "src/video_paper_wiki_research/light_workspace.py:191-233",
+        "tests/research/test_light_workflow.py",
+        "tests/research/test_light_library.py"
+      ],
+      "behavior": [
+        "Lists and edits paper metadata, archives/restores/replaces papers with journals, preserves notes and exposes recover_library.",
+        "prepare/status/complete handles model handoff, source snapshots, stale sessions, output conflicts and restart recovery.",
+        "Workspace inspection reports index, pending transaction and damage states."
+      ],
+      "boundary": "These are light workspace operations; they do not derive a unified version-aware status over formal source association/display heads, domain heads, synthesis, quality runs and cross-namespace recovery."
+    },
+    {
+      "id": "C-BACKUP",
+      "status": "existing-but-two-separate-scopes",
+      "refs": [
+        "src/video_paper_wiki_research/light_backup.py:948-1220",
+        "src/video_paper_wiki/backup_manifest.py:114-208",
+        "src/video_paper_wiki/restore_verification.py:12-28",
+        "tests/research/test_light_backup.py",
+        "tests/unit/test_remaining_domain.py:55-103"
+      ],
+      "behavior": [
+        "Light backup creates/verifies/restores deterministic ZIPs for the light workspace, extra outputs and completed history while blocking pending unsafe operations.",
+        "Formal backup builds a receipt-backed raw-inclusive .raw/wiki manifest and verifies a separately restored Vault with audit, strict lint, current catalog and report."
+      ],
+      "boundary": "No single manifest/checkpoint spans .work/research sessions, formal source/domain/synthesis/quality namespaces and light workspace; no external raw-inclusive anchor or cross-namespace isolated restore is recorded."
+    }
+  ],
+  "remaining_surfaces": [
+    {
+      "id": "DOMAIN",
+      "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+      "status": "gap-requires-frozen-contract-and-engine-plus-research-implementation",
+      "dependencies": [
+        "SOURCE: accepted capture/semantics/publication plus conversion and source-catalog completion",
+        "CODE: official repository/commit/config evidence and mapping contract"
+      ],
+      "existing_scope": [
+        "Use existing claim/evidence/assessment/source-version identities and the light comparison/query behavior as inputs.",
+        "Do not replace light_query.v1, legacy retrieval config/gold, or closed source v1 schemas."
+      ],
+      "gaps": [
+        {
+          "id": "D-GRAPH-PROFILE",
+          "severity": "P0",
+          "missing": "Immutable domain/comparison profile bytes and a transaction-published profile-head. The profile must freeze axes, typed value/condition fields, predicate registry, comparability rules and version/hash identity; the caller cannot choose a different profile at query time."
+        },
+        {
+          "id": "D-ANNOTATION-REVIEW",
+          "severity": "P0",
+          "missing": "Canonical annotation and review-event schemas binding claim_id, source/version locator, profile_sha256, evidence fingerprint, proposed type and terminal review status. Accepted typed facts require both annotation review and claim assessment accepted with all referenced source/profile/head material current."
+        },
+        {
+          "id": "D-CONDITIONS",
+          "severity": "P0",
+          "missing": "Typed experiment conditions covering task, dataset/split, resolution/frame count, metric/unit, protocol, implementation/config and source version. Missing or conflicting conditions must remain unknown/not_comparable; values must never be inferred from a prose cell."
+        },
+        {
+          "id": "D-RELATIONS",
+          "severity": "P0",
+          "missing": "Directed typed support/contradiction/implements/baseline/depends-on/compares relations with endpoint kind checks, locator/evidence bindings and candidate-versus-supported semantics. Co-occurrence/similarity cannot create a fact edge."
+        },
+        {
+          "id": "D-PROJECTION",
+          "severity": "P0",
+          "missing": "Deterministic graph generation and query projection including complete input inventory, profile/head, claim/assessment/evidence paths, source-version paths, generation hash and rebuild-from-canonical-input behavior. Orphan, stale, mixed-profile and changed-head inputs must refuse or become non-current."
+        },
+        {
+          "id": "D-FUSION",
+          "severity": "P1",
+          "missing": "A research retrieval result that keeps exact, BM25 and typed-graph ranks separate, applies deterministic RRF, then filters by evidence state/freshness/independence and emits bounded included/omitted context with all locator/version hashes. Legacy/light RRF remains unchanged."
+        },
+        {
+          "id": "D-CODE-BINDING",
+          "severity": "P0",
+          "missing": "Paper↔repository↔commit↔file/config capability relations that distinguish official implementation, baseline, dependency and third-party reproduction; URL or a linked repo alone cannot promote officiality."
+        }
+      ],
+      "contract_to_freeze": {
+        "engine_owned": [
+          "domain-profile.v1",
+          "domain-profile-head.v1",
+          "domain-annotation.v1",
+          "domain-review-event.v1",
+          "domain-relation.v1",
+          "domain-graph-generation.v1",
+          "comparison-fact-projection.v1"
+        ],
+        "research_owned": [
+          "typed-retrieval-request.v1",
+          "typed-retrieval-result.v1",
+          "context-pack.v1",
+          "fusion-config.v1"
+        ],
+        "write_boundary": "Research can propose annotations/comparisons and consume read-only generations. Engine/operator transaction is the only path that publishes profile/head/annotation/relation/generation."
+      },
+      "acceptance_cases": [
+        {
+          "id": "D-001",
+          "kind": "engineering",
+          "action": "Submit an annotation with a missing locator, an unaccepted claim assessment, a foreign profile hash and a relation whose endpoint type is invalid.",
+          "expected": "Each refusal has a stable typed code, no canonical file/head/index mutation occurs, and the failure still checks the complete staged input set."
+        },
+        {
+          "id": "D-002",
+          "kind": "engineering",
+          "action": "Publish one profile/head, two accepted claims and a supported relation, then build the graph twice from the same canonical snapshot.",
+          "expected": "The generation/projection bytes and query order are byte-identical; every supported row exposes profile/head, claim, source-version and locator hashes."
+        },
+        {
+          "id": "D-003",
+          "kind": "engineering",
+          "action": "Compare equal metrics under different dataset/split/resolution/protocol and compare a row with omitted conditions.",
+          "expected": "The first is not_comparable with a typed condition mismatch; the second is unknown/not_comparable. No numeric ranking or guessed value is emitted."
+        },
+        {
+          "id": "D-004",
+          "kind": "engineering",
+          "action": "Delete graph/BM25 caches, rebuild, and inject an orphan relation, stale source-version, mixed profile or changed profile-head during query.",
+          "expected": "Clean deletion rebuilds from canonical truth; every invalid injection refuses or returns non-current with a reason and never produces a current answer."
+        },
+        {
+          "id": "D-005",
+          "kind": "engineering",
+          "action": "Provide separate exact/BM25/graph rank lists with ties, duplicate entities and a missing optional dense route.",
+          "expected": "RRF uses only declared rank positions, tie order is stable, paper versions are deduplicated as specified, and missing dense input does not disable the base path."
+        },
+        {
+          "id": "D-006",
+          "kind": "engineering",
+          "action": "Bind a comparison or answer citation to a historical source association after the display head rolls back.",
+          "expected": "The citation remains valid when its exact association/raw bytes/locator remain valid; display selection and citation association are reported separately."
+        },
+        {
+          "id": "D-007",
+          "kind": "human_or_real_data",
+          "action": "Run the first technical-axis slice with three real papers and one confirmed official repository.",
+          "expected": "A domain reviewer can inspect conditions, typed annotations, support/contradiction candidates and code mappings back to real source locators; fixture success alone cannot close this gate."
+        }
+      ],
+      "real_gates": [
+        "HUMAN-GATE-BASELINE-001 for final corpus/technical-axis choice",
+        "HUMAN-CLAIM-ASSESSMENT-001 for accepted claims and typed domain review",
+        "EXTERNAL-PROVENANCE-LICENSE-001 for retained real paper/code evidence"
+      ]
+    },
+    {
+      "id": "SYNTHESIS",
+      "objective": "Cited full articles and source-bound reproduction plans",
+      "status": "gap-formal-publication-and-support-review-missing; lightweight-draft-path-exists",
+      "dependencies": [
+        "DOMAIN accepted profile/annotation/relation/generation and typed context-pack",
+        "SOURCE current source-version/locator/association resolution",
+        "CODE accepted official/third-party mapping and commit/config evidence"
+      ],
+      "existing_scope": [
+        "light_compare supports a bounded model-proposed matrix with conditions and citations.",
+        "writing.py and light_writing_project.py support cited Markdown drafts, section edits, history and create-only workspace export."
+      ],
+      "gaps": [
+        {
+          "id": "S-GEN-ARTICLE",
+          "severity": "P0",
+          "missing": "Formal article/comparison artifact with immutable source/context/profile/generation bindings, paragraph and table-cell factual-unit IDs, bibliography rows and exact source-version/PDF-or-artifact hash/locator references."
+        },
+        {
+          "id": "S-SUPPORT-REVIEW",
+          "severity": "P0",
+          "missing": "Support-review records for every factual unit. Core claims must be supported by accepted evidence; partially_supported, unsupported, contradicted and not_assessable remain visible and cannot silently pass as unknown."
+        },
+        {
+          "id": "S-REPRO",
+          "severity": "P0",
+          "missing": "Source-bound reproduction plan describing code relation, exact commit, files/configs, dataset/split, environment/dependency requirements, commands, expected outputs, known deviations and blocked/unknown items. Missing evidence is explicit, never invented."
+        },
+        {
+          "id": "S-PUBLISH",
+          "severity": "P0",
+          "missing": "Create-only formal namespace (wiki/synthesis/generated/<artifact-id>.md or equivalent) through transaction, receipt, audit and backup. Revisions create a new artifact ID with supersedes; user notes remain outside compiler ownership."
+        },
+        {
+          "id": "S-STATUS",
+          "severity": "P1",
+          "missing": "Formal draft/reviewed/published/superseded/stale state derivation and comparison of current generation/profile/source heads; a Markdown file alone must not imply publication or scientific acceptance."
+        }
+      ],
+      "contract_to_freeze": {
+        "research_owned": [
+          "comparison-report.v1",
+          "article-draft.v1",
+          "reproduction-plan-proposal.v1",
+          "support-review-proposal.v1"
+        ],
+        "engine_owned": [
+          "synthesis-publication-request.v1",
+          "synthesis-publication-authority.v1",
+          "synthesis-support-review.v1",
+          "generated-article-page projection and namespace registration"
+        ],
+        "binding": "Every report/article/reproduction factual unit must resolve to source version, artifact hash and locator or an explicit unknown/blocked reason."
+      },
+      "acceptance_cases": [
+        {
+          "id": "S-001",
+          "kind": "engineering",
+          "action": "Import a two-paper comparison with citations, conditions and one not_comparable row.",
+          "expected": "Every cell/row has exact paper/source-version/locator identity, conditions are rendered, not_comparable has a reason, and foreign/missing citations refuse before output creation."
+        },
+        {
+          "id": "S-002",
+          "kind": "engineering",
+          "action": "Change a source version, profile head or context generation after exporting an article draft.",
+          "expected": "The old draft stays immutable/history-only; current publication is refused or marked stale and a new draft references the changed inputs."
+        },
+        {
+          "id": "S-003",
+          "kind": "engineering",
+          "action": "Submit an article whose factual units include one unsupported, one contradicted and one unassessable unit.",
+          "expected": "Support review labels each unit independently, core publication cannot pass, and the unresolved reasons remain in the artifact."
+        },
+        {
+          "id": "S-004",
+          "kind": "engineering",
+          "action": "Create a reproduction plan for a repository lacking an official mapping, exact commit or configuration.",
+          "expected": "The plan is blocked/unknown with missing-evidence fields; it never claims official implementation or a reproducible command set."
+        },
+        {
+          "id": "S-005",
+          "kind": "engineering",
+          "action": "Publish a reviewed generated article, attempt overwrite, then create a successor revision.",
+          "expected": "The first bytes remain immutable, overwrite is rejected, successor has a new ID/supersedes edge, and receipt/audit/backup include the new namespace."
+        },
+        {
+          "id": "S-006",
+          "kind": "human_or_real_data",
+          "action": "Have a designated domain reviewer inspect the first real comparison/article/reproduction plan and a real Obsidian rendering.",
+          "expected": "Reviewer decisions, disputed units and visual observations are recorded separately from engineering tests; no model self-review is counted as approval."
+        }
+      ],
+      "real_gates": [
+        "HUMAN-CLAIM-ASSESSMENT-001",
+        "HUMAN-OBSIDIAN-VISUAL-001",
+        "EXTERNAL-PROVENANCE-LICENSE-001"
+      ]
+    },
+    {
+      "id": "QUALITY",
+      "objective": "Corpus, independent gold interfaces, model runs and semantic evaluation",
+      "status": "gap-full-quality-contract-missing; legacy-structure-evaluator-exists",
+      "dependencies": [
+        "SOURCE stable source/version inventory and locators",
+        "DOMAIN typed graph/retrieval generation",
+        "SYNTHESIS factual-unit and support-review schemas"
+      ],
+      "existing_scope": [
+        "retrieval.py provides closed config/gold/mapping validation and four legacy tracks with deterministic metrics.",
+        "qa.py/light_qa.py check citation identity and locator structure; these are not semantic factual-support adjudication.",
+        "Existing light tests cover malformed boundaries, stale contexts, unknown cells and citation mismatches."
+      ],
+      "gaps": [
+        {
+          "id": "Q-CORPUS",
+          "severity": "P0",
+          "missing": "Versioned corpus manifest with eligible papers/source versions, evidence-unit inventory, representation layer, candidate universe, hard negatives, source/license provenance and exact hashes. Metadata-only seed rows cannot enter full-text quality denominators."
+        },
+        {
+          "id": "Q-GOLD",
+          "severity": "P0",
+          "missing": "Independent gold manifest for answerability, expected intent/entity/filter, required-point IDs, accepted evidence, contradiction/uncertainty labels, source-independence and rubric. Gold freeze event and lineage must precede qualification dispatch."
+        },
+        {
+          "id": "Q-RUBRIC",
+          "severity": "P0",
+          "missing": "Factual-unit decomposition and point scoring: per-point supported coverage, required limitations/units/versions/conditions, duplicate handling, unanswerable refusal and dispute/open status. Model-generated gold cannot adjudicate itself."
+        },
+        {
+          "id": "Q-RUN",
+          "severity": "P0",
+          "missing": "Model qualification run/attempt manifest with fixed corpus/context/prompt/runtime/decoding config, three independent complete rounds, failures/cancellations and reviewer/score references. No cherry-picking a best run."
+        },
+        {
+          "id": "Q-METRICS",
+          "severity": "P1",
+          "missing": "Versioned evidence-unit Recall@10 and retrieval metrics with declared minimum corpus/distractor counts; answerable coverage/support gates; comparison/article/reproduction diagnostics; not_evaluable when data cannot support a metric."
+        },
+        {
+          "id": "Q-REAL",
+          "severity": "P0",
+          "missing": "Real-paper and real-model trials plus independent semantic review. Fixture/local tests cannot be relabelled as genuine source/model acceptance."
+        }
+      ],
+      "contract_to_freeze": {
+        "schemas": [
+          "quality-corpus.v1",
+          "quality-gold.v1",
+          "quality-rubric.v1",
+          "quality-run.v1",
+          "quality-score.v1",
+          "quality-dispute.v1"
+        ],
+        "minimums": [
+          "W5a at least 10 answerable and 3 unanswerable questions",
+          "W5b1 at least 6 comparison questions including 2 expected not_comparable",
+          "W5b2 at least 20 questions across model/method/training/dataset/inference/code",
+          "full paper Recall@5 requires at least 30 eligible candidates",
+          "evidence-unit Recall@10 requires at least 20 real non-gold units across at least 3 papers and at least 5 reviewed hard negatives"
+        ],
+        "gates": [
+          "answerable required-point coverage >=80% each and >=90% overall",
+          "every factual unit supported with parseable citation coverage 100% and zero dangling citations",
+          "three-round gate uses the minimum round result and preserves all attempts"
+        ]
+      },
+      "acceptance_cases": [
+        {
+          "id": "Q-001",
+          "kind": "engineering",
+          "action": "Load corpus/gold/rubric/run files with a changed source hash, duplicate point ID, unknown candidate, missing lineage or mismatched profile/current head.",
+          "expected": "Validation refuses before scoring with a typed reason; it never trusts caller-provided assessment or silently drops rows."
+        },
+        {
+          "id": "Q-002",
+          "kind": "engineering",
+          "action": "Evaluate a small corpus with fewer than the declared candidate/distractor minimums and an unreviewed potential negative.",
+          "expected": "The result is not_evaluable with the deficiency recorded; no invented placeholder negative or full-benchmark pass is emitted."
+        },
+        {
+          "id": "Q-003",
+          "kind": "engineering",
+          "action": "Score an answerable response with all unknowns, an unsupported number, omitted unit/version and one dangling citation.",
+          "expected": "Required-point coverage and support fail; unknown is not a substitute for a supported answer and dangling citations are zero-tolerance."
+        },
+        {
+          "id": "Q-004",
+          "kind": "engineering",
+          "action": "Run three distinct qualification attempts, one infrastructure-failed and one semantically failed, then change the prompt.",
+          "expected": "Every attempt remains in history; the changed prompt is a new attempt; gate evaluation uses all three complete rounds and the minimum, never a selected best answer."
+        },
+        {
+          "id": "Q-005",
+          "kind": "engineering",
+          "action": "Mutate an input source/profile/index between run dispatch and score.",
+          "expected": "The run is stale/invalid and cannot be scored as current; the exact snapshot and reason are preserved."
+        },
+        {
+          "id": "Q-006",
+          "kind": "human_or_real_data",
+          "action": "Freeze a gold set before the first qualification dispatch, obtain designated semantic review, and execute the first real three-round paper/model trial.",
+          "expected": "Reviewer identity/event, disputes and accepted points are real and traceable; local fixture pass remains a separate engineering result."
+        }
+      ],
+      "real_gates": [
+        "HUMAN-GATE-BASELINE-001",
+        "HUMAN-CLAIM-ASSESSMENT-001",
+        "designated independent/domain reviewer events",
+        "real model/runtime and real source trial evidence"
+      ]
+    },
+    {
+      "id": "PRODUCT",
+      "objective": "Obsidian views, status and all-namespace backup/restore integration",
+      "status": "gap-cross-namespace-integration-missing; light-and-formal-primitives-exist",
+      "dependencies": [
+        "SOURCE current version/display/catalog status",
+        "DOMAIN graph/profile/current generation",
+        "SYNTHESIS published namespace and support status",
+        "QUALITY corpus/gold/run/score state"
+      ],
+      "existing_scope": [
+        "Light paper list/edit/archive/restore/replace/recover journals preserve notes and expose stale index/reindex actions.",
+        "Light workflow prepare/status/complete and workspace inspect expose resumable model handoffs and pending state.",
+        "Light backup verifies/restores its own workspace; formal backup/restore verifies a receipt-backed .raw/wiki Vault and current catalog/report.",
+        "domain_cli exposes seed/index/query/catalog-report/audit/retrieval/backup entrypoints; research CLI exposes light library/knowledge/compare/writing/backup entrypoints."
+      ],
+      "gaps": [
+        {
+          "id": "P-STATUS",
+          "severity": "P0",
+          "missing": "One read-only status/diagnostic contract that derives source ingest/version/display-head, catalog/index, domain profile/graph, synthesis artifact, quality run and recovery states with current/stale/conflict/unknown/coverage gaps. It must preserve fatal stale codes and provide next operator action."
+        },
+        {
+          "id": "P-MAINTENANCE",
+          "severity": "P0",
+          "missing": "Version-aware formal maintenance for source association/display-head changes, claim/annotation/relation invalidation, downstream generation staleness and rollback-as-new-decision. Light paper replacement alone cannot supply this."
+        },
+        {
+          "id": "P-OBSIDIAN",
+          "severity": "P1",
+          "missing": "Deterministic Paper/Code/Concept/domain/comparison/article/reproduction/quality views or Bases with links to current and historical source/version/claim/assessment/profile/generation status. Compiler must not overwrite user notes; visual readability requires a real Vault review."
+        },
+        {
+          "id": "P-BACKUP",
+          "severity": "P0",
+          "missing": "A cross-namespace backup manifest/checkpoint covering formal Vault, source/domain/synthesis/quality namespaces, light workspace, .work/research sessions, receipts, heads, immutable histories and required raw/extra outputs, with one retained snapshot and exact hashes."
+        },
+        {
+          "id": "P-RESTORE",
+          "severity": "P0",
+          "missing": "Isolated restore that validates complete-set inventory, source anchor, operation heads, all namespace pointers, catalog/graph/context generations, session bytes and no alias/overlap with the source. Missing optional external anchor must remain visible."
+        },
+        {
+          "id": "P-HANDOFF",
+          "severity": "P1",
+          "missing": "Natural-language/operator handoff for status, maintenance, backup, isolated restore and recovery; the agent prepares/inspects but does not call vpwiki-admin or mutate a real Vault."
+        }
+      ],
+      "contract_to_freeze": {
+        "status": [
+          "product-status.v1",
+          "maintenance-plan.v1",
+          "recovery-diagnostic.v1"
+        ],
+        "backup": [
+          "all-namespace-backup-manifest.v1",
+          "isolated-restore-observation.v1",
+          "namespace-checkpoint.v1"
+        ],
+        "ownership": "Engine owns canonical namespaces and transaction/receipt/audit; research owns disposable sessions/context/runs; user notes remain user-owned. The cross-namespace manifest references both scopes without creating a second fact source."
+      },
+      "acceptance_cases": [
+        {
+          "id": "P-001",
+          "kind": "engineering",
+          "action": "Ask status on an empty workspace, a stale light index, a changed source-version, a mixed domain generation and a pending writing/batch/library operation.",
+          "expected": "A deterministic read-only envelope reports each state, reason and next action; it does not create directories, rebuild indexes or downgrade stale/fatal errors."
+        },
+        {
+          "id": "P-002",
+          "kind": "engineering",
+          "action": "Replace or roll back a formal source display association while a historical citation and typed graph generation refer to another retained association.",
+          "expected": "Stable paper/claim IDs and history remain, citation validity is evaluated by its exact association, dependent projections become stale/current only after rebuild, and rollback is a new decision."
+        },
+        {
+          "id": "P-003",
+          "kind": "engineering",
+          "action": "Build Obsidian views twice from identical canonical inputs and with pre-existing user notes.",
+          "expected": "Generated bytes are deterministic and create-only; user notes are unchanged; all links/status badges resolve to exact current/history identities."
+        },
+        {
+          "id": "P-004",
+          "kind": "engineering",
+          "action": "Create a complete cross-namespace backup, restore it to a fresh private directory, then remove/corrupt one namespace file, add an unexpected file, alias roots or change a head during verification.",
+          "expected": "The intact restore passes exact inventory and semantic checks; every incomplete/unsafe case refuses with a missing/extra/alias/race reason and preserves the source."
+        },
+        {
+          "id": "P-005",
+          "kind": "engineering",
+          "action": "Interrupt a cross-namespace backup/restore or status handoff after staging and resume it.",
+          "expected": "Owned staging is safely reconciled, unknown user bytes are preserved, checkpoint/head history is not rewritten, and repeat execution is idempotent or explicitly conflict-closed."
+        },
+        {
+          "id": "P-006",
+          "kind": "human_or_real_data",
+          "action": "Run the final seven-slice flow in an isolated real Vault and record backup external anchor plus restore observation.",
+          "expected": "Obsidian visual review, operator action count, external raw-inclusive anchor and isolated restore evidence are separately recorded; fixture ZIP success is not production readiness."
+        }
+      ],
+      "real_gates": [
+        "HUMAN-OBSIDIAN-VISUAL-001",
+        "EXTERNAL-BACKUP-ANCHOR-001",
+        "HUMAN-READINESS-MERGE-001",
+        "real operator application and isolated restore"
+      ]
+    }
+  ],
+  "dependency_groups": [
+    {
+      "id": "G0",
+      "name": "source-and-code-authority",
+      "requires": [
+        "finish SOURCE conversion boundary repair and source-catalog contract/implementation",
+        "freeze CODE officiality/commit/config mapping"
+      ],
+      "unblocks": [
+        "DOMAIN",
+        "SYNTHESIS",
+        "PRODUCT"
+      ],
+      "reason": "Typed facts and formal citations need current source-version/association/locator bytes and trustworthy paper-code relations."
+    },
+    {
+      "id": "G1",
+      "name": "domain-engine",
+      "requires": [
+        "G0"
+      ],
+      "deliverables": [
+        "profile/head",
+        "annotation/review",
+        "typed relation registry",
+        "condition model",
+        "graph generation/query projection"
+      ],
+      "unblocks": [
+        "typed retrieval",
+        "SYNTHESIS",
+        "QUALITY"
+      ]
+    },
+    {
+      "id": "G2",
+      "name": "domain-research-retrieval",
+      "requires": [
+        "G1"
+      ],
+      "deliverables": [
+        "exact/BM25/graph rank fusion",
+        "freshness/coverage diagnostics",
+        "bounded typed context pack"
+      ],
+      "unblocks": [
+        "SYNTHESIS",
+        "QUALITY"
+      ]
+    },
+    {
+      "id": "G3",
+      "name": "synthesis",
+      "requires": [
+        "G1",
+        "G2",
+        "G0"
+      ],
+      "deliverables": [
+        "formal comparison/article/reproduction/support-review contracts",
+        "create-only publication path"
+      ],
+      "unblocks": [
+        "QUALITY",
+        "PRODUCT"
+      ]
+    },
+    {
+      "id": "G4",
+      "name": "quality",
+      "requires": [
+        "G0",
+        "G2",
+        "G3"
+      ],
+      "deliverables": [
+        "versioned corpus/gold/rubric/run/score",
+        "real trial and independent review handoff"
+      ],
+      "unblocks": [
+        "final PRODUCT readiness"
+      ]
+    },
+    {
+      "id": "G5",
+      "name": "product-integration",
+      "requires": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4 for final readiness"
+      ],
+      "deliverables": [
+        "unified status/maintenance",
+        "Obsidian views",
+        "cross-namespace backup/isolated restore"
+      ],
+      "unblocks": [
+        "seven-slice product completion"
+      ]
+    }
+  ],
+  "cross_cutting_rules": [
+    "Treat canonical source/claim/assessment/profile/head/relation bytes as the only fact authority; Markdown/catalog/BM25/graph/context packs and reports are rebuildable projections.",
+    "Keep all old closed v1 schemas, light schemas, legacy retrieval behavior, 67 seed entries and user-note ownership unchanged unless a successor contract explicitly names a compatibility adapter.",
+    "Every current result binds a complete source/profile/generation/head set and exact hashes; stale, mixed, uncovered, not_comparable and unknown are first-class outcomes.",
+    "No model-generated proposal, comparison, answer, article or gold can self-approve semantic truth; independent review events and unresolved disputes remain visible.",
+    "Do not use fixture bytes, local tests, synthetic summaries or a test receipt as evidence of real source provenance, operator application, Obsidian visual quality, model qualification or external backup anchoring.",
+    "Python CLI remains zero-egress and agent-safe; online/real Vault/operator steps are explicit handoffs and cannot be silently simulated."
+  ],
+  "human_and_external_gates": [
+    {
+      "id": "HUMAN-GATE-BASELINE-001",
+      "needed_for": "final corpus and five-repository baseline",
+      "current": "open"
+    },
+    {
+      "id": "EXTERNAL-PROVENANCE-LICENSE-001",
+      "needed_for": "real paper/code retention and publication",
+      "current": "open"
+    },
+    {
+      "id": "HUMAN-CLAIM-ASSESSMENT-001",
+      "needed_for": "accepted claims, typed annotations, article factual support",
+      "current": "open"
+    },
+    {
+      "id": "HUMAN-OBSIDIAN-VISUAL-001",
+      "needed_for": "real Vault readability/views",
+      "current": "open"
+    },
+    {
+      "id": "EXTERNAL-BACKUP-ANCHOR-001",
+      "needed_for": "raw-inclusive external backup anchor and isolated restore",
+      "current": "open"
+    },
+    {
+      "id": "HUMAN-READINESS-MERGE-001",
+      "needed_for": "user merge/readiness decision after exact-head CI",
+      "current": "open"
+    }
+  ],
+  "recommended_sequence": [
+    "Close/freeze SOURCE conversion and source-catalog plus CODE mapping first; preserve all prior rejected evidence and legacy behavior.",
+    "Freeze DOMAIN engine profile/annotation/relation/condition and graph generation before adding research retrieval fusion.",
+    "Build formal SYNTHESIS contracts/publication on top of typed context and source-bound code evidence; retain light_compare/writing as draft conveniences.",
+    "Freeze QUALITY corpus/gold/rubric/run before looking at qualification outputs; run engineering checks, then separate real model/source trials and independent review.",
+    "Integrate PRODUCT status/maintenance/views and cross-namespace backup/restore only after each producer exposes its namespace/checkpoint; run final isolated recovery and human gates."
+  ],
+  "decision": "REVIEW_COMPLETE_REMAINING_DOMAIN_SYNTHESIS_QUALITY_PRODUCT_GAPS_IDENTIFIED",
+  "completion_boundary": "The reviewed checkout already supports useful lightweight research use, but cannot claim the full-todo DOMAIN/SYNTHESIS/QUALITY/PRODUCT objectives. The gaps above require new contracts and implementation; real-data and human gates remain open.",
+  "stopped_writing": true
+}

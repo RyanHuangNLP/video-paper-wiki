@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.056" timestamp="2026-09-08T02:04:08.119845+08:00" hostname="HuangzhanpengdeMacBook-Pro.local"><testcase classname="tests.research.test_light_workflow_installed" name="test_fresh_wheel_exposes_equivalent_entries_and_workflow_help" time="2.029"><failure message="AssertionError: Traceback (most recent call last):&#10;    File &quot;&lt;string&gt;&quot;, line 7, in &lt;module&gt;&#10;    File &quot;/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py&quot;, line 90, in import_module&#10;      return _bootstrap._gcd_import(name[level:], package, level)&#10;             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1387, in _gcd_import&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1310, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 488, in _call_with_frames_removed&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1387, in _gcd_import&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1360, in _find_and_load&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 1331, in _find_and_load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 935, in _load_unlocked&#10;    File &quot;&lt;frozen importlib._bootstrap_external&gt;&quot;, line 999, in exec_module&#10;    File &quot;&lt;frozen importlib._bootstrap&gt;&quot;, line 488, in _call_with_frames_removed&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki_research/__init__.py&quot;, line 3, in &lt;module&gt;&#10;      from video_paper_wiki_research.catalog_index import build_published_catalog&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki_research/catalog_index.py&quot;, line 17, in &lt;module&gt;&#10;      from video_paper_wiki.assessment_history import derive_assessment_heads&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki/assessment_history.py&quot;, line 12, in &lt;module&gt;&#10;      from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki/contracts.py&quot;, line 11, in &lt;module&gt;&#10;      from jsonschema import Draft202012Validator, FormatChecker, ValidationError&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/__init__.py&quot;, line 13, in &lt;module&gt;&#10;      from jsonschema._format import FormatChecker&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/_format.py&quot;, line 11, in &lt;module&gt;&#10;      from jsonschema.exceptions import FormatError&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/exceptions.py&quot;, line 15, in &lt;module&gt;&#10;      from referencing.exceptions import Unresolvable as _Unresolvable&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/__init__.py&quot;, line 5, in &lt;module&gt;&#10;      from referencing._core import Anchor, Registry, Resource, Specification&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/_core.py&quot;, line 18, in &lt;module&gt;&#10;      from referencing.typing import URI, Anchor as AnchorType, D, Mapping, Retrieve&#10;    File &quot;/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/typing.py&quot;, line 22, in &lt;module&gt;&#10;      D = TypeVar(&quot;D&quot;, default=Any)&#10;          ^^^^^^^^^^^^^^^^^^^^^^^^^&#10;  TypeError: 'default' is an invalid keyword argument for typevar()&#10;  &#10;assert 1 == 0&#10; +  where 1 = CompletedProcess(args=['/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/bin/python'...efault=Any)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: \'default\' is an invalid keyword argument for typevar()\n').returncode">tmp_path = PosixPath('/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0')
+
+    def test_fresh_wheel_exposes_equivalent_entries_and_workflow_help(tmp_path: Path) -&gt; None:
+        python = _runtime_python()
+        wheel = _build_wheel(python, tmp_path)
+        venv = tmp_path / "isolated-venv"
+        venv_python, bindir = _create_isolated_venv(python, venv)
+        _install_wheel(venv_python, wheel, tmp_path)
+        env = _isolated_run_env(venv, bindir)
+        expected = _expected_new_modules()
+        assert expected, "checkout has no lightweight modules to verify"
+        venv_site = _purelib(venv_python, isolated=True, cwd=tmp_path)
+        installed_pkg = venv_site / "video_paper_wiki_research"
+        for path in expected:
+            installed = installed_pkg / path.name
+            assert installed.is_file(), installed
+            assert _sha256(installed) == _sha256(ROOT / path)
+        _seed_locked_runtime_deps(venv_site)
+    
+        inspect = _run(
+            [
+                str(venv_python),
+                "-I",
+                "-B",
+                "-c",
+                (
+                    "import hashlib, json, sys\n"
+                    "from importlib import import_module\n"
+                    "from pathlib import Path\n"
+                    "names = json.loads(sys.argv[1])\n"
+                    "payload = {'executable': sys.executable, 'prefix': sys.prefix, 'modules': {}}\n"
+                    "for name in names:\n"
+                    "    mod = import_module(name)\n"
+                    "    path = Path(mod.__file__)\n"
+                    "    payload['modules'][name] = {\n"
+                    "        'file': str(path),\n"
+                    "        'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),\n"
+                    "    }\n"
+                    "print(json.dumps(payload))\n"
+                ),
+                json.dumps(
+                    [
+                        "video_paper_wiki_research." + path.stem
+                        if path.stem != "cli"
+                        else "video_paper_wiki_research.cli"
+                        for path in expected
+                    ]
+                ),
+            ],
+            cwd=tmp_path,
+            env=env,
+        )
+&gt;       assert inspect.returncode == 0, inspect.stderr
+E       AssertionError: Traceback (most recent call last):
+E           File "&lt;string&gt;", line 7, in &lt;module&gt;
+E           File "/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/importlib/__init__.py", line 90, in import_module
+E             return _bootstrap._gcd_import(name[level:], package, level)
+E                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1387, in _gcd_import
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1310, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 488, in _call_with_frames_removed
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1387, in _gcd_import
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1360, in _find_and_load
+E           File "&lt;frozen importlib._bootstrap&gt;", line 1331, in _find_and_load_unlocked
+E           File "&lt;frozen importlib._bootstrap&gt;", line 935, in _load_unlocked
+E           File "&lt;frozen importlib._bootstrap_external&gt;", line 999, in exec_module
+E           File "&lt;frozen importlib._bootstrap&gt;", line 488, in _call_with_frames_removed
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki_research/__init__.py", line 3, in &lt;module&gt;
+E             from video_paper_wiki_research.catalog_index import build_published_catalog
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki_research/catalog_index.py", line 17, in &lt;module&gt;
+E             from video_paper_wiki.assessment_history import derive_assessment_heads
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki/assessment_history.py", line 12, in &lt;module&gt;
+E             from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/video_paper_wiki/contracts.py", line 11, in &lt;module&gt;
+E             from jsonschema import Draft202012Validator, FormatChecker, ValidationError
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/__init__.py", line 13, in &lt;module&gt;
+E             from jsonschema._format import FormatChecker
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/_format.py", line 11, in &lt;module&gt;
+E             from jsonschema.exceptions import FormatError
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/jsonschema/exceptions.py", line 15, in &lt;module&gt;
+E             from referencing.exceptions import Unresolvable as _Unresolvable
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/__init__.py", line 5, in &lt;module&gt;
+E             from referencing._core import Anchor, Registry, Resource, Specification
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/_core.py", line 18, in &lt;module&gt;
+E             from referencing.typing import URI, Anchor as AnchorType, D, Mapping, Retrieve
+E           File "/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/lib/python3.12/site-packages/referencing/typing.py", line 22, in &lt;module&gt;
+E             D = TypeVar("D", default=Any)
+E                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E         TypeError: 'default' is an invalid keyword argument for typevar()
+E         
+E       assert 1 == 0
+E        +  where 1 = CompletedProcess(args=['/private/tmp/l4r5.s54ypl35/before312/test_fresh_wheel_exposes_equiv0/isolated-venv/bin/python'...efault=Any)\n        ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: \'default\' is an invalid keyword argument for typevar()\n').returncode
+
+tests/research/test_light_workflow_installed.py:338: AssertionError</failure></testcase></testsuite></testsuites>

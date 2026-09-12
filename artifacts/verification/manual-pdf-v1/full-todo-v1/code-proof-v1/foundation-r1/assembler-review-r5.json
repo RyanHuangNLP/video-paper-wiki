@@ -1,0 +1,110 @@
+{
+  "schema": "full-todo.foundation-r5-assembler-review.v1",
+  "recorded_at_utc": "2026-09-11T01:55:39.908011Z",
+  "decision": "GO_FOR_R5_ASSEMBLY",
+  "assembler": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assemble_returned_corrections_r5.py",
+    "size_bytes": 4960,
+    "sha256": "fe8fe7efdd09532bc72993746b71b87eb33e9b225235dcac184e75e62837cb71",
+    "ast_parse": "PASS",
+    "executed": false
+  },
+  "instruction_pin": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-CORRECTIONS-R3.md",
+    "size_bytes": 14266,
+    "sha256": "1a40c472323feb2f80ea05c7cc88dd75c31d24d0d5f1d4bac1a671c05f745bde"
+  },
+  "input_pins": {
+    "production": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/returned-r4-code_proof_resources.py",
+      "size_bytes": 28080,
+      "sha256": "3baa70b3867a71611215dc51a303ff63d2fe8c0c564247fe69d72cead7aae21f",
+      "expected_sha256": "3baa70b3867a71611215dc51a303ff63d2fe8c0c564247fe69d72cead7aae21f"
+    },
+    "tests": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/returned-r4-test_code_proof_resources.py",
+      "size_bytes": 33305,
+      "sha256": "a38b8b81b5ec3f1877b7a01a97fe457136eb7b0e704edd58e6e8e6779fd07a71",
+      "expected_sha256": "a38b8b81b5ec3f1877b7a01a97fe457136eb7b0e704edd58e6e8e6779fd07a71"
+    }
+  },
+  "mechanical_checks": {
+    "production_required_names": [
+      "_require_plain_json_tree",
+      "_canonical_list_index",
+      "_validate_schema_references",
+      "_require_exact_mapping",
+      "CodeProofResources",
+      "compile_code_proof_resources",
+      "_walk_schema_document"
+    ],
+    "test_required_names": [
+      "test_structure_preflight_and_titles",
+      "test_limit_exact_key_and_value_types",
+      "test_profile_exact_builtin_keys",
+      "test_schema_reference_malformed_graphs",
+      "test_context_rejects_external_configuration"
+    ],
+    "replacement_sets_are_mechanically_checked": true,
+    "top_level_only_code_blocks": true,
+    "decorator_free_code_blocks": true,
+    "production_new_definitions_allowed": [],
+    "test_new_definitions_allowed": [
+      "test_context_rejects_external_configuration",
+      "test_limit_exact_key_and_value_types",
+      "test_profile_exact_builtin_keys",
+      "test_schema_reference_malformed_graphs"
+    ],
+    "descending_original_line_replacement": true,
+    "deterministic_new_test_append_order": "sorted names",
+    "replacement_requires_terminal_lf": true,
+    "merged_requires_one_terminal_lf": true,
+    "current_r4_inputs_have_lf_only": {
+      "production_crlf_count": 0,
+      "tests_crlf_count": 0
+    },
+    "merged_ast_reparse_guard_present": true
+  },
+  "preservation_assessment": {
+    "result": "PASS_FOR_PINNED_LF_INPUTS",
+    "reason": "The composer starts from splitlines(keepends=True), replaces only AST line spans in descending order, and appends only the four allowed new test definitions. The pinned R4 source bytes are LF-only.",
+    "recorded_old_definition_hashes": true,
+    "explicit_unassigned_segment_digest": false,
+    "advisory": "The assembler does not independently hash every preserved segment; preservation follows from the pinned LF input and line-span algorithm."
+  },
+  "guard_assessment": {
+    "result": "PASS",
+    "call_result_exit_zero_required": true,
+    "stdout_path_size_hash_bound_to_call_result": true,
+    "source_input_hashes_rechecked": true,
+    "preexisting_preview_or_record_refused": true,
+    "preview_and_record_exclusive_create": true,
+    "product_checkout_write_path_present": false,
+    "model_or_subprocess_execution_present": false
+  },
+  "advisories": [
+    {
+      "id": "R5-A1",
+      "severity": "advisory",
+      "finding": "The assembler extracts exactly two python fences but does not assert that the response ends with the required literal sentence \"Tests not run.\" or reject other trailing/non-Python prose.",
+      "effect": "No impact on selected definition bodies or preview composition; raw response-format compliance remains a separate review concern."
+    },
+    {
+      "id": "R5-A2",
+      "severity": "advisory",
+      "finding": "The assembly record stores old/new hashes for replaced definitions but no explicit digest of all unassigned source segments.",
+      "effect": "Pinned LF input plus line-span replacement makes the current operation mechanically preserving; an explicit segment digest would strengthen independent evidence."
+    }
+  ],
+  "root_privilege_note": "The correction instruction retains the required node-identity root privilege rule and nested $id rejection; this assembler only replaces the named bodies and does not reinterpret that rule.",
+  "scope_guard": {
+    "assembler_executed": false,
+    "previews_written": false,
+    "production_source_edited": false,
+    "tests_executed": false,
+    "build_or_install_run": false,
+    "git_mutated": false,
+    "model_or_lease_touched": false
+  },
+  "accepted": true
+}

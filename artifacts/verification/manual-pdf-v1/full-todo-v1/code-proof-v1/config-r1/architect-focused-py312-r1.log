@@ -1,0 +1,69 @@
+..............F                                       [100%]
+=================================== FAILURES ===================================
+_____ TestCodeConfigParser.test_refusal_vectors [json-tuple-exponent-over] _____
+tests/unit/test_code_config_parser.py:283: in test_refusal_vectors
+    self.assertEqual(err.details["reason"], expected["reason"])
+E   AssertionError: 'numeric lexeme exceeds profile' != 'exact Decimal tuple exponent exceeds profile'
+E   - numeric lexeme exceeds profile
+E   + exact Decimal tuple exponent exceeds profile
+_____________ TestCodeConfigParser.test_refusal_vectors [json-bom] _____________
+tests/unit/test_code_config_parser.py:300: in test_refusal_vectors
+    err.details["codepoint_offset"],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'codepoint_offset'
+___________ TestCodeConfigParser.test_refusal_vectors [json-bare-cr] ___________
+tests/unit/test_code_config_parser.py:300: in test_refusal_vectors
+    err.details["codepoint_offset"],
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'codepoint_offset'
+___________ TestCodeConfigParser.test_refusal_vectors [json-comment] ___________
+tests/unit/test_code_config_parser.py:283: in test_refusal_vectors
+    self.assertEqual(err.details["reason"], expected["reason"])
+E   AssertionError: 'malformed JSON object' != 'comments outside JSON grammar'
+E   - malformed JSON object
+E   + comments outside JSON grammar
+_____ TestCodeConfigParser.test_refusal_vectors [toml-underscore-leading] ______
+tests/unit/test_code_config_parser.py:283: in test_refusal_vectors
+    self.assertEqual(err.details["reason"], expected["reason"])
+E   AssertionError: 'expected newline after TOML statement' != 'invalid TOML digit separator placement'
+E   - expected newline after TOML statement
+E   + invalid TOML digit separator placement
+______ TestCodeConfigParser.test_refusal_vectors [toml-duplicate-header] _______
+tests/unit/test_code_config_parser.py:295: in test_refusal_vectors
+    self.assertEqual(
+E   AssertionError: 10 != 0
+______ TestCodeConfigParser.test_refusal_vectors [toml-inline-extension] _______
+tests/unit/test_code_config_parser.py:295: in test_refusal_vectors
+    self.assertEqual(
+E   AssertionError: 13 != 12
+______ TestCodeConfigParser.test_success_vectors [toml-dotted-promotion] _______
+tests/unit/test_code_config_parser.py:213: in test_success_vectors
+    self.assertEqual(result["nodes"], vector["expected_nodes"])
+E   AssertionError: Lists differ: [{'pa[314 chars]rt': 25, 'byte_end': 26, 'codepoint_start': 25[6594 chars]}}]}] != [{'pa[314 chars]rt': 15, 'byte_end': 16, 'codepoint_start': 15[5906 chars] []}]
+E   
+E   First differing element 1:
+E   {'pat[176 chars]rt': 25, 'byte_end': 26, 'codepoint_start': 25[950 chars]'}}]}
+E   {'pat[176 chars]rt': 15, 'byte_end': 16, 'codepoint_start': 15[950 chars]'}}]}
+E   
+E   Diff is 12625 characters long. Set self.maxDiff to None to see it.
+_________ TestCodeConfigParser.test_unicode_surrogates_crlf_and_empty __________
+tests/unit/test_code_config_parser.py:805: in test_unicode_surrogates_crlf_and_empty
+    self.assertEqual(reversed_keys["nodes"], result["nodes"])
+E   AssertionError: Lists differ: [{'pa[262 chars]6': 'd347334b81cc0a6a99a8242e54b2aef661ebd3ea2[1685 chars]}}]}] != [{'pa[262 chars]6': '4dad51ac41eb73862fce375fae85ba13711fd19f1[1685 chars]}}]}]
+E   
+E   First differing element 0:
+E   {'pat[261 chars]6': 'd347334b81cc0a6a99a8242e54b2aef661ebd3ea2[127 chars]: []}
+E   {'pat[261 chars]6': '4dad51ac41eb73862fce375fae85ba13711fd19f1[127 chars]: []}
+E   
+E   Diff is 5072 characters long. Set self.maxDiff to None to see it.
+=========================== short test summary info ============================
+SUBFAILED[json-tuple-exponent-over] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[json-bom] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[json-bare-cr] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[json-comment] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[toml-underscore-leading] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[toml-duplicate-header] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[toml-inline-extension] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_refusal_vectors
+SUBFAILED[toml-dotted-promotion] tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_success_vectors
+FAILED tests/unit/test_code_config_parser.py::TestCodeConfigParser::test_unicode_surrogates_crlf_and_empty
+9 failed, 14 passed, 83 subtests passed in 0.16s

@@ -1,0 +1,383 @@
+{
+  "schema": "lightweight-workflow-v2-architect-lane-preflight.v1",
+  "review": "lane-4-static-preflight-r2",
+  "observed_at_utc": "2026-09-07T17:13:19Z",
+  "decision": "GO_STATIC_REVIEW_OF_OBSERVED_SNAPSHOT",
+  "scope": "Read-only static review of the observed terminal-4 source snapshot after T3 r4 import. No source, Git, CLI, PR, wheel, or dependency mutation was performed by this review. This is preflight evidence only, not Architect acceptance.",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+  "source_git": {
+    "head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b",
+    "status_count": 22,
+    "status_observed": [
+      "M .agents/skills/video-paper-ingest/SKILL.md",
+      " M .agents/skills/video-paper-query/SKILL.md",
+      " M README.md",
+      " M docs/lightweight-pdf-quickstart.md",
+      " M src/video_paper_wiki_research/cli.py",
+      " M src/video_paper_wiki_research/light_index.py",
+      " M src/video_paper_wiki_research/light_pdf.py",
+      " M tests/research/test_light_index.py",
+      " M tests/research/test_light_pdf.py",
+      "?? .agents/skills/video-paper-read/",
+      "?? src/video_paper_wiki_research/light_context.py",
+      "?? src/video_paper_wiki_research/light_workflow.py",
+      "?? src/video_paper_wiki_research/light_workspace.py",
+      "?? tests/research/test_light_context.py",
+      "?? tests/research/test_light_pdf_recovery.py",
+      "?? tests/research/test_light_selection.py",
+      "?? tests/research/test_light_skill_routing.py",
+      "?? tests/research/test_light_workflow.py",
+      "?? tests/research/test_light_workflow_cli.py",
+      "?? tests/research/test_light_workflow_installed.py",
+      "?? tests/research/test_light_workflow_recovery.py",
+      "?? tests/research/test_light_workspace.py"
+    ],
+    "source_stopped_writing_at_observation": false,
+    "note": "T4 final Cursor run was still active while this read-only snapshot was observed; any later source byte change invalidates this report for that changed head/snapshot."
+  },
+  "inputs": {
+    "terminal_4_r2_handoff": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-4/handoffs/r2/handoff.json",
+      "sha256": "da246116fc92e1ab5f5a7c3aad72b1f69cceea7cc6b63906853bee949e0e7f69"
+    },
+    "terminal_3_r4_handoff": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-3/handoffs/r4/handoff.json",
+      "sha256": "4ffcb15a61fefd22dbdb8e88fe29c19bcec805ce7b87454dd61548309e0b263f",
+      "ready_sha256": "4ffcb15a61fefd22dbdb8e88fe29c19bcec805ce7b87454dd61548309e0b263f",
+      "byte_identical": true
+    },
+    "terminal_3_r4_file_matches": [
+      {
+        "relative_path": "src/video_paper_wiki_research/light_workflow.py",
+        "expected_sha256": "e4f7f8880ab41d388ede82f4672e4b969f6ee147e794d02d59359bfa8ee57595",
+        "observed_sha256": "e4f7f8880ab41d388ede82f4672e4b969f6ee147e794d02d59359bfa8ee57595",
+        "matches": true
+      },
+      {
+        "relative_path": "tests/research/test_light_workflow.py",
+        "expected_sha256": "f865f3c2755f802a6ae266c978704f1dd6566fb6d03466157ec3ef1aed509d43",
+        "observed_sha256": "f865f3c2755f802a6ae266c978704f1dd6566fb6d03466157ec3ef1aed509d43",
+        "matches": true
+      },
+      {
+        "relative_path": "tests/research/test_light_workflow_recovery.py",
+        "expected_sha256": "b0af6db405edd5230d0041d7757b53769ef85145f601acb189cc103eda4746e1",
+        "observed_sha256": "b0af6db405edd5230d0041d7757b53769ef85145f601acb189cc103eda4746e1",
+        "matches": true
+      },
+      {
+        "relative_path": "tests/research/test_light_skill_routing.py",
+        "expected_sha256": "0d1d0727a324b5e36f322f9d008314f4a74d80e6b5f96d10e4eedf253f1d4c21",
+        "observed_sha256": "0d1d0727a324b5e36f322f9d008314f4a74d80e6b5f96d10e4eedf253f1d4c21",
+        "matches": true
+      },
+      {
+        "relative_path": ".agents/skills/video-paper-read/SKILL.md",
+        "expected_sha256": "afdf0186121ba4746e3dda63eb4221f270e7a6041b57593180b85d32ebd41658",
+        "observed_sha256": "afdf0186121ba4746e3dda63eb4221f270e7a6041b57593180b85d32ebd41658",
+        "matches": true
+      },
+      {
+        "relative_path": ".agents/skills/video-paper-read/agents/openai.yaml",
+        "expected_sha256": "f7614bdad2043cc03ec5f6c38bc58bd555239525194a9de26cb608d5a661c8cb",
+        "observed_sha256": "f7614bdad2043cc03ec5f6c38bc58bd555239525194a9de26cb608d5a661c8cb",
+        "matches": true
+      },
+      {
+        "relative_path": ".agents/skills/video-paper-read/references/workflow.md",
+        "expected_sha256": "726a2fc0c31d9ef2705644b937c64f4eb9dd4f06e6cbf0a30a0a6c7c3343e1d9",
+        "observed_sha256": "726a2fc0c31d9ef2705644b937c64f4eb9dd4f06e6cbf0a30a0a6c7c3343e1d9",
+        "matches": true
+      },
+      {
+        "relative_path": ".agents/skills/video-paper-ingest/SKILL.md",
+        "expected_sha256": "6768023a0a0bf0d2d8d507c375e60b644bb80b3a82d1fcdf380d3481fcdeb09c",
+        "observed_sha256": "6768023a0a0bf0d2d8d507c375e60b644bb80b3a82d1fcdf380d3481fcdeb09c",
+        "matches": true
+      },
+      {
+        "relative_path": ".agents/skills/video-paper-query/SKILL.md",
+        "expected_sha256": "dbc7de750bf4a6888941ad382039aa58487021d66fc5c62289550cffe9cd0b8c",
+        "observed_sha256": "dbc7de750bf4a6888941ad382039aa58487021d66fc5c62289550cffe9cd0b8c",
+        "matches": true
+      }
+    ],
+    "terminal_1_r3_handoff_sha256": "ac1aadc2e57b28db5359b655a2ac6ac1d4b5db1ca5dd114a414a0f143daaca89",
+    "terminal_2_r4_handoff_sha256": "e04bab0e3f2f441443b3034ab34f3a536feac236d5519a2bd8cadaecfb9f9ca6"
+  },
+  "read_hashes": {
+    ".agents/skills/video-paper-ingest/SKILL.md": {
+      "sha256": "6768023a0a0bf0d2d8d507c375e60b644bb80b3a82d1fcdf380d3481fcdeb09c",
+      "size_bytes": 3229,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    ".agents/skills/video-paper-query/SKILL.md": {
+      "sha256": "dbc7de750bf4a6888941ad382039aa58487021d66fc5c62289550cffe9cd0b8c",
+      "size_bytes": 1274,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    ".agents/skills/video-paper-read/SKILL.md": {
+      "sha256": "afdf0186121ba4746e3dda63eb4221f270e7a6041b57593180b85d32ebd41658",
+      "size_bytes": 2475,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    ".agents/skills/video-paper-read/agents/openai.yaml": {
+      "sha256": "f7614bdad2043cc03ec5f6c38bc58bd555239525194a9de26cb608d5a661c8cb",
+      "size_bytes": 255,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    ".agents/skills/video-paper-read/references/workflow.md": {
+      "sha256": "726a2fc0c31d9ef2705644b937c64f4eb9dd4f06e6cbf0a30a0a6c7c3343e1d9",
+      "size_bytes": 3266,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "README.md": {
+      "sha256": "7ede5f57cd0ef1ac5bbc00e95266f7a67111bb7ac36ffb9d043fca0367e52714",
+      "size_bytes": 14024,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "docs/lightweight-pdf-quickstart.md": {
+      "sha256": "663ab72ca50bec43d69fd521f9175d9ceb8567460481d2fb17adf722428e6356",
+      "size_bytes": 9907,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "pyproject.toml": {
+      "sha256": "da3765ef066d5e431862ad1854aa018d54db0574102823502e940b89fa87c9f6",
+      "size_bytes": 938,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki/envelope.py": {
+      "sha256": "ec49483cb86f24ef873e3612e85ac83e0537940e6a2b0d64e2c334f56579df24",
+      "size_bytes": 1453,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/__main__.py": {
+      "sha256": "89e1f0772a62cee99b721d0da3a55efeb25281e81fa66f16e9779fc8a7a04720",
+      "size_bytes": 73,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/cli.py": {
+      "sha256": "1b2c8121cadd45241bedd6c8e89573183b7c23f74a5c2d65e06085b715b8b9ca",
+      "size_bytes": 27788,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/light_context.py": {
+      "sha256": "11049dee2c727fd8be2d310bba0a9a9817fb91c18b11c93dd1adf1df37ccd5fc",
+      "size_bytes": 21935,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/light_index.py": {
+      "sha256": "9817a819785fed967c8f1d74c48d38c3617d9a25c9d9698aa7a04fda8a26e9fc",
+      "size_bytes": 30632,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/light_pdf.py": {
+      "sha256": "6a50fbf237a1f28b3f0a58834a05cbfac3c38da02c0db2abbe4e1a1949f1ca80",
+      "size_bytes": 28463,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/light_workflow.py": {
+      "sha256": "e4f7f8880ab41d388ede82f4672e4b969f6ee147e794d02d59359bfa8ee57595",
+      "size_bytes": 72050,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "src/video_paper_wiki_research/light_workspace.py": {
+      "sha256": "96330683f89ad1d8ec4549eb170d5b130c5b9eeb625b985db9390def21623fd2",
+      "size_bytes": 11088,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_cli.py": {
+      "sha256": "1cb0ba121aea95827187bb30a8ce8a7592fcbf5a09d2542849efbd3280f86a47",
+      "size_bytes": 15251,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_context.py": {
+      "sha256": "b52fcfaeca8e1cfc929aa63169621fc0bbbbaf3cf1ed71bf1cf48b984018892b",
+      "size_bytes": 31864,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_index.py": {
+      "sha256": "7f38cfbf2c43e5969ab4ed94b7551979bd4af631cf21e1579c9277cf23dce0c7",
+      "size_bytes": 24193,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_pdf.py": {
+      "sha256": "fb33831031f8962b9f8d2cb227923e91d0b9916fd71052d313694e9a4ea4d1e2",
+      "size_bytes": 12125,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_pdf_recovery.py": {
+      "sha256": "e44557b9f84824db4b3996a8fc50bddce2f4dbab93a15905af1dc0c40c1b2e12",
+      "size_bytes": 13263,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_selection.py": {
+      "sha256": "e85b4eebcb5ccefebfd2e3ac2e7b6e2ebb819ab666b3fbe9e32d0f611a867b71",
+      "size_bytes": 5423,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_skill_routing.py": {
+      "sha256": "0d1d0727a324b5e36f322f9d008314f4a74d80e6b5f96d10e4eedf253f1d4c21",
+      "size_bytes": 6301,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_workflow.py": {
+      "sha256": "f865f3c2755f802a6ae266c978704f1dd6566fb6d03466157ec3ef1aed509d43",
+      "size_bytes": 43781,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_workflow_cli.py": {
+      "sha256": "a513e5563a91c7d6b83e2f1cb482e902f07494453592d38cbb2bcd1d72af6a76",
+      "size_bytes": 43551,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_workflow_installed.py": {
+      "sha256": "5ae026600276b843703615467a8dbef399a58aef5043478bfc8599b34c9e03e4",
+      "size_bytes": 15168,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_workflow_recovery.py": {
+      "sha256": "b0af6db405edd5230d0041d7757b53769ef85145f601acb189cc103eda4746e1",
+      "size_bytes": 18197,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    },
+    "tests/research/test_light_workspace.py": {
+      "sha256": "82dcc742754a76a1bd266a72f880789967a490e969eaf949ffbd521aadf6c14a",
+      "size_bytes": 9895,
+      "ends_with_single_lf": true,
+      "trailing_space_or_tab_lines": 0
+    }
+  },
+  "static_checks": {
+    "owned_paths_no_hardcoded_user_paths": {
+      "passed": true,
+      "scope": [
+        "src/video_paper_wiki_research/cli.py",
+        "tests/research/test_light_cli.py",
+        "tests/research/test_light_workflow_cli.py",
+        "tests/research/test_light_workflow_installed.py",
+        "README.md",
+        "docs/lightweight-pdf-quickstart.md"
+      ],
+      "excluded_preexisting_baseline_paths": [
+        "tests/research/conftest.py",
+        "tests/research/synthetic_demo.py",
+        "tests/upstream/_transaction_fixture.py"
+      ]
+    },
+    "dual_cli_entries": {
+      "passed": true,
+      "project_scripts": {
+        "vpwiki": "video_paper_wiki.cli:main",
+        "vpwiki-research": "video_paper_wiki_research.cli:main"
+      },
+      "module_entry": "src/video_paper_wiki_research/__main__.py",
+      "module_entry_sha256": "89e1f0772a62cee99b721d0da3a55efeb25281e81fa66f16e9779fc8a7a04720",
+      "console_entry": "vpwiki-research"
+    },
+    "offline_dependencies_and_resources": {
+      "passed": true,
+      "declared_runtime_dependencies": [
+        "jsonschema>=4.23",
+        "pypdf>=5.0"
+      ],
+      "wheel_packages": [
+        "src/video_paper_wiki",
+        "src/video_paper_wiki_research"
+      ],
+      "force_include": {
+        "docs/seed": "video_paper_wiki/seed",
+        "schemas": "video_paper_wiki/schemas",
+        "taxonomy/v1.json": "video_paper_wiki/taxonomy/v1.json",
+        "catalog": "video_paper_wiki/catalog"
+      },
+      "checkout_schema_count": 53,
+      "installed_test_requires_schema_count_at_least": 26,
+      "installed_test_sets_uv_offline": true,
+      "installed_test_uses_no_index_no_deps": true
+    },
+    "installed_test_isolation_and_byte_checks": {
+      "passed": true,
+      "checks": [
+        "runtime interpreter from sys.executable/LW2_PYTHON",
+        "offline cache from LW2_UV_CACHE/UV_CACHE_DIR",
+        "isolated venv and python -I",
+        "no PYTHONPATH in isolated execution env",
+        "module and vpwiki-research console entry",
+        "new-module source SHA equality",
+        "byte-exact schema equality"
+      ]
+    },
+    "expected_error_json": {
+      "passed": true,
+      "cli_dump_function": "video_paper_wiki_research/cli.py:_dump_handoff",
+      "known_exception_boundary": "video_paper_wiki_research/cli.py:main/_emit",
+      "envelope_sha256": "ec49483cb86f24ef873e3612e85ac83e0537940e6a2b0d64e2c334f56579df24",
+      "coverage_paths": [
+        "tests/research/test_light_workflow_cli.py::test_protocol_complete_rejects_missing_document_file_without_output",
+        "tests/research/test_light_workflow_cli.py::test_protocol_complete_rejects_non_object_document_without_output",
+        "tests/research/test_light_workflow_cli.py::test_live_bad_citation_and_edited_output_are_refused"
+      ]
+    },
+    "real_backend_flow_and_retained_output": {
+      "passed": true,
+      "backend": "light_workflow.LiveWorkflowBackend -> light_pdf/light_workspace/light_index/light_context",
+      "source_anchors": [
+        "light_context.py:441-470 render_document validates live context before rendering",
+        "light_context.py:530-575 import_document validates, stages a private temporary output, revalidates, commits atomically, and abandons the temporary on refusal"
+      ],
+      "coverage_paths": [
+        "tests/research/test_light_workflow_cli.py::test_live_workspace_prepare_complete_status_and_repeat_add",
+        "tests/research/test_light_workflow_cli.py::test_live_import_gap_cases_are_closed_and_control_succeeds",
+        "tests/research/test_light_workflow_cli.py::test_live_selected_paper_no_results_and_conflict_preserve_output",
+        "tests/research/test_light_workflow_cli.py::test_live_bad_citation_and_edited_output_are_refused"
+      ]
+    },
+    "eof_and_whitespace": {
+      "passed": true,
+      "scope_count": 28,
+      "double_lf_files": [],
+      "trailing_whitespace_files": []
+    }
+  },
+  "read_only_probe": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=<terminal-4/source>/src <locked-python> -B -m pytest -q --basetemp /private/tmp/lw2-static-preflight -o cache_dir=/private/tmp/lw2-static-preflight-cache tests/research/test_light_workflow_installed.py tests/research/test_light_workflow_cli.py",
+    "result": "20 passed, 1 failed before wheel build because uv was absent and LW2_UV_CACHE/UV_CACHE_DIR was unset",
+    "interpretation": "Environment setup failure only; no source assertion failure was observed in the 20 executed tests. The official T4 final run must provide its own fresh offline wheel evidence."
+  },
+  "findings": [],
+  "known_gaps": [
+    "T4 final source may still change while its Cursor run is active; this report must not be reused for a changed snapshot.",
+    "This static report does not claim full-suite, fresh-wheel, CI, real-PDF, or human acceptance.",
+    "The preflight pytest installed-wheel case was not completed because the required offline uv/cache input was absent in this shell."
+  ],
+  "stop_writing": true
+}

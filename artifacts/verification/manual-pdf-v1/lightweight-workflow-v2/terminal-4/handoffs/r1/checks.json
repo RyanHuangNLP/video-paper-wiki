@@ -1,0 +1,58 @@
+{
+  "schema": "lightweight-workflow-v2-checks.v1",
+  "terminal": 4,
+  "revision": "r1",
+  "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+  "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+  "python_version": "3.13.13",
+  "commands": [
+    {
+      "name": "focused-pytest-r1",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/research/test_light_cli.py",
+        "tests/research/test_light_workflow_cli.py",
+        "tests/research/test_light_pdf.py",
+        "tests/research/test_light_pdf_recovery.py",
+        "tests/research/test_light_workspace.py",
+        "tests/research/test_light_index.py",
+        "tests/research/test_light_context.py",
+        "tests/research/test_light_selection.py",
+        "-rs"
+      ],
+      "exit": 0,
+      "result": "102 passed, 4 skipped",
+      "skips": [
+        "test_live_workspace_prepare_complete_status_and_repeat_add",
+        "test_live_selected_paper_no_results_and_conflict_preserve_output",
+        "test_live_bad_citation_and_edited_output_are_refused",
+        "test_live_source_edit_makes_export_and_status_stale"
+      ],
+      "skip_reason": "importorskip video_paper_wiki_research.light_workflow"
+    },
+    {
+      "name": "docs-shell-bash-zsh",
+      "exit": 0,
+      "result": "help/inspect/pdf add/index/export ok; workflow prepare LIGHT_MODULE_UNAVAILABLE exit 2 in both shells"
+    },
+    {
+      "name": "real-pdf-prepare",
+      "exit": 0,
+      "pdf": "/Users/huangzhanpeng/python_code/video-paper-wiki/inbox/arxiv-2204.03458.pdf",
+      "pdf_sha256": "564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f",
+      "page_count": 15,
+      "qa_evidence": 8,
+      "writing_evidence": 8
+    },
+    {
+      "name": "citation-verifier-control",
+      "exit": 0,
+      "result": "href/page/slice/hash joint ok; bad citation INVALID_CITATION and no output"
+    }
+  ]
+}

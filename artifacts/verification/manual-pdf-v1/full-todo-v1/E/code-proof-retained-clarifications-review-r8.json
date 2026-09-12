@@ -1,0 +1,56 @@
+{
+  "$schema": "full-todo.code-proof-retained-clarifications-review-r8.v1",
+  "schema": "full-todo.code-proof-retained-clarifications-review-r8.v1",
+  "packet": "CODE-PROOF-RETAINED-CLARIFICATIONS-R8",
+  "revision": "R8-independent-retained-clarifications-review",
+  "recorded_at_utc": "2026-09-09T17:01:12.000000000Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CODE-PROOF retained-I/O clarification reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_RESOURCE_FREEZE_AND_MKDIR_EXCEPTION_CLOSURE_PENDING",
+  "verdict": "R8 closes the seven R6 review findings at the design level. It adds a usable layout_state accessor, keeps failed scans private, moves lazy creation into the retained install phase, freezes directory modes and ordinary-entry caps, rejects ordinary-input/resource overlap, separates names/set checks from full byte rereads, records the authorized final before directory fsync, and supplies conservative link/unlink post-effect reconciliation plus deterministic error-group ordering. One implementation edge remains: mkdir/post-stat syscalls that raise after creating a directory lack the same explicit post-effect refusal row supplied for link and unlink. The absent resource hashes and generated schemas remain an intentional external freeze gate.",
+  "scope": "Read-only review of CODE-PROOF-RETAINED-CLARIFICATIONS-R8 against CODE-PROOF-RETAINED-IO-R6, its independent review, and the inherited R2-R7 retained-I/O decisions. No source, schema, test, fixture, Git, provider, network, connector, Vault or prior-evidence mutation.",
+  "frozen_inputs": [
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md", "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f", "size_bytes": 15471},
+    {"path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md", "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92", "size_bytes": 15524},
+    {"path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-io-review-r6.json", "sha256": "15cbb53fff0f6dfe32b2f08f45f3642b89247d87c98177ceb86b472072513aef", "size_bytes": 20632}
+  ],
+  "closure_matrix": [
+    {"id": "R8-STATE-001", "status": "CLOSED", "evidence": "R8 lines 9-39 adds layout_state with initial/current namespace and family presence, sorted valid files and current bytes, while keeping failed scan state private. This is sufficient for R5 status classification without reopening paths."},
+    {"id": "R8-SETUP-002", "status": "CLOSED", "evidence": "R8 lines 40-65 make install own lazy .work/batch/output creation after semantic preflight, retain earliest missing edges, lock first, create 0700 directories descriptor-relatively, and never use an orchestrator side channel."},
+    {"id": "R8-CONTAINMENT-003", "status": "CLOSED", "evidence": "R8 lines 87-101 reject ordinary input equal/inside/ancestor relations and descriptor aliases, and require all selected resource origins to remain disjoint from output. The retained raw-bundle disjointness is preserved."},
+    {"id": "R8-MODE-CAP-004", "status": "CLOSED", "evidence": "R8 lines 66-86 freeze exact 0700 output/family modes, ordinary caps, one owned-temp allowance and cap+sentinel enumeration bounds, with stat-size charging before classification."},
+    {"id": "R8-CADENCE-005", "status": "CLOSED", "evidence": "R8 lines 103-123 define verify_names_and_sets for every write/transition and verify_full at bounded acquisition/publication/final checkpoints; full rereads no longer scale with short-write count."},
+    {"id": "R8-POSTEFFECT-006", "status": "CLOSED_WITH_MKDIR_RESIDUAL", "evidence": "R8 lines 125-151 explicitly reconcile link and unlink exceptions, retain successful-link flags, refuse ambiguous finals, preserve owned-temp evidence and avoid rollback/adoption. The corresponding mkdir/post-stat exception is not enumerated; see R8-MKDIR-001."},
+    {"id": "R8-ERROR-007", "status": "CLOSED", "evidence": "R8 lines 153-190 freeze eight group order, per-group selection, lineage precedence, cleanup precedence, bounded details, reverse descriptor close and interruption behavior."}
+  ],
+  "findings": [
+    {
+      "id": "R8-MKDIR-001",
+      "status": "OPEN_IMPLEMENTATION_EDGE",
+      "severity": "medium",
+      "title": "mkdir/post-stat syscall post-effect exceptions lack an explicit reconciliation row",
+      "evidence": "R8 lines 43-65 require mkdir followed by capture/open/check and authorize the created directory, while lines 125-151 provide explicit post-effect tables only for link and unlink. The final sentence at line 151 says mkdir/post-stat observations retain R6 limitations but does not state the outcome when mkdir raises after creating the directory or when post-stat raises after a replacement.",
+      "risk": "An implementation could treat a mkdir exception as an ordinary operation error, then either adopt a directory that appeared after the captured absence or roll back/delete a directory whose ownership is ambiguous. That would violate the conservative no-adoption/no-rollback rule and make the first-install state non-deterministic.",
+      "required_closure": "Add a mkdir/post-stat row: any mkdir exception with the named directory present is an unverified late arrival unless the retained edge and exact mode/identity are provably the command's creation; refuse and never delete/adopt it. A post-stat exception or missing directory must preserve the setup/operation error, run final lineage checks, and leave only verified owned empty directories. Test injected mkdir and post-mkdir stat failures."
+    },
+    {
+      "id": "R8-RESOURCE-002",
+      "status": "OPEN_EXTERNAL_RESOURCE_FREEZE_DEPENDENCY",
+      "severity": "medium",
+      "title": "The retained design still cannot be implementation-accepted without resource/schema bytes",
+      "evidence": "R8 lines 1-7 and 191-193 explicitly preserve the requirement for ten public schemas, an installed profile, reason/context tables and exact resource hashes. R8 closes the retained resource relation and error handling, but supplies no material bytes or hash set.",
+      "risk": "A correct retained session could still bind a missing, extra or wrong-origin resource generation if the generated files and source/installed parity are not frozen before implementation acceptance.",
+      "required_closure": "Generate the ten schemas and profile, record exact hashes and origins, bind them to the retained resource set, and verify isolated wheel parity. This is an external public-wire gate rather than a defect in the R8 phase model."
+    }
+  ],
+  "required_next_freezes": [
+    "Add the conservative mkdir/post-stat post-effect matrix and tests before private I/O implementation acceptance.",
+    "Generate and hash the ten public schemas/profile and retain their exact source/installed origins.",
+    "Implement the stopped R8 session with the two verification cadences, phase transitions, close ordering and no legacy installer reuse, then run the complete adversarial table and full wheel suites."
+  ],
+  "mutations": {"source": false, "schemas": false, "tests": false, "fixtures": false, "git": false, "provider": false, "network": false, "connector": false, "real_vault": false, "review_artifact_only": true},
+  "timestamp_basis": {"clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'", "observed_utc": "2026-09-09T17:01:12.000000000Z", "note": "Tool-observed current UTC; no retrospective review-start time is asserted."}
+}

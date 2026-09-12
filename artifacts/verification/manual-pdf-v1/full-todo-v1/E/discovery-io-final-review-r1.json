@@ -1,0 +1,153 @@
+{
+  "$schema": "full-todo.discovery-io-final-review-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-final-candidate-io-review",
+  "reviewed_at_utc": "2026-09-09T11:00:00Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded Discovery I/O reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "PROBE_GO_WITH_EXACT_CANDIDATE_DELIVERY_GATES",
+  "verdict": "The exact 31-path local candidate was independently hash-verified (zero mismatches). All seven discovery modules were read through public command paths. Descriptor-relative retained checkout/input/store/package-resource reads, complete first-absence sets, nonblocking checkout locking, atomic installation identity, bound resource snapshots, and final safety verification cover status, initialization, planning, observation, assessment, controls, decisions, handoff and rendering. No new I/O, egress, Vault, or path-lineage blocker was found in this review.",
+  "scope": "Read-only review of the frozen local discovery candidate and all public discovery I/O paths. No source, test, Git, network, connector, real Vault, or human gate was mutated; only this review artifact was written.",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r1.json",
+    "sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54",
+    "snapshot_sha256": "540aa4de6d320873c4c6a4cbf9bd949550d3f787dc9ce49a5fc7fd7c9d229438",
+    "source_root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+    "file_count": 31,
+    "hash_verification": {
+      "checked_files": 31,
+      "mismatches": 0
+    }
+  },
+  "source_snapshots": [
+    {
+      "path": "src/video_paper_wiki_research/discovery.py",
+      "sha256": "1491bd0385e465aa31aa106c96312ce35bc5a99d058e518ccd769c338536ef65",
+      "size_bytes": 21527,
+      "lines": 379
+    },
+    {
+      "path": "src/video_paper_wiki_research/discovery_candidates.py",
+      "sha256": "c10a75ef54d2fe06a819b126e5f839abc7bfc7b5d280ac00f9fa6a2124ea4672",
+      "size_bytes": 13267,
+      "lines": 278
+    },
+    {
+      "path": "src/video_paper_wiki_research/discovery_cli.py",
+      "sha256": "9f42a7706c4db1311c10e0881a7528787ddd1c711887ab7326594fd7bb215da6",
+      "size_bytes": 1570,
+      "lines": 29
+    },
+    {
+      "path": "src/video_paper_wiki_research/discovery_contracts.py",
+      "sha256": "942ecacd11b3f1cfe04ce931597f5ef4f3310f8b5117fca6dd29f160acbbf339",
+      "size_bytes": 18366,
+      "lines": 420
+    },
+    {
+      "path": "src/video_paper_wiki_research/discovery_graph.py",
+      "sha256": "043fe04b25b7eead681b9fecb038767ceed5dc61ab0eb3d8cc6462f7cb1513f6",
+      "size_bytes": 24266,
+      "lines": 377
+    },
+    {
+      "path": "src/video_paper_wiki_research/discovery_plan.py",
+      "sha256": "51a36f6c011d0cb5ee5b0166a559dbb1abb28b4772a8909b2ab8922f1858da65",
+      "size_bytes": 19504,
+      "lines": 353
+    },
+    {
+      "path": "src/video_paper_wiki_research/discovery_storage.py",
+      "sha256": "f62562765493cf58909d04c4224538b68b98052f0534fd6830872f8fd72ce74b",
+      "size_bytes": 21185,
+      "lines": 469
+    },
+    {
+      "path": "tests/security/test_discovery_boundary.py",
+      "sha256": "1d5e53854a747aade6300f28123c7434f8c4b1ff5439d0d3b0d34d39483027ec",
+      "size_bytes": 7436,
+      "lines": 129
+    },
+    {
+      "path": "tests/research/test_discovery_workflow.py",
+      "sha256": "e8c860727065875652f0d9555fdf8c27947197eb595df6ea80a2a14f3eab9126",
+      "size_bytes": 9495,
+      "lines": 154
+    }
+  ],
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-storage-graph-wip-review-r3.json",
+      "sha256": "ec165639f6919cffc7cbb84774702c236676a170cf91358f7058db69fa9f07e6"
+    }
+  ],
+  "review_points": [
+    {
+      "id": "IO-RESOURCE-RETENTION",
+      "status": "PASS",
+      "evidence": "open_store captures every discovery schema/profile/prompt through RetainedTree.file, validates them inside bound_resources, and verifies the retained tree on normal and exceptional exits. context uses only the bound snapshot; handoff retains every preview schema through the same tree and verifies before returning."
+    },
+    {
+      "id": "IO-FIRST-ABSENCE",
+      "status": "PASS",
+      "evidence": "RetainedTree records missing named edges and complete directory sets before parsing or installation. DiscoveryStore.scan observes root/family sets and all fixed family slots; ensure_layout creates only after preflight and rejects foreign post-absence occupants."
+    },
+    {
+      "id": "IO-EXTERNAL-INPUTS",
+      "status": "PASS",
+      "evidence": "checked_path rejects aliases, traversal, control characters, non-NFC and unsafe spelling; descriptor-relative file reads reject symlink/hardlink/nonregular inputs and retain bytes/identity through final verification."
+    },
+    {
+      "id": "IO-LOCK-LIFETIME",
+      "status": "PASS",
+      "evidence": "open_store acquires the checkout flock before the first .work observation and retains a duplicate checkout descriptor until after tree.close; prior R2 cleanup contention probe and boundary test preserve DISCOVERY_BUSY without creating work state."
+    },
+    {
+      "id": "IO-PUBLIC-WIRING",
+      "status": "PASS",
+      "evidence": "init/status/plan/observe/finish/resume/control/decide/handoff/context/render all run under open_store; handoff is data-only and does not create preview/Vault output, while render escapes candidate text."
+    },
+    {
+      "id": "IO-EGRESS-BOUNDARY",
+      "status": "PASS",
+      "evidence": "The reviewed modules contain no subprocess, socket, HTTP client, Vault, or arbitrary output writes. Public boundary test patches network/process execution and verifies the protected Vault sentinel remains unchanged."
+    }
+  ],
+  "tests": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/security/test_discovery_boundary.py",
+      "result": "36 passed in 7.21s"
+    },
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/research/test_discovery_workflow.py",
+      "result": "11 passed in 11.29s"
+    }
+  ],
+  "findings": [],
+  "deferred_gates": [
+    "Run exact installed-wheel/resource and CLI parity checks against this candidate as the parent delivery gate.",
+    "Run fresh four-job remote CI against the exact candidate head/base; local test results are not remote CI evidence.",
+    "Provider capability, real-data, Vault/admin and human scientific gates remain outside this I/O review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

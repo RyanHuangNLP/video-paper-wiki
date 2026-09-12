@@ -1,0 +1,124 @@
+{
+  "schema": "lightweight-workflow-v2-handoff.v1",
+  "terminal": 1,
+  "revision": "r2",
+  "phase": "final",
+  "status": "ready",
+  "snapshot_stopped_writing": true,
+  "baseline_head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+  "baseline_sha256": "2f559ff481c2faea3e49899f0b329d9f366958c0374234935a133df757591416",
+  "contract_sha256": "559e2b339c192837fa5d6c47f15ea7688f484155b95b2492f28eeee6d940e5dc",
+  "freeze_sha256": "2128528583787cb10aad69eb1954b424bba10873327885792dce7c7e3ae3099e",
+  "dispatch_sha256": "0f1f3f2ff3f20cded965eb88ecb17c56b92a4ac8b5e28683b44cf196043b62d6",
+  "execution_host": "cursor",
+  "requested_model": "grok-4.6",
+  "requested_effort": "xhigh",
+  "observed_model": "grok-4.6",
+  "observed_effort": null,
+  "observed_effort_note": "Cursor UI reasoning effort is not machine-readable; High must not be recorded as xhigh.",
+  "session_id": null,
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+  "files": [
+    {
+      "relative_path": "src/video_paper_wiki_research/light_pdf.py",
+      "sha256": "d51551b81939039114ebb208eb94db5ae48dc84f42b785ed9597542674e96770",
+      "size_bytes": 23066
+    },
+    {
+      "relative_path": "src/video_paper_wiki_research/light_workspace.py",
+      "sha256": "a166be3a82d2bd62223fbf1196bef7540514f816552e36487eb15f336f8929f2",
+      "size_bytes": 10933
+    },
+    {
+      "relative_path": "tests/research/test_light_pdf.py",
+      "sha256": "db5efdd709a9e9df63582e731f9653127dd8b38c04c1b62dc6e905ae9ab3808a",
+      "size_bytes": 10468
+    },
+    {
+      "relative_path": "tests/research/test_light_pdf_recovery.py",
+      "sha256": "28bf0645b17721360666495f9a7404306440682d29ce24dd5831e6d8672c76d0",
+      "size_bytes": 10117
+    },
+    {
+      "relative_path": "tests/research/test_light_workspace.py",
+      "sha256": "08a23596194a8732143a2b7ca88aea4f7776ea5cfba2a8215534894ccc1d7f65",
+      "size_bytes": 8298
+    }
+  ],
+  "inputs": [],
+  "imported_files": [],
+  "artifacts": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r2/focused-pytest.log",
+      "sha256": "1af0476ca764c7c0efe836049fc0eeb100d6273dabbc54534910f093dcd5d377",
+      "size_bytes": 99
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r2/compat-pytest.log",
+      "sha256": "942efb5009e6557e36483fc7a42134d0c4f5d3952cd674e5415387e7e474582c",
+      "size_bytes": 99
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r2/module-origin.txt",
+      "sha256": "de4751d546dee59e96927ad811f47fe76b0b2139edbc979a77a5d6abf11e237a",
+      "size_bytes": 757
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r2/progress.md",
+      "sha256": "14c4646fe846a6a9d63eda282c9ebc2c73cf2875a0460141f48c1ca1ff2e0ad4",
+      "size_bytes": 814
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r2/report.md",
+      "sha256": "4660fe73839914e46c45a0cd570da48af98c674511e9b2eb794415a98e3aa003",
+      "size_bytes": 3751
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-1/handoffs/r2/checks.json",
+      "sha256": "8883eb7c6d6e8190378ecd486db850e41f4c61302042ad242da546c7a1a32325",
+      "size_bytes": 2319
+    }
+  ],
+  "commands": [
+    {
+      "name": "focused-pytest",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/research/test_light_pdf.py",
+        "tests/research/test_light_pdf_recovery.py",
+        "tests/research/test_light_workspace.py"
+      ],
+      "exit": 0,
+      "result": "29 passed",
+      "log": "focused-pytest.log"
+    },
+    {
+      "name": "compat-pytest",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+      "command": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/research/test_light_index.py",
+        "tests/research/test_light_pipeline.py",
+        "tests/research/test_light_cli.py"
+      ],
+      "exit": 0,
+      "result": "19 passed",
+      "log": "compat-pytest.log"
+    }
+  ],
+  "known_gaps": [
+    "Python 3.12 and Linux jobs were not run locally.",
+    "Power-loss durability is not claimed.",
+    "Real inbox PDF / Vault / OCR / Docling were not exercised."
+  ],
+  "blocking_findings": []
+}

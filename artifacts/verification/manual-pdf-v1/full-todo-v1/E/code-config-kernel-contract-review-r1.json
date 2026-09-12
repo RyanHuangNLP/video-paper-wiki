@@ -1,0 +1,270 @@
+{
+  "$schema": "full-todo.code-config-kernel-contract-review-r1.v1",
+  "schema": "full-todo.code-config-kernel-contract-review-r1.v1",
+  "packet": "CODE-CONFIG-KERNEL-R1",
+  "revision": "R1-independent-read-only-contract-review",
+  "recorded_at_utc": "2026-09-09T15:19:57.432835Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent pure in-memory CODE configuration-kernel contract reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Candidate-only read-only review against CODE-PROOF-CLOSURE-R3. No implementation dispatch, production/test source, fixture, Git, network, connector, public-wire or extra-agent activity.",
+  "decision": "CONDITIONAL_GO_CANDIDATE_PENDING_TWO_CONTRACT_CLARIFICATIONS_AND_LATER_FREEZE",
+  "verdict": "The candidate is internally coherent on API boundary, limits, numeric canonicalization, source coordinates, declaration attribution, TOML subset, DOTALL dynamic markers and comment-only TOML emptiness. It is suitable for a later exact freeze, but two exact semantics should be closed before implementation: the source position reported for dynamic rejection and the admissible TOML implicit-parent promotion set currently delegated to runtime tomllib behavior. An independent static span fixture and exact successor worktree/freeze record remain procedural prerequisites.",
+  "semantic_result": {
+    "status": "PASS_WITH_TWO_CONCRETE_CLARIFICATIONS",
+    "areas_checked": [
+      "exact bytes/str/dict/int API types, bool rejection, json/toml enum and pure stdlib boundary",
+      "MappingProxyType profile and all 13 limits with pre-decode source cap",
+      "depth/node/array/object-key/string/scalar and global declaration accounting",
+      "strict UTF-8/BOM/control/line-separator profile, raw versus CRLF-normalized identity",
+      "JSON RFC 8259 numbers, TOML D/I grammar, Decimal tuple bounds, negative zero and fixed canonical strings",
+      "JSON Pointer paths, decoded-key collision and deterministic preorder/key-byte ordering",
+      "Span byte/codepoint/line-column coordinates, CRLF and no synthetic implicit-table spans",
+      "JSON/TOML node/result shape, declaration records and explicit versus implicit TOML tables",
+      "TOML single-line subset, comments, trailing commas, tables, dotted/quoted keys and inline boundaries",
+      "dynamic markers including DOTALL callable matching after decoded-string limits",
+      "closed error codes/details and scanner-before-stdlib cross-check ordering"
+    ],
+    "closed_semantics": [
+      {
+        "topic": "limits-and-declaration-cap",
+        "status": "PASS",
+        "evidence_lines": {
+          "start": 47,
+          "end": 73
+        },
+        "basis": "The exact MappingProxyType profile is ordered and immutable; limits are strict positive ints; root depth, node/array/map/string/scalar limits and max_declarations are bounded before append/descent. Every unique declaration record is charged when inserted, including json_key, toml_key and toml_table records; repeated dotted prefixes share nodes while distinct source tokens remain declarations."
+      },
+      {
+        "topic": "comment-only-empty-policy",
+        "status": "PASS",
+        "evidence_lines": {
+          "start": 75,
+          "end": 94
+        },
+        "basis": "Zero/whitespace-only documents are CODE_CONFIG_EMPTY; TOML whitespace/comments-only is explicitly empty under project policy, while empty JSON containers, empty ordinary TOML headers and assigned empty containers remain valid."
+      },
+      {
+        "topic": "dynamic-dotall-rule",
+        "status": "PASS",
+        "evidence_lines": {
+          "start": 158,
+          "end": 166
+        },
+        "basis": "Markers are checked only on decoded keys/string values after token decoding and limits; comments are excluded; callable matching uses re.DOTALL, Python str.strip and Unicode \\s behavior, so escaped-newline arguments cannot bypass it."
+      },
+      {
+        "topic": "numeric-grammar",
+        "status": "PASS",
+        "evidence_lines": {
+          "start": 107,
+          "end": 156
+        },
+        "basis": "JSON and TOML grammars are explicit; source kind stays integer versus decimal; exponents, coefficient digits, canonical length and negative zero are bounded without rounding/context mutation."
+      },
+      {
+        "topic": "spans-and-attribution",
+        "status": "PASS",
+        "evidence_lines": {
+          "start": 168,
+          "end": 242
+        },
+        "basis": "Result key order, node preorder, decoded-key UTF-8 ordering, raw source spans, CRLF handling, JSON key declarations, TOML component/header declarations and null implicit/table value spans are explicit."
+      },
+      {
+        "topic": "toml-subset-and-crosscheck",
+        "status": "PASS_WITH_CLARIFICATION",
+        "evidence_lines": {
+          "start": 114,
+          "end": 135
+        },
+        "basis": "Single-line strings/arrays/inline tables, ordinary headers, dotted/quoted keys, comments and comma rules are explicit; implicit-parent promotion and dotted-key-created child descent are restricted to constructs tomllib accepts, which requires exact vectors before freeze."
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "CCK-R1-CONTRACT-001",
+      "severity": "MINOR_FREEZE_BLOCKER",
+      "status": "OPEN",
+      "title": "Dynamic rejection offset anchoring is not exact",
+      "evidence": {
+        "packet_lines": {
+          "start": 158,
+          "end": 166
+        },
+        "error_lines": {
+          "start": 244,
+          "end": 273
+        },
+        "observation": "Dynamic rules run after decoded key/value limits and may match a substring marker or the full stripped callable expression, while all dynamic errors require codepoint_offset and byte_offset. The candidate does not say whether those offsets identify the beginning of the whole source token, the matched marker, the stripped callable match, or the first decoded character of the offending value/key."
+      },
+      "risk": "Independent implementations can emit different bounded error details for the same rejected value even though acceptance/refusal agrees; source-token versus decoded-value offsets also differ for JSON escapes.",
+      "required_resolution": "Freeze one rule, preferably the original token span start for all dynamic errors (with the exact source byte/codepoint offset and no decoded-string search offset), or publish a precise mapping from decoded match index to raw token offset. Add escaped-newline and escaped-marker vectors asserting the chosen details."
+    },
+    {
+      "id": "CCK-R1-CONTRACT-002",
+      "severity": "MINOR_FREEZE_BLOCKER",
+      "status": "OPEN",
+      "title": "TOML implicit-parent promotion is delegated to runtime behavior rather than a closed vector set",
+      "evidence": {
+        "packet_lines": {
+          "start": 129,
+          "end": 135
+        },
+        "closure_lines": {
+          "start": 180,
+          "end": 186
+        },
+        "observation": "The candidate permits [a.b] then [a] and later child headers under dotted-key-created parents only “when tomllib permits them”; it refuses redefinitions but does not enumerate the complete admissible promotion/descent cases or bind cross-version behavior."
+      },
+      "risk": "A scanner can differ across Python 3.12/3.13 or accept a promotion that the other runtime rejects, changing node identity, declaration attribution, spans and parser-mismatch outcomes.",
+      "required_resolution": "Freeze the finite supported promotion/descent matrix with separately authored 3.12/3.13 vectors, including [a.b]→[a], [a]→[a.b], dotted assignment→child header, value→descendant refusal, inline-table boundary refusal, repeated explicit header and quoted/dotted decoded-key collisions. “tomllib permits” may remain an implementation cross-check, not the sole acceptance definition."
+    },
+    {
+      "id": "CCK-R1-FREEZE-001",
+      "severity": "PROCEDURAL_GATE",
+      "status": "OPEN",
+      "title": "Independent static span fixture and exact successor freeze are not present",
+      "evidence": {
+        "packet_lines": {
+          "start": 13,
+          "end": 25
+        },
+        "observation": "The candidate names two source/test paths and allows an independent static span fixture only after actual content, provenance and hash exist; both implementation paths are currently absent in the root checkout."
+      },
+      "risk": "A later implementation cannot be bound to independent expected byte/codepoint spans and exact candidate baseline without a fixture and freeze record.",
+      "required_resolution": "Before dispatch, bind the fixture path, provenance, byte size and SHA-256 plus the new CODE worktree/head/tree and exact two-path allowlist. This is a procedural gate, not a semantic defect in the candidate."
+    }
+  ],
+  "non_blocking_checks": [
+    {
+      "topic": "Span hash field naming",
+      "status": "CANDIDATE_EXPLICIT",
+      "note": "The candidate intentionally names Span fields raw_sha256 and snippet_sha256. Earlier advice used raw_span_sha256, but that advice was explicitly non-frozen; no implementation blocker exists if the candidate field names are carried into the later freeze and integration mapping."
+    },
+    {
+      "topic": "public wire",
+      "status": "OUT_OF_SCOPE",
+      "note": "The candidate explicitly excludes public envelopes, retained I/O and source-only records. Closure R3 permits this pure kernel independently; public wire and handoff schemas remain successor work."
+    }
+  ],
+  "local_semantic_probes": [
+    {
+      "probe": "DOTALL callable match",
+      "input_repr": "foo(\\nbar)",
+      "result": "matches with re.DOTALL; same expression with trailing text does not full-match"
+    },
+    {
+      "probe": "TOML comments-only",
+      "input_repr": "# only\\n",
+      "stdlib_result": "tomllib.loads returns {}",
+      "contract_result": "CODE_CONFIG_EMPTY"
+    },
+    {
+      "probe": "implicit parent promotion",
+      "input_repr": "[a.b]\\n[a]\\n",
+      "stdlib_result": "accepted as {a:{b:{}}}; candidate permits"
+    },
+    {
+      "probe": "repeated explicit header",
+      "input_repr": "[a]\\n[a]\\n",
+      "stdlib_result": "TOMLDecodeError; candidate refuses duplicate"
+    },
+    {
+      "probe": "dotted parent child header",
+      "input_repr": "a.b=1\\n[a.c]\\nx=2\\n",
+      "stdlib_result": "accepted; candidate permits when tomllib accepts"
+    },
+    {
+      "probe": "value descendant refusal",
+      "input_repr": "a.b=1\\n[a.b.c]\\nx=2\\n",
+      "stdlib_result": "TOMLDecodeError; candidate refuses parser mismatch/redefinition"
+    }
+  ],
+  "freeze_readiness": {
+    "status": "READY_FOR_LATER_EXACT_FREEZE_AFTER_TWO_CLARIFICATIONS",
+    "before_implementation_dispatch": [
+      "close dynamic error-offset anchoring",
+      "publish TOML promotion/descent vector matrix",
+      "bind independent static span fixture and provenance",
+      "bind exact successor CODE worktree/head/tree and two allowed paths"
+    ],
+    "not_required_before_kernel": [
+      "public request/intent/bundle/observation schemas",
+      "retained descriptors/filesystem staging",
+      "provider/network/Git acquisition",
+      "CODE-RELATION/CODE-CANONICAL or public handoff"
+    ]
+  },
+  "implementation_observation": {
+    "status": "PRE_IMPLEMENTATION_EXPECTED",
+    "paths_checked": [
+      {
+        "path": "src/video_paper_wiki/code_config_parser.py",
+        "exists": false
+      },
+      {
+        "path": "tests/unit/test_code_config_parser.py",
+        "exists": false
+      }
+    ]
+  },
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "size_bytes": 17799
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json",
+      "sha256": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20",
+      "size_bytes": 30794
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-design-review-r2.json",
+      "sha256": "122776be42d3d58f19358beec687a3fe7a6795469a31016c0050d09ff60735a9",
+      "size_bytes": 16383
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-format-observations-r1.json",
+      "sha256": "c172aa66076e46ad99b9d0d12b5aad2cb406ade188c6ce7007cadd10b356e517",
+      "size_bytes": 10214
+    }
+  ],
+  "evidence_integrity": {
+    "no_source_or_git_mutation": true,
+    "no_network_or_external_connector": true,
+    "no_dispatch": true,
+    "no_extra_agents": true
+  },
+  "supporting_observation": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-format-observations-r1.json",
+    "sha256": "c172aa66076e46ad99b9d0d12b5aad2cb406ade188c6ce7007cadd10b356e517",
+    "size_bytes": 10214,
+    "status": "PASS_STDLIB_OBSERVATIONS_NOT_PARSER_ACCEPTANCE",
+    "summary": "Independent Python 3.13.13 tomllib observations cover 13 table/key/array cases and nine Decimal tuple checks under hostile contexts. They support the listed probes but do not replace the finite candidate acceptance matrix or implement the parser.",
+    "relevant_cases": [
+      "implicit_header_parent_promotion",
+      "dotted_parent_header_refusal",
+      "dotted_parent_child_header",
+      "dotted_descendant_header",
+      "inline_extension_refusal",
+      "quoted_dotted_duplicate",
+      "literal_dot_distinct",
+      "empty_quoted_key",
+      "same_line_trailing_array",
+      "inline_trailing_comma_refusal",
+      "multiline_array_stdlib_valid_profile_unsupported",
+      "comment_only_stdlib_valid_profile_empty",
+      "ordinary_empty_table"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "status": "REAL_TRIAL_R2_STOPPED_ON_EXPECTED_EVIDENCE_EQUALITY_CHECK_NO_PRODUCT_CHANGE",
+  "recorded_at_utc": "2026-09-08T06:51:35.821802+00:00",
+  "original_runner": {
+    "path": ".work/acceptance/lightweight-library-v1/run_real_trial.py",
+    "sha256": "4c753882e14acc095a205136aeecb12316559d3dd2df141a0d05244ab057d499",
+    "size_bytes": 10325
+  },
+  "corrected_runner": {
+    "path": ".work/acceptance/lightweight-library-v1/run_real_trial_r2.py",
+    "sha256": "7908b2707fdb8d1c9c37a41c943f48a7332dfd0b25f9a4f22c3481b80de1c1e3",
+    "size_bytes": 10442
+  },
+  "failed_commands": {
+    "path": ".work/acceptance/lightweight-library-v1/real-trial-r2/commands.json",
+    "sha256": "48d74fa0717a6f77e4b75f13237da3100f7e3e113dc8b74cf64b76a9ea22c32e",
+    "size_bytes": 4998
+  },
+  "reason": "Initial runner omitted the explicit original paper titles. Fresh imports used PDF filenames as titles, shifting Markdown offsets and source hashes. All three fresh exports have unchanged coverage. No authored document was imported after the mismatch.",
+  "correction": "New runner passes the same title from each original source.json to pdf add. It preserves exact evidence, paper_snapshot and coverage equality checks before importing model documents. A fresh trial directory is required.",
+  "frozen_product_snapshot": "696179bfe48d5afc403657c258a435c8401d4d86346a845239f71fcdbc0c3ec0",
+  "product_changed": false,
+  "old_trial_preserved": true
+}

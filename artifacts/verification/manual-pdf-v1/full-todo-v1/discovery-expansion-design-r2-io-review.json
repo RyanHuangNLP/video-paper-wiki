@@ -1,0 +1,304 @@
+{
+  "$schema": "full-todo.discovery-expansion-io-review-r2.v1",
+  "schema": "full-todo.discovery-expansion-io-review-r2.v1",
+  "reviewed_at_utc": "2026-09-09T09:18:56Z",
+  "scope": "Independent read-only review of DISCOVERY-EXPANSION-DESIGN-R2 focused on initialization and partial-state recovery, complete-set membership, budget reservations, control-head races, acyclic references, the cumulative candidate-set-per-round change, and assessment input references. No source, schema, test, Git, connector, Vault, or network mutation.",
+  "decision": "DESIGN_PROPOSAL_READY_WITH_BLOCKING_FREEZE_DECISIONS",
+  "status": "READ_ONLY_DESIGN_REVIEW",
+  "inputs": {
+    "design_packet": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "prior_design_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-io-design-review-r1.json",
+      "sha256": "4ddbfbc200ee4487e884d87823958b6e579d8daaf1d6ca4d6996fa4d6fa53dcf"
+    },
+    "prior_recovery_detail": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-recovery-detail-r1.json",
+      "sha256": "f3b3cd82d6ea5a9192ae62774ac9099e4bb15515c1ce5bac2a2937acab2d62e6"
+    },
+    "preview_storage": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_storage.py",
+      "sha256": "f44ce4e39950dfaf72c7ef38a9a0c430dc7a6b21ba25109458c23e25971eed31",
+      "size_bytes": 12788
+    },
+    "preview_contracts": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_contracts.py",
+      "sha256": "8aca06c277e8a47f2499033c36912780dad6e35e47c0bc42a347dfbeb8ad79ff",
+      "size_bytes": 17230
+    },
+    "research_contracts": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/contracts.py",
+      "sha256": "22409784bca848ae7969d57f882fe8e9119d59bd3e29303f15ae75697a2d7658",
+      "size_bytes": 14731
+    }
+  },
+  "observed_api_constraints": {
+    "current_preview_storage": {
+      "root": ".work/research/<session>/preview-v1",
+      "families": {
+        "request": "requests",
+        "observation": "observations",
+        "metadata": "metadata",
+        "preview": "proposals",
+        "decision": "decisions"
+      },
+      "operations": [
+        "open_preview_session",
+        "PreviewStore.initialize",
+        "PreviewStore.write",
+        "PreviewStore.validate_all",
+        "PreviewStore.verify",
+        "read_input"
+      ],
+      "safety_relevant_behavior": "Retained no-follow descriptors, complete family scans, create-only atomic install, exact bytes/inode/link checks, and final verification on normal and exception exits.",
+      "non_reusable_behavior": "The current decision family is a single six-digit chain and the current rw1 graph is not a discovery authority; discovery needs rw3 content-hash filenames and separate plan/control/candidate stream rules."
+    },
+    "research_contracts": {
+      "error_surface": "ResearchError(code,message,details,exit_code)",
+      "serialization": "Bounded strict JSON, UTF-8, duplicate-key/non-finite rejection, integer-only JCS, exact canonical bytes plus one LF.",
+      "boundary": "Discovery must remain a separate zero-egress subtree and registry; existing preview/manual-PDF schema bytes stay unchanged."
+    }
+  },
+  "checks": [
+    {
+      "id": "DISC-R2-INIT-MISSING-STATE",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 49-73 define config/session edges and install order, while line 399 explicitly leaves deterministic init recovery when only config exists as a remaining decision. Read-only status is forbidden from creating missing parents (lines 329-349), but init_pending and the response to a config-only tree are not a closed state machine.",
+      "finding": "The design does not yet say whether a same-input init may repair a config-only tree, how a different config or seed set is rejected, or how a session-only/config-missing tree is classified. Without this, two init callers can derive different session bytes from the same installed config, or a repair can accidentally adopt a foreign leaf.",
+      "required_freeze": [
+        "Define ABSENT, CONFIG_ONLY, SESSION_ONLY_INVALID, INIT_COMPLETE, CONFLICT and UNSAFE states with exact read-only output and no ancestor creation.",
+        "For CONFIG_ONLY, allow only the exact validated config bytes and exact safe session key/seeds that deterministically produce the expected session; competing bytes remain immutable conflict. Never recreate a missing config from a changed input.",
+        "For SESSION_ONLY or a session whose config ref is absent/wrong, refuse with integrity/binding error; never delete or silently rebuild.",
+        "Retain the first missing ancestor and all acquired descriptors through normal and exception exits, and prove input-file parent/leaf bytes and identities did not change before installation."
+      ]
+    },
+    {
+      "id": "DISC-R2-PLAN-REQUEST-OBS-MEMBERSHIP",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 75-81 reserve every declared slot, lines 111-116 break the plan/request hash cycle, and lines 340-349 describe event-last recovery. The exact complete-set membership rules are still described at prose level rather than as a closed validator contract.",
+      "finding": "A robust pending state requires a proof for every slot and every projection. The plan must be the sole authority for slot/key/spec membership; requests must be exactly the committed slots; observations must be exactly one terminal outcome per request; assessments, candidate sets, ranks and stops must be the one deterministic projection for that plan and cumulative input set; and the event must repeat the complete sorted sets. Any omission, extra, alternate projection, stale cumulative digest or event child mismatch must remain pending or refuse, never be selected by arrival order.",
+      "required_freeze": [
+        "Require unique sorted request slots and request_keys in a plan, exact spec equality and regenerated target equality in each request, and no request outside a committed slot.",
+        "Require exactly one terminal discovery-observation per request for event eligibility; timeout, rate_limited, capability_unavailable, failure, partial and zero-result success are terminal evidence with the stated payload/failure shape.",
+        "Require one assessment, candidate-set, rank and stop projection per plan, with exact plan_id/sequence/session and deterministic bytes; a pending child is valid only if it equals the expected bytes for its committed plan.",
+        "Define every observation array in assessment/candidate/stop as the full cumulative terminal set, sorted by canonical reference; evidence citations are a subset and must not hide failed inputs.",
+        "Recompute all earlier events, cumulative input digests and predecessor memberships during resume/status; an event with a missing child, an extra child, a foreign orphan or a competing successor is integrity/conflict failure."
+      ]
+    },
+    {
+      "id": "DISC-R2-CONTROL-HEAD-TOCTOU",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 318-327 make controls append-only and line 320 says finalize verifies that no newer control appeared; lines 354-356 allow control history to advance after an event while rejecting concurrent forks. A final scan immediately followed by event installation is still a time-of-check/time-of-use window when a control can be atomically installed between those operations.",
+      "finding": "A stale plan.control_head/stop.control_head can be committed after a user_stop was installed, or a stop can be treated as before a control that was installed before the round event. The immutable files prevent overwrite but do not by themselves provide a linearization point for the two streams.",
+      "required_freeze": [
+        "Choose and document a shared per-session serialization/CAS boundary for control-head reads and event install, or define a create-only marker protocol whose linearization point is shared by control and round writes. Do not depend on an unobserved process lock or a final check alone.",
+        "Specify that a control appearing before the round-event linearization blocks finish/observation as applicable, while a control appearing after it is historical-next state; an ambiguous race must fail closed without deletion.",
+        "Make event membership carry or deterministically derive the exact control_head and require stop.control_head == plan.control_head == event historical head; consider adding control_head to the event for direct verification.",
+        "Exercise control insertion immediately before, during and immediately after final event installation, including ordinary and exception exits, and assert no stale successful status."
+      ]
+    },
+    {
+      "id": "DISC-R2-CONTROL-STREAM-MEMBERSHIP",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 104-109 define separate streams and reject forks/non-monotone timestamps; lines 318-327 distinguish user_stop/resume from calculated stops. The exact action preconditions, sequence/timestamp ordering and effective-head derivation are not frozen.",
+      "finding": "A supplied event_id is not enough to define the current control head. The validator needs a contiguous sequence and previous ref, unique event_id, exact session/round membership, and action semantics. Equal or backward caller timestamps must not reorder the stream. Resume must clear only the effective user stop and cannot erase a calculated stop; duplicate/idempotent controls need an explicit rule.",
+      "required_freeze": [
+        "Define control sequence/predecessor as the sole stream order; use recorded_at as supplied evidence and reject the exact non-monotone relation chosen by the contract, without using wall time to choose a head.",
+        "Require control.round to be null before any completed round or exactly the last completed round; reject a control that points to a pending/current event or a stale predecessor.",
+        "Define user_stop, resume, duplicate same-byte retry and conflicting same-event-id behavior, including controls while a plan is pending and controls after a calculated stop.",
+        "Derive effective current control from the validated chain and expose it in status without mutating round-event bytes."
+      ]
+    },
+    {
+      "id": "DISC-R2-BUDGET-RESERVATION-LEDGER",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 59-81 and 289-315 introduce configured/hard limits, plan-time reservations and no refunds; lines 351-353 distinguish event budget_after from a separate store-byte scan. The exact reservation_after fields and unit definitions are not frozen.",
+      "finding": "The design must count reservations rather than materialized files for request/observation limits, while separately charging normalized payload/result bytes and every saved artifact. A half-installed plan cannot evade max_requests/max_observations, and a valid failure or partial observation must debit its terminal slot. Conversely, malformed rejected input must not debit until a bounded failure observation is actually installed.",
+      "required_freeze": [
+        "Freeze exact counters and formulas for rounds_planned (including incomplete plans), rounds_completed, request_slots_reserved, request files, pending requests, observation slots_reserved, terminal observations, retries, result records, normalized payload bytes and family/store file bytes.",
+        "Define reservation_after as a deterministic prefix ledger; charge every declared slot at plan install, every terminal outcome including failures/partial/zero-result, and every retry as a new later-plan slot with no refund.",
+        "Preflight prospective serialized bytes and result/payload caps before each install, including derived projections and control/decision files; event budget_after excludes its own self-reference but the independent store cap includes the installed event.",
+        "Define whether family/store byte limits include only saved artifact bytes or also descriptors, and make the scan and budget use the same definition."
+      ]
+    },
+    {
+      "id": "DISC-R2-DECISION-FAMILY-CAP",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 85-102 place research-assessment, candidate-decision and research-control-event in the single decisions family, while line 64 caps every family at 256 files and line 289 requires one assessment per completed plan.",
+      "finding": "The stated limits are internally incompatible in a valid maximum session: up to eight assessments plus up to 256 candidate decisions plus any control events exceed the 256-file decisions-family cap. The cumulative candidate-set change avoids a per-candidate proposal file, but it does not solve this independent decisions-family count.",
+      "required_freeze": [
+        "Either split assessments, candidate decisions and controls into separately capped physical subfamilies, or explicitly define a shared aggregate cap and bound candidate decisions/controls so the maximum is mathematically valid.",
+        "Reserve the chosen decision-family capacity before install and test the boundary with eight completed rounds, 256 distinct candidate keys, one decision per candidate and control events.",
+        "Keep assessment artifacts immutable and visible even when candidate decisions are refused at capacity; never delete projections to make room."
+      ]
+    },
+    {
+      "id": "DISC-R2-CANDIDATE-SNAPSHOT-CAP",
+      "status": "PASS_WITH_FREEZE",
+      "evidence": "R2 lines 118-122 replace one artifact per candidate with one cumulative paper-candidate-set per round, retaining stable item.candidate_key separately from the round artifact ID. With at most eight round plans, this yields at most eight candidate-set files (and at most 24 proposal files including rank and stop), well below the 256-file proposals cap.",
+      "finding": "The snapshot approach is sound for the family-file cap, provided unique_candidates is the cardinality of the cumulative stable-key union rather than the number of repeated item copies or artifact files. Repeated candidates across eight snapshots must remain one identity for the 256-entity cap, while every immutable snapshot still contributes serialized bytes to the store cap.",
+      "required_freeze": [
+        "Require each completed candidate set to equal the deterministic cumulative union of prior completed identity components plus the current graph, with no silent removal, arrival-order choice or duplicate candidate_key.",
+        "Enforce item count and cumulative stable-key count <=256 before installing the candidate-set, rank, stop or event projection; unresolved/conflicted components must have explicit counting/visibility semantics.",
+        "Keep one canonical candidate-set artifact per plan; alternate candidate-set bytes for the same plan are conflicts and count toward no hidden retry budget.",
+        "Acceptance should cover 8 rounds x 256 repeated items, 257th distinct cumulative key, a pending orphan projection, and serialized output bytes approaching the 64 MiB store bound."
+      ]
+    },
+    {
+      "id": "DISC-R2-ASSESSMENT-CUMULATIVE-INPUTS",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 124-129 bind assessment/candidate/rank/stop to one input_set_sha256; lines 275-295 define a caller/model assessment with five lens entries and exact evidence spans. The field named observations is not explicitly stated to be the full terminal cumulative set rather than only cited observations.",
+      "finding": "A coverage assessment must expose failed/partial/unavailable operations as part of the declared input context. If observations is allowed to contain only evidence-cited successes, a caller can omit a failed required lens while producing the same nominal coverage. The complete input list and evidence citation subset need separate, closed semantics.",
+      "required_freeze": [
+        "Define input_set_sha256 as SHA256(JCS(sorted unique exact {id,sha256} refs for every terminal observation in all completed predecessor rounds plus every terminal observation in the current plan)); do not include a plan ref or any derived projection.",
+        "Require assessment.observations, candidate-set.observations and any stop input list to equal that complete set exactly, in canonical order; evidence.observation refs must resolve to members of it and be a strict citation subset.",
+        "Require exactly the five configured lens names once each, scope equality with config, covered evidence rules, not_applicable rationale/no invented citation, and gap reason/partial evidence rules. A failed required request stays visible and cannot be silently covered by another result.",
+        "Specify excerpt_sha256 hashing bytes precisely (the bounded Unicode substring encoded as UTF-8 is the natural choice), verify ordinal/field/span bounds and reject cross-session/cross-plan citations.",
+        "Acceptance must submit a successful, failed, partial, capability-unavailable and zero-result mix and prove byte-identical projections under observation arrival permutations."
+      ]
+    },
+    {
+      "id": "DISC-R2-ACYCLIC-HASH-GRAPH",
+      "status": "PASS_WITH_FREEZE",
+      "evidence": "R2 lines 27-37 define envelope/content/file hashes; lines 111-116 put specs rather than request refs in the plan; lines 124-129 use observation refs for cumulative inputs; lines 340-346 install the event last. These rules remove the direct plan/request and current-event back-reference cycles.",
+      "finding": "The proposed edge direction is acyclic if every current-round child references only the plan, requests, terminal observations and prior completed history. The validator must not accept a hidden plan/request ref, current-event ref or candidate-decision/control ref to an incomplete current event.",
+      "required_freeze": [
+        "Freeze exact formulas and canonical sort inputs for request_key, input_set_sha256, envelope content_sha256, id and saved-file sha256; refs must hash complete bytes including exactly one LF.",
+        "Require plan.request_specs to contain no request refs, request.plan_id to be the plan ID/string only, and the round event to be the first object carrying the complete request-ref set.",
+        "Require candidate/rank/stop/assessment refs to point backward only; candidate-decision/control round refs must resolve to a completed predecessor event, never the current pending plan/event.",
+        "Run active-ancestry graph validation before memo-cache acceptance and recompute every historical cumulative digest; a valid local digest cannot mask a cross-session or cyclic edge."
+      ]
+    },
+    {
+      "id": "DISC-R2-ALL-EXIT-NAMED-SET-RACES",
+      "status": "PASS_WITH_FREEZE",
+      "evidence": "R2 lines 329-356 explicitly retain checkout/.work/session/families, first absence, expected named sets and bytes, and require final checks on acquisition, parsing, preflight, projection and cleanup failures. This carries forward the retained-descriptor guarantees observed in PreviewStore.",
+      "finding": "The storage boundary and error precedence are directionally adequate, but discovery has more concurrent sets than PreviewStore: plan slots, request refs, terminal outcomes, cumulative projections and control heads. Implementation must make those sets part of the retained snapshot and continue verification after ordinary errors so WORK_PATH_UNSAFE or conflict cannot be hidden by a parser/limit exception.",
+      "required_freeze": [
+        "Retain each ancestor/family descriptor and the complete expected filename set, including originally absent request/projection/event targets, through every command exit.",
+        "Reject symlink, hardlink, FIFO, directory, unexpected filename, replacement, byte change, added/removed sibling and stale set with the documented precedence; never delete or auto-select.",
+        "Make status/context/list/handoff read-only with no missing-parent creation; make init/plan/observe/finish/control/decide final-verification aware.",
+        "Include races where a control, request, observation or derived projection appears between preflight and install, and distinguish immutable conflict from named-path unsafe replacement."
+      ]
+    },
+    {
+      "id": "DISC-R2-STATE-MACHINE-STATUS",
+      "status": "BLOCKED",
+      "evidence": "R2 lines 173-177 and 325-349 name exhausted/needs_scope, pending/assessment/projection and stop states, but do not give a complete transition table for pending plans, current controls and a calculated stop.",
+      "finding": "The same immutable files can represent init_pending, round_pending, assessment_required, projection_pending, stopped or needs_scope. Without an explicit precedence and operation matrix, plan may create a new round while a pending child/assessment exists, resume may be confused with a control resume event, or an active user stop may be bypassed by deterministic repair.",
+      "required_freeze": [
+        "Publish a state/action table for absent, config-only, session-ready, plan-pending, observation-pending, assessment-required, projection-pending, complete-continue, calculated-stopped, user-stopped, needs-scope and conflict/unsafe.",
+        "Make plan idempotently repair the one pending plan only; no successor until a complete predecessor event exists. A no-frontier result reports needs_scope without writing an empty plan/event.",
+        "Define which deterministic request materialization/status repair is allowed while user_stop is active, while external observation installation and finish remain blocked as stated.",
+        "Keep control --action resume as the only operation that records a resume event; a plain resume command may inspect/repair pending deterministic files but must not invent control history."
+      ]
+    }
+  ],
+  "candidate_snapshot_vs_family_cap": {
+    "conclusion": "The R2 cumulative snapshot design resolves the R1 per-candidate-file pressure, but only after cumulative-key and proposal-byte semantics are explicit.",
+    "maximum_completed_round_snapshots": 8,
+    "proposal_files_per_completed_round": 3,
+    "maximum_proposal_files_from_round_projections": 24,
+    "entity_cap": 256,
+    "required_invariants": [
+      "One canonical paper-candidate-set, paper-rank and research-stop-decision per completed plan; no per-candidate proposal artifacts.",
+      "The current candidate-set items are the cumulative stable candidate-key union, not merely the current page and not a fresh count of repeated item copies.",
+      "The 256 entity cap and 64 MiB saved-store cap are independent; repeated snapshot bytes still charge storage even when identity count is unchanged.",
+      "Pending/alternative projection files are conflicts or expected exact children, never silently discarded to preserve the cap."
+    ],
+    "decision_family_contradiction": "The separate decisions-family calculation remains invalid at the advertised maxima because research-assessment files also occupy decisions."
+  },
+  "membership_matrix": {
+    "research_config": "Validated immutable config only; no session/round refs; same bytes may be reused only by exact content identity.",
+    "research_session": "Exact session key, config ref and 1..3 canonical seeds; config must resolve inside the same session subtree; no first-round ref.",
+    "research_round_plan": "One sequence and one predecessor event; control_head captured at plan linearization; sorted unique request specs/slots/keys; reservation ledger before child files.",
+    "discovery_request": "Exactly one committed plan slot; exact session/sequence/plan_id/spec/request_key and regenerated target; no uncommitted request.",
+    "discovery_observation": "Exactly one terminal outcome for one request; observation/request/session bytes and outcome shape revalidated; no second outcome or hidden retry.",
+    "research_assessment": "Exactly one per plan after every slot is terminal; complete cumulative observation refs and one exact entry for each configured lens.",
+    "paper_candidate_set": "Exactly one deterministic cumulative candidate snapshot per plan/input digest; item keys unique and <=256; all why-found refs resolve backward.",
+    "paper_rank": "Exactly one deterministic projection of that candidate-set ref; all contributing/suppressed list refs and fused keys remain visible.",
+    "research_stop_decision": "Exactly one projection bound to the same assessment/candidate/rank/input digest and captured control head; no stale or alternative stop.",
+    "research_round_event": "Last object; exact complete current request/observation/projection refs, previous event chain and recomputed budget; event presence with any missing child is integrity failure.",
+    "candidate_decision": "Separate contiguous stream; candidate-set ref resolves to a completed round and candidate_key exists in that exact set; no current pending-event ref.",
+    "research_control_event": "Separate contiguous stream; previous/head and round membership are exact; null round only before any completion; action and effective-head preconditions are closed."
+  },
+  "budget_accounting_review": {
+    "safe_principle": "Plan-time reservation and event-time recomputation are the right shape, but they need one exact ledger and a shared-file-cap decision.",
+    "must_count_before_materialization": [
+      "rounds_planned",
+      "request_slots_reserved",
+      "observation_slots_reserved"
+    ],
+    "must_count_on_install": [
+      "request_artifact_files",
+      "terminal_observations",
+      "retry_slots",
+      "normalized_payload_utf8_bytes",
+      "result_records",
+      "all saved artifact bytes"
+    ],
+    "must_not_debit": [
+      "malformed/rejected input that never becomes a stored terminal observation",
+      "a nonexistent or synthetic empty success for unavailable capability"
+    ],
+    "no_refund": [
+      "interruption",
+      "failure",
+      "timeout",
+      "rate_limit",
+      "capability_unavailable",
+      "partial outcome",
+      "retry predecessor",
+      "valid pending orphan"
+    ],
+    "prospective_checks": "Every plan/request/observation/projection/control/decision install must preflight the exact resulting ledger and serialized bytes; event budget_after excludes only its own self-referential event size, while the independent family/store scan includes that event after installation.",
+    "blocking_inconsistency": "The single decisions family cannot hold eight assessments plus 256 candidate decisions plus controls under a 256-file ceiling. The contract must split families or bound the aggregate explicitly."
+  },
+  "acyclic_hash_audit": {
+    "result": "No direct content-hash cycle is present in the proposed edge direction.",
+    "content_hash": "SHA256(JCS({schema_version,kind,data}))",
+    "file_hash": "SHA256(JCS(full_envelope) + exactly one LF)",
+    "request_key": "SHA256(JCS(spec with request_key removed))",
+    "input_set": "SHA256(JCS(sorted exact terminal observation refs across completed history plus current plan))",
+    "cycle_break": "Plan commits request specs/keys, not request refs; request carries plan_id and key; the event is the first exact complete request-ref set.",
+    "required_graph_guard": "Resolve typed refs within the same session, reject current-event/current-plan back-edges, walk active ancestry before memo caching, and recompute prior cumulative input digests rather than trusting stored labels.",
+    "freeze_note": "The exact sort encoding, empty-set behavior, typed-ref shape and whether any domain separator is used must be frozen before schema/resource implementation."
+  },
+  "assessment_common_inputs": {
+    "full_context": "All terminal observations in completed predecessor events plus all terminal observations for the current plan, including failure, timeout, rate-limit, capability-unavailable, partial and zero-result records.",
+    "citation_subset": "Lens evidence cites only exact members of the full context and exact result ordinal/field/span; it cannot replace the full observations array.",
+    "lens_contract": "Exactly method, benchmark, implementation, counterevidence and reproduction once each, with config scope equality and closed covered/not_applicable/gap rules.",
+    "projection_binding": "Assessment, candidate set, rank and stop share one recomputed input_set_sha256; round event verifies the same child refs and current-round terminal set.",
+    "coverage_boundary": "Successful request labels and input labels remain provisional; failed required requests remain visible and keep a lens gap unless the explicit assessment rules permit a cited independent result while still reporting operation health.",
+    "hash_detail_to_freeze": "Define excerpt_sha256 over the exact bounded excerpt bytes (UTF-8 is recommended), plus Unicode codepoint span and field extraction semantics."
+  },
+  "residual_acceptance_vectors": [
+    "Init from absent storage, config-only storage, session-only/config-missing storage, same-byte retry, changed-config retry, changed-seed retry, ancestor replacement and input-file replacement; verify no read-only creation and exact conflict/unsafe precedence.",
+    "Interrupt after config, session, plan, each request, each terminal observation, assessment, candidate, rank, stop and event edge; resume to identical bytes and one complete event, with full reservation debit from a half-installed plan.",
+    "Race a second first plan, competing slot request, duplicate terminal observation, alternate projection, foreign orphan and a control insertion against final event install; assert no stale successful state or deletion.",
+    "Run eight rounds with 256 repeated candidate keys, then a 257th distinct key; test pending/alternative candidate projections and store-byte exhaustion independently from identity cardinality.",
+    "Fill the decisions family with assessments, candidate decisions and controls to the selected split/aggregate boundary; retain all exact historical bytes when the next install is refused.",
+    "Supply successful, failed, partial, capability-unavailable and zero-result observations; prove the assessment full-input set, evidence subset, lens states and input digest are exact and arrival-order independent.",
+    "Replay typed refs under observation permutations and parallelism 1/N; compare byte-identical cumulative candidate/rank/stop/event projections and run active-ancestry cycle/cross-session rejection.",
+    "Exercise symlink, hardlink, FIFO, directory, unexpected sibling, named replacement, file-byte change and ordinary parser/limit exception at every retained descriptor; WORK_PATH_UNSAFE and conflict precedence must survive final verification."
+  ],
+  "remaining_gates": [
+    "Architect must freeze init recovery/status/action matrix, control/event linearization, full membership proof, exact ledger, decisions-family layout/cap, common assessment input schema, and all hash sort/domain details before implementation.",
+    "OpenAlex filter/sort/select grammar and provider capabilities remain a separate documentation/contract freeze; no guessed target grammar may enter implementation.",
+    "No builder dispatch, source implementation, schema edits, live provider access, real Vault use, catalog changes or scientific/human acceptance is authorized by this review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

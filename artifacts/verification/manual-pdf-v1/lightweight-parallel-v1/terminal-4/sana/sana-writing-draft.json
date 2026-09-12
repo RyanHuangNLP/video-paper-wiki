@@ -1,0 +1,17 @@
+{
+  "markdown": "SANA-Video 2.0 把视频 DiT 做成混合序列注意力：双向门控线性层与门控 softmax 锚点按 3:1 交错，约 75% 线性、25% softmax，每四层一个锚点。线性层把 token 混合保持在 O(N)，锚点则周期性补回压缩线性状态无法表示的交互。[@chk-21851a9eb546fd6a84ed8417]\n\n为了让这些被刷新的表示跨深度复用，AttnRes 在 block 粒度上做残差路由：完成的 block 留下一份特征摘要，进行中的 block 带着 running partial sum，路由器读取初始 embedding、已完成摘要和当前 partial sum。[@chk-ff4524f9fdb8ecfe867b9289] 视频实现把 attention/FFN 的 routing query 做成跨深度共享，S=8 层一组，历史存储大约按 block 跨度缩小。[@chk-1a4a582534aac5622fec20cc] 在固定 3:1 比例后，短跑探针去掉显式 timestep 输入并把共享 query 作为默认；S=8 被当作工程默认，因为它覆盖两个 3:1 周期，同时开销接近更大的 block。[@chk-21034d8692adc0bf4fc616ac]",
+  "citations": [
+    {
+      "chunk_id": "chk-21851a9eb546fd6a84ed8417"
+    },
+    {
+      "chunk_id": "chk-ff4524f9fdb8ecfe867b9289"
+    },
+    {
+      "chunk_id": "chk-1a4a582534aac5622fec20cc"
+    },
+    {
+      "chunk_id": "chk-21034d8692adc0bf4fc616ac"
+    }
+  ]
+}

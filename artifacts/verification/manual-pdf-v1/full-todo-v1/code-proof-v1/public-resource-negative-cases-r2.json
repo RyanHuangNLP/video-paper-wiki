@@ -1,0 +1,516 @@
+{
+  "artifact": "public-resource-negative-cases-r1",
+  "revision": 2,
+  "status": "planning_only_additive_correction",
+  "generated_at_utc": "2026-09-10T04:50:50Z",
+  "scope": "Additive correction to R1. The cases remain planning vectors for the future R12 ten-schema/profile packet; no public command, installed resource, remote acquisition, or runtime result is claimed.",
+  "contract_refs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md",
+      "sha256": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04"
+    }
+  ],
+  "positive_anchor": {
+    "root": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r2",
+    "manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r2/manifest.json",
+      "sha256": "6d16c512e13affdebf8aaa89fdc9e833951de435eca1cf554635932649f03e14"
+    },
+    "note": "R2 is synthetic positive wire data. Its all-zero profile_sha256 is an explicit placeholder, not installed-profile evidence. Future profile cases use the named installed profile path below and are unavailable until that resource exists."
+  },
+  "enforcement_legend": {
+    "schema_only": "The mutation is a structural resource case; no public runtime error code is asserted.",
+    "semantic_only": "The vector must be fully resealed/rebound with otherwise valid dependencies, then later semantic replay must reject it; no public runtime code or precedence is asserted here.",
+    "both_required": "The schema-side structural constraint and the later semantic invariant both require coverage; semantic replay still requires full reseal/rebind and carries no asserted public runtime code here."
+  },
+  "cases": [
+    {
+      "id": "NEG-001",
+      "anchor": "inputs/request-input-sha1.json",
+      "mutation": "Add an unlisted top-level field x to the request input.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "additional_property"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-002",
+      "anchor": "inputs/request-input-sha1.json",
+      "mutation": "Add an unlisted field to targets[0] while leaving path, roles, and allow_executable_source unchanged.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "additional_property"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-003",
+      "anchor": "saved/sha1-raw/request.json",
+      "mutation": "Change the envelope schema constant to another CODE kind while leaving kind unchanged.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "const"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-004",
+      "anchor": "saved/sha1-raw/observation.json",
+      "mutation": "Add an unlisted data field to the closed observation object.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "additional_property"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-005",
+      "anchor": "saved/sha1-raw/config.json",
+      "mutation": "Remove sha256 from the required Ref(code-proof-request) object.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "required"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-006",
+      "anchor": "success-data/sha1-request.json",
+      "mutation": "Add one unlisted status field to the request command-result data branch.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "oneOf_branch_closed"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-007",
+      "anchor": "inputs/observe-input-raw-sha1.json",
+      "mutation": "Add normalized_text-only targets to the git_objects observe input.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "oneOf_branch_exclusivity"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-008",
+      "anchor": "inputs/observe-input-normalized.json",
+      "mutation": "Remove targets from the normalized_text observe input.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "required_branch_field"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-009",
+      "anchor": "inputs/observe-input-normalized.json",
+      "mutation": "Set a present target's text to null while leaving reason null.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "conditional_target_shape"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-010",
+      "anchor": "inputs/observe-input-normalized.json",
+      "mutation": "Change an other target to status=missing with reason=permission_denied.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "status_reason_const"
+      },
+      "enforcement": "schema_only",
+      "availability": "R2 contains a present normalized target only; construct a valid normalized missing-target observation before this mutation."
+    },
+    {
+      "id": "NEG-011",
+      "anchor": "saved/sha1-raw/intent.json",
+      "mutation": "Set the git_objects intent bundle to null while retaining mode=git_objects.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "mode_dependent_null"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-012",
+      "anchor": "saved/normalized/intent.json",
+      "mutation": "Insert a non-null raw bundle reference while retaining mode=normalized_text.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "mode_dependent_branch"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-013",
+      "anchor": "inputs/request-input-sha1.json",
+      "mutation": "Replace the 40-character sha1 commit_oid with a 64-character hexadecimal value.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-014",
+      "anchor": "inputs/request-input-sha256.json",
+      "mutation": "Replace the 64-character sha256 commit_oid with a 40-character hexadecimal value.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-015",
+      "anchor": "saved/sha1-raw/bundle.json",
+      "mutation": "Change one object record's oid to a valid-width sha256 value while object_format remains sha1.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-016",
+      "anchor": "saved/sha1-raw/bundle.json",
+      "mutation": "Duplicate one object record's oid in a second record.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-017",
+      "anchor": "saved/sha1-raw/bundle.json",
+      "mutation": "Change the sole commit record to object_type=tree.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-018",
+      "anchor": "saved/sha1-raw/bundle.json",
+      "mutation": "Replace root_tree_oid with another valid-width oid not present as the retained root tree.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-019",
+      "anchor": "saved/sha1-raw/observation.json",
+      "mutation": "Change one consumed_oids entry to a different valid-width oid.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-020",
+      "anchor": "saved/sha1-raw/observation.json",
+      "mutation": "Replace the intent Ref id prefix with code-proof-request while keeping the same sha256.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "ref_kind_pattern",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-021",
+      "anchor": "saved/sha1-raw/config.json",
+      "mutation": "Replace a bound Ref sha256 with a different valid lowercase 64-hex digest.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-022",
+      "anchor": "saved/sha1-raw/request.json",
+      "mutation": "Change the ce1 request id's digest while keeping its kind, schema, and data unchanged.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-023",
+      "anchor": "inputs/observe-input-normalized.json",
+      "mutation": "Change the already-normalized target text to contain CRLF.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 normalized input is a valid source anchor; regenerate and reseal its intent and observation after the CRLF mutation."
+    },
+    {
+      "id": "NEG-024",
+      "anchor": "inputs/observe-input-normalized.json",
+      "mutation": "Increase target text beyond the materialized max_inline_normalized_bytes limit.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 normalized input is a valid source anchor; regenerate and reseal its intent and observation after applying the byte-limit mutation."
+    },
+    {
+      "id": "NEG-025",
+      "anchor": "saved/sha1-raw/observation.json",
+      "mutation": "Set raw capabilities.git_objects_verified to false while retaining the complete raw proof.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-026",
+      "anchor": "saved/sha1-raw/observation.json",
+      "mutation": "Set a source_text target's text metadata to null.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "conditional_target_shape",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-027",
+      "anchor": "saved/sha1-raw/observation.json",
+      "mutation": "Set an unsupported_source_bytes target's text metadata to a non-null object.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "conditional_target_shape",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "R2 contains a source_text raw target only; first create a valid complete raw observation with unsupported_source_bytes and its retained proof/body dependencies."
+    },
+    {
+      "id": "NEG-028",
+      "anchor": "saved/sha1-raw/config.json",
+      "mutation": "Keep format=source-only and source_only_reason=explicit_source_only, but provide a non-null result.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "conditional_config_shape",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "R2 positive anchor is structurally available; regenerate any affected derived envelopes and references before later replay."
+    },
+    {
+      "id": "NEG-029",
+      "anchor": "saved/sha1-raw/config.json",
+      "mutation": "Change format to json while retaining result=null and source_only_reason=explicit_source_only.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "typed_config_shape",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "No typed JSON positive is present in R2; first create a valid JSON configuration result from the retained source blob and request config limits."
+    },
+    {
+      "id": "NEG-030",
+      "anchor": "saved/normalized/observation.json",
+      "mutation": "Construct a source handoff from the normalized observation, leaving raw bundle/proof/body dependencies absent.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "required_raw_handoff_dependencies",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "No valid handoff is present for normalized mode; first create the complete normalized intent/observation dependency set, then exercise the raw-evidence refusal."
+    },
+    {
+      "id": "NEG-031",
+      "anchor": "saved/sha1-raw/config.json",
+      "mutation": "Use a request target whose roles omit configuration, then retain the source-only config payload.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "R2 source-only config is valid only with the configuration role; first derive a valid request/observation with the role removed and rebind all dependent envelopes."
+    },
+    {
+      "id": "NEG-032",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Add an unlisted key to profile.limits.git while preserving all listed maxima.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "additional_property"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-033",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Remove one required hard limit from profile.limits.config.",
+      "expected_rejection": {
+        "layer": "schema",
+        "reason": "required"
+      },
+      "enforcement": "schema_only"
+    },
+    {
+      "id": "NEG-034",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Change profile.limits.git.max_targets from 32 to 33.",
+      "expected_rejection": {
+        "layer": "schema_then_resource_semantic",
+        "schema_reason": "const",
+        "resource_replay": "must_reject_against_retained_profile_inventory"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "Unavailable in R2: generate the exact installed profile and ten-schema inventory first; then apply only this profile mutation and rebind any dependent profile hash/resources."
+    },
+    {
+      "id": "NEG-035",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Change profile.admission.max_observe_input_bytes from 1048576 to 1048577.",
+      "expected_rejection": {
+        "layer": "schema_then_resource_semantic",
+        "schema_reason": "const",
+        "resource_replay": "must_reject_against_retained_profile_inventory"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "Unavailable in R2: generate the exact installed profile and ten-schema inventory first; then apply only this profile mutation and rebind any dependent profile hash/resources."
+    },
+    {
+      "id": "NEG-036",
+      "anchor": "inputs/request-input-sha1.json + future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Raise a request public limit above its corresponding installed-profile hard maximum.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "maximum",
+        "semantic_replay": "must_reject_after_reseal_rebind",
+        "runtime_lower_caps_separate": true
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "Request input is available as an R2 anchor, but the installed profile is unavailable; generate it first, then fully reseal/rebind the mutated request and its dependencies."
+    },
+    {
+      "id": "NEG-037",
+      "anchor": "inputs/request-input-sha1.json + future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Encode one complete limit as 1.0 instead of an exact integer.",
+      "expected_rejection": {
+        "layer": "schema_then_semantic",
+        "schema_reason": "integer_type",
+        "semantic_replay": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "both_required",
+      "requires_reseal_rebind": true,
+      "availability": "Request input is available as an R2 anchor, but the installed profile is unavailable; generate it first, then fully reseal/rebind the mutated request and its dependencies."
+    },
+    {
+      "id": "NEG-038",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Swap two profile.schemas rows so the filename order is no longer ASCII sorted.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "Unavailable in R2: generate the exact installed profile and ten-schema inventory first; then apply only this profile mutation and rebind any dependent profile hash/resources."
+    },
+    {
+      "id": "NEG-039",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Duplicate one profile.schemas filename while leaving row titles and all other row fields unchanged.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "Unavailable in R2: generate the exact installed profile and ten-schema inventory first; then apply only this profile mutation and rebind any dependent profile hash/resources."
+    },
+    {
+      "id": "NEG-040",
+      "anchor": "future:src/video_paper_wiki/profiles/code-proof-v1.json (not present in R2; R12 resource prerequisite)",
+      "mutation": "Alter one profile.schemas row's retained schema sha256 by one hex digit.",
+      "expected_rejection": {
+        "layer": "semantic_validation",
+        "result": "must_reject_after_reseal_rebind"
+      },
+      "enforcement": "semantic_only",
+      "requires_reseal_rebind": true,
+      "availability": "Unavailable in R2: generate the exact installed profile and ten-schema inventory first; then apply only this profile mutation and rebind any dependent profile hash/resources."
+    }
+  ],
+  "provenance": {
+    "supersedes": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-negative-cases-r1.json",
+    "supersedes_sha256": "001a5a16ae73d4deff9757465e5825b4614117edafd9259349b648fd732ab887",
+    "correction_note": "R2 corrects R1 timestamp and overclaims: semantic vectors assert only that later replay must reject after full reseal/rebind with otherwise valid dependencies; public error codes and precedence are intentionally unasserted. Selected-format OID-width and commit-cardinality checks remain semantic. Fixed profile/admission constants and request hard maxima retain structural expectations where R12 permits them. Profile cases anchor the not-yet-created installed profile, and unavailable normalized-other/unsupported/typed anchors are explicitly labeled.",
+    "semantic_replay_protocol": [
+      "Start from an otherwise valid positive dependency set.",
+      "Apply exactly one listed mutation.",
+      "Reseal every mutated envelope and recompute dependent ce1 IDs and saved-byte refs.",
+      "Rebind all unchanged references, profile hash, and derived equality inputs.",
+      "Only then run later public replay; this artifact does not assert its final error code or precedence."
+    ]
+  }
+}

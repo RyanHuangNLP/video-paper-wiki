@@ -1,0 +1,494 @@
+```python
+_OWNER_INPUT = r'(?!\.(?:/|$))(?!\.\.(?:/|$))[A-Za-z0-9._-]{1,100}'
+_NAME_INPUT = r'(?!\.(?:/|$))(?!\.\.(?:/|$))(?![A-Za-z0-9._-]{0,96}\.[Gg][Ii][Tt](?:/|$))[A-Za-z0-9._-]{1,100}'
+_OWNER_SAVED = r'(?!\.(?:/|$))(?!\.\.(?:/|$))[a-z0-9._-]{1,100}'
+_NAME_SAVED = r'(?!\.(?:/|$))(?!\.\.(?:/|$))(?![a-z0-9._-]{0,96}\.git(?:/|$))[a-z0-9._-]{1,100}'
+_CHECKOUT_REL = (
+    r'\.work/(?:(?!\.(?:/|$))(?!\.\.(?:/|$))[^\x00-\x1f\x7f-\x9f\u2028\u2029/\\]+)'
+    r'(?:/(?!\.(?:/|$))(?!\.\.(?:/|$))[^\x00-\x1f\x7f-\x9f\u2028\u2029/\\]+)*'
+)
+```
+
+数值替换点（三处独立字段，禁止全局替换数字）：
+
+- `json_pointer` 的 `max_length=16416`
+- `span.column_end` 的 `maximum=262145`
+- `bundle_directory` 的 `min_length=7`
+
+```python
+@pytest.fixture(scope='session')
+def fixture_bundle(validators_by_title):
+    _, bundle = _load_json(_fixture_path())
+    for case in bundle['cases']:
+        _validate(validators_by_title, case['title'], case['instance'])
+    return bundle
+
+
+def test_unknown_and_missing_fields(fixture_bundle, validators_by_title):
+    allowed_optional = ('video-paper-wiki.code-proof-request-input.v1', '', 'limits')
+    for case in fixture_bundle['cases']:
+        title = case['title']
+        instance = case['instance']
+        for pointer, node in _walk(instance):
+            if type(node) is not dict:
+                continue
+            mutated = copy.deepcopy(instance)
+            target = _resolve_pointer(mutated, '#' + pointer)
+            target['__unknown_field__'] = True
+            assert not _is_valid(validators_by_title, title, mutated)
+            for key in list(node.keys()):
+                mutated = copy.deepcopy(instance)
+                target = _resolve_pointer(mutated, '#' + pointer)
+                del target[key]
+                if (title, pointer, key) == allowed_optional:
+                    _validate(validators_by_title, title, mutated)
+                else:
+                    assert not _is_valid(validators_by_title, title, mutated)
+
+
+def _walk_typed(node: Any, path: tuple[Any, ...] = ()) -> Iterator[tuple[tuple[Any, ...], Any]]:
+    yield path, node
+    if isinstance(node, dict):
+        for key, child in node.items():
+            yield from _walk_typed(child, path + (key,))
+    elif isinstance(node, list):
+        for index, child in enumerate(node):
+            yield from _walk_typed(child, path + (index,))
+
+
+def test_walk_typed_preserves_numeric_string_keys_and_list_indices():
+    sample = {'0': [1]}
+    items = list(_walk_typed(sample))
+    paths = [path for path, _ in items]
+    assert paths == [(), ('0',), ('0', 0)]
+    assert type(paths[1][0]) is str
+    assert type(paths[2][0]) is str
+    assert type(paths[2][1]) is int
+    assert items[0][1] is sample
+    assert items[1][1] == [1]
+    assert items[2][1] == 1
+    assert type(items[2][1]) is int
+
+
+def test_strict_integers_in_instances(fixture_bundle, validators_by_title):
+    found_int = False
+    for case in fixture_bundle['cases']:
+        title = case['title']
+        instance = case['instance']
+        for path, value in _walk_typed(instance):
+            if type(value) is not int:
+                continue
+            found_int = True
+            for bad in (True, False, float(value), IntSubclass(value)):
+                mutated = copy.deepcopy(instance)
+                _set_path(mutated, path, bad)
+                assert not _is_valid(validators_by_title, title, mutated)
+    assert found_int
+
+
+_OID40 = 'a' * 40
+_HEX64 = 'ab' * 32
+_PTR_LAYER = '/' + ('~1' * 256)
+_PTR_16416 = _PTR_LAYER * 32
+_PTR_16417 = _PTR_16416 + 'a'
+
+
+def test_repository_identifier_and_embedded_url_boundaries(registry):
+    _validate_def(registry, 'repository_input', 'owner/repo')
+    _validate_def(registry, 'repository_input', 'Owner/Repo')
+    _validate_def(registry, 'repository_input', '.owner./.repo.')
+    _validate_def(registry, 'repository_input', '-owner_/-repo_')
+    _validate_def(registry, 'repository_input', '.../...')
+    _validate_def(registry, 'repository_input', 'owner/.github')
+    _validate_def(registry, 'repository_input', 'owner/repo.gitkeep')
+    _validate_def(registry, 'repository_input', 'owner/my.gitrepo')
+    _validate_def(registry, 'repository_input', 'A' * 100 + '/' + 'B' * 100)
+    for bad in (
+        './repo',
+        '../repo',
+        'owner/.',
+        'owner/..',
+        'owner/repo.git',
+        'owner/repo.GIT',
+        'owner/repo.Git',
+        'owner/repo.gIt',
+        'owner/.git',
+        'owner/.GIT',
+        'owner/repo.git/extra',
+        'A' * 101 + '/repo',
+        'owner/' + 'B' * 101,
+        'owner/repo.gitfoo.git',
+        '',
+        'owner',
+        'owner/',
+        '/repo',
+        'ow ner/repo',
+        'owner/re/po',
+    ):
+        assert not _def_is_valid(registry, 'repository_input', bad)
+
+    _validate_def(registry, 'repository_saved', 'owner/repo')
+    _validate_def(registry, 'repository_saved', '.owner./.repo.')
+    _validate_def(registry, 'repository_saved', 'a' * 100 + '/' + 'b' * 100)
+    _validate_def(registry, 'repository_saved', 'owner/my.gitrepo')
+    for bad in (
+        'Owner/repo',
+        'owner/Repo',
+        './repo',
+        'owner/..',
+        'owner/repo.git',
+        'owner/repo.GIT',
+        'owner/.git',
+        'A' * 100 + '/' + 'b' * 100,
+        'owner/' + 'b' * 101,
+    ):
+        assert not _def_is_valid(registry, 'repository_saved', bad)
+
+    def commit_url(owner, name, oid=_OID40):
+        return f'https://github.com/{owner}/{name}/commit/{oid}'
+
+    def blob_url(owner, name, oid=_OID40):
+        return f'https://github.com/{owner}/{name}/blob/{oid}/config.json'
+
+    def raw_url(owner, name, oid=_OID40):
+        return f'https://raw.githubusercontent.com/{owner}/{name}/{oid}/config.json'
+
+    url_defs = (
+        ('github_commit_url', commit_url),
+        ('github_blob_url', blob_url),
+        ('github_raw_url', raw_url),
+    )
+    valid_pairs = (
+        ('owner', 'repo'),
+        ('.owner.', '.repo.'),
+        ('-owner_', '-repo_'),
+        ('ow.ner', 're.po'),
+        ('owner', '...'),
+        ('owner', '.github'),
+        ('owner', 'repo.gitkeep'),
+        ('owner', 'my.gitrepo'),
+        ('a' * 100, 'b' * 100),
+    )
+    for def_name, make in url_defs:
+        for owner, name in valid_pairs:
+            _validate_def(registry, def_name, make(owner, name))
+        for owner, name in (
+            ('.', 'repo'),
+            ('..', 'repo'),
+            ('owner', '.'),
+            ('owner', '..'),
+            ('owner', 'repo.git'),
+            ('owner', 'repo.GIT'),
+            ('owner', 'repo.Git'),
+            ('owner', '.git'),
+            ('owner', '.GIT'),
+            ('Owner', 'repo'),
+            ('owner', 'Repo'),
+            ('a' * 101, 'repo'),
+            ('owner', 'b' * 101),
+        ):
+            assert not _def_is_valid(registry, def_name, make(owner, name))
+        assert not _def_is_valid(registry, def_name, make('owner', 'repo', oid='A' * 40))
+        assert not _def_is_valid(registry, def_name, make('owner', 'repo', oid='a' * 39))
+        assert not _def_is_valid(registry, def_name, make('owner', 'repo', oid='a' * 41))
+        assert not _def_is_valid(registry, def_name, make('owner', 'repo', oid='g' * 40))
+
+
+def test_json_pointer_length_boundaries(registry):
+    assert len(_PTR_16416) == 16416
+    assert len(_PTR_16417) == 16417
+    _validate_def(registry, 'json_pointer', '')
+    _validate_def(registry, 'json_pointer', '/foo')
+    _validate_def(registry, 'json_pointer', _PTR_16416)
+    assert not _def_is_valid(registry, 'json_pointer', _PTR_16417)
+
+
+def test_span_column_end_boundary(registry):
+    span = {
+        'byte_start': 0,
+        'byte_end': 262144,
+        'codepoint_start': 0,
+        'codepoint_end': 262144,
+        'line_start': 1,
+        'column_start': 1,
+        'line_end': 1,
+        'column_end': 262145,
+        'raw_sha256': _HEX64,
+        'snippet_sha256': _HEX64,
+    }
+    _validate_def(registry, 'span', span)
+    span['column_end'] = 262146
+    assert not _def_is_valid(registry, 'span', span)
+
+
+def test_bundle_directory_boundaries(registry):
+    _validate_def(registry, 'bundle_directory', '.work/a')
+    _validate_def(registry, 'bundle_directory', '.work/foo bar')
+    _validate_def(registry, 'bundle_directory', '.work/.git')
+    _validate_def(registry, 'bundle_directory', '.work/foo.git')
+    _validate_def(registry, 'bundle_directory', '.work/.hidden')
+    _validate_def(registry, 'bundle_directory', '.work/' + 'a' * 129)
+    _validate_def(registry, 'bundle_directory', '.work/中文目录')
+    _validate_def(registry, 'bundle_directory', '.work/foo.bar-baz_qux/a')
+    max_ok = '.work/' + 'a' * (4096 - 6)
+    assert len(max_ok) == 4096
+    _validate_def(registry, 'bundle_directory', max_ok)
+    for bad in (
+        '.work/',
+        '.work',
+        'work/a',
+        '.WORK/a',
+        '.work/a/',
+        '.work//a',
+        '.work/a//b',
+        '.work/.',
+        '.work/..',
+        '.work/a/.',
+        '.work/a/..',
+        '.work/a/./b',
+        '.work/a/../b',
+        '.work\\a',
+        '.work/a\\b',
+        '.work/\x00',
+        '.work/\x01a',
+        '.work/a\x1f',
+        '.work/\x7f',
+        '.work/\x80',
+        '.work/\x9f',
+        '.work/\u2028',
+        '.work/\u2029',
+        '.work/a\u2028b',
+        '.work/a\u2029b',
+        max_ok + 'a',
+        '',
+        '/.work/a',
+        'a' * 7,
+    ):
+        assert not _def_is_valid(registry, 'bundle_directory', bad)
+
+
+def test_config_evidence_single_field_result_and_reason(fixture_bundle, validators_by_title):
+    title = 'video-paper-wiki.code-config-evidence.v1'
+    seen = False
+    for case in fixture_bundle['cases']:
+        if case['title'] != title:
+            continue
+        data = case['instance']['data']
+        if data.get('format') not in ('json', 'toml'):
+            continue
+        if type(data.get('result')) is not dict:
+            continue
+        if data.get('source_only_reason') is not None:
+            continue
+        seen = True
+        mutated = copy.deepcopy(case['instance'])
+        mutated['data']['result'] = None
+        assert not _is_valid(validators_by_title, title, mutated)
+        mutated = copy.deepcopy(case['instance'])
+        mutated['data']['source_only_reason'] = 'explicit_source_only'
+        assert not _is_valid(validators_by_title, title, mutated)
+    assert seen
+
+
+def test_config_declaration_kind_and_span_malformed(fixture_bundle, validators_by_title):
+    title = 'video-paper-wiki.code-config-evidence.v1'
+    seen = False
+    for case in fixture_bundle['cases']:
+        if case['title'] != title:
+            continue
+        instance = case['instance']
+        data = instance.get('data')
+        if type(data) is not dict:
+            continue
+        result = data.get('result')
+        if type(result) is not dict:
+            continue
+        nodes = result.get('nodes')
+        if type(nodes) is not list:
+            continue
+        for ni, node in enumerate(nodes):
+            if type(node) is not dict:
+                continue
+            declarations = node.get('declarations')
+            if type(declarations) is not list:
+                continue
+            for di, decl in enumerate(declarations):
+                if type(decl) is not dict:
+                    continue
+                if 'kind' not in decl or 'span' not in decl:
+                    continue
+                seen = True
+                mutated = copy.deepcopy(instance)
+                mutated['data']['result']['nodes'][ni]['declarations'][di]['kind'] = 'not_a_kind'
+                assert not _is_valid(validators_by_title, title, mutated)
+                mutated = copy.deepcopy(instance)
+                mutated['data']['result']['nodes'][ni]['declarations'][di]['span'] = None
+                assert not _is_valid(validators_by_title, title, mutated)
+                span = decl['span']
+                if type(span) is dict and span:
+                    field = next(iter(span))
+                    mutated = copy.deepcopy(instance)
+                    del mutated['data']['result']['nodes'][ni]['declarations'][di]['span'][field]
+                    assert not _is_valid(validators_by_title, title, mutated)
+    assert seen
+
+
+def test_git_objects_target_outcome_reason_and_walk(fixture_bundle, validators_by_title, registry):
+    title = 'video-paper-wiki.code-proof-observation.v1'
+    seen_permitted = False
+    seen_missing = False
+    seen_walk = False
+    permitted_blob = None
+    legal_target = None
+    for case in fixture_bundle['cases']:
+        if case['title'] != title:
+            continue
+        data = case['instance'].get('data')
+        if type(data) is not dict or data.get('mode') != 'git_objects':
+            continue
+        git_proof = data.get('git_proof')
+        if type(git_proof) is not dict:
+            continue
+        targets = git_proof.get('targets')
+        if type(targets) is not list:
+            continue
+        for ti, target in enumerate(targets):
+            if type(target) is not dict:
+                continue
+            legal_target = target
+            mutated = copy.deepcopy(case['instance'])
+            mutated['data']['git_proof']['targets'][ti]['outcome'] = 'not_an_outcome'
+            assert not _is_valid(validators_by_title, title, mutated)
+            mutated = copy.deepcopy(case['instance'])
+            mutated['data']['git_proof']['targets'][ti]['reason'] = 'not_a_reason'
+            assert not _is_valid(validators_by_title, title, mutated)
+            outcome = target.get('outcome')
+            if outcome == 'permitted_regular_blob':
+                seen_permitted = True
+                permitted_blob = copy.deepcopy(target.get('blob'))
+                mutated = copy.deepcopy(case['instance'])
+                mutated['data']['git_proof']['targets'][ti]['blob'] = None
+                assert not _is_valid(validators_by_title, title, mutated)
+            elif outcome == 'missing':
+                seen_missing = True
+                if permitted_blob is not None:
+                    mutated = copy.deepcopy(case['instance'])
+                    mutated['data']['git_proof']['targets'][ti]['blob'] = copy.deepcopy(permitted_blob)
+                    assert not _is_valid(validators_by_title, title, mutated)
+            walk = target.get('walk')
+            if type(walk) is not list:
+                continue
+            for wi, step in enumerate(walk):
+                if type(step) is not dict:
+                    continue
+                seen_walk = True
+                mutated = copy.deepcopy(case['instance'])
+                mutated['data']['git_proof']['targets'][ti]['walk'][wi]['mode'] = 'not_a_mode'
+                assert not _is_valid(validators_by_title, title, mutated)
+                for field in ('tree_oid', 'name_hex', 'oid', 'mode'):
+                    mutated = copy.deepcopy(case['instance'])
+                    del mutated['data']['git_proof']['targets'][ti]['walk'][wi][field]
+                    assert not _is_valid(validators_by_title, title, mutated)
+                for field in ('tree_oid', 'oid'):
+                    mutated = copy.deepcopy(case['instance'])
+                    mutated['data']['git_proof']['targets'][ti]['walk'][wi][field] = 'g' * 40
+                    assert not _is_valid(validators_by_title, title, mutated)
+                    mutated = copy.deepcopy(case['instance'])
+                    mutated['data']['git_proof']['targets'][ti]['walk'][wi][field] = 'a' * 39
+                    assert not _is_valid(validators_by_title, title, mutated)
+                mutated = copy.deepcopy(case['instance'])
+                mutated['data']['git_proof']['targets'][ti]['walk'][wi]['name_hex'] = 'zz'
+                assert not _is_valid(validators_by_title, title, mutated)
+                mutated = copy.deepcopy(case['instance'])
+                mutated['data']['git_proof']['targets'][ti]['walk'][wi]['extra_walk_field'] = True
+                assert not _is_valid(validators_by_title, title, mutated)
+    assert seen_permitted
+    assert seen_missing
+    assert seen_walk
+    assert legal_target is not None
+    unsafe = copy.deepcopy(legal_target)
+    unsafe['outcome'] = 'unsafe'
+    unsafe['reason'] = 'symlink'
+    unsafe['blob'] = None
+    _validate_def(registry, 'git_target', unsafe)
+    bad = copy.deepcopy(unsafe)
+    bad['outcome'] = 'not_an_outcome'
+    assert not _def_is_valid(registry, 'git_target', bad)
+    bad = copy.deepcopy(unsafe)
+    bad['reason'] = 'not_a_reason'
+    assert not _def_is_valid(registry, 'git_target', bad)
+    if type(unsafe.get('walk')) is list and unsafe['walk'] and type(unsafe['walk'][0]) is dict:
+        bad = copy.deepcopy(unsafe)
+        bad['walk'][0]['mode'] = 'not_a_mode'
+        assert not _def_is_valid(registry, 'git_target', bad)
+
+
+def test_saved_document_id_and_reference_hex_syntax(fixture_bundle, validators_by_title):
+    seen_id = False
+    seen_ref = False
+    seen_semantic = False
+    for case in fixture_bundle['cases']:
+        title = case['title']
+        instance = case['instance']
+        if type(instance) is not dict:
+            continue
+        root_id = instance.get('id')
+        if type(root_id) is str and root_id.startswith('ce1:'):
+            parts = root_id.split(':', 2)
+            if len(parts) == 3 and len(parts[2]) == 64:
+                seen_id = True
+                kind, digest = parts[1], parts[2]
+                mutated = copy.deepcopy(instance)
+                mutated['id'] = f'ce1:{kind}:{"g" * 64}'
+                assert not _is_valid(validators_by_title, title, mutated)
+                mutated = copy.deepcopy(instance)
+                mutated['id'] = f'ce1:{kind}:{"a" * 63}'
+                assert not _is_valid(validators_by_title, title, mutated)
+                mutated = copy.deepcopy(instance)
+                mutated['id'] = f'ce1:{kind}:{"a" * 65}'
+                assert not _is_valid(validators_by_title, title, mutated)
+                mutated = copy.deepcopy(instance)
+                mutated['id'] = f'ce1:{kind}:{digest.upper()}'
+                assert not _is_valid(validators_by_title, title, mutated)
+                alt = ('0' if digest[0] != '0' else '1') + digest[1:]
+                mutated = copy.deepcopy(instance)
+                mutated['id'] = f'ce1:{kind}:{alt}'
+                _validate(validators_by_title, title, mutated)
+                seen_semantic = True
+        for path, node in _walk_typed(instance):
+            if type(node) is not dict or 'id' not in node or 'sha256' not in node:
+                continue
+            sha = node['sha256']
+            ident = node['id']
+            if type(sha) is not str:
+                continue
+            seen_ref = True
+            mutated = copy.deepcopy(instance)
+            _set_path(mutated, path + ('sha256',), 'g' * 64)
+            assert not _is_valid(validators_by_title, title, mutated)
+            mutated = copy.deepcopy(instance)
+            _set_path(mutated, path + ('sha256',), 'a' * 63)
+            assert not _is_valid(validators_by_title, title, mutated)
+            mutated = copy.deepcopy(instance)
+            _set_path(mutated, path + ('sha256',), 'a' * 65)
+            assert not _is_valid(validators_by_title, title, mutated)
+            if len(sha) == 64 and sha.lower() == sha and all(c in '0123456789abcdef' for c in sha):
+                alt = ('0' if sha[0] != '0' else '1') + sha[1:]
+                mutated = copy.deepcopy(instance)
+                _set_path(mutated, path + ('sha256',), alt)
+                _validate(validators_by_title, title, mutated)
+                seen_semantic = True
+            if type(ident) is str and ident.startswith('ce1:'):
+                parts = ident.split(':', 2)
+                if len(parts) == 3:
+                    mutated = copy.deepcopy(instance)
+                    _set_path(mutated, path + ('id',), f'ce1:{parts[1]}:{"G" * 64}')
+                    assert not _is_valid(validators_by_title, title, mutated)
+    assert seen_id
+    assert seen_ref
+    assert seen_semantic
+```
+
+局部删除：`test_impossible_nulls` 在把 typed `result` 设为 `None` 之后，删除 `source_only_reason='explicit_source_only'` 这一次赋值；不要同时改两个字段。其余现有检查保留，不必替换整个旧函数。
+
+未运行测试。

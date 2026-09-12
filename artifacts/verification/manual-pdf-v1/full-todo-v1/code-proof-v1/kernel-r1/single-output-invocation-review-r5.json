@@ -1,0 +1,235 @@
+{
+  "$schema": "full-todo.grok-code-git-kernel-single-output-invocation-review-r5.v1",
+  "schema": "full-todo.grok-code-git-kernel-single-output-invocation-review-r5.v1",
+  "revision": 5,
+  "recorded_at_utc": "2026-09-09T17:38:00Z",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "phase": "pre_dispatch_single_output_invocation_review",
+  "decision": "GO_CONDITIONED_ON_IMMEDIATE_PRELAUNCH_RECHECK",
+  "scope": "Bounded read-only review of the R5 single-output Grok Build patch invocation, embedded R1/R2 contracts and exact R3 source preimages, launcher controls, existing egress authorization, and the closed R4 process. No Grok launch, source/test/fixture/brief write, Git mutation, network action, candidate import or test run.",
+  "verdict": "The R5 answer-only invocation is ready. The prompt is self-contained, requires exactly one apply_patch diff, permits only the two intended existing source/test files, and embeds byte-exact R1/R2 contract material and both R3 preimages. The launcher independently verifies every hash-bound input, the empty disposable cwd, the stopped R4 PTY, and the source preimages before exec. It uses explicit grok-4.6/xhigh/default settings, one single-turn output, no plan or subagents, disabled web search, and deny rules for Read/Edit/Bash/Grep/MCPTool(*); GROK_WRITE_FILE=0 and GROK_SUBAGENTS=0 add process-level write/subagent guards. Existing user egress authorization is the exact bound authorization for this retry. No blocker was found; the only remaining condition is the coordinator's immediate prelaunch recheck of the launcher/prompt/preimage hashes and source-root baseline.",
+  "scope_controls": {
+    "grok_launched": false,
+    "source_edits": false,
+    "tests_edits": false,
+    "fixture_edits": false,
+    "brief_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "candidate_import_or_test_run": false,
+    "review_artifact_only": true
+  },
+  "reviewed_inputs": {
+    "preparation": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-patch-preparation-r5.json",
+      "size_bytes": 2679,
+      "sha256": "9d922c7f6f3e3a3dfbf041ebfc6a90983fceaf27a2c71d3e6f43e9ec87615fc9",
+      "status": "PREPARED_FOR_INDEPENDENT_SINGLE_OUTPUT_REVIEW"
+    },
+    "prompt": {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-PATCH-R5.md",
+      "size_bytes": 92692,
+      "sha256": "25b087d77d71f41fd1d1bad6dcc1b3602fb985cba7d9d48fc67f28c9859e2692"
+    },
+    "launcher": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/launch-patch-r5.py",
+      "size_bytes": 2110,
+      "sha256": "7323c69f8826b573d88cbf07d5968ef51f9d7c1eb1482abbadd1d561b5e167bd",
+      "ast_parse": true
+    },
+    "source_preimage_manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-failing-handoff-r3.json",
+      "size_bytes": 1691,
+      "sha256": "6c999a3f776928614efc5b2aa760173849d6719a4da6b2201a3b0aaa7f2853b0",
+      "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+      "baseline_head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+      "baseline_tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14"
+    },
+    "prior_r4_stop": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-r4-stop-dispatch-observation.json",
+      "size_bytes": 4027,
+      "sha256": "b0404d195c268d5d05e8f873580b37c1d882f84706dd665ad182eec16033c3d8",
+      "pty_session_id": 55333,
+      "pty55333_exit_observed": true,
+      "source_edit_observed": false,
+      "r4_brief_observed": false
+    },
+    "authorization": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/user-egress-authorization-r2.json",
+      "size_bytes": 2027,
+      "sha256": "6eee52a8aad2c568a154ddee252cd7f2623522e44c0eeb984af0a6ecddfdf475",
+      "decision": "USER_CONFIRMED_INFORMED_EXTERNAL_GROK_RETRY",
+      "endpoint": "cli-chat-proxy.grok.com",
+      "model": "grok-4.6",
+      "reasoning_effort": "xhigh",
+      "permission_mode": "default"
+    }
+  },
+  "embedded_parity": {
+    "status": "PASS",
+    "contracts": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+        "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe",
+        "size_bytes": 17862,
+        "embedded_content_equal_after_removing_wrapper_terminal_blank_line": true
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+        "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568",
+        "size_bytes": 3659,
+        "embedded_content_equal_after_removing_wrapper_terminal_blank_line": true
+      }
+    ],
+    "source_files": [
+      {
+        "path": "src/video_paper_wiki/code_git_objects.py",
+        "size_bytes": 30212,
+        "sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca",
+        "embedded_content_equal_after_removing_wrapper_terminal_blank_line": true
+      },
+      {
+        "path": "tests/unit/test_code_git_objects.py",
+        "size_bytes": 35986,
+        "sha256": "1ae5dd06d9993d9f09bd39a31030488465e83c2b95f1288e446854d8584c615b",
+        "embedded_content_equal_after_removing_wrapper_terminal_blank_line": true
+      }
+    ],
+    "fixture_is_not_embedded_or_written": true,
+    "prompt_hash_binding_matches_preparation": true
+  },
+  "prompt_scope_review": {
+    "status": "PASS",
+    "observations": [
+      "The answer must be exactly one fenced diff block in apply_patch format with no prose.",
+      "Only the two absolute existing source/test files may occur in Update File headers.",
+      "Add/Delete/Move sections are forbidden and the static Git fixture must remain untouched.",
+      "The requested repair is limited to exact-str key checks, cap/hash-order regression coverage, a distinct unused tree, removal of the unconditional assertion, and focused callback-trap tests.",
+      "The prompt explicitly overrides inherited implementation/test/brief instructions for this answer-only run and forbids tools, execution claims and completion claims."
+    ],
+    "allowed_update_files": [
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_git_objects.py"
+    ],
+    "forbidden_patch_sections": ["Add File", "Delete File", "Move File"]
+  },
+  "launcher_review": {
+    "status": "PASS",
+    "runtime": {
+      "executable": "/Users/huangzhanpeng/.local/bin/grok",
+      "model": "grok-4.6",
+      "reasoning_effort": "xhigh",
+      "permission_mode": "default",
+      "session_id": "676ca785-a6cc-454d-94e2-dd530f6f2139",
+      "session_id_is_uuid4": true,
+      "max_turns": 2,
+      "output_format": "plain",
+      "single_output": true,
+      "no_plan": true,
+      "no_subagents": true,
+      "disable_web_search": true
+    },
+    "deny_rules": [
+      "Read",
+      "Edit",
+      "Bash",
+      "Grep",
+      "MCPTool(*)"
+    ],
+    "environment_guards": {
+      "GROK_DISABLE_AUTOUPDATER": "1",
+      "GROK_MEMORY": "0",
+      "GROK_WRITE_FILE": "0",
+      "GROK_SUBAGENTS": "0"
+    },
+    "transport": {
+      "mechanism": "os.execve",
+      "shell_interpolation": false,
+      "prompt_source": "hash-checked prompt file read as one final positional --single argument",
+      "working_directory": "/private/tmp/grok-patch-r5.famx1h34",
+      "working_directory_exists": true,
+      "working_directory_empty_at_review": true,
+      "stdout_mode": "exclusive-create",
+      "stderr_mode": "exclusive-create",
+      "source_read_before_exec": true,
+      "source_write_before_exec": false,
+      "git_mutation_before_exec": false
+    },
+    "hash_checks_before_exec": [
+      "preparation SHA-256",
+      "prompt, preimage-manifest, prior-stop and authorization size/SHA-256",
+      "both source preimage size/SHA-256",
+      "prior PTY55333 exit observation",
+      "empty disposable cwd"
+    ]
+  },
+  "cli_documentation_check": {
+    "status": "PASS",
+    "local_help": {
+      "command": "/Users/huangzhanpeng/.local/bin/grok --help",
+      "observed": [
+        "--single <PROMPT> is supported",
+        "--deny <RULE> is supported and repeatable",
+        "--model, --reasoning-effort, --permission-mode, --no-plan, --no-subagents, --disable-web-search, --session-id, --max-turns and --output-format are supported"
+      ]
+    },
+    "installed_headless_docs": {
+      "path": "/Users/huangzhanpeng/.grok/docs/user-guide/14-headless-mode.md",
+      "observed": [
+        "--single is the single-turn headless prompt mode",
+        "--deny works in headless mode",
+        "MCPTool(...) is a supported permission-rule selector",
+        "deny rules take precedence over allow rules"
+      ]
+    },
+    "write_guard_docs": {
+      "path": "/Users/huangzhanpeng/.grok/docs/user-guide/26-config-reference.md",
+      "observed": "GROK_WRITE_FILE controls the write_file feature and is set to 0 by the launcher."
+    }
+  },
+  "egress_and_process_review": {
+    "status": "PASS",
+    "authorization_binding": "The prompt/source/preimage/fixture material is covered by the existing user-egress-authorization-r2.json authorization for the named cli-chat-proxy.grok.com retry.",
+    "egress_controls": [
+      "The launcher sends only the hash-bound embedded prompt through the Grok CLI.",
+      "Web search/fetch is disabled by the CLI flag.",
+      "MCP calls are denied by MCPTool(*).",
+      "Bash, Read, Edit and Grep are denied; no tools are requested by the prompt.",
+      "The disposable cwd is empty, so no ambient project files are exposed to the answer-only run."
+    ],
+    "r4_process": {
+      "status": "CLOSED",
+      "pty_session_id": 55333,
+      "exit_observed": true,
+      "resume_notice_observed": true,
+      "replacement_builder_authorized": false,
+      "source_edit_observed": false
+    }
+  },
+  "required_immediate_prelaunch_recheck": {
+    "status": "OPEN_CONDITION_ONLY",
+    "checks": [
+      "re-hash preparation, prompt and launcher",
+      "re-hash both source preimages and confirm they still match the manifest",
+      "confirm source-root HEAD/tree and allowed-path state still match the R3 stopped handoff",
+      "confirm PTY55333 remains closed and output log paths do not already exist",
+      "confirm the existing user egress authorization remains the selected authorization"
+    ],
+    "effect": "These are final launch hygiene checks; no static blocker was found by this review."
+  },
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "fixture": false,
+    "brief": false,
+    "git": false,
+    "network": false,
+    "provider": false,
+    "publication": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  },
+  "writes_performed": [
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/single-output-invocation-review-r5.json"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "cli-bridge Codex review payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "explanation"],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["pass", "needs_changes", "fail"]
+    },
+    "explanation": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "schema": "video-paper-wiki.source-publication-contract-review.v1",
+  "reviewed_at": "2026-09-09",
+  "decision": "GO_FOR_R3_PRECISE_FIELD_BOUNDARY_FREEZE",
+  "scope": "Read-only bounded confirmation of SOURCE-PUBLICATION R3 against the five precise field distinctions previously reported. No broader schema, implementation, source, Git, Vault, upstream, subprocess, or operator action was performed.",
+  "amendment": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R3.md",
+    "sha256": "67f3e8b0b287eb20e144de9f9300e97fd78adff6f785979a9dc9559a636310f6",
+    "size_bytes": 3825
+  },
+  "base_r2": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R2.md",
+    "sha256": "908c94b376f5e130883acd332c7d9c12378daf2cd37b21507a16185dd58d5628",
+    "size_bytes": 23088
+  },
+  "reviewed_inputs": {
+    "pinned_ledgers": {
+      "path": "vendor/claude-obsidian/claude_obsidian/ledgers.py",
+      "sha256": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1",
+      "size_bytes": 53046
+    },
+    "local_catalog_collector": {
+      "path": "src/video_paper_wiki/catalog_collector.py",
+      "sha256": "588d0cd6533a930223b96116540b3e34903692771f784ec990f967d442359e9f",
+      "size_bytes": 21184
+    },
+    "ledger_locator": {
+      "path": "src/video_paper_wiki/ledger_locator.py",
+      "sha256": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0",
+      "size_bytes": 10310
+    },
+    "frozen_projection_contract": {
+      "path": "docs/ai/contracts/projection-input-v1.md",
+      "sha256": "79a500abca2406f060b9363b4675bd07b9fedbbccf78e2aac058763de13892c8",
+      "size_bytes": 19279
+    }
+  },
+  "confirmations": [
+    {
+      "id": "SP-R3-CONFIRM-001",
+      "status": "resolved",
+      "title": "reviewed_at raw presence and full typed closure",
+      "evidence": "R3 states full rendered typed and knowledge prospective rows require reviewed_at as a key whose value may be null, while pure-legacy structural mode may preserve an absent raw key and expose null only internally. It explicitly retains raw presence and requires a valid date for accepted claims. This matches pinned ledgers.py:1030-1045 and separates that upstream optionality from the frozen local closure; the current _ledgers limitation at catalog_collector.py:79-80 is explicitly avoided for v2.",
+      "result": "No remaining field-boundary blocker."
+    },
+    {
+      "id": "SP-R3-CONFIRM-002",
+      "status": "resolved",
+      "title": "non-null local evidence wire",
+      "evidence": "R3 requires exactly source_id, relation, locator with a nonnull tagged wire and rejects missing/null locators and extra keys before indexing. This deliberately narrows the pinned validator’s looser locator presence check at ledgers.py:1089-1093 and matches the exact local decoder shape at ledger_locator.py:203-215. It preserves supports, contradicts, context, maps context to uncertain, and preserves order/duplicates.",
+      "result": "No remaining evidence-shape blocker."
+    },
+    {
+      "id": "SP-R3-CONFIRM-003",
+      "status": "resolved",
+      "title": "source enums and identity boundaries",
+      "evidence": "R3 enumerates origin kind file|url|manual, content_kind document|webpage|dataset|image|audio|video|code|conversation|synthetic|other, authority official|primary|secondary|community|synthetic|unknown, and review_status unreviewed|active|superseded|rejected, matching pinned constants at ledgers.py:25-39 and historical projection validation. It retains broader historical safe IDs including src-paper, uses the frozen Markdown file+raw-path+digest identity, and keeps pinned stable_source_id(origin_kind, canonical locator, content_sha256) at ledgers.py:407-414 separate.",
+      "result": "No source-ID or enum blocker remains."
+    },
+    {
+      "id": "SP-R3-CONFIRM-004",
+      "status": "resolved",
+      "title": "location and versioned anchor profile",
+      "evidence": "R3 makes v2 paper location exactly path plus anchor with ^<claim-id> as an explicitly versioned local compiler/page invariant, while v1 paper/repository locations keep required path and optional/null/text anchors. This no longer presents page as the raw field or imposes the v2 anchor spelling on pinned upstream or v1 repository claims. Pinned path/anchor validation remains ledgers.py:964-1028; owner/page checks are profile invariants.",
+      "result": "No remaining location/anchor blocker."
+    },
+    {
+      "id": "SP-R3-CONFIRM-005",
+      "status": "resolved",
+      "title": "local audit versus pinned inspect",
+      "evidence": "R3 leaves the upstream invocation boundary from R2 unchanged: local typed audit does not claim pinned validation, while the explicit inspect phase performs full pinned checks. The pinned validator’s optional vault_root/planned_files/as_of/hash_reader inputs remain an explicit adapter boundary at ledgers.py:467-474 and :901-909.",
+      "result": "No remaining validation-boundary blocker."
+    }
+  ],
+  "review_notes": [
+    "R3 is a narrow amendment atop the immutable R2 bytes and resolves only the five precise field distinctions in the preceding review.",
+    "The rejected source-claim projection draft remains noncontractual; no source ID, local schema, base-catalog table, or implementation path is inferred beyond R3.",
+    "Pure consistency, local tests, pinned inspection, remote CI, and human/operator acceptance remain separate evidence categories."
+  ],
+  "implementation_gate": "GO for the R3 precise-field-boundary freeze only. This confirmation is not implementation, CI, publication, apply, merge, or human acceptance."
+}

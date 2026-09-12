@@ -1,0 +1,292 @@
+{
+  "$schema": "full-todo.source-catalog-implementation-map-r1.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R1-read-only-implementation-map",
+  "scope": "Concrete mapping from the accepted source-aware publication implementation to the frozen SOURCE-CATALOG R1/R2/R3 contract. This is advice and evidence only; it does not authorize source, test, Git, Vault, network, or human-gate changes.",
+  "inputs": {
+    "r1": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md",
+      "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46",
+      "bytes": 17546
+    },
+    "r2": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md",
+      "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c",
+      "bytes": 4579
+    },
+    "r3": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R3.md",
+      "sha256": "c4b7cadcf83a427be690470adcf6c2b7709a8c4a6b493197106ec98ab95af7f4",
+      "bytes": 4540
+    },
+    "r4": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R4-PARALLEL-START.md",
+      "sha256": "aab6dd8c33ba2d28847e2d0b43b78160c5cd57568162b713747c2ae566be6c1d"
+    },
+    "profile": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+      "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+      "bytes": 4376
+    },
+    "allowed_paths_r1": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-allowed-paths-r1.json",
+      "sha256": "74a236e8a58803d0927ba05e2bed684d9236c6cae0674b29d2027fd2939f604a",
+      "count": 17
+    }
+  },
+  "source_baseline_observed": {
+    "root": ".work/parallel/source-conversion-v1/terminal-1/source",
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "status": "dirty-source-conversion-wip; this is an observed mapping baseline, not an exact accepted conversion delivery",
+    "required_boundary": "Bind implementation and delivery to the exact accepted SOURCE-CONVERSION snapshot required by R4 before catalog acceptance; do not substitute this anticipated or dirty baseline."
+  },
+  "allowed_paths_r1": [
+    "catalog/source-catalog-v1.json",
+    "docs/source-catalog.md",
+    "schemas/video-paper-wiki.source-catalog.v1.schema.json",
+    "src/video_paper_wiki/catalog_store.py",
+    "src/video_paper_wiki/cli.py",
+    "src/video_paper_wiki/source_catalog.py",
+    "src/video_paper_wiki/source_catalog_contracts.py",
+    "src/video_paper_wiki/source_catalog_io.py",
+    "src/video_paper_wiki/source_catalog_projection.py",
+    "src/video_paper_wiki/source_catalog_query.py",
+    "tests/contract/test_schemas.py",
+    "tests/contract/test_source_catalog_contracts.py",
+    "tests/fixtures/contracts/agent-safe-command-tree.v1.json",
+    "tests/fixtures/contracts/valid/video-paper-wiki.source-catalog.v1.json",
+    "tests/security/test_source_catalog_boundary.py",
+    "tests/unit/test_source_catalog.py",
+    "tests/upstream/test_source_catalog.py"
+  ],
+  "resource_origin": {
+    "wheel_layout": {
+      "pyproject": "[tool.hatch.build.targets.wheel].packages = [\"src/video_paper_wiki\", \"src/video_paper_wiki_research\"]",
+      "force_include": {
+        "docs/seed": "video_paper_wiki/seed",
+        "schemas": "video_paper_wiki/schemas",
+        "taxonomy/v1.json": "video_paper_wiki/taxonomy/v1.json",
+        "catalog": "video_paper_wiki/catalog"
+      }
+    },
+    "canonical_schema_registry": {
+      "registry_entrypoint": "video_paper_wiki.resources.schema_resource_names",
+      "package_scope": "video_paper_wiki/schemas/*.schema.json",
+      "source_checkout_scope": "<source_checkout_root>/schemas/*.schema.json",
+      "package_loader": "resources.files(\"video_paper_wiki\").joinpath(\"schemas\", filename)",
+      "source_checkout_loader": "resources._source_checkout_root() followed by schemas/filename",
+      "consumer": "video_paper_wiki.contracts._registry -> load_schema_json -> resources._schema_text_without_cwd",
+      "ordering": "sorted resource names; complete set retained before and after projection",
+      "generation_row": "generation.resources contains every canonical schema resource with logical path, raw-byte SHA-256 and size"
+    },
+    "taxonomy": {
+      "logical_path": "taxonomy/v1.json",
+      "reader": "video_paper_wiki.resources.read_projection_resource_bytes(\"taxonomy\", \"v1.json\")",
+      "current_origin_order": "package video_paper_wiki/taxonomy/v1.json, then exact source checkout taxonomy/v1.json",
+      "live_consumer": "video_paper_wiki.canonical_compiler_v2.concept_items_for_papers",
+      "generation_row": "generation.resources includes raw taxonomy bytes and digest",
+      "trap": "Hashing a separately read taxonomy file does not prove the compiler used the same bytes while contracts._registry or compiler code is cached; use the private retained resource view described under r5_context_isolation."
+    },
+    "catalog_profile": {
+      "logical_path": "catalog/source-catalog-v1.json",
+      "required_bytes": "byte-identical copy of SOURCE-CATALOG-PROFILE-R1.json",
+      "profile_sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+      "reader": "video_paper_wiki.resources.read_projection_resource_bytes(\"catalog\", \"source-catalog-v1.json\")",
+      "origin_order": "package video_paper_wiki/catalog/source-catalog-v1.json, then exact source checkout catalog/source-catalog-v1.json",
+      "trap": "The source-conversion baseline has no source-catalog-v1.json yet; implementation must add the frozen profile resource exactly, with no canonicalization, self-hash, timestamp, or CWD-derived value."
+    },
+    "forbidden_resource_paths": [
+      "resources._repo_file/_repo_text for source-catalog generation (these have a process-CWD fallback)",
+      "resources.read_schema_text (public helper still falls through to _repo_text after the no-CWD helper)",
+      "resources.resolve_schema_path (uses _repo_file and can resolve through CWD)",
+      "any process-CWD schema/taxonomy/catalog lookup",
+      "any live reread after a retained generation file/registry descriptor is captured"
+    ],
+    "generation_python_set": {
+      "scope": "every recursive .py file in installed video_paper_wiki package, package-relative names",
+      "exclude": ["__pycache__", "*.pyc"],
+      "retention": "retain package ancestors, every traversed directory identity, complete name set, file identity and exact bytes; enumerate the same set again at finalization",
+      "digest_fields": ["path", "sha256", "size_bytes"],
+      "trap": "A preselected implementation list misses a new/deleted transitive reader/compiler/query file and cannot satisfy R2 complete-set safety."
+    },
+    "runtime_set": {
+      "fields": ["sys.implementation.name", "complete sys.version", "unicodedata.unidata_version", "jsonschema version", "referencing version", "rpds-py version"],
+      "exclude": ["OS", "installation path", "absolute path", "timestamp"],
+      "trap": "Record exact dependency versions without turning environment installation paths or access order into artifact data."
+    }
+  },
+  "authority_pipeline": {
+    "vault_session": {
+      "entrypoint": "video_paper_wiki.source_publication._vault(vault_root, None)",
+      "retained_objects": ["receipt_audit._Snapshot", "audit_integrity(vault, _snapshot=snapshot)", "snapshot_material(snapshot)"],
+      "required_state_call": "collect_source_state(snapshot, audit, require_rendered=True, allow_legacy_structural=False)",
+      "prohibited": ["second independent Vault snapshot", "legacy structural relaxation", "trusting a cache row as Vault authority", "real Vault mutation"]
+    },
+    "snapshot_material": {
+      "helper": "source_state.snapshot_material",
+      "inventory_helper": "receipt_audit._walk_inventory(snapshot, read_bytes=True)",
+      "inventory": "complete audited path -> (sha256, size_bytes, mode), including operation head, receipts, raw captures, all .raw/derived files, records, ledgers, historical source-ledger snapshots and compiled pages",
+      "bytes": "exact snapshot.files[path][1] bytes; do not re-read by path after the retained session",
+      "basis": "source_state.inventory_digest(current_inventory) plus SHA-256 of actual operation-head bytes",
+      "trap": "Do not reduce basis to semantic files only; source-catalog basis.inventory is the complete snapshot_material inventory sorted by exact UTF-8 path."
+    },
+    "source_state_return_fields": {
+      "basis": ["operation_head_sha256", "inventory_sha256"],
+      "authority": ["inventory", "bytes", "current_inventory", "profile", "structural_only", "source_ledger", "claim_ledger", "owners", "claims", "documents", "assessment_heads", "display_heads", "ledger_snapshots", "chain", "pages", "counts"],
+      "document_roles": ["paper", "repo", "event", "association", "decision", "observation", "assessment_heads", "display_heads", "code-evidence-manifest", "alignment-manifest", "run-manifest"],
+      "failure_rule": "Any unknown semantic path, missing history/source, orphan parser/code artifact, unsafe path, broken receipt chain, incomplete rendered page set or head-registry mismatch remains a typed error. It is never emitted as coverage."
+    }
+  },
+  "row_mapping": [
+    {
+      "group": "documents",
+      "key": "path",
+      "source_fields": ["state.documents[role][path]", "state.source_ledger", "state.claim_ledger", "state.ledger_snapshots", "state.bytes[path]"],
+      "projection": "Emit every parsed semantic JSON document, both actual ledgers, and every historical source-ledger snapshot. kind is the validated role/schema branch; sha256 is SHA-256 of exact bytes; json_text is exact UTF-8 decode of state.bytes[path], preserving optional-key presence and historical PDF bbox spelling.",
+      "ordering": "path UTF-8 bytes",
+      "trap": "Do not reserialize parsed JSON through canonicalize; integer-only JCS cannot carry legacy contextual PDF bbox floats."
+    },
+    {
+      "group": "papers",
+      "key": "paper_id",
+      "source_fields": ["state.documents.paper[path]", "record.section_claim_refs", "record.source_ids", "record.source_associations", "record.display_head", "record.active_extraction_path", "record.active_extraction_sha256"],
+      "projection": "record_path, record_schema, title, title_zh, authors, published_at, aliases, taxonomy, code_urls, source_ids and active extraction mirrors come directly from the validated paper record. v2 association_ids are source_associations[*].association_id; legacy association_ids is []; display_association_id is the selected display head association ID or null.",
+      "ordering": "paper_id UTF-8 bytes",
+      "trap": "Do not invent v2 association/display fields for legacy records and do not substitute selected display association for a cited historical association."
+    },
+    {
+      "group": "repositories",
+      "key": "repo_id",
+      "source_fields": ["state.documents.repo[path]"],
+      "projection": "record_path, canonical_repository, canonical_commit, paper_ids, officiality and license are exact record values; archived is record.get(\"archived\") so old records expose null in the new row while documents preserves exact key presence.",
+      "ordering": "repo_id UTF-8 bytes",
+      "trap": "Repository identity must remain repo_id(record.canonical_repository), and _ownership rejects unknown paper_ids before projection."
+    },
+    {
+      "group": "claims",
+      "key": "claim_id",
+      "source_fields": ["state.claims[*]", "state.claim_ledger.claims[claim_id]", "state.owners[claim_id]", "owner record section_claim_refs/capability_claim_refs", "state.assessment_heads.heads[claim_id]"],
+      "projection": "text is claim_ledger row.text; owner_kind/owner_id and page come from validated owners; reference is the exact owning paper section or repository capability reference; assessment/reviewed_at/risk/confidence/location preserve validated ledger values; head_event_id, head_event_sha256 and evidence_profile come from the validated assessment head and original evidence profile.",
+      "ordering": "claim_id UTF-8 bytes",
+      "trap": "There is exactly one canonical owner/reference and one validated terminal head. Missing, conflicting or defaulted lifecycle/assessment is an error; never derive authority from caller fields or display selection."
+    },
+    {
+      "group": "evidence",
+      "key": ["claim_id", "ordinal"],
+      "source_fields": ["state.claim_ledger.claims[claim_id].evidence[ordinal]", "state.claims[*].evidence[ordinal]", "state.documents.association", "state.documents.code-evidence-manifest", "state.bytes"],
+      "projection": "Preserve the exact three-field wire object as wire and enumerate original zero-based order. Decode only transiently: Markdown uses decode_evidence plus its bound association; legacy PDF/code uses ledger_locator decoding. association_id is the Markdown locator's bound association ID and null for legacy PDF/code; display_association_id is independently derived from the owning paper's current display head and may be null.",
+      "resolution": "Compute from retained bytes after source_state validation: Markdown resolve_markdown_locator(locator, association, exact raw bytes); PDF exact parser JSON pointer/page/text/optional charspan rules; code validate_code_locator(locator, unique inspected manifest, exact capture bytes) and return the same normalized line slice used by code_snippet_sha256.",
+      "trap": "_locators validates ancestry and locator identity but does not produce the final excerpt. Never replace wire with decoded floats or let modern display selection authorize a legacy citation. Hash/span mismatch is SOURCE_CATALOG_EVIDENCE_INVALID; only otherwise valid unsupported legacy positions receive fixed unsupported reasons."
+    },
+    {
+      "group": "sources",
+      "key": "source_id",
+      "source_fields": ["state.source_ledger.sources[source_id]"],
+      "projection": "row is the complete validated historical source-ledger row with original optional-key presence and arrays. Keep origin, content_kind, title, authority, review_status, content_sha256, dates, pages, independence_key and supersedes exactly as present; do not manufacture registration proof in this row.",
+      "ordering": "source_id UTF-8 bytes",
+      "trap": "source-ledger history/receipt bindings are represented by basis, documents, snapshot ancestry and association registration objects; a legacy web-only source has no invented first-registration proof."
+    },
+    {
+      "group": "associations",
+      "key": "association_id",
+      "source_fields": ["state.documents.association[path]", "state.bytes[path]"],
+      "projection": "path and sha256 bind the exact immutable source-version-association artifact; document is the exact validated association object, including raw capture, observation, registration and extraction references.",
+      "ordering": "association_id UTF-8 bytes",
+      "trap": "The complete association set must match v2 paper source_associations and validate_source_inventory; do not project only the selected display version."
+    },
+    {
+      "group": "display_decisions",
+      "key": "decision_id",
+      "source_fields": ["state.documents.decision[path]", "state.bytes[path]"],
+      "projection": "path, sha256 and exact validated source-display-decision document; chain semantics are checked by derive_display_heads.",
+      "ordering": "decision_id UTF-8 bytes",
+      "trap": "Do not turn the derived display head into a new authority or discard historical decisions during rollback."
+    },
+    {
+      "group": "assessment_heads",
+      "key": "claim_id",
+      "source_fields": ["state.assessment_heads.heads[claim_id]"],
+      "projection": "event_id, event_sha256 and evidence_profile are exact derived head values. The event bytes are independently present in documents and checked by derive_assessment_heads/validate_claim.",
+      "ordering": "claim_id UTF-8 bytes",
+      "trap": "One head per claim is mandatory; stale or missing terminal history is a source/history error, not an unsupported assessment."
+    },
+    {
+      "group": "display_heads",
+      "key": "paper_id",
+      "source_fields": ["state.display_heads.heads[*]", "source_versions.derive_display_heads"],
+      "projection": "head is the exact existing derived display-head row, including decision ID/hash, association reference and sequence. Null display selection emits no fabricated display-head row.",
+      "ordering": "paper_id UTF-8 bytes",
+      "trap": "The head is derived from the complete decision chain and is informational selection; it cannot replace citation association authority."
+    },
+    {
+      "group": "artifacts",
+      "key": "path",
+      "source_fields": ["state.inventory", "state.bytes", "state.source_ledger", "state.documents", "state.ledger_snapshots", "state.chain", "state.claims", "state.pages"],
+      "projection": "Include every .raw/ inventory file, including captured files, source-ledger snapshots, parser/config/model/run files, code/alignment manifests and other derived material. kind is the validated path role; size_bytes and sha256 come from the complete inventory. source_ids is a sorted unique ancestry set from source origin/capture, run/parser ancestry and association links; unknown attribution is [].",
+      "ordering": "path UTF-8 bytes",
+      "trap": "_legacy_artifacts requires parser/config/model sets to equal run ancestry and only error-free runs qualify documents; _code_groups requires exactly one manifest and alignment per repository and rejects orphan legacy code artifacts. Keep valid historical but unreferenced files visible."
+    },
+    {
+      "group": "compiled_pages",
+      "key": "path",
+      "source_fields": ["state.pages[path]", "state.bytes[path]", "canonical_compiler_v2.compile_pages"],
+      "projection": "Emit the complete compiler output for wiki/papers, wiki/code and wiki/concepts paths with sha256 of exact bytes and text as strict UTF-8 decode.",
+      "ordering": "path UTF-8 bytes",
+      "trap": "require_rendered=True compares actual page bytes to compile_pages and requires complete modern assessment/display head registries. Do not accept a semantic subset or compile under an unretained taxonomy resource."
+    },
+    {
+      "group": "coverage",
+      "key": ["kind", "id"],
+      "source_fields": ["state.source_ledger.sources", "state.inventory", "state.documents", "state.claims", "state.owners", "paper source_ids", "repo evidence", "association/parser/run ancestry"],
+      "projection": "Emit exactly one row per registered source and one row per .raw artifact. A source is registered_owned when referenced by a canonical paper source_ids or repository claim evidence, otherwise registered_unclaimed. Captures are captured_registered when their exact path/hash is bound to a source row, otherwise captured_unregistered. Other .raw artifacts are derived_referenced when linked by canonical evidence ancestry, otherwise derived_unreferenced. source_ids/paper_ids/repo_ids are sorted unique derived sets; reason is the fixed profile string.",
+      "ordering": "kind then id by exact UTF-8 bytes",
+      "trap": "Coverage is not an orphan escape hatch. Malformed/missing history, unknown semantic paths, unsafe files and incomplete ancestry fail collection before a coverage row can be emitted."
+    }
+  ],
+  "ancestry_and_resolution": {
+    "legacy_artifacts": {
+      "helper": "source_state._legacy_artifacts(docs, data, sources)",
+      "checks": ["manifest capture exists and validate_code_evidence_manifest matches exact capture bytes", "capture source row has file origin, code kind and matching digest", "each run binds exactly one raw capture", "parser/config/model/run fingerprint is exact", "failed-only documents do not qualify", "used parser artifact set equals complete inventory", "legacy paper active_extraction_path is qualifying and hash-equal"]
+    },
+    "code_groups": {
+      "helper": "source_state._code_groups(docs)",
+      "checks": ["each repository has exactly one matching code-evidence manifest by repo_id+commit", "each repository has exactly one alignment manifest by repo_id+commit", "all manifests and alignments have a repository owner", "alignment evidence is retained for coverage and resolution"]
+    },
+    "locators": {
+      "helper": "source_state._locators(claims, owners, docs, sources, data, qualifying)",
+      "checks": ["every evidence source exists", "repository Markdown claims are refused", "PDF locator document path/source/raw owner and digest bind to a qualifying parser artifact", "code locator has one matching inspected manifest and validate_code_locator passes against exact capture", "alignment officiality/capability evidence receives the same checks"],
+      "resolution_boundary": "This helper is validation only. source-catalog_projection must add exact resolution from retained bytes and map only the frozen RESOLVED/UNSUPPORTED_LEGACY_RESOLUTION union."
+    },
+    "receipt_history": {
+      "helpers": ["receipt_audit.audit_integrity", "source_state.snapshot_material", "source_registration.receipt_chain", "source_state._snapshots"],
+      "checks": ["actual genesis head exists", "all receipts are complete and replayable", "historical source-ledger snapshot filename equals exact bytes", "snapshot digest is authorized by a ledger write or explicit genesis claim", "current source and claim ledgers are present"]
+    }
+  },
+  "r5_context_isolation": {
+    "status": "OPEN_IMPLEMENTATION_GAP_FOUND_DURING_MAPPING",
+    "current_gap": "contracts._registry is a process-global @lru_cache(maxsize=1), and canonical_compiler_v2.concept_items_for_papers reads taxonomy via live read_projection_resource_bytes. Hashing retained generation files separately cannot prove these cached/live consumers used the same captured bytes during one catalog reconstruction.",
+    "proposed_allowed_path_additions": ["src/video_paper_wiki/resources.py", "src/video_paper_wiki/contracts.py"],
+    "proposed_shape": "Add a private ContextVar-backed retained resource view entered only around one source-catalog reconstruction. The view exposes the complete captured schema registry, taxonomy/v1.json and catalog/profile bytes by logical resource name; resources readers and schema registry construction resolve only those retained bytes in the context. Build/cache the registry inside that context, invalidate only the private per-call context registry, preserve the unchanged default registry outside it, and do not monkeypatch globals.",
+    "required_safety": ["capture and retain package/repo resource ancestors, complete schema name set, file identities and bytes before projection", "finally re-enumerate the same set and verify identities/bytes", "no CWD fallback inside the retained view", "generation change or registry add/remove wins WORK_PATH_UNSAFE over ordinary projection errors", "do not claim R1 17-path closure until the R5 two-path amendment is frozen and independently reviewed"]
+  },
+  "integration_traps": [
+    "Do not call collect_source_state with allow_legacy_structural=True; the catalog requires complete rendered pages and modern head registries while still accepting fully typed/rendered legacy records.",
+    "Do not call _vault twice or reread a Vault path outside the retained snapshot; final safety verification must cover Vault, generation and fixed cache groups even after a parser or limit failure.",
+    "Do not use state.profile or caller-supplied rows as authority without asserting exact producer identity sets, evidence ordinals, foreign keys, coverage cardinality and complete ancestry.",
+    "Do not canonicalize documents.json_text, source ledger rows, association/decision documents or original wire evidence; preserve exact original bytes/optional-key spelling.",
+    "Do not hash only the new projection modules: generation binds all installed video_paper_wiki Python files recursively and the complete canonical schema resource registry.",
+    "Do not allow resource readers to fall through to CWD or reread a path after a retained descriptor has been captured.",
+    "Do not let a valid self-hash cache authorize omission or invention; status, lookup, query and resolve reconstruct current state and compare exact canonical bytes.",
+    "Do not map legacy PDF contextual bbox floats to text offsets. Resolve only the exact parser JSON pointer/page/text/charspan contract; absent optional charspan is the fixed unsupported reason legacy_charspan_unavailable.",
+    "Do not make display selection the citation authority: a historical association remains resolvable while its own bytes, registration proof and history remain intact.",
+    "Do not treat registered-unclaimed sources, captured-unregistered files, or derived-unreferenced historical files as malformed when their complete validated ancestry is intact; represent their fixed coverage states."
+  ],
+  "review_status": {
+    "decision": "MAPPING_COMPLETE_WITH_R5_CONTEXT_ISOLATION_BLOCKER_RECORDED",
+    "implementation_ready": false,
+    "reason": "The frozen R1/R2/R3 mapping is concrete, but the generation/resource context gap must be closed and separately reviewed before catalog implementation can claim that retained bytes are the bytes consumed by the live schema/taxonomy readers.",
+    "writes_performed": ["artifacts/verification/manual-pdf-v1/full-todo-v1/E/source-catalog-implementation-map-r1.json"],
+    "writes_forbidden": ["production source", "tests", "catalog profile resource", "Git", "Vault", "network", "human gates"]
+  }
+}

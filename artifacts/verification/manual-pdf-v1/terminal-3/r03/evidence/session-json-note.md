@@ -1,0 +1,1 @@
+These `qa-answer.json` and `writing-draft.json` files were written in the current Terminal-3 session from this run's export evidence (`chunk_id` copied from `qa-context.json` / `writing-context.json`). They are a protocol walkthrough for documentation commands, not Terminal-2 content-quality evidence and not a factual gold answer.

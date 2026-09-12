@@ -1,0 +1,329 @@
+{
+  "accepted_owner_inputs": [
+    {
+      "acceptance": {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-1/architect-local-acceptance-r3.json",
+        "sha256": "f4e323fb8d2d8863e5d334894210427e419bcb2e75ab2d0d5226c5605ea1f077",
+        "size_bytes": 5496
+      },
+      "lane": "T1",
+      "snapshot_sha256": "5bf01318533d4e17beecd338fe4cd8f9c36392ebbb8c5b7b237351970410422d",
+      "source_root": ".work/parallel/lightweight-research-v1/terminal-1/source",
+      "status": "ACCEPTED_LOCAL_T1_R3_FOR_INTEGRATION"
+    },
+    {
+      "acceptance": {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/architect-local-acceptance-r3.json",
+        "sha256": "0f19ad67950c76d61e801af5156b40df856d48b0fb87b8598425deab7f66b007",
+        "size_bytes": 4389
+      },
+      "lane": "T2",
+      "snapshot_sha256": "08a79053c6d6f97f49312de4f60e6bebad5a8ccf09f3517c44ae49f2ecb14149",
+      "source_root": ".work/parallel/lightweight-research-v1/terminal-2/source",
+      "status": "ACCEPTED_LOCAL_T2_R3_FOR_INTEGRATION"
+    },
+    {
+      "lane": "T3",
+      "last_stopped_handoff": {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/r2/handoff.json",
+        "sha256": "313b8b969bc751b991dcae7dc1bb5c664a6e4835cb71d3163d21cd3601acc268",
+        "size_bytes": 4892
+      },
+      "r3_spec_review": {
+        "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-3/independent-spec-review-r3.json",
+        "sha256": "e3467cb51b2ce927b144af63f7106ca73bde79bad8a4fe82e968ab91a0c7052d",
+        "size_bytes": 6421
+      },
+      "r3_specification": {
+        "path": "docs/ai/packets/lightweight-research-v1/FIX-T3-R3-DRAFT.md",
+        "sha256": "371e42a6f5b78e151496e2a1a5fd3f9c774dc507462d79bdd2fcfba18e141e73",
+        "size_bytes": 4201
+      },
+      "source_root": ".work/parallel/lightweight-research-v1/terminal-3/source",
+      "status": "PENDING_R3; NOT AN ACCEPTED INPUT"
+    }
+  ],
+  "allowlist": {
+    "conditions": [
+      "Import exact accepted T1 six-path snapshot and T2 eight-path snapshot; transfer only the accepted T2 light_backup.py bytes to the integration owner.",
+      "Wait for T3 R3 stop and exact Architect acceptance before importing its two writing paths; do not treat the inspected T3 R2 source as accepted.",
+      "Integration tests must fail when owner modules are missing; no optional-import skip or mocked owner API.",
+      "No source/test/doc path outside these 12 integration-owned paths may be modified by the Builder."
+    ],
+    "count": 12,
+    "decision": "SUFFICIENT_CONDITIONAL",
+    "paths": [
+      {
+        "path": "src/video_paper_wiki_research/cli.py",
+        "sha256": "abd00391cd00708dd8a838bf93a35f74c38e3ded485eadb208d3107adceda1dc",
+        "size_bytes": 49238,
+        "status": "present_before_integration"
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_backup.py",
+        "sha256": "3f71dbc34bb25b0cfe6866598fa9d5aa38b0de39a6358c2621f27e5061917610",
+        "size_bytes": 59801,
+        "status": "present_before_integration"
+      },
+      {
+        "path": "tests/research/test_light_backup.py",
+        "sha256": "62f9742aec18d7e7cf75530dad11b808c92066b3114e06238e82304eb7a179d4",
+        "size_bytes": 34369,
+        "status": "present_before_integration"
+      },
+      {
+        "path": "tests/research/test_light_research_cli.py",
+        "status": "integration-owned_new_path_or_absent_at_review"
+      },
+      {
+        "path": "tests/research/test_light_research_pipeline.py",
+        "status": "integration-owned_new_path_or_absent_at_review"
+      },
+      {
+        "path": "tests/research/test_light_research_installed.py",
+        "status": "integration-owned_new_path_or_absent_at_review"
+      },
+      {
+        "path": "README.md",
+        "sha256": "480ee3958ede31daf31d083d9298980fe4f0605a1aca0072044348a4f8e01e34",
+        "size_bytes": 14477,
+        "status": "present_before_integration"
+      },
+      {
+        "path": "docs/lightweight-pdf-quickstart.md",
+        "sha256": "5d13be0c34c956f45e21a6bf22f68db63bad455e0926c8554985477cb5fb0a4e",
+        "size_bytes": 10156,
+        "status": "present_before_integration"
+      },
+      {
+        "path": "docs/lightweight-library-quickstart.md",
+        "sha256": "aeceb2787fe2c9991e28e494fe1a19718fdf98588ada9ebb082656d92707925a",
+        "size_bytes": 7656,
+        "status": "present_before_integration"
+      },
+      {
+        "path": "docs/lightweight-research-quickstart.md",
+        "status": "integration-owned_new_path_or_absent_at_review"
+      },
+      {
+        "path": ".agents/skills/video-paper-read/SKILL.md",
+        "sha256": "42c111c31e2cc59a83d4616a8b052bcc457a7145dffe5e79a2044292316799fe",
+        "size_bytes": 4478,
+        "status": "present_before_integration"
+      },
+      {
+        "path": ".agents/skills/video-paper-read/references/research.md",
+        "status": "integration-owned_new_path_or_absent_at_review"
+      }
+    ],
+    "rationale": [
+      "cli.py is the sole parser/dispatch surface and can dynamically import all accepted T1/T2/T3 public modules; no __init__.py or pyproject change is required.",
+      "light_backup.py is the only owner module requiring integration edits: call writing_backup_blockers under its already-held exclusive workspace lock without nested locking, while preserving existing knowledge/library/compare backup behavior.",
+      "The three new integration tests cover CLI, real backend pipeline, and isolated installed-wheel behavior; the existing backup test remains in the allowlist for backup regressions.",
+      "README, both existing quickstarts, the new research quickstart, Skill, and new research reference cover user actions and transport/status boundaries; agents/openai.yaml remains untouched as required.",
+      "Hatch wheel configuration already packages src/video_paper_wiki_research and the existing vpwiki-research entry point, so no packaging path is missing."
+    ],
+    "sufficient": true
+  },
+  "baseline": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+  "cli_method_mapping": [
+    {
+      "command": "writing outline-export",
+      "context_reader": "secure object JSON reader; pass whole context object",
+      "flags": "--workspace WS --context JSON",
+      "method": "video_paper_wiki_research.light_writing_project.export_writing_outline(workspace, context)",
+      "source_location": "light_writing_project.py:2602"
+    },
+    {
+      "command": "writing outline-import",
+      "context_reader": "secure object JSON reader; pass whole context and document",
+      "flags": "--workspace WS --context JSON --document JSON",
+      "method": "light_writing_project.import_writing_outline(workspace, context, document)",
+      "source_location": "light_writing_project.py:2606"
+    },
+    {
+      "command": "writing section-export",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --project-id ID --section-id ID [--instructions TEXT]",
+      "method": "light_writing_project.export_writing_section(workspace, project_id=ID, section_id=ID, instructions=TEXT)",
+      "source_location": "light_writing_project.py:2610-2623"
+    },
+    {
+      "command": "writing section-import",
+      "context_reader": "secure object JSON reader; pass whole wrapper/document",
+      "flags": "--workspace WS --context JSON --document JSON",
+      "method": "light_writing_project.import_writing_section(workspace, context, document)",
+      "source_location": "light_writing_project.py:2626-2627"
+    },
+    {
+      "command": "writing history",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --project-id ID",
+      "method": "light_writing_project.writing_project_history(workspace, project_id=ID)",
+      "source_location": "light_writing_project.py:2630-2631"
+    },
+    {
+      "command": "writing project-export",
+      "context_reader": "managed .work Markdown output path",
+      "flags": "--workspace WS --project-id ID --output MARKDOWN",
+      "method": "light_writing_project.export_writing_project(workspace, project_id=ID, output=output)",
+      "source_location": "light_writing_project.py:2634-2635"
+    },
+    {
+      "command": "knowledge batch-plan",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --paper-id ID",
+      "method": "light_knowledge_batch.plan_knowledge_batches(workspace, paper_id=ID)",
+      "source_location": "light_knowledge_batch.py:1110"
+    },
+    {
+      "command": "knowledge batch-export",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --plan-id ID --batch-index INTEGER",
+      "method": "light_knowledge_batch.export_knowledge_batch(workspace, plan_id=ID, batch_index=INTEGER)",
+      "source_location": "light_knowledge_batch.py:1196"
+    },
+    {
+      "command": "knowledge batch-import",
+      "context_reader": "secure object JSON reader; pass whole wrapper/document",
+      "flags": "--workspace WS --context JSON --document JSON",
+      "method": "light_knowledge_batch.import_knowledge_batch(workspace, context, document)",
+      "source_location": "light_knowledge_batch.py:1311"
+    },
+    {
+      "command": "knowledge batch-status",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS [--plan-id ID]",
+      "method": "light_knowledge_batch.knowledge_batch_status(workspace, plan_id=ID_or_None)",
+      "source_location": "light_knowledge_batch.py:1367"
+    },
+    {
+      "command": "knowledge merge-export",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --plan-id ID",
+      "method": "light_knowledge_batch.export_knowledge_merge_context(workspace, plan_id=ID)",
+      "source_location": "light_knowledge_batch.py:1487"
+    },
+    {
+      "command": "knowledge merge-import",
+      "context_reader": "secure object JSON reader; pass whole wrapper/document",
+      "flags": "--workspace WS --context JSON --document JSON",
+      "method": "light_knowledge_batch.import_knowledge_merge(workspace, context, document)",
+      "source_location": "light_knowledge_batch.py:1613"
+    },
+    {
+      "command": "knowledge finalize",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --plan-id ID",
+      "method": "light_knowledge_batch.finalize_knowledge_batches(workspace, plan_id=ID)",
+      "source_location": "light_knowledge_batch.py:2040"
+    },
+    {
+      "command": "knowledge refresh-plan",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --paper-id ID",
+      "method": "light_knowledge_refresh.plan_knowledge_refresh(workspace, paper_id=ID)",
+      "source_location": "light_knowledge_refresh.py:319"
+    },
+    {
+      "command": "knowledge diff",
+      "context_reader": "no JSON input",
+      "flags": "--workspace WS --base-record-id ID --candidate-record-id ID",
+      "method": "light_knowledge_refresh.export_knowledge_diff(workspace, base_record_id=ID, candidate_record_id=ID)",
+      "source_location": "light_knowledge_refresh.py:431"
+    },
+    {
+      "command": "knowledge apply",
+      "context_reader": "secure object JSON reader; required mutually exclusive groups; no default accept-all",
+      "flags": "--workspace WS --diff JSON (--accept-section KEY repeated | --keep-sections) (--accept-concepts | --keep-concepts)",
+      "method": "light_knowledge_refresh.apply_knowledge_refresh(workspace, diff, accept_sections=list, accept_concepts=bool)",
+      "source_location": "light_knowledge_refresh.py:636-647"
+    },
+    {
+      "command": "qa export --rewrite",
+      "context_reader": "secure rewrite object; workspace required; reject with legacy Vault flags",
+      "flags": "--workspace WS --question TEXT [--paper-id ID repeated] --rewrite JSON",
+      "method": "light_query.export_rewritten_context(workspace, kind=\"qa\", query=question, rewrite=object, requirements=\"\", paper_ids=list_or_None)",
+      "source_location": "light_query.py:628-670"
+    },
+    {
+      "command": "writing export --rewrite",
+      "context_reader": "secure rewrite object; workspace required; reject with legacy Vault flags",
+      "flags": "--workspace WS --topic TEXT --requirements TEXT [--paper-id ID repeated] --rewrite JSON",
+      "method": "light_query.export_rewritten_context(workspace, kind=\"writing\", query=topic, requirements=requirements, rewrite=object, paper_ids=list_or_None)",
+      "source_location": "light_query.py:628-670"
+    },
+    {
+      "command": "qa import (workspace)",
+      "context_reader": "secure object reader for context/document; preserve whole traced context",
+      "flags": "--workspace WS --context JSON --answer JSON [--output MARKDOWN]",
+      "method": "light_context.import_document(workspace, context, document, output=output, overwrite=True)",
+      "source_location": "light_context.py:637-682"
+    },
+    {
+      "command": "writing import (workspace)",
+      "context_reader": "secure object reader for context/document; preserve whole traced context",
+      "flags": "--workspace WS --context JSON --draft JSON [--output MARKDOWN]",
+      "method": "light_context.import_document(workspace, context, document, output=output, overwrite=True)",
+      "source_location": "light_context.py:637-682"
+    }
+  ],
+  "contract": {
+    "path": "docs/ai/packets/lightweight-research-v1/CONTRACT.md",
+    "sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+    "size_bytes": 34758
+  },
+  "decision": "GO_CONDITIONAL_FOR_INTEGRATION_INTERFACE_AND_ALLOWLIST; NO_T3_IMPORT_OR_DISPATCH",
+  "findings": [
+    {
+      "area": "owner_snapshot",
+      "id": "INT-R2-001",
+      "severity": "P1_gate",
+      "status": "open_until_T3_acceptance",
+      "summary": "The 12-path allowlist is structurally sufficient, but integration cannot start from the T3 R2 worktree; T3 R3 must stop and receive exact acceptance before its two paths are imported."
+    },
+    {
+      "area": "secure_handoffs",
+      "id": "INT-R2-002",
+      "severity": "P1",
+      "status": "builder_requirement",
+      "summary": "Current CLI has a legacy _read_json helper; workspace context/document/rewrite/diff handoffs must use the existing strict duplicate-key, UTF-8, finite-number, depth, size, regular-file and path-edge reader."
+    },
+    {
+      "area": "backup_lock",
+      "id": "INT-R2-003",
+      "severity": "P1",
+      "status": "builder_requirement",
+      "summary": "create_backup holds the exclusive workspace lock while _snapshot_workspace runs. Wire writing_backup_blockers as a read-only helper inside that path with no nested lock and preserve existing blockers/exclusions."
+    },
+    {
+      "area": "workflow_compatibility",
+      "id": "INT-R2-004",
+      "severity": "P2",
+      "status": "builder_requirement",
+      "summary": "No workflow kind or request/session field additions are needed; the parser must keep qa|writing and route enhancements through separate knowledge/writing subcommands."
+    }
+  ],
+  "guardrails": {
+    "apply": "--accept-section repeated vs --keep-sections and --accept-concepts vs --keep-concepts are required mutually exclusive groups; empty accept_sections is valid; never infer accept-all.",
+    "rewrite": "--rewrite is optional only for workspace qa/writing export, is a secure JSON object, and is rejected as USAGE on Vault/catalog routes.",
+    "secure_json_reader": "Use _read_library_json (or one equivalent existing secure object reader) for all new context/document/rewrite/diff handoffs before owner calls; do not use the legacy _read_json path for workspace handoffs.",
+    "statuses": "Argument misuse is USAGE; malformed handoffs are LIGHT_HANDOFF_INVALID; owner/backend status objects pass through as JSON without traceback.",
+    "workflow_compatibility": "Keep workflow --kind choices exactly qa|writing and preserve existing workflow request/session fields. New batch/refresh/writing-project commands are separate namespaces and add no workflow kinds or fields.",
+    "workspace": "All new commands require --workspace. Existing qa/writing Vault route remains available only without workspace and without --rewrite."
+  },
+  "integration_draft": {
+    "path": "docs/ai/packets/lightweight-research-v1/INTEGRATION-DRAFT.md",
+    "sha256": "c5d4e5b5e57342953f634b7d2f465aa7df12e400d5bec7cd68046e768e337c2f",
+    "size_bytes": 4886
+  },
+  "limitations": [
+    "Static signatures and line locations were inspected without importing or executing the pending T3 source. This review does not accept implementation, integrated tests, wheel behavior, CI, real-paper trials, external provenance, human scientific review, or human gates.",
+    "The exact final CLI line numbers may shift after Builder edits; method names, argument semantics and source module ownership are the contract anchors."
+  ],
+  "review_mode": "read_only_static",
+  "reviewed_at": "2026-09-08T14:05:00+08:00",
+  "schema": "lightweight-research-v1-integration-interface-review-r2.v1",
+  "source_imported_or_executed": false,
+  "t3_imported_or_started": false
+}

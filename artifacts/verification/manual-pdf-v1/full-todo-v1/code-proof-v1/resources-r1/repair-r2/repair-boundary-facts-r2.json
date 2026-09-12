@@ -1,0 +1,505 @@
+{
+  "schema": "full-todo.code-resource-repair-boundary-facts.v1",
+  "basis": "Actual schema-only R1 executions; R2 path clarification adds explicit canonical input-directory cases.",
+  "initial_both_python_runs": {
+    "versions": [
+      "3.12",
+      "3.13"
+    ],
+    "checks_each": 34,
+    "identical_mismatches_each": 16
+  },
+  "extended_r1_run": {
+    "checks": 60,
+    "mismatches": 32,
+    "cases": [
+      {
+        "id": "repository_input:./repo",
+        "definition": "repository_input",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_input:../repo",
+        "definition": "repository_input",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_input:owner/.",
+        "definition": "repository_input",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_input:owner/..",
+        "definition": "repository_input",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_input:owner/name.git",
+        "definition": "repository_input",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_input:_owner/.github",
+        "definition": "repository_input",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components."
+      },
+      {
+        "id": "repository_input:-/_repo",
+        "definition": "repository_input",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components."
+      },
+      {
+        "id": "repository_input:o/r",
+        "definition": "repository_input",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components."
+      },
+      {
+        "id": "repository_saved:./repo",
+        "definition": "repository_saved",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_saved:../repo",
+        "definition": "repository_saved",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_saved:owner/.",
+        "definition": "repository_saved",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_saved:owner/..",
+        "definition": "repository_saved",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_saved:owner/name.git",
+        "definition": "repository_saved",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R9 excludes exact dot/dot-dot owner and repository components and a repository .git suffix."
+      },
+      {
+        "id": "repository_saved:_owner/.github",
+        "definition": "repository_saved",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components."
+      },
+      {
+        "id": "repository_saved:-/_repo",
+        "definition": "repository_saved",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components."
+      },
+      {
+        "id": "repository_saved:o/r",
+        "definition": "repository_saved",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R9 permits leading dot/underscore/hyphen and one-character bounded components."
+      },
+      {
+        "id": "uppercase-input",
+        "definition": "repository_input",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "Ordinary R9 input permits ASCII case; request preparation lowercases it once."
+      },
+      {
+        "id": "uppercase-saved",
+        "definition": "repository_saved",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "Saved R9 repository spelling is lowercase."
+      },
+      {
+        "id": "github_commit_url:valid",
+        "definition": "github_commit_url",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R7 exact permitted host locator syntax with a valid R9 origin."
+      },
+      {
+        "id": "github_commit_url:./repo",
+        "definition": "github_commit_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_commit_url:../repo",
+        "definition": "github_commit_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_commit_url:owner/name.git",
+        "definition": "github_commit_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_commit_url:owner/.",
+        "definition": "github_commit_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_commit_url:owner/..",
+        "definition": "github_commit_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_blob_url:valid",
+        "definition": "github_blob_url",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R7 exact permitted host locator syntax with a valid R9 origin."
+      },
+      {
+        "id": "github_blob_url:./repo",
+        "definition": "github_blob_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_blob_url:../repo",
+        "definition": "github_blob_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_blob_url:owner/name.git",
+        "definition": "github_blob_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_blob_url:owner/.",
+        "definition": "github_blob_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_blob_url:owner/..",
+        "definition": "github_blob_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_raw_url:valid",
+        "definition": "github_raw_url",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "R7 exact permitted host locator syntax with a valid R9 origin."
+      },
+      {
+        "id": "github_raw_url:./repo",
+        "definition": "github_raw_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_raw_url:../repo",
+        "definition": "github_raw_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_raw_url:owner/name.git",
+        "definition": "github_raw_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_raw_url:owner/.",
+        "definition": "github_raw_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "github_raw_url:owner/..",
+        "definition": "github_raw_url",
+        "expected_valid": false,
+        "actual_valid": true,
+        "basis": "R7 locator embeds the same R9-bounded repository grammar; slash suffixes cannot disable a component exclusion."
+      },
+      {
+        "id": "minimum-bundle-directory",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R3 allows canonical relative raw bundle roots below .work; this one-character directory is disjoint from a separate batch output."
+      },
+      {
+        "id": "ordinary-bundle-directory",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": true,
+        "basis": "Ordinary valid canonical relative input bundle directory."
+      },
+      {
+        "id": "bundle-canonical:.work/input.v1",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/_input",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/-input",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/input_",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/input-",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/.input",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/.git",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/输入/源 文件",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-canonical:.work/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "definition": "bundle_directory",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "R2 Architect clarification: input directory components are not output batch identifiers."
+      },
+      {
+        "id": "bundle-noncanonical:'.work'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work//a'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/a/'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/./a'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/a/../b'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/a\\\\b'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/a\\n'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "bundle-noncanonical:'.work/a\\u2028'",
+        "definition": "bundle_directory",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "R2 canonical input spelling excludes aliases, empty/dot components, backslash and controls."
+      },
+      {
+        "id": "pointer-maximum-direct",
+        "definition": "json_pointer",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "32 times (one separator plus 512 escaped characters) equals 16416."
+      },
+      {
+        "id": "pointer-overmaximum-direct",
+        "definition": "json_pointer",
+        "expected_valid": false,
+        "actual_valid": false,
+        "basis": "16417 exceeds the maximum reachable accepted CONFIG pointer bound."
+      },
+      {
+        "id": "maximum-depth-and-key-length-json-pointer",
+        "definition": "config_result",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "Actual complete accepted CONFIG kernel output under all fixed profile maxima; resource schemas must admit it."
+      },
+      {
+        "id": "maximum-source-bytes-exclusive-column-end",
+        "definition": "config_result",
+        "expected_valid": true,
+        "actual_valid": false,
+        "basis": "Actual complete accepted CONFIG kernel output under all fixed profile maxima; resource schemas must admit it."
+      }
+    ]
+  },
+  "maximum_pointer_oracle": {
+    "profile_max_depth": 32,
+    "profile_max_key_bytes": 256,
+    "source_recipe": "32 nested JSON objects, each key consisting of 256 ASCII slash characters, wrapping integer 1.",
+    "accepted_node_count": 33,
+    "accepted_maximum_pointer_length": 16416,
+    "bound_formula": "(2 * 256 + 1) * 32",
+    "source_head": "4ab1830939cd41981983909763434d5612df6070",
+    "oracle_sha256": "f676a37634ecf854b54bd43135a3028cb9a264bc6d532a103638d2c22f67b959"
+  },
+  "maximum_column_oracle": {
+    "schema": "full-todo.code-resource-boundary-oracles.v1",
+    "recorded_at_utc": "2026-09-10T12:48:27.028726+00:00",
+    "source_head": "4ab1830939cd41981983909763434d5612df6070",
+    "case": "maximum-source-bytes-exclusive-column-end",
+    "payload_recipe": "262143 ASCII spaces followed by ASCII 1; no terminal LF",
+    "payload_size_bytes": 262144,
+    "payload_sha256": "cea9e7b3e4c3fe69a8e07d131a00d55a5c48e74fc9a3b0c8e654eb48ea8279c7",
+    "result": {
+      "config_format": "json",
+      "source": {
+        "body_size_bytes": 262144,
+        "body_sha256": "cea9e7b3e4c3fe69a8e07d131a00d55a5c48e74fc9a3b0c8e654eb48ea8279c7",
+        "normalized_sha256": "cea9e7b3e4c3fe69a8e07d131a00d55a5c48e74fc9a3b0c8e654eb48ea8279c7",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "budget": {
+        "node_count": 1,
+        "scalar_count": 1,
+        "max_depth_observed": 0,
+        "declaration_count": 0,
+        "max_array_items_observed": 0,
+        "max_object_keys_observed": 0
+      },
+      "nodes": [
+        {
+          "path": "",
+          "kind": "integer",
+          "value": "1",
+          "numeric_lexeme": "1",
+          "children": [],
+          "value_span": {
+            "byte_start": 262143,
+            "byte_end": 262144,
+            "codepoint_start": 262143,
+            "codepoint_end": 262144,
+            "line_start": 1,
+            "column_start": 262144,
+            "line_end": 1,
+            "column_end": 262145,
+            "raw_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "snippet_sha256": "cea9e7b3e4c3fe69a8e07d131a00d55a5c48e74fc9a3b0c8e654eb48ea8279c7"
+          },
+          "declarations": []
+        }
+      ]
+    },
+    "use": "Accepted kernel positive shape for later resource validation; no complete public-envelope claim."
+  },
+  "test_review_disposition": "R2 packet incorporates all four test-review findings, with actual declaration kind/span fields and helper-only numeric-dict-key regression.",
+  "positive_shapes": {
+    "case_count": 264,
+    "failures": 0,
+    "profile_hash": "preparation zero hash only"
+  }
+}

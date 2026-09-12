@@ -1,0 +1,66 @@
+{
+  "schema": "full-todo.code-config-architect-span-review.v1",
+  "fixture_sha256": "a835382c7924969ee1d1b12b26e38fae126cc3ee03770ecfc23937b1b5915b24",
+  "fixture_size_bytes": 111287,
+  "production_imported": false,
+  "vectors_checked": 7,
+  "value_spans_checked": 50,
+  "findings": [
+    {
+      "vector": "json-nested-lf",
+      "path": "",
+      "byte_start": 0,
+      "byte_end": 122,
+      "condition": "value span is not one complete parseable value",
+      "exception_type": "JSONDecodeError"
+    },
+    {
+      "vector": "json-unicode-crlf-tabs",
+      "path": "",
+      "byte_start": 0,
+      "byte_end": 56,
+      "condition": "value span is not one complete parseable value",
+      "exception_type": "JSONDecodeError"
+    },
+    {
+      "vector": "json-unicode-crlf-tabs",
+      "path": "/list",
+      "byte_start": 68,
+      "byte_end": 87,
+      "condition": "value span is not one complete parseable value",
+      "exception_type": "JSONDecodeError"
+    },
+    {
+      "vector": "json-pointer-escaping",
+      "path": "",
+      "byte_start": 0,
+      "byte_end": 19,
+      "condition": "value span is not one complete parseable value",
+      "exception_type": "JSONDecodeError"
+    },
+    {
+      "vector": "toml-nested-lf",
+      "path": "/optimizer/betas",
+      "byte_start": 0,
+      "byte_end": 11,
+      "condition": "value span is not one complete parseable value",
+      "exception_type": "TOMLDecodeError"
+    },
+    {
+      "vector": "toml-unicode-crlf-inline",
+      "path": "/model/nested/betas",
+      "byte_start": 27,
+      "byte_end": 34,
+      "condition": "value span is not one complete parseable value",
+      "exception_type": "TOMLDecodeError"
+    },
+    {
+      "vector": "toml-unicode-crlf-inline",
+      "path": "/model/nested/empty",
+      "byte_start": 117,
+      "byte_end": 130,
+      "condition": "value span parses to a different typed subtree than its exact path"
+    }
+  ],
+  "decision": "REJECTED_STATIC_FIXTURE_VALUE_SPANS"
+}

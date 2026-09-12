@@ -1,0 +1,61 @@
+{
+  "$schema": "full-todo.discovery-io-final-review-r1-evidence-supplement.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-metadata-correction",
+  "generated_at_utc": "2026-09-09T10:58:02.348950000Z",
+  "purpose": "Correct chronology metadata and preserve executable/test evidence for the final R1 review without rewriting the original review artifact.",
+  "original_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-io-final-review-r1.json",
+    "sha256": "83ca5b6e47d624d37c8ffa2947a0795df967acc91cdc1df6e124223994f4ada7",
+    "recorded_reviewed_at_utc": "2026-09-09T11:00:00Z",
+    "recorded_reviewed_at_status": "INCORRECT_RETROSPECTIVE_TIMESTAMP",
+    "file_mtime_utc": "2026-09-09T10:53:42.708855Z",
+    "preserved_byte_for_byte": true
+  },
+  "chronology_correction": {
+    "statement": "The original reviewed_at_utc value is incorrect and must not be treated as the review start time. The file mtime is evidence of artifact creation/update only; no exact retrospective review start is asserted.",
+    "tool_observed_current_utc": "2026-09-09T10:58:02.348950000Z",
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'"
+  },
+  "runtime_evidence": {
+    "executable": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+    "python_version": "3.13.13",
+    "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source",
+    "executable_probe": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -c 'import sys; print(sys.executable); print(sys.version.split()[0])'"
+  },
+  "test_evidence": [
+    {
+      "command": "PYTHONPATH=src /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -m pytest -q tests/security/test_discovery_boundary.py",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source",
+      "result": "36 passed in 7.21s",
+      "invocation_history_ref": {
+        "window_id": "01a085c9-e45b-7160-9234-b40a6df31648",
+        "item_id": "712374417"
+      },
+      "tool_result_history_ref": {
+        "window_id": "01a085c9-e45b-7160-9234-b40a6df31648",
+        "item_id": "388678128"
+      }
+    },
+    {
+      "command": "PYTHONPATH=src /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -m pytest -q tests/research/test_discovery_workflow.py",
+      "cwd": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/discovery-expansion-v1/terminal-1/source",
+      "result": "11 passed in 11.29s",
+      "invocation_history_ref": {
+        "window_id": "01a085c9-e45b-7160-9234-b40a6df31648",
+        "item_id": "712374417"
+      },
+      "tool_result_history_ref": {
+        "window_id": "01a085c9-e45b-7160-9234-b40a6df31648",
+        "item_id": "388678128"
+      }
+    }
+  ],
+  "scope_controls": {
+    "source_writes": false,
+    "test_writes": false,
+    "git_mutations": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

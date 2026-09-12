@@ -1,0 +1,45 @@
+{
+  "schema": "lightweight-research-t1-independent-spec-review-r3.v1",
+  "at_utc": "2026-09-08T13:01:34.789513000Z",
+  "packet": "lightweight-research-v1",
+  "lane": 1,
+  "spec_path": "docs/ai/packets/lightweight-research-v1/FIX-T1-R3-DRAFT.md",
+  "spec_sha256": "88eafd96da71e2fd81fd0fa7525b7313bb2d4348573b821bb5ff2afe15a787c3",
+  "reviewed_r2_snapshot_sha256": "7c2aea0be5b74eb394670625d4839381c444c471ccb9a8188fcad702ebee1992",
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "scope": "Read-only bounded specification review. No source, test, Git, external, Vault, or network mutation; no tests run.",
+  "status": "GO",
+  "decision": "GO_T1_R3_DRAFT_COVERS_THE_TWO_REPRODUCED_R2_BLOCKERS_WITHIN_FROZEN_SCOPE",
+  "coverage": [
+    {
+      "finding": "Traced evidence score 10**400 leaks OverflowError through validation/render/import.",
+      "spec_section": "1",
+      "coverage": "Requires closing malformed numeric evidence before the legacy math.isfinite helper on the traced route, with LIGHT_CONTEXT_INVALID for validate/render/import, boolean/nonfinite regressions, score equality preservation, and unchanged outputs."
+    },
+    {
+      "finding": "Supplied symlink/.. path edge is erased by lexical normpath and can select the wrong workspace.",
+      "spec_section": "2",
+      "coverage": "Requires checking raw supplied path edges before normalization, refusal on the traced route before access or mutation, regressions for export/validate/render/import, normal paths, legacy compatibility, and unchanged outputs."
+    }
+  ],
+  "scope_checks": {
+    "owned_path_count": 6,
+    "owned_paths_unchanged": true,
+    "owned_paths": [
+      "src/video_paper_wiki_research/light_query.py",
+      "src/video_paper_wiki_research/light_context.py",
+      "src/video_paper_wiki_research/light_index.py",
+      "tests/research/test_light_query.py",
+      "tests/research/test_light_context.py",
+      "tests/research/test_light_index.py"
+    ],
+    "contract_unchanged": true,
+    "public_api_cli_lane_compatibility_preserved": true,
+    "legacy_route_preserved": true,
+    "no_concrete_omission_found": true
+  },
+  "limitations": [
+    "This is a specification completeness review only; it does not accept implementation, source bytes, tests, CI, or user confirmation.",
+    "The draft must be frozen before dispatch, and the exact four path-operation regressions and three evidence-score regressions must be demonstrated by the Builder candidate."
+  ]
+}

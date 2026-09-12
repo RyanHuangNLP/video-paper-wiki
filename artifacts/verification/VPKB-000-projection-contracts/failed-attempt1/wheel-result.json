@@ -1,0 +1,62 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "<TEMP_ROOT>/vpkb-tooling.r892iw/bin/uv",
+        "build",
+        "--offline",
+        "--wheel",
+        "--out-dir",
+        "<TEMP_ROOT>/vpr-acceptance/dist"
+      ],
+      "cwd": "<REPOSITORY>",
+      "elapsed_seconds": 0.2253732681274414,
+      "exit_code": 0,
+      "label": "wheel-build",
+      "log_sha256": "75c8641b16362f0d31d62c8c653f68b9bdf4dad3d0d403fb3c8fcc90a0b7b350"
+    },
+    {
+      "argv": [
+        "<TEMP_ROOT>/vpkb-tooling.r892iw/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "<TEMP_ROOT>/vpkb-wheel-venv/bin/python",
+        "<TEMP_ROOT>/vpr-acceptance/dist/video_paper_wiki-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "<TEMP_ROOT>",
+      "elapsed_seconds": 0.05413222312927246,
+      "exit_code": 0,
+      "label": "wheel-install",
+      "log_sha256": "a206de52bb023c8945f669dd86382f641f3a10d77804431c4f36e033ac16bd37"
+    },
+    {
+      "argv": [
+        "<TEMP_ROOT>/vpkb-wheel-venv/bin/python",
+        "-I",
+        "<TEMP_ROOT>/vpr-acceptance/wheel-smoke.py"
+      ],
+      "cwd": "<TEMP_ROOT>",
+      "elapsed_seconds": 0.8918139934539795,
+      "exit_code": 0,
+      "label": "wheel-smoke",
+      "log_sha256": "983eb161bcb950c4f47b58190276f5d83fcabc9b4608f7311eb5ccbcb4af355a"
+    }
+  ],
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHOME": "removed",
+    "PYTHONPATH": "removed",
+    "UV_CACHE_DIR": "<TEMP_ROOT>/vpkb-uv-cache"
+  },
+  "runner_sha256": "cfca26f2cbbbd7141011cedd886b2eaec425604aa3c3163a664c937dd41bb42d",
+  "smoke_source_sha256": "71c861e9eccdc51c2ba7bef708d6d2d3a563fc2b346ed81a9c70fef9101d458e",
+  "source_snapshot_sha256": "8493064d7490511bffef198c5a8740740964855928480da2df7cf24ddb47a671",
+  "source_unchanged": true,
+  "status": "passed",
+  "wheel_path": "<TEMP_ROOT>/vpr-acceptance/dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "f211069babac8f9de74d895bf0e0f3887fada9f9c3e42dd12a878816bd94ea43"
+}

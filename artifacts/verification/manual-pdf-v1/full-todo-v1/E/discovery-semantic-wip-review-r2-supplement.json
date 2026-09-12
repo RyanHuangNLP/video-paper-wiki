@@ -1,0 +1,52 @@
+{
+  "$schema": "full-todo.discovery-semantic-wip-review-r2-supplement.v1",
+  "schema": "full-todo.discovery-semantic-wip-review-r2-supplement.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R2-control-group-finding-correction",
+  "recorded_at_utc": "2026-09-09T10:45:00Z",
+  "parent_artifact": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-semantic-wip-review-r2.json",
+    "sha256": "0a2a833b2e103bcb87c1f4e85dc052833a2b85c2b14e1ba6a91ac595aaf86adc"
+  },
+  "scope": "Supplemental read-only probe requested after the parent questioned DSEM-CONTROL-GROUPING-003. No source, tests, Git, network, connector, Vault or human-gate mutation. The original R2 artifact is preserved byte-for-byte; this supplement corrects the control-group determination.",
+  "finding_correction": {
+    "id": "DSEM-CONTROL-GROUPING-003",
+    "status": "WITHDRAWN_AFTER_REPROBE",
+    "reason": "Appending a newly sealed control with round=e1 to an unchanged graph containing completed events e1 and e2 is rejected because deterministic replay changes the expected event-2 child set/control head; the observed result is DISCOVERY_GRAPH_INVALID. Re-sealing event2 with that control head is a distinct valid history in which the control existed before event2, and is not evidence of stale append acceptance.",
+    "contract_interpretation": "The combination of control_before_event(), complete_projections() event.control_head sealing, stored-event equality, and complete child checks supplies the R3 grouping boundary without filesystem mtime or a hidden global clock. A control with round=e1 can legitimately precede event2; an append after an unchanged event2 cannot."
+  },
+  "probe": {
+    "script_path": "/private/tmp/discovery_control_group_probe_r2.py",
+    "script_sha256": "c35a8d510024637a5961c6627a2170369fc193d83dd66777e443597435461040",
+    "output_path": "/private/tmp/discovery_control_group_probe_r2.json",
+    "output_sha256": "153a646e2010cd4356e97db9824217784ba791e5e9e10100748a7197f5f93f00",
+    "method": "The probe creates two complete one-request rounds in isolated /private/tmp checkouts. Scenario 1 seals a new user_stop control with sequence 1 and round=e1, then constructs Graph over the unchanged two-event document set. Scenario 2 installs user_stop and resume after e1 through the public control path, completes e2, and replays the resulting valid history.",
+    "observed": [
+      {
+        "scenario": "append_new_stale_round_to_unchanged_two_event_graph",
+        "events_before": [
+          1,
+          2
+        ],
+        "event2_control_head_before": null,
+        "stale_control_round": 1,
+        "result": "rejected",
+        "error_code": "DISCOVERY_GRAPH_INVALID",
+        "error_message": "complete event is missing a required exact child"
+      },
+      {
+        "scenario": "controls_in_preceding_round_group_then_event",
+        "result": "accepted_valid_history",
+        "control_rounds": "both controls reference e1",
+        "event2_control_head": "the exact resume control reference",
+        "graph_replay": "accepted"
+      }
+    ]
+  },
+  "source_hashes_at_probe": {
+    "discovery_plan.py": "51a36f6c011d0cb5ee5b0166a559dbb1abb28b4772a8909b2ab8922f1858da65",
+    "discovery_candidates.py": "c10a75ef54d2fe06a819b126e5f839abc7bfc7b5d280ac00f9fa6a2124ea4672",
+    "discovery_graph.py": "043fe04b25b7eead681b9fecb038767ceed5dc61ab0eb3d8cc6462f7cb1513f6"
+  },
+  "result": "The control-group finding is not an actual implementation defect and must not block acceptance. The frontier-conflict finding remains the only open actual finding from the original three-module review; the parent changed discovery_plan.py after the original snapshot, so the current plan hash is recorded separately above."
+}

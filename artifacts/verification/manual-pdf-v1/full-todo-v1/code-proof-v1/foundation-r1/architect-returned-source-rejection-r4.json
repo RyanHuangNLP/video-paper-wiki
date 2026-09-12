@@ -1,0 +1,121 @@
+{
+  "schema": "full-todo.foundation-architect-returned-source-rejection.v1",
+  "recorded_at_utc": "2026-09-11T01:49:12.772982+00:00",
+  "decision": "REJECTED_RETURNED_R4_SOURCE_PENDING_BOUNDED_CORRECTION",
+  "return": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r4-result.json",
+    "size_bytes": 2709,
+    "sha256": "0b39d905e778cf60b2d284f5841e21ee910d449de3a8acc10b80c83d4d56378e"
+  },
+  "independent_review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/independent-returned-source-review-r4.json",
+    "size_bytes": 6334,
+    "sha256": "dc6fd167c223c7640a55339834892d882c7428f59f2d8b98b0898e6b68b6d3d9"
+  },
+  "review_metadata_caveat": "Review recorded_at_utc is later than actual record-read time; separate correction requested. Findings are based on actual controller reproduction, not that erroneous timestamp.",
+  "findings": [
+    {
+      "id": "F-R4-01",
+      "severity": "contract_blocking_public_input",
+      "status": "reproduced_py312_and_py313",
+      "location": {
+        "production_lines": [
+          756,
+          761,
+          767
+        ],
+        "helper_line": 575
+      },
+      "contract": "materialize_limits requires exact builtin group/key strings; _require_exact_mapping is a named exact-map helper.",
+      "observation": "frozenset(value) == frozenset(expected_keys) treats str subclasses as equal to builtin strings, so subclass group/key maps are accepted.",
+      "reproduction": {
+        "materialize_limits_subclass_map": "accepted and returned a full map",
+        "require_exact_mapping_subclass_key": "accepted"
+      },
+      "scope": "The public materialize_limits path is directly caller-reachable; ordinary JSON cannot create a str subclass, but the Python contract explicitly requires exact builtins. The same defect affects profile helper inputs."
+    },
+    {
+      "id": "F-R4-02",
+      "severity": "contract_blocking_private_helper",
+      "status": "reproduced_py312_and_py313",
+      "location": {
+        "production_lines": [
+          463,
+          468
+        ]
+      },
+      "contract": "Malformed named private helpers must map invalid reference input to CodeProofResourceError(resource_shape) without raw conversion errors.",
+      "observation": "_canonical_list_index('9' * 5000) raises ValueError from Python's integer-string digit limit instead of CodeProofResourceError(resource_shape).",
+      "reproduction": {
+        "exception": "ValueError",
+        "message_prefix": "Exceeds the limit (4300 digits) for integer string conversion"
+      },
+      "scope": "Pinned production schemas cannot supply this malformed pointer, but the explicitly named private reference helper is a permitted test surface and the current failure leaks the wrong exception."
+    },
+    {
+      "id": "F-R4-03",
+      "severity": "contract_blocking_public_constructor",
+      "status": "reproduced_py312_and_py313",
+      "location": {
+        "production_lines": [
+          721,
+          724,
+          731,
+          734
+        ]
+      },
+      "contract": "No caller-supplied pins, profile, validator, registry, callback, or validation configuration may construct a CodeProofResources context; retained inputs must remain owned by the compiled context.",
+      "observation": "The exported public class constructor accepts arbitrary profile_sha256, resource_pins, validators, and hard_limits without validation or copying.",
+      "reproduction": {
+        "injected_validator_accepts": true,
+        "mutated_hard_limit_observed": 999,
+        "injected_resource_pin": "evil",
+        "injected_profile": "attacker-profile"
+      },
+      "scope": "This is directly reachable without monkeypatching: a caller can create a context that accepts an injected validator and can mutate the caller-owned hard-limit dict after construction. The compiler itself supplies trusted values, but the public constructor bypasses that trust boundary."
+    },
+    {
+      "id": "F-R4-04",
+      "severity": "contract_blocking_private_helper_hang",
+      "status": "reproduced_bounded_py312_and_py313",
+      "location": {
+        "production_lines": [
+          511,
+          516,
+          529
+        ]
+      },
+      "contract": "_validate_schema_references is a pure malformed-input helper and must reject invalid structures with CodeProofResourceError(resource_shape).",
+      "observation": "A nested dictionary containing a self-reference is repeatedly pushed by _walk_schema_document because no visited/active-cycle guard exists.",
+      "reproduction": {
+        "input": "exact ten synthetic schema roots with one nested self-cycle",
+        "timeout_seconds": 1.5,
+        "py312": "timed out and was terminated",
+        "py313": "timed out and was terminated"
+      },
+      "scope": "Pinned production schemas are acyclic, but the named private helper is explicitly authorized for malformed synthetic inputs; this is an unbounded hang on that contract surface."
+    }
+  ],
+  "additional_test_failure": {
+    "id": "F-R4-05",
+    "description": "Original test_structure_preflight_and_titles wrongly expects empty list to fail under the pinned definitions-only common schema. Correct expected structural admission and retain a wire-schema negative; do not change resource pins.",
+    "py312": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r4-py312.json",
+      "size_bytes": 1632,
+      "sha256": "c83de84ac58102a88b1558457d025fd184407b82e29bdce4a518dfb12810e432"
+    },
+    "py313": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r4-py313.json",
+      "size_bytes": 1650,
+      "sha256": "69d74481895d63aa475d2a0d85eab70e5da68a68b0c5a10b409e3aa1b100c784"
+    },
+    "actual_results_each_python": "261 passed, 1 failed",
+    "fixture_replay": "264 actual existing positive structural rows passed within the focused suite"
+  },
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source",
+  "baseline_head": "1e3f2a4c27ff83e4ead657c1e609ac9130a5b419",
+  "baseline_regular_files_verified_unchanged": 1376,
+  "product_source_installed": false,
+  "accepted": false,
+  "next": "Fresh bounded natural-language correction instruction; same two product paths and semantic freeze; no baseline or resource changes."
+}

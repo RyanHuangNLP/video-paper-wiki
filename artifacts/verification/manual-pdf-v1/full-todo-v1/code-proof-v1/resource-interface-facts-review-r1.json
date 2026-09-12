@@ -1,0 +1,178 @@
+{
+  "$schema": "full-todo.code-proof-resource-interface-facts-review.v1",
+  "schema": "full-todo.code-proof-resource-interface-facts-review.v1",
+  "revision": 1,
+  "reviewed_at_utc": "2026-09-10T08:23:08.981074Z",
+  "decision": "PASS_INTERFACE_FACTS_FOR_RESOURCE_FREEZE_PREPARATION",
+  "status": "PASS_WITH_EXACT_STRING_CAVEAT",
+  "scope": "Read-only verification of the R1 resource interface-facts capsule against the accepted CONFIG source, package layout, schema-count assertion, exact local acceptance and both locked Python environments. No source, test, schema, profile, Git, provider or runtime mutation was performed.",
+  "provenance": {
+    "interface_facts_doc": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-INTERFACE-FACTS-R1.md",
+      "sha256": "c2234fb2f30f70795485e0ea457c95b77a16a922292188d4b573a6a86cbd4288",
+      "size_bytes": 4428
+    },
+    "staging_source": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "size_bytes": 54827
+    },
+    "git_limits_source": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py",
+      "sha256": "86c2c0b2e58239bb44b8b8a2bf302a8fd99478a9faaf3ea8d63586f29a8d861b",
+      "size_bytes": 30702
+    },
+    "config_limits_source": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py",
+      "sha256": "d1b8764b165ff7bfd35e743653fb2d8c40bf9b35dc24ba7b480dbc3e89f1ea9c",
+      "size_bytes": 61364
+    },
+    "pyproject": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/pyproject.toml",
+      "sha256": "da3765ef066d5e431862ad1854aa018d54db0574102823502e940b89fa87c9f6",
+      "size_bytes": 938
+    },
+    "schema_count_test": {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/contract/test_schemas.py",
+      "sha256": "8c916239d2fba1c2c9fbddf41611a99b5eafed9cb6f3374f316334daa38a855e",
+      "size_bytes": 11651
+    },
+    "exact_config_acceptance": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-exact-local-head-acceptance-r5.json",
+      "sha256": "d0533c40e7a87f65bc6819d0e94cb3fcd96f687c806ad6c77462e47c4993fae8",
+      "size_bytes": 2824
+    },
+    "local_delivery": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/local-delivery-r5.json",
+      "sha256": "91c23ce713a659d95400efea2f77ad962e7bb336dcb02f7fdbd62e425e35257d",
+      "size_bytes": 5335
+    },
+    "validation_py312": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-validation-py312-r5.json",
+      "sha256": "ec4c2b70c17ff31fc2dd2a58115e5fb86d5ad9d0697ba951902c978a979d3e7f",
+      "size_bytes": 5999
+    },
+    "validation_py313": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-validation-py313-r5.json",
+      "sha256": "780338cf6e6ff9231b34233c8aa72b97b1646af89e0994d92235f5716a5164fd",
+      "size_bytes": 6165
+    }
+  },
+  "accepted_source": {
+    "head": "4ab1830939cd41981983909763434d5612df6070",
+    "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+    "parent": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "source_paths_unchanged": true
+  },
+  "verified_facts": {
+    "batch": {
+      "BATCH_ID_MAX": 128,
+      "BATCH_ID_RE": "^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?$",
+      "validation_call": "BATCH_ID_RE.fullmatch(raw)",
+      "accepted_examples": [
+        "A",
+        "a1",
+        "a_b",
+        "a-b",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "rejected_examples": [
+        "a\n",
+        "a\r\n",
+        "a ",
+        "a ",
+        "a.",
+        "a_",
+        "a-",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n",
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "terminal_separator_rejection_verified": true,
+      "json_schema_requirement": "Eventual JSON Schema batch pattern must preserve the full-match language and terminal-separator rejection; an unqualified final $ is insufficient by itself."
+    },
+    "limit_maps": {
+      "git_key_count": 5,
+      "git": {
+        "max_targets": 32,
+        "max_objects": 2048,
+        "max_tree_entries": 32768,
+        "max_object_bytes": 8388608,
+        "max_total_object_bytes": 33554432
+      },
+      "config_key_count": 13,
+      "config": {
+        "max_source_bytes": 262144,
+        "max_depth": 32,
+        "max_nodes": 1024,
+        "max_array_items": 256,
+        "max_object_keys": 1024,
+        "max_key_bytes": 256,
+        "max_string_codepoints": 16384,
+        "max_scalars": 512,
+        "max_numeric_lexeme_bytes": 128,
+        "max_numeric_coefficient_digits": 64,
+        "max_numeric_abs_exponent": 128,
+        "max_numeric_canonical_bytes": 256,
+        "max_declarations": 4096
+      }
+    },
+    "packaging": {
+      "wheel_packages": [
+        "src/video_paper_wiki",
+        "src/video_paper_wiki_research"
+      ],
+      "force_include": {
+        "schemas": "video_paper_wiki/schemas"
+      },
+      "profile_destination": "src/video_paper_wiki/profiles",
+      "package_metadata_edit_in_scope": false
+    },
+    "schema_count": {
+      "assertion": "assert len(schema_paths) == 71",
+      "integration_change": "71 -> 81 only after all ten new schemas exist"
+    },
+    "config_acceptance": {
+      "head": "4ab1830939cd41981983909763434d5612df6070",
+      "tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+      "exact_local_acceptance": true
+    },
+    "installed_interfaces": {
+      "versions": {
+        "jsonschema": "4.26.0",
+        "referencing": "0.37.0",
+        "pytest": "9.1.1"
+      },
+      "verified_on": [
+        "/private/tmp/l4r5.s54ypl35/locked-312/bin/python (Python 3.12.14)",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python (Python 3.13.13)"
+      ],
+      "imports": [
+        "referencing.Registry",
+        "referencing.Resource",
+        "referencing.exceptions.NoSuchResource",
+        "jsonschema.Draft202012Validator",
+        "jsonschema.validators.extend"
+      ],
+      "public_signatures_verified": true
+    }
+  },
+  "mismatches": [],
+  "non_mismatch_caveats": [
+    "staging.validate_batch_id currently uses isinstance(raw, str) before fullmatch, so Python-level exact-string enforcement is not established by this existing helper; the future public API must enforce the R7 exact-type requirement separately. JSON Schema string validation cannot distinguish Python subclasses.",
+    "The interface capsule describes source/package facts and validator APIs; it does not claim public CODE resource loaders, command behavior, generated resource bytes, fixture authenticity or semantic provider verification."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "schemas": false,
+    "profiles": false,
+    "git": false,
+    "provider": false,
+    "runtime": false,
+    "review_artifact_only": true
+  },
+  "remaining_gates": [
+    "Bind these facts into the frozen generator/test invocation packet and typed-fixture handoff.",
+    "Independently review returned generator/test outputs before local generation and 14-path integration."
+  ]
+}

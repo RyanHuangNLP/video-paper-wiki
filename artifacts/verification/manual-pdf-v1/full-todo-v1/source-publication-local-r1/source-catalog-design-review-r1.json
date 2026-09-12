@@ -1,0 +1,284 @@
+{
+  "$schema": "full-todo.source-catalog-design-review-r1.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R1-read-only-design-review",
+  "recorded_at_utc": "2026-09-09T06:20:00Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent read-only design reviewer"
+  },
+  "scope": "Design inspection only. No production source, test source, real Vault, operator receipt, Git, network, or human-gate mutation was performed.",
+  "verdict": "BLOCKED_PENDING_SOURCE_CATALOG_FREEZE",
+  "baseline": {
+    "source_root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "tree": "d70b6efb5e8e65bb89760f9396f0d94ea8e56e6d",
+    "git_status": "non-clean source-publication candidate working tree; reviewed bytes are recorded below and are not a clean accepted implementation",
+    "working_tree_entry_count": 27,
+    "prior_design_draft": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-DRAFT-R1.md",
+      "sha256": "315cb9a48a5d81b98ca5759fdc493819cf687e3976465f6078c9acbe4463263f",
+      "status": "review draft only; not an implementation freeze"
+    }
+  },
+  "reviewed_interfaces": {
+    "video_paper_wiki.catalog_collector": {
+      "path": "src/video_paper_wiki/catalog_collector.py",
+      "sha256": "74589f1f1ea41514785c782f10409fd7a6299c31cb1ea9aaff8c60d5f09170a7",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.catalog_store": {
+      "path": "src/video_paper_wiki/catalog_store.py",
+      "sha256": "fa6e3e365a019b33f1af34801a763fe64b74c0b162f6283223eee5fb14c1b0a2",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.receipt_audit": {
+      "path": "src/video_paper_wiki/receipt_audit.py",
+      "sha256": "561ce75adbd6f5c5dff1be6ca5eebef2c9064ab87280ea2abcb107279e58275a",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.source_state": {
+      "path": "src/video_paper_wiki/source_state.py",
+      "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.source_versions": {
+      "path": "src/video_paper_wiki/source_versions.py",
+      "sha256": "c93765c6940d1e1e0a6719d4e56d99c6e6d045fe37b2f1cd2fac6e150889cbb1",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.retrieval": {
+      "path": "src/video_paper_wiki/retrieval.py",
+      "sha256": "7e6e659107ca9c5f31f98ed66af4baf5f4df7d0f9190b0f62a60fb8422cfefae",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.staging": {
+      "path": "src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "state": "working-tree bytes"
+    },
+    "video_paper_wiki.markdown_locator": {
+      "path": "src/video_paper_wiki/markdown_locator.py",
+      "sha256": "18d8c79b8b779a7cc8cb33f6c55ba425270cfe561a4466871c84347efd87b0fb",
+      "state": "working-tree bytes"
+    },
+    "catalog/base_generation_profile": {
+      "path": "catalog/base-catalog-v1.generation-profile.json",
+      "sha256": "7b4e95e7b1ad89e492bab98486de359fe125854215fd2de5e7aaab3f4b8e333a",
+      "state": "frozen legacy resource"
+    },
+    "catalog/search_generation_profile": {
+      "path": "catalog/search-catalog-v1.generation-profile.json",
+      "sha256": "2b9ddafe5046df057e1795554b91a91837bf044ac5eaf26bf2dcaf485d6d70ca",
+      "state": "frozen legacy resource"
+    },
+    "catalog/base_columns": {
+      "path": "catalog/base-catalog-v1.columns.json",
+      "sha256": "439024fa2eed6695725c8fdfbe8d03e982e776160f5548f6201d99caaa0ee50c",
+      "state": "frozen legacy resource"
+    },
+    "catalog/search_columns": {
+      "path": "catalog/search-catalog-v1.columns.json",
+      "sha256": "89d45bf183b89225cdea9c6a92f38339dec72a1d209229e6770ee798a8dcf152",
+      "state": "frozen legacy resource"
+    },
+    "catalog/base_sql": {
+      "path": "catalog/base-catalog-v1.sql",
+      "sha256": "3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c",
+      "state": "frozen legacy resource"
+    },
+    "catalog/search_sql": {
+      "path": "catalog/search-catalog-v1.sql",
+      "sha256": "4dfa131fd9ffc1faec7b44d1257e355d48033ebcbc4f52b2e0bb9d00b942839c",
+      "state": "frozen legacy resource"
+    }
+  },
+  "findings": [
+    {
+      "id": "CATALOG-CONTRACT-001",
+      "severity": "blocker",
+      "finding": "The draft names a source-catalog-v1 profile and .work/<batch>/source-catalog/catalog.json, but does not define a closed artifact schema, exact keys and row schemas, canonical encoding, profile/resource path, digest derivation, limits, staging API, fixed-slot state machine, status/query/resolve response schemas, or typed failure precedence.",
+      "anchors": [
+        "SOURCE-CATALOG-DRAFT-R1.md:6-21",
+        "src/video_paper_wiki/catalog_store.py:174-230"
+      ],
+      "evidence": [
+        "prepare_catalog_material currently validates the closed ten-key legacy material (base_generation_material, base_tables, mapping, config, indexed_pages, compiled_pages, chunks, bm25, builder_files).",
+        "The existing base/search column manifests, SQL and generation profiles are separate legacy contracts and cannot supply the missing source-catalog contract or silently change column meaning."
+      ],
+      "closure_action": "Freeze a separate source-catalog-v1 schema and profile with exact object keys, row identities/order, JCS/LF bytes, digest inputs, byte/file/row limits and deterministic limit refusal. Specify create/reuse/conflict staging, complete status/query/resolve envelopes and stable error codes before implementation."
+    },
+    {
+      "id": "CATALOG-LEGACY-ERROR-002",
+      "severity": "blocker",
+      "finding": "The existing collector deliberately refuses source-aware bytes with SOURCE_PROFILE_REQUIRED, while legacy catalog_status catches every ContractError and rewrites it to CATALOG_STALE. Routing the new source catalog through this interface would erase the required legacy refusal code.",
+      "anchors": [
+        "src/video_paper_wiki/catalog_collector.py:160-177",
+        "src/video_paper_wiki/source_state.py:89-102",
+        "src/video_paper_wiki/catalog_store.py:582-621"
+      ],
+      "evidence": [
+        "collect_current_catalog_material calls require_legacy_profile before projecting rows; source-aware paths raise SOURCE_PROFILE_REQUIRED with exit code 75.",
+        "catalog_status catches that ContractError and raises CATALOG_STALE, so the old index.status behavior cannot be used as the source-catalog status implementation."
+      ],
+      "closure_action": "Keep legacy index/status and its SOURCE_PROFILE_REQUIRED behavior unchanged. Give source-catalog commands a separate collector/status path that preserves source-aware typed errors and does not wrap them in the legacy CATALOG_STALE adapter."
+    },
+    {
+      "id": "SNAPSHOT-LIFETIME-003",
+      "severity": "blocker",
+      "finding": "The existing retained snapshot is an optional collector return, not a closed build/status/query/resolve session. catalog_status retains and closes it around one call, while query_catalog calls catalog_status and then performs a second final catalog_status/collector pass.",
+      "anchors": [
+        "src/video_paper_wiki/catalog_collector.py:160-237",
+        "src/video_paper_wiki/catalog_store.py:582-631",
+        "src/video_paper_wiki/catalog_store.py:661-698"
+      ],
+      "evidence": [
+        "_retain=True returns (material, _Snapshot), but the public collector otherwise closes its snapshot in the finally path.",
+        "query_catalog opens one live snapshot through catalog_status, reads the query inputs, then invokes catalog_status again for its final comparison; this violates the draft's one-snapshot promise if reused as-is."
+      ],
+      "closure_action": "Freeze one retained source-catalog session object whose named directory edges and bytes cover audit_integrity, source-state collection, complete inventory, projection reconstruction and citation resolution. Pass that session through build/status/query/resolve and perform one final complete-set/named-edge verification on every exit; never recursively reopen live authority."
+    },
+    {
+      "id": "SNAPSHOT-FAIL-004",
+      "severity": "blocker",
+      "finding": "The draft requires complete inventory and named-edge checks even when enumeration fails, but receipt_audit.audit_integrity's exception path only calls _Snapshot.verify. _Snapshot.verify compares snap.inventory only when _enumerate completed far enough to assign it.",
+      "anchors": [
+        "src/video_paper_wiki/receipt_audit.py:138-172",
+        "src/video_paper_wiki/receipt_audit.py:181-251",
+        "src/video_paper_wiki/receipt_audit.py:267-368"
+      ],
+      "evidence": [
+        "_enumerate assigns snap.inventory only after _walk_inventory returns; a failure during _walk_inventory can leave inventory unset.",
+        "The BaseException path at audit_integrity:364-366 therefore checks tracked directories/files/absent slots but does not necessarily re-enumerate the complete set that the draft promises."
+      ],
+      "closure_action": "Define an explicit finalizer for the source-catalog session that records enumeration progress and runs a complete inventory/named-edge refusal check on both success and failure, including failure before initial inventory assignment. Preserve the original typed error unless the final safety check itself has a higher frozen precedence."
+    },
+    {
+      "id": "GENERATION-CLOSURE-005",
+      "severity": "blocker",
+      "finding": "The draft requires generation provenance to cover the complete Vault inventory, source-catalog profile and resources, canonical schemas/taxonomy, implementation bytes, runtime/dependencies and tokenizer, but current inventory_digest and _generation do not define that source-catalog closure.",
+      "anchors": [
+        "src/video_paper_wiki/source_state.py:60-69",
+        "src/video_paper_wiki/catalog_collector.py:139-157",
+        "src/video_paper_wiki/catalog_collector.py:218-233"
+      ],
+      "evidence": [
+        "inventory_digest hashes sorted path/hash/size/mode rows, but the source catalog has not declared which retained paths, implementation/resources, profiles or dependency/tokenizer bytes participate in its digest.",
+        "_generation is explicitly tied to base-catalog-v1.generation-profile.json and produces a legacy projection-generation resource; it does not describe source-catalog-v1 or source-aware compiler/query semantics."
+      ],
+      "closure_action": "Freeze the complete generation material and its domain-separated digest: all retained head/receipt/current and historical snapshot rows, profile/schema/taxonomy/compiler/collector/query bytes, runtime/dependency/tokenization profiles and canonical projection rows. Reject any resource or row limit before omission; never truncate to fit."
+    },
+    {
+      "id": "COVERAGE-PROVENANCE-006",
+      "severity": "blocker",
+      "finding": "Current source-state validation checks many associations, snapshots, Markdown locators and legacy code/PDF artifacts, but it does not define source-catalog rows for uncovered captures, unclaimed sources or source registrations without a canonical paper. It also has no public legacy code/PDF citation resolver with an explicit unsupported result.",
+      "anchors": [
+        "src/video_paper_wiki/source_state.py:255-331",
+        "src/video_paper_wiki/source_state.py:334-383",
+        "src/video_paper_wiki/source_state.py:386-496",
+        "src/video_paper_wiki/markdown_locator.py"
+      ],
+      "evidence": [
+        "audit_integrity reports unclaimed .raw/captured entries in orphans, while collect_source_state projects validated documents and rows without defining a visible uncovered result for those entries.",
+        "Markdown exact locator resolution exists, but code/PDF paths are validated through manifests/locators and do not expose the requested citation-resolution response shape; a source-catalog API must not fabricate text."
+      ],
+      "closure_action": "Freeze coverage/provenance rows for every source registration, capture and association, including explicit uncovered/orphan states. Require selected-display and citation-association references, exact raw path/hash/span/page/excerpt data, and a closed unsupported outcome for legacy code/PDF where exact resolution is unavailable."
+    },
+    {
+      "id": "QUERY-RANKING-007",
+      "severity": "blocker",
+      "finding": "The requested claim-text and source-excerpt lexical query is not the existing retrieval contract. retrieval.rank_hits ranks BM25 chunk hits with a stable (-score, paper_id, chunk_id) order and the legacy query response returns raw_hits/ranking plus generation digests; it does not define separate claim/source units or the new citation-bearing response.",
+      "anchors": [
+        "src/video_paper_wiki/retrieval.py:63-130",
+        "src/video_paper_wiki/catalog_store.py:634-658",
+        "src/video_paper_wiki/catalog_store.py:661-688"
+      ],
+      "evidence": [
+        "mapping_from_database reconstructs legacy evidence units and chunk locators from the search schema.",
+        "query_catalog delegates ranking to bm25_query/rank_hits and returns raw_hits/ranking, with no source-catalog citation/association rows or claim/source excerpt index."
+      ],
+      "closure_action": "Freeze query input, tokenizer, normalization, score representation, ranking units, filters, top limits, tie order, digest binding and response/error schemas. Either explicitly reuse legacy BM25 semantics without changing legacy behavior or define a separate source-catalog ranker/index."
+    },
+    {
+      "id": "ASSESSMENT-FILTER-008",
+      "severity": "blocker",
+      "finding": "The draft's accepted/provisional/lifecycle filters need terminal assessment-head semantics, but existing query responses have no such filters and source-state exposes both claim-ledger assessment values and derived head event IDs without a source-catalog filter contract.",
+      "anchors": [
+        "src/video_paper_wiki/source_state.py:414-422",
+        "src/video_paper_wiki/assessment_history.py",
+        "src/video_paper_wiki/catalog_store.py:661-688"
+      ],
+      "evidence": [
+        "derive_assessment_heads derives the authoritative terminal event ID, while claim rows retain assessment/review fields and event actor/type lineage is separate.",
+        "No existing source-catalog query schema specifies whether accepted-only evaluates the terminal event, caller rows, lifecycle, or model/system provenance."
+      ],
+      "closure_action": "Define filter evaluation from the validated terminal assessment head and its event bytes, preserving actor/event lineage and reviewed_at. Accepted-only must reject or exclude provisional model/system claims and never promote a caller-supplied claim row."
+    },
+    {
+      "id": "ASSOCIATION-SELECTION-009",
+      "severity": "blocker",
+      "finding": "Display selection and citation freshness are different identities. derive_display_heads returns a selected association reference, while Markdown locators bind their own association/raw bytes; using the selected display head as citation identity would mislabel valid historical citations stale.",
+      "anchors": [
+        "src/video_paper_wiki/source_versions.py:1-320",
+        "src/video_paper_wiki/source_state.py:440-457",
+        "src/video_paper_wiki/markdown_locator.py"
+      ],
+      "evidence": [
+        "A display head can roll back or select one association for a paper, independently of a claim locator that references another retained association.",
+        "The current state compiler validates association/raw-byte bindings, but no source-catalog row/result contract requires both selected_display_association and citation_association."
+      ],
+      "closure_action": "Freeze separate nullable display-head fields and per-citation association references. Citation validity must be determined from its exact retained association/history/raw bytes; display selection may be reported alongside it but cannot be used as freshness authority."
+    },
+    {
+      "id": "STAGING-SLOT-010",
+      "severity": "blocker",
+      "finding": "stage_bytes accepts an arbitrary relative path and verifies each call independently. It does not define the requested one retained source-catalog/catalog.json slot with absent/present identity, atomic create/reuse/conflict behavior and final exception verification.",
+      "anchors": [
+        "src/video_paper_wiki/staging.py:58-136",
+        "src/video_paper_wiki/staging.py:1365-1435",
+        "SOURCE-CATALOG-DRAFT-R1.md:18-21"
+      ],
+      "evidence": [
+        "The existing retained batch session protects checkout/.work/<batch> directory identities, but the source-catalog slot lifecycle and file identity are not a public contract.",
+        "Repeated stage_bytes calls could choose different paths or observe replacement between calls; the draft requires one fixed private path and one retained session."
+      ],
+      "closure_action": "Freeze a source-catalog staging API bound to .work/<batch>/source-catalog/catalog.json, with private mode, retained parent/slot identity, absent create, byte-identical reuse, differing-byte conflict and refusal on replacement/missing/symlink/hardlink/exception paths."
+    }
+  ],
+  "compatibility_findings": [
+    "The draft correctly preserves the existing base-catalog-v1 and search-catalog-v1 schemas, SQL, column manifests and generation profiles; these must remain byte-compatible and separate from the new artifact.",
+    "_Snapshot, audit_integrity, source_state exact-byte validation, source-version display-head derivation, assessment-head derivation, Markdown locator resolution and retained batch staging are useful primitives for the successor contract after the missing session and schema boundaries are frozen.",
+    "The source catalog should remain a replaceable .work cache and must not mint receipts, mutate the Vault, create human review, change display decisions or become a second canonical ledger."
+  ],
+  "required_freeze_questions": [
+    "What exact closed source-catalog-v1 artifact/profile and resource registry are authoritative, including canonical bytes, path, row schemas, ordering, digest domain and all limits?",
+    "What retained-session descriptor names every Vault ancestor directory, file, absent slot, current basis, historical snapshot and upstream/runtime/profile input through build/status/query/resolve?",
+    "What are the source-catalog status, exact-identity lookup, lexical query and citation-resolution response/error schemas, including legacy unsupported and uncovered cases?",
+    "What terminal assessment-head, lifecycle, display-selection and per-citation association semantics govern filtering and freshness?",
+    "What fixed-slot staging state machine and final success/exception verification enforce .work/<batch>/source-catalog/catalog.json?"
+  ],
+  "required_acceptance_vectors": [
+    "Empty Vault, receipt-backed fully rendered legacy, Markdown v2, mixed legacy/v2, repositories and historical ledger-snapshot catalogs produce closed deterministic rows and generation bytes.",
+    "Identical build/status/query/resolve inputs are byte-stable; a changed head, receipt, historical snapshot, source association, profile/resource, implementation byte, dependency/tokenizer profile or runtime makes the cache stale.",
+    "Unclaimed raw captures and registered sources without canonical paper produce visible uncovered rows; no source, association, citation, excerpt or unsupported result is silently dropped.",
+    "Markdown resolution round-trips exact Unicode spans and hashes; historical citation association remains valid across display rollback; changed raw bytes, association, page anchor or excerpt refuses.",
+    "Legacy PDF/code resolution uses retained parser/manifest bytes and established locator identity, otherwise returns the frozen unsupported result without fabricated text.",
+    "Assessment event forks, stale heads, model/system provisional claims and accepted-only filters exercise terminal-head semantics and preserve actor/event lineage.",
+    "Exact identity/title lookup and lexical ranking cover claim text and source excerpts with frozen tokenization, score, ties, limits, filters, result schema and generation/basis rechecks.",
+    "Source-catalog slot absent/create, byte-identical reuse, differing-byte conflict, parent replacement, slot unlink/recreate, symlink, hardlink, permission and exception paths refuse safely while preserving the original error precedence.",
+    "Loaded cache forgery, partial rows, invented excerpts, self-consistent descriptor hashes, unknown semantic paths and complete-set changes all refuse after reconstruction from retained source bytes.",
+    "The existing legacy index.status SOURCE_PROFILE_REQUIRED behavior, base/search resources and old query behavior remain unchanged."
+  ],
+  "implementation_boundary": {
+    "allowed": "This artifact records review evidence only.",
+    "forbidden": [
+      "production source edits",
+      "test edits",
+      "Git mutations",
+      "real Vault or operator writes",
+      "network/external index actions",
+      "human-gate closure"
+    ],
+    "stopped_writing": true
+  }
+}

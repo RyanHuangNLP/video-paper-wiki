@@ -1,0 +1,146 @@
+{
+  "schema": "research-wiki-remaining-todo-status.v1",
+  "recorded_at_utc": "2026-09-08T17:35:34.994097+00:00",
+  "user_authorization": "把剩余的TODO都完成了吧，cursor grok的权限我都approve",
+  "baseline_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+  "items": [
+    {
+      "id": "NPDF",
+      "objective": "Remove tracked PDF assets and generate test samples at runtime",
+      "status": "accepted-at-exact-head",
+      "dependencies": [],
+      "implementation_accepted_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "fresh_ci": {
+        "run_id": 34256770949,
+        "attempt": 1,
+        "jobs_passed": 4,
+        "tests_per_job": 2701,
+        "checkout_sha": "fceb3c6a54de3626b1a36fe683591a6ceb1ce813"
+      },
+      "external_human_gates_closed": false,
+      "candidate_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "local_validation": {
+        "python312": 2701,
+        "python313": 2701,
+        "independent_probes": 34,
+        "focused_tests": 16
+      },
+      "acceptance": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/no-pdf-v1/architect-exact-head-acceptance-r2.json",
+        "sha256": "ca45e99405da0e001635e59d3f7452fabfa828e1ad8b07a7a50b3a6e24310171"
+      }
+    },
+    {
+      "id": "SOURCE",
+      "objective": "Lightweight formal source binding, canonical knowledge publication and versions",
+      "status": "capture-launch-review-after-sandbox-startup-failure",
+      "dependencies": [
+        "NPDF"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "capture": {
+          "packet": "SOURCE-CAPTURE-R1.md",
+          "freeze_sha256": "9daa95f62beadf7256dd09356232c78d3e1f8a3293536aea7b97a618963860d8",
+          "allowed_paths": 24,
+          "controller": "five_agent_config_review",
+          "lane": 1
+        },
+        "version_and_knowledge": "next-contract"
+      }
+    },
+    {
+      "id": "DISCOVERY",
+      "objective": "Online paper preview, observation, version selection and candidate expansion",
+      "status": "preview-frozen-waiting-normal-host-launch",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "preview": {
+          "packet": "DISCOVERY-PREVIEW-R1.md",
+          "allowed_paths": 23,
+          "controller": "cursor_lanes34_controller",
+          "lane": 2,
+          "engineering_dependencies": [
+            "NPDF"
+          ]
+        },
+        "expansion": "subsequent-contract-after-source-interface"
+      }
+    },
+    {
+      "id": "CODE",
+      "objective": "Official repository, commit, code/config evidence and mapping",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "DOMAIN",
+      "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "CODE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "SYNTHESIS",
+      "objective": "Cited full articles and source-bound reproduction plans",
+      "status": "pending-contract",
+      "dependencies": [
+        "DOMAIN"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "QUALITY",
+      "objective": "Corpus, independent gold interfaces, model runs and semantic evaluation",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "PRODUCT",
+      "objective": "Obsidian views, status and all-namespace backup/restore integration",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    }
+  ],
+  "constraints": {
+    "zero_egress_python": true,
+    "no_committed_pdfs": true,
+    "no_models_or_ocr_install": true,
+    "catalog_count": 67,
+    "no_real_vault_mutation": true,
+    "no_merge": true
+  }
+}

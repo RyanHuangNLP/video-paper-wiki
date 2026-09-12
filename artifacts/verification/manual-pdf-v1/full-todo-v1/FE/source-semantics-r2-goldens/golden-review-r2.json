@@ -1,0 +1,107 @@
+{
+  "blockers": [],
+  "checks": [
+    {
+      "evidence": "Valid migrated chain derives one v2 human head while retaining the exact v1 genesis and human prefix, with claim text hash unchanged.",
+      "id": "V1_TO_V2_PREFIX",
+      "status": "PASS"
+    },
+    {
+      "evidence": "False v2 genesis, direct v2 human bypass, wrong v1 terminal parent, v1 re-entry, same-profile/same-fingerprint invalidation, and human fingerprint switch all refuse with frozen codes.",
+      "id": "MIGRATION_NEGATIVES",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Association inventory validates against exact raw, extraction, receipt and historical ledger bytes; locator resolves the exact UTF-8 conclusion excerpt and display heads derive.",
+      "id": "SOURCE_AUTHORITY_REPLAY",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Delegated v1 compile output matches three legacy golden pages byte-for-byte, including the newly retained code page golden.",
+      "id": "LEGACY_COMPILER_BYTES",
+      "status": "PASS"
+    },
+    {
+      "evidence": "v2 mixed compile matches four candidate pages byte-for-byte; unchanged legacy paper/code pages retain their exact bytes and the concept page changes only for the expanded mixed relation set.",
+      "id": "MIXED_COMPILER_BYTES",
+      "status": "PASS"
+    },
+    {
+      "evidence": "All authority is synthetic fixture bytes; replay performs no Vault read/write, publication, network, or human approval.",
+      "id": "NO_REAL_AUTHORITY",
+      "status": "PASS"
+    }
+  ],
+  "contract": {
+    "allowlist_sha256": "24f681e2c2d0cda190ceecb38edf54a30ce7c07ca2a8a05c7909a3c70313e0e4",
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R2.md",
+    "sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9"
+  },
+  "decision": "GO_FOR_GOLDEN_REPLAY",
+  "fixture_repairs": [
+    {
+      "detail": "The v2 invalidation negative now carries evidence_profile=legacy-v1 with the legacy fingerprint and recomputed dependent v2 human event ID, so it exercises same profile/fingerprint rather than an intended profile transition.",
+      "id": "SAME_FINGERPRINT_MUTATION",
+      "status": "PASS"
+    },
+    {
+      "detail": "Added legacy-github-...md from the actual delegated v1 compiler output so all legacy output paths are byte-checked.",
+      "id": "LEGACY_CODE_GOLDEN",
+      "status": "PASS"
+    },
+    {
+      "detail": "Corrected the mixed parity probe to use the canonical code output path.",
+      "id": "PARITY_PATH",
+      "status": "PASS"
+    }
+  ],
+  "focused_tests": {
+    "command": "PYTHONPATH=.work/parallel/source-semantics-v1/terminal-1/source/src .venv/bin/pytest -q .work/parallel/source-semantics-v1/terminal-1/source/tests/unit/test_source_versions.py",
+    "result": "51 passed in 0.27s",
+    "scope": "association reuse/provenance, inventory completeness, registration proof, display history, locator and source-version compiler helpers"
+  },
+  "implementation_source": ".work/parallel/source-semantics-v1/terminal-1/source",
+  "limitations": [
+    "This is a focused golden replay and semantic fixture review; it does not replace the repository test suites or CI.",
+    "Source implementation files are inspected from the parallel candidate worktree and remain unmodified by this fixture review."
+  ],
+  "module_hashes": {
+    "assessment_history_v2.py": {
+      "path": ".work/parallel/source-semantics-v1/terminal-1/source/src/video_paper_wiki/assessment_history_v2.py",
+      "sha256": "d72d9672848f03aacdd85a65e4a0e31963b0ec488b5aaf855c851b7766c6aca3",
+      "size_bytes": 8033
+    },
+    "canonical_compiler_v2.py": {
+      "path": ".work/parallel/source-semantics-v1/terminal-1/source/src/video_paper_wiki/canonical_compiler_v2.py",
+      "sha256": "d685a3cd4e63b0534922b6d13279d973591fe2e29ca16b83a9fdb23c46c301de",
+      "size_bytes": 15823
+    },
+    "markdown_locator.py": {
+      "path": ".work/parallel/source-semantics-v1/terminal-1/source/src/video_paper_wiki/markdown_locator.py",
+      "sha256": "7169032ef79d6746ef69e340ffc346c76f96e1ca8535425517114781776793c8",
+      "size_bytes": 6038
+    },
+    "source_registration.py": {
+      "path": ".work/parallel/source-semantics-v1/terminal-1/source/src/video_paper_wiki/source_registration.py",
+      "sha256": "9144aae9145929d8e714da301ea44deaa740c4838f2a81678fd28bbba3c461ee",
+      "size_bytes": 13056
+    },
+    "source_semantics_contracts.py": {
+      "path": ".work/parallel/source-semantics-v1/terminal-1/source/src/video_paper_wiki/source_semantics_contracts.py",
+      "sha256": "21115e1bd49e1c8576c08a3fd4a1c0b8826e0f811664e070ce92d13a5f2ccfe3",
+      "size_bytes": 10087
+    },
+    "source_versions.py": {
+      "path": ".work/parallel/source-semantics-v1/terminal-1/source/src/video_paper_wiki/source_versions.py",
+      "sha256": "4853ae628790427cf190681b541a473bd6b829aef182a6c8e92e017a6e497638",
+      "size_bytes": 9875
+    }
+  },
+  "replay_result": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/FE/source-semantics-r2-goldens/golden-replay-result.json",
+    "sha256": "7d47b692270f47885154549bb1b1d4aaabd3f5735ec1d69f5e43401e5ea7c2f4",
+    "size_bytes": 9085
+  },
+  "review_scope": "Assessment v1-to-v2 compatibility vectors, source association/registration/locator authority fixture, legacy compiler delegation, and mixed v2 compiler output bytes.",
+  "schema": "video-paper-wiki.source-semantics-r2-golden-review.v1"
+}

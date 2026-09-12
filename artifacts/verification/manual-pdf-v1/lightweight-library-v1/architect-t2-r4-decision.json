@@ -1,0 +1,36 @@
+{
+  "recorded_at_utc": "2026-09-08T05:23:54.279940+00:00",
+  "decision": "REJECTED_T2_R4_REQUIRES_FINAL_PREMOVE_VALIDATION_ORDER_FIX",
+  "snapshot_sha256": "e11be2214f411547295c8947245e56cbb05d9fe8600f94c9994244b5219ed2bf",
+  "evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r4/handoff.json",
+      "sha256": "7f1e4355e971e1e17a98d98499a841f779970d62658e5dd26e2a10944d41fd68",
+      "size_bytes": 4560
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r4-replay/checks.json",
+      "sha256": "242b900789397d2cd019f14190a90e82dcda473a864161a7511ee359906e11fe",
+      "size_bytes": 5142
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r4-backup/checks.json",
+      "sha256": "d248090f486b1456e5dc0d55991679e2c3e465e55dea4fd57ccde6a2898061f9",
+      "size_bytes": 1884
+    }
+  ],
+  "root_checks": {
+    "passed": 65,
+    "failed": 3
+  },
+  "root_backup_checks": {
+    "passed": 21
+  },
+  "findings": [
+    "All before-extraction and post-extraction ownership cases now pass.",
+    "Final before_old_archive unknown file/directory/modified-lock additions are preserved, but the old live paper moves before a closed result. Repeat existing complete checks after that hook before rename."
+  ],
+  "next_revision": "FIX-T2-R5.md",
+  "accepted_for_integration": false,
+  "merge_authorized": false
+}

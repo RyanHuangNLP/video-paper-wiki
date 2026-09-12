@@ -1,0 +1,34 @@
+{
+  "schema": "video-paper-wiki.source-canonical-design-resolutions.v1",
+  "recorded_at_utc": "2026-09-08T17:47:42.028862+00:00",
+  "status": "architect-design-decisions-pending-exact-implementation-freeze",
+  "design": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-CANONICAL-DESIGN-R1.md",
+    "sha256": "e46211baa9bba40f52746748757257ed49dbc3cb5c5801668824a486d900e5af"
+  },
+  "independent_review": "five_agent_config_review read-only review received in current coordination; saved artifact requested",
+  "decisions": [
+    {
+      "id": "receipt-order",
+      "decision": "Initial canonical source association requires a prior audited source-registration receipt. Capture itself has no receipt; association/record publication occurs in a successor transaction and never embeds its own future receipt hash."
+    },
+    {
+      "id": "version-provenance",
+      "decision": "Freeze version conflict key, source-version identity and exact association identity separately. Same Markdown content may reuse the content/version identity; changed original-PDF or observation provenance must remain a separately immutable variant or explicit PROVENANCE_VARIANT refusal, never silent replacement or discard."
+    },
+    {
+      "id": "display-authority",
+      "decision": "Derive one display head from the complete append-only nonforking decision chain. Registry namespace and mirror writes require explicit transaction/publication/catalog support before any applied/current claim."
+    },
+    {
+      "id": "assessment-migration",
+      "decision": "Prefer one explicit v1-to-v2 boundary event to provisional, bound to the actual prior v1 head and claim snapshot. Keep one authoritative current history/head, not a second independent genesis or assessment ledger. Preserve all old v1 bytes and profile semantics."
+    },
+    {
+      "id": "identity-alias",
+      "decision": "Preserve existing entity and claim IDs when later adding arXiv/DOI identifiers. Add an explicit validated immutable alias-binding relation with contradictory alias/source refusal; do not silently establish a second paper over the same canonical source."
+    }
+  ],
+  "next_pure_slice": "Exact schema/module/API/allowed paths still need freeze; no Builder or production writes authorized by this design record. Paper-record v2/compiler/publication/catalog follow actual accepted pure interfaces.",
+  "merge_authorized": false
+}

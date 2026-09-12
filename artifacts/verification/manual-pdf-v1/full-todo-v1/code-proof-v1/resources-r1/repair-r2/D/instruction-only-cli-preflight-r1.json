@@ -1,0 +1,33 @@
+{
+  "record_type": "instruction-only-cli-preflight-r1",
+  "recorded_at": "2026-09-10T14:42:30Z",
+  "scope": "local help only; no prompt, model, data, API, or project-file call",
+  "help_commands": [
+    {
+      "command": "/Users/huangzhanpeng/.local/bin/grok --help",
+      "cwd": "/private/tmp",
+      "exit_code": 0
+    },
+    {
+      "command": "/Users/huangzhanpeng/.local/bin/grok help agent",
+      "cwd": "/private/tmp",
+      "exit_code": 0
+    },
+    {
+      "command": "/Users/huangzhanpeng/.local/bin/grok --tools '' --help",
+      "cwd": "/private/tmp",
+      "exit_code": 0
+    }
+  ],
+  "help_findings": {
+    "single_option": "-p, --single <PROMPT>",
+    "single_semantics": "Single-turn prompt; prints the response to stdout and exits",
+    "tools_option": "--tools <TOOLS>",
+    "tools_semantics": "Built-in tools to allow, comma-separated",
+    "empty_tools_probe": "The empty value --tools '' parses successfully when combined with --help",
+    "supported_none_sentinel": "Not documented by local help; do not use a sentinel such as supportednone"
+  },
+  "exact_cli_recommendation": "grok --single '<SHORT_NATURAL_LANGUAGE_PROMPT>' --tools '' --no-subagents --disable-web-search",
+  "model_or_network_started": false,
+  "project_files_read": false
+}

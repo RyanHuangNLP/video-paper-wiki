@@ -1,0 +1,68 @@
+{
+  "schema": "video-paper-wiki.code-proof-resource-contract-review.v1",
+  "revision": 12,
+  "generated_at_utc": "2026-09-10T04:18:35Z",
+  "reviewer": "cursor_cli_preflight",
+  "scope": {
+    "accepted_worktree": ".work/parallel/code-proof-v1/terminal-1/source",
+    "head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "status": "clean"
+  },
+  "inputs": {
+    "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0",
+    "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2",
+    "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62",
+    "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04",
+    "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95",
+    "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe",
+    "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568",
+    "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+    "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d"
+  },
+  "checks": [
+    {
+      "id": "PROFILE_SHAPE",
+      "result": "PASS",
+      "evidence": "R12 lines 65-128 closes the six-key profile object, exact revision/name, all git/config/public maxima, admission caps, ten-row hash inventory and byte serialization. It is consistent with R7 lines 335-352, which place the profile inside the existing imported package rule."
+    },
+    {
+      "id": "PACKAGE_ORIGINS",
+      "result": "PASS",
+      "evidence": "Current pyproject.toml lines 28-35 packages both src trees and force-includes root schemas/. A profile added under src/video_paper_wiki/profiles/ is package data under the existing package rule; the installed wheel must still be checked after generation. R12 package/source origins do not require CWD fallback."
+    },
+    {
+      "id": "LEGACY_RESOURCE_API",
+      "result": "PASS_WITH_HANDOFF_CONSTRAINT",
+      "evidence": "resources.py package-first/source-sibling loading is compatible with R7/R12 no-CWD origins. schema_resource_names() and contracts._schema_registry() enumerate all legacy *.schema.json, so they cannot be reused unchanged for the exact ten-resource trust set. R12 lines 134-150 explicitly requires retained exact bytes and permits a separate/filtered module."
+    },
+    {
+      "id": "SCHEMA_REGISTRY",
+      "result": "PASS_WITH_HANDOFF_CONSTRAINT",
+      "evidence": "The existing jsonschema Registry path (contracts.py lines 156-203, 1010-1013) can represent exact $id references when fed retained ten-resource bytes. The generation contract forbids remote/undeclared retrieval and unrelated schema discovery; this is an implementation acceptance constraint, not a resource-shape conflict."
+    },
+    {
+      "id": "OUTER_ENVELOPE",
+      "result": "PASS",
+      "evidence": "R9 lines 180-182 and R12 lines 41-46 require command-result to validate successful data only. envelope.py emits exactly {ok,command,data} or {ok:false,command,error:{code,message,details}}; R12 does not redefine it."
+    },
+    {
+      "id": "KERNEL_COMPATIBILITY",
+      "result": "PASS",
+      "evidence": "R12 profile maxima match CODE-GIT-KERNEL-R1/R2 and CODE-CONFIG-KERNEL-R1/R2; the saved schemas are required to encode their exact result records. R7/R9/R11 keep canonical bytes, refs, cap pointers and kernel error contexts outside structural schema substitution. No changed kernel field, limit, error code or serialization rule is introduced."
+    },
+    {
+      "id": "REF_CLOSURE",
+      "result": "PASS",
+      "evidence": "R12 lines 11-46 binds exactly ten Draft 2020-12 documents, exact IDs/titles, same-document or ten-set refs, no remote retrieval, and no eleventh profile schema. This directly closes R7/R9 resource/hash/origin prerequisites without conflicting with R4 identity semantics."
+    }
+  ],
+  "blocking_items": [],
+  "required_handoff_constraints": [
+    "Do not feed public CODE validation through the legacy all-schema enumeration without an exact ten-resource filter/retained view.",
+    "Keep the generated command-result schema scoped to successful data; preserve legacy error wrapping and kernel errors.",
+    "After generation, independently verify exact bytes, refs, profile inventory, source/package origins and isolated-wheel parity before implementation dispatch."
+  ],
+  "disposition": "GO_FOR_SEPARATE_RESOURCE_GENERATION_HANDOFF",
+  "phase_note": "Absence of generated resources and public implementation is the stated phase prerequisite, not a R12 design failure."
+}

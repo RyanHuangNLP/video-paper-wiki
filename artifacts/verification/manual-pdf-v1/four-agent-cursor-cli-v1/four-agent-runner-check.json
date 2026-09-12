@@ -1,0 +1,71 @@
+{
+  "schema": "four-agent-runner-check-v1",
+  "helper_sha256": "94677696be3e277c9b63a25d52dc78c277563dac45009078c1703d6d60f065bf",
+  "pinned_root": "/Users/huangzhanpeng/python_code/video-paper-wiki",
+  "pinned_executable": "/Users/huangzhanpeng/.local/bin/agent",
+  "requested_model": "cursor-grok-4.6-xhigh-fast",
+  "temporary_evidence_root": "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/four-agent-runner-check-dph4bp2s/evidence",
+  "checks": {
+    "success_first_accepted": true,
+    "success_second_accepted": true,
+    "unique_attempt_directories": true,
+    "final_log_metadata_prompt_hashes_match": true,
+    "pinned_argv": true,
+    "lease_conflict_refused": true,
+    "lease_conflict_preserved_existing_lease": true,
+    "nonzero_refused": true,
+    "interrupted_finalized_partial": true,
+    "interrupted_refused": true,
+    "interrupted_lease_preserved": true
+  },
+  "success_runs": [
+    "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/four-agent-runner-check-dph4bp2s/evidence/terminal-1/controller/20260907T164009Z-7db16de2ae0147ddb7d1fd6e29e9ebbe",
+    "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/four-agent-runner-check-dph4bp2s/evidence/terminal-1/controller/20260907T164009Z-29a2789ea0b444bc8a2ac60092b44c3b"
+  ],
+  "conflict_run": "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/four-agent-runner-check-dph4bp2s/evidence/terminal-2/controller/20260907T164009Z-d61daa2b6be5419c902bdbf0018a2526",
+  "nonzero_run": "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/four-agent-runner-check-dph4bp2s/evidence/terminal-3/controller/20260907T164009Z-ca5984f32804400da05a48c0a1eb13c6",
+  "interrupted_run": "/var/folders/_q/bjgsg0bs7sd_2g1swc6mtdhc0000gn/T/four-agent-runner-check-dph4bp2s/evidence/terminal-4/controller/20260907T164009Z-0a0c7445cef9430688ca3023243102a8",
+  "captured_argv": [
+    [
+      "/Users/huangzhanpeng/.local/bin/agent",
+      "--print",
+      "--output-format",
+      "stream-json",
+      "--auto-review",
+      "--workspace",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+      "--model",
+      "cursor-grok-4.6-xhigh-fast",
+      "stub prompt \\u2603\\n"
+    ],
+    [
+      "/Users/huangzhanpeng/.local/bin/agent",
+      "--print",
+      "--output-format",
+      "stream-json",
+      "--auto-review",
+      "--workspace",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-1/source",
+      "--model",
+      "cursor-grok-4.6-xhigh-fast",
+      "stub prompt \\u2603\\n"
+    ],
+    [
+      "/Users/huangzhanpeng/.local/bin/agent",
+      "--print",
+      "--output-format",
+      "stream-json",
+      "--auto-review",
+      "--workspace",
+      "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-3/source",
+      "--model",
+      "cursor-grok-4.6-xhigh-fast",
+      "stub prompt \\u2603\\n"
+    ]
+  ],
+  "limitations": [
+    "Stub checks exercise local process, lease, signal, hashing, and observation behavior only; no Cursor model was launched.",
+    "Account authorization, server-side model availability, and Cursor SmartAuto behavior remain external runtime checks.",
+    "An interrupted real runner intentionally leaves active-lease for explicit controller recovery after verifying the child is dead."
+  ]
+}

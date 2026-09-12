@@ -1,0 +1,168 @@
+{
+  "$schema": "full-todo.code-resource-steward-boundary-evidence-review-r1.v1",
+  "schema": "full-todo.code-resource-steward-boundary-evidence-review-r1.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T13:01:23Z",
+  "packet": "CODE-PROOF-RESOURCE-R1",
+  "phase": "post_generation_boundary_evidence_review",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded boundary-evidence reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only review of the frozen diagnostic resource output and independent schema-only boundary probes under both locked Python environments. No generator, public runtime, product tests, source, generated resource, fixture, Git, network, connector or Vault mutation was performed by this review.",
+  "decision": "REJECT_RESOURCE_CANDIDATE_PENDING_FOUR_BOUNDARY_REPAIRS",
+  "verdict": "The diagnostic generation itself completed safely and its byte/reference audit passed, but the generated resources fail four contract groups. Both Python 3.12 and 3.13 independently reproduced the same 16 mismatches out of 34 checks: four direct repository-component cases and nine embedded GitHub locator cases from one repository-regex boundary defect, plus the minimum bundle-directory case, the maximum JSON Pointer oracle and the maximum-source exclusive column oracle. The output remains diagnostic-only and is not eligible for installation or product acceptance.",
+  "scope_controls": {
+    "diagnostic_generation_source_executed_by_reviewer": false,
+    "boundary_probe_source_executed_by_reviewer": false,
+    "evidence_execution_read_only": true,
+    "public_runtime_touched": false,
+    "source_edits": false,
+    "resource_edits": false,
+    "fixture_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_touched": false,
+    "review_artifact_only": true
+  },
+  "reviewed_evidence": {
+    "generated_resource_manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/generated-resource-manifest-r1.json",
+      "size_bytes": 4516,
+      "sha256": "bef05163bbae0ae926f0efec353e92e6f52d0254a6af99391b8eeb9c2ecb4066",
+      "diagnostic_only": true,
+      "resource_root": "/private/tmp/crg-r1-9u333w92/generated",
+      "file_count": 11,
+      "exit_code": 0,
+      "product_resource_acceptance": false
+    },
+    "byte_reference_audit_py312": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-audit-r1-py312.stdout.json",
+      "sha256": "15bc84dc08529ce6c18b9256de21d0f3ce458c193ef6791296e3cf011b852621",
+      "decision": "PASSED_RESOURCE_BYTES_REFERENCES_PROFILE",
+      "resolved_references": 314,
+      "profile_sha256": "ca5670aa4909fdc5acb370ecdba656a9c8827624289b09b4d7ee29b2b0e8c0fc"
+    },
+    "byte_reference_audit_py313": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-audit-r1-py313.stdout.json",
+      "sha256": "15bc84dc08529ce6c18b9256de21d0f3ce458c193ef6791296e3cf011b852621",
+      "decision": "PASSED_RESOURCE_BYTES_REFERENCES_PROFILE",
+      "resolved_references": 314,
+      "profile_sha256": "ca5670aa4909fdc5acb370ecdba656a9c8827624289b09b4d7ee29b2b0e8c0fc"
+    },
+    "boundary_probe_py312": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-boundary-r1-py312.stdout.json",
+      "size_bytes": 22457,
+      "sha256": "678b992785ec777666ff1fe35a91166e71fe6f4862ad9256d79add739c6b3c4c",
+      "execution_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-boundary-r1-py312.execution.json",
+      "execution_sha256": "708205113c9b641e58f93ec50b128ec0d75b113d9e3cde6412cf41ef8cd9d8e2",
+      "python": "3.12 locked",
+      "exit_code": 1,
+      "check_count": 34,
+      "mismatch_count": 16,
+      "resource_pins_before_and_after_equal": true
+    },
+    "boundary_probe_py313": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-boundary-r1-py313.stdout.json",
+      "size_bytes": 22457,
+      "sha256": "e9b9035d2ac37cbd9f6d602fe3ca81c2038746ce1244964d28ecc3fe8d23e761",
+      "execution_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-boundary-r1-py313.execution.json",
+      "execution_sha256": "f09fda44817d40d1454c5dc92876f43519f68400d1a0c986e52e6abc02177117",
+      "python": "3.13 locked",
+      "exit_code": 1,
+      "check_count": 34,
+      "mismatch_count": 16,
+      "resource_pins_before_and_after_equal": true
+    },
+    "probe_script": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-boundary-probes-r1.py",
+      "sha256": "6d1b47cff52ddb6d8698eba9f0b10c00312cc2b72650d9ca1d3fb4d98c5e40c7"
+    },
+    "source_head": "4ab1830939cd41981983909763434d5612df6070",
+    "source_tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392"
+  },
+  "mismatch_summary": {
+    "total": 16,
+    "repository_input_direct": 2,
+    "repository_saved_direct": 2,
+    "github_commit_url": 3,
+    "github_blob_url": 3,
+    "github_raw_url": 3,
+    "bundle_directory": 1,
+    "config_pointer_oracle": 1,
+    "config_column_oracle": 1,
+    "same_on_both_locked_pythons": true
+  },
+  "findings": [
+    {
+      "id": "REPOSITORY_COMPONENT_NEGATIVE_LOOKAHEAD_IS_WHOLE_STRING_ANCHORED",
+      "severity": "BLOCKER",
+      "group": "repository_input_and_saved_plus_embedded_github_locators",
+      "generator_lines": [
+        224,
+        244,
+        271,
+        279
+      ],
+      "observed": "_OWNER_INPUT/_OWNER_SAVED and _NAME_INPUT/_NAME_SAVED use negative lookaheads ending in \\Z while the same component regex is embedded before /repo suffixes or /commit, /blob and raw path suffixes.",
+      "reproduced_invalids": [
+        "./repo",
+        "../repo",
+        "owner/name.git"
+      ],
+      "direct_mismatch_count": 4,
+      "embedded_locator_mismatch_count": 9,
+      "impact": "./repo and ../repo are admitted as repository_input and repository_saved because the lookahead sees a slash before end-of-string. owner/name.git is admitted in all three URL definitions because the .git lookahead sees the locator suffix after the repository name. R9 requires exact dot/dot-dot components to be rejected and the name to reject a case-insensitive .git suffix in these embedded forms.",
+      "required_correction": "Make component exclusions terminate at a component boundary (slash or end), and apply the .git suffix exclusion at the repository-name boundary in both standalone and embedded URL grammars. Add direct and all three URL positive/negative probes."
+    },
+    {
+      "id": "BUNDLE_DIRECTORY_MINIMUM_AND_COMPONENT_GRAMMAR",
+      "severity": "BLOCKER",
+      "group": "canonical_input_bundle_path",
+      "generator_lines": [
+        107,
+        648
+      ],
+      "observed": "bundle_directory is constrained by _CHECKOUT_REL, which applies the existing batch-id _SEGMENT grammar to every component, and then has minLength=8.",
+      "reproduced_invalid": ".work/a",
+      "minimum_mismatch_count": 1,
+      "contract_basis": "R3 requires a canonical relative raw input bundle path below checkout .work, with no symlink, lexical alias, exact dot/dot-dot component or replaced marker; R6 repeats canonical checkout-relative .work/... spelling. Neither contract constrains every input-directory component to the batch-id grammar.",
+      "clear_additional_narrowing": [
+        ".work/input.v1 is a non-alias relative directory spelling containing a dot and is excluded by _SEGMENT.",
+        ".work/_input and .work/-input have ordinary non-alias components with leading underscore/hyphen and are excluded by _SEGMENT.",
+        ".work/input_ and .work/input- have ordinary non-alias components with trailing underscore/hyphen and are excluded by _SEGMENT."
+      ],
+      "impact": "The one-character valid path is rejected by minLength, and otherwise canonical input directories with portable dot/underscore/hyphen components are rejected by the unqualified reuse of batch-id syntax. The output namespace's batch grammar is explicitly scoped to .work/<batch>/code-evidence-v1; it does not authorize narrowing arbitrary raw input bundle directory components.",
+      "required_correction": "Separate the input bundle path component grammar from the output batch-id grammar according to the frozen R3/R6 path contract, while preserving exact dot/dot-dot, alias, symlink and checkout-relative checks; remove the redundant minimum or set it to the true shortest spelling. Add positive probes for .work/a and representative dot/underscore/hyphen components."
+    },
+    {
+      "id": "JSON_POINTER_MAX_BELOW_ACCEPTED_KERNEL_BOUNDARY",
+      "severity": "BLOCKER",
+      "group": "config_pointer_oracle",
+      "generator_line": 281,
+      "reproduced_invalid": "maximum-depth-and-key-length-json-pointer",
+      "mismatch_count": 1,
+      "oracle": "The pinned accepted oracle is 33 nodes at depth 32 with a valid maximum pointer of 16416 characters (oracle SHA-256 f676a37634ecf854b54bd43135a3028cb9a264bc6d532a103638d2c22f67b959, 582590 bytes).",
+      "impact": "The generated common definition maxLength=16384 rejects the complete accepted config_result and cascades into child/declaration pointer references.",
+      "required_correction": "Raise the pointer bound to at least the accepted 16416-character value with documented derivation/headroom and add a positive/negative boundary probe."
+    },
+    {
+      "id": "SPAN_COLUMN_END_EXCLUSIVE_BOUNDARY_TOO_LOW",
+      "severity": "BLOCKER",
+      "group": "config_span_oracle",
+      "generator_line": 503,
+      "reproduced_invalid": "maximum-source-bytes-exclusive-column-end",
+      "mismatch_count": 1,
+      "oracle": "The pinned accepted oracle uses a 262144-byte source and one-based exclusive column_end=262145 (oracle SHA-256 c56de0f267881dfe277a280619923e9f625fd0ce82b5119e619534fa5e51d407, 1785 bytes).",
+      "impact": "The generated span definition caps column_end at 262144, rejecting a valid maximum-source config_result; the probe's additional oneOf leaves are cascading diagnostics from this mismatch.",
+      "required_correction": "Permit column_end through 262145 while retaining the source byte maximum and add positive maximum-source plus true over-boundary probes."
+    }
+  ],
+  "non_findings": {
+    "generation_and_reference_integrity": "Both locked-Python byte/reference audits resolved 314 references and agreed on profile/resource bytes; this does not establish semantic boundary correctness.",
+    "probe_scope": "The independent probe is schema-only and explicitly makes no public runtime, saved-byte identity, filesystem workflow or product acceptance claim.",
+    "resource_mutation_guard": "Both boundary executions report resource pins unchanged before and after."
+  },
+  "required_next_step": "Freeze a repair-only R2 generator/test package addressing all four findings, regenerate into a fresh absent diagnostic root, replay the same schema-only probes on both locked Pythons, and retain the prior R1 output/evidence unchanged."
+}

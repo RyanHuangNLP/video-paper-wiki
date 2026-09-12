@@ -1,0 +1,357 @@
+{
+  "passed": 10,
+  "total": 10,
+  "observations": [
+    {
+      "case": "first_outline_before_ownership_retry",
+      "passed": true,
+      "detail": {
+        "first": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "before ownership"
+        },
+        "second": {
+          "ok": true,
+          "status": "OK",
+          "message": "published writing outline project",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "b5295687fd31895cfa8598ca26b1be49d340539753a2366960a54a92a537f563",
+          "revision_id": "0c3ffd78cd64e4f6521d4f79bad65be0f60fa09436983586157b45f8869a3cec",
+          "parent_revision_id": null,
+          "page_path": ".light-writing/projects/b5295687fd31895cfa8598ca26b1be49d340539753a2366960a54a92a537f563/revisions/0c3ffd78cd64e4f6521d4f79bad65be0f60fa09436983586157b45f8869a3cec/draft.md",
+          "reused": false,
+          "progress": {
+            "total": 2,
+            "written": 0,
+            "unknown": 0,
+            "unwritten": 2,
+            "complete": false
+          }
+        }
+      }
+    },
+    {
+      "case": "first_outline_before_payload_retry",
+      "passed": true,
+      "detail": {
+        "first": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "before intent payload"
+        },
+        "second": {
+          "ok": true,
+          "status": "OK",
+          "message": "published writing outline project",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "787b697604e7995e7ee6b29ca0e4c2fa715fbff6c4625b3249bd067779080d12",
+          "revision_id": "530ccaa74c3ce8f9bfdaa878dfc7e85e9495a3ffa4ab895359025aac0987dc9c",
+          "parent_revision_id": null,
+          "page_path": ".light-writing/projects/787b697604e7995e7ee6b29ca0e4c2fa715fbff6c4625b3249bd067779080d12/revisions/530ccaa74c3ce8f9bfdaa878dfc7e85e9495a3ffa4ab895359025aac0987dc9c/draft.md",
+          "reused": false,
+          "progress": {
+            "total": 2,
+            "written": 0,
+            "unknown": 0,
+            "unwritten": 2,
+            "complete": false
+          }
+        }
+      }
+    },
+    {
+      "case": "first_outline_after_revision_retry",
+      "passed": true,
+      "detail": {
+        "first": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "publication filesystem failure: after revision install"
+        },
+        "revisions": 1,
+        "second": {
+          "ok": true,
+          "status": "OK",
+          "message": "published writing outline project",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "855d099b028d1914e321610ca88dad41c72587ca63a5d4602b334684af93f929",
+          "revision_id": "3a166cba5e2ae0e6a52f1e95824dcadaa93cc357a803a6d99b855f6d6c9936a3",
+          "parent_revision_id": null,
+          "page_path": ".light-writing/projects/855d099b028d1914e321610ca88dad41c72587ca63a5d4602b334684af93f929/revisions/3a166cba5e2ae0e6a52f1e95824dcadaa93cc357a803a6d99b855f6d6c9936a3/draft.md",
+          "reused": false,
+          "progress": {
+            "total": 2,
+            "written": 0,
+            "unknown": 0,
+            "unwritten": 2,
+            "complete": false
+          }
+        }
+      }
+    },
+    {
+      "case": "first_outline_after_head_retry",
+      "passed": true,
+      "detail": {
+        "first": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "after HEAD"
+        },
+        "second": {
+          "ok": true,
+          "status": "OK",
+          "message": "reused writing outline project",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "6c32d332a4463b27aacb700f1eb22fa8035c9f5f312a363267d3fcb754ecde45",
+          "revision_id": "199edfda1c11e60f22181ceb2183d616bfdfbc15280bccb8c11ac30365f20c90",
+          "parent_revision_id": null,
+          "page_path": ".light-writing/projects/6c32d332a4463b27aacb700f1eb22fa8035c9f5f312a363267d3fcb754ecde45/revisions/199edfda1c11e60f22181ceb2183d616bfdfbc15280bccb8c11ac30365f20c90/draft.md",
+          "reused": true,
+          "progress": {
+            "total": 2,
+            "written": 0,
+            "unknown": 0,
+            "unwritten": 2,
+            "complete": false
+          }
+        }
+      }
+    },
+    {
+      "case": "unowned_existing_revision_refused",
+      "passed": true,
+      "detail": {
+        "first": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "publication filesystem failure: after revision install"
+        },
+        "refused": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "writing project HEAD is missing or edited"
+        }
+      }
+    },
+    {
+      "case": "edited_intent_refused",
+      "passed": true,
+      "detail": {
+        "touched": true,
+        "refused": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "writing staging contains unknown or edited bytes"
+        }
+      }
+    },
+    {
+      "case": "malformed_live_and_new_boundary",
+      "passed": true,
+      "detail": {
+        "checks": [
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true
+          ],
+          [
+            true,
+            true
+          ],
+          [
+            true,
+            true
+          ],
+          [
+            true,
+            true
+          ],
+          [
+            true,
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "case": "malformed_stored_history_backup",
+      "passed": true,
+      "detail": {
+        "checks": [
+          [
+            "kind",
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            "missing",
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            "score",
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            "surrogate",
+            true,
+            true,
+            true,
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "case": "selected_unwritten_forgery_rejected_all_paths",
+      "passed": true,
+      "detail": {
+        "history": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "revision bundle is missing, edited, or incomplete",
+          "project_id": "ac6a06845383f87a52627a0780ad17fa253a99cff1852d811cfb0a34359351b1",
+          "schema": "video-paper-wiki.light-writing-history.v1",
+          "head_revision_id": "d0fdea26452239236061fecc87b8086cc16248b418cd48b8a08c707ea9c3950a",
+          "revisions": [],
+          "diagnostics": [
+            {
+              "path": ".light-writing/projects/ac6a06845383f87a52627a0780ad17fa253a99cff1852d811cfb0a34359351b1/revisions",
+              "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+              "message": "revision bundle is missing, edited, or incomplete"
+            }
+          ]
+        },
+        "export": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_CONFLICT",
+          "message": "revision bundle is missing, edited, or incomplete"
+        },
+        "backup": [
+          {
+            "path": ".light-writing/projects/ac6a06845383f87a52627a0780ad17fa253a99cff1852d811cfb0a34359351b1",
+            "status": "conflict",
+            "message": "revision bundle is missing, edited, or incomplete"
+          }
+        ],
+        "retry": {
+          "ok": false,
+          "status": "LIGHT_WRITING_PROJECT_INVALID",
+          "message": "section wrapper_sha256 does not match the wrapper fields"
+        }
+      }
+    },
+    {
+      "case": "legal_unknown_and_provisional_retries",
+      "passed": true,
+      "detail": {
+        "unknown_first": {
+          "ok": true,
+          "status": "OK",
+          "message": "published writing section revision",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47",
+          "revision_id": "d3a6041618f5c7a44d2f61e25bbdcbabb5e74317682c5aabe8733f68f8b3620a",
+          "parent_revision_id": "3af92508c8a91912711b696fc79f49ccc30aef5ca48032d4d0c3ad4a2a2becba",
+          "page_path": ".light-writing/projects/fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47/revisions/d3a6041618f5c7a44d2f61e25bbdcbabb5e74317682c5aabe8733f68f8b3620a/draft.md",
+          "reused": false,
+          "progress": {
+            "total": 2,
+            "written": 0,
+            "unknown": 1,
+            "unwritten": 1,
+            "complete": false
+          }
+        },
+        "unknown_retry": {
+          "ok": true,
+          "status": "OK",
+          "message": "reused writing section revision",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47",
+          "revision_id": "d3a6041618f5c7a44d2f61e25bbdcbabb5e74317682c5aabe8733f68f8b3620a",
+          "parent_revision_id": "3af92508c8a91912711b696fc79f49ccc30aef5ca48032d4d0c3ad4a2a2becba",
+          "page_path": ".light-writing/projects/fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47/revisions/d3a6041618f5c7a44d2f61e25bbdcbabb5e74317682c5aabe8733f68f8b3620a/draft.md",
+          "reused": true,
+          "progress": {
+            "total": 2,
+            "written": 0,
+            "unknown": 1,
+            "unwritten": 1,
+            "complete": false
+          }
+        },
+        "prov_first": {
+          "ok": true,
+          "status": "OK",
+          "message": "published writing section revision",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47",
+          "revision_id": "50b0279a2a616c50aa81438b4fe65241a52ff29b1e0cc439ec6e6a6d7a463293",
+          "parent_revision_id": "d3a6041618f5c7a44d2f61e25bbdcbabb5e74317682c5aabe8733f68f8b3620a",
+          "page_path": ".light-writing/projects/fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47/revisions/50b0279a2a616c50aa81438b4fe65241a52ff29b1e0cc439ec6e6a6d7a463293/draft.md",
+          "reused": false,
+          "progress": {
+            "total": 2,
+            "written": 1,
+            "unknown": 1,
+            "unwritten": 0,
+            "complete": true
+          }
+        },
+        "prov_retry": {
+          "ok": true,
+          "status": "OK",
+          "message": "reused writing section revision",
+          "schema": "video-paper-wiki.light-writing-result.v1",
+          "project_id": "fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47",
+          "revision_id": "50b0279a2a616c50aa81438b4fe65241a52ff29b1e0cc439ec6e6a6d7a463293",
+          "parent_revision_id": "d3a6041618f5c7a44d2f61e25bbdcbabb5e74317682c5aabe8733f68f8b3620a",
+          "page_path": ".light-writing/projects/fc91771dbd99e651700b5fe672c6ea910ff23fac908a5aab0c365292c9ce0b47/revisions/50b0279a2a616c50aa81438b4fe65241a52ff29b1e0cc439ec6e6a6d7a463293/draft.md",
+          "reused": true,
+          "progress": {
+            "total": 2,
+            "written": 1,
+            "unknown": 1,
+            "unwritten": 0,
+            "complete": true
+          }
+        }
+      }
+    }
+  ]
+}

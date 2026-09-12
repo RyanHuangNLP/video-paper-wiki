@@ -1,0 +1,341 @@
+# Current implementation — Grok Build CLI grok-4.6 / xhigh
+
+The user's 2026-09-09 instruction “换成使用grok cli 的grok 4.6 xhigh吧”
+assigns subsequent main implementation to Grok Build CLI. Use explicit
+`--model grok-4.6 --reasoning-effort xhigh` and normal permission mode.
+Root owns requirements, bounded contracts and final review. Progress Monitor and
+Repo Steward retain independent review and serialized Git/CI; one Grok Builder
+runs at a time. Historical `cursor_*` worker IDs do not mean Cursor CLI is used.
+See [ownership R3](packets/full-todo-v1/GROK-CLI-OWNERSHIP-R3.json).
+Discovery R3 remains frozen; implementation starts only after an exact path handoff.
+The separate public 70-path push question remains pending.
+
+# Historical local Codex implementation — user-directed takeover
+
+The user directs Codex to implement the remaining TODOs locally after Cursor/Grok
+approval failures. Root owns implementation; the existing assistants retain
+independent review and serialized Git/CI duties. See
+[ownership R2](packets/full-todo-v1/LOCAL-CODEX-OWNERSHIP-R2.json).
+The external Builder assignment and pending launch question are superseded;
+all product contracts and historical evidence remain intact.
+
+# Active remaining original TODO closure — 2026-09-09
+
+User: “把剩余的TODO都完成了吧，cursor grok的权限我都approve”.
+Resume all remaining original engineering TODOs via [full-todo-v1](packets/full-todo-v1/README.md).
+Keep Astra coordination, the existing assistants as Progress Monitor and Repo
+Steward, and the explicitly selected Grok Build CLI `grok-4.6 / xhigh`, normal
+approval, exact packet/path handoffs, independent review and serialized Git/PR/CI.
+Preserve the prior external-launch rejection as history; the explicit
+new user authorization governs new attempts. PDFs stay out of Git, original PDFs
+stay local, and pypdf remains the default without model downloads. Human gates,
+real Vault/admin execution, destructive history rewriting and merge remain separate.
+
+## Historical coordination below
+
+# Active lightweight research enhancements — 2026-09-08
+
+The new user instruction “安排开发吧” authorizes the four recommended research
+enhancements. Current packet: packets/lightweight-research-v1/README.md.
+Baseline: accepted 6963292a93ae322eaf9bb563b7b1170dee6a6fc6. Library v1 below is
+completed history. Keep Astra/ultra and three existing Luna/xhigh controllers,
+one pinned Cursor Grok Builder each. New frozen contracts/allowlists and stopped
+handoffs govern the fresh namespace; no source writes before explicit dispatch.
+Delivery stays draft PR95 -> integration, with no merge or human-gate closure.
+
+## Preserved completed library coordination
+
+# Active lightweight library development — 2026-09-08
+
+The user has now requested completion of the remaining near-term functions:
+structured cited knowledge, paper maintenance, lightweight backup/restore,
+and basic multi-paper comparison, followed by real-paper validation.
+Read docs/ai/packets/lightweight-library-v1/README.md, CONTRACT.md, COMMON.md,
+the assigned TERMINAL-N.md and freeze.json. The new packet explicitly owns its
+new allowed paths; the old completed 25-path scope below remains history.
+Keep the current Astra + three existing Luna/xhigh + pinned Cursor Grok topology.
+Dispatch only after the exact new freeze and explicit Architect handoff.
+No automatic merge/main/real Vault/human-gate closure; preserve old evidence.
+
+# 当前：Astra + 三个 Luna 控制四路 Cursor CLI
+
+2026-09-08 用户接受四个总 Agent，以[当前工作包](packets/four-agent-cursor-cli-v1/README.md)
+和[控制器协议](packets/four-agent-cursor-cli-v1/CONTROLLER.md)为准。
+Astra / ultra / Fast 主控；三个 Luna / xhigh 每人管理一个 CLI，最多三路并行，自动衔接原四个工作包。
+CLI 使用账户已核验的 Grok 4.6 / xhigh / Fast，保留用户默认设置。
+Astra 自动派发、审查、返修和汇合集成；用户不用继续转交提示词。
+原四工作区、25 路径、历史证据、串行 Git/PR 和人工 gate 不变。
+
+CLI 技术故障可使用[Computer Use → Cursor App 备用入口](packets/four-agent-cursor-cli-v1/GUI-FALLBACK.md)，
+沿用同一工作包和审批设置；明确的权限或安全审批拒绝不得通过界面重试绕过。
+一位控制器同时只有一个 Builder，GUI 使用同 lane lease 和独占桌面所有者。
+
+## 以下保留先前团队记录
+
+# Astra / Luna / Grok 当前开发分工
+
+2026-09-06 用户明确改用以下分工，并已确认 `lua` 指 `luna`。当前运行见
+[8 小时工作包](packets/MANUAL-PDF-8H-DEVELOPMENT.md)。此段与当前 AGENTS.md
+优先于下方保留的历史流程；历史模型/职责描述不再是当前调度配置。
+
+| 当前角色 | 模型 / 档位 | 责任 |
+| --- | --- | --- |
+| Architect | `gpt-6-astra / ultra` | 统筹、冻结任务、审查实际实现与测试、验收和下发下一步 |
+| Progress Monitor | `gpt-5.6-luna / high` | 调用并定期监听 Grok CLI，收取开发简报、上报主控 |
+| Repo Steward | `gpt-5.6-luna / high` | 独立范围检查、串行 Git/draft PR/CI 交付 |
+| Builder | Grok Build `grok-4.6 / xhigh` | 在冻结路径内实现、测试、修复，交简报后停止写入 |
+
+主控实际设置与两名子 agent 的调用配置已经核对。Grok 的登录通道、实际返回模型和
+推理档位见 [预检记录](grok-build-team-preflight-2026-09-06.md)。每次 Grok 调用仍显式
+指定模型和档位。监听员和 Git agent 不写主实现、不替主控验收；主控不接管主要编码。
+
+流程为：Architect 指令 → Monitor 调用 Grok → 开发简报 → Architect 代码审查 →
+返工或授权 Steward 交付 → 下一步。两名 Luna 为唯一活动 Codex 子 agent，不另开 worker。
+候选冻结后暂停 Grok 写入，交付继续 draft PR → integration，人工 gate 和禁止擅自合并保持。
+
+## 以下为保留的历史 Codex 团队记录
+
+本方案替代 Grok Build 主开发的分工，不启用历史 Grok/飞书协作循环。
+默认在一个主会话内运行 Architect 主控和 Builder、Repo Steward 两个子 agent；
+不要求用户管理三个平行对话，也不新增模型或插件。角色名称是职责约定，不是新的账号或权限隔离。
+
+## 用户指定的模型配置
+
+| 角色 | 模型标识 | 推理强度 |
+| --- | --- | --- |
+| Architect，唯一主控 | `gpt-5.6-sol` | `ultra` |
+| Builder，主力开发子agent | `gpt-5.6-sol` | `medium` |
+| Repo Steward，仓库流程子agent | `gpt-5.6-sol` | `medium` |
+
+用户对子agent的“GPT-5.6”使用当前可调用的Sol标识；官方GPT-5.6别名也指向Sol。
+2026-09-01配置核对时，主控本地turn context已是`gpt-5.6-sol / ultra`，未修改或伪造运行记录。
+两名后续子agent以显式`model=gpt-5.6-sol`、`reasoning_effort=medium`调用。
+子agent不使用默认继承，否则会继承主控的Ultra；同一时间仅运行这两个角色，不继续启动旧的继承配置worker。
+仓库文件是今后调度的规则，不会热切换主会话模型；新会话应检查UI/实际运行配置。
+
+## 分工和产物
+
+| 角色 | 主要职责 | 必须交付 | 不可代替的职责 |
+| --- | --- | --- | --- |
+| Architect，主会话 | 拆包、设计、冻结契约、协调依赖、最终代码审查与验收 | 工作包、版本化契约决定、绑定提交的验收结论 | 不把主要编码留给自己；不能替用户关闭人工 gate |
+| Builder，子 agent | 按冻结契约完成 schema、代码、测试和修复 | 改动清单、测试证据、未决问题、候选提交或文件摘要 | 不自行改架构，不自行合并，不自批验收 |
+| Repo Steward，子 agent | Issue/分支/PR/CI，独立范围检查与验证支持 | head/base/测试提交、CI run/job、交接状态和风险 | 不兼任主要开发；无 Architect 明确指令不能合并 |
+
+Architect 的验收和合并指令是两个不同记录；两者都不能替代用户 gate 或 GitHub 分支保护。
+同一个 GitHub 账号下的三个 Codex 角色不能冒充三个独立人工审批账号。
+工程契约疑问交给 Architect 处理，不逐项打断用户；只有真实产品选择、权限阻塞或人工 gate 才找用户。
+
+## 每个工作包的运行顺序
+
+1. **Architect 下发任务**：固定目标、完整基线 SHA、依赖、契约版本/摘要、允许改动的路径、非目标及验收条件。
+2. **Builder 实现**：写主要代码和测试。发现未定义契约时提交最小问题与选项；停止依赖该决定的代码，不阻塞其他已明确工作。
+3. **Repo Steward 准备交付**：核对增量和文件归属，串行处理 Git，创建或更新获准的 draft PR，收集 CI 证据。
+4. **Architect 总体验收**：自己审查设计/实现与跨模块关系，重放最终测试；失败项退回 Builder，不能靠改状态转为通过。
+5. **Repo Steward 记录结果**：保存绑定当前提交的结论。需要合并时另等 Architect 的精确指令；需要人工 gate 时向用户展示可审阅产物。
+
+这里的准备、实现、审查、返工仅是协作阶段，不修改项目 runtime schema、生命周期或 human gate。
+
+## 并行与工作目录
+
+当前团队的子 agent 默认共享工作目录，并不会自动获得独立 worktree。
+先采用单业务写者：Builder 写实现，Architect 写设计/任务单，Steward 读取源码并维护指定交接文件。
+例如 `contracts.py` 和 schema 注册只能在一个 agent 手里修改，不能边实现边让另一个 agent改同一文件。
+
+确有独立模块可同时编码时，再为写者建立不同分支/worktree，并给每个 agent 明确 cwd、base 和允许路径。
+审查与CI可以在固定候选提交的单独 checkout运行，避免验证时源码继续变化。
+Git操作由 Steward串行调度；任何 agent 都不能在其他 agent使用的共享目录切分支、reset或clean。
+Worktree不隔离网络、凭据和GitHub权限；需要硬权限隔离时另配环境，不能靠角色提示词宣称已经实现。
+
+## 交接单的最低字段
+
+```yaml
+packet_id: VPKB-000-capture-contracts
+architect: Architect
+implementer: Builder
+repository_owner: Repo Steward
+packet_base_sha: <完整40位SHA>
+contract_path: <冻结规范路径>
+contract_sha256: <规范内容摘要>
+contract_status: <design-pending或frozen>
+allowed_paths: [<允许修改的精确文件或窄glob>]
+acceptance: [<可观察的行为和拒绝条件>]
+candidate_head_sha: <提交前留空，不伪造>
+blocking_questions: []
+```
+
+未冻结的接口不得标为可以开始实现。技术范围内的冻结由 Architect负责；更改产品目标或人工决定仍服从用户。
+
+Steward 的验收证据还要包含：`reviewed_head_sha`、`base_sha`、`tested_checkout_sha`、
+`tested_ref`、CI run ID/attempt/job ID/结论、Python版本、锁文件摘要、测试命令/数量、未跑项及遗留问题。
+若CI测试的是PR合并预览，就不能把其SHA填成head SHA。
+Head改变后旧结论只属于旧提交；base改变后要重新检查集成结果和merge preview，不覆盖历史证据。
+
+## 当前接续点与下一包
+
+2026-09-01 当前可验证状态：
+
+- PR [#94](https://github.com/RyanHuangNLP/video-paper-wiki/pull/94) 仍是
+  open/draft → `integration`，未合并；base 为
+  `08709894adfb20ec07e976783f0ba436d975b74f`。
+- VPKB-000 已在精确 head
+  `acd3821b15e62bce13fa07b82c1665d501f27f67` 完成。VPKB-001 首个
+  `pinned-read-only-transaction-inspect-adapter-v1` 已在精确 head
+  `17c13f6317416f47d2610240aaf905598131e5bc` 完成。Tests run
+  `33465872376` 的 Linux/macOS × Python 3.12/3.13 四项各 1747 通过，实际
+  checkout 是合并预览 `dd6954f1c2368d83cd6d5f1d5057ed4d20acb327`，随后
+  Architect 签发 `ACCEPTED_VPKB_001_PINNED_READ_ONLY_ADAPTER_V1_AT_EXACT_HEAD`。
+- 第二个有界子版本的架构已在精确 head
+  `3ab19eda4f417b96d89a0a50b2ce2c05233a8478` 接受。Tests run
+  `33469912314` 的四项各 1750 通过，合并预览为
+  `ea86e96fbbbcaf6fbda360679c6e6d209a6151b7`。三份架构 post-CI 记录
+  保持原字节，交由当前实现提交持久化；该 run 只证明架构 head。
+- Builder 的 R1 因四类身份替换与覆盖不足被拒绝；R2 修正语义后获独立 GO，
+  但最终暂存审计因 helper 末尾空白行而拒绝，22 路径尝试、回滚和旧证据均已保留。
+  唯一一字节修正后的 R3 七文件快照
+  `c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d`
+  已获 Repo Steward 独立 R3 GO，并在 Python 3.12/3.13 各通过 342 项 focused
+  和 1835 项全量测试及离线 wheel 验收。它已提交为精确 head
+  `57c2519425dbccd6bb48a0f82e77699e17afcfb6`、tree
+  `c77a7c6ccc8bae3292611c2b24c33255f248710c`。Tests run `33477484577`
+  的四项各 1835 通过，实际 checkout 合并预览
+  `058ae19131cc418edc42dd8d311354503a0e515b`，随后 Architect 签发
+  `ACCEPTED_VPKB_001_MANUAL_PDF_CAPTURE_DRY_RUN_IMPLEMENTATION_AT_EXACT_HEAD`。
+- 目录与 overlays 继续冻结为 67；保留所有既有未跟踪计划、`inbox/`、`tools/`
+  和 `.DS_Store`。
+
+当前 packet 仍是
+[VPKB-001-adapter-contract](packets/VPKB-001-adapter-contract.md)。第二个有界
+子版本已经完成，三份 post-CI 记录由当前架构交付原字节携带。第三个有界子版本规范为
+[vpkb-001-transaction-inspect-staging-v1](contracts/vpkb-001-transaction-inspect-staging-v1.md)。
+它把已经验证的 transaction proposal 与调用者提供的三组精确 bytes map，确定地写入
+当前 checkout 的 `.work/<batch>/transaction-inspect/{content/**,bundle.json}`，供既有
+只读 pinned inspect adapter 消费。第一轮独立评审发现，多次单文件 `stage_bytes` 调用之间
+替换 batch/transport 目录会把同一 transport 分裂到不同目录 lineage；R1 因而拒绝并保留。
+修订 2 改为一次多文件 session：从首个 content 到最终完整集合复核持续持有 checkout、
+`.work`、batch、transport 和 content 描述符，并在每次安装前后通过命名重开核对
+device/inode。内容先写、bundle 最后写，相同字节精确幂等，不同字节拒绝；既有公开
+`stage_bytes` 行为不变。
+
+Builder 和 Repo Steward 已对第三个子版本的精确修订 2 候选分别返回 GO。主控本地在
+Python 3.12/3.13 各完成 1838 项全量测试，隔离安装的 wheel 含 24 个 schema，新增 schema
+字节与 checkout 相同。精确 21 路径架构已经提交为 head
+`62f3063fb612024179125bc7d842abdd3de0a4ee`、tree
+`37dfbba09e9f73656af4bb5510f7586bb5d4223e`；新的四项 merge-ref Tests run
+`33481415882` 各通过 1838 项，测试 merge preview 为
+`910e272879b728aef8d1da1db2ba88d70feba5b0`，随后取得单独的精确 head
+Architect 验收。实现 R1 在两个本地 Python 版本各通过 1888 项，但 Repo Steward 发现
+complete-set 会忽略 FIFO、symlink、目录、非 digest content extra 和 transport root extra，
+因此返回 `CHANGES_REQUIRED`。R1 工作包、候选和 review 原字节保留。当前 revision-2
+工作包 SHA-256
+`c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633`
+只授权 Builder 在同十个生产/测试路径关闭这一项并重新冻结。Builder 已冻结修正版快照
+`75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2`；Repo Steward
+独立通过 435 项 focused、24 项 lineage/complete-set 和八个自建探针后给出 `GO`。主控又
+独立通过 Python 3.12/3.13 各 1895 项全量、435 项 focused、24 项对抗、四个真实 pinned
+操作向量和 checkout 外 wheel 验收。主控本地决定
+`PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` 绑定证据
+SHA-256 `98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b`。
+随后精确临时 index 审计发现一项非语义阻塞：`tests/contract/test_transaction_staging.py`
+以两个 LF 结束，cached diff-check 报 `new blank line at EOF`，因此 R2 不得提交。R2 工作包、
+候选/review、本地验收、manifest 和交付拒绝全部保留。活动 R3 工作包 SHA-256
+`1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67`
+只授权删除最后一个 LF 并生成 R3 证据；目标十路径快照预先锁定为
+`e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76`。
+Builder 已冻结该精确快照，Repo Steward 独立 R3 审查为 `GO`。主控重新通过 435 项
+focused、24 项对抗、四个 pinned 操作向量、Python 3.12/3.13 各 1895 项全量及字节不变的
+wheel 验收；本地 R3 决定
+`PASSED_LOCAL_R3_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI` 绑定 SHA-256
+`a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8`。
+该精确 R3 实现已提交为
+`fb2cbcb565195a232f22d02c0474ac1b1b34f7d3`、tree
+`4a28ee53f71a0f2971f23b87e1f4c06d3bdf5b79`。新的四项 merge-ref Tests run
+`33491834331` 各通过 1895 项，merge preview 为
+`12bc7925140352fad516405b7eafaa8923d106e7`，随后取得
+`ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_IMPLEMENTATION_AT_EXACT_HEAD`。
+三份 post-CI 记录由下一架构交付原字节携带。
+
+第四个有界子版本为 `staged-pdf-capture-inspect-v1`，baseline 为 `fb2cbcb`。
+Architect 已冻结 canonical prepared request、完整 parsed desensitized
+approval-ref、一次 retained prepare/inspect batch lineage、完整 Vault sibling
+snapshot、create/reuse closed authority 以及三处共用的 compact bundle encoder。
+Builder 与 Repo Steward 已分别对 contract SHA-256
+`8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f`
+和工作包 SHA-256
+`298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421`
+返回 GO。Python 3.12/3.13 已各通过 1901 项全量，checkout 外 wheel 已验证 26 个
+schema 与新增资源精确字节。架构已精确交付为 `4168e151c332cdcf89227bf086d4a6bc5308e649`，
+fresh run `33497663181` 的四项各通过 1901 tests，merge preview 为
+`f48d3cc3323958270f2e249d8e6a71f853df2150`，随后取得
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD`。
+Builder 的 R2 候选 `20f9df83117bf296e9ef4ef6fb6ce78222b17f92cadb774c7fc15df31af11437`
+虽在 Python 3.12/3.13 各通过 1938 项，仍被 Architect 的 missing fixed-slot
+同字节换 inode 探针拒绝。R3 candidate
+`920b126b602cb17b1727223df0698a88bded0f3d4787a07ce23e2edf941246b8`
+已关闭该窗口，并在两套 Python 各通过 1940 项；独立五案例审查随后复现 `_inputs`
+的 request-before-plan 错误顺序与异常路径 named-edge 重开缺口，因此它仍不是完整可交付候选。
+R4 candidate `77e2657ce77918e55763f729a86d4453ba9bdb925587d0df4c48d9aa2d43c652`
+修复该目标缺口，冻结 17 路径 snapshot
+`ae6cd5b9fa93f00894d7a2f6ad484fb9bb066d07617d1572afb9b792125cbc02`，
+并在两套 Python 各通过 1948 项。独立审查随后复现两个 all-exits lineage blocker：
+named transport/content 持久替换后的 staging conflict 未被 `WORK_PATH_UNSAFE` 覆盖，以及
+captured snapshot 首次/重复扫描退出时未最终重开 named edges。Revision-5 工作包
+`71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5`
+产出 candidate `e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f`
+和 snapshot `c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d`，
+本地两套 Python 与安装 wheel 均通过。精确 39 路径交付成为 head
+`39d279fa8b357d63ef282cbc9dee35a93773e4d4`、tree
+`e740f43de6c39922cfe3f799c6574183d406d2a6`。Fresh run `33554650002` 在 merge
+preview `49e987c4228406fde3b33ab7cf73966b31c73f59` 上运行：macOS 两项各 1962
+passed，Ubuntu 两项均先正确取得 `WORK_PATH_UNSAFE`，随后仅因 unlink/recreate
+必须改变 inode 的非便携夹具断言各失败两项。失败记录
+`a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34`
+保留，R5 未取得 exact-head acceptance。Revision-6 工作包
+`8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842`
+（12,933 bytes）只允许修改 `tests/unit/test_prepare.py` 和生成 R6 evidence。
+R6 candidate `e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa`
+绑定 snapshot `da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c`，
+在原 target 存活时预建不同 `(dev, ino)` 的同字节替身再原子安装；生产字节与
+安全断言不变。Builder 与 Architect 在两套 Python 各通过 1962 项；Repo Steward
+review `736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a`
+和 Architect local acceptance
+`2398948e939b3d09e52eb5672acde0d9f7f19f6a98ec77823c0e0ed560c4a5ed`
+均通过。R6 已按 14 路径 snapshot
+`179f2a069f002a501ce93c5548a216aac2256ecaa17de13a40192e4b02ddf3b7`
+交付为 exact head `ed6c83865b51e8f512ab22d7c6c7113a15e26837`、tree
+`3aea2d6cc12c7634b6e7c253a39f92771aedb591`。Fresh run `33558215519`
+在 merge preview `6c4e8539f187ce8171a50f79086ef8eccda9f05c` 上四项各通过
+1962 tests。CI 与 merge-parent 记录 SHA-256 分别为
+`8f9dbca1332ea5465584025e896d15f30425dc357ffb6f279e30329d0bec4a18`、
+`695c6ad179d17f4feac1eb48e2e4138e0981184bf2e1fbc0dc569029cf059429`；
+Architect acceptance
+`461c7de89c6fdcd9a611901f7928a7e4168c9d066de4e34be91e49810717e0af`
+签发
+`ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_IMPLEMENTATION_AT_EXACT_HEAD`。
+三份 post-CI 记录均在被测 commit 之后生成，现为本地未跟踪保护材料；后继只记录其
+历史 SHA，不暂存这些文件，也不声称仓库已经携带。R1-R5 工作包及被拒/失败证据保持
+历史状态。当前路线图闭环候选已实现 staged code、operation result、integrity audit、
+publication、catalog/query、retrieval 与 backup/restore 等可由 Codex 执行的工程表面；
+真实 Vault、来源与许可判断、人工 claim/视觉验收、外部备份锚、readiness 与 merge 仍开放。
+
+历史 `base-catalog-v1` generation revision 1 保持不变；当前候选新增独立
+`search-catalog-v1` generation profile，并绑定 adapter、schema/profile、authority 与
+输入 digest。74 项闭环、Python 3.12/3.13 各 2152 项全量均已本地通过，仍须绑定新的
+exact head 和 fresh CI，且不能据此关闭任何外部或人工 gate。
+
+保持同一 PR 中的单写者：架构阶段由 Architect 写冻结文件，实施阶段再显式把生产/测试
+路径交给 Builder；Steward 始终只独立核验并串行处理 Git/CI。每次审查以
+`packet_base_sha..candidate_head_sha` 为本包增量，
+同时检查跨模块不变量；PR94 的全部历史 diff 不是本包新增代码。当前 workflow 只自动
+覆盖以 `integration`/`main` 为 base 的 PR，不改变 base 或另开不能触发现有矩阵的层叠 PR。
+
+## 工具与持续运行的实际边界
+
+本会话使用现有子agent能力即可，不需要另造一个多agent服务或改全局Codex设置。
+角色与上下文保存在仓库文件，后续会话读这些文件恢复；文件本身不会启动后台agent、定时任务或无限开发循环。
+在2026-09-01的本次协作配置阶段，未调用Grok，也未创建新的侧栏任务、worktree、Issue、PR或合并操作。
+
+官方能力说明：[Subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents)、
+[Git worktrees](https://learn.chatgpt.com/docs/environments/git-worktrees)、
+[AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md)。
+[GPT-5.6模型标识](https://developers.openai.com/api/docs/guides/latest-model)。
+这里的三角色职责、单写者与验收记录是本项目工作约定。

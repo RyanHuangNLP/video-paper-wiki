@@ -1,0 +1,127 @@
+{
+  "architect_decision": "APPROVED_BOUNDED_FUNCTIONAL_IMPLEMENTATION_AT_EXACT_CONTRACT",
+  "base": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+  "base_tree": "13776b52053133056a9a98664e517049802a4be9",
+  "contract_revision": 1,
+  "contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+  "files": [
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/README.md",
+      "sha256": "be191896d9b4c7213c902b2ae8fbdb08b386d9f5f1ad6164b6384d0933704876",
+      "size_bytes": 2504
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/COMMON.md",
+      "sha256": "f605a2c8454f05d64515badc09be1a0a60b8071ad9bade2b9b5f827e66bff69d",
+      "size_bytes": 3912
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/CONTRACT.md",
+      "sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+      "size_bytes": 34758
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/TERMINAL-1.md",
+      "sha256": "494c54c84a7412f3d507137e94b47fa26629bcf229e80af603790169176c68a8",
+      "size_bytes": 1566
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/TERMINAL-2.md",
+      "sha256": "a57b493a1ad4c25fddf036320b66a3f585dd34c4726e108988039b372b8c51fb",
+      "size_bytes": 2233
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/TERMINAL-3.md",
+      "sha256": "da2f0bd2d9f34511ad1eb6ea7f4d2e4f9b198d24401e205c7ec81a3bf1070587",
+      "size_bytes": 1911
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/run_cursor.py",
+      "sha256": "f02b22c043e4c769672c8bca6189fa1119606b78a9f557a1e42b71a378f818a4",
+      "size_bytes": 27311
+    },
+    {
+      "path": "docs/ai/packets/lightweight-research-v1/VALIDATION-PLAN.md",
+      "sha256": "d16df61c09ea46c66c453ffbd7a783f9353f81c43af4f6bcd3b2b64ae99be8d4",
+      "size_bytes": 4098
+    }
+  ],
+  "lanes": {
+    "1": {
+      "allowed_paths": [
+        "src/video_paper_wiki_research/light_query.py",
+        "src/video_paper_wiki_research/light_context.py",
+        "src/video_paper_wiki_research/light_index.py",
+        "tests/research/test_light_query.py",
+        "tests/research/test_light_context.py",
+        "tests/research/test_light_index.py"
+      ],
+      "baseline": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+      "controller": "cursor_cli_preflight",
+      "requested_model": "cursor-grok-4.6-xhigh-fast",
+      "revision": 1,
+      "runtime": "Cursor CLI",
+      "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source"
+    },
+    "2": {
+      "allowed_paths": [
+        "src/video_paper_wiki_research/light_knowledge_batch.py",
+        "src/video_paper_wiki_research/light_knowledge_refresh.py",
+        "src/video_paper_wiki_research/light_knowledge.py",
+        "src/video_paper_wiki_research/light_backup.py",
+        "tests/research/test_light_knowledge_batch.py",
+        "tests/research/test_light_knowledge_refresh.py",
+        "tests/research/test_light_knowledge.py",
+        "tests/research/test_light_backup.py"
+      ],
+      "baseline": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+      "controller": "cursor_lanes34_controller",
+      "requested_model": "cursor-grok-4.6-xhigh-fast",
+      "revision": 1,
+      "runtime": "Cursor CLI",
+      "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-2/source"
+    },
+    "3": {
+      "allowed_paths": [
+        "src/video_paper_wiki_research/light_writing_project.py",
+        "tests/research/test_light_writing_project.py"
+      ],
+      "baseline": "6963292a93ae322eaf9bb563b7b1170dee6a6fc6",
+      "controller": "five_agent_config_review",
+      "requested_model": "cursor-grok-4.6-xhigh-fast",
+      "revision": 1,
+      "runtime": "Cursor CLI",
+      "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-3/source"
+    }
+  },
+  "merge_authorized": false,
+  "packet": "lightweight-research-v1",
+  "recorded_at_utc": "2026-09-08T10:26:24.731648+00:00",
+  "review_limits": "Contract dispatch authorization only; no source, local-test, CI, real-Vault or human acceptance. Preserve original reviews and old evidence.",
+  "reviews": [
+    {
+      "result": "GO_NO_REMAINING_BLOCKER",
+      "reviewed_contract_sha256": "d1d1ddef4273e37b5f8e30a14ad22f3cb3e6c6fa9782763ed5544d20479f2fab",
+      "role": "Controller1",
+      "scope": "shared/T1 query trace and ownership"
+    },
+    {
+      "result": "GO_NO_REMAINING_BLOCKER",
+      "reviewed_contract_sha256": "8124dd4da9ab842100869f9329a259e2ae98837fe45034e32d8d6fdef7489d8a",
+      "role": "Controller2",
+      "scope": "shared/T2 batches/refresh/storage/backup ownership",
+      "subsequent_change": "Only T1 Frozen query trace subsection added; reviewed T2/shared bytes unchanged; Architect reviewed and accepted the bounded addition."
+    },
+    {
+      "result": "GO_NO_REMAINING_BLOCKER",
+      "reviewed_contract_sha256": "8124dd4da9ab842100869f9329a259e2ae98837fe45034e32d8d6fdef7489d8a",
+      "role": "Controller3",
+      "scope": "shared/T3 writing wire/storage/CLI/backup ownership",
+      "subsequent_change": "Only T1 Frozen query trace subsection added; reviewed T3/shared/CLI bytes unchanged; Architect reviewed and accepted the bounded addition."
+    }
+  ],
+  "schema": "video-paper-wiki.architect-freeze.v1",
+  "setup_sha256": "439943fae2f9af704e9b1282547a34e969f013e52f95b23a44cd5f9dfc91b4d7",
+  "status": "FROZEN_FOR_IMPLEMENTATION",
+  "user_direction": "安排开发吧"
+}

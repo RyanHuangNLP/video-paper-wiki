@@ -5,6 +5,7 @@ import sys
 import tomllib
 from pathlib import Path
 
+from tests.security._source_policy import assert_no_network_imports
 from video_paper_wiki.cli import main
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -47,9 +48,13 @@ def test_forbidden_subcommands_absent() -> None:
         ["apply"],
         ["index", "build"],
         ["parser-model"],
+        ["ingest", "put"],
+        ["ingest", "run"],
+        ["vault"],
+        ["wiki"],
     ):
         code = main(argv)
-        assert code != 0
+        assert code == 2
 
 
 def test_command_tree_registered() -> None:
@@ -57,14 +62,5 @@ def test_command_tree_registered() -> None:
 
 
 def test_agent_source_has_no_network_client_imports() -> None:
-    forbidden = (
-        "requests",
-        "httpx",
-        "urllib.request",
-        "http.client",
-        "aiohttp",
-    )
-    for path in (ROOT / "src" / "video_paper_wiki").glob("*.py"):
-        text = path.read_text()
-        for name in forbidden:
-            assert name not in text, f"{path} contains {name}"
+    for path in (ROOT / "src" / "video_paper_wiki").rglob("*.py"):
+        assert_no_network_imports(path.read_text(encoding="utf-8"), filename=str(path))

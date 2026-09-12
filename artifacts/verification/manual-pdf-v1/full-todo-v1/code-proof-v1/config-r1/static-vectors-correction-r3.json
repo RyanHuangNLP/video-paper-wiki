@@ -1,0 +1,165 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-fixture-correction-r3.v1",
+  "revision": 3,
+  "status": "R3_FIXTURE_AUTHORED_VALIDATED_BOTH_LOCKED_PYTHONS_PENDING_ARCHITECT_REVIEW",
+  "scope": "Independent fixture-only oracle correction; production and test source remain stopped.",
+  "input": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json",
+    "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37",
+    "size_bytes": 125029
+  },
+  "output": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r3.json",
+    "sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e",
+    "size_bytes": 131347
+  },
+  "clarification": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-CLARIFICATIONS-R3.md",
+    "sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e"
+  },
+  "preservation": {
+    "success_vectors": 7,
+    "old_refusal_vectors": 31,
+    "new_refusal_vectors": 32,
+    "unchanged_old_sources": true,
+    "unchanged_old_source_metadata": true,
+    "unchanged_semantic_values_and_children": true,
+    "unchanged_supplementary_groups": true,
+    "production_imported": false,
+    "network_or_provider": false,
+    "git_mutation": false
+  },
+  "corrections": {
+    "toml_dotted_promotion": {
+      "removed_invalid_declaration": {
+        "path": "/a",
+        "byte_start": 15,
+        "byte_end": 16,
+        "source_slice": "a"
+      },
+      "declaration_order": [
+        {
+          "path": "/a",
+          "kind": "toml_key",
+          "codepoint_start": 25,
+          "codepoint_end": 26,
+          "source_slice": "a"
+        },
+        {
+          "path": "/a",
+          "kind": "toml_table",
+          "codepoint_start": 40,
+          "codepoint_end": 43,
+          "source_slice": "[a]"
+        },
+        {
+          "path": "/a",
+          "kind": "toml_key",
+          "codepoint_start": 41,
+          "codepoint_end": 42,
+          "source_slice": "a"
+        }
+      ],
+      "added_value_key_declarations": [
+        {
+          "path": "/x/z/value",
+          "codepoint_start": 14,
+          "codepoint_end": 19,
+          "source_slice": "value"
+        },
+        {
+          "path": "/a/b/value",
+          "codepoint_start": 30,
+          "codepoint_end": 35,
+          "source_slice": "value"
+        }
+      ]
+    },
+    "number_limit_vectors": {
+      "retained_id": "json-tuple-exponent-over",
+      "retained_source_bytes": 131,
+      "retained_reason_description": "exact Decimal tuple exponent exceeds profile",
+      "added_id": "json-short-tuple-exponent-over",
+      "added_source": "1.0e-128",
+      "added_source_bytes": 8,
+      "explicit_exponent": -128,
+      "decimal_tuple_exponent": -129,
+      "limit": 128,
+      "observed": 129
+    },
+    "refusal_field_separation": {
+      "renamed_source_annotations": 25,
+      "non_dynamic_reason_descriptions": 29,
+      "dynamic_vectors": {
+        "toml-dynamic-interpolation": {
+          "reason": "dynamic_marker",
+          "byte_offset": 7,
+          "codepoint_offset": 7
+        },
+        "toml-dynamic-callable": {
+          "reason": "callable_string",
+          "byte_offset": 12,
+          "codepoint_offset": 12
+        }
+      },
+      "byte_invalid_vectors": {
+        "json-bom": {
+          "byte_offset": 0
+        },
+        "json-bare-cr": {
+          "byte_offset": 5
+        }
+      }
+    },
+    "key_order_semantics": {
+      "semantic_fields": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children"
+      ],
+      "coordinate_fields_retained": [
+        "value_span",
+        "declarations",
+        "raw_sha256",
+        "snippet_sha256"
+      ],
+      "source_pairs": [
+        "{\"a\":1,\"b\":1}",
+        "{\"b\":1,\"a\":1}"
+      ]
+    }
+  },
+  "validation": {
+    "py312": {
+      "fixture_sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e",
+      "fixture_size_bytes": 131347,
+      "network_or_provider": false,
+      "new_refusal_vectors": 32,
+      "old_refusal_vectors_preserved": 31,
+      "production_imported": false,
+      "result": "PASS_R3_FIXTURE_PRESERVATION_SPAN_AND_ORACLE_AUDIT",
+      "runtime": "3.12.14",
+      "source_bytes_unchanged": true,
+      "source_spans_checked": 30,
+      "success_vectors": 7,
+      "supplementary_groups_unchanged": true
+    },
+    "py313": {
+      "fixture_sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e",
+      "fixture_size_bytes": 131347,
+      "network_or_provider": false,
+      "new_refusal_vectors": 32,
+      "old_refusal_vectors_preserved": 31,
+      "production_imported": false,
+      "result": "PASS_R3_FIXTURE_PRESERVATION_SPAN_AND_ORACLE_AUDIT",
+      "runtime": "3.13.13",
+      "source_bytes_unchanged": true,
+      "source_spans_checked": 30,
+      "success_vectors": 7,
+      "supplementary_groups_unchanged": true
+    }
+  },
+  "result": "PASS_R3_FIXTURE_PRESERVATION_SPAN_AND_ORACLE_AUDIT_BOTH_LOCKED_PYTHONS"
+}

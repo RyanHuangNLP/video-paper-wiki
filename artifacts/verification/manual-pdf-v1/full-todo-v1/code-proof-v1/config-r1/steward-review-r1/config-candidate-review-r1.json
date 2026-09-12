@@ -1,0 +1,208 @@
+{
+  "$schema": "video-paper-wiki.code-config-steward-review-r1.v1",
+  "schema": "video-paper-wiki.code-config-steward-review-r1.v1",
+  "revision": 1,
+  "packet": "CODE-CONFIG-KERNEL-R1",
+  "phase": "independent_r3_candidate_review",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CONFIG production/oracle/test reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "NO_GO_PRODUCTION_STDLIB_KEY_TYPE_BLOCKER_AND_R3_TEST_PATCH_REQUIRES_CORRECTION",
+  "verdict": "The frozen production candidate has one concrete whole-tree cross-check blocker: a patched stdlib object containing a str subclass key is accepted, and a hostile str subclass can execute __eq__ and leak a raw AssertionError. R1 requires unsupported stdlib types to become CODE_CONFIG_PARSER_MISMATCH. The R3 clarification is semantically aligned as a correction draft, but the proposed R3 test patch is not ready: its source-anchor parity call rejects BOM/bare-CR vectors through the legacy text helper, and it omits the stdlib-key/callback and explicit no-source-echo regressions. No source, test, fixture or Git state was changed.",
+  "reviewed_inputs": [
+    {
+      "label": "R1 CONFIG contract",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "size_bytes": 17799,
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4"
+    },
+    {
+      "label": "R2 CONFIG clarification",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "size_bytes": 4710,
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d"
+    },
+    {
+      "label": "R3 oracle clarification draft",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-CLARIFICATIONS-R3.md",
+      "size_bytes": 5526,
+      "sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e"
+    },
+    {
+      "label": "bounded R4 repair prompt",
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-PATCH-R4.md",
+      "size_bytes": 5915,
+      "sha256": "bc0112b679e2c782e1b30fe79293f7988e70488b320cc9681551145657095f6d"
+    },
+    {
+      "label": "frozen candidate production",
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_config_parser.py",
+      "size_bytes": 61224,
+      "sha256": "b46fbd198dc8a4fcbe25a58443d24c460ec00dcb4a75609b94858efc5f835b21"
+    },
+    {
+      "label": "frozen candidate fixture",
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/fixtures/code-config-vectors-v1.json",
+      "size_bytes": 125029,
+      "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37"
+    },
+    {
+      "label": "frozen candidate tests",
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_config_parser.py",
+      "size_bytes": 32993,
+      "sha256": "0c58af204300850125f1a52e40461019ca0488334e7ce5e95926a2e86f9a5491"
+    },
+    {
+      "label": "R3 proposed test patch",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r3.patch",
+      "size_bytes": 7295,
+      "sha256": "00be867f130c2019f3930bf4a3e24cd7b77055077179cf0e01f01b35a4ef7700"
+    },
+    {
+      "label": "R3 proposed test file",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r3.proposed.py",
+      "size_bytes": 35870,
+      "sha256": "aba8772644e6521002b2d5bd03c90b0609f985a3620d439d8d4dab8fed93c62b"
+    }
+  ],
+  "candidate_identity": {
+    "source_root": ".work/parallel/code-proof-v1/terminal-1/source",
+    "baseline_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+    "baseline_tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+    "candidate_snapshot_sha256": "066ab1403b9278f56c5ccae00ee348c3978623d5cc446f254b48cd45af3b55fc",
+    "source_writes_stopped": true,
+    "candidate_worktree_untracked_paths": [
+      "src/video_paper_wiki/code_config_parser.py",
+      "tests/fixtures/code-config-vectors-v1.json",
+      "tests/unit/test_code_config_parser.py"
+    ]
+  },
+  "production_conclusion": {
+    "status": "NO_GO_CONCRETE_BLOCKER",
+    "contract_binding": {
+      "r1_path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "r1_sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "requirement_lines": "148-156",
+      "requirement": "A scanner-accepted stdlib rejection or unsupported stdlib type is CODE_CONFIG_PARSER_MISMATCH; compare the full key set and exact decoded tree without ordinary equality weakening."
+    },
+    "finding": {
+      "id": "CONFIG-PROD-STDlib-OBJECT-KEY-SUBTYPE",
+      "severity": "blocker",
+      "location": "src/video_paper_wiki/code_config_parser.py:_Parser._compare object branch, lines 1687-1692 at the reviewed snapshot",
+      "observed": "json.loads patched to return {Key(\"a\"): True}, with Key subclassing str, allowed parse of {\"a\":true}; a Trap(str) overriding __eq__/__hash__/__str__ triggered a raw AssertionError during set/equality processing.",
+      "expected": "Reject the unsupported stdlib key type as CODE_CONFIG_PARSER_MISMATCH with closed details {instance_pointer:\"/payload\", reason:<fixed non-source-echoing string>} and never invoke key callbacks.",
+      "narrow_fix": "After the exact dict guard and before set/membership/equality/lookup, iterate the exact dict and inspect type(key) is str; route any failure through existing _mismatch. Preserve all later set, value, array-order and numeric comparisons."
+    },
+    "probe_artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.json",
+    "probe_sha256": "f6a8b8c02157ce3af5d90fb475956f4d6c7246c6b4fcb27d6a0188a5b655f3fa",
+    "probe_script": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.py",
+    "probe_script_sha256": "3cabe6c8daa5f9ad7bfbabfc2e5f53ec791feeea8e6e970a48eb15ecea99dc4c",
+    "probe_result": "str_subclass accepted; hostile subclass caused AssertionError with callbacks=[\"eq\"]; candidate production/fixture/test hashes unchanged before/after."
+  },
+  "r3_clarification_conclusion": {
+    "status": "GO_AS_SEMANTIC_CORRECTION_DRAFT_ONLY",
+    "draft_sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e",
+    "aligned_points": [
+      "TOML dotted-promotion declaration attribution distinguishes the /a component, complete [a] header and value declarations.",
+      "The existing 131-byte tuple-exponent vector remains a lexeme-cap refusal, while 1.0e-128 is a separate 8-byte tuple-exponent refusal.",
+      "Dynamic reasons and token-start offsets are exact; non-dynamic prose is descriptive rather than a closed runtime enum.",
+      "BOM/bare-CR vectors require byte_offset only; scanner syntax/unsupported/duplicate/number/dynamic errors require both offsets.",
+      "Key-order semantic fields are compared separately from source spans and hashes."
+    ],
+    "boundary": "This draft does not accept or amend the frozen fixture, test module or production source. The current R2 fixture still has the two corrections later identified for R4 handling: old 131-byte vector expectation and duplicate-header source anchor."
+  },
+  "r3_test_patch_conclusion": {
+    "status": "REQUIRES_CORRECTION",
+    "patch_sha256": "00be867f130c2019f3930bf4a3e24cd7b77055077179cf0e01f01b35a4ef7700",
+    "proposed_test_sha256": "aba8772644e6521002b2d5bd03c90b0609f985a3620d439d8d4dab8fed93c62b",
+    "findings": [
+      {
+        "id": "CONFIG-TEST-R3-BYTES-SPAN-PARITY",
+        "severity": "blocker_for_patch",
+        "location": "test_refusal_vectors source_anchor_span handling",
+        "observed": "The patch calls _assert_span_parity(payload, expected[\"source_anchor_span\"], ...) for every annotated refusal. BOM and bare-CR payloads are intentionally invalid under the legacy code_text contract; code_snippet_sha256 raises CODE_TEXT_INVALID before the parser refusal can be asserted.",
+        "reproduction": "code_snippet_sha256(b\"\\xef\\xbb\\xbf{\\\"a\\\":1}\", 1, 1) -> ContractError CODE_TEXT_INVALID; code_snippet_sha256(b\"{\\\"a\\\"\\r:1}\", 1, 1) -> ContractError CODE_TEXT_INVALID.",
+        "required_correction": "For CODE_CONFIG_BYTES_INVALID vectors assert raw_slice SHA-256 and byte/codepoint coordinates directly, without legacy snippet parity; retain legacy snippet parity for valid source text."
+      },
+      {
+        "id": "CONFIG-TEST-R3-MISSING-STDLIB-KEY-REGRESSION",
+        "severity": "major",
+        "location": "test module cross-check corruption coverage",
+        "observed": "No test patches json.loads/tomllib.loads to return non-exact str or hostile str-subclass object keys, so the production blocker is untested.",
+        "required_correction": "Add root and nested JSON/TOML exact-dict, str-subclass and callback-trap cases with closed PARSER_MISMATCH details and zero callbacks."
+      },
+      {
+        "id": "CONFIG-TEST-R3-MISSING-NON-ECHO-REGRESSION",
+        "severity": "major",
+        "location": "test_refusal_vectors diagnostic checks",
+        "observed": "The patch constrains details keys and reason length, but does not assert that message, str(error), serialized details or reasons exclude raw source, decoded keys/values and lexemes as required by R1/R3.",
+        "required_correction": "Add independent sentinel error-content cases across duplicate, syntax, dynamic and number refusals."
+      }
+    ]
+  },
+  "r4_repair_prompt_review": {
+    "status": "GO_NARROW_REPAIR_PROMPT",
+    "prompt_sha256": "bc0112b679e2c782e1b30fe79293f7988e70488b320cc9681551145657095f6d",
+    "scope_checks": [
+      "Exactly two allowed source/test paths, with one object-branch production guard and two focused unittest additions.",
+      "No parser redesign, limit/API/output-shape changes, fixture edits, skips/xfails, Git mutations or test-execution claims.",
+      "Production edit is placed after exact dict validation and before set/equality/lookup, preserving later cross-checks.",
+      "Regression cases require root/nested JSON and TOML, exact closed mismatch details, no callbacks, and plain non-string refusal.",
+      "Error-content regression uses independently selected sentinels and checks message/str/details non-echoing, including the exact dynamic reason and scanner offsets.",
+      "Prompt context supplies the API names, imports, insertion anchor, expected error shape and fixed grammar outcomes needed for a bounded patch."
+    ],
+    "residual_review_note": "The prompt is sufficient for a minimal repair and does not include the separate R3 fixture corrections. It remains a repair authorization/prompt review only; no Grok dispatch or source change occurred."
+  },
+  "existing_independent_evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py312-r1.json",
+      "reported": "64 generated JSON cases passed"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-py313-r1.json",
+      "reported": "64 generated JSON cases passed"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py312-r1.json",
+      "reported": "67 adversarial checks passed"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-py313-r1.json",
+      "reported": "67 adversarial checks passed"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/independent-verification-r2-py312.json",
+      "reported": "R2 fixture replay passed without production import"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/independent-verification-r2-py313.json",
+      "reported": "R2 fixture replay passed without production import"
+    }
+  ],
+  "scope_controls": {
+    "production_imported_for_direct_probe": true,
+    "source_modified": false,
+    "tests_modified": false,
+    "fixture_modified": false,
+    "git_mutation": false,
+    "network_or_provider": false,
+    "real_vault": false,
+    "writes_only_under_review_dir": true
+  },
+  "artifacts_written": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.py",
+      "sha256": "3cabe6c8daa5f9ad7bfbabfc2e5f53ec791feeea8e6e970a48eb15ecea99dc4c"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/stdlib-key-probe-r1.json",
+      "sha256": "f6a8b8c02157ce3af5d90fb475956f4d6c7246c6b4fcb27d6a0188a5b655f3fa"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/repair-prompt-review-r1.json",
+      "sha256": "66b50c378e229306d5642d9090a300bc7a612ce99e625f5221c177245a805a8f"
+    }
+  ]
+}

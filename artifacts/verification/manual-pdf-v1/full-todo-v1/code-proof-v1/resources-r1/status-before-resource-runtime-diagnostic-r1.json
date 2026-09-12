@@ -1,0 +1,1607 @@
+{
+  "schema": "research-wiki-remaining-todo-status.v1",
+  "recorded_at_utc": "2026-09-10T12:29:59.094858+00:00",
+  "user_authorization": "把剩余的TODO都完成了吧，cursor grok的权限我都approve",
+  "baseline_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+  "items": [
+    {
+      "id": "NPDF",
+      "objective": "Remove tracked PDF assets and generate test samples at runtime",
+      "status": "accepted-at-exact-head",
+      "dependencies": [],
+      "implementation_accepted_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "fresh_ci": {
+        "run_id": 34256770949,
+        "attempt": 1,
+        "jobs_passed": 4,
+        "tests_per_job": 2701,
+        "checkout_sha": "fceb3c6a54de3626b1a36fe683591a6ceb1ce813"
+      },
+      "external_human_gates_closed": false,
+      "candidate_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+      "local_validation": {
+        "python312": 2701,
+        "python313": 2701,
+        "independent_probes": 34,
+        "focused_tests": 16
+      },
+      "acceptance": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/no-pdf-v1/architect-exact-head-acceptance-r2.json",
+        "sha256": "ca45e99405da0e001635e59d3f7452fabfa828e1ad8b07a7a50b3a6e24310171"
+      },
+      "pr_body_verified": "cc5bf299f22cdf5e6682a03021792bbd4155cc659a0c95a06caaaaece0ca93d7"
+    },
+    {
+      "id": "SOURCE",
+      "objective": "Lightweight formal source binding, canonical knowledge publication and versions",
+      "status": "capture-semantics-publication-conversion-accepted-catalog-local-committed-push-blocked",
+      "dependencies": [
+        "NPDF"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "capture": {
+          "packet": "SOURCE-CAPTURE-R1.md",
+          "freeze_sha256": "9daa95f62beadf7256dd09356232c78d3e1f8a3293536aea7b97a618963860d8",
+          "allowed_paths": 25,
+          "controller": "five_agent_config_review",
+          "lane": 1,
+          "status": "accepted-at-exact-head",
+          "implementation_owner": "root",
+          "implementation_accepted_head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+          "fresh_ci": {
+            "run_id": 34303132932,
+            "attempt": 1,
+            "jobs_passed": 4,
+            "tests_per_job": 2763,
+            "checkout_sha": "2732314fe8216e9d7a536c7b3d25f5afa22ab310"
+          },
+          "acceptance": {
+            "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/architect-exact-head-acceptance-r4.json",
+            "sha256": "5d2f47c65324a653e8a31d891d653564c563482b7b5889e16eef6b66c7042988"
+          }
+        },
+        "version_and_knowledge": {
+          "status": "semantics-publication-conversion-accepted-catalog-in-progress",
+          "design": "SOURCE-CANONICAL-DESIGN-R1.md",
+          "sha256": "e46211baa9bba40f52746748757257ed49dbc3cb5c5801668824a486d900e5af",
+          "active_contract": "SOURCE-SEMANTICS-R2.md",
+          "compatibility_amendment": "SOURCE-SEMANTICS-LEGACY-BBOX-R3.md",
+          "semantics": {
+            "status": "accepted-at-exact-head",
+            "implementation_accepted_head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+            "fresh_ci": {
+              "run_id": 34311144703,
+              "attempt": 1,
+              "jobs_passed": 4,
+              "tests_per_job": 3107,
+              "checkout_sha": "2a98c14e023bf01450f6e0c015c0e2814c41e5a1"
+            },
+            "acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-exact-head-acceptance-r1.json",
+              "sha256": "28ceb71aa04c228e69fc49991223b108b1361133f9bf56c9cd034a2cdadb22c0"
+            }
+          },
+          "publication": {
+            "status": "accepted-at-exact-head",
+            "contracts": [
+              "SOURCE-PUBLICATION-R2.md",
+              "SOURCE-PUBLICATION-R3.md",
+              "SOURCE-PUBLICATION-R4.md",
+              "SOURCE-PUBLICATION-CLI-FIXTURE-R5.md"
+            ],
+            "freeze_sha256": "080b631ead1914de2a7882d404f2e0a85539772818c90ce5d333c528cb032e90",
+            "baseline": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+            "allowed_paths": 27,
+            "candidate_frozen": true,
+            "candidate_sha256": "5ad4596b9e108eda54c29bf6d231fd1dc66a60a03fb6bab1af865b7d79744402",
+            "snapshot_sha256": "443d2cf980dd74aee8be235cac40d09e55de84e700697698c35d02ef392d21fb",
+            "full_local_tests": {
+              "py312": 3285,
+              "py313": 3285
+            },
+            "wheel": {
+              "backend": "hatchling.build",
+              "schemas": 69,
+              "sha256": "4620bc6040af2b7799f26ae59d94dfd2015f9f61429361cba8b43cb1ec194dfe"
+            },
+            "local_acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-local-acceptance-r2.json",
+              "sha256": "d331ee0bf77a7145ed35b2ac341ecddb868ff960af70d7589d21506d239c1ebe"
+            },
+            "delivery_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/delivery/source",
+            "implementation_accepted_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+            "fresh_ci": {
+              "run_id": 34318336303,
+              "attempt": 1,
+              "jobs_passed": 4,
+              "tests_per_job": 3285,
+              "checkout_sha": "e209c35a1c860cc2ce304bdfb9ec107e28850ff4"
+            },
+            "acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-exact-head-acceptance-r2.json",
+              "sha256": "2ef3d01b98ff2950e83f402219dc7b38f4c3833c2b3ef70f6507221ffcd4c193",
+              "size_bytes": 3934
+            }
+          },
+          "conversion": {
+            "state": "accepted-at-exact-head",
+            "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-conversion-v1/terminal-1/source",
+            "baseline_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+            "freeze": {
+              "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-freeze-r1.json",
+              "sha256": "6a07450b23f8714ddc40dfb829b561a010396cca94365e98067635bef0a36d2b",
+              "size_bytes": 5364
+            },
+            "candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r2.json",
+              "sha256": "b6d426a541204cb8f0191796c12ec7dca1fab0ebf2da12bb4c2823f81914719b",
+              "size_bytes": 5915
+            },
+            "rejection": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1.json",
+              "sha256": "6262eb7fa03872136e566267dea3ace0a595bc13ba9435b89819cbdc50173112",
+              "size_bytes": 2155
+            },
+            "prior_candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r1.json",
+              "sha256": "99e6eddc760f78229f806ba85584acf1dcfc5fc9e04b1d42e7f27a5def1bfb7e",
+              "size_bytes": 5004
+            },
+            "snapshot_sha256": "4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c",
+            "full_local_tests": {
+              "py312": 3383,
+              "py313": 3383
+            },
+            "full_local_reports": [
+              {
+                "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py312-r2.json",
+                "sha256": "8ef8594d62ccddfc886b955a842775ef71793a8854927a2d9a608e8f28eb6fa5",
+                "size_bytes": 101353
+              },
+              {
+                "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py313-r2.json",
+                "sha256": "27b6a551bb226082cdaabf4b9816748d4ceed35908c3f89e40b477166b9198da",
+                "size_bytes": 101420
+              }
+            ],
+            "rejection_taxonomy_supplement": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1-taxonomy-supplement.json",
+              "sha256": "d8a802b2b35dbd1496be7db117b11fff21cc590e56a14bd18865eaad02bde550",
+              "size_bytes": 1781
+            },
+            "local_acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-local-acceptance-r2.json",
+              "sha256": "d10fefbe7d55b0ebf040a357f64c66fc0f3349a3c1f023ea54a3b89c0d7338de",
+              "size_bytes": 7026
+            },
+            "wheel": {
+              "backend": "hatchling.build",
+              "schemas": 70,
+              "sha256": "1573dbe1dec356b8b4fb14c9f268f748219cc0cdfba7de555b4ca129cccdaac5"
+            },
+            "implementation_accepted_head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+            "fresh_ci": {
+              "run_id": 34326048777,
+              "attempt": 1,
+              "jobs_passed": 4,
+              "tests_per_job": 3383,
+              "checkout_sha": "8bc05a48dee1100bb59421a2e39543aade59ca2a"
+            },
+            "acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-exact-head-acceptance-r1.json",
+              "sha256": "87348be586cc450c379a738d8f166f0a553345b1eaf80b52bbebd30d33fa0407",
+              "size_bytes": 4049
+            }
+          },
+          "catalog": {
+            "state": "locally-accepted-r3-committed-push-blocked-pending-ci",
+            "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-catalog-v1/terminal-1/source",
+            "baseline_head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+            "freeze": {
+              "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-freeze-r1.json",
+              "sha256": "678cb93d0a45bf5a33f9738ef9711f19167a6a0ce9c088996608a5b11e062752",
+              "size_bytes": 7444
+            },
+            "candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r3.json",
+              "sha256": "bf77a3702c170cea4e1bc8e93c166e193fd86f3074c52eca6428ceb5901b1166",
+              "size_bytes": 4841
+            },
+            "snapshot_sha256": "23229333c19462d6cba2423f1ee215523d126a54d1bddfa8b30aa7e3d1f293c5",
+            "scoped_checks": {
+              "unit": 61,
+              "upstream": 10,
+              "contracts": 9,
+              "security": 71,
+              "architect_independent_io_probe_replay": 6
+            },
+            "independent_io_review": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/independent-io-acceptance-review-r2.json",
+              "sha256": "9043e76a639a9eb9e5b7d06f165432efa002fbe46e554302111d595aeca08a5b",
+              "size_bytes": 6937
+            },
+            "full_suites": [
+              {
+                "python": "312",
+                "passed": 3544,
+                "evidence": {
+                  "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-full-py312-r3.json",
+                  "sha256": "47efc5bf88147de68919bb234b216a9c22007baca51f164615bb80d5892223ca",
+                  "size_bytes": 103176
+                }
+              },
+              {
+                "python": "313",
+                "passed": 3544,
+                "evidence": {
+                  "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-full-py313-r3.json",
+                  "sha256": "9b7b3b72b29966135d70e3403c3fa07bd176886442ae5b4c2633efdc98749f2a",
+                  "size_bytes": 103243
+                }
+              }
+            ],
+            "installed_wheel": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/installed-wheel-cli-r3/cli-summary.json",
+              "sha256": "02cfe8c0a808bed920f7e5c3de44cbf91a9f184a7dcf88faa5bef23fdf6bad48",
+              "size_bytes": 107868
+            },
+            "fresh_ci": null,
+            "exact_head_acceptance": null,
+            "prior_rejected_candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r1.json",
+              "sha256": "52c85d4e36f746d8edc212db050278d6977ebee13f3241e1b1b739eed232a15d",
+              "size_bytes": 4214
+            },
+            "rejection": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-rejection-r1.json",
+              "sha256": "4725d05103afa233ea7779c1a5e24c8841622446d9e5c6648f91fb52790e3eee",
+              "size_bytes": 2099
+            },
+            "r1_full_suites": {
+              "py312": "3533 passed, 2 failed",
+              "py313": "3533 passed, 2 failed",
+              "source_unchanged": true
+            },
+            "r2_focused_checks": 175,
+            "r2_full_suites": {
+              "py312": "3535 passed",
+              "py313": "3535 passed",
+              "source_unchanged": true
+            },
+            "r2_rejection": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-rejection-r2.json",
+              "sha256": "4954a373b0a38ef696f0f6f9c0f81b1e83a5fb040eb5404d7902ebea40a9578d"
+            },
+            "r3_allowed_repairs": [
+              "src/video_paper_wiki/source_catalog.py",
+              "tests/unit/test_source_catalog.py"
+            ],
+            "prior_r2_candidate": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r2.json",
+              "sha256": "09fca6277e15de4bdb1eebaebcac62a30d18b8928965f9c1f83f53013aab7714",
+              "size_bytes": 4670
+            },
+            "r3_new_regressions": 9,
+            "local_acceptance": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-local-acceptance-r3.json",
+              "sha256": "118e4f4972b3a07a3fa0d7d3f5ea42a37105093e2e599c429283d2d714b8cf2a",
+              "size_bytes": 7590
+            },
+            "repo_code_replay": {
+              "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-repo-code-replay-r3.json",
+              "sha256": "c57edea2177f6165dfcec36f262d614aa3b20cb4e3dbbf0a2ca91b092623ce2f",
+              "size_bytes": 3908
+            },
+            "local_committed_head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+            "remote_push_approval": "pending_user_response_to_exact_public70path_payload_question"
+          }
+        }
+      },
+      "catalog_delivery": {
+        "head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+        "tree": "04fd8375510d73a9633cadd66c54f80d253e28ba",
+        "parent": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+        "path_count": 70,
+        "remote_pushed": false,
+        "exact_head_ci": "not_started_push_permission_pending",
+        "rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/push-rejection-review-r1.json",
+          "sha256": "b6133e67583a1ae957494f9c4b072145f35d76b8b5b6943dda98348a2d6051c7",
+          "size_bytes": 7788
+        },
+        "user_question": "Explicit question pending to publish this exact 70-path payload to public RyanHuangNLP/video-paper-wiki draft PR95 branch. No retry or workaround."
+      }
+    },
+    {
+      "id": "DISCOVERY",
+      "objective": "Online paper preview, observation, version selection and candidate expansion",
+      "status": "preview-accepted-expansion-r3-local-commit-verified-push-and-fresh-ci-pending",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "slices": {
+        "preview": {
+          "packet": "DISCOVERY-PREVIEW-R1.md",
+          "allowed_paths": 23,
+          "controller": "cursor_lanes34_controller",
+          "lane": 2,
+          "engineering_dependencies": [
+            "NPDF"
+          ],
+          "candidate_revision": 2,
+          "candidate_sha256": "40ca4e5a1ca8dc18dff292ecdeab7993d62c14d4f540ddbaf979c9cd359e5db5",
+          "focused_tests": 141,
+          "independent_reviews": "two-GO-and-combined-integration-GO",
+          "status": "accepted-at-exact-head",
+          "implementation_accepted_head": "97a533a08222d59d46a8de5dfd4047050cd945c5",
+          "fresh_ci": {
+            "run_id": 34306674801,
+            "attempt": 1,
+            "jobs_passed": 4,
+            "tests_per_job": 2904,
+            "checkout_sha": "317aae52627dc6df4e90a8ba6bf47b68dccba378"
+          },
+          "acceptance": {
+            "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/combined-integration-r1/architect-exact-head-acceptance-r1.json",
+            "sha256": "d2630b2797638f0f5690ac2c1cf9bd851e8babed728929e669345316fb583d6b",
+            "size_bytes": 5060
+          }
+        },
+        "expansion": {
+          "status": "locally-accepted-r3-pending-delivery-and-fresh-ci",
+          "review": "artifacts/verification/manual-pdf-v1/full-todo-v1/w3-design-gap-review-r1.json",
+          "sha256": "ad216fb75bda7ad0af303eb5325a69ef9dcedb64e304450779cc571ed0c2321d"
+        }
+      },
+      "expansion_design": {
+        "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R1.md",
+        "sha256": "2e255f9d9acd928fb26086b30422e7d9e8796b20f064beff5567bb225c9fb6c1",
+        "size_bytes": 12094
+      },
+      "expansion_designs": [
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+          "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+          "size_bytes": 25576
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+          "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+          "size_bytes": 15666
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+          "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+          "size_bytes": 10148
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+          "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+          "size_bytes": 7627
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+          "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+          "size_bytes": 9956
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+          "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+          "size_bytes": 7292
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+          "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+          "size_bytes": 2951
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-allowed-paths-r1.json",
+          "sha256": "e7930638d4814f4a8389e2cf9ac0b4dd0e5fb07423c089a050004ebe85e490d5",
+          "size_bytes": 2207
+        },
+        {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+          "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+          "size_bytes": 4426
+        }
+      ],
+      "expansion": {
+        "freeze": {
+          "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+          "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+          "size_bytes": 8732
+        },
+        "source_root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+        "baseline_head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+        "allowed_paths": 31,
+        "source_frozen_for_acceptance": true,
+        "local_wip_checks": {
+          "contracts_candidates": 57,
+          "workflow_before_last_additions": 6,
+          "workflow_current": 11,
+          "recovery": 16,
+          "security": 36,
+          "planner_after_first_conflict_fix": 12,
+          "note": "Separate WIP runs, not one final snapshot or full-suite/CI acceptance. Final capability-entry detail and pending code-review follow-ups still require combined replay."
+        },
+        "reviews": [
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-storage-graph-wip-review-r3.json",
+            "sha256": "ec165639f6919cffc7cbb84774702c236676a170cf91358f7058db69fa9f07e6",
+            "size_bytes": 9320
+          },
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-semantic-wip-review-r2.json",
+            "sha256": "0a2a833b2e103bcb87c1f4e85dc052833a2b85c2b14e1ba6a91ac595aaf86adc",
+            "size_bytes": 12251
+          },
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-contracts-wip-review-r1-supplement.json",
+            "sha256": "831cdc5c299d7dd59b77fc5b48cdf78c442c37bb5dd912d74fbe47b5d0f68df5",
+            "size_bytes": 11627
+          }
+        ],
+        "remote_ci": null,
+        "heldout": "plan prepared, no actual new host provider call yet",
+        "human_gates_closed": false
+      },
+      "expansion_current": {
+        "source_root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+        "baseline_head": "ef2ff13e9f90135161ef5ec112750c96392c6cd5",
+        "candidate_r1_sha256": "73bae5b5a233d64c2fb09dbd8710d754a98714923fc67629c62b826a13eade54",
+        "snapshot_r1_sha256": "540aa4de6d320873c4c6a4cbf9bd949550d3f787dc9ce49a5fc7fd7c9d229438",
+        "local_tests_r1": {
+          "py312": 3680,
+          "py313": 3680,
+          "source_unchanged": true
+        },
+        "r1_acceptance": false,
+        "repair_packet": "DISCOVERY-OUTPUT-WORDING-R3.json",
+        "repair_packet_sha256": "a3016480e42d3946a7cf95f8dd4112a38813d2a4739ddce691494ab10b43a957",
+        "live_trial_sha256": "1e7ce88740ba27b7a0c63107805ff6e835b0f7b3913d57a53f839341a50fcc73",
+        "live_trial_result": "1 Web success, 1 actual host OpenAlex refusal, 5 results -> 1 candidate, all five lens gaps, budget stop, no formal admission",
+        "fresh_ci": null,
+        "candidate_r3_sha256": "fc2952b225f81e3006fd87918def4557c5a84def531e5997ca000b834691469d",
+        "snapshot_r3_sha256": "7c4351482a3a77276fe83b268ac1eb9e32dc72b83c2063d699ad92cb94f8234c",
+        "r3_local_tests": {
+          "py312": 3684,
+          "py313": 3684,
+          "source_unchanged": true
+        },
+        "r3_installed_wheel_review_sha256": "8fb7535664a6dfd4a52c298e45f7fd9faa246809944ad36a178415983f8f38bf",
+        "r3_acceptance": true,
+        "local_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/architect-local-acceptance-r3.json",
+          "sha256": "3f9b3043cc33917dd636b67b15c4270f0f4bfc07284c8fc86f1bf470c1e0f896",
+          "size_bytes": 7263
+        },
+        "r3_output_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/discovery-output-review-r3.json",
+          "sha256": "df66b4a8c3a437500c696eb56106077138cd307f82034c2b4ed3c69036c9b288",
+          "size_bytes": 30686
+        },
+        "local_committed_head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+        "local_commit_verification": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/architect-local-commit-verification-r3.json",
+          "sha256": "0260be4cd01110ca09bbbca1eed76779d0471afaa46ccc23c890abcd90700b98",
+          "size_bytes": 858
+        }
+      }
+    },
+    {
+      "id": "CODE",
+      "objective": "Official repository, commit, code/config evidence and mapping",
+      "status": "resource-generation-grok-running",
+      "dependencies": [
+        "SOURCE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "design": "CODE-DESIGN-R1.md",
+      "kernel": {
+        "source_root": ".work/parallel/code-proof-v1/terminal-1/source",
+        "baseline_head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+        "freeze_sha256": "0ad3c58f2704caa0c0c2aee1aeb763c9a53c85cf2c592f8545d45b81b0664129",
+        "prompt_sha256": "143b9b1e00738923abd2ec46ff65050d9f2657056be109fa4a400a9346c41c7d",
+        "allowed_paths": 3,
+        "accepted": true,
+        "dispatch_blocker": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-dispatch-blocker-r1.json",
+          "sha256": "6c4c7d3cd69d6340985668533cc3b67f69d9a96880a4ee55b53bb582c578685e",
+          "size_bytes": 2978
+        },
+        "egress_authorization": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/user-egress-authorization-r2.json",
+          "sha256": "6eee52a8aad2c568a154ddee252cd7f2623522e44c0eeb984af0a6ecddfdf475",
+          "size_bytes": 2027
+        },
+        "wip_test_observation": {
+          "source": "Progress Monitor actual-terminal report",
+          "python312": {
+            "passed": 33,
+            "failed": 2
+          },
+          "python313": {
+            "passed": 33,
+            "failed": 2
+          },
+          "state": "historical-r3-frozen-failed-diagnostic-snapshot-not-accepted"
+        },
+        "stopped_handoff": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-failing-handoff-r3.json",
+          "size_bytes": 1691,
+          "sha256": "6c999a3f776928614efc5b2aa760173849d6719a4da6b2201a3b0aaa7f2853b0"
+        },
+        "diagnostic": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-diagnostic-r3.json",
+          "size_bytes": 2909,
+          "sha256": "ec9f432ea40589c2ccd72f35b54b98946617bab811629d7bcac637e3b687c179"
+        },
+        "rejected_r3_snapshot": "27a35de34fd0e05c1e90e8ea0853845c483d532195efcc51715c81b19ea77e59",
+        "r5_rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-launch-retry-rejection-r5.json",
+          "size_bytes": 2679,
+          "sha256": "92c2c78ac421ac40e5f57cfa27b9ec53bb73f26671441ffa8311e0e9ffdd1903"
+        },
+        "reviewer_oracle_audit": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/steward-review/reviewer-oracle-audit-r4.json",
+          "size_bytes": 8887,
+          "sha256": "65ed90bb906e4620ca3b6cb615b1b9acfe2af8b54fb2da0d5099f56b055a7205"
+        },
+        "latest_builder_failure": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-exit-observation-r6.json",
+          "size_bytes": 5298,
+          "sha256": "289818f2c13aa3042f4a81bcf27423552fc15282484744a60e0f23289f22b709"
+        },
+        "candidate": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-candidate-r8.json",
+          "size_bytes": 3018,
+          "sha256": "b6d10cd036092a6a56a61170afbcb4e475fdfcab3c0406a3bdfb7cf8739453fa"
+        },
+        "latest_builder_output": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-exit-observation-r7.json",
+          "size_bytes": 4308,
+          "sha256": "ffc0f7b7ce11af48ca98946d3f215427ce4620d8283a7b30dd046407b6249e95"
+        },
+        "architect_validation": [
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-validation-py312-r8.json",
+            "size_bytes": 3317,
+            "sha256": "1b206b257b84e07d14cfdb06793416ec30b4927b6776400a20d549ffa91eacaa"
+          },
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-validation-py313-r8.json",
+            "size_bytes": 3363,
+            "sha256": "9eaba240269b8b10f81cd23fd474e764d4faaa515bc7f48a764bc458809cd85c"
+          }
+        ],
+        "accepted_local_head": "b46e106e48438f18cbbcf0c3fbee8f0a7524f071",
+        "accepted_local_tree": "3819b8d91ef3eb0b6649793d1b16a3d7806b87a1",
+        "exact_local_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-exact-local-head-acceptance-r8.json",
+          "size_bytes": 2077,
+          "sha256": "7290e82dc9ad67781e496e27213cfce871264a4670ad40bda7f6ce92c0cb70cc"
+        },
+        "local_delivery": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/local-delivery-r8.json",
+          "size_bytes": 4923,
+          "sha256": "c73a83ab5534ee5f37f69c89b3c09b22f9767eacb7f6e6842405ec753128be8b"
+        }
+      },
+      "config_design": {
+        "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+        "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+        "size_bytes": 17799
+      },
+      "public_identity_layout_design": {
+        "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+        "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0",
+        "size_bytes": 12868
+      },
+      "config_preparation": {
+        "status": "accepted-at-exact-local-head",
+        "contracts": [
+          {
+            "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+            "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+            "size_bytes": 17799
+          },
+          {
+            "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+            "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d",
+            "size_bytes": 4710
+          },
+          {
+            "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+            "sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+            "size_bytes": 6831
+          },
+          {
+            "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+            "sha256": "6a1d0215e994f0f4d4c559eb0c4e859944645899d78a6617372acc0dfbe470f8",
+            "size_bytes": 2879
+          }
+        ],
+        "semantic_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-kernel-contract-review-r2.json",
+          "sha256": "ef19c01e72c077333d58686f59dcada9259db7fb7bb5d9173974987e2b0529bd",
+          "size_bytes": 10782
+        },
+        "rejected_fixture": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r1.json",
+          "sha256": "a835382c7924969ee1d1b12b26e38fae126cc3ee03770ecfc23937b1b5915b24",
+          "size_bytes": 111287
+        },
+        "fixture_rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-span-review-r1.json",
+          "sha256": "7f9e5878df1b8b6050dd235c27db95bb66c1b38242e6155c7a32625523aa8474",
+          "size_bytes": 1975
+        },
+        "production_started": true,
+        "freeze": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-freeze-r1.json",
+          "size_bytes": 168829,
+          "sha256": "def0a0e66576cc56d7f3900836e9f6a4eeef3f843e15ed74118bf473d2de139d"
+        },
+        "corrected_fixture": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json",
+          "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37",
+          "size_bytes": 125029
+        },
+        "preparation_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-preparation-acceptance-r2.json",
+          "sha256": "e2cef28b756b92408552abba1ce1fd133952421d89ec7ad1bf6c688f2046cd45",
+          "size_bytes": 4724
+        },
+        "prompt": {
+          "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md",
+          "sha256": "39b832c65480a8b5e7a7e91ce35b1939df7d392840319f1994c7e9762d1a3179",
+          "size_bytes": 5319
+        },
+        "prompt_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-implementation-prompt-review-r1.json",
+          "sha256": "532a5b1a032bdd041b2756280a606bc8cc081d1379fc03d0aaeaba40f6ea8791",
+          "size_bytes": 12161
+        },
+        "generated_json_oracle": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r1.py",
+          "size_bytes": 7601,
+          "sha256": "d8df120b43c05d6e406ff7c4eae19e1fa3652a1718bd676658b2c63ff8a23673"
+        },
+        "generated_json_oracle_preparation": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-preparation-r1.json",
+          "size_bytes": 812,
+          "sha256": "3ea6042fcc354ba37c00b370d8287fcf6868edbf03ac489d95c0a2d58a5000c9"
+        },
+        "generated_json_oracle_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-generated-json-oracle-review-r1.json",
+          "size_bytes": 8705,
+          "sha256": "fa69514c2b2e8ddfdea0fb85f1f920482b795644b2582661e5430dbc9ba2aca8"
+        },
+        "generated_json_oracle_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-oracle-acceptance-r1.json",
+          "size_bytes": 1328,
+          "sha256": "b06bb3d75e9f8225534742f1bb67dadbadf2f4c7773d589cae925f55a760b243"
+        },
+        "output_prompt": {
+          "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-OUTPUT-R2.md",
+          "size_bytes": 6741,
+          "sha256": "0fe4c7268ce7edc809d756387575ae376a83c21c8a49d199c5459b26ad1f0ebf"
+        },
+        "oracle_order_successor": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-oracle-order-correction-r2.json",
+          "size_bytes": 1146,
+          "sha256": "c2b1238374ab8f69b8e9b6e8f308c8f02464022b77dbc454244d38efd3d0b887"
+        },
+        "dispatch_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/dispatch-review-correction-r1.json",
+          "size_bytes": 7169,
+          "sha256": "80a99f04c4fc9ebca68683c7bdb3f51a991d6df6bd1706ede7aa69443cb07296"
+        },
+        "dispatch_go": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-dispatch-go-r1.json",
+          "size_bytes": 3481,
+          "sha256": "4077d0ee41fec7a4f868eccbdb2227fda6e4ab48afcc867731184fe594ce4834"
+        },
+        "launch_rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-launch-rejection-r1.json",
+          "size_bytes": 292124,
+          "sha256": "a4cd39c9e987cd55e7a9cc6a6f31c63e2d551b4d97384d114779c886a91ca0f9"
+        },
+        "generated_json_oracle_r2": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-r2.py",
+          "size_bytes": 7912,
+          "sha256": "7ea8b0294ed0efb51853bbba6eed0e3b1ab1e0fab0d92a5a9849e83a3ac9a008"
+        },
+        "generated_json_oracle_r2_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-generated-json-oracle-acceptance-r2.json",
+          "size_bytes": 1677,
+          "sha256": "da1196cf8f54aade5de6c6f645fbc1083ede0d0cc84c04652eb875c2a689fbda"
+        },
+        "adversarial_preparation": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-r1.py",
+          "size_bytes": 8948,
+          "sha256": "f45662244bfda1e37e98960e43d5226c035619a7d8a2eaea1b76b5aa60f5eab5"
+        },
+        "adversarial_preparation_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-adversarial-preparation-acceptance-r1.json",
+          "size_bytes": 873,
+          "sha256": "8bf80f84ba6e648f9093cd5ba7acca6056ee6f12c6ae0eee5231ad2b9bf4b8ee"
+        },
+        "fresh_user_authorization": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/user-exact-config-egress-confirmation-r1.json",
+          "size_bytes": 2612,
+          "sha256": "b11ff5ee03539e8dae554397af692713eb00c10f9554ef127599d29abfc4103c"
+        },
+        "source_files_installed": true,
+        "stopped_candidate": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r1.json",
+          "size_bytes": 2526,
+          "sha256": "90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73"
+        },
+        "diagnostics": [
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-validation-py312-r1.json",
+            "size_bytes": 5997,
+            "sha256": "b81c2a63d16930369cc9497f0d1a3e66d7342084ffbd9622cb0219c5fd7f416a"
+          },
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-validation-py313-r1.json",
+            "size_bytes": 6113,
+            "sha256": "c99d63ac704c97fef72d7bc4ce7b873c0deccf8d9732d58e64d0203a646daae1"
+          }
+        ],
+        "oracle_clarification_candidate": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-CLARIFICATIONS-R3.md",
+          "size_bytes": 5526,
+          "sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e"
+        },
+        "production_rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-candidate-rejection-r1.json",
+          "size_bytes": 3447,
+          "sha256": "b7f3b4417cde00ab1e9598ed0c655c813b90cd26513fcd52ea0ec9fc749b8e96"
+        },
+        "independent_candidate_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/config-candidate-review-r1.json",
+          "size_bytes": 13067,
+          "sha256": "efeb4830dae611acb3f7ded97a0fd5d46f939b8d2f5e56a9451378c0387d8fc6"
+        },
+        "fixture_r3_rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-static-fixture-review-r3.json",
+          "size_bytes": 1446,
+          "sha256": "05e4ccdc9b256330f9432794841cd67e40516f98306114c5694a407fe09bb047"
+        },
+        "fixture_r4": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r4.json",
+          "size_bytes": 133118,
+          "sha256": "512384681dac91c737106d6cb84949aa446a9de9c015694582703be71485dfff"
+        },
+        "fixture_r4_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-static-fixture-acceptance-r4.json",
+          "size_bytes": 2990,
+          "sha256": "a1aac3282867f9aec9200c47c32536dfdf7f86a78d857d91c20a4cb3ad1136cd"
+        },
+        "test_correction_r4_proposed": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r4.proposed.py",
+          "size_bytes": 36695,
+          "sha256": "89287d24f9698540098cc0d042b8e517091a37b06a4ac4e7a788be1206553cdd"
+        },
+        "repair_r4_preparation": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-patch-preparation-r4.json",
+          "size_bytes": 6317,
+          "sha256": "5497ea7f4fd16531d8da7495ccdafd2fe77e4133e962b56929c65586491203b7"
+        },
+        "repair_r4_prompt_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-review-r1/repair-prompt-review-r1.json",
+          "size_bytes": 3200,
+          "sha256": "66b50c378e229306d5642d9090a300bc7a612ce99e625f5221c177245a805a8f"
+        },
+        "repair_r4_dispatch_go": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-patch-dispatch-go-r4.json",
+          "size_bytes": 3825,
+          "sha256": "4a64234da6362eac59e14d926b98e25edcb1c0d0f53f073286c3ec7767dc1eb1"
+        },
+        "test_correction_r4_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-test-correction-review-r4.json",
+          "size_bytes": 5282,
+          "sha256": "32735788c3c93a6a6c0a3ce8b75502beea936c0be01d87fe5b6197a618a90aa9"
+        },
+        "oracle_amendment_r4": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-AMENDMENT-R4.json",
+          "size_bytes": 3958,
+          "sha256": "f54873296dd11e52a93ffa27088e31674d83659e2272767e952448e820a8587b"
+        },
+        "repair_r4_launch_rejection": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-patch-launch-rejection-r4.json",
+          "size_bytes": 2143,
+          "sha256": "e53d58d3bb80f9be8fe4a4b92a3c4041d928c1744de40d13ed2f82e198b63d5c"
+        },
+        "repair_r4_denial_observation": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-patch-launch-denial-observation-r4.json",
+          "size_bytes": 2928,
+          "sha256": "e86ac5230265d483d16c85b6f80eea20def0da9db6eb313be170d271eb052371"
+        },
+        "repair_r4_fresh_user_authorization": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/user-exact-config-patch-r4-egress-confirmation-r1.json",
+          "size_bytes": 1443,
+          "sha256": "c05c0297f83c12a73eb0b648901cc0e70e7917625014fac92cc1551d9b5a0a4b"
+        },
+        "repair_r4_authorized_retry_go": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-user-authorized-patch-retry-go-r4.json",
+          "size_bytes": 2847,
+          "sha256": "43c6ca2d89d530d6fffe9ac547498a42e524785e96c989d6d2142ba6a7cafc54"
+        },
+        "regression_correction_r5_proposal": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-regression-correction-r5.proposed.py",
+          "size_bytes": 43085,
+          "sha256": "207e917ea37239fcc1db2e862a2b36e612c236bc23ca41a07a2cdff32ef2ac76"
+        },
+        "regression_correction_r5_patch": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-regression-correction-r5.patch",
+          "size_bytes": 3584,
+          "sha256": "cc606d86057ed1d5cdaac199c0d8b18114f4d22312835f42dace7ed7a19c447d"
+        },
+        "regression_diagnostic_r5": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-regression-diagnostic-py313-r5.log",
+          "size_bytes": 7486,
+          "sha256": "87bed5ec1b599d3e6ab5ad196da09ec9053bd52c7a7c55c9ee76ac7fe65576f2"
+        },
+        "r5_stopped_candidate": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r5.json",
+          "size_bytes": 2976,
+          "sha256": "683e2b21a46055e62341394e8b4ebec6c4b38760b3ae770e8c2c465344a639eb"
+        },
+        "r5_local_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-local-acceptance-r5.json",
+          "size_bytes": 5709,
+          "sha256": "3c644bdf451d838d374c4ae9cb68bf1d4c56b784a2950a91b29d93715974d8a4"
+        },
+        "r5_patch_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-patch-review-r5/review-r5.json",
+          "size_bytes": 6615,
+          "sha256": "0752b383e98aef751a2d670922060b0758b68b9090a3c0d49d95452c263c9154"
+        },
+        "r5_validation": [
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-validation-py312-r5.json",
+            "size_bytes": 5999,
+            "sha256": "ec4c2b70c17ff31fc2dd2a58115e5fb86d5ad9d0697ba951902c978a979d3e7f"
+          },
+          {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-validation-py313-r5.json",
+            "size_bytes": 6165,
+            "sha256": "780338cf6e6ff9231b34233c8aa72b97b1646af89e0994d92235f5716a5164fd"
+          }
+        ],
+        "implementation_accepted": true,
+        "accepted_local_head": "4ab1830939cd41981983909763434d5612df6070",
+        "accepted_local_tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+        "r5_exact_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-exact-local-head-acceptance-r5.json",
+          "size_bytes": 2824,
+          "sha256": "d0533c40e7a87f65bc6819d0e94cb3fcd96f687c806ad6c77462e47c4993fae8"
+        },
+        "r5_delivery": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/local-delivery-r5.json",
+          "size_bytes": 5335,
+          "sha256": "91c23ce713a659d95400efea2f77ad962e7bb336dcb02f7fdbd62e425e35257d"
+        },
+        "r5_steward_final_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-final-candidate-review-r5.json",
+          "size_bytes": 4714,
+          "sha256": "25d26335d1cac63a31845c26e6fcf9ed6086d24076ae9ae592bd7434a6de42db"
+        }
+      },
+      "public_layout_review": {
+        "status": "changes-required-before-public-wire-freeze",
+        "review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-identity-layout-review-r4.json",
+          "sha256": "7152f8606edc1e31be9ea7f4d3818a6f4a526e4edb212a7a519e4ba028378be9",
+          "size_bytes": 9976
+        },
+        "architect_followup": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-public-layout-followup-r4.json",
+          "sha256": "93bb23049a18d4c7ae5627644b662ad8f98c3a8c6cb66d52d8b0ff9c6c43947a",
+          "size_bytes": 3177
+        }
+      },
+      "public_state_install_candidate": {
+        "status": "semantic-review-passed-public-wire-and-retained-api-still-unfrozen",
+        "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-STATE-AND-INSTALL-R5.md",
+        "sha256": "b44a61d560c8c6a09fa47200e39a5fda5c7d63fd74a3a788bf885aba9379062e",
+        "size_bytes": 10096,
+        "independent_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-state-install-review-r5.json",
+          "sha256": "da0bb3a266dedaad712c0d40dbece858cd66d0377a75903bcc623b959816609e",
+          "size_bytes": 12051
+        }
+      },
+      "retained_io_candidate": {
+        "status": "r9-mkdir-closure-reviewed-r11-caps-reviewed-resources-and-implementation-pending",
+        "contract": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+          "size_bytes": 15524,
+          "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+        },
+        "review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-io-review-r6.json",
+          "size_bytes": 20632,
+          "sha256": "15cbb53fff0f6dfe32b2f08f45f3642b89247d87c98177ceb86b472072513aef"
+        },
+        "clarifications": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+          "size_bytes": 15471,
+          "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+        },
+        "clarifications_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-clarifications-review-r8.json",
+          "size_bytes": 7543,
+          "sha256": "c9667be5c2e5e2d0b2da7a85f0193128fc430970e743265d2bc8bf2987ac616f"
+        }
+      },
+      "public_wire_candidate": {
+        "status": "r12-resource-contract-reviewed-and-accepted-actual-resource-generation-pending",
+        "contract": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+          "size_bytes": 20246,
+          "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+        },
+        "review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-wire-review-r7.json",
+          "size_bytes": 15313,
+          "sha256": "bb9a62d97b37457122d9373beca99313646d165316ddc46c96a7794659f4443b"
+        },
+        "closure_candidate": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+          "size_bytes": 12611,
+          "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+        },
+        "closure_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-public-closure-review-r9.json",
+          "size_bytes": 10818,
+          "sha256": "d580db45266d6c8720e487b54c2c21369da2b6ab36797cb4372ad5b98f851edd"
+        },
+        "input_caps_candidate": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-INPUT-CAPS-R10.md",
+          "size_bytes": 3502,
+          "sha256": "4c01d0803c638922b47b05a3efbc05c4e8c1dbe10375c4c883a0a77b582135e5"
+        },
+        "cap_disposition": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md",
+          "sha256": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04",
+          "size_bytes": 3633
+        },
+        "cap_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-cap-disposition-review-r11.json",
+          "sha256": "179ad4f65af0ec33c1a6c01b43970bdc6699a354ad0429fde5df7c39988048ef",
+          "size_bytes": 6873
+        },
+        "resource_contract_candidate": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+          "size_bytes": 10225,
+          "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+        },
+        "resource_contract_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-contract-review-r12.json",
+          "size_bytes": 5099,
+          "sha256": "192dd207f1c360c8359d380bdd12183364d846b2ecb895b4fac50deb230c5dc1"
+        },
+        "resource_contract_acceptance": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-resource-contract-acceptance-r12.json",
+          "size_bytes": 2023,
+          "sha256": "09fe7942b3218f36646f665182aad4107d99f3eff7be0b1fdd56bcf96659563f"
+        },
+        "synthetic_fixture_preparation": {
+          "status": "r3-shape-preparation-accepted-actual-profile-and-schema-validation-pending",
+          "r1_rejection": {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-resource-fixture-review-r1.json",
+            "size_bytes": 3346,
+            "sha256": "e386298f3f136eb78a93a638c8f1865379ed5d2dda522911ccca4189dc764f47"
+          },
+          "r2_manifest": {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r2/manifest.json",
+            "size_bytes": 8133,
+            "sha256": "6d16c512e13affdebf8aaa89fdc9e833951de435eca1cf554635932649f03e14"
+          },
+          "r2_review": {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-resource-fixture-review-r2.json",
+            "size_bytes": 2383,
+            "sha256": "7c15a1fc9e570b68d183d36a3e0862828a79eadb4cea3806b12954edb9d47785"
+          },
+          "actual_profile_bound": false,
+          "actual_schema_validation": false,
+          "public_workflow_execution": false,
+          "r3_manifest": {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r3/manifest.json",
+            "size_bytes": 31712,
+            "sha256": "f53f4f6ef768732dc423da0ebf478716fab500cc716856a07fee21f7abb12136"
+          },
+          "r3_review": {
+            "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-resource-fixture-review-r3.json",
+            "size_bytes": 2222,
+            "sha256": "b6e78e1dfd465cadc8f36ab097924f23375c23a271b648ce06137066802baa1e"
+          }
+        },
+        "negative_planning_errata": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-negative-case-errata-r3.md",
+          "size_bytes": 1853,
+          "sha256": "dec8acefcd428fe229847b243a3e046768ba50f35727691dda77fce0cc876152"
+        },
+        "negative_planning_errata_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/public-resource-negative-errata-review-r3.json",
+          "size_bytes": 4807,
+          "sha256": "228e19a5d823242b6caaa610639199e8b6fd32ada603ecd7a923189ae43ac28d"
+        },
+        "resource_generation_plan": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-GENERATION-PLAN-R1.md",
+          "size_bytes": 7037,
+          "sha256": "8579447f5f7ac2a9b5f18a859b65536bec0f1313c666628c2d5a4ff6bb859260"
+        },
+        "resource_generation_plan_review": {
+          "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-generation-plan-review-r1.json",
+          "size_bytes": 14193,
+          "sha256": "69c15cc32634f0c87f11e83592f436d6718d146ec9d75184e2bc412c233f420c"
+        },
+        "resource_output_contract_draft": {
+          "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-OUTPUT-CONTRACT-R1.md",
+          "size_bytes": 7854,
+          "sha256": "c3ad66ebf4201e8701bd71b6787a5420006ff9e107583b989bc60182fe1a3c5b"
+        }
+      },
+      "canonical_successor_prerequisites": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-code-canonical-prerequisites-r1.json",
+        "size_bytes": 4202,
+        "sha256": "fda6654e6e05dfb4f1b64026b7289563eeee759ffc3277faed4a06cb14b8be18"
+      },
+      "resource_generation": {
+        "status": "grok-running-contract-and-example-reading",
+        "freeze": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-freeze-r1.json",
+          "size_bytes": 610328,
+          "sha256": "294180fbdd1c76d9e23969fd12299f9050712035cc86b4676b481a0f2f109830"
+        },
+        "prompt": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-RESOURCE-GENERATE-R1.md",
+          "size_bytes": 9072,
+          "sha256": "2bd536457f4e26ab63130066b331197b1cc7d420d8b2f1b596ad11656b9e2cdf"
+        },
+        "launcher": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/launch-resource-r1.py",
+          "size_bytes": 4564,
+          "sha256": "565c5514e25d08f8ebcf8cb3d636445af615adaedb84cffa44c04bdd762611b0"
+        },
+        "planned_session_id": "c4802906-66b7-4e8a-8f8e-af35e04df034",
+        "source_head": "4ab1830939cd41981983909763434d5612df6070",
+        "source_tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+        "product_paths": 14,
+        "new_resource_files": 11,
+        "model_input_file_count": 25,
+        "model_input_total_bytes_with_prompt": 577230,
+        "model_instances_selected": 89,
+        "final_local_fixture_cases": 264,
+        "actual_model_started": true,
+        "resource_generation_executed": false,
+        "actual_profile_bound": false,
+        "public_CODE_complete": false,
+        "typed_fixture_review": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-typed-fixture-review-r2.json",
+          "size_bytes": 3019,
+          "sha256": "ae47c181f2d25f6af3adff85b9f0aab9f38b352ffc62a173f9bd63c0866f159a"
+        },
+        "packer_review": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/architect-packer-review-r1.json",
+          "size_bytes": 5172,
+          "sha256": "ebab4bc305402645129e5fcedb4aa5b500766991a259436174bcf7bf66824069"
+        },
+        "legacy_value_facts_review": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-legacy-value-facts-review-r1.json",
+          "size_bytes": 1707,
+          "sha256": "4bb6655c5491fcb044aa5768a5f6946f6396f7abfca3b5601b675d40bc1676de"
+        },
+        "output_review_errata": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-output-review-errata-r2.json",
+          "size_bytes": 3276,
+          "sha256": "a5f1ec2cb5bbb4e625b94bdc5cb589f9ee5f750e25c708c38b1c539db6267299"
+        },
+        "interface_facts_review": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-interface-facts-review-r1.json",
+          "size_bytes": 7578,
+          "sha256": "f8c26a63c581e23debc5ec9571a2e17f0e504729e33669b08727aeac66b9be5f"
+        },
+        "dispatch_go": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-dispatch-go-r1.json",
+          "size_bytes": 4690,
+          "sha256": "b46991e429b827daec0a1303f34b5e78a55c850cbf8a8aaaa0c62b9f0ba0a034"
+        },
+        "independent_dispatch_review": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/steward-resource-dispatch-review-r1.json",
+          "size_bytes": 34651,
+          "sha256": "b517e49d5ccc0571ddb657424d890f644d14d3daf949480aa388ede93266b477"
+        },
+        "test_environment": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/test-environment-r1.json",
+          "size_bytes": 4692,
+          "sha256": "1a3df2fdff46c7ab2975c54b7c4c611ea47bc1a860281a093420cfa8023dc499"
+        },
+        "launch_rejection": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/builder-resource-launch-rejection-r1.json",
+          "size_bytes": 9097,
+          "sha256": "7ea9027d9c7ee012ad85dbc3e16928b25474ba8c07f6fd33ab7202aae64bef10"
+        },
+        "architect_rejection_observation": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-launch-denial-r1.json",
+          "size_bytes": 3150,
+          "sha256": "b034297473b539af65829de3c63e7113a6d4e2aa80f35c69fc4284d5fd11f420"
+        },
+        "attempts": 2,
+        "pending_user_input": null,
+        "fresh_user_authorization": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/user-exact-resource-egress-authorization-r2.json",
+          "size_bytes": 1659,
+          "sha256": "56a55a0b59187fb64b2265021e811ab7b5ac305b674d761e5b6719014a03eff5"
+        },
+        "authorized_retry_go": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-authorized-retry-go-r2.json",
+          "size_bytes": 3221,
+          "sha256": "c8dd1621af9eb1cd31845da0067c62436723aa431eb45e54e1999defe64907ed"
+        },
+        "start_observation": {
+          "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-start-observation-r2.json",
+          "size_bytes": 2039,
+          "sha256": "86ad633a1835e641da454f0736f6855358cee4e0be3cc6229202e4fb20539234"
+        }
+      }
+    },
+    {
+      "id": "DOMAIN",
+      "objective": "Typed knowledge relations, structured comparison, graph and retrieval fusion",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "CODE"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false,
+      "dependency_inventory_correction": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/domain-dependency-audit-supplement-r2.json",
+        "size_bytes": 4782,
+        "sha256": "1bde7e6bb68b4a6c1dff25f3f24c69d1cc337ece0b11db3ccda0ecaef2744f91"
+      }
+    },
+    {
+      "id": "SYNTHESIS",
+      "objective": "Cited full articles and source-bound reproduction plans",
+      "status": "pending-contract",
+      "dependencies": [
+        "DOMAIN"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "QUALITY",
+      "objective": "Corpus, independent gold interfaces, model runs and semantic evaluation",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    },
+    {
+      "id": "PRODUCT",
+      "objective": "Obsidian views, status and all-namespace backup/restore integration",
+      "status": "pending-contract",
+      "dependencies": [
+        "SOURCE",
+        "DOMAIN",
+        "SYNTHESIS"
+      ],
+      "implementation_accepted_head": null,
+      "fresh_ci": null,
+      "external_human_gates_closed": false
+    }
+  ],
+  "constraints": {
+    "zero_egress_python": true,
+    "no_committed_pdfs": true,
+    "no_models_or_ocr_install": true,
+    "catalog_count": 67,
+    "no_real_vault_mutation": true,
+    "no_merge": true
+  },
+  "runtime": {
+    "status": "resource-generation-running-output-observed",
+    "implementation_owner": "external-grok-build",
+    "architect": "root",
+    "runtime": "grok-build-cli",
+    "model": "grok-4.6",
+    "reasoning_effort": "xhigh",
+    "permission_mode": "default",
+    "external_builder_launches": true,
+    "ownership_record": "GROK-CLI-OWNERSHIP-R3.json",
+    "active_session_id": "c4802906-66b7-4e8a-8f8e-af35e04df034",
+    "active_packet": "GROK-CODE-PROOF-RESOURCE-GENERATE-R1",
+    "public_70_path_push_question": "pending",
+    "last_grok_exit_code": 0,
+    "readiness_exit_observation_sha256": "ac29170f75db11b602775604c5eefeb04b8bda0c037d8ca6d078fc32de980654",
+    "dispatch_blocker": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-dispatch-blocker-r1.json",
+      "sha256": "6c4c7d3cd69d6340985668533cc3b67f69d9a96880a4ee55b53bb582c578685e",
+      "size_bytes": 2978
+    },
+    "egress_authorization": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/user-egress-authorization-r2.json",
+      "sha256": "6eee52a8aad2c568a154ddee252cd7f2623522e44c0eeb984af0a6ecddfdf475",
+      "size_bytes": 2027
+    },
+    "active_tool_session_handle": 36003,
+    "current_attempt": 2,
+    "last_completion": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-patch-exit-observation-r4.json",
+      "size_bytes": 5930,
+      "sha256": "6053b9dd2b999385b2ed075e8f5e25cebe2051999624d6accb772c07c9d6bdc2"
+    },
+    "requested_session_id": "c4802906-66b7-4e8a-8f8e-af35e04df034",
+    "prior_runtime_diagnostic": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-diagnostic-r2.json",
+      "sha256": "6aa21a3be1767426f8e4e36eea1b647b368f26aa1711424787585031985e6177",
+      "size_bytes": 3926
+    },
+    "interactive_dispatch_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-interactive-dispatch-go-r3.json",
+      "sha256": "bb225eed0ea3b64fa40aad4e24967863c3d664e13b4bff2eac155742174cfca7",
+      "size_bytes": 1168
+    },
+    "process_observation": "Grok resource generation is running under Monitor-owned session 36003. Progress output describes reading contracts and examples; no completed generator/test output yet.",
+    "last_completion_correction": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-completion-exit-observation-r3-correction-r1.json",
+      "size_bytes": 2106,
+      "sha256": "da0cee759ad22ccb819d257b5272d2f0d8accff61052fb070a3e203ff1697d08"
+    },
+    "pending_repair": null,
+    "repair_dispatch": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-repair-dispatch-r4.json",
+      "sha256": "adef277ac75deed4283ce81b8b6b3c56d8dfb5326d33417e15bf44067dc82a3d",
+      "size_bytes": 3673
+    },
+    "pending_patch": null,
+    "r5_initial_rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-launch-rejection-r5.json",
+      "size_bytes": 1450,
+      "sha256": "4b11461eb633061a0d680ce3c52958d36d940ed70b5dfe05178a0427624f14c7"
+    },
+    "r5_scope_audit": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/r5-authorization-scope-audit.json",
+      "size_bytes": 4335,
+      "sha256": "a3fedb0671b4b591449050b89fbd1cd31600a7a6450b4f60e5ffe4372a2b72e6"
+    },
+    "r5_retry_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-r5-authorization-retry-go.json",
+      "size_bytes": 2298,
+      "sha256": "e0f1727344f9b3798209e8a04d6f272d0ba7baa8991e96e85f0ae24888d23c9a"
+    },
+    "r5_retry_rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-launch-retry-rejection-r5.json",
+      "size_bytes": 2679,
+      "sha256": "92c2c78ac421ac40e5f57cfa27b9ec53bb73f26671441ffa8311e0e9ffdd1903"
+    },
+    "pending_user_input": null,
+    "r5_fresh_user_authorization": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/user-exact-r5-egress-confirmation-r1.json",
+      "size_bytes": 2423,
+      "sha256": "7188a21b964246b8499eb8d9d1b109157271e5cc4e8a530a8ae75b3d6ffd6f46"
+    },
+    "r6_initial_rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-launch-rejection-r6.json",
+      "size_bytes": 4559,
+      "sha256": "b74ba361ecafe84a31e2de5fbbda8280ce19488c6e713335d94ee5b4136e5aee"
+    },
+    "r6_subset_proof": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-r6-approved-source-subset-proof.json",
+      "size_bytes": 3380,
+      "sha256": "6568af6be0b7e369c94879d5674346ec41779adb84aaf03d3d809e978a296720"
+    },
+    "r5_trace_diagnostic": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-patch-diagnostic-r5.json",
+      "size_bytes": 4523,
+      "sha256": "fe3bc72c273b2981669d6afcdb57acde5d543f9ec5f783cf674902664940b54b"
+    },
+    "r5_trace_diagnostic_correction": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-runtime-patch-diagnostic-r5-correction.json",
+      "size_bytes": 1289,
+      "sha256": "9d4fcc7580e9dcd634802ac41fe21fb80828ca1d52f5fd9f75722bf340034835"
+    },
+    "r7_dispatch_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-single-output-dispatch-go-r7.json",
+      "size_bytes": 3755,
+      "sha256": "406a08faac6eade7b88f6713ec4fd6fc8080e1ab35c5aff7c9451077ca8725be"
+    },
+    "r7_invocation_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/single-output-invocation-review-r7.json",
+      "size_bytes": 1556,
+      "sha256": "b474d3a822da51fb1d86597102f16f931a1f4a44b2b79b1c2c1cdf27a3d934ca"
+    },
+    "config_freeze": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-freeze-r1.json",
+      "size_bytes": 168829,
+      "sha256": "def0a0e66576cc56d7f3900836e9f6a4eeef3f843e15ed74118bf473d2de139d"
+    },
+    "config_launch_rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-launch-rejection-r1.json",
+      "size_bytes": 292124,
+      "sha256": "a4cd39c9e987cd55e7a9cc6a6f31c63e2d551b4d97384d114779c886a91ca0f9"
+    },
+    "config_denial_observation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-final-launch-denial-observation-r1.json",
+      "size_bytes": 1540,
+      "sha256": "e492a09b24a283a772752d87b277dd60a91b3c9c54d0a63621643b2892620ae5"
+    },
+    "config_fresh_user_authorization": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/user-exact-config-egress-confirmation-r1.json",
+      "size_bytes": 2612,
+      "sha256": "b11ff5ee03539e8dae554397af692713eb00c10f9554ef127599d29abfc4103c"
+    },
+    "config_authorized_retry_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-authorized-retry-go-r1.json",
+      "size_bytes": 1744,
+      "sha256": "2da38e8de27603890a5b56128e4fe1b2df959c3288b38b347a7418d339750afa"
+    },
+    "config_interpreter_failure": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-exit-observation-r1.json",
+      "size_bytes": 294848,
+      "sha256": "0448e5f47f5e37569a9fcee01fef636bf2170c89c58a3d05109121afa5e1187e"
+    },
+    "config_interpreter_repair_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-interpreter-repair-go-r2.json",
+      "size_bytes": 3371,
+      "sha256": "3df21c0b2059587425c36eb3a44aae6d1c3fe03903f8ae64abde77fd414bfff3"
+    },
+    "config_running_observation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-runtime-live-snapshot-r2.json",
+      "size_bytes": 2449,
+      "sha256": "75f0a78237b658ebb7915b3ccb44e666f51977c5b8aac6a7e7c555feb3c17909"
+    },
+    "config_completed_output": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-exit-observation-r2.json",
+      "size_bytes": 9790,
+      "sha256": "5f5c4928c1e7759316cbfb5baf74c9039f7cccf9f89736a3b850953141401dbd"
+    },
+    "config_patch_r4_dispatch_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-patch-dispatch-go-r4.json",
+      "size_bytes": 3825,
+      "sha256": "4a64234da6362eac59e14d926b98e25edcb1c0d0f53f073286c3ec7767dc1eb1"
+    },
+    "config_patch_r4_launch_rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-patch-launch-rejection-r4.json",
+      "size_bytes": 2143,
+      "sha256": "e53d58d3bb80f9be8fe4a4b92a3c4041d928c1744de40d13ed2f82e198b63d5c"
+    },
+    "config_patch_r4_denial_observation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-patch-launch-denial-observation-r4.json",
+      "size_bytes": 2928,
+      "sha256": "e86ac5230265d483d16c85b6f80eea20def0da9db6eb313be170d271eb052371"
+    },
+    "config_patch_r4_fresh_user_confirmation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/user-exact-config-patch-r4-egress-confirmation-r1.json",
+      "size_bytes": 1443,
+      "sha256": "c05c0297f83c12a73eb0b648901cc0e70e7917625014fac92cc1551d9b5a0a4b"
+    },
+    "config_patch_r4_authorized_retry_go": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-user-authorized-patch-retry-go-r4.json",
+      "size_bytes": 2847,
+      "sha256": "43c6ca2d89d530d6fffe9ac547498a42e524785e96c989d6d2142ba6a7cafc54"
+    },
+    "config_patch_r4_running_observation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-patch-running-observation-r4.json",
+      "size_bytes": 3502,
+      "sha256": "ccc7ed5f466bbe693b3fa98d53c4db0e6b7d3d35a7a8bea80cc70827b0c696d3"
+    },
+    "config_patch_r4_diagnostic": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-grok-patch-diagnostic-r4.json",
+      "size_bytes": 2768,
+      "sha256": "0e7738ef92907d8be79fe883bc1309e7c9d992208594ee1d4f87d342207a8ff4"
+    },
+    "resource_generation": {
+      "status": "grok-running-contract-and-example-reading",
+      "freeze": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-freeze-r1.json",
+        "size_bytes": 610328,
+        "sha256": "294180fbdd1c76d9e23969fd12299f9050712035cc86b4676b481a0f2f109830"
+      },
+      "prompt": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-RESOURCE-GENERATE-R1.md",
+        "size_bytes": 9072,
+        "sha256": "2bd536457f4e26ab63130066b331197b1cc7d420d8b2f1b596ad11656b9e2cdf"
+      },
+      "launcher": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/launch-resource-r1.py",
+        "size_bytes": 4564,
+        "sha256": "565c5514e25d08f8ebcf8cb3d636445af615adaedb84cffa44c04bdd762611b0"
+      },
+      "planned_session_id": "c4802906-66b7-4e8a-8f8e-af35e04df034",
+      "source_head": "4ab1830939cd41981983909763434d5612df6070",
+      "source_tree": "22fc77a38704386eaad5ad9be8a9268f0a1a5392",
+      "product_paths": 14,
+      "new_resource_files": 11,
+      "model_input_file_count": 25,
+      "model_input_total_bytes_with_prompt": 577230,
+      "model_instances_selected": 89,
+      "final_local_fixture_cases": 264,
+      "actual_model_started": true,
+      "resource_generation_executed": false,
+      "actual_profile_bound": false,
+      "public_CODE_complete": false,
+      "typed_fixture_review": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/architect-typed-fixture-review-r2.json",
+        "size_bytes": 3019,
+        "sha256": "ae47c181f2d25f6af3adff85b9f0aab9f38b352ffc62a173f9bd63c0866f159a"
+      },
+      "packer_review": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/architect-packer-review-r1.json",
+        "size_bytes": 5172,
+        "sha256": "ebab4bc305402645129e5fcedb4aa5b500766991a259436174bcf7bf66824069"
+      },
+      "legacy_value_facts_review": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-legacy-value-facts-review-r1.json",
+        "size_bytes": 1707,
+        "sha256": "4bb6655c5491fcb044aa5768a5f6946f6396f7abfca3b5601b675d40bc1676de"
+      },
+      "output_review_errata": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-output-review-errata-r2.json",
+        "size_bytes": 3276,
+        "sha256": "a5f1ec2cb5bbb4e625b94bdc5cb589f9ee5f750e25c708c38b1c539db6267299"
+      },
+      "interface_facts_review": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-interface-facts-review-r1.json",
+        "size_bytes": 7578,
+        "sha256": "f8c26a63c581e23debc5ec9571a2e17f0e504729e33669b08727aeac66b9be5f"
+      },
+      "dispatch_go": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-dispatch-go-r1.json",
+        "size_bytes": 4690,
+        "sha256": "b46991e429b827daec0a1303f34b5e78a55c850cbf8a8aaaa0c62b9f0ba0a034"
+      },
+      "independent_dispatch_review": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/steward-resource-dispatch-review-r1.json",
+        "size_bytes": 34651,
+        "sha256": "b517e49d5ccc0571ddb657424d890f644d14d3daf949480aa388ede93266b477"
+      },
+      "test_environment": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/test-environment-r1.json",
+        "size_bytes": 4692,
+        "sha256": "1a3df2fdff46c7ab2975c54b7c4c611ea47bc1a860281a093420cfa8023dc499"
+      },
+      "launch_rejection": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/builder-resource-launch-rejection-r1.json",
+        "size_bytes": 9097,
+        "sha256": "7ea9027d9c7ee012ad85dbc3e16928b25474ba8c07f6fd33ab7202aae64bef10"
+      },
+      "architect_rejection_observation": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-launch-denial-r1.json",
+        "size_bytes": 3150,
+        "sha256": "b034297473b539af65829de3c63e7113a6d4e2aa80f35c69fc4284d5fd11f420"
+      },
+      "attempts": 2,
+      "pending_user_input": null,
+      "fresh_user_authorization": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/user-exact-resource-egress-authorization-r2.json",
+        "size_bytes": 1659,
+        "sha256": "56a55a0b59187fb64b2265021e811ab7b5ac305b674d761e5b6719014a03eff5"
+      },
+      "authorized_retry_go": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-authorized-retry-go-r2.json",
+        "size_bytes": 3221,
+        "sha256": "c8dd1621af9eb1cd31845da0067c62436723aa431eb45e54e1999defe64907ed"
+      },
+      "start_observation": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/architect-resource-start-observation-r2.json",
+        "size_bytes": 2039,
+        "sha256": "86ad633a1835e641da454f0736f6855358cee4e0be3cc6229202e4fb20539234"
+      },
+      "active_tool_session_handle": 36003
+    },
+    "process_started": true,
+    "active_tool_session_handle_observation": "reported directly by exclusive Monitor; process running"
+  },
+  "source_publication_exact_head_acceptance": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-exact-head-acceptance-r2.json",
+    "sha256": "2ef3d01b98ff2950e83f402219dc7b38f4c3833c2b3ef70f6507221ffcd4c193",
+    "size_bytes": 3934
+  },
+  "source_publication_delivery": {
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "ci_run": 34318336303,
+    "ci_tests_per_job": 3285,
+    "ci_jobs": 4,
+    "state": "accepted-at-exact-head"
+  },
+  "source_conversion": {
+    "state": "accepted-at-exact-head",
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-conversion-v1/terminal-1/source",
+    "baseline_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-freeze-r1.json",
+      "sha256": "6a07450b23f8714ddc40dfb829b561a010396cca94365e98067635bef0a36d2b",
+      "size_bytes": 5364
+    },
+    "candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r2.json",
+      "sha256": "b6d426a541204cb8f0191796c12ec7dca1fab0ebf2da12bb4c2823f81914719b",
+      "size_bytes": 5915
+    },
+    "rejection": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1.json",
+      "sha256": "6262eb7fa03872136e566267dea3ace0a595bc13ba9435b89819cbdc50173112",
+      "size_bytes": 2155
+    },
+    "prior_candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r1.json",
+      "sha256": "99e6eddc760f78229f806ba85584acf1dcfc5fc9e04b1d42e7f27a5def1bfb7e",
+      "size_bytes": 5004
+    },
+    "snapshot_sha256": "4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c",
+    "full_local_tests": {
+      "py312": 3383,
+      "py313": 3383
+    },
+    "full_local_reports": [
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py312-r2.json",
+        "sha256": "8ef8594d62ccddfc886b955a842775ef71793a8854927a2d9a608e8f28eb6fa5",
+        "size_bytes": 101353
+      },
+      {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py313-r2.json",
+        "sha256": "27b6a551bb226082cdaabf4b9816748d4ceed35908c3f89e40b477166b9198da",
+        "size_bytes": 101420
+      }
+    ],
+    "rejection_taxonomy_supplement": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1-taxonomy-supplement.json",
+      "sha256": "d8a802b2b35dbd1496be7db117b11fff21cc590e56a14bd18865eaad02bde550",
+      "size_bytes": 1781
+    },
+    "local_acceptance": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-local-acceptance-r2.json",
+      "sha256": "d10fefbe7d55b0ebf040a357f64c66fc0f3349a3c1f023ea54a3b89c0d7338de",
+      "size_bytes": 7026
+    },
+    "wheel": {
+      "backend": "hatchling.build",
+      "schemas": 70,
+      "sha256": "1573dbe1dec356b8b4fb14c9f268f748219cc0cdfba7de555b4ca129cccdaac5"
+    },
+    "implementation_accepted_head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "fresh_ci": {
+      "run_id": 34326048777,
+      "attempt": 1,
+      "jobs_passed": 4,
+      "tests_per_job": 3383,
+      "checkout_sha": "8bc05a48dee1100bb59421a2e39543aade59ca2a"
+    },
+    "acceptance": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-exact-head-acceptance-r1.json",
+      "sha256": "87348be586cc450c379a738d8f166f0a553345b1eaf80b52bbebd30d33fa0407",
+      "size_bytes": 4049
+    }
+  },
+  "previous_status": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/status-before-r5-prelaunch-blocker.json",
+    "size_bytes": 43619,
+    "sha256": "f403bf6feb8f84cdb9dc8223cba4b2200c36de372583bc2a254345fe7ff949e4"
+  }
+}

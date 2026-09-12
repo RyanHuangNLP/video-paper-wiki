@@ -1,0 +1,230 @@
+{
+  "$schema": "full-todo.code-config-implementation-prompt-review-r1.v1",
+  "schema": "full-todo.code-config-implementation-prompt-review-r1.v1",
+  "packet": "GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1",
+  "revision": "R1-independent-read-only-implementation-prompt-review",
+  "recorded_at_utc": "2026-09-09T17:34:46Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CODE configuration-kernel implementation-prompt reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only review of the implementation prompt against the accepted CODE-CONFIG-KERNEL R1 contract, R2 clarifications, CODE-PROOF-CLOSURE R3, the accepted R2 static fixture, and the preparation acceptance. No production source, test source, fixture, Git, network, connector, Vault, dispatch, or extra-agent mutation.",
+  "decision": "GO_PROMPT_READY_PENDING_GIT_ACCEPTANCE_AND_CONFIG_FREEZE",
+  "verdict": "The prompt is bounded and dispatchable after the separately required Git-kernel acceptance and CODE-CONFIG-KERNEL-freeze-r1.json. It carries the R1 API and safety boundary, incorporates both R2 semantic closures, binds the accepted static fixture by provenance and hash requirement, names exactly three prospective source paths, and requires the necessary fixture, supplementary-vector, boundary, callback, cross-check, determinism, and dual-runtime checks. No semantic contradiction or implementation-scope blocker was found. The remaining gate is procedural: the freeze must bind the exact successor source root/head/tree, final allowlist, fixture bytes/hash, and required input hashes before dispatch.",
+  "scope_controls": {
+    "source_edits": false,
+    "tests_edits": false,
+    "fixture_edits": false,
+    "git_mutations": false,
+    "network_or_connector_used": false,
+    "vault_mutation": false,
+    "dispatch": false,
+    "extra_agents": false,
+    "review_artifact_only": true
+  },
+  "prompt": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md",
+    "sha256": "39b832c65480a8b5e7a7e91ce35b1939df7d392840319f1994c7e9762d1a3179",
+    "size_bytes": 5319,
+    "preparation_only": true,
+    "dispatch_prerequisites": [
+      "Architect acceptance and local delivery of the Git kernel",
+      "CODE-CONFIG-KERNEL-freeze-r1.json created and explicitly named by dispatch",
+      "freeze-bound exact source root, accepted baseline head/tree, allowlist, fixture and input hashes"
+    ],
+    "execution_policy": [
+      "Grok Build CLI grok-4.6 / xhigh only",
+      "one Builder and no subagents",
+      "normal permission mode",
+      "no Git mutation, external acquisition, dependency/model installation, real Vault/admin operation or unrelated source access",
+      "refuse source-root or baseline mismatch and never fall back to the outer repository"
+    ]
+  },
+  "allowed_paths_check": {
+    "status": "PASS",
+    "exact_count": 3,
+    "paths": [
+      "src/video_paper_wiki/code_config_parser.py",
+      "tests/unit/test_code_config_parser.py",
+      "tests/fixtures/code-config-vectors-v1.json"
+    ],
+    "fixture_rule": "The fixture path is required to be a byte-exact copy of accepted static-vectors-r2.json; regeneration, repair, legacy edits and unrelated source/schema/test/metadata changes are prohibited.",
+    "brief_rule": "The separate freeze names the sole new development-brief path; the future brief must record contract/freeze/session/model/effort, changed paths, commands/results, failures or unrun checks, all three path hashes/sizes, and source_writes_stopped=true."
+  },
+  "contract_alignment": {
+    "status": "PASS",
+    "checks": [
+      {
+        "area": "API and boundary",
+        "status": "PASS",
+        "evidence": "The prompt delegates the pure API to CODE-CONFIG-KERNEL-R1 plus unchanged R2 clarifications and keeps CODE-PROOF-CLOSURE-R3 as the numeric/source-coordinate authority. It forbids I/O, imports of supplied source, dynamic evaluation, subprocesses and global Decimal/integer-limit changes."
+      },
+      {
+        "area": "bounded scanner and stdlib cross-check",
+        "status": "PASS",
+        "evidence": "It requires scanner limits and exact source-coordinate representation before the independent whole-tree json/tomllib cross-check, and prohibits unbounded stdlib parsing or regex-only source searching."
+      },
+      {
+        "area": "strict types, key safety and owned state",
+        "status": "PASS",
+        "evidence": "It carries the exact-builtin-dict and constant-time-length guard, exact builtin str verification before callback-triggering operations, callback traps for non-exact primitives/keys, and owned primitive limit snapshots."
+      },
+      {
+        "area": "semantic preservation",
+        "status": "PASS",
+        "evidence": "It names original byte/codepoint spans, decoded-key identity, TOML table states, finite numeric semantics, all thirteen limits, declaration-before-insertion accounting, deterministic ordering, no aliasing, and no partial node list on refusal."
+      },
+      {
+        "area": "R2 dynamic closure",
+        "status": "PASS",
+        "evidence": "The prompt requires dynamic offset vectors and supplementary groups while preserving the R2 token-start rule and exact error behavior through its unchanged-clarifications input; it also requires escaped keys/newlines, Unicode positions and marker/callable cases."
+      },
+      {
+        "area": "R2 TOML closure",
+        "status": "PASS",
+        "evidence": "The 26-vector transition matrix is explicitly normative supplementary input rather than a source whitelist, and tests must exercise promotion, dotted prefixes, closed inline boundaries and duplicate semantics."
+      },
+      {
+        "area": "fixture and expected-shape use",
+        "status": "PASS",
+        "evidence": "Tests must assert fixture source and every expected_nodes record, derive budget expectations independently, treat extra notes as provenance, and run every success/refusal vector plus both supplementary groups."
+      },
+      {
+        "area": "boundary and corruption coverage",
+        "status": "PASS",
+        "evidence": "The prompt requires numeric/string/depth/node/declaration boundaries, CRLF/multibyte/escaped/surrogate/span cases, hostile Decimal contexts, parser mismatch for changed types/keys/order/values, cross-check corruption, and no traceback leakage."
+      },
+      {
+        "area": "legacy parity and runtime replay",
+        "status": "PASS",
+        "evidence": "It requires span and text/snippet hash comparison with pure legacy test helpers, complete focused-module runs on locked Python 3.12 and 3.13, the locked environment variables, and short real /private/tmp directories."
+      }
+    ]
+  },
+  "accepted_inputs": [
+    {
+      "kind": "prompt",
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-CONFIG-KERNEL-IMPLEMENT-R1.md",
+      "sha256": "39b832c65480a8b5e7a7e91ce35b1939df7d392840319f1994c7e9762d1a3179",
+      "size_bytes": 5319
+    },
+    {
+      "kind": "contract_r1",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "size_bytes": 17799
+    },
+    {
+      "kind": "clarifications_r2",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d",
+      "size_bytes": 4710
+    },
+    {
+      "kind": "toml_matrix_r2",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+      "sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf",
+      "size_bytes": 6831,
+      "case_count": 26,
+      "positive_cases": 12,
+      "negative_cases": 14
+    },
+    {
+      "kind": "dynamic_vectors_r2",
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-DYNAMIC-VECTORS-R2.json",
+      "sha256": "6a1d0215e994f0f4d4c559eb0c4e859944645899d78a6617372acc0dfbe470f8",
+      "size_bytes": 2879,
+      "case_count": 9
+    },
+    {
+      "kind": "numeric_and_coordinate_closure",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "kind": "contract_review_r1",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-kernel-contract-review-r1.json",
+      "sha256": "da78c46876af59f26c68517120a9110c10e61cf118b518598e1cb7d8e2ebadbe",
+      "size_bytes": 14012,
+      "decision": "CONDITIONAL_GO_CANDIDATE_PENDING_TWO_CONTRACT_CLARIFICATIONS_AND_LATER_FREEZE"
+    },
+    {
+      "kind": "contract_review_r2",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-kernel-contract-review-r2.json",
+      "sha256": "ef19c01e72c077333d58686f59dcada9259db7fb7bb5d9173974987e2b0529bd",
+      "size_bytes": 10782,
+      "decision": "CONDITIONAL_GO_SEMANTIC_CLOSURE_PENDING_SEPARATE_FREEZE"
+    },
+    {
+      "kind": "preparation_acceptance_r2",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-preparation-acceptance-r2.json",
+      "sha256": "e2cef28b756b92408552abba1ce1fd133952421d89ec7ad1bf6c688f2046cd45",
+      "size_bytes": 4724,
+      "decision": "ACCEPTED_CONFIG_SEMANTICS_AND_R2_STATIC_FIXTURE_FOR_LATER_IMPLEMENTATION_FREEZE"
+    },
+    {
+      "kind": "static_fixture_r2",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r2.json",
+      "sha256": "4d773500c4d8b92cd98882aeb5c2f86bff503867085765af15c299ad3a893a37",
+      "size_bytes": 125029,
+      "success_vectors": 7,
+      "refusal_vectors": 31,
+      "expected_nodes": 61,
+      "exact_value_spans": 50
+    },
+    {
+      "kind": "fixture_review_r2",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/fixture-review-r2.json",
+      "sha256": "b83a061b3129411138a8643a2d09775952528e1b6864e043f30a12d82d6c1597",
+      "size_bytes": 4788,
+      "decision": "R2_FIXTURE_CORRECTION_COMPLETE_PENDING_ARCHITECT_REVIEW"
+    },
+    {
+      "kind": "toml_replay_py312",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py312-r2.json",
+      "sha256": "64c695830774b933524d043ef08eae65fc244788c420833bc861aa9a38f36fac",
+      "size_bytes": 6274,
+      "passed": 26
+    },
+    {
+      "kind": "toml_replay_py313",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py313-r2.json",
+      "sha256": "492cb659ce7eb82a9b68e4151ca28a38acd47da9764ff5592d5a85c9ec6c9194",
+      "size_bytes": 6305,
+      "passed": 26
+    }
+  ],
+  "remaining_gate": {
+    "id": "CCIP-R1-PROC-001",
+    "severity": "PROCEDURAL_FREEZE_GATE",
+    "status": "OPEN",
+    "title": "Exact Git successor and configuration freeze are not yet bound",
+    "observation": "The reviewed prompt intentionally requires a future CODE-CONFIG-KERNEL-freeze-r1.json and explicit dispatch. It does not authorize implementation from the root checkout or from an inferred worktree.",
+    "required_before_dispatch": [
+      "Architect-accepted Git kernel delivery at an exact head/tree",
+      "freeze path and bytes bound by SHA-256/size",
+      "exact successor source root, accepted baseline head and tree",
+      "exact final allowlist containing the three proposed paths and the sole development-brief path",
+      "byte-exact static fixture copy bound by SHA-256/size and provenance",
+      "R1/R2/R3, TOML matrix and dynamic-vector input hashes bound",
+      "explicit Architect dispatch naming the freeze"
+    ],
+    "effect": "This is a required delivery gate and does not reopen the closed R1/R2 semantic findings or constitute a prompt defect."
+  },
+  "writes_performed": [
+    "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-implementation-prompt-review-r1.json"
+  ],
+  "writes_forbidden": [
+    "production source",
+    "tests",
+    "fixtures",
+    "schemas",
+    "Git state",
+    "network",
+    "connectors",
+    "Vault/admin state",
+    "implementation dispatch"
+  ]
+}

@@ -1,0 +1,168 @@
+{
+  "$schema": "full-todo.code-proof-design-review-r2.v1",
+  "schema": "full-todo.code-proof-design-review-r2.v1",
+  "packet": "CODE-PROOF-DESIGN-R2",
+  "revision": "R2-independent-retained-io-object-config-review",
+  "recorded_at_utc": "2026-09-09T11:33:08.128635000Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded CODE-PROOF retained I/O, Git object and configuration semantics reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CHANGES_REQUIRED_BEFORE_CODE_PROOF_FREEZE",
+  "verdict": "R2 preserves the intended zero-egress boundary, fixed one-request/intent/observation batch, deterministic repair direction, separate normalized-only mode, SHA-1/SHA-256 Git framing and the tighter object/config limits. It is not ready for schema or allowlist freeze because the saved code-git-bundle manifest has no defined output location, bundle/output path overlap is not explicitly refused, deterministic repair lacks a persisted input identity rule, the 16 KiB normalized target limit conflicts with the 256 KiB configuration source limit, and several numeric/span/TOML rules remain narrative rather than closed wire semantics.",
+  "scope": "Design-only review of CODE-PROOF-DESIGN-R2 against the prior CODE-DESIGN-R1 and the earlier bounded JSON/TOML configuration/span advice. Focused on retained descriptor lineage, bundle/object closure, pre-read and install budgets, fixed-batch repair, SHA-256 handoff compatibility, Decimal lexical/canonical semantics and raw/Unicode/line span coordinates. No source, schema, test, Git, provider, network, Vault or publication mutation.",
+  "frozen_inputs": {
+    "code_proof_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md",
+      "sha256": "eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57",
+      "size_bytes": 19802,
+      "lines": 317
+    },
+    "code_design_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-DESIGN-R1.md",
+      "sha256": "baa71a7c65c4f6a30a84e24fb727c8a5f8cb0cb20369369512a413837520cf90",
+      "size_bytes": 5206
+    },
+    "prior_config_span_advice": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json",
+      "sha256": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20",
+      "status": "ADVICE_ONLY_NOT_FROZEN"
+    }
+  },
+  "accepted_or_well_bounded": [
+    {
+      "id": "CPR2-BASELINE-001",
+      "status": "PASS",
+      "evidence": "R2 rejects the stale fb2cbcb rebasing direction and binds future work to the locally delivered Discovery successor; no implementation or legacy schema rewrite is authorized (lines 8-27)."
+    },
+    {
+      "id": "CPR2-BOUNDARY-002",
+      "status": "PASS",
+      "evidence": "The public workflow remains zero-egress and data-only: no network, subprocess, Git configuration, checkpoint URL, model, connector, operator or Vault access (lines 29-57)."
+    },
+    {
+      "id": "CPR2-BATCH-003",
+      "status": "PASS_WITH_FREEZE_DEPENDENCIES",
+      "evidence": "One request, one acquisition intent and at most one completed observation, with normalized-only/raw distinction and no same-batch upgrade path, is a coherent replay boundary (lines 48-52, 181-207). The repair identity details still require closure below."
+    },
+    {
+      "id": "CPR2-GIT-FRAMING-004",
+      "status": "PASS_WITH_SCHEMA_DEPENDENCIES",
+      "evidence": "The type/space/decimal-length/NUL/body framing, separate body and framed hashes, selected SHA-1/SHA-256 OID width and no legacy 40-hex substitution are directionally correct (lines 23-27, 141-145). OID field and handoff width closure remains required below."
+    },
+    {
+      "id": "CPR2-IO-RETENTION-005",
+      "status": "PASS_WITH_BOUNDARY_DEPENDENCIES",
+      "evidence": "Shared retained descriptors, first-absence capture, complete-set observation, nonblocking checkout lock, duplicate lock descriptor and all-exit lineage precedence are the right safety model (lines 209-221). The overlapping bundle/output roots need an explicit refusal rule below."
+    },
+    {
+      "id": "CPR2-CONFIG-WIRE-006",
+      "status": "PASS_WITH_SYNTAX_DEPENDENCIES",
+      "evidence": "Integer-only artifact JCS, string-typed decimal magnitudes, raw lexeme retention, Decimal cross-check, parser disagreement refusal and no partial verified node list preserve the legacy float boundary (lines 244-286). Exact lexical and coordinate wire grammar still needs to be frozen."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CPR2-MANIFEST-PATH-001",
+      "severity": "high",
+      "status": "OPEN",
+      "title": "code-git-bundle has no persisted output location or family",
+      "evidence": "R2 declares code-git-bundle as a document kind and says manifest.json is a saved envelope (lines 68-70, 124-138), then fixes the output to request.json, intent.json, observation.json and objects/configs/handoffs with no bundle/manifest path (lines 223-228).",
+      "risk": "A raw observation cannot be replayed from the output tree with a persisted manifest reference if the external manifest is not retained as a document. If intent.json embeds a bundle document, its kind/ID/reference semantics are ambiguous; if the external manifest remains authoritative, later status/config/handoff replay has an unbound input.",
+      "required_closure": "Choose one explicit layout before freeze, preferably a private 0600 bundle.json (or a declared manifests family), and specify its content-addressed filename/identity, exact request/profile binding, scan/permission rules, observation reference, idempotent repair behavior and orphan rejection. The 12 output families must then include and hash this path."
+    },
+    {
+      "id": "CPR2-BUNDLE-OVERLAP-002",
+      "severity": "high",
+      "status": "OPEN",
+      "title": "Bundle root containment and output overlap are under-specified",
+      "evidence": "The bundle is only required to be below checkout/.work and outside the output code-evidence directory (lines 126-130); retained I/O rules do not state that bundle root and output root must be disjoint non-ancestor paths (lines 211-216).",
+      "risk": "A bundle directory at the batch root or another ancestor of code-evidence-v1 is outside the output directory yet output creation changes its complete sibling set. Symlink/alias spellings or an output descendant can make the source bundle and destination lineage share names or descriptors, producing unsafe classification or self-ingestion.",
+      "required_closure": "Require canonical descriptor-walk containment under checkout/.work with no symlink/reparse component; reject bundle root equal to, inside, or an ancestor of the output root and reject any input/output family overlap. Capture the bundle root and objects complete sets before classification and keep their descriptors/bytes verified through every output install."
+    },
+    {
+      "id": "CPR2-REPAIR-IDENTITY-003",
+      "severity": "high",
+      "status": "OPEN",
+      "title": "Deterministic repair does not state the persisted external-input identity",
+      "evidence": "R2 requires full validation before writes and says repeating observe with the same retained input repairs the missing suffix (lines 230-240), but does not require intent to retain a manifest/body input digest or define changed-path/missing-bundle behavior.",
+      "risk": "After an interruption, a caller can supply a different directory with the same batch ID. Without a persisted bundle manifest digest, declared OID/body digest set and mode-specific input identity, repair could install a different suffix or return an ambiguous semantic conflict.",
+      "required_closure": "Persist the complete acquisition-intent identity: mode, bundle envelope reference, manifest saved-byte SHA-256, ordered declared object records, per-object body SHA-256/size and target set. On repair, re-retain and revalidate the supplied bundle and refuse before any write when any identity, complete set, path spelling or mode differs. A normalized-only batch must reject any later bundle, as already intended."
+    },
+    {
+      "id": "CPR2-TEXT-CONFIG-CAP-004",
+      "severity": "high",
+      "status": "OPEN",
+      "title": "The per-target text cap conflicts with the configuration source cap",
+      "evidence": "R2 caps normalized text at 16 KiB per target (lines 111-116), while the configuration parser admits a 256 KiB source and a 2 MiB complete record (lines 266-269). Configuration consumes a raw blob from the complete raw observation (lines 246-248).",
+      "risk": "A valid configuration blob between 16 KiB and 256 KiB cannot simultaneously satisfy the stated complete raw observation/source-text outcome and the parser source cap. Implementations may silently reject valid requested configuration or weaken one bound; either changes the frozen contract.",
+      "required_closure": "State whether 16 KiB is only a normalized-text/handoff cap, whether configuration-role targets receive a separate raw/config cap, or whether the config source cap must be reduced. Define raw-byte versus normalized-byte accounting and make the selected result explicit in request limits, target outcomes and config eligibility."
+    },
+    {
+      "id": "CPR2-PREFLIGHT-BUDGET-005",
+      "severity": "medium",
+      "status": "OPEN",
+      "title": "Declared object sums and transient atomic-install bytes need an explicit proof",
+      "evidence": "The profile lists 2048 objects, 8 MiB per object and 32 MiB total body limits, and says counts/declared sizes are checked before reading (lines 111-116), while output retention is bounded at 128 MiB including pending files (lines 223-228).",
+      "risk": "The design does not explicitly require the sum of all manifest body_size_bytes, metadata bytes, family file counts and pending temporary bytes to fit before opening any object body. Existing atomic installation briefly holds a private temporary body beside the final target; logical-only charging can exceed the stated pending-files cap.",
+      "required_closure": "Define a pre-read formula: object count, each declared size, sum declared bodies <=32 MiB, manifest <=1 MiB, tree-entry prospective count <=32768, and all request/intent/manifest/observation/config/handoff bytes plus atomic temp duplicates <=128 MiB. Reject on declarations/stat sizes before body reads; retain and verify temp/target sets and clean temp names on every exit."
+    },
+    {
+      "id": "CPR2-NUMERIC-GRAMMAR-006",
+      "severity": "medium",
+      "status": "OPEN",
+      "title": "Numeric lexical and Decimal-context rules remain narrative rather than closed",
+      "evidence": "R2 names lexical validation, 128-byte lexemes, 64 significant digits, exponent 128, fixed notation, nonfinite and negative-zero refusal (lines 257-264), but does not publish the format-specific grammar or exact zero/sign/type rules.",
+      "risk": "JSON and TOML differ on plus signs, underscores, leading zeros and integer/decimal classification. A scanner and stdlib parser can disagree on `-0`, `+1`, `1e0`, `01`, `1_000`, `1.`, or `0E+128`; default Decimal context behavior can also accidentally round or erase sign/exponent provenance.",
+      "required_closure": "Carry forward the prior advice grammar and wire rules: RFC 8259 JSON number regex; explicit TOML decimal-integer/finite-float regex with underscore placement; typed integer versus decimal source classification; reject negative-zero lexemes and nonfinite forms; use context-free Decimal tuple conversion with no rounding; canonical fixed string/zero form; strict bool-versus-int distinction; retain original lexeme and raw span."
+    },
+    {
+      "id": "CPR2-SPAN-COORD-007",
+      "severity": "medium",
+      "status": "OPEN",
+      "title": "Raw/codepoint/line-column coordinate contract needs exact definitions",
+      "evidence": "R2 requires half-open byte and original Unicode codepoint offsets, one-based line/column coordinates, CRLF treatment, raw hash and normalized snippet hash (lines 279-286), but does not define escaped-source coordinate units, column unit, tab policy or all container/implicit-table span cases.",
+      "risk": "For JSON escaped keys/strings, Unicode non-ASCII text and TOML escapes, decoded value coordinates differ from raw source token coordinates. Without a fixed rule, independently generated spans can hash the same bytes but report different positions; implicit TOML tables and multiline arrays can produce synthetic or missing spans.",
+      "required_closure": "Define offsets and columns over the strict decoded source string before newline normalization, in Python Unicode scalar/codepoint units (not UTF-16 or grapheme/display columns); raw token spans always slice original bytes. State CRLF as two bytes/codepoints and one line advance, bare CR refusal, tabs as one codepoint, escaped-token/raw-token boundaries, JSON root/container spans, TOML header/key/scalar/array/inline-table spans, and no synthetic implicit-table value span."
+    },
+    {
+      "id": "CPR2-TOML-SUBSET-008",
+      "severity": "medium",
+      "status": "OPEN",
+      "title": "TOML multiline and key-redefinition boundaries are not fully frozen",
+      "evidence": "R2 excludes multiline strings and arrays-of-tables but admits arrays, inline tables, ordinary tables and dotted keys (lines 250-255); no rule says whether multiline arrays/comments or implicit-table promotion are accepted and how their spans map.",
+      "risk": "tomllib accepts syntax outside the prose subset. A scanner may accept a multiline array while the span model assumes single-line values, or disagree with parser shape on implicit table creation, dotted-key/table redefinition and quoted-key equivalence.",
+      "required_closure": "Choose and publish either a fully supported multiline-array/comment subset with exact spans, or reject multiline arrays and every other out-of-subset construct before stdlib cross-check. Specify decoded-key collision/redefinition behavior, implicit-table node emission and table/header/key spans, then add vectors for equivalent quoted/dotted spellings and all duplicate paths."
+    },
+    {
+      "id": "CPR2-HANDOFF-SHA256-009",
+      "severity": "medium",
+      "status": "OPEN",
+      "title": "SHA-256 handoff compatibility is stated but not wire-bound",
+      "evidence": "R2 explicitly permits 64-hex Git objects and rejects legacy 40-hex substitution (lines 23-27, 141-145), but the source-handoff field set is not specified and the legacy code manifest still only accepts 40-hex commits in the existing boundary.",
+      "risk": "A phase-1 handoff can accidentally omit object_format or emit a 64-hex commit into a downstream field whose schema assumes 40 hex, causing unsafe truncation, implicit conversion or an unusable handoff. The phase-1 no-legacy-manifest rule alone does not guarantee successor adapter compatibility.",
+      "required_closure": "Freeze source-handoff fields that carry object_format and exact-width commit/tree/blob OIDs, raw/body/framed hashes, logical target path, source bytes reference, normalized metadata and configuration spans. Mark the handoff as successor-only and reject any legacy manifest/capture adapter path until the later CODE-CANONICAL schema explicitly supports SHA-256."
+    }
+  ],
+  "required_freeze_actions": [
+    "Define and hash the complete 12-path (or amended) CODE-PROOF output allowlist, including the persisted code-git-bundle manifest path.",
+    "Close bundle root containment/overlap, persisted repair identity, object declaration preflight and transient atomic-install accounting before implementation.",
+    "Resolve the 16 KiB normalized target versus 256 KiB config source contract.",
+    "Promote the prior JSON/TOML numeric grammar and span-coordinate advice into frozen schema/profile semantics, including TOML multiline/redefinition rules.",
+    "Define SHA-256-capable source-handoff fields independently of the legacy 40-hex code manifest."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "real_vault": false,
+    "publication": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": "Tool-observed current UTC from date -u; no retrospective review-start time is asserted.",
+  "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'"
+}

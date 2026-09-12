@@ -1,0 +1,96 @@
+{
+  "$schema": "video-paper-wiki.source-semantics-independent-review-r2.v1",
+  "packet": "SOURCE-SEMANTICS",
+  "review_revision": "R2",
+  "recorded_at_utc": "2026-09-09T04:05:00Z",
+  "role": "Independent technical reviewer",
+  "reviewer": "Codex",
+  "scope": "Read-only correction of the registration-boundary evidence for the frozen R2 semantics candidate under the R3 legacy PDF bbox amendment. No source, Git, Vault, network, or external runtime mutation.",
+  "decision": "GO_FOR_SOURCE_SEMANTICS_REGISTRATION_BOUNDARY_R2",
+  "no_blocker_found": true,
+  "contract": {
+    "r2_path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R2.md",
+    "r2_sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+    "r3_path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-LEGACY-BBOX-R3.md",
+    "r3_sha256": "f1196fe43f815d388acb3359d75a045eca10643539ca0869065a09b81addd5b1",
+    "freeze_path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-freeze-r3.json",
+    "freeze_sha256": "3fc048e58b9e3a32b2861335d466ed431229a9afffd71af66a4b1cd4735b3129",
+    "allowlist_count": 29
+  },
+  "candidate": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-semantics-v1/terminal-1/source",
+    "baseline_head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "candidate_manifest_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/candidate-r1.json",
+    "candidate_manifest_sha256": "62773fe7abcfdf0ab4aa6b12a40ceb3d14e2f23fe4fac5248a6682b8daa52afa",
+    "candidate_snapshot_sha256": "b06328417faaf1abac4ae39b8fa5521a72a8c58297d6194a5dd48c91c4c526c5",
+    "path_manifest_before_after_identical": true,
+    "review_scope_path_count": 29
+  },
+  "historical_evidence_preserved": {
+    "prior_review_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/independent-registration-r1.json",
+    "prior_review_sha256": "d219147a5b3432d85418bb7bda11a3370e8c93ee8562cc72a226774141e48d39",
+    "prior_probe_result_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/probes/registration_boundary_r1.result.json",
+    "prior_probe_result_sha256": "9b06d856f854a4616ec60f8b3f65dd6c2d2d4d94538943930df5a91f1478d46c",
+    "prior_findings_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/probes/registration_boundary_r1.findings.json",
+    "prior_findings_sha256": "b8ef690dc2c41b1b68146fd0a64188f6cc30700c9ab28873d8cee175316646ff",
+    "prior_status": "historical_rejected",
+    "prior_reason": "The first registration probe leaked SecureIOError for malformed JSON and parser-depth overflow. Its result and review are retained as immutable history and are not relabeled as a pass."
+  },
+  "fresh_registration_proof": {
+    "path": "/private/tmp/source-sem-registration-fresh.json",
+    "sha256": "20ce631163e2fd5065a1c1419b6ee746c29a3dc8f0da681cb321085b24332234",
+    "status": "fresh_pass",
+    "checks": {
+      "historical_optional_fields_absent": "PASS",
+      "malformed_head_json": {
+        "status": "PASS",
+        "code": "SOURCE_REGISTRATION_INVALID",
+        "pointer": "/head_bytes",
+        "exception": "ContractError"
+      },
+      "malformed_historical_json": {
+        "status": "PASS",
+        "code": "SOURCE_REGISTRATION_INVALID",
+        "pointer": "/ledger_bytes",
+        "exception": "ContractError"
+      },
+      "malformed_receipt_map": {
+        "status": "PASS",
+        "code": "SOURCE_REGISTRATION_INVALID",
+        "pointer": "/receipt_bytes",
+        "exception": "ContractError"
+      },
+      "parser_depth_over_secure_bound": {
+        "status": "PASS",
+        "code": "SOURCE_SEMANTICS_LIMIT",
+        "pointer": "/ledger_bytes",
+        "exception": "ContractError"
+      },
+      "valid_receipt_chain": "PASS",
+      "valid_registration_proof": "PASS"
+    },
+    "interpretation": "The fresh proof exercises the corrected candidate and closes only the historical registration parser-error blocker. It does not claim CI, full-suite, installed-wheel, real-Vault, operator, or human acceptance."
+  },
+  "reviewed_boundaries": [
+    {
+      "id": "REGISTRATION-PARSER-ERRORS",
+      "status": "pass",
+      "evidence": "Malformed head, historical ledger, and receipt-map inputs now return ContractError(SOURCE_REGISTRATION_INVALID) with stable input pointers; secure parser depth overflow returns ContractError(SOURCE_SEMANTICS_LIMIT)."
+    },
+    {
+      "id": "REGISTRATION-CHAIN-AND-PROOF",
+      "status": "pass",
+      "evidence": "The fresh canonical genesis-to-ingest chain passes, binds the captured Markdown read claim and source-ledger replacement, and derives the receipt and ledger snapshot references."
+    },
+    {
+      "id": "LEGACY-EVIDENCE-DISTINCTION",
+      "status": "pass",
+      "evidence": "The corrected result is distinguished from the immutable historical rejection; no old result is overwritten or reclassified."
+    }
+  ],
+  "limitations": [
+    "This is a local independent registration-boundary review only.",
+    "The fresh proof is synthetic and cannot authorize real source admission, Vault mutation, operator apply, or human claim review.",
+    "The required full Python suites, installed-wheel check, and remote CI remain separate evidence lanes."
+  ]
+}

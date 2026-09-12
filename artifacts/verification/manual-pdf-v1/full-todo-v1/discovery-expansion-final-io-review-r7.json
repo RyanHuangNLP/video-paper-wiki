@@ -1,0 +1,167 @@
+{
+  "$schema": "full-todo.discovery-expansion-final-io-review-r7.v1",
+  "schema": "full-todo.discovery-expansion-final-io-review-r7.v1",
+  "reviewed_at_utc": "2026-09-09T09:53:59Z",
+  "scope": "Final bounded independent read-only IO closure review of R2 through R7, with the R6 semantic supplement checked for IO impact. Verified that R7 closes the sole R5 strict-admission/order finding and checked zero-prefix outcomes, threshold equality, durable expansion selection, parallel-start boundary and the 31-path allowlist. No source, schema, test, Git, connector, Vault or network mutation.",
+  "decision": "GO_FOR_FINAL_DISCOVERY_IO_DESIGN_FREEZE_PENDING_IMPLEMENTATION_ACCEPTANCE",
+  "status": "READ_ONLY_FINAL_DESIGN_REVIEW",
+  "inputs": {
+    "r2_design": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    "r3_recovery": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    "r4_bounds": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    "r5_wire": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    "r6_ranking": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956,
+      "io_effect": "No physical/storage/all-exits changes; semantic list/mirror/frontier rules only."
+    },
+    "r7_final": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    "provider_target_notes": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PROVIDER-TARGET-NOTES-R1.md",
+      "sha256": "156445239621bf19689d04096d11b4b33839583f2c4fba6cf942ee8b1a47e9dc",
+      "size_bytes": 4426
+    },
+    "allowed_paths": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-allowed-paths-r1.json",
+      "sha256": "e7930638d4814f4a8389e2cf9ac0b4dd0e5fb07423c089a050004ebe85e490d5",
+      "size_bytes": 2207,
+      "path_count": 31
+    },
+    "r5_io_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-wire-r5-io-review.json",
+      "sha256": "8717dc6b011db77236c24947288300baa6eddef2b1de5300fde7f1324213360a"
+    },
+    "profile": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951,
+      "io_effect": "Direct materialization of already-reviewed constants, families, provider select/sort/fixed limits; no new semantics."
+    }
+  },
+  "checks": [
+    {
+      "id": "DISC-R7-STRICT-ADMISSION-CLOSURE",
+      "status": "PASS",
+      "evidence": "R7 lines 17-27 explicitly make unique_candidates a strict per-observation admission invariant: over-cap prospective input is rejected before observation installation, no provisional over-cap graph is retained, later bridges cannot rescue it, and refused attempts have no hidden observation or candidate debit. Arrival-order byte identity is required for the same complete set of admitted observations whose tested prefixes satisfy the bound, not for refused attempts.",
+      "assessment": "This directly closes the sole R5 IO blocker. The contract now states the intentionally strict boundary and scopes order-invariance to comparable admitted inputs; no ambiguous temporary over-cap storage or hidden refund remains.",
+      "acceptance_vectors": [
+        "Prospective observation exactly at the limit is admitted; one over the limit is refused before install.",
+        "A later same_work bridge cannot retroactively admit a refused input; explicit bounded normalization failure remains the only alternate terminal path.",
+        "Equivalent admitted observation sets and every admissible prefix produce byte-identical projections under arrival permutation."
+      ]
+    },
+    {
+      "id": "DISC-R7-AUTOMATIC-PREFIX-AND-ZERO-CASE",
+      "status": "PASS",
+      "evidence": "R7 lines 8-15 defines the three exhaustive automatic outcomes: at least one N>=1 installs the largest feasible prefix; eligible frontier with no feasible N returns budget_exhausted and installs no plan/request; no eligible frontier returns needs_scope. Prior stops retain precedence.",
+      "assessment": "The R4/R5 zero-prefix wording is closed. No empty plan or request is created to represent capacity failure, and a feasible smaller prefix cannot be starved by an infeasible larger prefix.",
+      "implementation_requirement": "Persist chosen/omitted frontier and limiting bounds in status as required by R5, while keeping explicit spec sets all-or-reject."
+    },
+    {
+      "id": "DISC-R7-STOP-THRESHOLD-EQUALITY",
+      "status": "PASS",
+      "evidence": "R7 lines 29-33 fixes inclusive duplicate comparison repeated_hits*100 >= duplicate_percent*total_hits for total_hits>0, requires configured consecutive rounds, makes equality qualify, keeps zero hits from qualifying, and defines low yield as new_relevant < min_new_relevant over consecutive completed rounds only.",
+      "assessment": "Threshold equality and zero/incomplete-round behavior are deterministic and do not alter physical storage/all-exits rules."
+    },
+    {
+      "id": "DISC-R7-DURABLE-EXPANSION-SELECTION",
+      "status": "PASS",
+      "evidence": "R7 lines 35-81 makes an expansion selection durable only when a committed plan contains the first expanded spec with nonnull subject_origin. The plan retains candidate-set/key, subject IDs, seed and depth even before any request file materializes; unavailable tentative choices are visible capability entries and neither selected nor debited. Replay uses committed plans then request_key order, reuses earliest intersecting lineage and caps introductions at three without refunds.",
+      "assessment": "This closes the R5/R6 frontier-selection persistence ambiguity without adding a mutable selection artifact. A plan slot is the durable boundary, and exact repair/retry cannot double-charge a selection.",
+      "acceptance_vectors": [
+        "Candidate ranked but unavailable: no selection lineage/debit; later capability evidence can select it through a real committed plan.",
+        "Committed expanded plan with no materialized request: lineage remains durable and status reconstructs it from the plan.",
+        "Multiple expanded specs for one newly selected component share one first lineage; bridge/alias merges retain historical introductions and never refund."
+      ]
+    },
+    {
+      "id": "DISC-R7-IDENTITY-DEPTH-AND-ATTEMPT-BINDING",
+      "status": "PASS",
+      "evidence": "R7 lines 48-81 preserves the canonical origin IDs/seed/depth, ignores depth changes for plain-attempt suppression, retains depth for provenance and validation, restricts retry/cursor/neighbor-slice exemptions to explicit predecessor/base/outcome/unseen-ID rules, and rejects arbitrary origin/version/alias/depth changes as new attempts.",
+      "assessment": "Selection and request lineage cannot be silently retargeted after a later alias/bridge or improved why-found path. This is consistent with R2-R6 immutable request keys, plan memberships and no-refund counters."
+    },
+    {
+      "id": "DISC-R7-PARALLEL-START-BOUNDARY",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R7 lines 83-102 bounds implementation to the 31-path manifest, allows a separate discovery clone to start from the newly committed catalog revision while catalog CI is pending, states discovery relies only on already accepted preview/identifier/staging interfaces, preserves catalog freeze and serial Git integration, and requires exact integrated source/full suites/resource/CLI/fresh CI before acceptance.",
+      "assessment": "The parallel start does not create an IO lineage dependency on unreviewed SOURCE changes or relabel pending catalog CI as accepted. Scope ownership is concrete and reviewable.",
+      "remaining_gate": "This is design authorization only; exact checkout/source hashes and all implementation evidence remain future delivery gates."
+    },
+    {
+      "id": "DISC-R7-ALLOWLIST-IO-SCOPE",
+      "status": "PASS_DESIGN_PENDING_MANIFEST_CHECK",
+      "evidence": "The allowlist contains exactly 31 paths: nine discovery implementation/CLI modules, one documentation file, one provider profile, one assessment prompt, thirteen discovery schemas, and six bounded research/security tests. R7 lines 83-90 binds this scope and preserves existing W1/source/capture/publication/catalog/protected material.",
+      "assessment": "The wire/final amendment does not widen writable scope to arbitrary cache, Vault, PDF, catalog or unrelated source paths. Implementation must compare the final tree against the manifest before delivery."
+    },
+    {
+      "id": "DISC-R7-INHERITED-IO-CONTRACT",
+      "status": "PASS_DESIGN_PENDING_IMPLEMENTATION",
+      "evidence": "R7 lines 3-6 make the amendment last over R2-R6; no R7 text removes R3 checkout-root flock, retained named-edge/set/byte verification, R4 exact per-file/family/global reserve, R5 canonical targets and R6 logical ranking. R7 lines 104-110 require closed public schemas, malformed nested alternatives and package resource bytes retained through final verification.",
+      "assessment": "The final design has no remaining IO contract blocker. Linux/macOS lock behavior, interruption/race probes, exact schemas/resources, installed wheel/CLI and CI are implementation acceptance gates, not unresolved design decisions."
+    }
+  ],
+  "final_io_closure": {
+    "result": "GO",
+    "closed_r5_blocker": "Strict per-observation unique_candidates admission and explicit arrival-order identity scope.",
+    "closed_r4_blockers": [
+      "largest feasible automatic prefix",
+      "zero-prefix outcome classification",
+      "intentional fixed 14 MiB conservative policy"
+    ],
+    "closed_selection_gap": "Durable expansion is first committed expanded plan slot; unavailable tentative choices are visible but unselected/un-debited.",
+    "closed_wire_scope": [
+      "canonical IDs/candidate keys",
+      "executor unknown/known branches",
+      "mirror grouping/provenance",
+      "regenerated OpenAlex/Web target encoding"
+    ],
+    "no_r6_io_change": "R6 adds semantic ranking/list/mirror/frontier rules only; it does not alter physical storage, reservations, retained descriptors or all-exits behavior.",
+    "profile_binding": "Exact profile bytes are now bound by SHA-256 b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599; implementation must copy these bytes and verify installed-resource parity."
+  },
+  "implementation_acceptance_gates": [
+    "Cross-platform nonblocking checkout-root flock busy/release tests on macOS and Linux; no store scan/write on DISCOVERY_BUSY.",
+    "All-exits retained ancestor/family/file-set/identity/byte checks with WORK_PATH_UNSAFE and conflict precedence during parser, target, limit, projection, control and cleanup failures.",
+    "Exact saved-byte, family/global reservation, count and semantic admission replay including refused over-cap observations without hidden debit.",
+    "Byte-identical admitted-prefix planning and replay under arrival permutations, plus durable expanded-plan selection/recovery and no-refund lineage tests.",
+    "31-path allowlist, closed schema/resource parity, installed CLI/wheel checks, both local Python suites and fresh exact-head CI.",
+    "Provider target implementation against the frozen notes and held-out capability outcome; no claim of live provider success from design review.",
+    "Copy the exact profile resource bytes bound above into the allowed profile path and verify hash/resource parity; no profile semantic drift."
+  ],
+  "remaining_gates": [
+    "No design-level IO blockers remain in R2-R7 after the strict-admission clarification.",
+    "Implementation, local/remote tests, exact-head review and CI remain required; this artifact is not source acceptance or human/scientific approval.",
+    "No source implementation, Git mutation, connector/Vault access or merge follows from this review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  }
+}

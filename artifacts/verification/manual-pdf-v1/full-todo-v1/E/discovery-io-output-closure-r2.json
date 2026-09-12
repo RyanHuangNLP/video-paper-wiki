@@ -1,0 +1,224 @@
+{
+  "$schema": "full-todo.discovery-io-output-closure-r2.v1",
+  "schema": "full-todo.discovery-io-output-closure-r2.v1",
+  "revision": "R2-independent-I/O-output-closure",
+  "recorded_at_utc": "2026-09-09T11:25:59.881329000Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded Discovery R2 I/O lineage and output replay reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "IO_GO_WITH_RENDER_WORDING_GATE_OPEN",
+  "verdict": "The exact R2 candidate is hash-verified across all 31 paths. The retained live session status, render and context projections replay byte-deterministically with zero provider calls and leave all 12 stored artifacts byte-identical. The 36-case security boundary suite and 15-case output/workflow suite pass. No I/O lineage, retained-descriptor, path-boundary or no-egress regression was reproduced. The previously recorded medium output wording issue remains open: truncated per-evidence lists say first N of M without the explicit omitted count required by the R2 repair packet.",
+  "scope": "Read-only review of the frozen Discovery R2 source and retained live session. Verified candidate and replay evidence hashes, all stored-document hashes, public status/render/context replay, retained-session no-write behavior, security boundary tests and output workflow tests. No source, schema, test, Git, provider, network, connector, Vault or human-gate mutation; this artifact is the only review write.",
+  "frozen_inputs": {
+    "candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/local-candidate-r2.json",
+      "sha256": "98917ee28bb207a36abfbdf1a64fae6bae9e3645a6a0cbd6b22bd6bab08981fd",
+      "declared_snapshot_sha256": "e2f383d56e648d3dbe9b254b59165de379d2d59d891d93a9dcfbb3096acbe0f1",
+      "path_count": 31
+    },
+    "live_output_replay": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-local-r1/live-output-replay-r2.json",
+      "sha256": "8841c343c936b57e92b48dcca711aa33e47b131b23c4c7b66ec3383011e5f0b0",
+      "stored_document_count": 12,
+      "host_calls": 0,
+      "new_observations": 0,
+      "stored_graph_byte_identical": true
+    },
+    "repair_packet": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-OUTPUT-REPAIR-R2.json",
+      "sha256": "6ed104eb6d99e93ec5782d4cdc9131e4661d8b75c3a6c4abc55719c41cbbb6ae"
+    }
+  },
+  "source_snapshot": {
+    "root": ".work/parallel/discovery-expansion-v1/terminal-1/source",
+    "all_candidate_hashes_match": true,
+    "current_match_count": 31,
+    "current_mismatch_count": 0,
+    "changed_from_r1": [
+      "docs/discovery-expansion.md",
+      "src/video_paper_wiki_research/discovery.py",
+      "tests/research/test_discovery_workflow.py"
+    ],
+    "held_unchanged_from_r1_count": 28,
+    "io_reviewed_paths": [
+      {
+        "path": "src/video_paper_wiki_research/discovery.py",
+        "sha256": "dd412f20aab74542f401308c82e261e8ec109dd51c6fa8d435aef3a05f846981",
+        "size_bytes": 29006,
+        "reviewed_scope": "public status, context and render projections; no installation calls in read-only projections"
+      },
+      {
+        "path": "src/video_paper_wiki_research/discovery_storage.py",
+        "sha256": "f62562765493cf58909d04c4224538b68b98052f0534fd6830872f8fd72ce74b",
+        "size_bytes": 21185,
+        "reviewed_scope": "retained descriptors, complete-set scans, locked checkout, create-only install and final verification"
+      },
+      {
+        "path": "src/video_paper_wiki_research/discovery_cli.py",
+        "sha256": "9f42a7706c4db1311c10e0881a7528787ddd1c711887ab7326594fd7bb215da6",
+        "size_bytes": 1570,
+        "reviewed_scope": "public command dispatch and envelope path"
+      }
+    ]
+  },
+  "tests": {
+    "security_boundary": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q tests/security/test_discovery_boundary.py",
+      "result": "36 passed in 7.19s",
+      "cases": 36,
+      "status": "PASS",
+      "coverage": [
+        "session/path spelling refusal",
+        "external input aliases",
+        "symlink/hardlink/FIFO input refusal",
+        "existing parent symlinks",
+        "unknown family entries",
+        "all retained-edge/resource interruption exits",
+        "foreign first-absence target",
+        "nonblocking checkout lock",
+        "no network/subprocess/Vault write"
+      ]
+    },
+    "output_workflow": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q tests/research/test_discovery_workflow.py",
+      "result": "15 passed in 15.77s",
+      "cases": 15,
+      "status": "PASS",
+      "coverage": [
+        "complete status assessment and terminal outcomes",
+        "request_pending and observation_pending separation",
+        "pending assessment repair",
+        "hostile-text escaping",
+        "candidate preview and artifact references"
+      ]
+    }
+  },
+  "live_replay": {
+    "session": "svd-holdout-r2",
+    "commands": [
+      {
+        "command": "discovery status --session svd-holdout-r2",
+        "exit_code": 0,
+        "stdout_bytes": 8438,
+        "stdout_sha256": "9f3459f7c4a4b628d3a21c8c6c75dce704d8f3d6c39ef249d0634a52d4d44c06",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "discovery render --session svd-holdout-r2",
+        "exit_code": 0,
+        "stdout_bytes": 20678,
+        "stdout_sha256": "9d798a87405a29d7834f2b076bfd4b0554b0aea8069b51030226f7ead8c17678",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "discovery context --session svd-holdout-r2",
+        "exit_code": 0,
+        "stdout_bytes": 20073,
+        "stdout_sha256": "ad0a16ccfa980a0aebc26c174200bce1ae4585ace55885c7190c838425c59139",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "observed_projection": {
+      "effective_state": "calculated_stopped",
+      "matched_reasons": [
+        "budget_exhausted"
+      ],
+      "last_completed_assessment_present": true,
+      "last_completed_stop_present": true,
+      "operation_health_slots": 2,
+      "operation_health_outcomes": [
+        "success",
+        "capability_unavailable"
+      ],
+      "failure_code": "HOST_SAFE_OPEN_UNAVAILABLE",
+      "all_five_lens_states_present": true,
+      "candidate_count": 1,
+      "candidate_preview_omitted": 0,
+      "stored_session_file_count_before": 12,
+      "stored_session_file_count_after": 12,
+      "stored_session_bytes_identical": true,
+      "aggregate_before_filemap_sha256": "b222b8e68ed027c4fb82b0913bece0947fc1296ef091c185a7aeac7fd19b5709",
+      "context_operation_health_slots": 2,
+      "context_prompt_sha256": "8991b8af8b047d7d79df224f192f0d687c9ab4772ce2ed275180fa0c176ae588"
+    },
+    "stored_documents": [
+      {
+        "path": "metadata/184ffbdade695b261ca08ac37a113e697aa1e57dfbc1195ce709125338782bae.json",
+        "sha256": "2ff8d55554ece6a0beaf3dc73349fd9d651e006b9a0c4a51828b2d0b98e918ef"
+      },
+      {
+        "path": "metadata/66cd2add36350beac07d937966ad42cb69ab342787b04dd11f5793dcc4ab1106.json",
+        "sha256": "80154591833b742d481eb1f9881d0f3b29a78056fc677c52a699edb01cb7d280"
+      },
+      {
+        "path": "metadata/8f18571be87c7ca0de351ed7bf477d3fa3fba9a36bd54df4661937972cd91b13.json",
+        "sha256": "36d1e733e908114d7f98ce538f54eb8b80f75d3b99fa8bf776f76a57135069d0"
+      },
+      {
+        "path": "metadata/f6ac56dc8f671b3e5fdde04a209f0b9d12343ea8bdc0783b3b5853f67c59da62.json",
+        "sha256": "49d6c7f9eedb13120e54c3c54aa636d454584a41997fd858cdc8254a79eddb68"
+      },
+      {
+        "path": "decisions/b5fd7e6215a0dda42418887e50d5e65063448f4fd5bcf1d87b37fc127e234170.json",
+        "sha256": "d799b2eb9b7b6e8154ee59ee49ccabbccadd803cd2c3d17e834d77bc1f04a1ee"
+      },
+      {
+        "path": "observations/2e62bbd9804d966a8e6abf524cba0c0f727aa0bd9295d3220512bad9b4a5a4dc.json",
+        "sha256": "cef87f73a879ccbf81afd7d0aac3bd4a632244bc2a624dfd4591ce368c33c2da"
+      },
+      {
+        "path": "observations/2fb96837d27557791aec39379e5c9314db5fbea16eebcb12200cacf266d0548c.json",
+        "sha256": "5a2d0c573b3eb6282c6b2f1f7490099607968f58a1f1049bd939e19a7c6a50ad"
+      },
+      {
+        "path": "proposals/6178d275b957a89ec3efe6ee94f04010bbeeb828379fbc918d953ef3f3d65914.json",
+        "sha256": "d8d803529bbd1225aec58ca5795cfa5bd7f6bc15af019968cc7900456ce4ec22"
+      },
+      {
+        "path": "proposals/ba0d9092f45c4907ad5ba0d00b19a25c5fa3594455494ec97c9ec39f817857a6.json",
+        "sha256": "6ef3d732959f0f73cdf2078ebb020a170e69c005711c05f25f309cdea37eea19"
+      },
+      {
+        "path": "proposals/daf00093b772f4f952e0eaf0c60becaa21b15cdcbb80dcbc0a683a1d713d4ef1.json",
+        "sha256": "e03c1206fdc89d972fe0772a9d8ff8c902833de6795e723972299f103ced794c"
+      },
+      {
+        "path": "requests/4b302babe2e3849c99e2ae7d97b93285c5ca41a1bba74bf05bd1116ac0182fea.json",
+        "sha256": "5f60e1aa6a405820684da97f9a4120d0cbb771a1be229ed42fbf5804167610f5"
+      },
+      {
+        "path": "requests/4be2cb117a8d5c2a89c1116ed73dff7b5b2d80cd15e76f22a8ecb4e77806f1e2.json",
+        "sha256": "060f96ae2a62766721d6b2366fc52236b026ce6a5009697159b819179d6df2a4"
+      }
+    ]
+  },
+  "finding": {
+    "id": "OR2-RENDER-LIMITS-001",
+    "status": "OPEN_MEDIUM",
+    "evidence": "The current render retains complete candidate/rank refs and global candidate omitted counts, but per-list contribution, suppression and why-found excerpts still use first N of M wording without an explicit omitted count.",
+    "required_fix": "Add the omitted count to each bounded per-list rendering, for example first 3 of 5; 2 omitted, while retaining complete evidence references.",
+    "source_area": "src/video_paper_wiki_research/discovery.py render() per-list provenance lines"
+  },
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "human_gate": false,
+    "review_artifact_only": true
+  },
+  "deferred_gates": [
+    "narrow R3 wording repair and fresh exact candidate hash",
+    "both full local Python suites and installed-wheel parity after final repair",
+    "exact local delivery and fresh four-job CI",
+    "real provider/provenance, scientific/human, Vault, external backup and merge gates remain open"
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schema": "video-paper-wiki.architect-t2-unicode-backup-harness-review.v1",
+  "recorded_at_utc": "2026-09-08T06:25:09Z",
+  "review_mode": "read_only_static_harness_review",
+  "decision": "CONDITIONAL_GO_FOR_R8_CONTROLLED_REPLAY_WITH_SOURCE_PROVENANCE_BINDING",
+  "architect_accepted": false,
+  "source_executed": false,
+  "active_t2_source_read": false,
+  "product_mutation": false,
+  "git_mutation": false,
+  "real_corpus_read": false,
+  "real_vault_write": false,
+  "harness": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/acceptance/lightweight-library-v1/architect_t2_unicode_backup.py",
+    "sha256": "72ce013af27814be0e9cd45d1987769688d7602155a6f3c8266ff2c52ea27a2c",
+    "size_bytes": 10559,
+    "standalone_cli": true,
+    "default_expectation": "fixed",
+    "legacy_expectation": "r7"
+  },
+  "inputs": {
+    "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+    "r8_freeze_sha256": "9e842807be919f2d5daf24aa74950c3a297ed6305a54ea7dbf6e6133b964df93",
+    "r8_fix_path": "docs/ai/packets/lightweight-library-v1/FIX-T2-R8.md",
+    "r8_fix_sha256": "2b8fc9a66364107dd1e3cad1a7341125e20e809b20cb9ec8c5ad31a97c4779eb",
+    "r8_prompt_path": "docs/ai/packets/lightweight-library-v1/prompts/T2-r8.md",
+    "r8_prompt_sha256": "07ea299ac15bc2dc3397db67d2c175b7baedfb2203c0f7f89240ff53dc0b14a2",
+    "r7_reproduction": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/architect-t2-r7-unicode-backup",
+    "r7_snapshot_sha256": "a3d06ca1aeee2673d6057a7bd619562e4a32d9569dba9ee2f50dd41ea81d7f34",
+    "r7_light_backup_sha256": "d0142126b09f600dbe34dc98e67830f800bcaa33f3cc4c1240bf54eb127af540"
+  },
+  "coverage": {
+    "unicode_create_reuse": {
+      "status": "covered",
+      "details": "Creates nested Chinese Markdown and Greek code-note members plus an outside-workspace Chinese Markdown extra, checks member names, requires a UTF-8 flag on the archive, repeats create for deterministic reuse, and checks restored selected bytes and extra bytes in fixed mode."
+    },
+    "ascii_control": {
+      "status": "covered",
+      "details": "Creates, verifies and restores an ASCII member, checks exact restored bytes, and requires zero flags for every listed archive member."
+    },
+    "flag_and_name_refusals": {
+      "status": "covered_with_verify_only_for_mutations",
+      "details": "Exercises local-only, central-only and both-header mutations for encryption, data-descriptor and unknown bits, then missing/noncanonical/mismatched UTF-8 flags and malformed UTF-8 names. Each mutation is required to return LIGHT_BACKUP_INVALID from verify_backup."
+    },
+    "unicode_restore_refusal_invariant": {
+      "status": "partial",
+      "details": "The legacy R7 path checks Unicode restore refusal and destination absence. The fixed path checks successful restore. The mutated flag/name archives are verified only; the harness does not call restore_backup for each mutation or compare input bytes after refusal."
+    },
+    "synthetic_boundary": {
+      "status": "covered",
+      "details": "The harness creates a fresh temporary .work tree under /private/tmp and declares real_corpus_read=false; no product source or Vault mutation is performed by the script."
+    }
+  },
+  "static_findings": [
+    {
+      "id": "T2-UNICODE-HARNESS-PROVENANCE-001",
+      "severity": "P1_evidence_binding",
+      "status": "open_until_replay_binding",
+      "summary": "The harness imports light_backup from caller-controlled PYTHONPATH and reports only pythonpath_source_is_external=true. It does not record backup.__file__, the resolved module SHA-256, or the expected stopped R8 source root/candidate hash.",
+      "impact": "A replay could accidentally use an installed or unrelated module with compatible behavior and still produce a passing JSON report; the result would not prove the frozen R8 candidate.",
+      "required_control": "The invoking acceptance record must capture the resolved video_paper_wiki_research.light_backup.__file__, SHA-256 of that exact file, the stopped R8 source root, and the exact R8 owner/candidate snapshot. Refuse to treat the harness result as R8 evidence if the module is outside that source root or its hash is absent/mismatched."
+    },
+    {
+      "id": "T2-UNICODE-HARNESS-NEGATIVE-RESTORE-002",
+      "severity": "P2_evidence_gap",
+      "status": "owner-suite-companion_required",
+      "summary": "For malformed or mutated archives, the harness asserts verify_backup refusal but does not replay restore_backup refusal, destination absence, and input-byte preservation for each mutation.",
+      "impact": "The standalone harness cannot by itself establish the full R8 refusal invariant for every negative archive.",
+      "required_control": "Retain the R8 owner tests and any integrated replay covering restore refusal and unchanged bytes; describe this harness as a focused verifier/roundtrip control rather than the sole negative-path acceptance evidence."
+    },
+    {
+      "id": "T2-UNICODE-HARNESS-LEGACY-MODE-003",
+      "severity": "P2_process_guard",
+      "status": "documented",
+      "summary": "--expect r7 intentionally accepts the pre-fix missing-UTF-8-marker loophole and expects Unicode refusal. That mode is a historical reproduction only.",
+      "required_control": "Use the default --expect fixed for R8 acceptance and retain --expect r7 only as immutable blocker evidence; never combine a passing r7 replay with final product acceptance."
+    }
+  ],
+  "non_findings": [
+    "The harness does not broaden product scope: it uses the existing writer/API and only synthetic workspace members.",
+    "The local/central mutation helper edits both header classes and covers local-only, central-only and symmetric cases; the 13 negative cases are deterministic and narrow.",
+    "The selected Unicode names and external output are byte-checked after fixed-mode restore, while the ASCII control preserves the existing zero-flag behavior.",
+    "No source hash or active T2 implementation was inferred during this static review."
+  ],
+  "required_replay_record": {
+    "expectation": "fixed",
+    "resolved_module_file": "required_from_stopped_r8_replay",
+    "resolved_module_sha256": "required_from_stopped_r8_replay",
+    "expected_source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-library-v1/terminal-2/source",
+    "expected_candidate_snapshot_sha256": "required_from_terminal-2/r8_handoff",
+    "harness_exit_code": "required_after_replay",
+    "report_sha256": "required_after_replay"
+  },
+  "limitations": [
+    "This is a static review of the fixed standalone harness; no harness execution or active T2 source inspection was performed.",
+    "This artifact does not accept the R8 implementation, exact source head, CI, installed wheel, real-paper trial, real Vault, external backup anchor or human gate.",
+    "The conditional decision applies only to a controlled fixed-mode replay with the provenance and companion owner-suite evidence above."
+  ],
+  "ready_for_parent": true
+}

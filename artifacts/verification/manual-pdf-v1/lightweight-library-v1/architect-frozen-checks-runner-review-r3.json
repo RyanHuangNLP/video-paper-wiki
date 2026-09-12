@@ -1,0 +1,102 @@
+{
+  "schema": "video-paper-wiki.lightweight-library-v1-frozen-checks-runner-review-r3.v1",
+  "recorded_at_utc": "2026-09-08T06:38:07Z",
+  "review_mode": "read_only_static_runner_delta_review",
+  "source_executed": false,
+  "active_t3_source_read": false,
+  "active_t3_source_executed": false,
+  "product_mutation": false,
+  "git_mutation": false,
+  "status": "CONDITIONAL_GO_FOR_SOURCE_LOCKED_FINAL_REPLAY_WITH_PARENT_COUNT_AND_RUNTIME_BINDING",
+  "runner": {
+    "path": ".work/acceptance/lightweight-library-v1/run_frozen_checks_r2.py",
+    "sha256": "40381e8e3af83a101de654044bf19426a1f01f41770439c2422c9dd91cec152f",
+    "size_bytes": 6343,
+    "line_count": 115,
+    "syntax": "source text statically inspected; no runner execution"
+  },
+  "previous_runner": {
+    "path": ".work/acceptance/lightweight-library-v1/run_frozen_checks.py",
+    "sha256": "d63eaafe37406724adc6bd364fd191dbe88b2f91da5981dd5893906dc63e2b0a",
+    "size_bytes": 6204
+  },
+  "freeze_script": {
+    "path": ".work/acceptance/lightweight-library-v1/freeze_final_candidate_r2.py",
+    "sha256": "f6ad66ab85d7fbe696061858376d63762ede888fb36913ed609fcd153bf5861e",
+    "size_bytes": 8520,
+    "line_count": 153
+  },
+  "delta_review": {
+    "runner_only_delta": {
+      "status": "pass",
+      "details": "The diff from run_frozen_checks.py contains only the explicit pytest configuration arguments; selection, environment, source provenance probe, evidence capture and count parsing are otherwise unchanged.",
+      "added_arguments": [
+        "-c <source>/pyproject.toml",
+        "--rootdir=<source>",
+        "-o pythonpath=<source>/src"
+      ]
+    },
+    "pytest_source_and_config_lock": {
+      "status": "pass",
+      "evidence": "run_frozen_checks_r2.py:82-86, 89",
+      "details": "Every full, independent and backup invocation uses the same constructed argv with cwd=<source>, the candidate's <source>/pyproject.toml, --rootdir=<source>, and pythonpath=<source>/src. This prevents pytest from selecting the repository-root pyproject or prepending the root editable src path when the selected harness lives under ROOT/.work."
+    },
+    "environment_source_lock": {
+      "status": "pass",
+      "evidence": "run_frozen_checks_r2.py:47-52, 60",
+      "details": "The subprocess environment also sets PYTHONPATH=<source>/src and the existing offline/no-bytecode/plugin-autoload controls. The explicit pytest option and environment agree on the stopped candidate source."
+    },
+    "module_provenance_probe": {
+      "status": "pass_with_inherited_binding_note",
+      "evidence": "run_frozen_checks_r2.py:61-67",
+      "details": "Before pytest, the supplied interpreter imports the ten named product modules from cwd=<source> and requires their reported paths to be under <source>/src. The final record must still retain the exact probe output and bind the stopped source snapshot as required by the R2 review."
+    },
+    "suite_selection": {
+      "status": "pass",
+      "details": "full selects the stopped source tests directory; independent selects the 13 fixed architect harnesses; backup selects the separate T2 backup harness. The new arguments precede all selected paths."
+    },
+    "freeze_prebinding": {
+      "status": "pass",
+      "evidence": "freeze_final_candidate_r2.py:36-43, 136-143",
+      "details": "The revised freeze requires an explicit --freeze and --expected-full-tests, requires lane 3/revision 5, records the r2 orchestrator hash, expected full count, integration freeze row and standalone Unicode harness row."
+    }
+  },
+  "inherited_controls_still_required": [
+    {
+      "id": "FZR3-INHERITED-COUNT-BINDING",
+      "severity": "P1",
+      "status": "parent_acceptance_required",
+      "summary": "The runner records JUnit counts but does not itself require 125 independent cases, 21 backup cases, the expected full count, or zero failures/errors/skips.",
+      "required_control": "The parent final acceptance must compare every run's counts with the frozen expected values, require zero failures/errors/skips and exit code zero, and bind the records to the same frozen manifest. The revised freeze's expected_full_tests_per_python field supplies the expected value but does not replace this comparison."
+    },
+    {
+      "id": "FZR3-INHERITED-RUNTIME-BINDING",
+      "severity": "P1",
+      "status": "parent_acceptance_required",
+      "summary": "The runner accepts an arbitrary --python and does not enforce that separate full runs use the locked 3.12.14 and 3.13.13 executables.",
+      "required_control": "The parent must run both recorded locked interpreters, retain their resolved paths and versions, and bind each result to the same frozen source snapshot and manifest."
+    },
+    {
+      "id": "FZR3-INHERITED-MANIFEST-BINDING",
+      "severity": "P1",
+      "status": "parent_acceptance_required",
+      "summary": "The runner trusts the supplied manifest's file rows and owner_inputs; it does not independently enforce the complete 26-path allowlist or all ready/acceptance fields.",
+      "required_control": "Use the revised freeze output and independently verify complete path ownership, source/bundle hashes, stopped-writing state, accepted owner inputs and no unlisted changes before treating run records as final evidence."
+    },
+    {
+      "id": "FZR3-PROVENANCE-LEXICAL",
+      "severity": "P2",
+      "status": "inherited_note",
+      "summary": "The module probe uses Path.is_relative_to(source/src) without an explicit resolve on each reported __file__ path.",
+      "required_control": "Retain the stopped-source snapshot and inspect the recorded module paths in the parent acceptance; do not use this runner as the sole proof of source provenance. This is unchanged from R2 and is not caused by the pytest argv delta."
+    }
+  ],
+  "review_limits": [
+    "No active T3 source was read or executed.",
+    "The new runner and freeze script were not executed; this record covers only source-text and diff inspection.",
+    "No full S3 run, pytest collection, Git operation, source mutation, Vault operation or product fixture was performed.",
+    "The review does not accept the final candidate, close real-data or human gates, or authorize merge."
+  ],
+  "disposition": "READY_FOR_PARENT_CONTROLLED_REPLAY_AFTER_COUNT_RUNTIME_AND_MANIFEST_BINDING",
+  "ready_for_parent": true
+}

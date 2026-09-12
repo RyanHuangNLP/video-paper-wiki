@@ -1,0 +1,77 @@
+{
+  "schema": "lightweight-workflow-v2-agent2-review.v1",
+  "decision": "CHANGES_REQUIRED_AGENT_2_R2",
+  "recorded_at_utc": "2026-09-06T18:01:52.940741+00:00",
+  "baseline_head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+  "contract_sha256": "559e2b339c192837fa5d6c47f15ea7688f484155b95b2492f28eeee6d940e5dc",
+  "dispatch_sha256": "0f1f3f2ff3f20cded965eb88ecb17c56b92a4ac8b5e28683b44cf196043b62d6",
+  "handoff_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/handoffs/r2/handoff.json",
+  "handoff_sha256": "e66e68af1c098c61c124952d0b60317ea3da3dc71c7aa9aaa53609f48dc49675",
+  "reviewed_files": [
+    {
+      "relative_path": "src/video_paper_wiki_research/light_index.py",
+      "sha256": "c05abaa47217ca4007c38ecf1072d60479eb1f0c424ec2eebbcdf4e10ee26ac1",
+      "size_bytes": 27818
+    },
+    {
+      "relative_path": "src/video_paper_wiki_research/light_context.py",
+      "sha256": "ef8e41eefb00a66542ec0882e7710c4684e77dd4f6378d10fc8d7b7164b53cc3",
+      "size_bytes": 19577
+    },
+    {
+      "relative_path": "tests/research/test_light_index.py",
+      "sha256": "752a27686daf7002c6064cfebdcf59d79928a09e1d86f42e436f095e5825a2c2",
+      "size_bytes": 21652
+    },
+    {
+      "relative_path": "tests/research/test_light_context.py",
+      "sha256": "dd9e035bb36a44d1b1e3baca9b12e4aabae4cdcdf3696ae187adc73016a6e941",
+      "size_bytes": 22654
+    },
+    {
+      "relative_path": "tests/research/test_light_selection.py",
+      "sha256": "ad7188061a8335a958cd6984b23b9e91db7b79b173416be80b7dc9f136156ee0",
+      "size_bytes": 3922
+    }
+  ],
+  "actual_replay": {
+    "result": "50 passed in 0.32s",
+    "log_sha256": "a748cd1b9fdc3d63addda5fffa0aad561319aa447c5654a3cbe1c87572917e23",
+    "python": "3.13.13"
+  },
+  "probe_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-agent2-r1/probe.py",
+  "probe_sha256": "ba22958422da0dc227da98a5ca0c3bcfd4c2afaa6c6e7ca1e56e2993cd7504c2",
+  "probe_result_sha256": "68c16325a2caf091edbb7cc8014f79656f310d8d682a26ef612011d832da4834",
+  "steward_review_sha256": "8cb23f41cd66f58b3d2c962338f99aaf6da97b8289ea9c37fbbb0634f2004cad",
+  "findings": [
+    {
+      "id": "T2-R2-1",
+      "priority": 2,
+      "path": "src/video_paper_wiki_research/light_context.py",
+      "line": 477,
+      "summary": "No live context revalidation between output staging and atomic installation; changed source can overwrite existing output with a stale answer."
+    },
+    {
+      "id": "T2-R2-2",
+      "priority": 2,
+      "path": "src/video_paper_wiki_research/light_context.py",
+      "line": 228,
+      "related_path": "src/video_paper_wiki_research/light_index.py",
+      "related_line": 569,
+      "summary": "Malformed context kind and incomplete index paper hashes escape as TypeError/KeyError instead of closed results."
+    },
+    {
+      "id": "T2-R2-3",
+      "priority": 2,
+      "path": "src/video_paper_wiki_research/light_index.py",
+      "line": 638,
+      "summary": "Public search does not implement strict selection rules: empty differs from None, blank/unknown IDs are silently ignored or return NO_RESULTS."
+    }
+  ],
+  "repair_packet": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-agent2-r1/REPAIR.md",
+  "repair_packet_sha256": "cfce9e350b33fdf06cbfd7c571b331387c6250dc0641754c4772feaf19e164ff",
+  "authorized_repair_revision": "r3",
+  "production_source_changed_by_architect": false,
+  "old_handoff_preserved": true,
+  "full_product_or_remote_acceptance": false
+}

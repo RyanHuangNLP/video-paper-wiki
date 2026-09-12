@@ -1,0 +1,68 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python
+cachedir: /private/tmp/vpwiki-t2-r06-red-cache
+rootdir: /Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-r06-v1/terminal-2
+configfile: pyproject.toml
+collecting ... collected 1 item
+
+tests/research/test_light_index.py::test_r06_legacy_misplaced_offsets_recover_from_current_markdown R06_BEFORE_REBUILD OK [2] NO_RESULTS []
+FAILED
+
+=================================== FAILURES ===================================
+_______ test_r06_legacy_misplaced_offsets_recover_from_current_markdown ________
+
+tmp_path = PosixPath('/private/tmp/vpwiki-t2-r06-red/test_r06_legacy_misplaced_offs0')
+
+    def test_r06_legacy_misplaced_offsets_recover_from_current_markdown(tmp_path: Path) -> None:
+        workspace = tmp_path / "r06-legacy"
+        workspace.mkdir()
+        provenance = _materialize_r06_legacy(workspace)
+        paper_hex = provenance["original_pdf_sha256"]
+        md_path = workspace / "papers" / paper_hex / "source.md"
+        meta_path = workspace / "papers" / paper_hex / "source.json"
+        index_path = workspace / INDEX_DIRNAME / INDEX_FILENAME
+        markdown = md_path.read_text(encoding="utf-8")
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        historical_pdf = Path(meta["source"]["path"])
+        assert historical_pdf.as_posix().startswith("/private/tmp/vp.r06.fixture.")
+        assert meta["document"]["sha256"] == hashlib.sha256(markdown.encode("utf-8")).hexdigest()
+        for item in meta["pages"]:
+            slice_text = markdown[item["text_start"] : item["text_end"]]
+            assert _sha_text(slice_text) == item["text_sha256"]
+        expected = _pages_from_markdown(markdown, meta["page_count"])
+        stored_ranges = [(item["text_start"], item["text_end"]) for item in meta["pages"]]
+        located_ranges = [(item["text_start"], item["text_end"]) for item in expected]
+        assert stored_ranges != located_ranges
+        assert "quasar" in markdown[meta["pages"][1]["text_start"] : meta["pages"][1]["text_end"]]
+        assert "nebula" in expected[1]["text"] and "quasar" in expected[0]["text"]
+        md_before = md_path.read_bytes()
+        meta_before = meta_path.read_bytes()
+        index_before = index_path.read_bytes()
+    
+        quasar_before = search(workspace, "quasar")
+        nebula_before = search(workspace, "nebula")
+        print(
+            "R06_BEFORE_REBUILD",
+            quasar_before["status"],
+            [item.get("page") for item in quasar_before.get("evidence") or []],
+            nebula_before["status"],
+            [item.get("page") for item in nebula_before.get("evidence") or []],
+            flush=True,
+        )
+        assert md_path.read_bytes() == md_before
+        assert meta_path.read_bytes() == meta_before
+        assert index_path.read_bytes() == index_before
+>       assert quasar_before["status"] == INDEX_STALE
+E       AssertionError: assert 'OK' == 'INDEX_STALE'
+E         
+E         - INDEX_STALE
+E         + OK
+
+tests/research/test_light_index.py:381: AssertionError
+=========================== short test summary info ============================
+FAILED tests/research/test_light_index.py::test_r06_legacy_misplaced_offsets_recover_from_current_markdown - AssertionError: assert 'OK' == 'INDEX_STALE'
+  
+  - INDEX_STALE
+  + OK
+============================== 1 failed in 0.22s ===============================
+RED_EXIT=1

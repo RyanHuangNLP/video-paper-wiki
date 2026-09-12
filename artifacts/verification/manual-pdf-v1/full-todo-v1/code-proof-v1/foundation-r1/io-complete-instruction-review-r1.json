@@ -1,0 +1,169 @@
+{
+  "schema": "full-todo.code-proof-io-complete-instruction-review.v1",
+  "recorded_at_utc": "2026-09-11T03:09:14.433249Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "NEEDS_BOUNDED_CORRECTIONS_BEFORE_IMPLEMENTATION_DISPATCH",
+  "scope": "Read-only self-contained instruction readiness review. Compared the exact R1 implementation instruction with accepted foundation public API and the R6/R8/R9/R13/R14/R15/R16/R17 contracts and the accepted Git kernel. No source, test, harness, build, Git, model, UI, network, or implementation action was performed. This report is the only requested review artifact written.",
+  "reviewed_inputs": [
+    {
+      "label": "instruction",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md",
+      "size_bytes": 45264,
+      "sha256": "0d515e86a7d773afa16f9d3339be9207e94b4d4f4241e8875872932ff3514b2f"
+    },
+    {
+      "label": "r6",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "label": "r8",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "label": "r9",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "label": "r13",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-FOUNDATION-INTEGRATION-R13.md",
+      "size_bytes": 6544,
+      "sha256": "4ef374733c4bba9824249a5f13e19727d4d3bd5957461bba561c36bc7ef86863"
+    },
+    {
+      "label": "r14",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-CONCRETE-CLOSURES-R14.md",
+      "size_bytes": 8950,
+      "sha256": "5c877a236f681ffeda0cdcaba090027d3615b3a9bc6aa1dccbc6ebaccfd04052"
+    },
+    {
+      "label": "r15",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-API-SEAMS-R15.md",
+      "size_bytes": 8016,
+      "sha256": "3dacfaaa55df2c4948dc2ab12e7055afd3315962feaeb78051bb817ad6f502ef"
+    },
+    {
+      "label": "r16",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md",
+      "size_bytes": 7019,
+      "sha256": "61996c441023d1438966e1cf44e2bcd9e79956fd2329e14e46f5c9402ebb2604"
+    },
+    {
+      "label": "r17",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-DISPATCH-CLOSURES-R17.md",
+      "size_bytes": 7933,
+      "sha256": "a3b730b6732a8acc4ee05830b4578e9b493260ef78d41c3ac8a6043ed80eaa9f"
+    },
+    {
+      "label": "r17_review",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/io-dispatch-closures-review-r17.json",
+      "size_bytes": 10233,
+      "sha256": "22c912b7e6b9c6e5618c3c2a98eb9244a0617bfb60a12385dc6e1d38f6c6b9f9"
+    },
+    {
+      "label": "accepted_foundation",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_proof_resources.py",
+      "size_bytes": 29412,
+      "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6"
+    },
+    {
+      "label": "accepted_git_kernel",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py",
+      "size_bytes": 30702,
+      "sha256": "86c2c0b2e58239bb44b8b8a2bf302a8fd99478a9faaf3ea8d63586f29a8d861b"
+    }
+  ],
+  "closed_checks": [
+    {
+      "area": "foundation_public_api",
+      "status": "PASS",
+      "evidence": "The instruction imports only resource_origin_plan, compile_code_proof_resources, CodeProofResourceError and CodeProofStructureError; it requires the plan resources tuple, retained exact eleven-byte dict and one compiler call. The accepted foundation exposes only CodeProofResourceError.reason and CodeProofStructureError.reason; the instruction correctly treats resource_origin/resource_hash/resource_shape and type/shape/limits as .reason values and forbids invented .type/.shape/.limits properties. It also keeps resource descriptors, bytes and compiled context session-owned through final verification and reverse cleanup."
+    },
+    {
+      "area": "zero_egress_and_builder_boundary",
+      "status": "PASS",
+      "evidence": "The first paragraph requires exactly two Python fenced blocks followed by Tests not run and explicitly forbids file, shell, network and model tools, CLI/Git/source retrieval/Vault changes and existing-module changes. Runtime tests are confined to isolated temporary trees and genuine copied resources; no source or global os/fcntl mutation is authorized."
+    },
+    {
+      "area": "fixed_facade_and_error_shapes",
+      "status": "PASS",
+      "evidence": "The eight fixed messages/codes, ValueError construction boundary, read-only copied properties, exact nine-field I/O shape, four-field limit shape, two-field conflict shape, closed enum values, 33-code prior-code union, bounded errno and final lineage/cleanup/original-exception precedence are explicit and consistent with R8/R9/R15/R16/R17. The instruction preserves unchanged CodeGitProofError/config/public/KeyboardInterrupt/SystemExit objects when no higher-priority finalizer error overrides them."
+    },
+    {
+      "area": "resource_fixture_feasibility",
+      "status": "PASS",
+      "evidence": "The tests are told to copy the real eleven pinned resource bytes and preserve code_proof_resources.py in both genuine source and installed lexical layouts, patch only that module __file__ to select the genuine origin plan, and never override pins/compiler/registry or shared sources. This is executable at test runtime while remaining self-contained for the no-tool Builder response."
+    },
+    {
+      "area": "bundle_path_and_raw_layout",
+      "status": "PASS_WITH_POINTER_FINDING_BELOW",
+      "evidence": "The exact builtin str .work/ grammar, controls/surrogates, NFC equality, named _MAX_BUNDLE_PATH_BYTES=16384, unattainable-positive note, no traversal before lexical checks, two-root complete-set capture, first-stage name/type/mode/link/size observations and zero body reads are concrete. Stable opposite-width/extra/missing reconciliation is also present, but its count/pointer ordering needs the bounded correction below."
+    },
+    {
+      "area": "ordinary_maximum_and_output_setter",
+      "status": "PASS",
+      "evidence": "R16 is incorporated: retain_input maximum is exact builtin int 65536 or 1048576 only, bool/subclasses rejected with CodeProofStructureError(\"limits\") and suppressed context; fixed /input limit context is specified. The seven-key output setter has exact builtin dict/string keys/positive ints, copied values, one-call and install-before-set misuse messages, retrospective retained-data checks and hard maxima."
+    },
+    {
+      "area": "installer_graph_and_all_exits",
+      "status": "PASS",
+      "evidence": "The retained graph, capability/lock/fsync ordering, no-follow descriptor seams, bounded scans, immutable first observations, installer phases, C+2*N accounting, same-temp-fd verification, no-replace link, checked cleanup, all reached final groups, reverse closes with duplicate lock last and no close retry, and explicit lineage > cleanup > original > success selection are concrete and consistent with R6/R8/R9/R13-R17."
+    }
+  ],
+  "findings": [
+    {
+      "id": "IO-COMPLETE-R1-001",
+      "severity": "high",
+      "status": "OPEN",
+      "area": "raw_count_pointer_and_prebody_order",
+      "instruction_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:302-318",
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:345-369",
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:614-618"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md:85-88",
+        "CODE-PROOF-IO-DISPATCH-CLOSURES-R17.md:74-88",
+        "code_git_objects.py:_validate_bodies_map"
+      ],
+      "problem": "The instruction says the initial raw root/object scan rejects hard count, per-body and aggregate caps before reading manifest, but does not bind the initial physical count pointer. Later it says raw physical object count uses /bodies, which is correct only for the post-manifest retained physical body-map check; R16 requires the pre-manifest raw count/aggregate admission pointer /objects. The body reconciliation list explicitly starts with width, then extra, then missing, while the accepted _validate_bodies_map first checks len(bodies) > max_objects, then width, then extra, then missing.",
+      "impact": "A Builder can emit the initial raw count refusal under /bodies, or check opposite-width/extra/missing before the max_objects cap. That changes the frozen instance pointer and refusal precedence and is not a deterministic implementation of the accepted kernel order.",
+      "required_closure": "Add one unambiguous stage sentence: before manifest/inventory exists, the initial physical raw-object count and raw aggregate admission use the hard max_objects/max_total_object_bytes contexts at /objects; after manifest/inventory validation, the retained physical body-map count uses /bodies with max_objects. Before any width/extra/missing reconciliation or body open, enforce count-cap first, then width, then extra, then missing. Preserve per-body and aggregate pointer rules exactly.",
+      "required_tests": "Assert initial over-count/aggregate refusals use /objects; post-manifest over-count uses /bodies; a post-manifest opposite-width-plus-extra input returns the count error when over count, otherwise invalid_oid_key before extra and missing; assert zero body opens for all stable reconciliation refusals."
+    },
+    {
+      "id": "IO-COMPLETE-R1-002",
+      "severity": "high",
+      "status": "OPEN",
+      "area": "private_input_install_argument_types_and_refusal_taxonomy",
+      "instruction_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:60-72",
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:146-154",
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:250-266",
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md:421-458"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-RETAINED-IO-R6.md:25-42",
+        "CODE-PROOF-RETAINED-IO-R6.md:69-76",
+        "CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md:40-51",
+        "CODE-PROOF-IO-API-SEAMS-R15.md:40-55"
+      ],
+      "problem": "The instruction closes retain_input maximum typing and error behavior, but only gives type annotations and prose for retain_input path and install relative_name/payload. It never states that path and relative_name must be exact builtin str and payload exact builtin bytes before Path construction, len/slicing, comparisons, hashing or descriptor traversal, nor does it assign a deterministic existing private error/context to malformed argument types, malformed install names or payload-shape/size refusal. R6 only says these APIs receive already validated internal primitive arguments and fail closed; that does not provide a self-contained runtime contract.",
+      "impact": "A Builder can accept str/bytes subclasses or path-like/adversarial objects and trigger arbitrary __fspath__, __str__, __bytes__, __len__, __hash__ or comparison behavior before refusal. It can also return arbitrary TypeError/ValueError or wrap private misuse in the public facade, making the private API and tests non-deterministic and potentially widening the fixed error surface.",
+      "required_closure": "Freeze exact builtin argument domains and first-failure taxonomy. At minimum require retain_input path and install relative_name to be exact builtin str, install payload to be exact builtin bytes, and reject before any conversion or inspection. Keep the already frozen retain_input maximum rule (exact builtin int 65536/1048576 -> CodeProofStructureError(\"limits\"), suppressed). Explicitly choose the existing private CodeProofStructureError reason for wrong private argument shape (likely \"type\"), the fixed WORK_PATH_UNSAFE/path_spelling context for rejected lexical input/name, and the fixed limit context for valid payloads exceeding their selected cap; do not invent new codes or evaluate attacker-controlled formatting. State whether install misuse unwinds through the finalizer with the same private boundary.",
+      "required_tests": "Pass str/bytes subclasses, path-like objects, int/bool/subclass maxima, malformed relative names and oversized payloads with hostile __str__/__bytes__/__len__/__hash__/comparison methods. Assert no such hook is evaluated before the exact-type refusal and assert the exact existing class/code/reason/details for each case."
+    }
+  ],
+  "pointer_order_audit": {
+    "initial_pre_manifest": "Current instruction explicitly requires count/per-body/aggregate admission before manifest read but needs /objects for initial raw physical count; /objects is already explicit for aggregate and pre-inventory per-body contexts.",
+    "post_manifest": "Current instruction explicitly gives /bodies for post-manifest physical count and /objects for declared inventory/per-body/aggregate pointers, but needs the stage boundary sentence above.",
+    "accepted_kernel_order": "code_git_objects.py checks len(bodies)>max_objects, then every physical key width, then extras, then missing. The current instruction omits the first step from its numbered reconciliation order.",
+    "decision": "These are concrete readiness blockers, not implementation findings."
+  },
+  "conclusion": "R1 incorporates the five R17 closures and is otherwise self-contained, zero-egress, fixture-feasible and consistent with the accepted foundation and pure Git APIs. Dispatch should remain blocked until the two narrow clarifications above are incorporated and rehashed; no source or implementation action is authorized by this review."
+}

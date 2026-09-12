@@ -1,0 +1,86 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-fixture-correction-r4.v1",
+  "revision": 4,
+  "status": "R4_FIXTURE_AUTHORED_VALIDATED_BOTH_LOCKED_PYTHONS_PENDING_ARCHITECT_REVIEW",
+  "scope": "Independent fixture-only oracle correction; production and test source remain stopped.",
+  "input": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r3.json",
+    "sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e",
+    "size_bytes": 131347
+  },
+  "output": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r4.json",
+    "sha256": "512384681dac91c737106d6cb84949aa446a9de9c015694582703be71485dfff",
+    "size_bytes": 133118
+  },
+  "check_script": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/oracle-correction-r4-check.py",
+    "sha256": "6b28bd5fcb9c1c17aee10937ba8e8cfcc946215a190d29dcbcb6e7bd4d00e359",
+    "size_bytes": 4946
+  },
+  "clarification": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-CLARIFICATIONS-R3.md",
+    "sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e"
+  },
+  "preservation": {
+    "r3_fixture_unchanged": true,
+    "all_other_r3_content_unchanged": true,
+    "production_imported": false,
+    "network_or_provider": false,
+    "git_mutation": false
+  },
+  "corrections": {
+    "json-tuple-exponent-over": {
+      "source_size_bytes": 131,
+      "historical_r3_reason_description": "exact Decimal tuple exponent exceeds profile",
+      "reason_description": "numeric lexeme exceeds profile before exact Decimal tuple exponent analysis",
+      "limit_context": {
+        "limit_name": "max_numeric_lexeme_bytes",
+        "limit": 128,
+        "observed": 131
+      },
+      "first_refusal_obligation": "max_numeric_lexeme_bytes before Decimal tuple exponent analysis"
+    },
+    "toml-duplicate-header": {
+      "source_slice": "[a]",
+      "source_anchor_span": {
+        "byte_start": 10,
+        "byte_end": 13,
+        "codepoint_start": 10,
+        "codepoint_end": 13,
+        "line_start": 3,
+        "column_start": 1,
+        "line_end": 3,
+        "column_end": 4,
+        "raw_sha256": "32332ffee853ef6d87d16e1dbc55f72288c4fa960b2c44ee80d34b9993e0f7aa",
+        "snippet_sha256": "32332ffee853ef6d87d16e1dbc55f72288c4fa960b2c44ee80d34b9993e0f7aa"
+      },
+      "anchor_is": "conflicting second [a] header"
+    }
+  },
+  "validation": {
+    "py312": {
+      "allowed_corrections": 2,
+      "network_or_provider": false,
+      "production_imported": false,
+      "r3_sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e",
+      "r4_sha256": "512384681dac91c737106d6cb84949aa446a9de9c015694582703be71485dfff",
+      "r4_size_bytes": 133118,
+      "result": "PASS_R4_CONFIG_ORACLE_CORRECTION_REPLAY",
+      "retained_source_annotations_checked": 25,
+      "runtime": "3.12.14"
+    },
+    "py313": {
+      "allowed_corrections": 2,
+      "network_or_provider": false,
+      "production_imported": false,
+      "r3_sha256": "fed1611965d5745439983c1b96789051f0b012a45432d1281869a73fe954402e",
+      "r4_sha256": "512384681dac91c737106d6cb84949aa446a9de9c015694582703be71485dfff",
+      "r4_size_bytes": 133118,
+      "result": "PASS_R4_CONFIG_ORACLE_CORRECTION_REPLAY",
+      "retained_source_annotations_checked": 25,
+      "runtime": "3.13.13"
+    }
+  },
+  "result": "PASS_R4_CONFIG_ORACLE_CORRECTION_REPLAY_BOTH_LOCKED_PYTHONS"
+}

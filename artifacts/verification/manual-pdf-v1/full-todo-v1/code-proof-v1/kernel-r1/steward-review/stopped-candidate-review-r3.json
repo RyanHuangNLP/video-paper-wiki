@@ -1,0 +1,96 @@
+{
+  "$schema": "full-todo.code-git-kernel-stopped-candidate-review-r3.v1",
+  "schema": "full-todo.code-git-kernel-stopped-candidate-review-r3.v1",
+  "revision": "R3-stopped-candidate-independent-diagnostic",
+  "recorded_at_utc": "2026-09-09T17:18:30.000000000Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded stopped-candidate diagnostic reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "scope": "Read-only diagnosis of the frozen stopped R3 candidate. No live-source import after R4 dispatch, source/schema/test/fixture/Git mutation, or acceptance decision.",
+  "handoff": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-failing-handoff-r3.json",
+    "sha256": "6c999a3f776928614efc5b2aa760173849d6719a4da6b2201a3b0aaa7f2853b0",
+    "candidate_snapshot_sha256": "27a35de34fd0e05c1e90e8ea0853845c483d532195efcc51715c81b19ea77e59",
+    "baseline_head": "8728aafc9aa7af5caf90d60bfa6ab2ba89419f75",
+    "baseline_tree": "cefcd1be9797d1f4202153d7b9dc4ee1d8423f14",
+    "source_writes_stopped": true,
+    "builder_brief_present": false
+  },
+  "source_files": [
+    {"path": "src/video_paper_wiki/code_git_objects.py", "size_bytes": 30212, "sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca"},
+    {"path": "tests/fixtures/code-git-objects-v1.json", "size_bytes": 52532, "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0"},
+    {"path": "tests/unit/test_code_git_objects.py", "size_bytes": 35986, "sha256": "1ae5dd06d9993d9f09bd39a31030488465e83c2b95f1288e446854d8584c615b"}
+  ],
+  "diagnostics": [
+    {
+      "id": "R3-GRAPHS",
+      "status": "PASS",
+      "command": ".venv/bin/python -B artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-generated-graphs-r1.py --handoff artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-failing-handoff-r3.json --output artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-graphs-r3.json",
+      "result": "128 independent declarative DAGs passed across sha1 and sha256",
+      "log": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-graphs-py313-r3.log",
+      "log_sha256": "000e4f5d23c1ebf3ded0b771d94d7e25387e256787991fb040280a9a6c4329a4"
+    },
+    {
+      "id": "R3-FOCUSED",
+      "status": "FAILED_HISTORICAL_TEST_DEFECTS",
+      "command": ".venv/bin/python -B -m pytest -q tests/unit/test_code_git_objects.py --basetemp /private/tmp/cgk._ic4j8fy/p -o cache_dir=/private/tmp/cgk._ic4j8fy/c",
+      "result": "33 passed, 2 failed. The cap test arms hashing instrumentation before _minimal_graph constructs its fixture, counting six fixture hashes; the unused-tree test adds an empty tree with the same OID as the empty root and therefore receives input-invalid duplicate identity instead of consumed-set mismatch.",
+      "log": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-focused-py313-r3.log",
+      "log_sha256": "4792d040c61b17a0e79df5e23ef68348141d565af31492848ab9d75f914e6ec4"
+    },
+    {
+      "id": "R3-STRICT-INPUTS",
+      "status": "FAILED_SOURCE_CALLBACK_DEFECT",
+      "command": ".venv/bin/python -B artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-strict-inputs-r1.py --handoff artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-failing-handoff-r3.json --output artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-strict-r3.json",
+      "result": "Stopped at a custom dictionary-key callback in _validate_objects set(item). Independent continuation found the same callback exposure for object-record keys, target-record keys and limit-map keys in both object formats. Body-key validation remained safe.",
+      "log": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/architect-stopped-strict-py313-r3.log",
+      "log_sha256": "bd54d57bb2c1a38eb0ee2a49d1b10139b0ada2dfa690fb1e221859f0fc942a47"
+    },
+    {
+      "id": "R3-CAP-ORDER",
+      "status": "PASS_INDEPENDENT_DIAGNOSTIC",
+      "command": "Archived-snapshot one-shot harness constructed valid fixture data before monkeypatching hashlib, then exercised declared and actual body caps.",
+      "result": "Both refusals returned CODE_PROOF_LIMIT_EXCEEDED with zero hash calls. The declared case pointed to /objects/<index>/body_size_bytes; the actual-size case selected the first actual per-object cap before hashing. The historical test failure is instrumentation order, not observed cap-before-hash regression.",
+      "source": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/stopped-r3-source/src/video_paper_wiki/code_git_objects.py"
+    },
+    {
+      "id": "R3-CONSUMED-SET",
+      "status": "PASS_INDEPENDENT_DIAGNOSTIC",
+      "command": "Archived-snapshot one-shot harness added a distinct valid unreferenced object from the frozen fixture inventory.",
+      "result": "Returned CODE_PROOF_CONSUMED_SET_MISMATCH with the exact unused OID. The historical test failure is the duplicate empty-root fixture, not a candidate consumed-set regression.",
+      "source": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/stopped-r3-source/tests/fixtures/code-git-objects-v1.json"
+    }
+  ],
+  "r4_review": {
+    "prompt": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-REPAIR-R4.md",
+    "prompt_sha256": "7870e7779f07923734250508199fb07d66e829b229d671a75c7372367e90ef57",
+    "prompt_size_bytes": 6236,
+    "decision": "GO_FOR_R4_REPAIR_DISPATCH",
+    "basis": "R4 directly repairs exact-key preflight before callbacks, corrects both historical focused-test fixtures/instrumentation, removes the unconditional or True assertion, preserves the frozen fixture and two-file ownership, and requires dual-runtime focused tests plus exact post-test hashes. No additional source blocker was found in this bounded diagnosis.",
+    "constraints": [
+      "Keep tests/fixtures/code-git-objects-v1.json byte-identical.",
+      "Change only src/video_paper_wiki/code_git_objects.py and tests/unit/test_code_git_objects.py.",
+      "Do not weaken cryptographic, consumed-set, or strict-input assertions.",
+      "Do not treat the stopped candidate as accepted; require fresh independent review after R4 handoff."
+    ]
+  },
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T17:18:30.000000000Z",
+    "note": "Bounded review record; source ownership had returned to Builder before this artifact was written."
+  }
+}

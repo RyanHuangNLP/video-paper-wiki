@@ -1,0 +1,191 @@
+{
+  "$schema": "full-todo.code-proof-wire-review-r7.v1",
+  "schema": "full-todo.code-proof-wire-review-r7.v1",
+  "packet": "CODE-PROOF-WIRE-R7",
+  "revision": "R7-independent-public-wire-review",
+  "recorded_at_utc": "2026-09-09T16:58:51.678783000Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent bounded CODE-PROOF public-wire, binding and eligibility reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CHANGES_REQUIRED_BEFORE_PUBLIC_WIRE_FREEZE",
+  "verdict": "R7 closes most of the R2-R6 public data gaps. The six saved data records, nested request limits, raw-versus-normalized acquisition forms, separate observation capability and eligibility, per-target configuration eligibility, status states, and the explicit no-config-ref handoff rule are coherent with the prior contracts. Four issues remain before a public-wire freeze: the repository grammar newly narrows the earlier contract, normalized text has no explicit aggregate/pre-serialization rule for the repeated intent, handoff subset/prefix validity is ambiguous, and the worst-case serialized proof size and refusal path are not bounded in the wire text. The generated schemas, exact reason/detail table, resource hashes and implementation evidence remain explicit gates.",
+  "scope": "Read-only review of CODE-PROOF-WIRE-R7 against CODE-PROOF-DESIGN-R2, CODE-PROOF-CLOSURE-R3, CODE-PROOF-IDENTITY-LAYOUT-R4, CODE-PROOF-STATE-AND-INSTALL-R5, CODE-PROOF-RETAINED-IO-R6, the independent R6 review, and the frozen Git/config kernel contracts. No source, schema, test, fixture, Git, provider, network, connector, Vault or candidate-packet mutation.",
+  "frozen_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2",
+      "size_bytes": 20246
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md",
+      "sha256": "eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57",
+      "size_bytes": 19802
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0",
+      "size_bytes": 12868
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-STATE-AND-INSTALL-R5.md",
+      "sha256": "b44a61d560c8c6a09fa47200e39a5fda5c7d63fd74a3a788bf885aba9379062e",
+      "size_bytes": 10096
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92",
+      "size_bytes": 15524
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-proof-retained-io-review-r6.json",
+      "sha256": "15cbb53fff0f6dfe32b2f08f45f3642b89247d87c98177ceb86b472072513aef",
+      "size_bytes": 20632
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe",
+      "size_bytes": 17862
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568",
+      "size_bytes": 3659
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4",
+      "size_bytes": 17799
+    }
+  ],
+  "closure_matrix": [
+    {
+      "id": "CPR7-DATA-001",
+      "status": "PASS_WITH_SCHEMA_AND_RESOURCE_GATES",
+      "evidence": "R7 lines 9-15 closes the no-unlisted-field/null distinction and strict primitive rules. Lines 127-255 define all six saved data records, preserve R4 ce1/ref domains, bind request/intent/bundle/observation references and raw-body identities, and keep the successor-only handoff independent of config derivation order.",
+      "residual": "The ten schema bytes, profile bytes and exact resource hashes are named but not generated or independently checked in this candidate."
+    },
+    {
+      "id": "CPR7-LIMITS-002",
+      "status": "PASS_WITH_KERNEL_CONTRACT_DEPENDENCY",
+      "evidence": "R7 lines 38-60 materially closes the request limits as a nested git/config/public map and makes all saved limits complete and lowerable. The five Git keys and thirteen config keys are already closed by the inspected kernel packets; the eight public keys have explicit maxima in R7.",
+      "residual": "The generated profile must cross-check exact key sets and values against those kernel packets rather than relying on the count words alone."
+    },
+    {
+      "id": "CPR7-OBSERVATION-003",
+      "status": "PASS",
+      "evidence": "R7 lines 164-208 clearly separate valid complete observation from target/handoff eligibility: raw proof may contain missing, unsafe or unsupported targets; normalized observations remain useful but never become raw proof; capabilities and eligibility are independently reported."
+    },
+    {
+      "id": "CPR7-CONFIG-ELIGIBILITY-004",
+      "status": "CLOSED",
+      "evidence": "R7 lines 210-231 require a complete raw observation and selected target source_text plus configuration role, while explicitly allowing other requested targets to be ineligible and keeping repository assertion out of literal config eligibility. Explicit source-only is a distinct retained-source branch and parser refusal installs no artifact. This resolves the prior whole-set-versus-selected-target ambiguity."
+    },
+    {
+      "id": "CPR7-HANDOFF-BINDING-005",
+      "status": "PASS_WITH_EXPLICIT_AMENDMENT",
+      "evidence": "R7 lines 233-255 bind each successor-only handoff to the whole eligible observation, exact-width Git identities, proof, text metadata and raw body reference, then explicitly remove the optional config reference so config derivation order cannot change handoff bytes."
+    },
+    {
+      "id": "CPR7-STATUS-006",
+      "status": "PASS_WITH_RETAINED-IO_DEPENDENCY",
+      "evidence": "R7 lines 257-317 map the R5 state matrix to closed status states, dependency-specific missing lists, no-invented raw inventory, validated derived subsets and deterministic next_action tokens. R6's retained layout/scan and lineage rules remain required for implementation."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CPR7-REPOSITORY-GRAMMAR-001",
+      "status": "OPEN_CONTRACT_REGRESSION",
+      "severity": "high",
+      "title": "Repository components newly require an alphanumeric first character",
+      "evidence": "R7 lines 24-27 change the earlier R2 repository rule of two nonempty bounded ASCII components (`[A-Za-z0-9._-]+`) to `[A-Za-z0-9][A-Za-z0-9._-]{0,99}`. The Git kernel independently permits leading-dot logical path components (CODE-GIT-KERNEL-R1 lines 66-70), and the R2 repository contract did not add this leading-character restriction.",
+      "risk": "The public request grammar can reject repository names that the prior contract and host locator grammar admit, including valid names beginning with a dot or hyphen such as `.github`-style names. This changes request identity and acquisition-target behavior without an explicit compatibility decision.",
+      "required_closure": "Restore the R2 nonempty-component grammar unless a deliberate breaking restriction is approved and documented. Bind the same exact grammar in request input, saved request, hosting assertion, URL generation and schema examples; test leading dot/hyphen, exact `.`/`..`, case folding and `.git` suffix boundaries."
+    },
+    {
+      "id": "CPR7-NORMALIZED-SERIALIZATION-002",
+      "status": "OPEN_PREINSTALL_BUDGET_DEPENDENCY",
+      "severity": "medium",
+      "title": "Repeated normalized text has no explicit aggregate or pre-serialization rule",
+      "evidence": "R7 lines 38-60 cap normalized text per target at 16384 bytes and repeat all normalized text inside acquisition at lines 151-162, while the saved intent cap is 1048576 bytes. Up to 32 targets plus canonical JSON framing/escaping can produce an intent larger than max_intent_bytes even when every per-target input cap passes. R7 line 59 permits a representable result to exceed its serialized cap but does not name the exact refusal ordering/details for this raw-text case.",
+      "risk": "An implementation may accept the ordinary observe input, install an intent or partial prefix, and discover the serialized cap only later, or may invent an aggregate text bound that changes the closed profile. The same input could also produce different refusal precedence depending on whether raw input or canonical intent is charged first.",
+      "required_closure": "State that intent and observation are fully pre-serialized and checked against lowered saved caps before the first install, with the fixed limit error/details and R6 lineage precedence. Either publish an aggregate normalized-byte bound or explicitly permit the deterministic serialized-cap refusal; add max-escaping, 32-target and cap-minus/equal/plus vectors."
+    },
+    {
+      "id": "CPR7-HANDOFF-SUBSET-003",
+      "status": "OPEN_DERIVED-FAMILY_STATE_DEPENDENCY",
+      "severity": "medium",
+      "title": "Handoff family subset/prefix validity is not closed",
+      "evidence": "R7 lines 305-317 say handoff writes missing files in path order and that an interrupted prefix remains repeatable, but they do not say whether a pre-existing valid non-prefix subset is legal, must refuse, or must be completed in place. R5 only requires a strict OID prefix for the raw objects family; R7 explicitly says config subsets need not be prefixes but gives no corresponding handoff rule.",
+      "risk": "Status, repair and handoff can disagree about a subset such as targets 1 and 3 only. One implementation may reuse both and fill target 2, another may report corruption, and a foreign insertion may be mistaken for a command-owned interrupted prefix.",
+      "required_closure": "Choose and freeze one rule: require an exact path-sorted prefix for handoffs and refuse non-prefix subsets, or allow any individually validated subset and state its deterministic completion/order. Bind the rule to initial-snapshot reuse, missing lists, complete-set validation, late insertion refusal and interruption tests."
+    },
+    {
+      "id": "CPR7-PROOF-SERIALIZATION-004",
+      "status": "OPEN_SERIALIZED-CAP_ACCOUNTING_DEPENDENCY",
+      "severity": "medium",
+      "title": "Worst-case raw proof amplification is not accounted for by the observation cap",
+      "evidence": "R7 lines 170-188 stores the complete raw Git proof and repeats target rows outside that proof; the kernel result includes object_records, consumed_oids, budget counters and per-target walk/stopped_at/blob data. R7 lines 42-51 set max_observation_bytes to 2097152 and line 59 only explicitly discusses text/node results that may exceed serialized caps. No worst-case serialized proof bound or raw-proof cap/refusal precedence is stated.",
+      "risk": "A valid bounded kernel result can exceed 2 MiB after JSON framing, 2048 object records, 32 target walks and repeated observation fields. Truncating or dropping proof members would break replay identity; discovering this after earlier installs would violate R6's preflight rule.",
+      "required_closure": "Compute and record the worst-case serialized sizes for raw git_proof plus observation targets, or explicitly define a pre-install CODE_PROOF_LIMIT_EXCEEDED refusal for oversized observations. Add exact boundary tests and ensure no partial observation or invented eligibility is stored. Apply the same accounting to each 131072-byte handoff and 2097152-byte config result."
+    },
+    {
+      "id": "CPR7-REASON-ENUM-005",
+      "status": "OPEN_PUBLIC_FREEZE_DEPENDENCY",
+      "severity": "medium",
+      "title": "Exact semantic reason/detail table remains intentionally ungenerated",
+      "evidence": "R7 lines 318-323 names the semantic error codes and bounded metadata policy, but explicitly leaves exact reason enums and CLI help text as freeze deliverables. The closed target rows, config parser refusals, state-invalid cases and handoff blockers still rely on those enum mappings.",
+      "risk": "Schemas and implementations can choose different reason strings or map a valid ineligible target to NOT_READY versus TARGET_INELIGIBLE, making saved identity and replay/error behavior non-deterministic.",
+      "required_closure": "Generate the ten schemas and freeze the exact reason/detail table, including raw kernel reasons, normalized acquisition reasons, config parser reasons, state/binding errors, target ineligibility and bounded pointers before implementation dispatch."
+    },
+    {
+      "id": "CPR7-RESOURCE-006",
+      "status": "OPEN_RESOURCE_IMPLEMENTATION_DEPENDENCY",
+      "severity": "medium",
+      "title": "Resource bytes and origin are named but not yet bound to generated files",
+      "evidence": "R7 lines 324-330 define ten schemas, a package profile and source/installed origin rules, while lines 3-7 and 331-334 state that resource files, hashes and implementation paths remain required. R6 independently requires exact retained resource names/hashes and a fresh registry.",
+      "risk": "Before generated files are hashed, a schema reference may be missing, extra or sourced from the wrong package/CWD origin while still satisfying the prose field shapes.",
+      "required_closure": "Generate the ten schemas and profile, record exact byte hashes and package/source paths, then bind them into the R6 retained resource set and installed-wheel parity check."
+    }
+  ],
+  "resolved_prior_findings": [
+    "CPR3-MANIFEST-PATH-001",
+    "CPR3-REPAIR-IDENTITY-003",
+    "CPR3-TEXT-CONFIG-CAP-004",
+    "CPR3-PREFLIGHT-BUDGET-005",
+    "CPR3-HANDOFF-SHA256-009",
+    "CPI-R4-MODE-ABSENCE-004",
+    "CPI-R4-REUSE-INITIAL-005",
+    "CPI-R5-RACE-006"
+  ],
+  "required_next_freezes": [
+    "Correct or explicitly version the repository component grammar before schema generation.",
+    "Freeze pre-install canonical serialization and limit precedence for repeated normalized text, raw proof and every derived artifact.",
+    "Freeze handoff family subset/prefix semantics and bind them to R6 initial-snapshot and complete-set rules.",
+    "Generate and independently inspect all ten schemas and the code-proof profile; record exact hashes and source/installed origins.",
+    "Freeze the exact reason/detail and CLI result/error table, then run positive/negative vectors for normalized/raw eligibility, config-before/after-handoff derivation, forged records and installed-wheel parity."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T16:58:51.678783000Z",
+    "note": "Tool-observed current UTC; no retrospective review-start time is asserted."
+  }
+}

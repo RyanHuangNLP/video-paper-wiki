@@ -1,0 +1,11 @@
+Implement the explicitly user-requested no-PDF scope in this exact worktree.
+
+Read the complete frozen contract at /Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/no-pdf-v1/CONTRACT-R1.md (SHA256 b8c457abee74e87ca31a0c59887c3c5949949cc3814167968eec16a4bc42abdb) and freeze /Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/no-pdf-v1/freeze-r1.json (SHA256 61dc5540b1dbdb4d30164c641e1aa6225d26d8e44b824c8aca583369c5ac7848). They define the new bounded scope and override only the older packet's PDF fixtures. The user explicitly selected all PDFs excluded, synthetic fixtures generated at runtime.
+
+You are Builder, pinned Cursor Grok 4.6 Extra High Fast. Follow current role/controller rules. Source HEAD must remain b7c9764fc68a08d0b20089572b87b094fc32e104; do not mutate Git, spawn agents, install dependencies, alter models, run admin/Vault actions, touch original PDFs/inbox, or write outside the exact 30 allowed product/test paths plus local SOURCE/.work/no-pdf-r1-evidence. Tests may generate temporary files normally.
+
+Implement the contract directly. Preserve every prior test assertion and produce original-byte-equivalent PDF samples via readable deterministic generator code, not a base64/hex/full-PDF binary replacement. The two .pdf source files must be deleted. Root-owned freeze/contract/runner remain read-only. Production src/** remains byte-exact.
+
+Use existing locked interpreters /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python (3.13) and /private/tmp/l4r5.s54ypl35/locked-312/bin/python (3.12), fixed PYTHONPATH to this source's src and root; isolated short real /private/tmp temporary pytest roots; existing uv0.12.7 on /Users/huangzhanpeng/.local/bin. Never let another checkout's pytest config/pythonpath supply source. Do focused and both full suites with no new dependencies/models. If default sandbox blocks the existing uv cache or AF_UNIX fixture, preserve output and use ordinary approval; never bypass or weaken tests.
+
+Freeze all 30 paths including explicit deletion entries, source SHA/size/hash manifest and complete test stdout/stderr/commands. Write identical UTF-8 handoff.json and ready.json under SOURCE/.work/no-pdf-r1-evidence, then STOP writing and return a concise development brief. State architect_accepted=false. No delivery/PR/CI mutation is yours.

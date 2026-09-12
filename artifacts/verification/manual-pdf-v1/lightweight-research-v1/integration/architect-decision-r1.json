@@ -1,0 +1,84 @@
+{
+  "schema": "lightweight-research-integration-architect-r1-decision.v1",
+  "at_utc": "2026-09-08T14:42:26.146927+00:00",
+  "decision": "REJECTED_R1_CLI_BOUNDARY_PENDING_BOUNDED_R2",
+  "architect_accepted": false,
+  "owned_snapshot_sha256": "b35aed34d120cb45d932c421448e0322a4a161d25428e016ac264f64deda63e7",
+  "combined_snapshot_sha256": "5ea0f6cf91fb446329dbc7e10bcc518993df53cbf9151c0b5539727f80fb4026",
+  "passed": [
+    "309 independently replayed scoped tests",
+    "22 actual-paper CLI commands",
+    "147/147 chunks and 5/5 batches/merges status",
+    "68 byte-exact backup restore payloads and a verified 69-file historical successor archive"
+  ],
+  "blockers": [
+    {
+      "id": "CLI-R1-WORKSPACE",
+      "cause": "_workspace_root resolves original lexical path before backend rejection; symlinks and dotdot are accepted",
+      "required": "closed original workspace validation before normalization on new routes"
+    },
+    {
+      "id": "CLI-R1-OUTPUT",
+      "cause": "writing project-export normalizes parent symlink/dotdot output and materializes a draft",
+      "required": "preserve/check original output edges"
+    },
+    {
+      "id": "CLI-R1-JSON",
+      "cause": "no-workspace inferred light imports first parse through _read_json; 10000 array nesting and 5000-digit integer leak RecursionError/ValueError on QA and writing",
+      "required": "closed JSON errors without raising interpreter limits, preserving valid legacy routes"
+    }
+  ],
+  "documentation_repairs": [
+    "separate rewrite files when question/topic differ",
+    "finish returned refresh batches and merges before finalize"
+  ],
+  "not_blockers": [
+    "Legacy no-rewrite duplicate selections preserve existing normalization; new rewrite duplicate selection correctly returns USAGE.",
+    "Unknown arbitrary outer nonidentity context fields retain usual context semantics. Unknown query_plan fields correctly return LIGHT_CONTEXT_INVALID.",
+    "1400-level no-workspace context closes correctly; the reproduced failure is 10000-level/5000-digit decoding before strict re-read."
+  ],
+  "controller_actual_evidence_location": "E/integration/r1 relative to this evidence namespace (extra literal E directory preserved, not silently relabelled)",
+  "evidence": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-source-check-r1.json",
+      "sha256": "7a4e3facd08d781a479e365f83986044260aff7589595c218143fd209fb6e7be"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-focused-r1.json",
+      "sha256": "174baa69b4206719a6e160e7702a26ec39d6f93ae694ceb8d547873083e35c07"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-real-cli-review-r1.json",
+      "sha256": "a482a353c36233821c645317440c3039484e7291491cf14fcda7ef5ce4155800"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-real-cli-supplement-r1.json",
+      "sha256": "0d55b40158182c393aaf273a096aea8874450d63a5a970bc7172cb01d6d90bdb"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-cli-boundary-reproduction-r1.json",
+      "sha256": "edcf01215deb863e777006d2571f16fa9dc3873a690fbcfba03051a97e33872c"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/architect-cli-transport-supplement-r1.json",
+      "sha256": "8ba599f32c9f93bb80a7be2c2a093d9fbe67a13f670874f18351138e1295fed9"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/independent-cli-probes-r1.json",
+      "sha256": "f04fef0fb79b690b4349505102e7d9dcb580d9d60aabac059b07cd3158a2836c"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/r1/handoff.json",
+      "sha256": "98a32e8fd4b0334ec29d2e480bb55fd8b66afab283d6dec8bffd105193714f58"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/E/integration/r1/controller/controller-transfer-r1.json",
+      "sha256": "f0a1928af00e0b2b0a6f494910156a2bacd5bc93ef8b743043423af79b1bce5e"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-research-v1/integration/spec-review-r2.json",
+      "sha256": "4f5864732556b94168513a7e772f39c64d6dea62c6e43c095052f47792015bf8"
+    }
+  ],
+  "no_git_delivery_or_ci_claim": true
+}

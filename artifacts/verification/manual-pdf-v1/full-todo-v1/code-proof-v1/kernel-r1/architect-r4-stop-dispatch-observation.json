@@ -1,0 +1,86 @@
+{
+  "schema": "code-git-kernel-repair-r4-stop-dispatch-observation.v1",
+  "recorded_at_utc": "2026-09-09T17:32:49.404751+00:00",
+  "status": "stopped-no-candidate",
+  "reason": "Builder TUI entered a repeated response loop after model-reported bounded checks; no authorized source/test edit or R4 brief was produced.",
+  "dispatch": {
+    "pty_session_id": 55333,
+    "builder_session_id": "5d4c5429-9a91-4ba9-bdcb-aa34fb63abaf",
+    "model": "grok-4.6",
+    "reasoning_effort": "xhigh",
+    "dispatch_path": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-repair-dispatch-r4.json",
+      "size_bytes": 3673,
+      "sha256": "adef277ac75deed4283ce81b8b6b3c56d8dfb5326d33417e15bf44067dc82a3d"
+    },
+    "prompt_path": {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-REPAIR-R4.md",
+      "size_bytes": 6236,
+      "sha256": "7870e7779f07923734250508199fb07d66e829b229d671a75c7372367e90ef57"
+    }
+  },
+  "raw_terminal": {
+    "live_capture_path": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-r3.terminal.log",
+      "size_bytes": 2108809,
+      "sha256": "02d34fdae2838fa5a70c630062fb5caa59bb0cd115246beae52be2a73d174076"
+    },
+    "archived_r4_path": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-r4-stopped.terminal.log",
+      "size_bytes": 2108809,
+      "sha256": "02d34fdae2838fa5a70c630062fb5caa59bb0cd115246beae52be2a73d174076"
+    },
+    "archived_bytes_equal_live_capture": true,
+    "original_r3_snapshot": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-r3-stopped.terminal.log",
+      "size_bytes": 1858930,
+      "sha256": "d7a86cbcf57e5d53b88a899e4d93968ff8d9a3ff7bb92efb1f39a0a5e082974a"
+    }
+  },
+  "observed_terminal_facts": {
+    "preimage_verification": "observed read-only hash verification output; all three R3 preimage hashes matched before the attempted repair.",
+    "reported_bounded_tests": {
+      "count": 3,
+      "status": "model-reported-only",
+      "qualification": "The terminal transcript contains the model statement \"3 tests passed\" but does not provide an independently reviewable completed command/result record for these tests; do not treat this as implementation evidence."
+    },
+    "source_edit": "not observed",
+    "test_edit": "not observed",
+    "r4_development_brief": "not observed; no R4 brief artifact exists",
+    "tui_stop": "Ctrl-C cancelled the turn after the repeated response loop; /exit then returned the resume-session notice and closed PTY55333."
+  },
+  "candidate_files": {
+    "source": {
+      "current": {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py",
+        "size_bytes": 30212,
+        "sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca"
+      },
+      "r3_preimage": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/stopped-r3-source/src/video_paper_wiki/code_git_objects.py",
+        "size_bytes": 30212,
+        "sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca"
+      },
+      "byte_identical_to_r3_preimage": true
+    },
+    "test": {
+      "current": {
+        "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_git_objects.py",
+        "size_bytes": 35986,
+        "sha256": "1ae5dd06d9993d9f09bd39a31030488465e83c2b95f1288e446854d8584c615b"
+      },
+      "r3_preimage": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/stopped-r3-source/tests/unit/test_code_git_objects.py",
+        "size_bytes": 35986,
+        "sha256": "1ae5dd06d9993d9f09bd39a31030488465e83c2b95f1288e446854d8584c615b"
+      },
+      "byte_identical_to_r3_preimage": true
+    }
+  },
+  "post_stop_process": {
+    "exit_command": "/exit",
+    "pty55333_exit_observed": true,
+    "resume_notice_observed": true,
+    "replacement_builder_authorized": false
+  }
+}

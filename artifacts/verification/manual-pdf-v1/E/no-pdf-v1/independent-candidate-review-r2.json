@@ -1,0 +1,163 @@
+{
+  "schema": "video-paper-wiki-no-pdf-independent-candidate-review-r2.v1",
+  "recorded_at_utc": "2026-09-08T17:15:14.742134+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "review_scope": "Independent read-only review of the frozen Architect-authored no-pdf-v1 local maintenance candidate; no external Builder execution, implementation edits, Git mutations, PR updates, CI calls, or full-suite duplication.",
+  "decision": "GO_INDEPENDENT_REVIEW_NO_BLOCKERS",
+  "recommendation": "Proceed to the separately owned Python 3.12/3.13 final suites and Repo Steward delivery checks; this review does not issue exact-head Architect acceptance or merge authorization.",
+  "inputs": {
+    "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/no-pdf-v1/terminal-1/source",
+    "source_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+    "source_head_tree": "fd38ebb0eefe67a3d8131aecf0cee510c1508525",
+    "baseline_head": "b7c9764fc68a08d0b20089572b87b094fc32e104",
+    "baseline_tree": "fd38ebb0eefe67a3d8131aecf0cee510c1508525",
+    "contract": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/no-pdf-v1/CONTRACT-R2.md",
+      "sha256": "c21a36518a976ce45c1489a195c9e8cf3e1403f96d16c0bbf014a8521cea7560",
+      "size_bytes": 5210
+    },
+    "freeze": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/no-pdf-v1/freeze-r2.json",
+      "sha256": "d6bec0d6512f0be0df17d50b5a2082b97cda9d2345877123d6ec6db77e8012b5",
+      "size_bytes": 279275
+    },
+    "candidate_record": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/no-pdf-v1/local-candidate-r2.json",
+      "sha256": "25caa6a3e9f5d0bf5585dc88f5d11e80dc50e634ca78bc80b2b3df83a786e00e",
+      "size_bytes": 7797
+    },
+    "candidate_freeze_sha256": "d6bec0d6512f0be0df17d50b5a2082b97cda9d2345877123d6ec6db77e8012b5",
+    "candidate_contract_sha256": "c21a36518a976ce45c1489a195c9e8cf3e1403f96d16c0bbf014a8521cea7560",
+    "candidate_file_snapshot_sha256": "01931930e346d59f06cf17b59164eaa64316dca4edad0e437fc3ac6d2debadac",
+    "candidate_all_src_bytes_unchanged": true,
+    "candidate_diff_check_passed": true,
+    "candidate_pdf_paths": [],
+    "allowed_path_count": 30,
+    "candidate_changed_file_count": 28,
+    "deleted_path_count": 2
+  },
+  "diff_review": {
+    "consumer_count": 24,
+    "existing_consumer_assertions_reported": 1712,
+    "existing_consumer_assertions_unchanged_reported": {
+      "tests/security/test_prepare_offline.py": 42,
+      "tests/security/test_work_staging_boundary.py": 179,
+      "tests/test_ledger_locator_upstream.py": 17,
+      "tests/unit/test_draft.py": 233,
+      "tests/unit/test_ingest_put.py": 9,
+      "tests/unit/test_ingest_run.py": 17,
+      "tests/unit/test_note_links.py": 87,
+      "tests/unit/test_note_meta.py": 98,
+      "tests/unit/test_notes_architectures.py": 47,
+      "tests/unit/test_notes_associations.py": 59,
+      "tests/unit/test_notes_clear_draft.py": 52,
+      "tests/unit/test_notes_code_resources.py": 71,
+      "tests/unit/test_notes_conclusions.py": 38,
+      "tests/unit/test_notes_evidence.py": 50,
+      "tests/unit/test_notes_experiments.py": 49,
+      "tests/unit/test_notes_index.py": 98,
+      "tests/unit/test_notes_limitations.py": 50,
+      "tests/unit/test_notes_methods.py": 46,
+      "tests/unit/test_notes_questions.py": 45,
+      "tests/unit/test_notes_training.py": 48,
+      "tests/unit/test_prepare.py": 155,
+      "tests/unit/test_title.py": 28,
+      "tests/unit/test_wiki_topics.py": 134,
+      "tests/upstream/_transaction_fixture.py": 60
+    },
+    "old_fixture_references_found": [],
+    "consumers_missing_helper_import": [],
+    "source_diff_present": false,
+    "diff_check_replayed": true,
+    "scope_result": "All 24 frozen consumers use tests.pdf_samples.sample_pdf_path; changes are fixture-path rewires plus the new helper/tests, ignore rule, workflow guard, and two declared deletions."
+  },
+  "independent_checks": {
+    "focused_generator_suite": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=SOURCE/src SOURCE/.venv/bin/python -m pytest -c pyproject.toml --rootdir SOURCE -o pythonpath=src -o cache_dir=/private/tmp/no-pdf-independent-cache -q tests/test_pdf_samples.py",
+      "exit_code": 0,
+      "tests": 16,
+      "failures": 0,
+      "environment_python": "Python 3.13.13"
+    },
+    "bounded_probe": {
+      "script": "/private/tmp/no-pdf-independent-r2.py",
+      "script_sha256": "947105271de09f6e71438eee8b87b099ed16375b661b7cb0de55571bba00b2db",
+      "result": "/private/tmp/no-pdf-independent-r2.json",
+      "result_sha256": "cfe7168e4848f34cd6bac50dfb6b14681f9e2e1814ee27161940f8589d5433d1",
+      "checks": 34,
+      "passed": 34,
+      "failed": 0,
+      "covered": [
+        "exact historical bytes and pypdf page/title/text parsing",
+        "process-owned temporary paths outside source and stable per-process reuse",
+        "unknown-name/path traversal rejection",
+        "separate child process roots and normal-exit cleanup",
+        "case-insensitive nested .gitignore matching including newline names",
+        "NUL-safe workflow guard execution with mixed-case PDF names in disposable repositories",
+        "24 consumer helper rewires and no old fixture references",
+        "outer-candidate physical PDF absence, declared deletions, diff hygiene, guard ordering"
+      ]
+    },
+    "exact_sample_observations": [
+      {
+        "name": "tiny",
+        "size_bytes": 674,
+        "sha256": "c37df90f89d97fd1e575ee894c8fce6c2a979b2de76332a20105f1af70d8c7b9",
+        "pages": 1,
+        "title": "Tiny VPKB paper"
+      },
+      {
+        "name": "sectioned",
+        "size_bytes": 1206,
+        "sha256": "03645f6fdd81c46f7377ab28602aa070e51109c0c95500f06496d07de1badc4b",
+        "pages": 2,
+        "title": "Sectioned VPKB Paper"
+      }
+    ],
+    "reviewed_candidate_file_hashes": {
+      "tests/pdf_samples.py": {
+        "sha256": "9928ee733646d8aade97c1e12318e94c7e8e8110dcd6633f0f9d3eb809de0dcb",
+        "size_bytes": 4213
+      },
+      "tests/test_pdf_samples.py": {
+        "sha256": "6987658b60ee3b98f1693ac875451d7c4f62548fa333b5d0a4bd538a48a8d22f",
+        "size_bytes": 5025
+      },
+      ".github/workflows/tests.yml": {
+        "sha256": "5da9ccf9b8bd1bb13dbe541ffa459a4079c68ccf157787d3773a893230a782d1",
+        "size_bytes": 3460
+      },
+      ".gitignore": {
+        "sha256": "714504449446dbb0721a545a914466751f127c91d275bf41e09f82d783fd3389",
+        "size_bytes": 227
+      }
+    }
+  },
+  "findings": [
+    {
+      "severity": "none",
+      "area": "fixture generation and lifecycle",
+      "result": "Historical bytes are reconstructed exactly; pypdf content remains valid; names are closed; each process receives a distinct /private/tmp root cleaned on normal exit."
+    },
+    {
+      "severity": "none",
+      "area": "consumer preservation",
+      "result": "All 24 frozen consumers import the helper and retain their previous assertion bodies according to the frozen 1712-assertion inventory; no source/production file changed."
+    },
+    {
+      "severity": "none",
+      "area": "repository guard",
+      "result": "The case-insensitive *.pdf ignore rule and pre-dependency NUL-safe tracked-PDF workflow guard reject mixed-case and newline-bearing names in disposable repositories."
+    },
+    {
+      "severity": "info",
+      "area": "nested external submodule",
+      "result": "A pre-existing vendor/claude-obsidian/tests/fixtures/capture/sample.pdf exists physically inside the nested submodule checkout. It is not an outer-repository tracked path or a changed candidate path; no candidate outer-tree PDF was found. Steward should keep the delivery check scoped to the prospective outer Git tree as frozen."
+    }
+  ],
+  "boundaries": [
+    "No Python 3.12/3.13 full suite was run here because Root owns that check.",
+    "No Git staging, commit, push, PR, CI, external Builder, network, or production-code action was performed.",
+    "The candidate remains uncommitted in its detached source worktree; this review is independent evidence only."
+  ]
+}

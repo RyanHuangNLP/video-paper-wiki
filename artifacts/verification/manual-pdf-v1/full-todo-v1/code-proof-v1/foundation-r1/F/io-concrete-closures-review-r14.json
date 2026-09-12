@@ -1,0 +1,83 @@
+{
+  "schema": "full-todo.code-proof-io-concrete-closures-review.v14",
+  "recorded_at_utc": "2026-09-11T01:20:06.925618+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "PASS_R14_CLOSES_R13_THREE_CONCRETE_DECISIONS_NO_CONTRADICTIONS",
+  "scope": "Bounded read-only review of R14 against R13, R6, R8, R9 and foundation R1/R2. No source, test, Git, UI, model, runtime or dispatch action.",
+  "reviewed_inputs": [
+    {
+      "label": "r14",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-CONCRETE-CLOSURES-R14.md",
+      "size_bytes": 8950,
+      "sha256": "5c877a236f681ffeda0cdcaba090027d3615b3a9bc6aa1dccbc6ebaccfd04052"
+    },
+    {
+      "label": "r13",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-FOUNDATION-INTEGRATION-R13.md",
+      "size_bytes": 6544,
+      "sha256": "4ef374733c4bba9824249a5f13e19727d4d3bd5957461bba561c36bc7ef86863"
+    },
+    {
+      "label": "r6",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "label": "r8",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "label": "r9",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "label": "foundation_r1",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-R1.md",
+      "size_bytes": 10733,
+      "sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8"
+    },
+    {
+      "label": "foundation_r2",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-CLARIFICATIONS-R2.md",
+      "size_bytes": 5064,
+      "sha256": "66b675218af715d0ecc82295f905f5a961cb80305748ca273649ec425b1905b0"
+    },
+    {
+      "label": "r13_review",
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/io-foundation-integration-review-r13.json",
+      "size_bytes": 9263,
+      "sha256": "7ca35466338bfee2f7c4db5b320ea973a76e728eb4d60c72704f36f07fa410f1"
+    }
+  ],
+  "r13_open_decisions": [
+    {
+      "area": "session_foundation_ownership",
+      "status": "CLOSED_BY_R14",
+      "evidence": "R14 freezes one private _RetainedResourceSet in _CodeSession, an immutable origin plan, ordered eleven _RetainedResource records, a private compiled CodeProofResources context, graph registration before acquisition, completion only after all acquisitions/compilation, active-only wrappers, and finalization/reverse cleanup before clearing references."
+    },
+    {
+      "area": "resource_final_stamp_and_initial_syscall_precedence",
+      "status": "CLOSED_BY_R14",
+      "evidence": "R14 freezes file stamp (st_dev, st_ino, st_mode, st_size, st_mtime_ns, st_ctime_ns, st_nlink), no-follow named stat, first fstat equality, repeated named/fstat/descriptor-byte checks, directory dev/inode/type/mode comparison, and deterministic absent/unsafe/stat/open/read/pin outcomes with R8 group/error precedence and WORK_PATH_UNSAFE override."
+    },
+    {
+      "area": "primitive_capability_matrix_and_injection_surfaces",
+      "status": "CLOSED_BY_R14",
+      "evidence": "R14 names required O_* flags, supports_dir_fd/supports_follow_symlinks/supports_fd checks, callable descriptor primitives, bounded os.scandir(fd), all private syscall seams (_getcwd, _open, _stat, _fstat, _scandir, _read, _seek, _mkdir, _write, _link, _unlink, _fsync, _flock, _dup, _close), and flock/fsync errno mapping."
+    }
+  ],
+  "contradictions_found": [],
+  "concrete_blockers": [],
+  "consistency_checks": [
+    "R14 keeps foundation pure: no filesystem authority, descriptor ownership, public identity, derivation or public wire behavior is moved into the two-file foundation increment.",
+    "R14 preserves R6/R8 single retained graph, no-follow descriptor-relative operations, final lineage precedence, bounded scans and no legacy loader/path fallback.",
+    "R14 preserves R9 public command/error and output rules as later integration obligations; it does not claim implementation or dispatch.",
+    "R14’s eleven-resource count matches foundation R1/R2’s ten schemas plus one profile."
+  ],
+  "boundary": "Preparation review only. R14 is suitable input to a later exact I/O freeze after independent review; implementation, adversarial tests, source/wheel checks, Linux CI and acceptance remain future gates, not findings against the three R13 closures."
+}

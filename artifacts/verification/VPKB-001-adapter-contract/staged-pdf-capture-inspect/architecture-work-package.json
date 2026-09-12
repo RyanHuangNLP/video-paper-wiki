@@ -1,0 +1,157 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-architecture-work-package.v1",
+  "revision": 1,
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "staged-pdf-capture-inspect-v1",
+  "baseline_head": "fb2cbcb565195a232f22d02c0474ac1b1b34f7d3",
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "builder": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium"
+  },
+  "repo_steward": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium"
+  },
+  "contract": {
+    "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+    "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f"
+  },
+  "schemas": [
+    {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f"
+    },
+    {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af"
+    }
+  ],
+  "architecture_only_allowed_paths": [
+    "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/ci-observation.json",
+    "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/merge-parents.json",
+    "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/architect-acceptance.json",
+    "AGENTS.md",
+    "docs/ai/codex-team.md",
+    "docs/ai/task-index.yaml",
+    "docs/ai/packets/VPKB-001-adapter-contract.md",
+    "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+    "artifacts/verification/VPKB-001-adapter-contract/README.md",
+    "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+    "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+    "src/video_paper_wiki/contracts.py",
+    "tests/contract/test_schemas.py",
+    "tests/fixtures/contracts/valid/video-paper-wiki.staged-pdf-capture-request.v1.json",
+    "tests/fixtures/contracts/valid/video-paper-wiki.staged-pdf-capture-authority.v1.json",
+    "tests/fixtures/contracts/invalid/video-paper-wiki.staged-pdf-capture-request.v1.invalid.json",
+    "tests/fixtures/contracts/invalid/video-paper-wiki.staged-pdf-capture-authority.v1.invalid.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architect-freeze.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/builder-spec-review.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/steward-spec-review.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/freeze-candidate.json"
+  ],
+  "architecture_integration": {
+    "production_code_changed": true,
+    "only_production_delta": "src/video_paper_wiki/contracts.py adds the two new schema titles to _SCHEMA_TITLES; no semantic dispatch or runtime behavior is added before implementation",
+    "semantic_dispatch_added": false,
+    "schema_count_after": 26
+  },
+  "implementation_public_surface": {
+    "module": "src/video_paper_wiki/staged_capture.py",
+    "validators": [
+      "validate_staged_pdf_capture_request",
+      "validate_staged_pdf_capture_authority"
+    ],
+    "orchestrator": "inspect_staged_pdf_capture",
+    "encoder": "video_paper_wiki.transaction_staging.encode_transaction_inspect_bundle",
+    "cli": "vpwiki capture inspect --prepared --operation-id --upstream-root --vault-root"
+  },
+  "implementation_allowed_production_paths": [
+    "src/video_paper_wiki/staged_capture.py",
+    "src/video_paper_wiki/captured_snapshot.py",
+    "src/video_paper_wiki/commands/capture.py",
+    "src/video_paper_wiki/commands/prepare.py",
+    "src/video_paper_wiki/cli.py",
+    "src/video_paper_wiki/contracts.py",
+    "src/video_paper_wiki/staging.py",
+    "src/video_paper_wiki/transaction_staging.py",
+    "src/video_paper_wiki/upstream_adapter.py"
+  ],
+  "implementation_allowed_test_paths": [
+    "tests/support.py",
+    "tests/unit/test_staged_capture.py",
+    "tests/contract/test_staged_pdf_capture.py",
+    "tests/security/test_staged_pdf_capture_boundary.py",
+    "tests/upstream/test_vpkb001_staged_pdf_capture.py",
+    "tests/unit/test_prepare.py",
+    "tests/security/test_prepare_offline.py",
+    "tests/security/test_work_staging_boundary.py",
+    "tests/security/test_cli_isolation.py",
+    "tests/contract/test_agent_command_tree.py",
+    "tests/unit/test_transaction_staging.py",
+    "tests/security/test_transaction_staging_boundary.py",
+    "tests/upstream/test_vpkb001_staged_transaction_inspect.py",
+    "tests/unit/test_upstream_adapter_capture.py",
+    "tests/security/test_upstream_adapter_boundary.py",
+    "tests/fixtures/staged-pdf-capture/**"
+  ],
+  "implementation_evidence_paths": [
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/steward-review.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/architect-local-acceptance.json",
+    "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/delivery-candidate.json"
+  ],
+  "absolutely_excluded": [
+    ".DS_Store",
+    "docs/feishu-multi-bot-phase1-plan.md",
+    "docs/hermes-subscription-collaboration-prd.md",
+    "docs/pi-feishu-cli-assessment.md",
+    "docs/video-paper-wiki-development-plan-v0.3.2.md",
+    "docs/video-paper-wiki-development-plan.md",
+    "inbox/**",
+    "tools/**",
+    ".work/**",
+    "real Vault/**",
+    "vendor/claude-obsidian/**",
+    ".github/workflows/**",
+    "pyproject.toml",
+    "uv.lock",
+    "catalog/**",
+    "schemas and accepted contract bytes after architecture acceptance",
+    "manual-inbox public semantics",
+    "transaction apply/recover/admin/runtime-result",
+    "ledger/audit/integrity/mapper/index/retrieval",
+    "PR state/merge/human-gate evidence"
+  ],
+  "verification": {
+    "local": [
+      "JSON/YAML/schema parse",
+      "focused schema/contract tests",
+      "full locked Python 3.12 and 3.13 suites",
+      "offline installed-wheel schema resource check",
+      "catalog count remains 67"
+    ],
+    "remote": [
+      "fresh pull_request Tests run",
+      "Linux/macOS x Python 3.12/3.13 success",
+      "actual refs/pull/94/merge checkout and ordered parents recorded"
+    ],
+    "final": "separate Architect acceptance bound to exact head/tree/base/merge/run/jobs and immutable candidate hashes"
+  },
+  "delivery_rules": [
+    "one writer per path",
+    "Builder owns main implementation only after architecture exact-head acceptance",
+    "Repo Steward independently reviews exact candidate and serializes Git/CI",
+    "normal non-force push only",
+    "PR remains open draft to integration",
+    "no merge or human-gate action"
+  ]
+}

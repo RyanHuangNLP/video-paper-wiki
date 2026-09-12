@@ -1,0 +1,77 @@
+{
+  "schema": "video-paper-wiki.library-controller-review.v3",
+  "recorded_at_utc": "2026-09-08T05:00:00Z",
+  "lane": 1,
+  "revision": 3,
+  "base": "3368c6435db166a285b4b0e2df00f5d6a7491956",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "freeze_sha256": "c06ae0f53412464425e1a83afc247dfd9f6dc70e66584889aa4ba37e4c1610da",
+  "candidate_snapshot": "0267502300995cce09fc72fd4a1f3dbfc8fb2f6bcdf2cf2fd34dcce9d38355e5",
+  "bundle": {
+    "handoff_path": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-1/r3/handoff.json",
+    "handoff_sha256": "c2432def32d7aa4ceebe5ea52eb872a1ba0384899fb80f0a52b3351feae71991",
+    "ready_sha256": "c2432def32d7aa4ceebe5ea52eb872a1ba0384899fb80f0a52b3351feae71991",
+    "checks_sha256": "36c661a435d86bc1b453ffd2b734310328bcfd215fc3f992567313262ed46077",
+    "source_hashes_match_bundle": true,
+    "allowed_paths": [
+      "src/video_paper_wiki_research/light_compare.py",
+      "src/video_paper_wiki_research/light_context.py",
+      "src/video_paper_wiki_research/light_knowledge.py",
+      "tests/research/test_light_compare.py",
+      "tests/research/test_light_knowledge.py",
+      "tests/research/test_light_library_citations.py"
+    ],
+    "git_status_exactly_allowlist": true
+  },
+  "evidence": {
+    "synthetic_original_and_additional": "24 passed in 0.37s",
+    "synthetic_runner_sha256": "f61646fb3d2e4d575695e7fb911427e844648364f71749bd57ecf357f7ca02ff",
+    "targeted_runner_sha256": "015e99918494f14af19751dbed31e344e0e4174a54933d453614c76312bb3cfd",
+    "targeted_integrity_runner_sha256": "6520f86e6b9872ef17530367d75e5815c48d9f6f35ff0d92fa8855a3c09806e2",
+    "stale_history_positive": "1 passed in 0.21s",
+    "builder_focused_checks": "72 passed in 0.78s (recorded in frozen checks.json)"
+  },
+  "findings": [
+    {
+      "id": "R3-HEADS-OWNER-01",
+      "severity": "blocker",
+      "status": "reproduced",
+      "summary": "HEADS prior-pointer validation accepts a valid record under the wrong paper key.",
+      "reproduction": "Synthetic workspace published paper A, forged HEADS {paper B: record A}, then imported paper B. import_knowledge returned ok=True and replaced the forged pointer; expected LIGHT_KNOWLEDGE_CONFLICT with bytes preserved.",
+      "likely_scope": "light_knowledge.py _prior_pointer_replaceable/_record_bundle_exists"
+    },
+    {
+      "id": "R3-CURRENT-FOREIGN-01",
+      "severity": "blocker",
+      "status": "reproduced",
+      "summary": "A structurally valid view bundle copied from another workspace is accepted as the prior CURRENT referent.",
+      "reproduction": "Synthetic workspace copied a valid view bundle and CURRENT pointer from workspace A into workspace B without its records. build_knowledge_views returned ok=True and replaced CURRENT; expected foreign-reference conflict with bytes preserved.",
+      "likely_scope": "light_knowledge.py _view_bundle_ok/_prior_pointer_replaceable"
+    },
+    {
+      "id": "R3-SNAPSHOT-BINDING-01",
+      "severity": "blocker",
+      "status": "reproduced",
+      "summary": "Record bundle integrity does not bind manifest/identity paper_snapshot to identity.wrapper.paper_snapshot.",
+      "reproduction": "After a synthetic source metadata title edit, updated manifest source/paper_snapshot and identity paper_snapshot plus the declared identity hash, while retaining the old wrapper snapshot. list_knowledge classified the record current; expected conflict.",
+      "likely_scope": "light_knowledge.py _record_bundle_ok redundant snapshot cross-check"
+    },
+    {
+      "id": "R3-CITATION-TITLE-01",
+      "severity": "blocker",
+      "status": "reproduced",
+      "summary": "Comparison inline citation labels do not escape title newlines as table-cell content.",
+      "reproduction": "Synthetic source metadata title containing a literal newline produced a citation row split at the title newline (label uses escape_md in _inline_citation_link). Expected one safe table cell and linked citation.",
+      "likely_scope": "light_compare.py _inline_citation_link should use table-cell-safe escaping before trusted link composition"
+    }
+  ],
+  "status": "BLOCKED_R3_TARGETED_INTEGRITY_AND_RENDERING",
+  "architect_accepted": false,
+  "controller_actions": {
+    "source_edits": false,
+    "git_mutations": false,
+    "builder_launch": false,
+    "vault_writes": false,
+    "real_corpus_replay": false
+  }
+}

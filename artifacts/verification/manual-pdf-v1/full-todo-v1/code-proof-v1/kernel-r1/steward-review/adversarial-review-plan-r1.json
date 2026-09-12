@@ -1,0 +1,162 @@
+{
+  "schema": "video-paper-wiki.code-git-kernel-steward-review-plan.v1",
+  "revision": 1,
+  "status": "PREPARATION_ONLY_WAITING_FOR_EXACT_CANDIDATE_HANDOFF",
+  "scope": "Independent bounded adversarial review of the pure in-memory CODE Git object kernel after Builder handoff",
+  "review_owner": "Repo Steward",
+  "implementation_review_started": false,
+  "source_or_test_mutation_performed": false,
+  "network_or_git_commands_in_review_harness": false,
+  "inputs": {
+    "contract_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-R1.md",
+      "sha256": "ca176ab56885e0ab5ca5ba993d97f3ad4dc1e48fea39e076534b41441e101ffe",
+      "size_bytes": 17862
+    },
+    "clarifications_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-CLARIFICATIONS-R2.md",
+      "sha256": "fc4e4c6556a8d16cefcb23ec97562f30b69ba45c6ed9538d6aa0f6e471d42568",
+      "size_bytes": 3659
+    },
+    "freeze_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-freeze-r1.json",
+      "sha256": "0ad3c58f2704caa0c0c2aee1aeb763c9a53c85cf2c592f8545d45b81b0664129"
+    },
+    "fixture": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/independent-git-fixture-v1.json",
+      "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0",
+      "size_bytes": 52532
+    }
+  },
+  "candidate_handoff_gate": {
+    "required_before_run": true,
+    "required_cli_inputs": ["--candidate-root", "--handoff", "--output"],
+    "handoff_status": "READY_FOR_STEWARD_REVIEW",
+    "required_handoff_fields": [
+      "source_root",
+      "reviewed_head",
+      "reviewed_tree",
+      "candidate_snapshot_sha256",
+      "allowed_paths",
+      "source_writes_stopped"
+    ],
+    "allowed_paths": [
+      "src/video_paper_wiki/code_git_objects.py",
+      "tests/unit/test_code_git_objects.py",
+      "tests/fixtures/code-git-objects-v1.json"
+    ],
+    "fixture_copy_must_equal": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0",
+    "no_default_candidate_root": true,
+    "no_run_without_handoff": true
+  },
+  "review_phases": [
+    {
+      "id": "SR-PREFLIGHT",
+      "purpose": "Bind the handed-off source root, exact candidate head/tree, three-path allowlist, byte-exact fixture copy, and stopped source writes before observations.",
+      "checks": ["handoff status and fields", "candidate path scope", "fixture bytes and hash", "module/test/fixture presence", "no extra candidate files"]
+    },
+    {
+      "id": "SR-HELPER-CAPS",
+      "purpose": "Verify helper validation order and immutable profile behavior before any frame construction or hashing.",
+      "checks": [
+        "frame_git_object and git_object_ids exact builtin types",
+        "unsupported format/type pointers and ten-code surface",
+        "body cap at 8388608 before hash/frame",
+        "MappingProxyType profile exact order/values and per-call lowered copy isolation",
+        "strict bool rejection for limits and executable flags"
+      ]
+    },
+    {
+      "id": "SR-CONTAINER-PRECEDENCE",
+      "purpose": "Exercise exact container shape, count and declared-size precedence before body lookup/hash/parsing.",
+      "checks": [
+        "target/object/body mapping count caps before iteration",
+        "declared per-object and aggregate caps before body lookup",
+        "actual size caps before size mismatch and hashes",
+        "extra body keys before missing keys",
+        "strict list/dict/str/bytes/int/bool admission"
+      ]
+    },
+    {
+      "id": "SR-GRAMMAR",
+      "purpose": "Use independently hash-valid mutated object bodies to isolate commit/tree grammar refusals.",
+      "checks": [
+        "root/header mismatch",
+        "CR/NUL/TAB/malformed continuation/duplicate tree-parent headers",
+        "header byte and line caps",
+        "tree truncation, duplicate names, bad mode, bad order, invalid names",
+        "hash-valid malformed objects still reach COMMIT_INVALID or TREE_INVALID"
+      ]
+    },
+    {
+      "id": "SR-CLOSURE-WALK",
+      "purpose": "Validate required/missing/wrong-type/unused closure and exact target outcomes against both fixture formats.",
+      "checks": [
+        "fixture all_safe and shared_subtree success",
+        "missing body versus missing filename",
+        "required undeclared tree/blob OBJECT_UNAVAILABLE",
+        "declared wrong type OBJECT_TYPE_MISMATCH",
+        "extra/unused object and consumed-set mismatch",
+        "executable opt-in/refusal, symlink, gitlink, directory, non-directory intermediate",
+        "missing stopped_at preserves attempted ASCII name_hex"
+      ]
+    },
+    {
+      "id": "SR-OUTPUT-PURITY",
+      "purpose": "Check deterministic primitive-only success output, input ownership, and no I/O/network/subprocess/resource-loader activity.",
+      "checks": [
+        "exact top-level/nested key order and list order",
+        "repeat-call equality and no bytes/custom objects/floats in result",
+        "deep input snapshots unchanged",
+        "guard filesystem/socket/subprocess/resource entry points for success and refusal",
+        "no partial proof on hard failure"
+      ]
+    }
+  ],
+  "adversarial_case_matrix": {
+    "formats": ["sha1", "sha256"],
+    "fixture_cases": [
+      "all_safe",
+      "mixed_missing_unsafe",
+      "exec_opt_in",
+      "exec_refusal",
+      "missing_nested",
+      "non_directory_intermediate",
+      "shared_subtree"
+    ],
+    "synthetic_mutations": [
+      "declared-size-over-cap-with-hash-trap",
+      "aggregate-declared-cap-with-hash-trap",
+      "actual-body-over-cap-before-mismatch",
+      "extra-body-key-and-missing-body-key-precedence",
+      "hash-valid-CR-commit",
+      "hash-valid-root-mismatch-commit",
+      "hash-valid-unsorted-tree",
+      "hash-valid-truncated-tree",
+      "hash-valid-duplicate-tree-name",
+      "required-tree-unavailable",
+      "required-blob-unavailable",
+      "declared-terminal-tree-wrong-type",
+      "unused-tree-or-blob",
+      "object/target/body-map-count-over-cap",
+      "strict-type-and-bool-rejections"
+    ]
+  },
+  "execution_contract": {
+    "harness": "steward-adversarial-review-r1.py",
+    "stdlib_only": true,
+    "candidate_import": "video_paper_wiki.code_git_objects",
+    "candidate_api": ["CodeGitProofError", "frame_git_object", "git_object_ids", "verify_code_git_objects", "CODE_GIT_PROFILE_LIMITS"],
+    "output_is_observation_only": true,
+    "script_preparation_is_not_review_result": true,
+    "no_network": true,
+    "no_git_process": true,
+    "no_source_writes": true
+  },
+  "stop_and_report": [
+    "Do not run until exact candidate handoff status is supplied.",
+    "Do not rewrite candidate source, tests, fixture, branch, or Git history.",
+    "If a failure occurs, preserve the first bounded failure and report code/details, phase, and candidate head.",
+    "Do not convert preparation-plan status into implementation acceptance."
+  ]
+}

@@ -1,0 +1,133 @@
+--- a/tests/unit/test_code_config_parser.py
++++ b/tests/unit/test_code_config_parser.py
+@@ -267,41 +267,61 @@
+                 self.assertIsInstance(err, ValueError)
+                 self.assertEqual(err.exit_code, 2)
+                 self.assertEqual(err.code, expected["code"])
+-                if expected["code"] == "CODE_CONFIG_DYNAMIC_UNSUPPORTED":
+-                    if vector["id"] == "toml-dynamic-interpolation":
+-                        self.assertEqual(err.details["reason"], "dynamic_marker")
+-                    elif vector["id"] == "toml-dynamic-callable":
+-                        self.assertEqual(
+-                            err.details["reason"], "callable_string"
+-                        )
+-                    else:
+-                        self.assertIn(
+-                            err.details["reason"],
+-                            ("dynamic_key", "dynamic_marker", "callable_string"),
+-                        )
+-                elif "reason" in expected:
++                scanner_codes = {
++                    "CODE_CONFIG_SYNTAX_INVALID", "CODE_CONFIG_UNSUPPORTED",
++                    "CODE_CONFIG_DUPLICATE_KEY", "CODE_CONFIG_NUMBER_INVALID",
++                    "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
++                }
++                required = {"instance_pointer"}
++                if err.code == "CODE_CONFIG_LIMIT_EXCEEDED":
++                    required.update(("limit_name", "limit", "observed"))
++                    allowed = required | {"reason"}
++                else:
++                    required.add("reason")
++                    if err.code == "CODE_CONFIG_BYTES_INVALID":
++                        required.add("byte_offset")
++                    if err.code in scanner_codes:
++                        required.update(("byte_offset", "codepoint_offset"))
++                    allowed = required
++                self.assertLessEqual(required, set(err.details))
++                self.assertLessEqual(set(err.details), allowed)
++                self.assertEqual(err.details["instance_pointer"], "/payload")
++                if "reason" in err.details:
++                    self.assertIs(type(err.details["reason"]), str)
++                    self.assertGreater(len(err.details["reason"]), 0)
++                    self.assertLessEqual(len(err.details["reason"]), 256)
++                if "byte_offset" in err.details:
++                    offset = err.details["byte_offset"]
++                    self.assertIs(type(offset), int)
++                    self.assertGreaterEqual(offset, 0)
++                    self.assertLessEqual(offset, len(payload))
++                if err.code in scanner_codes:
++                    cp = err.details["codepoint_offset"]
++                    self.assertIs(type(cp), int)
++                    self.assertGreaterEqual(cp, 0)
++                    self.assertLessEqual(cp, len(vector["source_utf8"]))
++                    self.assertEqual(
++                        err.details["byte_offset"],
++                        len(vector["source_utf8"][:cp].encode("utf-8")),
++                    )
++                    self.assertFalse(
++                        0 < cp < len(vector["source_utf8"])
++                        and vector["source_utf8"][cp - 1:cp + 1] == "\r\n"
++                    )
++                for key, value in expected.get("error_details", {}).items():
++                    self.assertEqual(err.details[key], value)
++                if err.code == "CODE_CONFIG_DYNAMIC_UNSUPPORTED":
+                     self.assertEqual(err.details["reason"], expected["reason"])
+                 if context is not None:
+-                    self.assertEqual(
+-                        err.details["limit_name"], context["limit_name"]
++                    self.assertEqual(err.details["limit_name"], context["limit_name"])
++                    for key in ("limit", "observed"):
++                        self.assertIs(type(err.details[key]), int)
++                        self.assertEqual(err.details[key], context[key])
++                if "source_anchor_span" in expected:
++                    self._assert_span_parity(
++                        payload, expected["source_anchor_span"],
++                        vector["source"]["line_count"],
+                     )
+-                    self.assertEqual(err.details["limit"], context["limit"])
+-                    self.assertEqual(
+-                        err.details["observed"], context["observed"]
+-                    )
+-                if "anchor_span" in expected and expected["code"] != (
+-                    "CODE_CONFIG_LIMIT_EXCEEDED"
+-                ):
+-                    self.assertEqual(
+-                        err.details["byte_offset"],
+-                        expected["anchor_span"]["byte_start"],
+-                    )
+-                    self.assertEqual(
+-                        err.details["codepoint_offset"],
+-                        expected["anchor_span"]["codepoint_start"],
+-                    )
+-                self.assertNotIn("anchor_lexeme", err.details)
+-                self.assertIn("instance_pointer", err.details)
+ 
+     def test_toml_transition_matrix(self) -> None:
+         self.assertEqual(len(self.matrix), 26)
+@@ -802,7 +822,35 @@
+         self.assertEqual(result["nodes"][0]["children"], ["/a", "/b"])
+         reversed_keys = self._parse(b'{"b":1,"a":1}', "json")
+         self.assertEqual(reversed_keys["nodes"][0]["children"], ["/a", "/b"])
+-        self.assertEqual(reversed_keys["nodes"], result["nodes"])
++        semantic_fields = ("path", "kind", "value", "numeric_lexeme", "children")
++        self.assertEqual(
++            [{key: node[key] for key in semantic_fields} for node in result["nodes"]],
++            [{key: node[key] for key in semantic_fields} for node in reversed_keys["nodes"]],
++        )
++        for raw, parsed, positions in (
++            (b'{"a":1,"b":1}', result, {"/a": (1, 4, 5, 6), "/b": (7, 10, 11, 12)}),
++            (b'{"b":1,"a":1}', reversed_keys, {"/b": (1, 4, 5, 6), "/a": (7, 10, 11, 12)}),
++        ):
++            for node in parsed["nodes"]:
++                if node["path"] == "":
++                    self.assertEqual(node["declarations"], [])
++                    spans = [(node["value_span"], 0, 13)]
++                else:
++                    ks, ke, vs, ve = positions[node["path"]]
++                    self.assertEqual(len(node["declarations"]), 1)
++                    self.assertEqual(node["declarations"][0]["kind"], "json_key")
++                    spans = [(node["value_span"], vs, ve),
++                             (node["declarations"][0]["span"], ks, ke)]
++                for span, start, end in spans:
++                    self.assertEqual(
++                        [span[key] for key in ("byte_start", "byte_end", "codepoint_start", "codepoint_end")],
++                        [start, end, start, end],
++                    )
++                    self.assertEqual(
++                        [span[key] for key in ("line_start", "column_start", "line_end", "column_end")],
++                        [1, start + 1, 1, end + 1],
++                    )
++                    self._assert_span_parity(raw, span, 1)
+ 
+     def test_dynamic_keys_markers_and_near_matches(self) -> None:
+         for key in ("_target_", "include", "includes", "import"):

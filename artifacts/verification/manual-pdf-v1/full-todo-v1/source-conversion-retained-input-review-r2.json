@@ -1,0 +1,182 @@
+{
+  "schema": "video-paper-wiki.source-conversion-retained-input-review.v2",
+  "reviewed_at": "2026-09-09T06:01:55Z",
+  "scope": "Bounded read-only feasibility review of SOURCE-CONVERSION-DRAFT-R2 retained lightweight input and validator dependencies. No production, test, Vault, Git, network, or external-process mutation.",
+  "decision": "FEASIBLE_WITH_EXPLICIT_RETAINED_FULL_TREE_MIRROR",
+  "contract_status": "design_review_only",
+  "public_leaf": {
+    "required_command": "formal-source convert",
+    "superseded_draft_wording": "source convert",
+    "note": "The public leaf remains in the existing formal-source command group; this review does not authorize a new source command group."
+  },
+  "draft": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-DRAFT-R2.md",
+    "sha256": "31ea269d3fdb05565516827a786cbb89753034455ac3a17f6b36b961ed235d8f",
+    "size_bytes": 7157
+  },
+  "inspected_source": {
+    "root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "tree": "d70b6efb5e8e65bb89760f9396f0d94ea8e56e6d",
+    "files": [
+      {
+        "path": "src/video_paper_wiki_research/light_knowledge.py",
+        "sha256": "b73ab71336e7ac5fa2843cdf750b81e4586ca8de244ea0f4faa1d19ef2cbd2c0",
+        "size_bytes": 109539,
+        "relevant_lines": "312-341, 459-472, 991-1010, 1253-1285, 1794-1833, 1938-1957, 2167-2388, 2519-2559"
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_knowledge_batch.py",
+        "sha256": "4c94eabbcbbeae84651542d94e0de53cf22ec23539461e1967c58c089fdad54c",
+        "size_bytes": 80798,
+        "relevant_lines": "107-111, 360-459, 610-728, 755-884, 921-1003"
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_index.py",
+        "sha256": "2a7027baa26681034473955935c1888103289bb0f076dd7f9c380028fa7ce768",
+        "size_bytes": 37413,
+        "relevant_lines": "90-151, 251-300, 336-394, 418-428, 542-600, 650-674"
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d",
+        "size_bytes": 34412,
+        "relevant_lines": "65-70, 386-496"
+      },
+      {
+        "path": "src/video_paper_wiki/receipt_audit.py",
+        "sha256": "561ce75adbd6f5c5dff1be6ca5eebef2c9064ab87280ea2abcb107279e58275a",
+        "size_bytes": 21900,
+        "relevant_lines": "46-191"
+      },
+      {
+        "path": "src/video_paper_wiki/publication.py",
+        "sha256": "d43b571e3ada441a439e89d59b3aadcefc60f30d03e049654069c89ebd03850c",
+        "size_bytes": 43859,
+        "relevant_lines": "144-205, 261-289, 412-455"
+      }
+    ]
+  },
+  "validator_dependency_map": {
+    "selected_readonly_path": [
+      "current_head_record_id",
+      "_owned_record_bundle",
+      "_record_bundle_ok",
+      "_extended_record_binds_job",
+      "validate_job_provenance",
+      "classify_batch_job",
+      "_accepted_merge_chain_ok",
+      "_validate_record_ancestry",
+      "_record_source_status",
+      "_load_paper",
+      "_derived_chunks"
+    ],
+    "record_bundle": {
+      "exact_files": [
+        "document.json",
+        "context.json",
+        "identity.json",
+        "manifest.json",
+        "knowledge.md"
+      ],
+      "rules": [
+        "The record directory name is a 64-character lowercase hex record ID.",
+        "The record directory has no extra files or directories.",
+        "All JSON is persisted canonical JSON and every file is a regular, non-hardlinked file.",
+        "Manifest, identity, wrapper, document, context, evidence, source snapshot, and content hashes must agree.",
+        "Every base_record_id and candidate_record_id ancestry edge is recursively validated."
+      ]
+    },
+    "batch_job": {
+      "complete_n_gt_0": [
+        "plan.json",
+        "batches/0.json through batches/<batch_count-1>.json",
+        "merges/0.json through merges/<batch_count-1>.json",
+        "completion.json"
+      ],
+      "complete_zero_batch": [
+        "plan.json",
+        "completion.json"
+      ],
+      "rules": [
+        "The job directory has no extra files or directories.",
+        "Accepted batches and merge steps form the complete contiguous chain.",
+        "completion.json binds the actual final record and merge hash.",
+        "validate_job_provenance validates persisted workspace_id structurally but does not compare it with the mirror path."
+      ]
+    },
+    "source_binding": {
+      "exact_files": [
+        "papers/<light_paper_digest>/source.md",
+        "papers/<light_paper_digest>/source.json"
+      ],
+      "rules": [
+        "Both files and their parent directory are regular, non-symlink, non-hardlinked paths.",
+        "source.json paper_id and document.path bind the selected lightweight SHA-256 paper ID and relative source.md path.",
+        "Page anchors, intervals, Markdown hash, source.json hash, and every derived chunk are recomputed from the captured bytes.",
+        "_load_paper metadata_path is absolute in its returned object but is unused by this validation path; conversion must not forward it as authority."
+      ]
+    },
+    "index_requirement": "No .light-index tree is required for current_head_record_id, record bundle validation, provenance validation, or _record_source_status. Search, export, and current-plan binding are different paths."
+  },
+  "retained_input_policy": {
+    "mode": "complete .light-knowledge tree plus the selected paper source.md/source.json and conversion metadata/authority inputs",
+    "limits": {
+      "combined_files_and_directories": 8192,
+      "maximum_depth": 16,
+      "maximum_managed_json_or_markdown_file_bytes": 16777216,
+      "maximum_aggregate_bytes": 134217728
+    },
+    "required": [
+      ".light-knowledge/HEADS.json",
+      ".light-knowledge/records/**",
+      ".light-knowledge/batch-jobs/**",
+      "papers/<light_paper_digest>/source.md",
+      "papers/<light_paper_digest>/source.json"
+    ],
+    "checks": [
+      "Retain every entry in the complete .light-knowledge tree, including unrelated records and jobs selected by the root policy.",
+      "Materialize the generated mirror from the one retained byte set under a real .work path; do not use symlinks or hardlinks.",
+      "Verify exact bytes, file identities, complete sets, and named lineages against the original retained tree before and after every success or exception path.",
+      "Do not read the original lightweight workspace after capture and do not mutate, rebuild, or reindex the mirror during conversion.",
+      "Keep the original retained tree and generated mirror alive for the full operation."
+    ]
+  },
+  "allowed_readonly_calls": [
+    "current_head_record_id",
+    "_record_bundle_ok",
+    "validate_job_provenance",
+    "_record_source_status",
+    "_load_paper",
+    "_derived_chunks",
+    "collect_source_state(snapshot, audit, overlay=..., require_rendered=False)",
+    "the extracted existing source-publication prepare body using the same retained Vault session"
+  ],
+  "forbidden_or_out_of_scope_calls": [
+    "_require_resumable_plan",
+    "_current_plan_binding",
+    "create or resume batch jobs",
+    "import/finalize/reindex/search/export routes that require a live index or workspace identity",
+    "any second live Vault read",
+    "global monkeypatching or a process-global reader override",
+    "original PDF reads or PDF copying"
+  ],
+  "r2_semantics_review": {
+    "coherent_points": [
+      "The public leaf is formal-source convert and reuses the existing source-publication inspection leaf.",
+      "The formal canonical paper ID remains distinct from the lightweight SHA-256 paper ID.",
+      "The declared original_pdf_sha256 remains metadata provenance and is not freshly read or upgraded.",
+      "collect_source_state with require_rendered=False derives complete pages and both head registries from one retained Vault snapshot, avoiding duplicate compiler assembly.",
+      "Explicit proposed_at and valid published_at values remain required; the current date is not a fallback.",
+      "Existing aliases, source associations, observation bytes, historical ledger snapshots, and event bytes remain subject to existing preservation rules."
+    ],
+    "conditions_before_implementation_acceptance": [
+      "Prove the complete-tree retained session and generated mirror use only the captured byte set and retain both original and mirror for all exits.",
+      "Prove the implementation never enters workspace-id-bound resumable paths.",
+      "Prove source observation/raw byte equality and exact locator spans before assembling the overlay.",
+      "Keep light paper_id, formal paper_id, and declared original PDF hash as separate fields throughout conversion."
+    ]
+  },
+  "source_git_edited": false,
+  "production_edits": false
+}

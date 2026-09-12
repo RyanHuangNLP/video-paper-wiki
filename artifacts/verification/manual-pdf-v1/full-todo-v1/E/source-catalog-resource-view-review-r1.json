@@ -1,0 +1,108 @@
+{
+  "$schema": "full-todo.source-catalog-resource-view-review-r1.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R5-resource-view-independent-read-only-review",
+  "scope": "Independent contract review only. No production source, tests, catalog resources, Git, Vault, network, or human-gate mutation was performed.",
+  "inputs": {
+    "r5": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R5-RESOURCE-VIEW.md",
+      "sha256": "f71ff416a93e277fd24c8fac1021174474119111a8e5993c06b548a05050275d",
+      "bytes": 4194
+    },
+    "allowed_paths_r2": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-allowed-paths-r2.json",
+      "sha256": "059e68788ecf03e5bba3d767fd47b143a0d121099e1b6c06d0dde9e26386493f",
+      "count": 19
+    },
+    "implementation_map": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/source-catalog-implementation-map-r1.json",
+      "sha256": "350bb6cdddf95142113d5c2bfd0898a23622b184e81afd9eacc56880d7866e34"
+    }
+  },
+  "observed_integration_points": {
+    "cached_default_registry": {
+      "path": "src/video_paper_wiki/contracts.py",
+      "symbols": ["_registry", "schema_by_title", "_validator_for", "validate_document"],
+      "current_behavior": "_registry is @lru_cache(maxsize=1) and loads the package/source schema registry through resources.schema_resource_names and load_schema_json."
+    },
+    "direct_registry_users": [
+      {
+        "path": "src/video_paper_wiki/projection_catalog.py",
+        "imports": ["_registry", "schema_by_title"],
+        "use": "_closed_schema constructs Draft202012Validator(..., registry=_registry()[0])."
+      },
+      {
+        "path": "src/video_paper_wiki/projection_generation.py",
+        "imports": ["_registry", "schema_by_title"],
+        "use": "_validated constructs the projection-generation validator with registry=_registry()[0]."
+      }
+    ],
+    "taxonomy_consumers": [
+      "src/video_paper_wiki/canonical_compiler_v2.py:concept_items_for_papers",
+      "src/video_paper_wiki/canonical_compiler.py:_taxonomy/compile_pages",
+      "src/video_paper_wiki/domain.py:render_seed_catalog"
+    ],
+    "resource_reader": "src/video_paper_wiki/resources.py:read_projection_resource_bytes, schema_resource_names, load_schema_json"
+  },
+  "review": [
+    {
+      "id": "R5-001",
+      "subject": "preprimed default cache",
+      "status": "PASS_WITH_REQUIRED_TEST",
+      "assessment": "The amendment correctly requires the active ContextVar view to win before the ordinary cached registry is consulted. A default registry primed before entering a view must not supply any schema or transitive reference to that view. On exit, the ordinary cached registry remains intact.",
+      "required_assertion": "Prime contracts._registry in the default context; enter a retained view containing a deliberate safe schema difference; validate inside the view and after exit, proving three independent observations."
+    },
+    {
+      "id": "R5-002",
+      "subject": "direct registry imports",
+      "status": "PASS",
+      "assessment": "The two current direct _registry consumers, projection_catalog._closed_schema and projection_generation._validated, call the imported function at execution time. A context-dispatching _registry selector therefore reaches both without changing their import statements. schema_by_title and _validator_for must use the same selector, so all transitive references share the view registry.",
+      "required_assertion": "Exercise both direct consumers inside a view and prove that the registry and referenced schemas are from the captured bytes, including a nested $ref."
+    },
+    {
+      "id": "R5-003",
+      "subject": "nested, exceptional and concurrent context isolation",
+      "status": "PASS_WITH_REQUIRED_TEST",
+      "assessment": "ContextVar token reset is the correct isolation boundary: nested views restore the outer view; ordinary validation exceptions restore the prior state; independent execution contexts cannot share a private registry. The cached registry must be stored in per-view state and must not be attached to the process-global default cache.",
+      "required_assertion": "Test outer view A, nested view B, B exception, return to A, exit to default, and two independent contexts with distinct schema/taxonomy bytes. Verify no bytes, parsed schema objects, or registry identity leaks across contexts."
+    },
+    {
+      "id": "R5-004",
+      "subject": "captured-only schema/taxonomy/profile consumption",
+      "status": "PASS_WITH_REQUIRED_TEST",
+      "assessment": "The amendment closes the observed hash-versus-consumption gap by making schema_resource_names, schema loading, and projection-resource reads resolve only the immutable retained view while active. Missing captured names remain missing and cannot fall back to package, repository, or CWD resources. This covers canonical_compiler_v2 taxonomy and all schema $ref traversal.",
+      "required_assertion": "After generation capture, make package/repository/CWD resource reads fail or return decoys; run audit, source collection, compiler, projection validation and result assembly inside the view. The catalog must use captured bytes only, and an omitted captured resource must fail rather than fall back."
+    },
+    {
+      "id": "R5-005",
+      "subject": "original resource safety and final precedence",
+      "status": "PASS_WITH_REQUIRED_TEST",
+      "assessment": "The private view is only an in-memory consumption view and cannot replace the R2 retained file descriptors, complete resource-name set, exact bytes, or ancestor identity checks. A named resource mutation, add/remove, or ancestor replacement after capture must still win as WORK_PATH_UNSAFE at finalization even if validation also fails. The view must not rewrite resources, CWD, module files, or caller mappings.",
+      "required_assertion": "Mutate or replace a retained schema, taxonomy, or profile file during projection, including an ordinary ContractError path; finalization must report WORK_PATH_UNSAFE and preserve the required safety precedence."
+    }
+  ],
+  "implementation_constraints": {
+    "resource_view": [
+      "Use a private ContextVar-backed view containing immutable bytes and a complete frozen schema filename set.",
+      "Enter only from the catalog's already retained generation session and span audit, source collection/compilation, catalog validation and result assembly.",
+      "Inside the view, missing resources are missing; do not try package, source-checkout or CWD fallback.",
+      "Reset the ContextVar token in finally on success and every exception."
+    ],
+    "registry": [
+      "Keep ordinary default _registry cache behavior unchanged outside a view.",
+      "Cache a view registry only in that view's private state; never clear or mutate the default lru_cache.",
+      "Ensure _registry, schema_by_title, _validator_for and all direct registry users select the active view before the default cache.",
+      "Keep parsed schema objects private to their registry; no cross-context object reuse."
+    ],
+    "safety": [
+      "Retain and recheck original package/repository resource ancestors, identities, complete sets and exact bytes independently of in-memory view bytes.",
+      "Do not use the view to hide a changed original resource or to turn a missing captured resource into a successful fallback.",
+      "Keep historical JSON/wire/bbox handling unchanged; the view is only resource acquisition isolation."
+    ]
+  },
+  "blockers": [],
+  "decision": "GO_FOR_R5_RESOURCE_VIEW_REVIEW",
+  "decision_basis": "R5 is a concrete, minimal two-path amendment that addresses the actual process-global registry and live taxonomy reader gap without changing catalog interfaces, row shapes, limits, profile bytes, or delivery gates. Its required checks are implementation acceptance evidence, not unresolved contract blockers.",
+  "writes_performed": ["artifacts/verification/manual-pdf-v1/full-todo-v1/E/source-catalog-resource-view-review-r1.json"],
+  "writes_forbidden": ["production source", "tests", "catalog resource", "Git", "Vault", "network", "human-gate closure"]
+}

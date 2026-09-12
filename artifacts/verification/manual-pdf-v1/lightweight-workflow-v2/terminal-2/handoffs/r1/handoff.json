@@ -1,0 +1,136 @@
+{
+  "schema": "lightweight-workflow-v2-handoff.v1",
+  "terminal": 2,
+  "revision": "r1",
+  "phase": "backend",
+  "status": "ready",
+  "snapshot_stopped_writing": true,
+  "baseline_head": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+  "baseline_sha256": "2f559ff481c2faea3e49899f0b329d9f366958c0374234935a133df757591416",
+  "contract_sha256": "559e2b339c192837fa5d6c47f15ea7688f484155b95b2492f28eeee6d940e5dc",
+  "freeze_sha256": "2128528583787cb10aad69eb1954b424bba10873327885792dce7c7e3ae3099e",
+  "dispatch_sha256": "0f1f3f2ff3f20cded965eb88ecb17c56b92a4ac8b5e28683b44cf196043b62d6",
+  "execution_host": "cursor",
+  "requested_model": "grok-4.6",
+  "requested_effort": "xhigh",
+  "observed_model": "grok-4.6",
+  "observed_effort": null,
+  "observed_effort_note": "Cursor UI effort is not readable in this session; not invented as xhigh",
+  "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-2/source",
+  "files": [
+    {
+      "relative_path": "src/video_paper_wiki_research/light_index.py",
+      "sha256": "c05abaa47217ca4007c38ecf1072d60479eb1f0c424ec2eebbcdf4e10ee26ac1",
+      "size_bytes": 27818
+    },
+    {
+      "relative_path": "src/video_paper_wiki_research/light_context.py",
+      "sha256": "a24edd817227a5bedf8fa918adc14932ca78572bc95b05afdd3f0bc74ce4fef3",
+      "size_bytes": 19593
+    },
+    {
+      "relative_path": "tests/research/test_light_index.py",
+      "sha256": "752a27686daf7002c6064cfebdcf59d79928a09e1d86f42e436f095e5825a2c2",
+      "size_bytes": 21652
+    },
+    {
+      "relative_path": "tests/research/test_light_context.py",
+      "sha256": "b9221afc1f19c9802b817646c921ec12416566087f0c94a6a00d50f7a9928be1",
+      "size_bytes": 20529
+    },
+    {
+      "relative_path": "tests/research/test_light_selection.py",
+      "sha256": "ad7188061a8335a958cd6984b23b9e91db7b79b173416be80b7dc9f136156ee0",
+      "size_bytes": 3922
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/import-gap-observation.json",
+      "sha256": "3bec5f2f93836694be971f98a544597376338aff8fadb877975d5785a92951ef",
+      "role": "import-gap-observation"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/prove_import_gap.py",
+      "sha256": "e9ca86dd5653c69c95554ac43000b6b21c2bd96b5e741be3ab0e4d3ac7d376db",
+      "role": "import-gap-reproducer-readonly"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/baseline.json",
+      "sha256": "2f559ff481c2faea3e49899f0b329d9f366958c0374234935a133df757591416",
+      "role": "baseline"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/lightweight-workflow-v2/cursor-r1/dispatch.json",
+      "sha256": "0f1f3f2ff3f20cded965eb88ecb17c56b92a4ac8b5e28683b44cf196043b62d6",
+      "role": "cursor-dispatch"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/logs/backend-pytest.log",
+      "sha256": "1378e4b60eb41f04530d2d6d253457be01a6ddc65a149acc1952c0644e329063",
+      "size_bytes": 99
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/logs/backend-api-smoke.json",
+      "sha256": "baeef8ab33711bba7faae0bbe324093466d20b5174696c89f7847147974753b0",
+      "size_bytes": 2962
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/handoffs/r1/report.md",
+      "sha256": "ab395e124aa57b937bc646bd1ec4ef0eff9b429d67b39185f49fafe538c27cbd",
+      "size_bytes": 2568
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/handoffs/r1/checks.json",
+      "sha256": "7e0f35f2ea5786bcda6a9ef1f2c3928db5b1cc076a8ee4da74c524f648bbc0d7",
+      "size_bytes": 1852
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/research/test_light_index.py",
+        "tests/research/test_light_context.py",
+        "tests/research/test_light_selection.py",
+        "tests/research/test_light_qa.py",
+        "tests/research/test_light_writing.py",
+        "tests/research/test_light_pipeline.py"
+      ],
+      "exit_code": 0,
+      "result": "48 passed",
+      "log": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/terminal-2/logs/backend-pytest.log"
+    }
+  ],
+  "known_gaps": [
+    "Baseline CLI still imports forged/stale contexts; T4 must route qa/writing import through import_document.",
+    "This backend snapshot is not the lane final; consumers must re-check final file hashes.",
+    "Python 3.12, full 2246 suite, and installed-wheel isolation were not run here."
+  ],
+  "blocking_findings": [],
+  "public_api": [
+    "video_paper_wiki_research.light_context.export_context",
+    "video_paper_wiki_research.light_context.validate_live_context",
+    "video_paper_wiki_research.light_context.render_document",
+    "video_paper_wiki_research.light_context.import_document"
+  ],
+  "refusal_statuses": [
+    "INDEX_STALE",
+    "LIGHT_CONTEXT_INVALID",
+    "LIGHT_SELECTION_INVALID",
+    "LIGHT_OUTPUT_CONFLICT",
+    "LIGHT_WORKSPACE_MISMATCH",
+    "SOURCE_INVALID",
+    "NO_RESULTS",
+    "INSUFFICIENT_EVIDENCE",
+    "INVALID_CITATION",
+    "CITATION_MISMATCH",
+    "CITATION_CROSS"
+  ]
+}

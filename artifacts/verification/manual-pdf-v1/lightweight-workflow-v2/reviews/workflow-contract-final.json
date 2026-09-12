@@ -1,0 +1,62 @@
+{
+  "schema": "manual-pdf-v1/lightweight-workflow-v2/workflow-contract-final-review-v1",
+  "reviewer": "Luna independent read-only reviewer",
+  "reviewed_at": "2026-09-07",
+  "baseline": {
+    "commit": "0fcae592acb977c6b422e7de3b2c3e0cf79df5a0",
+    "tree": "d2d592f25d2361d5cbcc3bf58ca441a2824c256b"
+  },
+  "reviewed_files": {
+    "docs/ai/packets/lightweight-workflow-v2/COMMON.md": {
+      "sha256": "e9b51f7d4f71e5d25f5f9c06e477c8127797d2bdec3b122d51102669144ae724",
+      "size_bytes": 8225
+    },
+    "docs/ai/packets/lightweight-workflow-v2/CONTRACT.md": {
+      "sha256": "5deb741f6fba972e71f317e8b598f6429ef8e1c50144cd2523c9f9a446d66378",
+      "size_bytes": 21409
+    },
+    "docs/ai/packets/lightweight-workflow-v2/TERMINAL-1.md": {
+      "sha256": "ca8060fd8e7535274ddbf3ec18a98657f507f593ce049296e81d5a54abed2da2",
+      "size_bytes": 3626
+    },
+    "docs/ai/packets/lightweight-workflow-v2/TERMINAL-2.md": {
+      "sha256": "5ba1f19d4d3cb4c923e2ce5eff9b86c724278e4cbba75ac748e7afa290de1637",
+      "size_bytes": 3842
+    },
+    "docs/ai/packets/lightweight-workflow-v2/TERMINAL-3.md": {
+      "sha256": "11e2b9f74958b33cbfe9281135feeedbf61a24f7529c658fe8e71e06cb639330",
+      "size_bytes": 4253
+    },
+    "docs/ai/packets/lightweight-workflow-v2/TERMINAL-4.md": {
+      "sha256": "10110bbd67faf8350651cb21dad59c0bf2e62f4adfc530880ed5a903d3e5c9a8",
+      "size_bytes": 4470
+    }
+  },
+  "verdict": "GO",
+  "dispatch_prerequisite": "freeze.json is not present yet; this review is conditional on the Architect freeze binding these exact bytes and the required baseline/handoff hashes.",
+  "findings": [
+    {
+      "severity": "advisory",
+      "scope": "TERMINAL-4",
+      "finding": "The workflow complete CLI spelling --document JSON should be frozen as a JSON file path (or explicitly support inline JSON) before implementation so CLI and Skill agree. This is the only remaining interface wording ambiguity observed; it does not block packet dispatch if freeze records the choice."
+    },
+    {
+      "severity": "advisory",
+      "scope": "CONTRACT/T3/Skill",
+      "finding": "Because session identity intentionally reuses one session for identical request plus snapshot, a second output/model for an already completed session is LIGHT_SESSION_CONFLICT. The Skill reference should explain that users must reuse the recorded output or prepare a distinct request when they want a new completion."
+    }
+  ],
+  "checks": {
+    "contract_canonical_bytes_and_identity": "addressed",
+    "manifest_and_dynamic_entry_sets": "addressed",
+    "completion_intent_and_receipt_binding": "addressed",
+    "no_results_and_missing_workspace": "addressed",
+    "live_context_and_create_only_output": "addressed",
+    "status_vs_state_semantics": "addressed",
+    "qa_paper_selection_allowed": true,
+    "common_ownership_and_handoff_rules": "clear",
+    "git_mutations": false,
+    "network_or_remote_actions": false,
+    "implementation_changes": false
+  }
+}

@@ -1,0 +1,21 @@
+FF....                                                                   [100%]
+=================================== FAILURES ===================================
+________ test_same_paper_restore_then_replace_history_is_proven[False] _________
+../../../../acceptance/lightweight-library-v1/architect_t2_restore_replace_history.py:33: in test_same_paper_restore_then_replace_history_is_proven
+    result = accepted(library.recover_library(workspace))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../../acceptance/lightweight-library-v1/architect_t2_regressions.py:29: in accepted
+    assert result.get('ok') is True, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: {'ok': False, 'status': 'LIGHT_LIBRARY_NEEDS_RECOVERY', 'message': 'one or more library operations still need attention', 'operations': [{'ok': True, 'status': 'OK', 'message': 'operation is already complete', 'operation_id': '11f311f32a929d90954ecdf5a3e7c45f', 'kind': 'replace', 'phase': 'complete', 'outcome': 'replaced', 'reused': True}, {'ok': False, 'status': 'LIGHT_LIBRARY_NEEDS_RECOVERY', 'message': 'completed restore is missing its live paper and has no unique archive successor', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f', 'operation_id': '40d9fce447a111d827fe25c89b6e7f01'}, {'ok': False, 'status': 'LIGHT_LIBRARY_NEEDS_RECOVERY', 'message': 'completed restore is missing its live paper and has no unique archive successor', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f', 'operation_id': '40d9fce447a111d827fe25c89b6e7f01'}], 'next_actions': ['Call recover_library to finish or inspect the pending library operation.']}
+_________ test_same_paper_restore_then_replace_history_is_proven[True] _________
+../../../../acceptance/lightweight-library-v1/architect_t2_restore_replace_history.py:29: in test_same_paper_restore_then_replace_history_is_proven
+    accepted(library.recover_library(workspace))
+../../../../acceptance/lightweight-library-v1/architect_t2_regressions.py:29: in accepted
+    assert result.get('ok') is True, result
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: {'ok': False, 'status': 'LIGHT_LIBRARY_NEEDS_RECOVERY', 'message': 'one or more library operations still need attention', 'operations': [{'ok': False, 'status': 'LIGHT_LIBRARY_NEEDS_RECOVERY', 'message': 'completed restore is missing its live paper and has no unique archive successor', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f', 'operation_id': '6b8147bf70c67923f66be19f6af4cbc2'}, {'ok': False, 'status': 'LIGHT_LIBRARY_NEEDS_RECOVERY', 'message': 'completed restore is missing its live paper and has no unique archive successor', 'paper_id': 'sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f', 'operation_id': '6b8147bf70c67923f66be19f6af4cbc2'}, {'ok': True, 'status': 'OK', 'message': 'completed replacement is a superseded historical event', 'operation_id': '8b0056517dff22462224c76feccd6084', 'kind': 'replace', 'phase': 'complete', 'outcome': 'replaced', 'reused': False, 'historical': True, 'superseded': True, 'successor_operation_id': 'abca860527c34429663513eca3bf3b58'}, {'ok': True, 'status': 'OK', 'message': 'operation is already complete', 'operation_id': 'abca860527c34429663513eca3bf3b58', 'kind': 'archive', 'phase': 'complete', 'outcome': 'archived', 'reused': True}], 'next_actions': ['Call recover_library to finish or inspect the pending library operation.']}
+=========================== short test summary info ============================
+FAILED ../../../../acceptance/lightweight-library-v1/architect_t2_restore_replace_history.py::test_same_paper_restore_then_replace_history_is_proven[False]
+FAILED ../../../../acceptance/lightweight-library-v1/architect_t2_restore_replace_history.py::test_same_paper_restore_then_replace_history_is_proven[True]
+2 failed, 4 passed in 1.97s

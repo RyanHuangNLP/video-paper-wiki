@@ -1,0 +1,217 @@
+{
+  "schema": "full-todo.code-proof-io-instruction-draft-review.v1",
+  "recorded_at_utc": "2026-09-11T02:50:43Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "NEEDS_R17_CONCRETE_CLOSURES_BEFORE_IMPLEMENTATION_DISPATCH",
+  "scope": "Bounded read-only architecture review of the complete natural-language I/O implementation draft against R6, R8, R9, R13, R14, R15, R16, the accepted foundation interface and the frozen CodeGitProofError/API shapes. No source, test, harness, build, Git, model, UI, network or implementation action was performed. Only this report is written.",
+  "reviewed_inputs": [
+    {
+      "label": "draft_r1",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-IO-IMPLEMENTATION-DRAFT-R1.md",
+      "size_bytes": 32401,
+      "sha256": "561154e13d2e109928f84be611691d63b8fa458462dcaf58d360271f6cf9fea1"
+    },
+    {
+      "label": "r16",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md",
+      "size_bytes": 7019,
+      "sha256": "61996c441023d1438966e1cf44e2bcd9e79956fd2329e14e46f5c9402ebb2604"
+    },
+    {
+      "label": "r6",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "label": "r8",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "label": "r9",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "label": "r13",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-FOUNDATION-INTEGRATION-R13.md",
+      "size_bytes": 6544,
+      "sha256": "4ef374733c4bba9824249a5f13e19727d4d3bd5957461bba561c36bc7ef86863"
+    },
+    {
+      "label": "r14",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-CONCRETE-CLOSURES-R14.md",
+      "size_bytes": 8950,
+      "sha256": "5c877a236f681ffeda0cdcaba090027d3615b3a9bc6aa1dccbc6ebaccfd04052"
+    },
+    {
+      "label": "r15",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-API-SEAMS-R15.md",
+      "size_bytes": 8016,
+      "sha256": "3dacfaaa55df2c4948dc2ab12e7055afd3315962feaeb78051bb817ad6f502ef"
+    },
+    {
+      "label": "foundation_source",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r6-code_proof_resources.py",
+      "size_bytes": 29412,
+      "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6"
+    },
+    {
+      "label": "git_kernel_source",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/stopped-r3-source/src/video_paper_wiki/code_git_objects.py",
+      "size_bytes": 30212,
+      "sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca"
+    },
+    {
+      "label": "r14_review",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/F/io-concrete-closures-review-r14.json",
+      "size_bytes": 4698,
+      "sha256": "cf3c5aac67b129ddd17f72af9946c75e1a8b4faf7a5213656d8ad97c93288da0"
+    },
+    {
+      "label": "r15_review",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/F/io-api-seam-review-r15.json",
+      "size_bytes": 5772,
+      "sha256": "e7ee23d6c3c3e2de2fc8a3a94fcc245f26d635dd8fa486c9d10f06c7b39be6c6"
+    }
+  ],
+  "r16_replacements_confirmed": [
+    {
+      "area": "safe_facade_literals",
+      "status": "CLOSED_BY_R16",
+      "evidence": "The eight exact facade messages are fixed in R16. The pending literal-table sentence in draft lines 421-427 is therefore not reported as an open finding."
+    },
+    {
+      "area": "ordinary_admission_domain",
+      "status": "CLOSED_BY_R16",
+      "evidence": "R16 fixes maximum to exact builtin int 65536 or 1048576, excluding bool and subclasses, with CodeProofStructureError(\"limits\"). The draft pending sentence at lines 260-262 is superseded."
+    },
+    {
+      "area": "raw_first_acquisition",
+      "status": "CLOSED_BY_R16",
+      "evidence": "R16 makes the first raw root/object pass name/stamp only, forbids body reads or invented snapshots, and moves bounded body retention after validated inventory."
+    },
+    {
+      "area": "pointers_and_prior_codes",
+      "status": "CLOSED_BY_R16",
+      "evidence": "R16 supplies fixed /bundle, /objects and ordered-inventory body pointers plus the 33-code recognized prior union. The older draft request to freeze these values is not repeated as a gap."
+    }
+  ],
+  "findings": [
+    {
+      "id": "IO-DRAFT-R1-001",
+      "severity": "high",
+      "status": "OPEN",
+      "area": "foundation_error_api",
+      "draft_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-DRAFT-R1.md:54-59"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-FOUNDATION-R1.md:120-139",
+        "assembled-r6-code_proof_resources.py:218-239"
+      ],
+      "problem": "The draft says the foundation structure errors expose `type`, `shape`, and `limits` (lines 54-56). The accepted class exposes only the read-only `reason` property whose value is one of those three strings; it has no `.type`, `.shape`, or `.limits` properties. The resource class likewise exposes only `.reason`.",
+      "impact": "A Builder following the draft can access nonexistent attributes or invent a new error surface, breaking the accepted foundation API and later mapping.",
+      "minimal_closure": "Rewrite the sentence to require `CodeProofStructureError.reason in {\"type\", \"shape\", \"limits\"}` and `CodeProofResourceError.reason in {\"resource_origin\", \"resource_hash\", \"resource_shape\"}`. Use only `.reason`; preserve the existing private exception classes/messages and do not alter the foundation source.",
+      "required_test": "A source and installed-origin fixture must assert mapping through `.reason` and must not rely on or add `.type`, `.shape`, or `.limits`."
+    },
+    {
+      "id": "IO-DRAFT-R1-002",
+      "severity": "high",
+      "status": "OPEN",
+      "area": "bundle_path_utf8_bound",
+      "draft_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-DRAFT-R1.md:264-273"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-RESOURCE-REPAIR-R2.md:80-94",
+        "CODE-PROOF-PUBLIC-IMPLEMENTATION-SEQUENCE-R1.md:52-56",
+        "CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md:53-67"
+      ],
+      "problem": "The draft and R16 retain the 4096-character bundle-directory grammar and require UTF-8/NFC checks, but neither freezes a numeric UTF-8 byte cap. The older contract explicitly calls this a separate encoded-byte check; character count alone does not state the value or whether the original and NFC spelling are each checked.",
+      "impact": "Implementations can accept different Unicode byte lengths and tests cannot construct a deterministic boundary. This also leaves the path-spelling refusal and its fixed bound under-specified.",
+      "minimal_closure": "Add a named constant `max_bundle_path_bytes = 16384` (the least-expansive bound implied by 4096 Unicode scalar characters at at most four UTF-8 bytes each), require strict UTF-8 encoding and NFC validation, and apply the byte cap to the exact accepted spelling and its NFC form before descriptor traversal. Preserve the existing 4096-character/control/component grammar; do not change output-path limits. If the Architect chooses a different numeric cap, record that exact integer in the freeze and all boundary fixtures instead of leaving prose-only “byte check.”",
+      "required_test": "Construct valid NFC and non-NFC candidates around the chosen byte bound and assert deterministic refusal without filesystem access; include exact cap and cap-plus-one cases where the character grammar permits them."
+    },
+    {
+      "id": "IO-DRAFT-R1-003",
+      "severity": "high",
+      "status": "OPEN",
+      "area": "raw_inventory_set_reconciliation",
+      "draft_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-DRAFT-R1.md:270-283"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-RETAINED-IO-R6.md:118-130",
+        "CODE-PROOF-PUBLIC-CLOSURE-R9.md:27-30",
+        "CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md:53-75",
+        "code_git_objects.py:_validate_bodies_map"
+      ],
+      "problem": "The draft says to capture the raw objects complete set and later read “precisely that captured complete object set,” while `objects` is already the validated manifest inventory, but it never states the stable mismatch classification before body reads. That leaves extra physical files, missing declared files, and a syntactically valid physical OID whose width disagrees with manifest `object_format` without a deterministic code/details result.",
+      "impact": "An implementation may silently ignore an extra body, falsely report a set/lineage change for an unchanged set, read bodies before a complete-set refusal, or invent a second Git error shape. These outcomes violate R6/R8 first-observation rules and the frozen kernel API.",
+      "minimal_closure": "After manifest/inventory validation and before opening any body, perform a final named/set check. If the captured set changed or is uncheckable, raise the facade WORK_PATH_UNSAFE in group `bundle` with the fixed `edge_changed`/`set_changed` reason and let lineage precedence win. If the initial set remains stable, classify in deterministic kernel order: (1) a valid-width physical OID not in the inventory propagates CodeGitProofError CODE_PROOF_OBJECT_EXTRA with the frozen message and details `{instance_pointer:\"/bodies\", extra_oids:[sorted OIDs]}`; (2) a declared inventory OID absent from the initial set propagates CODE_PROOF_OBJECT_UNAVAILABLE with `{instance_pointer:\"/bodies\", missing_oids:[sorted OIDs]}`; (3) a physical name not matching the validated object_format width propagates CODE_PROOF_INPUT_INVALID with `{instance_pointer:\"/bodies\", reason:\"invalid_oid_key\"}`. A malformed name outside the 40/64 lowercase-hex `.body` grammar remains the existing stable raw-layout unknown-entry refusal; it must never be called a set change. Only after this reconciliation may declared bodies be bounded-read. Preserve the exact CodeGitProofError class, frozen message, details and exit_code=2; do not modify the pure kernel.",
+      "required_test": "Build an isolated raw bundle with stable extra, stable missing, stable opposite-width, and post-capture changed-set cases. Assert no body open for the first three, exact frozen class/code/details for stable semantic cases, and WORK_PATH_UNSAFE precedence for the changed-set case. Exercise extra-before-missing ordering with sorted OIDs."
+    },
+    {
+      "id": "IO-DRAFT-R1-004",
+      "severity": "medium",
+      "status": "OPEN",
+      "area": "kernel_error_boundary",
+      "draft_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-DRAFT-R1.md:28-32, 278-283, 453-455"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-IO-LITERALS-AND-INPUTS-R16.md:5-17, 88-119",
+        "code_git_objects.py:71-89, 374-412"
+      ],
+      "problem": "The draft import allowlist names only code_proof_resources, yet the required stable inventory reconciliation must propagate the existing CodeGitProofError class and its frozen details. The instruction also says not to invent a second Git validator, but gives no permitted adapter/factory boundary for these pre-body errors.",
+      "impact": "A Builder can either wrap a Git semantic refusal in the new I/O facade (changing its fixed message/details) or duplicate/modify the pure kernel. Both violate R16 propagation and the “do not change the original kernel” boundary.",
+      "minimal_closure": "Permit a narrow import of the public CodeGitProofError and the three relevant frozen code identifiers (or provide an explicitly frozen local adapter with the exact existing messages/details). The adapter may only construct the three stable pre-body outcomes in IO-DRAFT-R1-003; all body/hash/graph/consumption validation remains delegated to the unchanged pure kernel. Do not import private kernel helpers or alter code_git_objects.py.",
+      "required_test": "Assert the propagated object is exactly CodeGitProofError, exit_code 2, with the frozen message and exact details; assert facade fixed literals are used only for actual I/O/lineage/limit errors."
+    },
+    {
+      "id": "IO-DRAFT-R1-005",
+      "severity": "medium",
+      "status": "OPEN",
+      "area": "original_failure_and_precedence_statement",
+      "draft_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-DRAFT-R1.md:84-104, 337-384, 402-419, 491-496"
+      ],
+      "contract_refs": [
+        "CODE-PROOF-RETAINED-IO-R6.md:171-208",
+        "CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md:188-226",
+        "CODE-PROOF-IO-API-SEAMS-R15.md:84-116"
+      ],
+      "problem": "The operational rules mostly preserve the R6/R8 all-exits graph and installer phase, but the sentence “With no lineage failure, cleanup error overrides the original error; otherwise propagate the original error unchanged” is ambiguous about the branch after lineage selection, and the draft does not explicitly state what exact original object is re-raised when the original is a pure kernel/config/public exception or KeyboardInterrupt/SystemExit. The phase retention rule is present but spread across several paragraphs.",
+      "impact": "A finalizer can accidentally relabel a failed install idle, replace an original semantic/interruption failure with a generic I/O error, or let a cleanup observation turn a syscall exception into success. This is precisely the failure-state/precedence seam R6/R8 require to remain deterministic.",
+      "minimal_closure": "Freeze one explicit selection algorithm: save the original BaseException and last installer phase before every finalizer action; attempt every reached group and checked owned-temp cleanup; select first persistent lineage failure; else select cleanup failure; else re-raise/propagate the saved original exception unchanged. Never enter idle except after durable successful completion; never emit snapshot/layout success while any installer phase is in flight. For a post-effect syscall exception, preserve successful-link/cleaned-prefix flags and phase exactly as observed, while retaining refusal. If final verification sees no lineage and no cleanup error, preserve the original exception type, code, message and details (including interruption identity).",
+      "required_test": "Inject semantic, Git, configuration, generic I/O, KeyboardInterrupt and SystemExit failures at setup, write, link, unlink and directory-fsync boundaries; assert all groups are attempted, phase/flags survive, lineage beats cleanup/original, cleanup beats original only with intact lineage, and otherwise the original exception is preserved."
+    }
+  ],
+  "focused_consistency_results": {
+    "all_exits_graph": {
+      "status": "SUBSTANTIALLY_COVERED_PENDING_EXPLICIT_EXCEPTION_SELECTION",
+      "evidence": "Draft setup registers finalization before authority lookup, retains every reached edge/resource/scan, runs all reached verification groups, closes in reverse order with lock duplicate last, and handles unexpected/interruption exits. Finding IO-DRAFT-R1-005 asks only for an unambiguous saved-original branch and phase table."
+    },
+    "in_flight_installer": {
+      "status": "COVERED",
+      "evidence": "Draft carries R8 phases idle -> temp_created -> writing -> temp_ready -> linked -> cleaned -> durable -> idle, retained temp fd identity, post-effect flags, no adoption/rollback, checked cleanup, prefix preservation after directory-fsync failure, and no successful view while in flight."
+    },
+    "cleanup_precedence": {
+      "status": "SUBSTANTIALLY_COVERED_PENDING_EXPLICIT_EXCEPTION_SELECTION",
+      "evidence": "Draft has lineage-first, cleanup-second, original-last intent and reverse close rules. IO-DRAFT-R1-005 records the wording ambiguity so the freeze must state the three-way algorithm explicitly."
+    },
+    "constructible_tests_and_two_outputs": {
+      "status": "COVERED_WITH_ADDITIONS_REQUIRED",
+      "evidence": "The draft requires exactly two complete fenced Python blocks, genuine retained resources/compiled context, isolated temporary checkouts and seam patching rather than global os/fcntl mutation. Add concrete raw-bundle fixture construction for the stable inventory cases in IO-DRAFT-R1-003 and `.reason`-based foundation assertions from IO-DRAFT-R1-001."
+    },
+    "r16_pending_replacements": {
+      "status": "NOT_OPEN_FINDINGS",
+      "evidence": "Exact messages, ordinary maximum domain, first raw object name/stamp-only acquisition, pointer families and closed 33-code recognized prior metadata were treated as R16 replacements, not duplicated findings."
+    }
+  },
+  "boundary": "Architecture review only. This report does not authorize a Builder/model call or implementation, does not alter the foundation or Git kernel, and does not claim source, test, wheel, CI, real-data or human acceptance. The draft should receive the concrete R17 closures above before exact freeze/dispatch."
+}

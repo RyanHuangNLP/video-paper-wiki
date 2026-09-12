@@ -1,0 +1,76 @@
+{
+  "schema": "video-paper-wiki.library-architect-decision.v1",
+  "recorded_at_utc": "2026-09-08T04:06:39.373362+00:00",
+  "decision": "REJECTED_T1_R1_REQUIRES_BOUNDED_INTEGRITY_AND_PUBLICATION_FIXES",
+  "candidate_snapshot": "e27e0670b658cdd9e5aebbcfe148b22eb1ab84dfceca9675484630bdb9606c35",
+  "handoff_sha256": "526feea2af97848346a4d120a5e3b2a84697f21da21c2bd30e22baa5fa2110bb",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "official_builder_tests": "19 passed; not sufficient for independent acceptance",
+  "architect_tests": {
+    "failed": 13,
+    "passed": 1,
+    "cases": [
+      {
+        "name": "test_successful_publication_leaves_no_pending_stage",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_record_reuse_refuses_unrecognized_directory_entries[symlink-dir]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_record_reuse_refuses_unrecognized_directory_entries[empty-dir]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_edited_record_cannot_be_current_or_supply_new_concepts",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_related_paper_links_resolve_to_existing_siblings",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_unknown_current_pointer_is_preserved",
+        "outcome": "passed"
+      },
+      {
+        "name": "test_missing_knowledge_wrapper_field_closes_without_traceback[coverage]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_missing_knowledge_wrapper_field_closes_without_traceback[paper_snapshot]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_missing_knowledge_wrapper_field_closes_without_traceback[prompt]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_missing_comparison_wrapper_field_closes_without_traceback",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_hardlinked_source_is_refused",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_interrupted_staging_does_not_discard_unknown_edits[payload]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_interrupted_staging_does_not_discard_unknown_edits[ownership-target]",
+        "outcome": "failed"
+      },
+      {
+        "name": "test_source_change_during_render_refuses_publication",
+        "outcome": "failed"
+      }
+    ],
+    "checks": "architect-t1-r1-replay/checks.json"
+  },
+  "passing_observation": "Unknown CURRENT pointer schema refusal passed; preserve it and validate full identity in fixes.",
+  "source_writer_stopped": true,
+  "accepted_for_integration": false,
+  "next": "T1 r2 same contract, six-path owner allowlist; preserve r1 bytes/evidence, add regression tests; no T3 import yet."
+}

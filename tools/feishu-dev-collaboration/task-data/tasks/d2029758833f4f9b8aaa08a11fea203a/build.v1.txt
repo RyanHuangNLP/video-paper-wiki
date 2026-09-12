@@ -1,0 +1,28 @@
+I'll start by inspecting the project layout and any prior review so the subtract implementation stays inside the PRD.The project only has `add` plus unittest coverage, so I’ll add `subtract` in the same style and tests for the PRD cases.Implemented `subtract(a, b)` in the same style as the existing `add` function, plus unittest coverage for the PRD cases.
+
+**Files**
+- `subtract.py` — `subtract(a, b)` returns `a - b`
+- `test_subtract.py` — covers `subtract(5, 3) == 2`, `subtract(3, 5) == -2`, `subtract(0, 0) == 0`
+
+**Prior review:** none present in the project.
+
+**Self-tests** (`python` was not available; used `python3`):
+
+```
+python3 -m unittest test_subtract.py test_add.py -v
+```
+
+```
+test_subtract_negative_result (test_subtract.SubtractTests) ... ok
+test_subtract_positive_result (test_subtract.SubtractTests) ... ok
+test_subtract_zeros (test_subtract.SubtractTests) ... ok
+test_add_positive (test_add.AddTests) ... ok
+test_add_zero (test_add.AddTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.000s
+
+OK
+```
+
+No git commit/push, no Vault/credentials, no provider changes.

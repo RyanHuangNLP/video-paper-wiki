@@ -1,0 +1,90 @@
+{
+  "schema": "lightweight-workflow-v2-lane4-python312-independent-review.v1",
+  "review": "lane4-r5-referencing-typing-extensions-seed",
+  "observed_at_utc": "2026-09-07T18:03:43.029890+00:00",
+  "decision": "GO_RECOMMEND_MINIMAL_CONDITIONAL_RUNTIME_SEED_FIX",
+  "scope": "Read-only diagnosis of the Python 3.12 CI failure and minimal test-only repair. No source edit, Git mutation, wheel build, full-suite rerun, or external model invocation.",
+  "blocker": {
+    "ci_run": 34149308728,
+    "ci_job": 101828011290,
+    "head": "ca63bdeb283dd3182db458d784909fed4c98bec5",
+    "failure": "isolated installed-wheel test cannot import referencing on Python 3.12 because referencing.typing falls back to stdlib TypeVar when typing-extensions is absent; TypeVar(default=...) then raises TypeError."
+  },
+  "lock_evidence": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/uv.lock",
+    "sha256": "67e928d696ad5e73e3635a67c8b231867734a0b93ba937cbb0a58b655d64afc0",
+    "referencing_package": "0.37.0",
+    "referencing_dependencies": [
+      {
+        "name": "attrs"
+      },
+      {
+        "name": "rpds-py"
+      },
+      {
+        "name": "typing-extensions",
+        "marker": "python_full_version < '3.13'"
+      }
+    ],
+    "referencing_package_line": 1787,
+    "marker_line": 1793,
+    "typing_extensions_package": "4.16.0",
+    "production_lock_change_required": false
+  },
+  "implementation_evidence": {
+    "referencing_typing_path": "/Users/huangzhanpeng/.cache/uv/archive-v0/4xuBwI2NZ8wwjbWx/referencing/typing.py",
+    "referencing_typing_sha256": "5a351b9d9ea33c0777d5c9c214069e588544373c87b47749c8e95e96fd4663bd",
+    "metadata_path": "/Users/huangzhanpeng/.cache/uv/archive-v0/4xuBwI2NZ8wwjbWx/referencing-0.37.0.dist-info/METADATA",
+    "metadata_sha256": "c93b00e6ab1524fd60848376604c189a114374776475c25a31d57be47b29de6a",
+    "imports_typing_extensions_then_falls_back_to_stdlib": true,
+    "default_typevar_line": "D = TypeVar(\"D\", default=Any)",
+    "stdlib_typevar_default_fails_on_python312": true,
+    "typing_extensions_typevar_default_succeeds_on_python312": true,
+    "probe_runtime": "/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "probe_runtime_version": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "probe": {
+      "runtime": "/Users/huangzhanpeng/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "version": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "stdlib_default": "TypeError: 'default' is an invalid keyword argument for typevar()",
+      "ext_default": "accepted",
+      "fallback": "TypeError: 'default' is an invalid keyword argument for typevar()"
+    }
+  },
+  "fixture_evidence": {
+    "source_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/research/test_light_workflow_installed.py",
+    "source_sha256": "541d2ee195d1eb9ed5aa7948bfae4a56eed431121050d26a4a6e01ced786de4e",
+    "before_snapshot": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/installed-test-before.py",
+    "before_snapshot_sha256": "541d2ee195d1eb9ed5aa7948bfae4a56eed431121050d26a4a6e01ced786de4e",
+    "byte_identical_to_before": true,
+    "current_runtime_dists": [
+      "attrs",
+      "jsonschema",
+      "jsonschema_specifications",
+      "pypdf",
+      "referencing",
+      "rpds-py"
+    ],
+    "missing_conditionally_declared_dist": "typing-extensions",
+    "seed_function": "_seed_locked_runtime_deps",
+    "seed_call_line": 231
+  },
+  "recommended_minimal_patch": {
+    "allowed_path": "tests/research/test_light_workflow_installed.py",
+    "insert_after_runtime_tuple": true,
+    "exact_text": "_RUNTIME_DISTS = (\n    \"attrs\",\n    \"jsonschema\",\n    \"jsonschema_specifications\",\n    \"pypdf\",\n    \"referencing\",\n    \"rpds-py\",\n)\nif sys.version_info < (3, 13):\n    _RUNTIME_DISTS += (\"typing-extensions\",)",
+    "semantic_effect": "append typing-extensions only when sys.version_info < (3, 13), matching uv.lock/referencing marker; preserve Python 3.13 inventory and all assertions/native observation",
+    "production_files_changed": [],
+    "lock_files_changed": [],
+    "assertions_changed": false
+  },
+  "acceptance_checks_for_r5": {
+    "python312_runtime_dist_list_contains_typing_extensions": true,
+    "python313_runtime_dist_list_unchanged": true,
+    "_seed_locked_runtime_deps_copies_typing_extensions_from_locked_runtime": true,
+    "no_assertion_or_observation_changes": true,
+    "run_only_unique_offline_python312_installed_test_before_final_ci": true
+  },
+  "authorization_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/local-integration-authorization.json",
+  "authorization_sha256": "e614bb644ea2b02f39f6c359b2955fa8ff8535d60bac7c06bcc2a1704c66962c",
+  "reviewer_constraints": "This report records diagnosis and recommends a one-test-file conditional seed addition. The Architect owns the edit and subsequent Python 3.12 offline regression; no production dependency pin or uv.lock change is justified."
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "full-todo.grok-code-git-kernel-runtime-patch-diagnostic-r5.v1",
+  "schema": "full-todo.grok-code-git-kernel-runtime-patch-diagnostic-r5.v1",
+  "revision": 1,
+  "recorded_at_utc": "2026-09-10T01:31:51.438076+00:00",
+  "packet": "CODE-GIT-KERNEL-R1",
+  "session_id": "676ca785-a6cc-454d-94e2-dd530f6f2139",
+  "trace": {
+    "method": "grok trace <exact-session-id> --local --json",
+    "archive": {
+      "path": "/private/tmp/grok-code-git-kernel-r5-trace.tar.gz",
+      "size_bytes": 1355444,
+      "sha256": "de0c4a697d43a591439297e120f8f13f5f30962f1f89fee317e07c7bfebc1bc8"
+    },
+    "archive_path": "/private/tmp/grok-code-git-kernel-r5-trace.tar.gz",
+    "sanitized_entries": [
+      "summary.json",
+      "usage.json",
+      "signals.json",
+      "events.jsonl",
+      "chat_history.jsonl",
+      "prompts/prompt_0.txt",
+      "prompt_context.json",
+      "updates.jsonl",
+      "export_metadata.json"
+    ],
+    "raw_payloads_copied": false,
+    "secrets_copied": false
+  },
+  "prompt_integrity": {
+    "local_prompt": {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-PATCH-R5.md",
+      "size_bytes": 92692,
+      "sha256": "25b087d77d71f41fd1d1bad6dcc1b3602fb985cba7d9d48fc67f28c9859e2692"
+    },
+    "trace_prompt_entry": {
+      "entry": "prompts/prompt_0.txt",
+      "wrapped_size_bytes": 92718,
+      "wrapped_sha256": "9e687ebf0a01babae92599464db94a1094a0f6810dbf30ec6847ad7fc9b3383d"
+    },
+    "trace_prompt_unwrapped_size_bytes": 92691,
+    "trace_prompt_unwrapped_sha256": "8ae247de2565f216c45d296a073696025c4ed097f8f8dc49cec7d3a770d73f6d",
+    "same_content_excluding_terminal_lf": true,
+    "actual_submitted_prompt_truncated": false,
+    "rendered_chat_history_prompt_block_bytes": 20089,
+    "rendered_chat_history_is_canonical_submission": false,
+    "rendering_bound_note": "chat_history.jsonl contains a shorter rendered user block; canonical prompts/prompt_0.txt preserves the full submitted prompt. This is a trace rendering bound, not evidence that the submitted request was truncated."
+  },
+  "session_summary": {
+    "model": "grok-4.6",
+    "reasoning_effort": "xhigh",
+    "sandbox_profile": "off",
+    "session_kind": "headless",
+    "working_directory": "/private/tmp/grok-patch-r5.famx1h34",
+    "turn_count": 1,
+    "max_turns_limit": 2,
+    "model_calls": 2,
+    "input_tokens": 38343,
+    "output_tokens": 964,
+    "tool_call_count": 0,
+    "tools_used": [],
+    "session_duration_seconds": 18
+  },
+  "tool_events": {
+    "attempted_tools": [
+      "read_file",
+      "read_file",
+      "read_file"
+    ],
+    "permission_requests": 3,
+    "permission_resolutions": [
+      {
+        "tool_name": "read_file",
+        "decision": "deny",
+        "wait_ms": 0
+      },
+      {
+        "tool_name": "read_file",
+        "decision": "deny",
+        "wait_ms": 0
+      },
+      {
+        "tool_name": "read_file",
+        "decision": "deny",
+        "wait_ms": 0
+      }
+    ],
+    "tool_results_recorded": false,
+    "read_or_edit_or_bash_execution": false
+  },
+  "termination": {
+    "outcome": "cancelled",
+    "reason": "max_turns_reached",
+    "limit": 2,
+    "observed_at": "2026-09-10T01:20:37.162Z"
+  },
+  "diagnosis": "NO_ACTUAL_PROMPT_TRUNCATION; PATCH_BLOCKED_BY_DENIED_READ_FILE_CALLS_AND_TWO_TURN_LIMIT",
+  "cause": "The canonical submitted R5 prompt was complete. Grok nevertheless issued three read_file calls despite the single-output/no-tools invocation. The launcher denied Read permission immediately; no tool result or patch was produced. The final trace event records max_turns_reached with limit 2, so the turn ended before any patch output.",
+  "observed_effect": {
+    "implementation_started": false,
+    "allowed_source_paths_written": false,
+    "source_mutated": false,
+    "git_mutated": false,
+    "builder_brief_written": false,
+    "network_or_model_failure_observed": false
+  },
+  "boundaries": {
+    "exit_observation": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-exit-observation-r5.json",
+      "sha256": "39e1d648072a44fa51d21f2b5ac0d0aa77518cce74fdb91c4b5836def5092827"
+    },
+    "prompt_path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-PATCH-R5.md",
+    "trace_session_only": true,
+    "unrelated_sessions_inspected": false,
+    "source_edits": false,
+    "git_mutations": false,
+    "network_operations": false
+  },
+  "next_step": "R5 is closed as failed/no-patch evidence. Await explicit R6 launch authorization; do not resume or retry R5."
+}

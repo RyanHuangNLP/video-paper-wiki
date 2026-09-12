@@ -1,0 +1,157 @@
+{
+  "$schema": "full-todo.discovery-expansion-recovery-detail-r1.v1",
+  "schema": "full-todo.discovery-expansion-recovery-detail-r1.v1",
+  "reviewed_at_utc": "2026-09-09T09:11:07.001085Z",
+  "scope": "Read-only request-plan, partial-resume, budget, branch, and PreviewStore reuse detail; no source/schema/test/Git/connector/Vault/network mutation.",
+  "decision": "RECOVERY_DETAIL_READY_FOR_EXACT_CONTRACT_FREEZE",
+  "inputs": {
+    "design_packet": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R1.md",
+      "sha256": "2e255f9d9acd928fb26086b30422e7d9e8796b20f064beff5567bb225c9fb6c1"
+    },
+    "design_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-io-design-review-r1.json",
+      "sha256": "4ddbfbc200ee4487e884d87823958b6e579d8daaf1d6ca4d6996fa4d6fa53dcf"
+    },
+    "preview_storage": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_storage.py",
+      "sha256": "f44ce4e39950dfaf72c7ef38a9a0c430dc7a6b21ba25109458c23e25971eed31"
+    },
+    "preview_contracts": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/preview_contracts.py",
+      "sha256": "8aca06c277e8a47f2499033c36912780dad6e35e47c0bc42a347dfbeb8ad79ff"
+    },
+    "research_contracts": {
+      "path": ".work/parallel/full-todo-v1/terminal-2/source/src/video_paper_wiki_research/contracts.py",
+      "sha256": "22409784bca848ae7969d57f882fe8e9119d59bd3e29303f15ae75697a2d7658"
+    }
+  },
+  "request_specs_and_plan_id": {
+    "spec_body_fields": [
+      "session_id",
+      "sequence",
+      "slot",
+      "seed_id",
+      "connector",
+      "operation",
+      "query",
+      "page",
+      "cursor",
+      "select_fields",
+      "budget_profile",
+      "retry_of_observation_ref",
+      "retry_reason"
+    ],
+    "request_key": "SHA256(b\"rw3/request-key-v1\\0\" + JCS(spec_body)); plan_id is excluded; sequence and slot are included.",
+    "round_plan": "Sealed object contains session/config refs, sequence, previous completed event ref, sorted request_specs and reservation. Each spec contains slot, request_key and complete spec_body; duplicate keys/slots refuse.",
+    "request": "Sealed object carries session_id, plan_id, sequence, slot, request_key and exact spec_body. Validator recomputes key and requires exact equality to one plan entry. It rejects unknown plan, out-of-range/duplicate slot, duplicate key, changed bytes or filename/hash.",
+    "cycle_invariant": "Plan contains no final request refs. Requests carry plan_id/key, not a full plan ref. The round event is the first object containing exact request refs, so plan_id is computable before children.",
+    "reservation_invariant": "At plan commit reserve N=len(request_specs) request slots and N terminal-observation slots, even when zero request files have installed. Half-installed plans therefore cannot evade max_requests/max_observations by omitting pending children. Normalized bytes/results remain prospective checks."
+  },
+  "partial_resume": {
+    "states": [
+      "ABSENT",
+      "PLAN_PENDING_REQUESTS",
+      "PLAN_PENDING_OBSERVATIONS",
+      "READY_FOR_PROJECTIONS",
+      "READY_FOR_EVENT",
+      "COMPLETE",
+      "CONFLICT",
+      "UNSAFE"
+    ],
+    "algorithm": [
+      "Retain checkout/.work/research/session/discovery-v1, all five family descriptors, complete names and first stat including originally absent expected targets.",
+      "Validate config/session/plans; index requests by (plan_id,slot), require exact key/spec, and treat only missing expected slots as writable.",
+      "Reject multiple first plans, multiple successors, competing same-slot requests or foreign entries; never choose by timestamp/arrival.",
+      "Install missing canonical requests only; reservation ledger remains N. Index observations by exact request ref and allow zero or one terminal outcome per request.",
+      "After every request has one terminal observation, derive candidate/rank/stop; existing children must match plan_id, sequence and input_set_sha256.",
+      "Require event exact sorted request/observation/projection refs, recompute set digests and budget_after, then atomic-install event last; rescan on normal and exception exits."
+    ],
+    "complete_set_invariants": [
+      "Every plan slot 0..N-1 has exactly one matching request, or is explicitly pending; N never changes.",
+      "Every committed request has exactly one terminal observation; a second outcome is conflict, and retry is a new request in a later plan.",
+      "Every derived child has complete sorted input-set digest; orphan children remain pending and cannot authorize a successor.",
+      "Event is valid only if all slots, terminal observations, deterministic children, predecessor and ledger validate together; event-present/input-missing is integrity refusal."
+    ]
+  },
+  "budget_and_branches": {
+    "counters": [
+      "rounds_planned",
+      "rounds_completed",
+      "request_slots_reserved",
+      "requests_installed",
+      "pending_requests",
+      "observation_slots_reserved",
+      "observations_recorded",
+      "retries",
+      "normalized_bytes",
+      "result_count",
+      "candidates_materialized",
+      "family_files",
+      "family_bytes"
+    ],
+    "accounting": "No refund for failure, interruption, retry or orphan. Requests count when planned; terminal observations count for ok/not_found/timeout/rate_limited/failure/partial/zero-result. Payload bytes charge exact UTF-8 bytes on staging.",
+    "malformed_or_oversize": "Reject before staging; no observation slot consumed and request stays pending. A bounded explicit failure observation may close it.",
+    "failure_timeout_rate_limit": "One terminal evidence object, no candidate, no hidden retry; explicit retry references predecessor and is a new later-plan request consuming fresh reservations.",
+    "not_found": "Terminal, counted, no candidate, no implicit retry.",
+    "zero_result": "Valid ok observation with results=[] and explicit completeness; new/duplicate/unresolved counts zero and duplicate_ratio is null for zero denominator, never 100 percent.",
+    "partial": "Terminal present results plus incomplete reason; candidates remain visible but gaps persist and ranking cannot upgrade completeness.",
+    "conflict": "Competing plan, slot, terminal outcome, projection, successor or foreign sibling refuses without cleanup."
+  },
+  "preview_reuse_boundary": {
+    "reuse_directly": [
+      "staging._open_batch_session",
+      "_ensure_dir_at",
+      "_open_dir_at",
+      "_atomic_install",
+      "_read_regular_file_at_bounded_identity",
+      "_require_same_directory",
+      "secure_io.file_open_flags/stamp/close_fd",
+      "ResearchError and bounded JSON/JCS/LF conventions"
+    ],
+    "reuse_structurally": [
+      "PreviewStore._directory",
+      "verify_edges",
+      "_scan",
+      "complete family snapshots",
+      "read-back identity checks",
+      "validate_all traversal shape",
+      "retained input handling"
+    ],
+    "new_required": [
+      "DiscoveryStore at discovery-v1 with new family map/content-hash filenames",
+      "rw3 registry/schemas/seal/validate/reference/graph validator",
+      "request_key/plan_id/slot-set and successor uniqueness checks",
+      "reservation/ledger/status classifier",
+      "batched resume/finalize with event-last",
+      "discovery candidate/rank/stop/control stream validators"
+    ],
+    "must_not_reuse_as_is": [
+      "PreviewStore root or W1 six-digit decision chain",
+      "W1 registry/kinds or W1 validate_graph as discovery authority",
+      "single-object write as a substitute for plan reservation and event-last finalization"
+    ],
+    "cycle_guard": "Discovery graph validation checks active ancestry before memo-cache acceptance and enforces the explicit layer edges."
+  },
+  "acceptance_vectors": [
+    "Interrupt after every install step and resume to identical bytes/one event.",
+    "Half-install a plan and verify full N reservations prevent omitted-child budget evasion.",
+    "Exercise missing/malformed/failure/timeout/rate-limit/not-found/partial/zero-result/retry branches.",
+    "Exercise duplicate slots/outcomes, competing plans/orphans, stale sets, named-edge races and event-present/missing-child refusal."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "connector": false,
+    "Vault": false,
+    "network": false,
+    "review_artifact_only": true
+  },
+  "remaining_gates": [
+    "Freeze exact fields/enums/error codes and APIs before implementation.",
+    "No builder dispatch or source implementation is authorized by this detail review."
+  ]
+}

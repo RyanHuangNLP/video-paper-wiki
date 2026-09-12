@@ -1,0 +1,23 @@
+--- steward-harness-r3.py
++++ architect-archived-steward-harness-r8.py
+@@ -496,7 +496,7 @@
+     ordered = sorted(consumed)
+     return {"object_format": fmt, "commit_oid": commit_oid, "root_tree_oid": root_oid,
+             "object_records": objects, "consumed_oids": ordered,
+-            "budget": {"object_count": len(objects), "declared_body_bytes": sum(row["body_size_bytes"] for row in objects), "actual_body_bytes": sum(len(bodies[oid]) for oid in objects), "parsed_tree_entries": sum(len(trees[oid]) for oid in trees), "target_count": len(targets), "walk_edges": sum(len(t["walk"]) for t in outputs)},
++            "budget": {"object_count": len(objects), "declared_body_bytes": sum(row["body_size_bytes"] for row in objects), "actual_body_bytes": sum(len(bodies[row["oid"]]) for row in objects), "parsed_tree_entries": sum(len(trees[oid]) for oid in trees), "target_count": len(targets), "walk_edges": sum(len(t["walk"]) for t in outputs)},
+             "targets": outputs}
+ 
+ def closure_checks(mod: types.ModuleType, variant: dict, base_kwargs: dict) -> int:
+@@ -506,9 +506,9 @@
+     result = mod.verify_code_git_objects(**good)
+     expected = derived_success_expected(fmt, objects, bodies, targets, commit_oid, root_oid)
+     for actual_target, wanted in zip(expected["targets"], variant["cases"]["all_safe"]["expected"]): check((actual_target["path"], actual_target["outcome"], actual_target["reason"]) == (wanted["path"], wanted["outcome"], wanted["reason"]), "fixture expected target")
+-    assert_success_shape(result, expected); assert_result_nonalias(result, good); checks += 1
++    assert_success_shape(result, expected); result_before_nonalias = copy.deepcopy(result); assert_result_nonalias(result, good); checks += 1
+     result2 = mod.verify_code_git_objects(**good)
+-    check(result == result2, "repeat success differs"); checks += 1
++    check(result_before_nonalias == result2, "repeat success differs"); checks += 1
+     for case_name in ("mixed_missing_unsafe", "exec_opt_in", "exec_refusal", "missing_nested", "non_directory_intermediate", "shared_subtree"):
+         o, b, t, c, r = variant_inputs(variant, case_name)
+         result = mod.verify_code_git_objects(**{**base_kwargs, "object_format": fmt, "commit_oid": c, "root_tree_oid": r, "objects": o, "bodies": b, "targets": t})

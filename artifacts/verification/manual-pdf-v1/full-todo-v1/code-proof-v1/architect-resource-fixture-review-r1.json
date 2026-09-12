@@ -1,0 +1,75 @@
+{
+  "decision": "CHANGES_REQUIRED_RESOURCE_SHAPE_FIXTURES_R1_NOT_ACCEPTED",
+  "created_at_utc": "2026-09-10T04:36:22.135201+00:00",
+  "reviewed_script": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r1/generate_resource_fixtures.py",
+    "size_bytes": 19484,
+    "sha256": "29aa5a4551e608ff2055fcf3439060977a314a8567fce6b8291608490a959605"
+  },
+  "reviewed_manifest": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r1/manifest.json",
+    "size_bytes": 7573,
+    "sha256": "fad40bae9ccc77768b3259c28fb3507aab0860026d5e3d0cc6d788650a68ed49"
+  },
+  "reviewed_readme": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r1/README.md",
+    "size_bytes": 2284,
+    "sha256": "01b739bbed5989116e20a85a43a99eca44c11489a8f611fa901f58e8a2c19980"
+  },
+  "contracts": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "size_bytes": 12868,
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "size_bytes": 20246,
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "size_bytes": 10225,
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    }
+  ],
+  "findings": [
+    {
+      "id": "ORDINARY_REQUEST_EXTRA_PROFILE_FIELD",
+      "contract": "R7 ordinary request excludes profile_sha256; installed profile selects it.",
+      "file": "inputs/request-input-sha1.json",
+      "observed_extra_field": "profile_sha256",
+      "reproduced": true
+    },
+    {
+      "id": "INPUT_BUNDLE_DIRECTORY_OUTSIDE_WORK",
+      "contract": "R3/R4/R7 require a canonical checkout-relative .work input bundle directory.",
+      "file": "saved/sha1-raw/intent.json",
+      "observed": "resource-fixtures-r1/sha1-raw/input",
+      "reproduced": true
+    },
+    {
+      "id": "OUTPUT_REFERENCES_NOT_CHECKOUT_RELATIVE_LAYOUT",
+      "contract": "R4 raw_body.path and R7 success/status paths are complete checkout-relative stored paths under .work/<batch>/code-evidence-v1.",
+      "files": [
+        "saved/sha1-raw/config.json",
+        "saved/sha1-raw/handoff.json",
+        "success-data/sha1-status.json",
+        "success-data/sha1-config.json",
+        "success-data/sha1-handoff.json"
+      ],
+      "observed": {
+        "raw_body": "objects/1c88abc1abd77bc3ab98ff4dc06714e2614218a4.body",
+        "config_path": "configs/587cb980af76fdc7e52369fd0b9d926dff266976b6f8ac631e358fecc49ff8cf.json",
+        "handoff_path": "handoffs/587cb980af76fdc7e52369fd0b9d926dff266976b6f8ac631e358fecc49ff8cf.json"
+      },
+      "reproduced": true
+    }
+  ],
+  "scope": "These are independent fixture-preparation defects, not failures of a public CODE implementation or the running CONFIG Builder. Preserve R1. Correct only additive fixture artifacts in resource-fixtures-r2; no production/schema/test/Git changes."
+}

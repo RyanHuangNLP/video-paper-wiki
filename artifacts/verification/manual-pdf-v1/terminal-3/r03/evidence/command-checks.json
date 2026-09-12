@@ -1,0 +1,512 @@
+{
+  "interpreter_installed": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+  "interpreter_source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+  "cwd_outside_source": "/private/tmp/vp.t3rel",
+  "entry": "python -I -B -m video_paper_wiki_research",
+  "not_used": "python -m video_paper_wiki_research.cli",
+  "pythonpath_installed": "",
+  "pythonpath_source": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src",
+  "commands": [
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "--help"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": null,
+      "stderr": "",
+      "ok": true,
+      "status": "HELP",
+      "name": "installed-help",
+      "stdout_head": "usage: vpwiki-research [-h] {pdf,index,qa,writing} ...\n\npositional arguments:\n  {pdf,index,qa,writing}\n\noptions:\n  -h, --help            show this help message and exit\n"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-c",
+        "\nimport hashlib, json\nfrom importlib import import_module\nfrom pathlib import Path\nout = {}\nfor name in ['cli', 'light_index', 'light_pdf', 'light_qa', 'light_writing']:\n    mod = import_module(\"video_paper_wiki_research.\" + name)\n    path = Path(mod.__file__)\n    out[name] = {\"file\": str(path), \"sha256\": hashlib.sha256(path.read_bytes()).hexdigest()}\npkg = import_module(\"video_paper_wiki_research\")\nout[\"package\"] = {\"file\": str(Path(pkg.__file__)), \"sha256\": hashlib.sha256(Path(pkg.__file__).read_bytes()).hexdigest()}\nprint(json.dumps(out))\n"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.164,
+      "stderr": "",
+      "ok": null,
+      "status": null,
+      "name": "installed-modules"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-B",
+        "-c",
+        "\nimport hashlib, json\nfrom importlib import import_module\nfrom pathlib import Path\nout = {}\nfor name in ['cli', 'light_index', 'light_pdf', 'light_qa', 'light_writing']:\n    mod = import_module(\"video_paper_wiki_research.\" + name)\n    path = Path(mod.__file__)\n    out[name] = {\"file\": str(path), \"sha256\": hashlib.sha256(path.read_bytes()).hexdigest()}\npkg = import_module(\"video_paper_wiki_research\")\nout[\"package\"] = {\"file\": str(Path(pkg.__file__)), \"sha256\": hashlib.sha256(Path(pkg.__file__).read_bytes()).hexdigest()}\nprint(json.dumps(out))\n"
+      ],
+      "exit_code": 0,
+      "pythonpath": "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/src",
+      "isolated_flags": [
+        "-B"
+      ],
+      "duration_s": 0.092,
+      "stderr": "",
+      "ok": null,
+      "status": null,
+      "name": "source-pythonpath-import"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "pdf",
+        "add",
+        "--pdf",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/inbox/arxiv-2204.03458.pdf",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace",
+        "--title",
+        "Video Diffusion Models"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.255,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "page_count": 15,
+      "paper_id": "sha256:564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f",
+      "warnings": [],
+      "name": "pdf-add",
+      "pdf": "/Users/huangzhanpeng/python_code/video-paper-wiki/inbox/arxiv-2204.03458.pdf",
+      "pdf_sha256": "564428dc63dfe59725377fbcf0b108e1fcc3378b82f32c5b042ce861679da96f"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "index",
+        "build",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.135,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "7398902679b4a7348a1f3479269c0323699811195f8601c437f735e935a23611",
+      "paper_count": 1,
+      "chunk_count": 19,
+      "size_bytes": 122961,
+      "message": "built workspace lexical index",
+      "name": "index-build"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "What method does this paper propose?",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.134,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "7398902679b4a7348a1f3479269c0323699811195f8601c437f735e935a23611",
+      "message": "exported local context for the current conversation model",
+      "name": "qa-export",
+      "question": "What method does this paper propose?",
+      "evidence_count": 8
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "这篇论文的方法是什么？",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 2,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.134,
+      "stderr": "",
+      "ok": false,
+      "status": "NO_RESULTS",
+      "index_id": "7398902679b4a7348a1f3479269c0323699811195f8601c437f735e935a23611",
+      "message": "query produced no lexical matches",
+      "name": "qa-export-zh-limit",
+      "question": "这篇论文的方法是什么?",
+      "conclusion": "NO_RESULTS as documented Chinese-lexical vs English-PDF limit"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "writing",
+        "export",
+        "--topic",
+        "video diffusion models",
+        "--requirements",
+        "Two short paragraphs citing original PDF file pages",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.134,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "7398902679b4a7348a1f3479269c0323699811195f8601c437f735e935a23611",
+      "message": "exported local context for the current conversation model",
+      "name": "writing-export",
+      "evidence_count": 8
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "import",
+        "--context",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/qa-context.json",
+        "--answer",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/qa-answer.json",
+        "--output",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/qa answer.md",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.13,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/qa answer.md",
+      "message": "Citations jointly match the provided evidence items. This is a structural citation check, not a factual-correctness review.",
+      "name": "qa-import",
+      "output": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/qa answer.md"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "writing",
+        "import",
+        "--context",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/writing-context.json",
+        "--draft",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/writing-draft.json",
+        "--output",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/writing draft.md",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.132,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/writing draft.md",
+      "message": "Citations jointly match the provided evidence items. This is a structural citation check, not a factual-correctness review.",
+      "name": "writing-import",
+      "output": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-release-parallel-v1/terminal-3/import outputs/writing draft.md"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "What method does this paper propose?",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 2,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.134,
+      "stderr": "",
+      "ok": false,
+      "status": "INDEX_STALE",
+      "index_id": "7398902679b4a7348a1f3479269c0323699811195f8601c437f735e935a23611",
+      "message": "workspace Markdown or paper set disagrees with the stored index",
+      "name": "qa-export-after-source-md-edit"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "index",
+        "build",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.135,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "5ce07cabf6a3043421d9d3d3e33286be01c44baf8c15204f35c01f6dd5c0d6d9",
+      "paper_count": 1,
+      "chunk_count": 19,
+      "size_bytes": 123069,
+      "message": "built workspace lexical index",
+      "name": "index-build-after-stale"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "What method does this paper propose?",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/workspace"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.135,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "5ce07cabf6a3043421d9d3d3e33286be01c44baf8c15204f35c01f6dd5c0d6d9",
+      "message": "exported local context for the current conversation model",
+      "name": "qa-export-after-rebuild"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "quasar",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/legacy-restore"
+      ],
+      "exit_code": 2,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.133,
+      "stderr": "",
+      "ok": false,
+      "status": "INDEX_STALE",
+      "index_id": "c61f5db3e0a161c2cb51c829c83e8cd235ddecab9b7406c3f88332dd3fb43dc4",
+      "message": "workspace Markdown or paper set disagrees with the stored index",
+      "name": "legacy-quasar-before-rebuild"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "index",
+        "build",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/legacy-restore"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.133,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "c2cc45d3a7c5b4faaea2c0ff9e976d93222f9ee3840b6dac71d24cac46e7162a",
+      "paper_count": 1,
+      "chunk_count": 2,
+      "size_bytes": 2353,
+      "message": "built workspace lexical index",
+      "name": "legacy-index-build"
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "quasar",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/legacy-restore"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.133,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "c2cc45d3a7c5b4faaea2c0ff9e976d93222f9ee3840b6dac71d24cac46e7162a",
+      "message": "exported local context for the current conversation model",
+      "name": "legacy-quasar-after",
+      "pages": [
+        1
+      ]
+    },
+    {
+      "cwd": "/private/tmp/vp.t3rel",
+      "argv": [
+        "/Users/huangzhanpeng/.grok/worktrees/python-code-video-paper-wiki/integration/.work/r06-wheel-prefix/venv/bin/python",
+        "-I",
+        "-B",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--question",
+        "nebula",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-release-parallel-v1/terminal-3/.work/legacy-restore"
+      ],
+      "exit_code": 0,
+      "pythonpath": "",
+      "isolated_flags": [
+        "-I",
+        "-B"
+      ],
+      "duration_s": 0.135,
+      "stderr": "",
+      "ok": true,
+      "status": "OK",
+      "index_id": "c2cc45d3a7c5b4faaea2c0ff9e976d93222f9ee3840b6dac71d24cac46e7162a",
+      "message": "exported local context for the current conversation model",
+      "name": "legacy-nebula-after",
+      "pages": [
+        2
+      ]
+    }
+  ],
+  "conclusion": "Documented installed entry and the pdf-add → index-build → export → current-session JSON → import path succeeded on inbox arxiv-2204.03458.pdf. Href targets were resolved from output.parent, not by concatenating papers/ onto the workspace. Chinese question against this English PDF returned NO_RESULTS as the documented lexical limit."
+}

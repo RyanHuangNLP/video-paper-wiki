@@ -1,0 +1,68 @@
+{
+  "schema": "full-todo.code-io-diagnostic-replay-harness-review-r2.v1",
+  "recorded_at_utc": "2026-09-11T04:13:14.127847+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO",
+  "scope": "AST-only independent review of the R2 diagnostic replay harnesses against their immutable R1 siblings. No diagnostic execution, import, source candidate, Git, model, status, lease, or process action occurred.",
+  "inputs": {
+    "io_r1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_diagnostics_r1.py",
+      "size_bytes": 7338,
+      "sha256": "76c3a5fe7f1fbfa1e8ca0594b77ae1c2f77b2039e0b0e9ec4f4eaaf67d58b337"
+    },
+    "io_r2": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_diagnostics_r2.py",
+      "size_bytes": 7791,
+      "sha256": "2f51947ae9b67dd950824d8a784fb4db85451b38ca5089961ae19bcf3ef2bf37"
+    },
+    "bundle_r1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_bundle_diagnostics_r1.py",
+      "size_bytes": 5168,
+      "sha256": "93c2cc45aa0eada88b183b5a3a47b53c09624dad1875da767e9ed54aa71086b1"
+    },
+    "bundle_r2": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_bundle_diagnostics_r2.py",
+      "size_bytes": 5631,
+      "sha256": "d192796a00d7b64bf84bc9b4e6cfe26689ca10005e4d9c317d2fe5847646521d"
+    },
+    "review_source_sha256": "a5113bf49b469a5d8f62df599b40c6c13c5162e2f29be131a2b894ad1757e431"
+  },
+  "ast_review": {
+    "all_four_scripts_parse": true,
+    "case_definition_comparison": [
+      {
+        "script": "io",
+        "ast_parse_passed": true,
+        "nested_case_definition_names_equal": true,
+        "nested_case_definitions_bytecode_free_ast_equal": true
+      },
+      {
+        "script": "bundle",
+        "ast_parse_passed": true,
+        "nested_case_definition_names_equal": true,
+        "nested_case_definitions_bytecode_free_ast_equal": true
+      }
+    ],
+    "r1_to_r2_change_audit": [
+      "Each R2 docstring identifies replay against an explicitly pinned review source.",
+      "Each R2 validates exactly three argv values, accepts an explicit 64-character lowercase hexadecimal source SHA256, and checks the imported module bytes against it before creating scratch fixtures.",
+      "Each R2 pins the initial source and compares a final source pin before writing its result; the result records source_unchanged=true and expected_source_sha256.",
+      "No diagnostic case body, case name, expected description, or capture behavior changed; nested case definitions are AST-identical to R1 and the textual diff contains only the intended header/guard/result metadata changes."
+    ]
+  },
+  "safety_and_truthfulness": {
+    "source_pin_binding": "PASS: the caller-supplied exact lowercase SHA256 is validated and compared to the imported code_proof_io.py bytes before any diagnostic scratch root is created.",
+    "pre_post_guard": "PASS: both scripts retain the initial source pin, compare the final source pin for equality, and refuse before result publication if the review source changes during replay.",
+    "case_reporting": "PASS: actual outcomes continue to be captured per named case alongside unchanged expected descriptions; no new overall-pass assertion or source-acceptance claim was added.",
+    "result_semantics": "PASS: candidate_accepted remains false and product_source_modified remains false; source_unchanged and expected_source_sha256 are bounded replay metadata, not acceptance.",
+    "side_effect_scope": "PASS by AST review: only the existing /private/tmp scratch root and requested result file are written by the harness; no product/Git/Vault mutation path was added."
+  },
+  "nonblocking_notes": [
+    "The scripts use assertions for argument and pre/post guard refusal, matching the R1 harness style; the authorized locked invocation is the normal non-optimized Python runtime. No execution was performed in this review.",
+    "Argument arity is checked after reading argv[1] and checking that the requested result path is absent; malformed or missing arguments still fail before scratch creation or result writing."
+  ],
+  "blocking_findings": [],
+  "candidate_accepted": false,
+  "source_executed": false,
+  "execution_boundary": "AST parsing and static textual comparison only. No import, diagnostic replay, returned source, product file, Git, model, status, lease, process handle, or candidate mutation."
+}

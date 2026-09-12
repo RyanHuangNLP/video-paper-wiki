@@ -1,0 +1,92 @@
+..........................F.F......                                      [100%]
+=================================== FAILURES ===================================
+________________ test_declared_and_actual_caps_precede_hashing _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1046b5f30>
+
+    def test_declared_and_actual_caps_precede_hashing(monkeypatch: pytest.MonkeyPatch) -> None:
+        hash_calls = {"n": 0}
+        real_sha1 = hashlib.sha1
+        real_sha256 = hashlib.sha256
+    
+        def wrapped_sha1(*args: object, **kwargs: object):
+            hash_calls["n"] += 1
+            return real_sha1(*args, **kwargs)
+    
+        def wrapped_sha256(*args: object, **kwargs: object):
+            hash_calls["n"] += 1
+            return real_sha256(*args, **kwargs)
+    
+        monkeypatch.setattr(hashlib, "sha1", wrapped_sha1)
+        monkeypatch.setattr(hashlib, "sha256", wrapped_sha256)
+    
+        args = _minimal_graph("sha1")
+        args["objects"][0]["body_size_bytes"] = 100
+        args["limits"]["max_object_bytes"] = 10
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(exc.value, CODE_PROOF_LIMIT_EXCEEDED, limit_name="max_object_bytes")
+>       assert hash_calls["n"] == 0
+E       assert 6 == 0
+
+tests/unit/test_code_git_objects.py:578: AssertionError
+_______________ test_type_mismatch_omitted_object_and_unused_set _______________
+
+    def test_type_mismatch_omitted_object_and_unused_set() -> None:
+        blob_rec, blob_body = _record("sha1", "blob", b"hello\n")
+        tree_body = _tree_bytes("sha1", [("40000", b"src", blob_rec["oid"])])
+        args = _minimal_graph(
+            "sha1",
+            tree_body=tree_body,
+            extra_objects=[(blob_rec, blob_body)],
+            targets=[{"path": "src/x", "allow_executable_source": False}],
+        )
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(
+            exc.value,
+            CODE_PROOF_OBJECT_TYPE_MISMATCH,
+            oid=blob_rec["oid"],
+            expected_type="tree",
+            actual_type="blob",
+        )
+    
+        args = _minimal_graph(
+            "sha1",
+            tree_body=_tree_bytes("sha1", [("100644", b"file.py", blob_rec["oid"])]),
+            targets=[{"path": "file.py", "allow_executable_source": False}],
+        )
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+        _assert_error(exc.value, CODE_PROOF_OBJECT_UNAVAILABLE, missing_oids=[blob_rec["oid"]])
+    
+        unused_tree, unused_body = _record("sha1", "tree", b"")
+        args = _minimal_graph("sha1", extra_objects=[(unused_tree, unused_body)])
+        with pytest.raises(CodeGitProofError) as exc:
+            verify_code_git_objects(**args)
+>       _assert_error(
+            exc.value,
+            CODE_PROOF_CONSUMED_SET_MISMATCH,
+            unused_oids=[unused_tree["oid"]],
+        )
+
+tests/unit/test_code_git_objects.py:672: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+exc = CodeGitProofError('code git proof input is invalid')
+code = 'CODE_PROOF_CONSUMED_SET_MISMATCH'
+details = {'unused_oids': ['4b825dc642cb6eb9a060e54bf8d69288fbee4904']}
+
+    def _assert_error(exc: CodeGitProofError, code: str, **details: object) -> None:
+        assert isinstance(exc, CodeGitProofError)
+>       assert exc.code == code
+E       AssertionError: assert 'CODE_PROOF_INPUT_INVALID' == 'CODE_PROOF_C..._SET_MISMATCH'
+E         
+E         - CODE_PROOF_CONSUMED_SET_MISMATCH
+E         + CODE_PROOF_INPUT_INVALID
+
+tests/unit/test_code_git_objects.py:135: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_code_git_objects.py::test_declared_and_actual_caps_precede_hashing
+FAILED tests/unit/test_code_git_objects.py::test_type_mismatch_omitted_object_and_unused_set
+2 failed, 33 passed in 0.05s

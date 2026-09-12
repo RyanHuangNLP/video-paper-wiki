@@ -1,0 +1,62 @@
+{
+  "schema": "full-todo.code-git-kernel-architect-dispatch-blocker.v1",
+  "recorded_at_utc": "2026-09-09T15:17:27.087672+00:00",
+  "status": "EXTERNAL_GROK_BUILD_RETRY_BLOCKED_PENDING_INFORMED_USER_AUTHORIZATION",
+  "runtime": "grok-build-cli",
+  "model": "grok-4.6",
+  "reasoning_effort": "xhigh",
+  "normal_attempt": {
+    "process_owner_role": "Progress Monitor",
+    "exit_code": 1,
+    "session_created": false,
+    "stdout": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-r1.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "stderr": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-r1.stderr.log",
+      "sha256": "e6aa43cd6a96818db3970712dea65518fe084570b412269f2f4e0c13e1126ea2",
+      "size_bytes": 4107
+    },
+    "observed_failure": "service DNS failures and FS_PERMISSION_DENIED before session creation"
+  },
+  "escalated_retry": {
+    "executed": false,
+    "automatic_review_rejected": true,
+    "reason": "Although the user-authorized Grok implementation is narrowly scoped to the frozen worktree, retrying the authenticated external Grok service can transmit private project/prompt contents to an untrusted destination, and that specific sensitive egress is not explicitly authorized.",
+    "required_next_step": "User explicitly approves current payload to the external service after being informed of risk; no workaround/indirect execution/policy circumvention."
+  },
+  "prepared_payload": {
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-freeze-r1.json",
+      "sha256": "0ad3c58f2704caa0c0c2aee1aeb763c9a53c85cf2c592f8545d45b81b0664129",
+      "size_bytes": 5542
+    },
+    "prompt": {
+      "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-IMPLEMENT-R1.md",
+      "sha256": "143b9b1e00738923abd2ec46ff65050d9f2657056be109fa4a400a9346c41c7d",
+      "size_bytes": 4969
+    },
+    "fixture": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/independent-git-fixture-v1.json",
+      "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0",
+      "size_bytes": 52532
+    }
+  },
+  "pending_user_question": {
+    "destination": "cli-chat-proxy.grok.com",
+    "payload": "CODE Git kernel work packet, contracts, synthetic fixture, project source/tests and logs needed for implementation and testing",
+    "private_content_risk_disclosed": true,
+    "answer_received": false
+  },
+  "implementation_started": false,
+  "builder_candidate_exists": false,
+  "source_writes": false,
+  "git_or_public_remote_mutation": false,
+  "independent_local_work_continues": [
+    "configuration contract review and static fixture preparation",
+    "public identity/layout design"
+  ],
+  "separate_public70path_push_authorization": "still pending; not implied by Grok selection or this request"
+}

@@ -1,0 +1,280 @@
+{
+  "schema": "full-todo.code-proof-io-api-seam-advisory.v15",
+  "recorded_at_utc": "2026-09-11T02:02:53.684720+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "ADVISORY_R14_REQUIRES_OD_RDWR_AND_EXPLICIT_LIMIT_ERROR_SEAMS",
+  "scope": "Read-only API seam advisory answering only the R14 O_RDWR gap, the R6 flat output-limit projection against the full three-group foundation limits, and the minimal private error facade. No source, test, build, Git, lease, process, model, UI, provider, network, kernel, or legacy changes.",
+  "reviewed_inputs": [
+    {
+      "label": "r6",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-IO-R6.md",
+      "size_bytes": 15524,
+      "sha256": "94d991ba5cabe0c974e7b7299b5ab651d35908bc0b2b32042bfdf08d55010d92"
+    },
+    {
+      "label": "r8",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "size_bytes": 15471,
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "label": "r9",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "size_bytes": 12611,
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "label": "r13",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-FOUNDATION-INTEGRATION-R13.md",
+      "size_bytes": 6544,
+      "sha256": "4ef374733c4bba9824249a5f13e19727d4d3bd5957461bba561c36bc7ef86863"
+    },
+    {
+      "label": "r14",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IO-CONCRETE-CLOSURES-R14.md",
+      "size_bytes": 8950,
+      "sha256": "5c877a236f681ffeda0cdcaba090027d3615b3a9bc6aa1dccbc6ebaccfd04052"
+    },
+    {
+      "label": "identity_layout_r4",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "size_bytes": 12868,
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0"
+    },
+    {
+      "label": "foundation_r1",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-R1.md",
+      "size_bytes": 10733,
+      "sha256": "0f47d76c06b1c7e008de3a789ca920e34258e8827631ef98739489fe9e3a27a8"
+    },
+    {
+      "label": "foundation_r2",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-FOUNDATION-CLARIFICATIONS-R2.md",
+      "size_bytes": 5064,
+      "sha256": "66b675218af715d0ecc82295f905f5a961cb80305748ca273649ec425b1905b0"
+    },
+    {
+      "label": "wire_r7",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "size_bytes": 20246,
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "label": "input_caps_r10",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-INPUT-CAPS-R10.md",
+      "size_bytes": 3502,
+      "sha256": "4c01d0803c638922b47b05a3efbc05c4e8c1dbe10375c4c883a0a77b582135e5"
+    },
+    {
+      "label": "cap_disposition_r11",
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CAP-DISPOSITION-R11.md",
+      "size_bytes": 3633,
+      "sha256": "b039814604cd61c6360b8469ed8aba89c57293d083dde43a83ee0ea666709a04"
+    }
+  ],
+  "od_rdwr_gap": {
+    "status": "REQUIRED_R14_AMENDMENT",
+    "finding": "R6 requires the private temp to have read/write access and requires exact same-descriptor payload rereads before link and during final verification. R14 lists O_RDONLY and O_WRONLY but omits O_RDWR from its capability preflight.",
+    "required_contract": [
+      "Require an integer os.O_RDWR capability in the per-session snapshot; it must be a usable nonzero protection flag, just as the other access flags are checked.",
+      "Open the owned temporary with O_RDWR|O_CREAT|O_EXCL|O_NOFOLLOW|O_CLOEXEC and the retained parent dir_fd. Keep that one descriptor for bounded writes, seek/read exact-payload checks, fstat and cleanup.",
+      "Keep O_RDONLY for retained resources, metadata and raw inputs. O_WRONLY is not a substitute for the temp because it cannot support the required same-descriptor readback; do not silently open a second path-based or independent read descriptor.",
+      "Classify a missing or unusable O_RDWR primitive as unavailable_primitive before output creation, using the existing R8 I/O detail and final-verification precedence."
+    ],
+    "consequence": "Until O_RDWR is named and tested, R14 does not fully prove the R6/R8 installer contract on a path that writes and then rereads the same temporary inode."
+  },
+  "limits_seam": {
+    "status": "EXPLICIT_PROJECTION_REQUIRED",
+    "foundation_input_and_result": {
+      "method": "CodeProofResources.materialize_limits(value)",
+      "shape": "Independent plain nested map with exactly git, config and public groups; caller input is the complete three-group map or the private omission sentinel None.",
+      "git_keys": [
+        "max_targets",
+        "max_objects",
+        "max_tree_entries",
+        "max_object_bytes",
+        "max_total_object_bytes"
+      ],
+      "config_keys": [
+        "max_source_bytes",
+        "max_depth",
+        "max_nodes",
+        "max_array_items",
+        "max_object_keys",
+        "max_key_bytes",
+        "max_string_codepoints",
+        "max_scalars",
+        "max_numeric_lexeme_bytes",
+        "max_numeric_coefficient_digits",
+        "max_numeric_abs_exponent",
+        "max_numeric_canonical_bytes",
+        "max_declarations"
+      ],
+      "public_keys": [
+        "max_bundle_bytes",
+        "max_inline_normalized_bytes",
+        "max_request_bytes",
+        "max_intent_bytes",
+        "max_observation_bytes",
+        "max_config_document_bytes",
+        "max_handoff_bytes",
+        "max_output_peak_bytes"
+      ],
+      "admission": {
+        "max_request_input_bytes": 65536,
+        "max_observe_input_bytes": 1048576,
+        "lowerable": false
+      }
+    },
+    "set_output_limits_flat": {
+      "exact_keys": [
+        "max_request_bytes",
+        "max_intent_bytes",
+        "max_bundle_bytes",
+        "max_observation_bytes",
+        "max_config_document_bytes",
+        "max_handoff_bytes",
+        "max_output_peak_bytes"
+      ],
+      "mapping": {
+        "max_request_bytes": "materialized[\"public\"][\"max_request_bytes\"] -> request.json saved bytes",
+        "max_intent_bytes": "materialized[\"public\"][\"max_intent_bytes\"] -> intent.json saved bytes",
+        "max_bundle_bytes": "materialized[\"public\"][\"max_bundle_bytes\"] -> retained manifest and byte-identical bundle.json saved bytes",
+        "max_observation_bytes": "materialized[\"public\"][\"max_observation_bytes\"] -> observation.json saved bytes",
+        "max_config_document_bytes": "materialized[\"public\"][\"max_config_document_bytes\"] -> each configs/*.json saved bytes",
+        "max_handoff_bytes": "materialized[\"public\"][\"max_handoff_bytes\"] -> each handoffs/*.json saved bytes",
+        "max_output_peak_bytes": "materialized[\"public\"][\"max_output_peak_bytes\"] -> retained logical bytes plus the concrete installer peak"
+      },
+      "validation": "The session receives a fresh exact builtin flat dict, validates the seven-key set and positive values within the corresponding hard maxima, copies it, and permits one narrowing only. It rejects nested groups, admission keys, semantic-only keys, extra keys, missing keys, bools, nonpositive values and later widening.",
+      "excluded_by_design": {
+        "max_inline_normalized_bytes": "Semantic normalized-target input bound; enforce during public preflight from the full public group before session installation, not in the filesystem output setter.",
+        "admission_caps": "Fixed raw request/observe reader caps; they are not materialized request limits and are enforced before JSON decoding.",
+        "config_group": "Consumed by the pure configuration parser and derivation; it is not an output-layout map.",
+        "git_group": "Consumed separately by pure Git validation and raw-body retention; it is not an output-layout map."
+      }
+    },
+    "git_projection": {
+      "retain_bundle_bodies_argument": "Pass a fresh exact five-key materialized[\"git\"] projection, preserving max_targets, max_objects, max_tree_entries, max_object_bytes and max_total_object_bytes.",
+      "io_enforced_byte_subset": [
+        "max_object_bytes",
+        "max_total_object_bytes"
+      ],
+      "rule": "The retained body reader must enforce the lowered per-object and aggregate byte caps before/while bounded reads. The pure Git kernel still receives all five lowered Git limits and keeps its own frozen codes/details; do not flatten Git keys into set_output_limits or silently substitute profile hard bytecaps."
+    },
+    "ordering_and_budget": [
+      "Materialize and validate the complete nested limits map before any new intent write.",
+      "Run semantic validation, saved-envelope serialization and all deterministic output-peak simulation from the nested map.",
+      "Project the seven output keys once into set_output_limits before the first install; current retained bytes and each missing payload must use the lowered max_output_peak_bytes with R9 C+2*N accounting.",
+      "Keep raw body retention on the separate five-key Git projection and preserve lowered max_object_bytes/max_total_object_bytes independently of output caps."
+    ],
+    "consequence": "This preserves the full3group foundation contract, makes the R6 setter exact and non-ambiguous, and prevents either max_inline_normalized_bytes or lowered Git bytecaps from disappearing during orchestration."
+  },
+  "private_error_facade": {
+    "status": "MINIMAL_ADAPTER_RECOMMENDED",
+    "private_surface": {
+      "io_failure": "One private retained-I/O failure record carrying a frozen public code plus the exact nine-field R8 detail object; no raw exception/path/parser text and no public envelope construction inside the I/O graph.",
+      "resource_failure": "Use the foundation CodeProofResourceError with only reason in resource_origin/resource_hash/resource_shape and its fixed safe message; the retained-I/O adapter maps it to CODE_PROOF_RESOURCE_INVALID with the R8 detail shape when the initial resource state remains unchanged.",
+      "structure_failure": "Use CodeProofStructureError with only type/shape/limits and its fixed safe message; the public orchestrator maps it after strict input parsing to its existing bounded semantic context, normally CODE_PROOF_DOCUMENT_INVALID with a known pointer/reason.",
+      "active_session_misuse": "Keep RuntimeError(\"CODE session is not active\") private for before-yield/finalizing/after-close wrapper misuse; it is not a wire or CLI error."
+    },
+    "r8_detail_exact_shape": {
+      "fields": [
+        "phase",
+        "group",
+        "reason",
+        "operation",
+        "errno",
+        "prior_code",
+        "prior_operation",
+        "prior_errno",
+        "failed_groups"
+      ],
+      "phase": [
+        "setup",
+        "scan",
+        "retaining",
+        "temp_created",
+        "writing",
+        "temp_ready",
+        "linked",
+        "cleaned",
+        "durable",
+        "final_verify",
+        "closing"
+      ],
+      "group": [
+        "checkout",
+        "ancestors",
+        "resources",
+        "metadata",
+        "bundle",
+        "output_layout",
+        "output_files",
+        "installation",
+        null
+      ],
+      "reason": [
+        "unavailable_primitive",
+        "lock_busy",
+        "missing",
+        "unsafe_type",
+        "unsafe_mode",
+        "link_count",
+        "edge_changed",
+        "bytes_changed",
+        "set_changed",
+        "late_arrival",
+        "temp_ownership_lost",
+        "phase_mismatch",
+        "syscall_failed",
+        "zero_write",
+        "path_spelling",
+        "overlap",
+        "unknown_entry",
+        "batch_id",
+        "marker_invalid",
+        "resource_hash",
+        "resource_shape",
+        "resource_origin"
+      ],
+      "operation": [
+        null,
+        "open",
+        "stat",
+        "fstat",
+        "scandir",
+        "read",
+        "seek",
+        "mkdir",
+        "write",
+        "link",
+        "unlink",
+        "fsync",
+        "flock",
+        "dup",
+        "close"
+      ],
+      "errno": "null or integer 0..65535",
+      "prior_fields": [
+        "prior_code",
+        "prior_operation",
+        "prior_errno"
+      ],
+      "failed_groups": "unique fixed-order group tokens, at most eight"
+    },
+    "public_code_mapping": [
+      "WORK_PATH_UNSAFE wins whenever a retained edge, stamp, byte set or complete set persistently changes or becomes uncheckable, regardless of the earlier semantic, limit, resource, operation or cleanup error.",
+      "If no lineage failure exists, a cleanup I/O failure outranks the original operation error; otherwise preserve the original bounded operation error.",
+      "Use CODE_PROOF_BUSY for the nonblocking checkout-lock contention context and CODE_PROOF_IO_ERROR for ordinary retained I/O/unavailable-primitive failures, both with exit code 2.",
+      "Use CODE_PROOF_RESOURCE_INVALID for unchanged initial resource missing/type/mode/link/hash/shape/origin outcomes, represented through the R8 detail fields and R9 extended reason set.",
+      "Keep CODE_PROOF_LIMIT_EXCEEDED details exactly {instance_pointer, limit_name, limit, observed}; keep CODE_PROOF_CONFLICT exactly {instance_pointer, reason}. Do not wrap either in the R8 I/O detail or change their contexts.",
+      "Propagate frozen pure Git/config kernel error codes and details unchanged when no retained-lineage failure overrides them."
+    ],
+    "cli_compatibility": "At the command boundary, adapt the selected private code/details into the existing CLI error envelope and renderer. Do not add a new outer error schema, alter legacy commands, change the Git/config kernels, or route through legacy path/resource loaders. Private safe messages remain fixed and source-free; suppress raw exception chaining."
+  },
+  "bounded_conclusion": [
+    "Amend the next I/O freeze with O_RDWR and same-descriptor temporary readback requirements.",
+    "Freeze set_output_limits as the exact seven-key public output projection, retaining full nested limits above it and a separate full five-key Git projection for body/kernel paths.",
+    "Use one private R8-shaped retained-I/O adapter plus the existing foundation private resource/structure errors and existing CLI envelope mapping."
+  ]
+}

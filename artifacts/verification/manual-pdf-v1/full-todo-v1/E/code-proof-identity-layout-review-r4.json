@@ -1,0 +1,115 @@
+{
+  "$schema": "full-todo.code-proof-identity-layout-review-r4.v1",
+  "schema": "full-todo.code-proof-identity-layout-review-r4.v1",
+  "packet": "CODE-PROOF-IDENTITY-LAYOUT-R4",
+  "revision": "R4-independent-identity-layout-review",
+  "recorded_at_utc": "2026-09-09T15:34:38.060174000Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent bounded CODE-PROOF identity, layout and budget reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CHANGES_REQUIRED_BEFORE_PUBLIC_WIRE_FREEZE",
+  "verdict": "R4 closes the principal identity and layout decisions: the six ce1 envelopes use a no-LF core digest and saved-byte reference, while the existing source-association reference remains the legacy no-LF digest; the output is a seven-slot layout with bounded families; path-key names are deterministic and collision-refusing; raw and normalized modes are separated; and the 128 MiB rule accounts for an absent target plus one same-inode temporary install. Two concrete contract ambiguities remain before implementation: reuse is stated both as unconditional for an existing identical target and as safe only when the target was present in the initial scan, and the normalized-only family prohibition is scoped only to completed batches even though the inherited closure forbids bundle/objects by mode and R4 permits empty known families after interruption. The exact public schemas and concrete retained-I/O installer remain explicitly separate freezes.",
+  "scope": "Read-only review of CODE-PROOF-IDENTITY-LAYOUT-R4 against unchanged CODE-PROOF-DESIGN-R2 and CODE-PROOF-CLOSURE-R3, with the actual jcs and source_semantics association-reference authorities. No source, schema, test, Git, provider, network, connector, Vault, implementation or rejected fixture mutation.",
+  "frozen_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe",
+      "size_bytes": 12868
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-DESIGN-R2.md",
+      "sha256": "eb1dc42ac1012f51f6c645880002ee5b87c9149689705ea70551849210966a57",
+      "size_bytes": 19802
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5",
+      "size_bytes": 13987
+    },
+    {
+      "path": "src/video_paper_wiki/jcs.py",
+      "sha256": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6",
+      "size_bytes": 2255,
+      "lines": "1-70"
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/source_semantics_contracts.py",
+      "sha256": "406a1c1b14e53dcaec7bd9f3656de877923a46575423fa5d37549cebd082b790",
+      "size_bytes": 13467,
+      "lines": "95-101,140-161"
+    }
+  ],
+  "identity_layout_matrix": [
+    {
+      "id": "CPI-R4-CE1-001",
+      "status": "PASS_WITH_PUBLIC_SCHEMA_DEPENDENCY",
+      "evidence": "R4 lines 13-33 fixes exactly six kinds, core={schema,kind,data}, ce1 ID as SHA-256 of canonical core bytes without LF, saved envelope as canonical full envelope plus one LF, and reference SHA-256 over those saved bytes. jcs.canonicalize at lines 62-70 returns UTF-8 canonical bytes without LF; its key order at lines 22-24 and integer-only serializer at lines 30-59 match the declared authority.",
+      "residual": "The exact closed data fields, bounds and validation/error records remain intentionally deferred to the separate public-wire freeze; implementation must not infer them from jcs.canonicalize alone."
+    },
+    {
+      "id": "CPI-R4-ASSOCIATION-002",
+      "status": "PASS",
+      "evidence": "R4 lines 58-63 explicitly preserves the existing {association_id,sha256} reference and forbids a saved-LF conversion. source_semantics_contracts.association_reference at lines 154-156 validates the legacy association and calls digest(doc); digest at lines 95-101 hashes canonicalize(doc), which is the actual no-terminal-LF domain. The ce1 saved-byte reference is therefore a distinct, non-interchangeable domain as R4 states."
+    },
+    {
+      "id": "CPI-R4-LAYOUT-003",
+      "status": "PASS_WITH_PUBLIC_SCHEMA_DEPENDENCY",
+      "evidence": "R4 lines 65-118 fixes four direct file slots and three bounded families, explicitly calls this a seven-slot layout rather than a literal twelve-path allowlist, fixes per-file/family caps, exact OID widths/suffixes, path-key derivation and collision refusal, permissions, input complete-set rules and output/input disjointness. This is the amended allowlist permitted by CLOSURE-R3 rather than a conflict with its earlier twelve-path residual."
+    },
+    {
+      "id": "CPI-R4-MODE-ABSENCE-004",
+      "status": "AMBIGUOUS_STATE_RULE",
+      "evidence": "R4 lines 101-107 allows an empty known family to remain after interruption and limits the normalized-only prohibition to completed batches, while CLOSURE-R3 lines 18-24 says normalized-only mode forbids bundle.json and objects and refuses extra files/directories. R4 does not state whether an interrupted normalized-only batch with an empty bundle/objects/configs/handoffs family is refused as a mode violation, cleaned as a known transient, or reported pending.",
+      "risk": "Status and repair implementations can disagree about whether a forbidden normalized-mode family is a pending state or corruption, and can accidentally preserve a bundle/object directory that normalized-only mode is required to exclude.",
+      "required_closure": "Publish a mode-by-state table: request-only, pending normalized, pending raw, completed normalized and completed raw. State explicitly whether empty forbidden families are refused, removed only when owned, or represented as a lineage error; preserve the inherited universal bundle/objects prohibition."
+    },
+    {
+      "id": "CPI-R4-REUSE-INITIAL-005",
+      "status": "CONTRADICTION",
+      "evidence": "R4 line 175 says existing identical targets are retained/reused without a temp, but lines 202-203 say a matching observed prefix is reusable only when present at the initial scan and late insertion after captured absence is unsafe. CLOSURE-R3 lines 42-46 carries the same initial-scan condition for existing identical files.",
+      "risk": "A command can interpret line 175 as permitting a late identical config/body/metadata insertion, defeating first-absence capture and allowing another writer's file to be adopted into the batch lineage.",
+      "required_closure": "Amend the reuse rule to say that an existing identical target is reusable only when its named edge, inode, mode, link count and bytes were captured in the command's initial complete snapshot; any target first observed after absence is a conflict/unsafe lineage result, even when bytes match."
+    },
+    {
+      "id": "CPI-R4-PEAK-006",
+      "status": "PASS_WITH_RETAINED_IO_FREEZE_DEPENDENCY",
+      "evidence": "R4 lines 152-181 fixes 32 MiB aggregate object bodies, 128 MiB logical output peak, stat-size charging for observed regular entries including pending/orphan/refused entries, pre-serialization, current_retained_file_bytes + N for an absent target, one private temp inode of at most N, same-inode atomic rename to an absent final and no overwrite. It explicitly rejects any concrete installer that creates an extra full copy or more than one simultaneous temp.",
+      "residual": "The separate retained-I/O freeze required by lines 183-210 must name the no-replace atomic installer and race result. A plain replacing rename would violate the no-overwrite rule if a target appears after first absence; post-install lineage detection cannot undo that replacement. It must also define whether current_retained_file_bytes is scoped to output entries only, as CLOSURE-R3's 128 MiB rule describes installed output logical files."
+    },
+    {
+      "id": "CPI-R4-PENDING-007",
+      "status": "PASS",
+      "evidence": "R4 lines 190-203 preserves request/intent/bundle/body/observation install order, validates external input before intent, reports bundle-needed without inventing object inventory when bundle is absent, computes exact expected bodies only from a retained bundle, treats missing dependencies under a saved observation as corrupt and refuses late insertion after captured absence. This matches CLOSURE-R3 lines 34-46."
+    },
+    {
+      "id": "CPI-R4-CONFIG-008",
+      "status": "PASS",
+      "evidence": "R4 lines 137-143 requires pure fresh derivation from the complete retained observation and objects, fixes one immutable configuration result per requested path, permits identical same-format byte reuse and requires a new batch for a different json/toml/source-only derivation. The exact config document schema remains a separate public-wire dependency, as line 149 states."
+    }
+  ],
+  "required_next_freezes": [
+    "Resolve the initial-scan reuse contradiction and carry the rule to every output family and retained input body.",
+    "Publish the normalized/raw mode-by-state matrix, including empty forbidden family directories after interruption and their status/refusal behavior.",
+    "Freeze the concrete atomic no-replace installer and target-appearance race outcome, then bind current_retained_file_bytes to an explicit output-entry scope.",
+    "Freeze the closed six envelope data schemas, exact primitive bounds and registry/resource byte set before public implementation."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "provider": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "publication": false,
+    "review_artifact_only": true
+  },
+  "timestamp_basis": {
+    "clock_command": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ'",
+    "observed_utc": "2026-09-09T15:34:38.060174000Z",
+    "note": "Tool-observed current UTC; no retrospective review-start time is asserted."
+  }
+}

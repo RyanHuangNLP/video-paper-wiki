@@ -1,0 +1,115 @@
+{
+  "schema": "full-todo.code-resource-fixture-packing-run.v1",
+  "revision": 1,
+  "status": "PASS",
+  "profile_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "inputs": {
+    "base_dir": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r3",
+    "typed_dir": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-typed-r2",
+    "base_manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-r3/manifest.json",
+      "size_bytes": 31712,
+      "sha256": "f53f4f6ef768732dc423da0ebf478716fab500cc716856a07fee21f7abb12136"
+    },
+    "typed_manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resource-fixtures-typed-r2/manifest.json",
+      "size_bytes": 55711,
+      "sha256": "ba6f2f628f16b78c467bea7907cfcd2039616e0a852ace7abb79d6d40a56e00a"
+    }
+  },
+  "packer": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/pack_resource_fixtures.py",
+    "size_bytes": 12982,
+    "sha256": "a40772cd0498e3be91118d812c05ab986bc96e0e63422959141803ec538657d7"
+  },
+  "documentation": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/README.md",
+    "size_bytes": 2768,
+    "sha256": "a33d5cecc0d2bc7b7f94894335fe44066ed5962202972a5767fe30198c3d357d"
+  },
+  "output": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/fixture-packing-r1/packed-zero-r1.json",
+    "size_bytes": 726503,
+    "sha256": "a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2"
+  },
+  "expected_counts": {
+    "base_json_cases": 82,
+    "typed_json_cases": 182,
+    "case_count": 264
+  },
+  "observed_counts": {
+    "base_json_cases": 82,
+    "typed_json_cases": 182,
+    "case_count": 264
+  },
+  "output_properties": {
+    "schema": "video-paper-wiki.code-proof-resource-fixtures.v1",
+    "case_names_unique_ascii_sorted": true,
+    "instance_values_preserved": true,
+    "raw_body_instances_excluded": true,
+    "output_mode": "0600"
+  },
+  "checks": [
+    {
+      "name": "positive-generation-python3.9",
+      "python": "3.9.6",
+      "status": "PASS",
+      "case_count": 264,
+      "output_sha256": "a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2"
+    },
+    {
+      "name": "positive-replay-python3.13",
+      "python": "3.13.13",
+      "status": "PASS",
+      "case_count": 264,
+      "output_sha256": "a6af2c687c631d96514e5f7e55a3604623617f1e9e3c9f589a09b203a3dbb5d2",
+      "byte_identical_to_output": true
+    },
+    {
+      "name": "refuse-existing-output",
+      "status": "PASS",
+      "returncode": 1,
+      "stderr_contains": "refusing to overwrite existing output",
+      "output_unchanged": true
+    },
+    {
+      "name": "reject-profile-pin",
+      "status": "PASS",
+      "returncode": 1,
+      "stderr_contains": "profile hash mismatch in manifest",
+      "new_output_absent": true
+    },
+    {
+      "name": "reject-manifest-pin",
+      "status": "PASS",
+      "returncode": 1,
+      "stderr_contains": "manifest hash mismatch",
+      "new_output_absent": true
+    },
+    {
+      "name": "static-compile",
+      "status": "PASS"
+    },
+    {
+      "name": "value-preservation-and-shape-audit",
+      "status": "PASS",
+      "case_count": 264,
+      "unique_names": 264,
+      "title_inventory": {
+        "video-paper-wiki.code-acquisition-intent.v1": 25,
+        "video-paper-wiki.code-config-evidence.v1": 17,
+        "video-paper-wiki.code-git-bundle.v1": 19,
+        "video-paper-wiki.code-proof-command-result.v1": 103,
+        "video-paper-wiki.code-proof-observation.v1": 21,
+        "video-paper-wiki.code-proof-observe-input.v1": 21,
+        "video-paper-wiki.code-proof-request-input.v1": 16,
+        "video-paper-wiki.code-proof-request.v1": 26,
+        "video-paper-wiki.code-source-handoff.v1": 16
+      }
+    }
+  ],
+  "limitations": [
+    "Synthetic placeholder profile only; final generated profile rebinding remains separate.",
+    "No product schema generation or public workflow execution performed."
+  ]
+}

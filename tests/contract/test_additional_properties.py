@@ -8,6 +8,9 @@ ENVELOPE_EXCEPTIONS = {
     ("oneOf", "0", "properties", "data"),
     ("oneOf", "1", "properties", "error", "properties", "details"),
 }
+RUNTIME_OVERLAYS = {
+    ("properties", "runtime", "oneOf", str(index)) for index in range(3)
+}
 
 
 def _walk(value: object, path: tuple[str, ...] = ()):
@@ -27,6 +30,9 @@ def test_every_declared_object_schema_is_closed(schema_paths: list[Path]) -> Non
             if node.get("type") == "object" or "properties" in node:
                 if schema_path.name == "video-paper-wiki.cli-envelope.v1.schema.json" and path in ENVELOPE_EXCEPTIONS:
                     assert node.get("additionalProperties") is True
+                elif (schema_path.name == "video-paper-wiki.projection-generation.v1.schema.json"
+                      and path in RUNTIME_OVERLAYS):
+                    assert "additionalProperties" not in node
                 else:
                     assert node.get("additionalProperties") is False, f"{schema_path}:{'/'.join(path)}"
 
@@ -36,3 +42,19 @@ def test_envelope_open_payloads_are_the_only_exceptions() -> None:
     open_paths = {path for node, path in _walk(schema) if node.get("additionalProperties") is True}
     assert open_paths == ENVELOPE_EXCEPTIONS
     assert all(branch["additionalProperties"] is False for branch in schema["oneOf"])
+
+
+def test_projection_runtime_is_closed_with_exact_conditional_overlays() -> None:
+    schema = load_json(Path("schemas/video-paper-wiki.projection-generation.v1.schema.json"))
+    runtime = schema["properties"]["runtime"]
+    assert runtime["additionalProperties"] is False
+    assert len(runtime["oneOf"]) == 3
+    expected = [
+        {"python_version": "3.12.14", "unicode_version": "15.0.0"},
+        {"python_version": "3.13.13", "unicode_version": "15.1.0"},
+        {"python_version": "3.13.15", "unicode_version": "15.1.0"},
+    ]
+    for branch, values in zip(runtime["oneOf"], expected):
+        assert set(branch) == {"properties"}
+        assert set(branch["properties"]) == {"python_version", "unicode_version"}
+        assert {key: value["const"] for key, value in branch["properties"].items()} == values

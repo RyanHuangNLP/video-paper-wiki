@@ -1,0 +1,215 @@
+{
+  "$schema": "full-todo.discovery-storage-wip-review-r1.v1",
+  "packet": "DISCOVERY-EXPANSION",
+  "revision": "R1-retained-storage-wip-review",
+  "reviewed_at_utc": "2026-09-09T10:22:00Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent bounded discovery storage WIP reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "CONDITIONAL_GO_WITH_OPEN_STORAGE_BLOCKERS",
+  "verdict": "The WIP has the intended retained-tree and create-only shape, but it is not acceptance-ready for the frozen R2-R7 recovery/capacity boundary. Four blockers must be closed and replayed against the exact source hash.",
+  "scope": "Read-only review of the handed-off discovery_storage.py WIP and its frozen storage/capacity interfaces. No source, schema, test, Git, network, connector, real Vault, or human gate was mutated. The changing parallel storage.py implementation was not inspected or modified.",
+  "source": {
+    "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki_research/discovery_storage.py",
+    "sha256": "aa2369fc92c91f3f83a8063b677bbfce140e8133e1ee81a775e8d8bec303186b",
+    "size_bytes": 19966,
+    "lines": 450
+  },
+  "inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-freeze-r1.json",
+      "sha256": "cf1b48fa672e1e75e2d9bde0b0137aee39f1bbb65d33dd008ab43dfc1cd7400e",
+      "size_bytes": 8732
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R1.md",
+      "sha256": "2e255f9d9acd928fb26086b30422e7d9e8796b20f064beff5567bb225c9fb6c1",
+      "size_bytes": 12094
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-DESIGN-R2.md",
+      "sha256": "e3937dc916db6bf11895e51757d6a048c560ebe3a71761592d749c3f6756fedf",
+      "size_bytes": 25576
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RECOVERY-R3.md",
+      "sha256": "5dfeaa58079a275c49e86dc50c273cb0b18c01bb48a95a38c4f3bac4594b5c29",
+      "size_bytes": 15666
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-BOUNDS-R4.md",
+      "sha256": "942381cba1347ac9ab1d19d9a1575269fabe9d3b526762829e8055a95b9568a8",
+      "size_bytes": 10148
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-WIRE-R5.md",
+      "sha256": "74cb2c5eb910a108947cd753a128b8904e9a6fac40338886e296c67444afef2f",
+      "size_bytes": 7627
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-RANK-R6.md",
+      "sha256": "64a691cb2f099a41a815ec9265994568ae128dea6366cd65fea2ec492a990df0",
+      "size_bytes": 9956
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-FINAL-R7.md",
+      "sha256": "dc73268fdd179005b0f9e9e1a008bd373fa8449d7cd1739105265ffacb54579c",
+      "size_bytes": 7292
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-PROFILE-R1.json",
+      "sha256": "b814cb259070db2b832004acca8a3daf9b97cfde757c055e7c68e80bd285e599",
+      "size_bytes": 2951
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-EXPANSION-allowed-paths-r1.json",
+      "sha256": "e7930638d4814f4a8389e2cf9ac0b4dd0e5fb07423c089a050004ebe85e490d5",
+      "size_bytes": 2207
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/discovery-expansion-final-io-review-r7.json",
+      "sha256": "85b3b8640c8d0622aa200b8f9fe1ae12d32d35c24a01b6f656ed03a6dc6d1794",
+      "size_bytes": 12932
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/source_catalog_io.py",
+      "sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+      "size_bytes": 15411
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/staging.py",
+      "sha256": "201b662e91e60cd896b7dc19e5c99db4a332aa80c96c5e05e17b65df70573180",
+      "size_bytes": 54827
+    },
+    {
+      "path": ".work/parallel/discovery-expansion-v1/terminal-1/source/src/video_paper_wiki/resources.py",
+      "sha256": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+      "size_bytes": 7579
+    }
+  ],
+  "observed_strengths": [
+    {
+      "id": "DSTORAGE-WIP-PASS-001",
+      "evidence": "RetainedTree.directory/file/observe_set records no-follow named edges, first absence, complete sets, descriptors and bytes; scan builds all family sets before parsing (lines 60-128, 228-265).",
+      "status": "PASS_WITH_TEST_GATE"
+    },
+    {
+      "id": "DSTORAGE-WIP-PASS-002",
+      "evidence": "install rejects a target that appeared after an optional first-absence observation even when _atomic_install reports identical-byte reuse, then retains installed identity (lines 361-395).",
+      "status": "PASS_WITH_TEST_GATE"
+    },
+    {
+      "id": "DSTORAGE-WIP-PASS-003",
+      "evidence": "Resource and external input reads use the same RetainedTree and final verification; package resources are bound only after their bytes are captured (lines 294-297, 422-430).",
+      "status": "PASS_WITH_TEST_GATE"
+    },
+    {
+      "id": "DSTORAGE-WIP-PASS-004",
+      "evidence": "All ordinary body errors and BaseException paths reach final tree.verify while checkout flock is held, and no network/Vault/subprocess call exists in this file (lines 398-445).",
+      "status": "PASS_WITH_TEST_GATE"
+    }
+  ],
+  "blockers": [
+    {
+      "id": "DSTORAGE-WIP-001",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "Pending-plan physical reservation is optional and lost on reopen",
+      "problem": "DiscoveryStore.pending_plan is initialized to None and is never reconstructed from the scanned documents. install() calls preflight() without a pending_plan override (lines 219-227 and 361-366), so installing a plan or reopening a plan-pending store charges only existing bytes and does not reserve N request slots, N terminal-observation slots, two metadata files, three proposal files and one assessment. A later request or observation can consume capacity promised to finalization, violating R3/R4 crash recovery and the no-stranded-plan rule.",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:100-141",
+        "DISCOVERY-EXPANSION-BOUNDS-R4:40-84",
+        "DISCOVERY-EXPANSION-DESIGN-R2:329-356"
+      ],
+      "evidence_lines": [
+        "discovery_storage.py:219-227",
+        "discovery_storage.py:299-359",
+        "discovery_storage.py:361-366"
+      ],
+      "required_closure": "Derive and validate the unique pending plan from the retained complete graph during scan/open, or make plan installation atomically establish the reservation before any child. Every install/preflight after reopen must use that immutable plan and reject multiple/malformed pending plans; add N=1/N=8 and interrupt-and-resume capacity vectors."
+    },
+    {
+      "id": "DSTORAGE-WIP-002",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "Checkout validation leaves the retained descriptor lineage",
+      "problem": "After retaining and locking checkout_fd, open_store calls resolve_checkout_root(checkout) (line 419). That helper performs path-based is_symlink/exists/is_file checks and opens pyproject.toml by pathname. A rename/replacement or symlink race can therefore make this validation inspect a different directory/file generation than the retained checkout descriptor and no-follow marker/pyproject snapshots. The result is not used for writes, but it violates the requirement that acquisition and all validation share the retained actual checkout identity and can read outside the retained tree.",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:8-33",
+        "DISCOVERY-EXPANSION-DESIGN-R2:329-338"
+      ],
+      "evidence_lines": [
+        "discovery_storage.py:402-419",
+        "staging.py:157-218"
+      ],
+      "required_closure": "Validate project identity from retained descriptor-relative .git and pyproject bytes, or pass retained descriptors into a no-follow validator; remove the pathname validation from the locked lineage. Add a checkout rename/replacement and symlink injection vector at acquisition and final-exit stages."
+    },
+    {
+      "id": "DSTORAGE-WIP-003",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "Lock is released before retained descriptor cleanup",
+      "problem": "The finally block verifies while locked, then calls flock(LOCK_UN) at line 443 and only afterward calls tree.close() at line 445. R3 requires the checkout lock through final verification and descriptor cleanup. Another discovery process can acquire the checkout between those calls while the original still owns open family/resource/input descriptors and is closing its lineage, creating an unprotected cleanup window.",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-RECOVERY-R3:8-26"
+      ],
+      "evidence_lines": [
+        "discovery_storage.py:437-445"
+      ],
+      "required_closure": "Keep the checkout lock until every retained descriptor except the lock descriptor has been closed; unlock only immediately before closing the lock descriptor. Add a two-process cleanup-window test and assert no lock artifact is written."
+    },
+    {
+      "id": "DSTORAGE-WIP-004",
+      "severity": "P1",
+      "status": "OPEN",
+      "title": "Foreign differing-byte race leaks an internal staging error",
+      "problem": "_atomic_install raises CODE_STAGING_CONFLICT when a target that was first observed absent appears with different bytes (staging.py:759-786). install() does not normalize this path; open_store merely wraps any exception with a code attribute into ResearchError carrying STAGING_CONFLICT (discovery_storage.py:378-382, 431-435). The frozen boundary requires a structured discovery refusal for competing bytes, while STAGING_CONFLICT is an internal staging code and is not one of the declared Discovery error outcomes.",
+      "contract_refs": [
+        "DISCOVERY-EXPANSION-DESIGN-R2:329-356",
+        "DISCOVERY-EXPANSION-DESIGN-R2:369-377"
+      ],
+      "evidence_lines": [
+        "discovery_storage.py:374-382",
+        "discovery_storage.py:431-435",
+        "staging.py:759-786"
+      ],
+      "required_closure": "Translate a post-absence differing-byte target to DISCOVERY_CONFLICT or WORK_PATH_UNSAFE according to the frozen boundary, preserving exact-byte reuse only for a target observed before the operation. Add same-byte and differing-byte foreign appearance tests with final-set verification."
+    }
+  ],
+  "non_blocking_advice": [
+    {
+      "id": "DSTORAGE-WIP-ADVICE-001",
+      "evidence": "capacity() trusts a caller-supplied pending_plan object without validating it or proving it is the retained plan document; keep this private and derive it from the scanned graph before charging.",
+      "recommendation": "Reject unbound/malformed pending plan inputs and ensure capacity accounting cannot be bypassed through a caller-supplied plan with an unrelated id."
+    },
+    {
+      "id": "DSTORAGE-WIP-ADVICE-002",
+      "evidence": "Directory complete-set checks are strong because every observed name receives an edge, but acceptance should include swaps during os.listdir/classifier stat and all ordinary parser/projection/cleanup exceptions.",
+      "recommendation": "Replay the ten checklist pitfalls and assert WORK_PATH_UNSAFE precedence."
+    }
+  ],
+  "acceptance_vectors": [
+    "Open/reopen a plan-pending store after each plan/request/observation install; prove immutable reservation and no capacity debit/refund bypass for N=1 and N=8.",
+    "Replace/rename checkout or swap .git/pyproject.toml between retained acquisition and pathname validation; require WORK_PATH_UNSAFE without outside-tree reads.",
+    "Hold lock in process A through forced descriptor cleanup while process B attempts acquisition; B must receive DISCOVERY_BUSY until cleanup completes.",
+    "Race a first-absent target with exact bytes and with differing bytes; exact bytes must be WORK_PATH_UNSAFE and differing bytes must be the declared Discovery conflict/refusal.",
+    "Interrupt scan, parse, resource binding, preflight, install and cleanup at every retained edge; verify all names/bytes/resources and error precedence."
+  ],
+  "remaining_gates": [
+    "Close all four P1 blockers and freeze a new exact source hash before implementation acceptance.",
+    "Run the full local suites, installed-wheel/resource parity, and fresh four-job CI against the exact resulting head; Linux flock behavior remains open.",
+    "Provider capability, real-data, Vault/admin and human scientific gates remain outside this WIP storage review."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "$schema": "full-todo.grok-code-git-kernel-builder-patch-exit-observation-r6.v1",
+  "schema": "full-todo.grok-code-git-kernel-builder-patch-exit-observation-r6.v1",
+  "recorded_at_utc": "2026-09-10T01:37:08.142399+00:00",
+  "status": "max-turns-before-patch",
+  "session_id": "ea8e8359-3cf2-48b7-9fa8-29f373ca291a",
+  "pty_exec_session_id": 66941,
+  "model": "grok-4.6",
+  "reasoning_effort": "xhigh",
+  "permission_mode": "default",
+  "launcher": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/launch-patch-r6.py",
+    "size_bytes": 2136,
+    "sha256": "bb2fc4a1c962deb0462c76e552e80a6a926451678c030dd49ab497a6ed2cae90"
+  },
+  "preparation": {
+    "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-patch-preparation-r6.json",
+    "size_bytes": 2821,
+    "sha256": "62618c50de126df327c1380092fff8046bd80715511fc701273b343dd6c53a84"
+  },
+  "prompt": {
+    "path": "docs/ai/packets/full-todo-v1/GROK-CODE-GIT-KERNEL-PATCH-R6.md",
+    "size_bytes": 11548,
+    "sha256": "b937610eaa8d5f6bfcd496f4c80c960acb354605063ca8cfe730cd64ae47171a"
+  },
+  "authorization": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/user-exact-r5-egress-confirmation-r1.json",
+    "size_bytes": 2423,
+    "sha256": "7188a21b964246b8499eb8d9d1b109157271e5cc4e8a530a8ae75b3d6ffd6f46"
+  },
+  "process": {
+    "started_observed": true,
+    "exit_code": 1,
+    "stdout_redirected": true,
+    "stderr_redirected": true,
+    "polls": [
+      {
+        "yield_ms": 1000,
+        "output_bytes": 0
+      },
+      {
+        "yield_ms": 1000,
+        "output_bytes": 0
+      },
+      {
+        "yield_ms": 20000,
+        "output_bytes": 0
+      },
+      {
+        "yield_ms": 1000,
+        "exit_code": 1,
+        "output_bytes": 0
+      }
+    ]
+  },
+  "stdout": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-r6.stdout.log",
+    "size_bytes": 113,
+    "sha256": "70b510e3d8af014292137fbf5eeb942dd0571d0912a3a9ab5b25028a70836efa",
+    "content_summary": "Grok emitted one prose sentence saying it would inspect the two allowed source files; no patch diff or brief.",
+    "contains_apply_patch_diff": false,
+    "contains_development_brief": false,
+    "contains_tool_result": false
+  },
+  "stderr": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-r6.stderr.log",
+    "size_bytes": 43,
+    "sha256": "b5fd68a33577d50b7765480bcd80f70ed37c792d0a7f4ae87aac7de5d48dc1a2",
+    "content_summary": "Max turns reached; Error: max turns reached",
+    "contains_refusal": false
+  },
+  "termination": {
+    "reason": "max_turns_reached",
+    "limit": 2,
+    "tool_calls_allowed": false,
+    "tool_policy": "Read/Edit/Bash/Grep/MCPTool(*) denied"
+  },
+  "source_fixture_current": [
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py",
+      "size_bytes": 30212,
+      "sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca",
+      "expected_r3_sha256": "d063a70bfcbea0dbee901639a01ed3067aa2262c1d55dbe5f06e83ea25ed5dca",
+      "byte_identical_to_preimage": true
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/fixtures/code-git-objects-v1.json",
+      "size_bytes": 52532,
+      "sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0",
+      "expected_r3_sha256": "b8936db0a65d58d533016840e3d7cfbc686f819b240c812207e73638165955f0",
+      "byte_identical_to_preimage": true
+    },
+    {
+      "path": ".work/parallel/code-proof-v1/terminal-1/source/tests/unit/test_code_git_objects.py",
+      "size_bytes": 35986,
+      "sha256": "1ae5dd06d9993d9f09bd39a31030488465e83c2b95f1288e446854d8584c615b",
+      "expected_r3_sha256": "1ae5dd06d9993d9f09bd39a31030488465e83c2b95f1288e446854d8584c615b",
+      "byte_identical_to_preimage": true
+    }
+  ],
+  "all_source_preimages_unchanged": true,
+  "observed_effect": {
+    "implementation_started": false,
+    "allowed_source_paths_written": false,
+    "builder_brief_written": false,
+    "source_mutated": false,
+    "git_mutated": false
+  },
+  "interpretation": "No valid patch was emitted. The one proof-based R6 retry started successfully; Grok again attempted an inspection despite the no-tools output-only contract and reached the two-turn limit before producing a patch. The separate initial R6 call was rejected before process creation and is preserved by its own rejection artifact. Treat as failed builder output; do not mechanically apply anything.",
+  "retry": "No further R6 launch or substitution authorized by this observation; root decides remaining local work.",
+  "attempt_order": {
+    "initial_r6_launch": {
+      "count": 1,
+      "status": "rejected_before_process_creation",
+      "artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/builder-patch-launch-rejection-r6.json",
+      "artifact_sha256": "b74ba361ecafe84a31e2de5fbbda8280ce19488c6e713335d94ee5b4136e5aee"
+    },
+    "proof_based_r6_retry": {
+      "count": 1,
+      "status": "started_then_exit1",
+      "pty_exec_session_id": 66941,
+      "this_observation": true
+    },
+    "total_r6_launch_calls": 2,
+    "additional_launches_authorized": false
+  }
+}

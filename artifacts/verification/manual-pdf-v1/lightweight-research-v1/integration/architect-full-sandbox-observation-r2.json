@@ -1,0 +1,60 @@
+{
+  "schema": "lightweight-research-full-suite-environment-observation.v1",
+  "at_utc": "2026-09-08T15:03:23.055664+00:00",
+  "runs": [
+    {
+      "python": "312",
+      "report_sha256": "52a2026b080d4e4c87a13e53091160338c8395586759f3f1544dedbb0620338b",
+      "stdout_sha256": "aae81cbba28285d882d9fb12d4adf1db0b969529b89ac935da43c5ef15e8254b",
+      "summary": [
+        "ERROR tests/closure/test_installed_vertical.py::test_rebuild_export - Failed:...",
+        "ERROR tests/closure/test_installed_vertical.py::test_rebuild_runtime - Failed...",
+        "ERROR tests/closure/test_installed_vertical.py::test_rebuild_mapping_query - ...",
+        "ERROR tests/closure/test_installed_vertical.py::test_delete_truth - Failed: i...",
+        "ERROR tests/closure/test_installed_vertical.py::test_catalog_stale_head - Fai...",
+        "ERROR tests/closure/test_installed_vertical.py::test_catalog_stale_index - Fa...",
+        "ERROR tests/closure/test_installed_vertical.py::test_prospective_operator_restore_rebuild",
+        "6 failed, 2646 passed, 33 errors in 173.57s (0:02:53)"
+      ],
+      "failed_nodes": [
+        "FAILED tests/research/test_light_workflow_installed.py::test_fresh_wheel_exposes_equivalent_entries_and_workflow_help",
+        "FAILED tests/security/test_work_staging_boundary.py::test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-batch]",
+        "FAILED tests/security/test_work_staging_boundary.py::test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-intermediate]",
+        "FAILED tests/security/test_work_staging_boundary.py::test_unix_socket_sentinel_unchanged",
+        "FAILED tests/unit/test_prepare.py::test_plan_ref_blob_special_files[socket]",
+        "FAILED tests/unit/test_secure_io.py::test_missing_symlink_dir_fifo_socket_device"
+      ],
+      "source_unchanged": true
+    },
+    {
+      "python": "313",
+      "report_sha256": "904b24c7118cd749bd52f01d863ce432837c3c5f2a77c7bb18eed8034c8fae9f",
+      "stdout_sha256": "5475392b2c9ea945e8ba16737e6ce3b0deb0571359f7fb31fed0f3795cf033eb",
+      "summary": [
+        "ERROR tests/closure/test_installed_vertical.py::test_rebuild_export - Failed:...",
+        "ERROR tests/closure/test_installed_vertical.py::test_rebuild_runtime - Failed...",
+        "ERROR tests/closure/test_installed_vertical.py::test_rebuild_mapping_query - ...",
+        "ERROR tests/closure/test_installed_vertical.py::test_delete_truth - Failed: i...",
+        "ERROR tests/closure/test_installed_vertical.py::test_catalog_stale_head - Fai...",
+        "ERROR tests/closure/test_installed_vertical.py::test_catalog_stale_index - Fa...",
+        "ERROR tests/closure/test_installed_vertical.py::test_prospective_operator_restore_rebuild",
+        "6 failed, 2646 passed, 33 errors in 168.55s (0:02:48)"
+      ],
+      "failed_nodes": [
+        "FAILED tests/research/test_light_workflow_installed.py::test_fresh_wheel_exposes_equivalent_entries_and_workflow_help",
+        "FAILED tests/security/test_work_staging_boundary.py::test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-batch]",
+        "FAILED tests/security/test_work_staging_boundary.py::test_batch_or_intermediate_fifo_or_socket_is_unsafe_json[socket-intermediate]",
+        "FAILED tests/security/test_work_staging_boundary.py::test_unix_socket_sentinel_unchanged",
+        "FAILED tests/unit/test_prepare.py::test_plan_ref_blob_special_files[socket]",
+        "FAILED tests/unit/test_secure_io.py::test_missing_symlink_dir_fifo_socket_device"
+      ],
+      "source_unchanged": true
+    }
+  ],
+  "observed_causes": [
+    "uv cache sdists-v9/.git open Operation not permitted",
+    "AF_UNIX fixture bind Operation not permitted"
+  ],
+  "next_action": "same frozen source and runner; normal require_escalated for existing cache and local socket fixtures; full tests preserved",
+  "source_or_test_change": false
+}

@@ -1,0 +1,62 @@
+{
+  "candidate_snapshot_sha256": "2a3ba59afb2a23cfa11c14b6f1e1ecf60bb161d591d675c9eed2964202c36355",
+  "checks": [
+    {
+      "name": "central_crc_mismatch",
+      "result": "UNCaught zipfile.BadZipFile",
+      "trace": "archive.read/member stream path; verify_backup raises BadZipFile: Bad CRC-32 for file notes.md.",
+      "trigger": "Flip the central-directory CRC for notes.md while leaving payload bytes unchanged."
+    },
+    {
+      "name": "local_crc_mismatch",
+      "observed": "verify_backup returns ok=True; _inspect_zip_container does not compare local and central CRC metadata.",
+      "result": "ACCEPTED_INCORRECTLY",
+      "severity": "P1",
+      "trigger": "Flip the local-header CRC for notes.md while leaving central CRC/payload unchanged."
+    },
+    {
+      "name": "oversize_read_before_cap",
+      "observed": "Path.read_bytes was called with the full 142606337-byte file before the cap check; result then closed LIGHT_BACKUP_INVALID.",
+      "result": "FAIL",
+      "severity": "P1",
+      "trace": "_verify_zip:644-648 reads whole container; _open_zip:611-613 applies MAX_ZIP_BYTES only afterward.",
+      "trigger": "Sparse synthetic archive of 142606337 bytes (MAX_ZIP_BYTES + 1)."
+    },
+    {
+      "name": "archive_input_toctou",
+      "observed": "_inspect_zip_container validates a bytes, then _open_zip reopens b and verify returns workspace_root for b. One API call validates/parses different byte snapshots.",
+      "result": "FAIL",
+      "severity": "P1",
+      "trace": "_verify_zip:644-651.",
+      "trigger": "Monkeypatch first Path.read_bytes on b.zip to return valid a.zip bytes while b.zip remains on disk."
+    },
+    {
+      "name": "restore_stage_unknown_addition_on_publish_failure",
+      "observed": "restore_backup propagates OSError and finally _cleanup_stage deletes the stage, unexpected addition, and edited payload. Destination remains absent.",
+      "result": "FAIL",
+      "severity": "P1",
+      "trace": "restore_backup:802-809 finally calls _cleanup_stage; _cleanup_stage recursively unlinks regular files.",
+      "trigger": "Patch final os.rename(payload,destination) to add stage/unexpected.txt and edit generated payload/notes.md, then raise OSError."
+    },
+    {
+      "name": "restore_empty_destination_race",
+      "observed": "os.rename replaces the concurrently-created empty destination; restore returns ok=True and restored notes are present. This violates create-only destination publication.",
+      "result": "FAIL",
+      "severity": "P1",
+      "trace": "restore_backup:798-806 checks lexists then calls os.rename without no-replace primitive.",
+      "trigger": "Patch final os.rename(payload,destination) to create an empty destination directory immediately before the real rename."
+    },
+    {
+      "name": "normal_roundtrip_control",
+      "observed": "create_backup -> verify_backup -> restore_backup succeeds on synthetic workspace; 20 owned test_light_backup tests pass.",
+      "result": "PASS"
+    }
+  ],
+  "correction_to_frozen_review": "The 72 BadZipFile cases do not arise in ZipFile.infolist(). The actual reproduction mutates a local-header name and raises zipfile.BadZipFile at archive.read(MANIFEST_NAME), light_backup.py:686, reached from _verify_zip:651-653. The frozen review remains byte-identical.",
+  "decision": "R2 remains blocked pending R3 fixes for bounded parsing/read, CRC consistency, snapshot identity, restore cleanup ownership, and no-replace destination publication.",
+  "review_of": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-3/t2-backup-secondary-review-r1.json",
+  "review_of_sha256": "2ea187bdde0547f91262307cc88492996632d9c8ef1d5fc52189581dbcee8033",
+  "schema": "lightweight-library-v1-t2-backup-secondary-review-supplement.v1",
+  "scope": "Synthetic .work fixtures only; read-only review; no source/test/Git/real-data mutation.",
+  "source_sha256": "d912eb78fcad421fe779ac506a14ddb3f29599638b3d1ee5881ae121bccbce26"
+}

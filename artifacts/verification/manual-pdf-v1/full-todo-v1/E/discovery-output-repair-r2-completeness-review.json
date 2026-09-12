@@ -1,0 +1,101 @@
+{
+  "$schema": "full-todo.discovery-output-repair-r2-completeness-review.v1",
+  "schema": "full-todo.discovery-output-repair-r2-completeness-review.v1",
+  "revision": "R2-frozen-repair-packet-completeness-review",
+  "recorded_at_utc": "2026-09-09T11:08:23Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "bounded read-only repair-packet completeness reviewer",
+    "parent_authority": "Architect/root"
+  },
+  "decision": "COMPLETE_FOR_ROOT_IMPLEMENTATION_SCOPE",
+  "scope": "Read-only structural review of the frozen R2 output-repair packet by exact SHA. No source, test, Git, network, connector, Vault or human-gate mutation.",
+  "checks": {
+    "required_top_level_fields": [
+      "acceptance",
+      "allowed_paths",
+      "candidate_r1",
+      "decision",
+      "entry_condition",
+      "finding_review",
+      "held_unchanged_paths",
+      "no_human_approval_claim",
+      "no_merge",
+      "no_real_vault",
+      "preimages",
+      "recorded_at_utc",
+      "repairs",
+      "revision",
+      "schema",
+      "semantic_unchanged",
+      "source_owner",
+      "source_root"
+    ],
+    "required_top_level_fields_present": true,
+    "allowed_paths": [
+      "src/video_paper_wiki_research/discovery.py",
+      "tests/research/test_discovery_workflow.py",
+      "docs/discovery-expansion.md"
+    ],
+    "preimage_coverage": {
+      "every_allowed_path_has_preimage": true,
+      "no_unallowed_preimage": true,
+      "all_preimages_have_sha256_and_size": true
+    },
+    "held_unchanged_coverage": {
+      "held_paths_disjoint_from_allowed": true,
+      "held_entries_have_sha256_and_size": true
+    },
+    "repair_requirements": {
+      "assessment_projection": true,
+      "operation_health": true,
+      "stop_metrics": true,
+      "render_projection": true,
+      "escaping": true,
+      "docs_tests": true
+    },
+    "semantic_unchanged_declared": true,
+    "entry_condition_declared": true,
+    "acceptance_gates_declared": true,
+    "human_and_merge_gates_preserved": true
+  },
+  "findings": [
+    {
+      "id": "OR2-PACKET-COMPLETE-001",
+      "status": "PASS",
+      "evidence": "The packet covers all three owned implementation paths with exact preimages, lists held-unchanged source/schema/test paths, and states the entry condition and acceptance gates."
+    },
+    {
+      "id": "OR2-PACKET-REPAIR-COVERAGE-002",
+      "status": "PASS",
+      "evidence": "Repairs explicitly cover assessment projection, per-slot operation health, completed stop metrics, complete/pending render content, hostile-text escaping, documentation, behavioral tests and retained live-round replay without new provider requests."
+    },
+    {
+      "id": "OR2-PACKET-GATE-PRESERVATION-003",
+      "status": "PASS",
+      "evidence": "The packet preserves semantic_unchanged invariants and explicitly retains no-merge, no-real-Vault and no-human-approval claims."
+    }
+  ],
+  "limitations": [
+    "This is a packet-completeness review only; it does not review the forthcoming three-file implementation or tests.",
+    "The packet records the prior review timestamp as pending correction; the separate correction artifact supplies current UTC metadata while preserving the original review hash."
+  ],
+  "mutations": {
+    "source": false,
+    "schemas": false,
+    "tests": false,
+    "git": false,
+    "network": false,
+    "connector": false,
+    "real_vault": false,
+    "review_artifact_only": true
+  },
+  "packet": "DISCOVERY-EXPANSION",
+  "frozen_packet": {
+    "path": "docs/ai/packets/full-todo-v1/DISCOVERY-OUTPUT-REPAIR-R2.json",
+    "sha256": "6ed104eb6d99e93ec5782d4cdc9131e4661d8b75c3a6c4abc55719c41cbbb6ae",
+    "size_bytes": 9497,
+    "revision": 2,
+    "decision": "R1_OUTPUT_REJECTED_R2_FROZEN_FOR_ROOT_AFTER_R1_READERS_STOP"
+  }
+}

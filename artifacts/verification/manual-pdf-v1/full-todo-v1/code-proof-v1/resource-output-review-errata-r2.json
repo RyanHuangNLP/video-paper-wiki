@@ -1,0 +1,70 @@
+{
+  "$schema": "full-todo.code-proof-resource-output-review-errata.v2",
+  "schema": "full-todo.code-proof-resource-output-review-errata.v2",
+  "revision": 2,
+  "recorded_at_utc": "2026-09-10T08:17:18.897304Z",
+  "status": "ADDITIVE_CHRONOLOGY_CORRECTION",
+  "decision": "GO_FOR_FROZEN_INVOCATION_PREPARATION",
+  "prior_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/Ecode/resource-output-contract-review-r1.json",
+    "sha256": "f902a4eb545729c0e0e1caa27fdc27e8d04868c28267a4d3e6601aa4edb12123",
+    "immutable": true,
+    "meaning": "The prior GO and contract checks remain valid as bounded planning review; only the chronology wording is corrected here."
+  },
+  "correction": {
+    "field": "prior_review.required_before_runtime_freeze",
+    "issue": "The prior list mixed prerequisites for the Grok invocation with post-exit generator inspection and local execution steps.",
+    "corrected_sequence": [
+      {
+        "phase": "before_grok_launch",
+        "requirements": [
+          "Freeze and independently review the actual bound inputs, prompt, launcher, current accepted CONFIG baseline and typed-fixture preparation.",
+          "Confirm the invocation is separately authorized; this erratum does not authorize launch."
+        ]
+      },
+      {
+        "phase": "after_grok_exit",
+        "requirements": [
+          "Freeze and inspect the complete generator and resource-test outputs returned by Grok.",
+          "Perform the independent generator review, including no project imports, discovery, subprocess, Git, network, dynamic execution or extra writes."
+        ]
+      },
+      {
+        "phase": "after_generator_review",
+        "requirements": [
+          "Run the reviewed generator locally against an absent child of a fresh temporary directory.",
+          "Verify exactly eleven generated resource files and no extras, then independently verify structure, references, serialization, hashes and profile inventory.",
+          "Rebuild and verify profile-bound fixtures from the actual generated profile SHA-256."
+        ]
+      },
+      {
+        "phase": "mechanical_integration",
+        "requirements": [
+          "Apply all fourteen reviewed product paths, including the 71-to-81 assertion change only after all ten new schemas exist.",
+          "Freeze the complete fourteen-path source candidate and inspect its exact manifest."
+        ]
+      },
+      {
+        "phase": "post_integration_validation",
+        "requirements": [
+          "Run the resource contract tests and both locked Python suites.",
+          "Build an isolated wheel and prove byte-identical packaging of all ten schemas and the profile."
+        ]
+      }
+    ]
+  },
+  "unchanged_claims": [
+    "The original output-contract review remains immutable and its GO/checks remain bounded planning evidence.",
+    "The output contract still does not authorize a Grok launch, generator execution, resource or fixture writes, source integration, Git/provider activity, CI, push, merge or human-gate closure."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "resources": false,
+    "fixtures": false,
+    "git": false,
+    "provider": false,
+    "launch": false,
+    "review_artifact_only": true
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "recorded_at_utc": "2026-09-10T02:35:59.601377+00:00",
+  "decision": "CONFIRMED_CONFIG_LAUNCH_DENIAL_NO_PROCESS; CORRECTED_EXECUTABLE_EXISTENCE_OBSERVATION",
+  "rejection": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/builder-output-launch-rejection-r1.json",
+    "size_bytes": 292124,
+    "sha256": "a4cd39c9e987cd55e7a9cc6a6f31c63e2d551b4d97384d114779c886a91ca0f9"
+  },
+  "reason": "This action was rejected due to unacceptable risk.\nReason: This launches Grok with private configuration-kernel inputs and sends them to an external endpoint, but the trusted user message only approved a distinct R5 Git-kernel payload, not this configuration launch.\nThe agent must not attempt to achieve the same outcome via workaround, indirect execution, or policy circumvention. Proceed only with a materially safer alternative, or if the user explicitly approves the action after being informed of the risk. Otherwise, stop and request user input.",
+  "all_source_and_input_references_rehashed": 577,
+  "all_reference_bytes_match": true,
+  "runtime_executable": {
+    "path": "/Users/huangzhanpeng/.local/bin/grok",
+    "size_bytes": 137364416,
+    "sha256": "4291021c1570a7c8610277a3d65490a5e54b50311e222c6b4614264f02a215b3"
+  },
+  "runtime_executable_is_symlink": true,
+  "resolved_executable": "/Users/huangzhanpeng/.grok/downloads/grok-1.0.24-macos-aarch64",
+  "correction": "The rejection record labels runtime_executable observed_exists=false and thus all_frozen_input_hashes_unchanged=false. Root independently opened the existing executable symlink and rehashed its bytes: the original frozen 1.0.24 binary matches exactly. Prepared inputs and runtime executable are distinct path classes; no prepared input symlink restriction was placed on the installed executable. This corrects that audit observation only; rejection/no-process/no-retry remains authoritative.",
+  "source_mutation": false,
+  "retry": false,
+  "pending_user_confirmation": "Exact CONFIG materials to Grok Build, requested via user input question."
+}

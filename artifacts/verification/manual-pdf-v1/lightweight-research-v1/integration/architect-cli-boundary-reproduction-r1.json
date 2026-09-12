@@ -1,0 +1,184 @@
+{
+  "schema": "lightweight-research-root-cli-boundary-reproduction.v1",
+  "at_utc": "2026-09-08T14:39:03.405529+00:00",
+  "source_cli_sha256": "27c2bb21f999d65b09d8b976bc8e6663a8e9ab1532d804b17a66486f65e52f58",
+  "handoff_sha256": "98a32e8fd4b0334ec29d2e480bb55fd8b66afab283d6dec8bffd105193714f58",
+  "cases": [
+    {
+      "name": "batch-status-symlink",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "knowledge",
+        "batch-status",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/alias"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "code": "OK",
+      "traceback": false,
+      "stdout_sha256": "3df1fbdc6e112598c6395c9a07e452ee81520765ddae7fe9f3745d8f96dcf642",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "batch-status-symlink-dotdot",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "knowledge",
+        "batch-status",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/alias/../workspace"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "code": "OK",
+      "traceback": false,
+      "stdout_sha256": "3df1fbdc6e112598c6395c9a07e452ee81520765ddae7fe9f3745d8f96dcf642",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "batch-status-dotdot",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "knowledge",
+        "batch-status",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/workspace/../workspace"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "code": "OK",
+      "traceback": false,
+      "stdout_sha256": "3df1fbdc6e112598c6395c9a07e452ee81520765ddae7fe9f3745d8f96dcf642",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rewrite-duplicate-selection",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "export",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/workspace",
+        "--question",
+        "稳定视频扩散采用哪些训练阶段和数据筛选方法？",
+        "--rewrite",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/queries/svd-training-curation.rewrite.json",
+        "--paper-id",
+        "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e",
+        "--paper-id",
+        "sha256:654ef597e183c0544cd753494cb442125bc42b17dd2477481b6799114482a92e"
+      ],
+      "exit_code": 2,
+      "ok": false,
+      "code": "USAGE",
+      "traceback": false,
+      "stdout_sha256": "fc0156e8db4b6f77577754449ba3b1a745f660030da018d2c89fe28ec36ae9b4",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "unknown-traced-context",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "import",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/workspace",
+        "--context",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/unknown-traced-context.json",
+        "--answer",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/answers/svd-training-curation.model-document.json",
+        "--output",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/unknown.md"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "code": "OK",
+      "traceback": false,
+      "stdout_sha256": "fbfd30082b22f011e324bf83f913d083c3eb7f27579fec203e1953f2d17bd750",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "qa-deep-without-workspace",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "qa",
+        "import",
+        "--context",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/qa-deep.json",
+        "--answer",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/answers/svd-training-curation.model-document.json",
+        "--output",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/qa-deep.md"
+      ],
+      "exit_code": 2,
+      "ok": false,
+      "code": "LIGHT_HANDOFF_INVALID",
+      "traceback": false,
+      "stdout_sha256": "d6c9c89f2071641b0400f71bacb238bb994e802035a3fefa9363fdff04f7db46",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "writing-deep-without-workspace",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "writing",
+        "import",
+        "--context",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/writing-deep.json",
+        "--draft",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/answers/svd-training-curation.model-document.json",
+        "--output",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/writing-deep.md"
+      ],
+      "exit_code": 2,
+      "ok": false,
+      "code": "LIGHT_HANDOFF_INVALID",
+      "traceback": false,
+      "stdout_sha256": "53b9d6ace7397245dfe2ae8b51d99f59559e4151736be9fd8d45b764b651a025",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "writing-output-raw-parent",
+      "argv": [
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python",
+        "-m",
+        "video_paper_wiki_research",
+        "writing",
+        "project-export",
+        "--workspace",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/workspace",
+        "--project-id",
+        "aeef520061520e40af6a040cd0b0bdaad0e34a2eea1ffff90b4ab8e3908436cf",
+        "--output",
+        "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1/output-alias/../unsafe-output.md"
+      ],
+      "exit_code": 0,
+      "ok": true,
+      "code": "OK",
+      "traceback": false,
+      "stdout_sha256": "de46ab60056bdd0ab9b5a9ce6ad76b504b8b37eb390cff0f0d6111a3d5f2a9ae",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "workspace_all_files_unchanged": true,
+  "unexpected_context_output_exists": true,
+  "unsafe_output_was_materialized": true,
+  "deep_outputs_exist": false,
+  "fixture_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/trials/lightweight-research-v1/cli/boundary-r1",
+  "current_source_not_accepted": true
+}

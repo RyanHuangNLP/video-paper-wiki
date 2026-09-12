@@ -1,0 +1,87 @@
+{
+  "ok": true,
+  "status": "OK",
+  "schema": "video-paper-wiki.light-context.v1",
+  "kind": "writing",
+  "query": "paper overview",
+  "requirements": "two short paragraphs with citations",
+  "paper_ids": [
+    "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b"
+  ],
+  "index_id": "0346f3d3e2929a3384af6dc97e1a348e6b13f221a9080ea153bddee46b0dcf49",
+  "evidence": [
+    {
+      "chunk_id": "chk-488944793280a46ffbfee2dd",
+      "paper_id": "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "title": "SANA-Video 2.0- Hybrid Linear Attention with Attention Residuals for Efficient Video Generation",
+      "source_sha256": "759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "page": 4,
+      "markdown_path": "papers/759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b/source.md",
+      "markdown_sha256": "b1a9d7fa9367e684310519aa5c962e939ed97d08264e3cc756138e509e405736",
+      "text_start": 13607,
+      "text_end": 15577,
+      "text_sha256": "2278a0b390f842cd6c7b32625fac97063cfc070e522e58681a245e5bfd8d2fa5",
+      "text": "SANA-Video 2.0: Hybrid Linear Attention with Attention Residuals for Efficient Video Generation\nE6F0E7F7E8E6E6EDF2\nWorking\nKl,i=RMSNorm(vi)\nhl=∑i\nαl,i⋅vi\nαl,i=softmax(w⋅Kl,i)\nw:sharedquery\nVl=[b0,b1,b2,...pl]\nAttnResAggregation\nOne block = 8 layers\nLinear Attn Softmax Attn Complete bi\nb1\nBlock 1\nBlock 2\nBlock 3\nb2\nb3\n      b0(Patch Embedded)\n(b). Residual Attention Aggregation\n (c). AttnRes Module\nb1 … plb0\nAttnRes Depth Router \nShared query  w\nbm−1\nhl\nαl\n(a). Hybrid DiT Module\nCurrent pl\npl\nBlock m Routing site  l\ncompleted-block features current input\nFigure 2| SANA-Video 2.0 overview.(a) Hybrid DiT layer. (b) Eight-layer blocks expose completed features across\ndepth. (c) A shared-query AttnRes router aggregates the input and completed block features.\n3.3. Block Attention Residuals (AttnRes)\nFigure 2 summarizes the hybrid layer and its block-level depth routing. Hybrid attention supplies less rank-constrained\ntoken mixing only at sparse depths; AttnRes complements it by exposing completed block summaries containing those\nupdates to later layers. We build on the Block AttnRes [16], which Kimi K3 [15] pairs with hybrid linear attention at\nlanguage-model scale, and adapt it to bidirectional video diffusion. The layers are grouped into consecutive blocks: each\nblock that has finished by layer𝑙 leaves a single feature summary, and the block still in progress carries a running partial\nsum. The router at layer 𝑙 therefore draws on a source set𝒱𝑙 ={𝑏 0, 𝑏1,..., 𝑝 𝑙} made of the initial token embedding𝑏0,\nthe completed block summaries𝑏1,𝑏 2,... from blocks that finished before layer𝑙, and the current within-block partial\nsum𝑝𝑙, the accumulation so far in the in-progress block (absent only at a block boundary, where it has just been frozen\ninto a new summary and reset). For each video token𝑥, the routed representation before sublayer type𝜏is\nℎ𝑙(𝑥) =\n∑︁\n𝑣𝑖∈𝒱𝑙\n𝛼(𝜏)\n𝑖→𝑙(𝑥)𝑣𝑖(𝑥), 𝛼 (𝜏)\n𝑖→𝑙(𝑥) = softmax\n𝑖\n(︁(︀\n𝑤(𝜏) +𝜑𝜏(𝑡)\n)︀⊤\nRMSNorm(𝑣𝑖(𝑥))\n)︁\n,(2)\n",
+      "score": 3.1883800776021314
+    },
+    {
+      "chunk_id": "chk-8ea02d6944640acf6fa2edb9",
+      "paper_id": "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "title": "SANA-Video 2.0- Hybrid Linear Attention with Attention Residuals for Efficient Video Generation",
+      "source_sha256": "759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "page": 3,
+      "markdown_path": "papers/759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b/source.md",
+      "markdown_sha256": "b1a9d7fa9367e684310519aa5c962e939ed97d08264e3cc756138e509e405736",
+      "text_start": 11274,
+      "text_end": 13262,
+      "text_sha256": "7c0e67f27fac18ce9851e4bc58a5ead80f54d8ce2dce4bfb525f2687e9b2a609",
+      "text": "AttnRes variant keeps completed block summaries and a running within-block residual, and applies separate routing\nbefore attention and FFN sublayers. In our hybrid stack, completed summaries include softmax-anchor updates and\nexpose them to later mostly-linear layers. The original parameterizes routing queries per sublayer. Our video adaptation\ninstead shares them across depth. Rather than assume the routing queries need a separate diffusion-timestep input, we\ntest whether one is necessary and find it redundant with AdaLN.\n3. SANA-Video 2.0\n3.1. Overview\nSANA-Video 2.0 is a video DiT that combines hybrid sequence attention with block residual attention across depth. It\noperates on LTX-V AE 2.3 [11] latents and draws text features from Gemma-2-2B-IT [8] through cross-attention at every\nlayer. At each depth, AttnRes first routes a representation into the self-/cross-attention branch and, in a second step, into\nthe SwiGLU FFN, with AdaLN-style modulation inside each branch, and a final aggregation precedes the output head.\nThe local path is convolution-free throughout. Appendix B lists the full configuration.\n3.2. Hybrid Attention Design\nBuilding on the gated attention primitives (Section 2), we interleave bidirectional gated linear attention layers with gated\nsoftmax anchors at a 3:1 ratio, 75% linear, 25% softmax, placing a softmax anchor at every fourth layer. The linear\nmajority keeps token mixing at𝑂(𝑁) , while the uniformly spaced anchors periodically refresh the less rank-constrained\ninteractions that the compressed linear state cannot represent (Section 5.5). Linear and softmax heads use different head\ndimensions, trading efficiency against per-head capacity (Appendix B). This regular layout follows the hybrid linear\nattention of recent LLMs (Qwen3-Next [30], Kimi-Linear [14], and Kimi K3 [15] at trillion-parameter scale) and maps\ncleanly onto fused linear-attention kernels. We confirm the 25% anchor ratio as a quality–efficiency knee for the video\n",
+      "score": 3.1883800776021314
+    },
+    {
+      "chunk_id": "chk-ad295a399767a8361ec6d0dd",
+      "paper_id": "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "title": "SANA-Video 2.0- Hybrid Linear Attention with Attention Residuals for Efficient Video Generation",
+      "source_sha256": "759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "page": 2,
+      "markdown_path": "papers/759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b/source.md",
+      "markdown_sha256": "b1a9d7fa9367e684310519aa5c962e939ed97d08264e3cc756138e509e405736",
+      "text_start": 5371,
+      "text_end": 7260,
+      "text_sha256": "ffa1c19ac4f1aa4aa01f9ff86c8dc84296d445d614c755e3e0c46a9f7a2c141e",
+      "text": "information across depth with Attention Residuals [ 16], a combination the recent Kimi K3 [ 15] adopts at trillion-\nparameter scale. This raises a central question:can a mostly-linear backbone recover the expressiveness of softmax\nattention while keeping its𝑂(𝑁)scaling for long, high-resolution video?\nThis paper answers affirmatively with SANA-Video 2.0, a hybrid-attention video diffusion transformer instantiated at\n5B and 14B scales. The larger model is a 40-layer, width-4,096 backbone with 14.25B parameters, trained at 384×B200\nscale. The 5B operating point keeps a mostly-linear backbone but inserts a small number of softmax anchors, matching\nstrong full-softmax Video DiTs in quality while remaining fast on a single GPU (Figure 1): with 40-step sampling it\nreaches VBench Total 84.30 in 13.2s at 480×832×81 on one H100, competitive with much larger softmax models at a\nfraction of their latency, and its DiT forward is 3.2× faster than a matched full-softmax DiT at a 720p/60s shape with\nboth compiled on their best kernels (Figure 1(c)), an advantage that widens with duration. Unlike post-hoc linearization\nof a pretrained softmax model, we train the hybrid backbone directly. The design rests on three key components.\nHybrid Linear-Softmax Attention.We keep gated bilinear linear attention as the core token-mixing operation\nfor its𝑂(𝑁) cost, and interleave gated softmax anchors at a regular 3:1 ratio (25% softmax) placed at fixed depths.\nThe anchors periodically restore the less rank-constrained token interactions that pure linear attention cannot express,\nwhile the linear majority preserves long-sequence scaling. Text enters through cross-attention, and a convolution-free\nSwiGLU FFN replaces SANA-Video’s temporal-convolution FFN, whose measured overhead grows with duration\n(Appendix G.4), keeping the backbone easy to profile and fuse with off-the-shelf kernels.\n",
+      "score": 2.917557714682722
+    },
+    {
+      "chunk_id": "chk-24180b991da5ee9d6be93525",
+      "paper_id": "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "title": "SANA-Video 2.0- Hybrid Linear Attention with Attention Residuals for Efficient Video Generation",
+      "source_sha256": "759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "page": 9,
+      "markdown_path": "papers/759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b/source.md",
+      "markdown_sha256": "b1a9d7fa9367e684310519aa5c962e939ed97d08264e3cc756138e509e405736",
+      "text_start": 36920,
+      "text_end": 38819,
+      "text_sha256": "a3f1c09641fd1cd19ac7f55f3d27a42853899d5be77b7531b439c4f0b62018be",
+      "text": "timestep changes validation loss by at most 0.0002, while the offset has 0.979 mean cross-timestep cosine similarity and\na time-varying residual only 13% as large as its constant component (Appendix F.4).\nTable 3| AttnRes training and design probes.(a) Late-stage continuation; (b–d) early short-run probes. Wins counts\nimproved noise buckets; green shading marks the selected designs.\n(a) Router effect\nDesign MSE↓Wins\nNo AttnRes 0.48547 —\n+ AttnRes 0.48506 17/20\n(b) Explicit𝑡input\nSetting Loss↓\nwith𝑡0.962\nwithout𝑡 0.920\n(c) Query sharing\nDesign Loss↓Mem\nper-layer 0.496 +16%\nshared 0.495 +4%\n(d) Block span (𝑆)\n𝑆Loss↓Lat. Mem\n4 0.965 +3.9% +2.9%\n8 0.962 +3.1% +2.1%\n16 0.962 +3.1% +1.6%\n5.4. Efficiency Scaling\nResolution and router scaling.The proxy studies select a shared, timestep-independent router with 𝑆=8. We compare\nthe 25%-softmax backbone with full softmax under one compiled, no-AttnRes protocol in which every variant uses\nits best kernels (fused linear attention, FlashAttention for all softmax layers). This is the standard protocol for all\nDiT-forward comparisons in the paper.\nSequence- and model-size scaling.Figure 5(a) compares six 480p–1080p shapes and three attention ratios. Under\nthe compiled best-kernels no-AttnRes protocol, full/25%-hybrid speedup rises from 1.16× to 2.01×. At fixed 720p\nand 24fps it reaches 3.17× at the 60s tensor shape (1,441 frames, Figure 5(b)). Under the same protocol, panel (c)\nfixes the 720p/10s shape and jointly grows width and depth from 1.2B to 28.9B. The hybrid is faster at all eight scales,\nand its absolute saving grows from 128 to 948ms. A controlled decomposition shows the two axes act differently:\nat fixed width, growing depth from 16 to 60 layers leaves the speedup nearly flat ( 1.41×), since depth multiplies\nboth variants alike, whereas at fixed depth, growing width shifts it from 1.45× to 1.33× as the width-bound FFN and\n",
+      "score": 2.7267792621456564
+    },
+    {
+      "chunk_id": "chk-3aa2e914f2a6ff10fba578dd",
+      "paper_id": "sha256:759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "title": "SANA-Video 2.0- Hybrid Linear Attention with Attention Residuals for Efficient Video Generation",
+      "source_sha256": "759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b",
+      "page": 17,
+      "markdown_path": "papers/759588574b9b33bff83a6c8c05da1455535498c6cb70992678079242ddaeb23b/source.md",
+      "markdown_sha256": "b1a9d7fa9367e684310519aa5c962e939ed97d08264e3cc756138e509e405736",
+      "text_start": 63581,
+      "text_end": 67558,
+      "text_sha256": "3009845cfff303ae602c358e7680fd23bef703e1f07846d67963c895643743d3",
+      "text": "SANA-Video 2.0: Hybrid Linear Attention with Attention Residuals for Efficient Video Generation\nA. Related Work\nA.1. Video Diffusion and Efficient Sequence Modeling\nModern open video generators are largely built on diffusion transformers with full uniform softmax attention. Wan 2.1/2.2,\nHunyuanVideo, CogVideoX, and Open-Sora scale this design through larger backbones and improved training recipes,\nwith Wan 2.2 adopting a mixture-of-experts denoiser [17, 37, 38, 44, 50]. Their global token mixing is expressive, but\nits quadratic cost becomes increasingly expensive as resolution and duration grow. Other systems reduce the sequence\nlength instead: MAGI-1 generates video autoregressively in temporal chunks [31], while LTX-Video relies on latent\ncompression [11].\nEfficient sequence models reduce backbone cost directly. Linear attention replaces the explicit𝑁×𝑁 attention map\nwith a fixed-size state [2, 13, 43], while state-space models use recurrent or selective state updates [10, 19, 25, 35]. In\nvision, DiG applies gated linear attention to image diffusion transformers [52]; SANA-Video develops a pure-linear\nvideo DiT with a temporal-convolution FFN [6]; and SANA-WM and SANA-Streaming extend efficient SANA-family\nbackbones to world modeling and streaming video editing [49, 51]. Because a compressed state can restrict representation\nrank and direct token interaction [7], we keep full-sequence generation but periodically restore exact softmax interaction\ninstead of relying on a pure-linear stack or an additional temporal-convolution path.\nA.2. Hybrid and Sparse Attention\nHybrid language models combine efficient state-based layers with a smaller number of exact softmax layers. Qwen3-Next\nand Kimi-Linear use a regular 3:1 linear-to-softmax layout with different linear operators [14, 30], and post-attention\noutput gating provides a compatible stabilization mechanism for the softmax branch [29]. Attention Surgery instead\nlinearizes a pretrained video DiT after training [9]. We study a bidirectional video diffusion transformer trained from\nscratch with its hybrid layout fixed throughout training, and re-select the softmax fraction in the video regime rather\nthan assuming that the language-model ratio transfers directly.\nSparse methods provide a complementary way to reduce the remaining softmax cost. Sparse-VideoGen and\nRadial Attention exploit structure in video attention maps, SpargeAttn and PISA provide training-free sparse or\napproximate kernels, and Native Sparse Attention learns hardware-aligned sparse patterns for long-context language\nmodeling [18, 20, 40, 46, 48]. These methods reduce the work within each softmax layer, whereas our hybrid design\nreduces how many layers invoke softmax. In our deployment study, sparsity is therefore applied only to the fixed softmax\nanchors, leaving the linear majority and trained architecture unchanged (Section 6).\nA.3. Cross-Layer Residual Routing\nStandard transformer residual streams pass features only through adjacent layers. Attention Residuals allow a layer to\nretrieve completed block features from earlier depths, and Kimi K3 combines this mechanism with hybrid attention\nat language-model scale [15, 16]. Video diffusion introduces different requirements: features are bidirectional, every\nblock is modulated by a denoising timestep, and the spatial–temporal token set is much larger. We therefore route over\ncompleted block summaries and the current partial block, share one query projection across depth, and retain timestep\ninformation through the ordinary DiT features rather than a separate router-timestep projection. The routing and rank\nanalyses in this paper test whether the AttnRes path reuses the representations refreshed by the softmax anchors.\nB. Model and Training Details\nB.1. Model Configuration\nSANA-Video 2.0 has 5B and 14B configurations that share the selected hybrid design. Table 6 records both architectures\nand their scale-specific training hyperparameters.\n17",
+      "score": 2.0992589171350957
+    }
+  ],
+  "prompt": "Write an editable Markdown draft for the topic using only the evidence chunks below. Cite a used chunk as [@chunk_id] and list the same chunk_id values in citations. Do not invent papers, pages, chunk ids, or sources. Do not emit paper-analysis-draft JSON.",
+  "message": "exported local context for the current conversation model",
+  "workspace_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-r06-v1/terminal-3/.work/sana-ws"
+}

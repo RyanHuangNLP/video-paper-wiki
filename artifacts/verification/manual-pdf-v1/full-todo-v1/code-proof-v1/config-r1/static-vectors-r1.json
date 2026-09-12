@@ -1,0 +1,3236 @@
+{
+  "$schema": "video-paper-wiki.code-config-kernel-fixture-r1.v1",
+  "revision": 1,
+  "status": "INDEPENDENT_STATIC_AUTHORED_VECTORS_READY_FOR_IMPLEMENTATION_REVIEW",
+  "scope": "Bounded data-only JSON/TOML source vectors; expected spans and parser values are authored separately from any implementation scanner.",
+  "inputs": {
+    "config_kernel_r1": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-KERNEL-R1.md",
+      "sha256": "997ef4dce91e493f161b327ff5686aa349bd747e25ee13727248a68ba4d375d4"
+    },
+    "code_proof_closure_r3": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-CLOSURE-R3.md",
+      "sha256": "3240bfcd29e0f159af389161037581e05c171893305e18182984395f1de0b6a5"
+    },
+    "independent_span_advice_r3": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/code-config-span-advice-r3.json",
+      "sha256": "33eda350997482d91cce8ea8bf1e8a329591dd0cdb1284eff78437afea427b20"
+    },
+    "clarifications_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-CLARIFICATIONS-R2.md",
+      "sha256": "d9051b3de39dd501dd6f99dd0b64b73c0496fedd498989fec129f1bf157ec37d"
+    },
+    "toml_transition_matrix_r2": {
+      "path": "docs/ai/packets/full-todo-v1/CODE-CONFIG-TOML-MATRIX-R2.json",
+      "sha256": "18fc7340d6ceba4732c24b2c803fe0902732d6f3ed5dc4b761f90153c1c226bf"
+    }
+  },
+  "profile_limits": {
+    "max_source_bytes": 262144,
+    "max_depth": 32,
+    "max_nodes": 1024,
+    "max_array_items": 256,
+    "max_object_keys": 1024,
+    "max_key_bytes": 256,
+    "max_string_codepoints": 16384,
+    "max_scalars": 512,
+    "max_numeric_lexeme_bytes": 128,
+    "max_numeric_coefficient_digits": 64,
+    "max_numeric_abs_exponent": 128,
+    "max_numeric_canonical_bytes": 256,
+    "max_declarations": 4096
+  },
+  "supplementary_observations": {
+    "toml_transition_matrix": {
+      "case_count": 26,
+      "py312_observation": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py312-r2.json",
+        "sha256": "64c695830774b933524d043ef08eae65fc244788c420833bc861aa9a38f36fac",
+        "passed": 26
+      },
+      "py313_observation": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-toml-matrix-py313-r2.json",
+        "sha256": "492cb659ce7eb82a9b68e4151ca28a38acd47da9764ff5592d5a85c9ec6c9194",
+        "passed": 26
+      }
+    },
+    "clarification_dynamic_positions": "CODE_CONFIG_DYNAMIC_UNSUPPORTED anchors the opening quote for quoted value tokens or first character for TOML bare keys; instance pointer /payload; reasons dynamic_key, dynamic_marker, callable_string with marker precedence.",
+    "clarification_toml_states": "Ordinary headers, current/finalized dotted prefixes, implicit parents and closed inline boundaries are tracked; matrix is supplemental and not a whitelist."
+  },
+  "span_contract": {
+    "offsets": "original UTF-8 bytes and decoded Python codepoints, zero-based half-open",
+    "lines": "one-based physical lines; columns are one-based codepoint columns; CRLF is two codepoints/bytes and one line advance",
+    "snippet_sha256": "existing code_snippet_sha256 rule over CRLF-normalized selected physical lines, excluding terminal LF and excluding a following line at exclusive end",
+    "normalization": "only CRLF to LF for normalized_sha256 and line_count; no Unicode normalization"
+  },
+  "success_vectors": [
+    {
+      "id": "json-nested-lf",
+      "format": "json",
+      "purposes": [
+        "nested maps",
+        "1e-4",
+        "betas [0.9,0.999]",
+        "integer and decimal kinds"
+      ],
+      "source_utf8": "{\n  \"optimizer\": {\n    \"name\": \"AdamW\",\n    \"learning_rate\": 1e-4,\n    \"betas\": [0.9, 0.999],\n    \"weight_decay\": 0.01\n  },\n  \"schedule\": {\n    \"warmup_steps\": 1000,\n    \"gamma\": 0.95\n  }\n}\n",
+      "source": {
+        "body_size_bytes": 190,
+        "body_sha256": "0a9fc14ad0d677374f756c3c4a3884b8ba8d948450e9f33026da50bb1dc38a3a",
+        "normalized_sha256": "0a9fc14ad0d677374f756c3c4a3884b8ba8d948450e9f33026da50bb1dc38a3a",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 12
+      },
+      "parser_cross_check": {
+        "stdlib": "json.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "learning_rate_parser_value": "0.0001",
+        "warmup_steps_parser_value": 1000
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/optimizer",
+            "/schedule"
+          ],
+          "value_span": {
+            "byte_start": 0,
+            "byte_end": 122,
+            "codepoint_start": 0,
+            "codepoint_end": 122,
+            "line_start": 1,
+            "column_start": 1,
+            "line_end": 7,
+            "column_end": 4,
+            "raw_sha256": "b5fd51e576b301684b64fb658e04d07fcd0a7a5080e3dae2a1b82705cc03a06d",
+            "snippet_sha256": "75a1f16eacfe18bbfa3de7ae80bdbc2ecf936615e3a830e69e51555dcad2d146"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/optimizer",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/optimizer/betas",
+            "/optimizer/learning_rate",
+            "/optimizer/name",
+            "/optimizer/weight_decay"
+          ],
+          "value_span": {
+            "byte_start": 17,
+            "byte_end": 122,
+            "codepoint_start": 17,
+            "codepoint_end": 122,
+            "line_start": 2,
+            "column_start": 16,
+            "line_end": 7,
+            "column_end": 4,
+            "raw_sha256": "008fe16f17943a0feb045c141313bc2d5868dd043cd580bc725105bb093ef40c",
+            "snippet_sha256": "f9270384152d99e61413a2de7796031bf34c6e4e53f795c4f2a630c223a0194f"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 4,
+                "byte_end": 15,
+                "codepoint_start": 4,
+                "codepoint_end": 15,
+                "line_start": 2,
+                "column_start": 3,
+                "line_end": 2,
+                "column_end": 14,
+                "raw_sha256": "ec3070a22a384ffbf681f211b09160ce00d6ea014adeb6621565a8b9b392eaa3",
+                "snippet_sha256": "77bf91c04cd3f7e2b97d7f5352a19d87a924b93228958af2e795ec143cf15b92"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/betas",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/optimizer/betas/0",
+            "/optimizer/betas/1"
+          ],
+          "value_span": {
+            "byte_start": 80,
+            "byte_end": 92,
+            "codepoint_start": 80,
+            "codepoint_end": 92,
+            "line_start": 5,
+            "column_start": 14,
+            "line_end": 5,
+            "column_end": 26,
+            "raw_sha256": "5b0398c132464cfdfc206dc8f5f5cf5d62ded41c2447326cdc7565d9104dd54c",
+            "snippet_sha256": "e4e87956a7dda81eac6f091f9399120952c1f77978d1edaa04fe2e850d6c79ce"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 71,
+                "byte_end": 78,
+                "codepoint_start": 71,
+                "codepoint_end": 78,
+                "line_start": 5,
+                "column_start": 5,
+                "line_end": 5,
+                "column_end": 12,
+                "raw_sha256": "3714916a024afbb81f20fe1a4447e1b130fb277f0df6cdcbc6fe51f59a8f2a1c",
+                "snippet_sha256": "e4e87956a7dda81eac6f091f9399120952c1f77978d1edaa04fe2e850d6c79ce"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/betas/0",
+          "kind": "decimal",
+          "value": "0.9",
+          "numeric_lexeme": "0.9",
+          "children": [],
+          "value_span": {
+            "byte_start": 81,
+            "byte_end": 84,
+            "codepoint_start": 81,
+            "codepoint_end": 84,
+            "line_start": 5,
+            "column_start": 15,
+            "line_end": 5,
+            "column_end": 18,
+            "raw_sha256": "8139b33952401b3ee0e2ca84651cb9a1d7f66d442bf908f9cf1f53ea746e5801",
+            "snippet_sha256": "e4e87956a7dda81eac6f091f9399120952c1f77978d1edaa04fe2e850d6c79ce"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/optimizer/betas/1",
+          "kind": "decimal",
+          "value": "0.999",
+          "numeric_lexeme": "0.999",
+          "children": [],
+          "value_span": {
+            "byte_start": 86,
+            "byte_end": 91,
+            "codepoint_start": 86,
+            "codepoint_end": 91,
+            "line_start": 5,
+            "column_start": 20,
+            "line_end": 5,
+            "column_end": 25,
+            "raw_sha256": "11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95",
+            "snippet_sha256": "e4e87956a7dda81eac6f091f9399120952c1f77978d1edaa04fe2e850d6c79ce"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/optimizer/learning_rate",
+          "kind": "decimal",
+          "value": "0.0001",
+          "numeric_lexeme": "1e-4",
+          "children": [],
+          "value_span": {
+            "byte_start": 61,
+            "byte_end": 65,
+            "codepoint_start": 61,
+            "codepoint_end": 65,
+            "line_start": 4,
+            "column_start": 22,
+            "line_end": 4,
+            "column_end": 26,
+            "raw_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff",
+            "snippet_sha256": "23687d39470c127b77ec194fdd1811a814099c0169a592973a58acc83a18d769"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 44,
+                "byte_end": 59,
+                "codepoint_start": 44,
+                "codepoint_end": 59,
+                "line_start": 4,
+                "column_start": 5,
+                "line_end": 4,
+                "column_end": 20,
+                "raw_sha256": "0d88fd791c1bfc498e80dd02510e818c98e8aa825d17016839a65d51b4fd3294",
+                "snippet_sha256": "23687d39470c127b77ec194fdd1811a814099c0169a592973a58acc83a18d769"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/name",
+          "kind": "string",
+          "value": "AdamW",
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 31,
+            "byte_end": 38,
+            "codepoint_start": 31,
+            "codepoint_end": 38,
+            "line_start": 3,
+            "column_start": 13,
+            "line_end": 3,
+            "column_end": 20,
+            "raw_sha256": "5364bde3abdb6b71c9572f27255f7f278b13aabbf6c98765e5a2cd7a38e11463",
+            "snippet_sha256": "5f9eb8f2f0edae0720e53d79c7b7ebbd569c53b7c8f7d37ceb94a8379167ad2a"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 23,
+                "byte_end": 29,
+                "codepoint_start": 23,
+                "codepoint_end": 29,
+                "line_start": 3,
+                "column_start": 5,
+                "line_end": 3,
+                "column_end": 11,
+                "raw_sha256": "6ffe58b85cad95f1e86f1afebc4ffba738ef6c5520811cb5f393f6c0234ffcb0",
+                "snippet_sha256": "5f9eb8f2f0edae0720e53d79c7b7ebbd569c53b7c8f7d37ceb94a8379167ad2a"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/weight_decay",
+          "kind": "decimal",
+          "value": "0.01",
+          "numeric_lexeme": "0.01",
+          "children": [],
+          "value_span": {
+            "byte_start": 114,
+            "byte_end": 118,
+            "codepoint_start": 114,
+            "codepoint_end": 118,
+            "line_start": 6,
+            "column_start": 21,
+            "line_end": 6,
+            "column_end": 25,
+            "raw_sha256": "312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f",
+            "snippet_sha256": "b688a7626e01f76eeb9c7d95c6cb44f9dbc975aab2683070f0f44fe0659b1b65"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 98,
+                "byte_end": 112,
+                "codepoint_start": 98,
+                "codepoint_end": 112,
+                "line_start": 6,
+                "column_start": 5,
+                "line_end": 6,
+                "column_end": 19,
+                "raw_sha256": "af2add8aa5134193fe0ccca6359e28880e3f9d6c2ef9b2b626e3a2bc5fc94ab7",
+                "snippet_sha256": "b688a7626e01f76eeb9c7d95c6cb44f9dbc975aab2683070f0f44fe0659b1b65"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/schedule",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/schedule/gamma",
+            "/schedule/warmup_steps"
+          ],
+          "value_span": {
+            "byte_start": 138,
+            "byte_end": 187,
+            "codepoint_start": 138,
+            "codepoint_end": 187,
+            "line_start": 8,
+            "column_start": 15,
+            "line_end": 11,
+            "column_end": 4,
+            "raw_sha256": "ae68d19b6a998b83dd07b5b0f1cbfcfe6cae0ca4081cf32ed87d6ae52e6ce431",
+            "snippet_sha256": "0b23f721e308baa036cff0ea6ae77f3823fb7c4d10078bb01d6084a683da7722"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 126,
+                "byte_end": 136,
+                "codepoint_start": 126,
+                "codepoint_end": 136,
+                "line_start": 8,
+                "column_start": 3,
+                "line_end": 8,
+                "column_end": 13,
+                "raw_sha256": "5867e029735bd655661a7c1eb10cd27ee4b36622f6b03fae5fd1ff16d1c5ce6c",
+                "snippet_sha256": "8861c61725d1cb4c0c8eb90e326244718009116dbada9e8a4d8dbd001e125ca5"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/schedule/gamma",
+          "kind": "decimal",
+          "value": "0.95",
+          "numeric_lexeme": "0.95",
+          "children": [],
+          "value_span": {
+            "byte_start": 179,
+            "byte_end": 183,
+            "codepoint_start": 179,
+            "codepoint_end": 183,
+            "line_start": 10,
+            "column_start": 14,
+            "line_end": 10,
+            "column_end": 18,
+            "raw_sha256": "22fa3ce4995af8d96fcd771f0e1f5d74d8a98f36c3eec8e95bdf7524926b0141",
+            "snippet_sha256": "29f9350cc7c229f58b3926d8c61b16cb7e9aae2c55315d5a9e36de77bb87d04a"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 170,
+                "byte_end": 177,
+                "codepoint_start": 170,
+                "codepoint_end": 177,
+                "line_start": 10,
+                "column_start": 5,
+                "line_end": 10,
+                "column_end": 12,
+                "raw_sha256": "ca44c452eb826c7bfd518fa436b4f73082548bd50cc5eb370e5acb75afb84554",
+                "snippet_sha256": "29f9350cc7c229f58b3926d8c61b16cb7e9aae2c55315d5a9e36de77bb87d04a"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/schedule/warmup_steps",
+          "kind": "integer",
+          "value": "1000",
+          "numeric_lexeme": "1000",
+          "children": [],
+          "value_span": {
+            "byte_start": 160,
+            "byte_end": 164,
+            "codepoint_start": 160,
+            "codepoint_end": 164,
+            "line_start": 9,
+            "column_start": 21,
+            "line_end": 9,
+            "column_end": 25,
+            "raw_sha256": "40510175845988f13f6162ed8526f0b09f73384467fa855e1e79b44a56562a58",
+            "snippet_sha256": "dfd4677df4a1831ba17dd54e6837a70f0b3aa86ffcd8f5a1a6c8429df588e86d"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 144,
+                "byte_end": 158,
+                "codepoint_start": 144,
+                "codepoint_end": 158,
+                "line_start": 9,
+                "column_start": 5,
+                "line_end": 9,
+                "column_end": 19,
+                "raw_sha256": "78a7bb35e00941d3a570d49956e852211c8db55af1589b663ea47ca77871c4c5",
+                "snippet_sha256": "dfd4677df4a1831ba17dd54e6837a70f0b3aa86ffcd8f5a1a6c8429df588e86d"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "json-unicode-crlf-tabs",
+      "format": "json",
+      "purposes": [
+        "CRLF",
+        "TAB columns",
+        "Unicode byte/codepoint divergence",
+        "escaped newline",
+        "empty object/array",
+        "null/boolean"
+      ],
+      "source_utf8": "{\r\n\t\"学习率\": 1e-4,\r\n\t\"备注\": \"β\\n\",\r\n\t\"empty\": {},\r\n\t\"list\": [true, null, \"\", []]\r\n}\r\n",
+      "source": {
+        "body_size_bytes": 93,
+        "body_sha256": "c13c4907cd79c417337cb3b815897d40c5631291cd60da1a80790793cd8f54f5",
+        "normalized_sha256": "7a42811fd4cddd7ca12e9b4500adc2cb7c998222f5d7675496be207d530522e4",
+        "newline_style": "crlf",
+        "ends_with_newline": true,
+        "line_count": 6
+      },
+      "parser_cross_check": {
+        "stdlib": "json.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "learning_rate_parser_value": "0.0001",
+        "unicode_key": "学习率"
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/empty",
+            "/list",
+            "/备注",
+            "/学习率"
+          ],
+          "value_span": {
+            "byte_start": 0,
+            "byte_end": 56,
+            "codepoint_start": 0,
+            "codepoint_end": 45,
+            "line_start": 1,
+            "column_start": 1,
+            "line_end": 4,
+            "column_end": 13,
+            "raw_sha256": "70135f8a01c710af8b69634629f86b5cf1c59ebfe2b57e129196a425f7adf6a8",
+            "snippet_sha256": "9f80be1054f09149621acda4e39e0adae7fb2da94668b145d7112f1d9f842850"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/empty",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 54,
+            "byte_end": 56,
+            "codepoint_start": 43,
+            "codepoint_end": 45,
+            "line_start": 4,
+            "column_start": 11,
+            "line_end": 4,
+            "column_end": 13,
+            "raw_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+            "snippet_sha256": "eeabf7ff2d8ae549959fb3d30a9e03e11cf6f3f9284148d9e34441623e271690"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 45,
+                "byte_end": 52,
+                "codepoint_start": 34,
+                "codepoint_end": 41,
+                "line_start": 4,
+                "column_start": 2,
+                "line_end": 4,
+                "column_end": 9,
+                "raw_sha256": "e6845188b1d2aebdf19d13c1613d7a49b5806a7fe336ec775fa182b36719bbc1",
+                "snippet_sha256": "eeabf7ff2d8ae549959fb3d30a9e03e11cf6f3f9284148d9e34441623e271690"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/list",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/list/0",
+            "/list/1",
+            "/list/2",
+            "/list/3"
+          ],
+          "value_span": {
+            "byte_start": 68,
+            "byte_end": 87,
+            "codepoint_start": 57,
+            "codepoint_end": 76,
+            "line_start": 5,
+            "column_start": 10,
+            "line_end": 5,
+            "column_end": 29,
+            "raw_sha256": "797900b3d45f35a95abdc250ef3da5e5bf4fc3f0fae9bfcdc734adc1a0bfe684",
+            "snippet_sha256": "bfcaad5dbccc641465cee16a3b509295a405f345c04e44a1091b25fdadb0cb49"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 60,
+                "byte_end": 66,
+                "codepoint_start": 49,
+                "codepoint_end": 55,
+                "line_start": 5,
+                "column_start": 2,
+                "line_end": 5,
+                "column_end": 8,
+                "raw_sha256": "dcb452a982945e5e2957930d83d36af5ceee19805ec0c3b30529ae8f44f6e49e",
+                "snippet_sha256": "bfcaad5dbccc641465cee16a3b509295a405f345c04e44a1091b25fdadb0cb49"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/list/0",
+          "kind": "boolean",
+          "value": true,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 69,
+            "byte_end": 73,
+            "codepoint_start": 58,
+            "codepoint_end": 62,
+            "line_start": 5,
+            "column_start": 11,
+            "line_end": 5,
+            "column_end": 15,
+            "raw_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+            "snippet_sha256": "bfcaad5dbccc641465cee16a3b509295a405f345c04e44a1091b25fdadb0cb49"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/list/1",
+          "kind": "null",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 75,
+            "byte_end": 79,
+            "codepoint_start": 64,
+            "codepoint_end": 68,
+            "line_start": 5,
+            "column_start": 17,
+            "line_end": 5,
+            "column_end": 21,
+            "raw_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+            "snippet_sha256": "bfcaad5dbccc641465cee16a3b509295a405f345c04e44a1091b25fdadb0cb49"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/list/2",
+          "kind": "string",
+          "value": "",
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 81,
+            "byte_end": 83,
+            "codepoint_start": 70,
+            "codepoint_end": 72,
+            "line_start": 5,
+            "column_start": 23,
+            "line_end": 5,
+            "column_end": 25,
+            "raw_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+            "snippet_sha256": "bfcaad5dbccc641465cee16a3b509295a405f345c04e44a1091b25fdadb0cb49"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/list/3",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 85,
+            "byte_end": 87,
+            "codepoint_start": 74,
+            "codepoint_end": 76,
+            "line_start": 5,
+            "column_start": 27,
+            "line_end": 5,
+            "column_end": 29,
+            "raw_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "snippet_sha256": "bfcaad5dbccc641465cee16a3b509295a405f345c04e44a1091b25fdadb0cb49"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/备注",
+          "kind": "string",
+          "value": "β\n",
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 35,
+            "byte_end": 41,
+            "codepoint_start": 25,
+            "codepoint_end": 30,
+            "line_start": 3,
+            "column_start": 8,
+            "line_end": 3,
+            "column_end": 13,
+            "raw_sha256": "d7fb2fd07cacaea89089f7117a34defd2ea741bb8df36d78afebf0ff2a5e5fda",
+            "snippet_sha256": "5ad0c5224916a25d77954c53609e52e6bea95bac2554dd1099a283b2cfdaf506"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 25,
+                "byte_end": 33,
+                "codepoint_start": 19,
+                "codepoint_end": 23,
+                "line_start": 3,
+                "column_start": 2,
+                "line_end": 3,
+                "column_end": 6,
+                "raw_sha256": "50531db8bf9de4759e8d2139375e25dd7d6464372077f7f43e0d108243e795e5",
+                "snippet_sha256": "5ad0c5224916a25d77954c53609e52e6bea95bac2554dd1099a283b2cfdaf506"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/学习率",
+          "kind": "decimal",
+          "value": "0.0001",
+          "numeric_lexeme": "1e-4",
+          "children": [],
+          "value_span": {
+            "byte_start": 17,
+            "byte_end": 21,
+            "codepoint_start": 11,
+            "codepoint_end": 15,
+            "line_start": 2,
+            "column_start": 9,
+            "line_end": 2,
+            "column_end": 13,
+            "raw_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff",
+            "snippet_sha256": "477c00eea39dc165cb26bb21f4c55734554fd50a8158cc74503bef0acb739a82"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 4,
+                "byte_end": 15,
+                "codepoint_start": 4,
+                "codepoint_end": 9,
+                "line_start": 2,
+                "column_start": 2,
+                "line_end": 2,
+                "column_end": 7,
+                "raw_sha256": "667af9910ab8ed54d404d9bf1808aef576a3f880e301adfd6284f7b2aa189d05",
+                "snippet_sha256": "477c00eea39dc165cb26bb21f4c55734554fd50a8158cc74503bef0acb739a82"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "json-pointer-escaping",
+      "format": "json",
+      "purposes": [
+        "JSON Pointer ~0/~1 escaping",
+        "escaped Unicode key",
+        "literal Unicode scalar",
+        "empty array"
+      ],
+      "source_utf8": "{\"a/b\": {\"~key\": 1}, \"\\u0065\": \"é\", \"empty\": []}",
+      "source": {
+        "body_size_bytes": 49,
+        "body_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5",
+        "normalized_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "parser_cross_check": {
+        "stdlib": "json.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "decoded_key": "e"
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/a~1b",
+            "/e",
+            "/empty"
+          ],
+          "value_span": {
+            "byte_start": 0,
+            "byte_end": 19,
+            "codepoint_start": 0,
+            "codepoint_end": 19,
+            "line_start": 1,
+            "column_start": 1,
+            "line_end": 1,
+            "column_end": 20,
+            "raw_sha256": "600799ebb0a379cf17e630c2e697a1a0c8152a27c35ba9c81e9900cca2bc6b80",
+            "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/a~1b",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/a~1b/~0key"
+          ],
+          "value_span": {
+            "byte_start": 8,
+            "byte_end": 19,
+            "codepoint_start": 8,
+            "codepoint_end": 19,
+            "line_start": 1,
+            "column_start": 9,
+            "line_end": 1,
+            "column_end": 20,
+            "raw_sha256": "7857abeb02b2b91090e8736dd00562f56728f2a7b62cf691cf888c44ebd58121",
+            "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 1,
+                "byte_end": 6,
+                "codepoint_start": 1,
+                "codepoint_end": 6,
+                "line_start": 1,
+                "column_start": 2,
+                "line_end": 1,
+                "column_end": 7,
+                "raw_sha256": "f5effa31772a3689cb116700c569f4b72d765290968f099016a899ab6c1e4ee3",
+                "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/a~1b/~0key",
+          "kind": "integer",
+          "value": "1",
+          "numeric_lexeme": "1",
+          "children": [],
+          "value_span": {
+            "byte_start": 17,
+            "byte_end": 18,
+            "codepoint_start": 17,
+            "codepoint_end": 18,
+            "line_start": 1,
+            "column_start": 18,
+            "line_end": 1,
+            "column_end": 19,
+            "raw_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 9,
+                "byte_end": 15,
+                "codepoint_start": 9,
+                "codepoint_end": 15,
+                "line_start": 1,
+                "column_start": 10,
+                "line_end": 1,
+                "column_end": 16,
+                "raw_sha256": "ccc19351eb912fe3fc94e864e3f85232f6b4e18e5a83e546bb117cb3ecf87aa9",
+                "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/e",
+          "kind": "string",
+          "value": "é",
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 31,
+            "byte_end": 35,
+            "codepoint_start": 31,
+            "codepoint_end": 34,
+            "line_start": 1,
+            "column_start": 32,
+            "line_end": 1,
+            "column_end": 35,
+            "raw_sha256": "f2886017e9c7abacf804b54d64787dce2b611c9544ba21f3affdd126a6e50086",
+            "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 21,
+                "byte_end": 29,
+                "codepoint_start": 21,
+                "codepoint_end": 29,
+                "line_start": 1,
+                "column_start": 22,
+                "line_end": 1,
+                "column_end": 30,
+                "raw_sha256": "56bf82d7429d5a1fd5020860e9c6258222435df17f8249f2380db866810d7ff7",
+                "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/empty",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 46,
+            "byte_end": 48,
+            "codepoint_start": 45,
+            "codepoint_end": 47,
+            "line_start": 1,
+            "column_start": 46,
+            "line_end": 1,
+            "column_end": 48,
+            "raw_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+            "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+          },
+          "declarations": [
+            {
+              "kind": "json_key",
+              "span": {
+                "byte_start": 37,
+                "byte_end": 44,
+                "codepoint_start": 36,
+                "codepoint_end": 43,
+                "line_start": 1,
+                "column_start": 37,
+                "line_end": 1,
+                "column_end": 44,
+                "raw_sha256": "e6845188b1d2aebdf19d13c1613d7a49b5806a7fe336ec775fa182b36719bbc1",
+                "snippet_sha256": "078d1522b0d8bc01c74326a1d2e6ea96acf158381e4672eb44162bd729adb3e5"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toml-nested-lf",
+      "format": "toml",
+      "purposes": [
+        "ordinary tables",
+        "1e-4",
+        "betas with trailing comma",
+        "decimal/integer kinds"
+      ],
+      "source_utf8": "[optimizer]\nname = \"AdamW\"\nlearning_rate = 1e-4\nbetas = [0.9, 0.999]\nweight_decay = 0.01\n\n[schedule]\nwarmup_steps = 1000\ngamma = 0.95\n",
+      "source": {
+        "body_size_bytes": 134,
+        "body_sha256": "1f0a33eebefbbe5192e8e569753965f21c5ca525989d95669109ed070ae44beb",
+        "normalized_sha256": "1f0a33eebefbbe5192e8e569753965f21c5ca525989d95669109ed070ae44beb",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 9
+      },
+      "parser_cross_check": {
+        "stdlib": "tomllib.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "learning_rate_parser_value": "0.0001",
+        "warmup_steps_parser_value": 1000
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/optimizer",
+            "/schedule"
+          ],
+          "value_span": null,
+          "declarations": []
+        },
+        {
+          "path": "/optimizer",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/optimizer/betas",
+            "/optimizer/learning_rate",
+            "/optimizer/name",
+            "/optimizer/weight_decay"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_table",
+              "span": {
+                "byte_start": 0,
+                "byte_end": 11,
+                "codepoint_start": 0,
+                "codepoint_end": 11,
+                "line_start": 1,
+                "column_start": 1,
+                "line_end": 1,
+                "column_end": 12,
+                "raw_sha256": "05c5b08f5315930cb5a1ed92b29b92ddda5173b7a7f0ebd19d9aee4e8fb5ab15",
+                "snippet_sha256": "05c5b08f5315930cb5a1ed92b29b92ddda5173b7a7f0ebd19d9aee4e8fb5ab15"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 1,
+                "byte_end": 10,
+                "codepoint_start": 1,
+                "codepoint_end": 10,
+                "line_start": 1,
+                "column_start": 2,
+                "line_end": 1,
+                "column_end": 11,
+                "raw_sha256": "23732d00643137c9b14b11bdb90f47a8e97b4da42cdfc0887912f4ff732c689c",
+                "snippet_sha256": "05c5b08f5315930cb5a1ed92b29b92ddda5173b7a7f0ebd19d9aee4e8fb5ab15"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/betas",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/optimizer/betas/0",
+            "/optimizer/betas/1"
+          ],
+          "value_span": {
+            "byte_start": 0,
+            "byte_end": 11,
+            "codepoint_start": 0,
+            "codepoint_end": 11,
+            "line_start": 1,
+            "column_start": 1,
+            "line_end": 1,
+            "column_end": 12,
+            "raw_sha256": "05c5b08f5315930cb5a1ed92b29b92ddda5173b7a7f0ebd19d9aee4e8fb5ab15",
+            "snippet_sha256": "05c5b08f5315930cb5a1ed92b29b92ddda5173b7a7f0ebd19d9aee4e8fb5ab15"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 48,
+                "byte_end": 53,
+                "codepoint_start": 48,
+                "codepoint_end": 53,
+                "line_start": 4,
+                "column_start": 1,
+                "line_end": 4,
+                "column_end": 6,
+                "raw_sha256": "fff803583bd9d6026436803f870b121230e1167271a95c4adb63406b18b4d512",
+                "snippet_sha256": "17b99b3b48df08ddcc91e02995571aec0dcef09fd5f87617bd2285040f9f5626"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/betas/0",
+          "kind": "decimal",
+          "value": "0.9",
+          "numeric_lexeme": "0.9",
+          "children": [],
+          "value_span": {
+            "byte_start": 57,
+            "byte_end": 60,
+            "codepoint_start": 57,
+            "codepoint_end": 60,
+            "line_start": 4,
+            "column_start": 10,
+            "line_end": 4,
+            "column_end": 13,
+            "raw_sha256": "8139b33952401b3ee0e2ca84651cb9a1d7f66d442bf908f9cf1f53ea746e5801",
+            "snippet_sha256": "17b99b3b48df08ddcc91e02995571aec0dcef09fd5f87617bd2285040f9f5626"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/optimizer/betas/1",
+          "kind": "decimal",
+          "value": "0.999",
+          "numeric_lexeme": "0.999",
+          "children": [],
+          "value_span": {
+            "byte_start": 62,
+            "byte_end": 67,
+            "codepoint_start": 62,
+            "codepoint_end": 67,
+            "line_start": 4,
+            "column_start": 15,
+            "line_end": 4,
+            "column_end": 20,
+            "raw_sha256": "11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95",
+            "snippet_sha256": "17b99b3b48df08ddcc91e02995571aec0dcef09fd5f87617bd2285040f9f5626"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/optimizer/learning_rate",
+          "kind": "decimal",
+          "value": "0.0001",
+          "numeric_lexeme": "1e-4",
+          "children": [],
+          "value_span": {
+            "byte_start": 43,
+            "byte_end": 47,
+            "codepoint_start": 43,
+            "codepoint_end": 47,
+            "line_start": 3,
+            "column_start": 17,
+            "line_end": 3,
+            "column_end": 21,
+            "raw_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff",
+            "snippet_sha256": "05fd38005ce82ab6a74e538acaf9f59d574b5794e1104af6d10fab84d89390d9"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 27,
+                "byte_end": 40,
+                "codepoint_start": 27,
+                "codepoint_end": 40,
+                "line_start": 3,
+                "column_start": 1,
+                "line_end": 3,
+                "column_end": 14,
+                "raw_sha256": "0309dcbbcd66b8e4e0c917f2b672e8cf69a1d3fe671dbbc6d671450777f6a1a5",
+                "snippet_sha256": "05fd38005ce82ab6a74e538acaf9f59d574b5794e1104af6d10fab84d89390d9"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/name",
+          "kind": "string",
+          "value": "AdamW",
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 19,
+            "byte_end": 26,
+            "codepoint_start": 19,
+            "codepoint_end": 26,
+            "line_start": 2,
+            "column_start": 8,
+            "line_end": 2,
+            "column_end": 15,
+            "raw_sha256": "5364bde3abdb6b71c9572f27255f7f278b13aabbf6c98765e5a2cd7a38e11463",
+            "snippet_sha256": "af6637d02a1b746ceda9506dc4c8d9a80ae2d756b3201021ce67c77f3eb255f9"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 12,
+                "byte_end": 16,
+                "codepoint_start": 12,
+                "codepoint_end": 16,
+                "line_start": 2,
+                "column_start": 1,
+                "line_end": 2,
+                "column_end": 5,
+                "raw_sha256": "82a3537ff0dbce7eec35d69edc3a189ee6f17d82f353a553f9aa96cb0be3ce89",
+                "snippet_sha256": "af6637d02a1b746ceda9506dc4c8d9a80ae2d756b3201021ce67c77f3eb255f9"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/optimizer/weight_decay",
+          "kind": "decimal",
+          "value": "0.01",
+          "numeric_lexeme": "0.01",
+          "children": [],
+          "value_span": {
+            "byte_start": 84,
+            "byte_end": 88,
+            "codepoint_start": 84,
+            "codepoint_end": 88,
+            "line_start": 5,
+            "column_start": 16,
+            "line_end": 5,
+            "column_end": 20,
+            "raw_sha256": "312b95ee5a344d2f7a16ad817ff70788980da6e30b9bb04b651d53847abd476f",
+            "snippet_sha256": "7cd7aeb311ca17a014ee7a7b0e7312e063950300e08e768efa89a1336ff47f80"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 69,
+                "byte_end": 81,
+                "codepoint_start": 69,
+                "codepoint_end": 81,
+                "line_start": 5,
+                "column_start": 1,
+                "line_end": 5,
+                "column_end": 13,
+                "raw_sha256": "4f2c1368a65dd6804452a7175d8e2d55a213771e40e7a8222a3b0eb6c104c71f",
+                "snippet_sha256": "7cd7aeb311ca17a014ee7a7b0e7312e063950300e08e768efa89a1336ff47f80"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/schedule",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/schedule/gamma",
+            "/schedule/warmup_steps"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_table",
+              "span": {
+                "byte_start": 90,
+                "byte_end": 100,
+                "codepoint_start": 90,
+                "codepoint_end": 100,
+                "line_start": 7,
+                "column_start": 1,
+                "line_end": 7,
+                "column_end": 11,
+                "raw_sha256": "f649e3ec78e9b44a65c3a8189b32e48bde8c0ca71bb6f5a3571d299bba8560a2",
+                "snippet_sha256": "f649e3ec78e9b44a65c3a8189b32e48bde8c0ca71bb6f5a3571d299bba8560a2"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 91,
+                "byte_end": 99,
+                "codepoint_start": 91,
+                "codepoint_end": 99,
+                "line_start": 7,
+                "column_start": 2,
+                "line_end": 7,
+                "column_end": 10,
+                "raw_sha256": "5f72005e81c4ecbd5aa3588e80e3daf0df068ce0cf5638944508a0165fea609a",
+                "snippet_sha256": "f649e3ec78e9b44a65c3a8189b32e48bde8c0ca71bb6f5a3571d299bba8560a2"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/schedule/gamma",
+          "kind": "decimal",
+          "value": "0.95",
+          "numeric_lexeme": "0.95",
+          "children": [],
+          "value_span": {
+            "byte_start": 129,
+            "byte_end": 133,
+            "codepoint_start": 129,
+            "codepoint_end": 133,
+            "line_start": 9,
+            "column_start": 9,
+            "line_end": 9,
+            "column_end": 13,
+            "raw_sha256": "22fa3ce4995af8d96fcd771f0e1f5d74d8a98f36c3eec8e95bdf7524926b0141",
+            "snippet_sha256": "344ebe35e1b38cef030241f99b73d21b072afd1ab1c860fc5981feb86b858605"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 121,
+                "byte_end": 126,
+                "codepoint_start": 121,
+                "codepoint_end": 126,
+                "line_start": 9,
+                "column_start": 1,
+                "line_end": 9,
+                "column_end": 6,
+                "raw_sha256": "be9d587defa1f0c09ef49eb17e206983a5f8f8289e4281860bd0ee5a19592c67",
+                "snippet_sha256": "344ebe35e1b38cef030241f99b73d21b072afd1ab1c860fc5981feb86b858605"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/schedule/warmup_steps",
+          "kind": "integer",
+          "value": "1000",
+          "numeric_lexeme": "1000",
+          "children": [],
+          "value_span": {
+            "byte_start": 116,
+            "byte_end": 120,
+            "codepoint_start": 116,
+            "codepoint_end": 120,
+            "line_start": 8,
+            "column_start": 16,
+            "line_end": 8,
+            "column_end": 20,
+            "raw_sha256": "40510175845988f13f6162ed8526f0b09f73384467fa855e1e79b44a56562a58",
+            "snippet_sha256": "23fbd4e250aa8036f6fa736d517a4283184ba0f91cfc38acd4ea0968ec37aab9"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 101,
+                "byte_end": 113,
+                "codepoint_start": 101,
+                "codepoint_end": 113,
+                "line_start": 8,
+                "column_start": 1,
+                "line_end": 8,
+                "column_end": 13,
+                "raw_sha256": "2f0ea113ddc90bf69308521271f7bfd4ca4054968dbe45cb6615667ba15f7557",
+                "snippet_sha256": "23fbd4e250aa8036f6fa736d517a4283184ba0f91cfc38acd4ea0968ec37aab9"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toml-unicode-crlf-inline",
+      "format": "toml",
+      "purposes": [
+        "CRLF",
+        "Unicode quoted key",
+        "literal dot inside quoted key",
+        "inline table",
+        "mixed array",
+        "comments"
+      ],
+      "source_utf8": "# unicode and inline data\r\n[model]\r\n\t\"学习率\" = 1e-4 # rate\r\n\t\"foo.bar\" = \"β\"\r\nnested = {enabled = true, betas = [0.9, 0.999,], empty = []}\r\n",
+      "source": {
+        "body_size_bytes": 145,
+        "body_sha256": "e5bee949f5384e1ce76ec4ae046c5d06c7a5b5fc486b37208a49a1bf8f9319e8",
+        "normalized_sha256": "edf97430c575836a46559f5e3d845db5d40645b78598bf33ffec2032de953036",
+        "newline_style": "crlf",
+        "ends_with_newline": true,
+        "line_count": 5
+      },
+      "parser_cross_check": {
+        "stdlib": "tomllib.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "unicode_key": "学习率",
+        "inline_table_path": "/model/nested"
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/model"
+          ],
+          "value_span": null,
+          "declarations": []
+        },
+        {
+          "path": "/model",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/model/foo.bar",
+            "/model/nested",
+            "/model/学习率"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_table",
+              "span": {
+                "byte_start": 27,
+                "byte_end": 34,
+                "codepoint_start": 27,
+                "codepoint_end": 34,
+                "line_start": 2,
+                "column_start": 1,
+                "line_end": 2,
+                "column_end": 8,
+                "raw_sha256": "dc5ae83dbee2dfd71984ebd4f479e6226e1f82cf508d2e88451ed02fa2838467",
+                "snippet_sha256": "dc5ae83dbee2dfd71984ebd4f479e6226e1f82cf508d2e88451ed02fa2838467"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 28,
+                "byte_end": 33,
+                "codepoint_start": 28,
+                "codepoint_end": 33,
+                "line_start": 2,
+                "column_start": 2,
+                "line_end": 2,
+                "column_end": 7,
+                "raw_sha256": "9372c470eeadd5ecd9c3c74c2b3cb633f8e2f2fad799250a0f70d652b6b825e4",
+                "snippet_sha256": "dc5ae83dbee2dfd71984ebd4f479e6226e1f82cf508d2e88451ed02fa2838467"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/model/foo.bar",
+          "kind": "string",
+          "value": "β",
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 77,
+            "byte_end": 81,
+            "codepoint_start": 71,
+            "codepoint_end": 74,
+            "line_start": 4,
+            "column_start": 14,
+            "line_end": 4,
+            "column_end": 17,
+            "raw_sha256": "b911e45e8fe067d38d172bfe939329cea5c23fbb6394b42513610f88bf0db61f",
+            "snippet_sha256": "37676691133b7c9a0a3f6d8506c2dac256a8ef536fdf9ce146fa2eef72a9208b"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 65,
+                "byte_end": 74,
+                "codepoint_start": 59,
+                "codepoint_end": 68,
+                "line_start": 4,
+                "column_start": 2,
+                "line_end": 4,
+                "column_end": 11,
+                "raw_sha256": "a1dd20c7e5da97806cb6fef0e19cc57bfeec32f72fd581d729db46fcd1ca45d9",
+                "snippet_sha256": "37676691133b7c9a0a3f6d8506c2dac256a8ef536fdf9ce146fa2eef72a9208b"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/model/nested",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/model/nested/betas",
+            "/model/nested/empty",
+            "/model/nested/enabled"
+          ],
+          "value_span": {
+            "byte_start": 92,
+            "byte_end": 143,
+            "codepoint_start": 85,
+            "codepoint_end": 136,
+            "line_start": 5,
+            "column_start": 10,
+            "line_end": 5,
+            "column_end": 61,
+            "raw_sha256": "7a52313a8796ca88498802ca4f5fccc0f30df3aaa54bb293caf5c93108940dbc",
+            "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 83,
+                "byte_end": 89,
+                "codepoint_start": 76,
+                "codepoint_end": 82,
+                "line_start": 5,
+                "column_start": 1,
+                "line_end": 5,
+                "column_end": 7,
+                "raw_sha256": "233562de1a0288b139c4fa40b7d189f806e906eeb048517aeb67f34ac0e2faf1",
+                "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/model/nested/betas",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/model/nested/betas/0",
+            "/model/nested/betas/1"
+          ],
+          "value_span": {
+            "byte_start": 27,
+            "byte_end": 34,
+            "codepoint_start": 27,
+            "codepoint_end": 34,
+            "line_start": 2,
+            "column_start": 1,
+            "line_end": 2,
+            "column_end": 8,
+            "raw_sha256": "dc5ae83dbee2dfd71984ebd4f479e6226e1f82cf508d2e88451ed02fa2838467",
+            "snippet_sha256": "dc5ae83dbee2dfd71984ebd4f479e6226e1f82cf508d2e88451ed02fa2838467"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 109,
+                "byte_end": 114,
+                "codepoint_start": 102,
+                "codepoint_end": 107,
+                "line_start": 5,
+                "column_start": 27,
+                "line_end": 5,
+                "column_end": 32,
+                "raw_sha256": "fff803583bd9d6026436803f870b121230e1167271a95c4adb63406b18b4d512",
+                "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/model/nested/betas/0",
+          "kind": "decimal",
+          "value": "0.9",
+          "numeric_lexeme": "0.9",
+          "children": [],
+          "value_span": {
+            "byte_start": 118,
+            "byte_end": 121,
+            "codepoint_start": 111,
+            "codepoint_end": 114,
+            "line_start": 5,
+            "column_start": 36,
+            "line_end": 5,
+            "column_end": 39,
+            "raw_sha256": "8139b33952401b3ee0e2ca84651cb9a1d7f66d442bf908f9cf1f53ea746e5801",
+            "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/model/nested/betas/1",
+          "kind": "decimal",
+          "value": "0.999",
+          "numeric_lexeme": "0.999",
+          "children": [],
+          "value_span": {
+            "byte_start": 123,
+            "byte_end": 128,
+            "codepoint_start": 116,
+            "codepoint_end": 121,
+            "line_start": 5,
+            "column_start": 41,
+            "line_end": 5,
+            "column_end": 46,
+            "raw_sha256": "11958c6d1f109f217d648882d314388c8a036925acc6ffe9abc96f4492923a95",
+            "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/model/nested/empty",
+          "kind": "array",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 117,
+            "byte_end": 130,
+            "codepoint_start": 110,
+            "codepoint_end": 123,
+            "line_start": 5,
+            "column_start": 35,
+            "line_end": 5,
+            "column_end": 48,
+            "raw_sha256": "e198b947c1629dfeb0afe12f979b7fbc763a15eefb6870c322676a5770fe790c",
+            "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 132,
+                "byte_end": 137,
+                "codepoint_start": 125,
+                "codepoint_end": 130,
+                "line_start": 5,
+                "column_start": 50,
+                "line_end": 5,
+                "column_end": 55,
+                "raw_sha256": "2e1cfa82b035c26cbbbdae632cea070514eb8b773f616aaeaf668e2f0be8f10d",
+                "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/model/nested/enabled",
+          "kind": "boolean",
+          "value": true,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 103,
+            "byte_end": 107,
+            "codepoint_start": 96,
+            "codepoint_end": 100,
+            "line_start": 5,
+            "column_start": 21,
+            "line_end": 5,
+            "column_end": 25,
+            "raw_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+            "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 93,
+                "byte_end": 100,
+                "codepoint_start": 86,
+                "codepoint_end": 93,
+                "line_start": 5,
+                "column_start": 11,
+                "line_end": 5,
+                "column_end": 18,
+                "raw_sha256": "fb9cf75606b4070dd6a9705810906bba28d0e2ea74ff301b999a91dbb68c7d98",
+                "snippet_sha256": "3e97c85e96c3fa201bde4cb26db2a7b56c44ab3ca020f16d9c1d69ba45cacb35"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/model/学习率",
+          "kind": "decimal",
+          "value": "0.0001",
+          "numeric_lexeme": "1e-4",
+          "children": [],
+          "value_span": {
+            "byte_start": 51,
+            "byte_end": 55,
+            "codepoint_start": 45,
+            "codepoint_end": 49,
+            "line_start": 3,
+            "column_start": 10,
+            "line_end": 3,
+            "column_end": 14,
+            "raw_sha256": "68728f275a92dc8e48f2730467ceab0e0090802f976f09601414f265268a15ff",
+            "snippet_sha256": "c9dbe87e268978bf6dd039e07b3c2b5d6db5c7d7d2a00e481e6574a1ae19f06a"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 37,
+                "byte_end": 48,
+                "codepoint_start": 37,
+                "codepoint_end": 42,
+                "line_start": 3,
+                "column_start": 2,
+                "line_end": 3,
+                "column_end": 7,
+                "raw_sha256": "667af9910ab8ed54d404d9bf1808aef576a3f880e301adfd6284f7b2aa189d05",
+                "snippet_sha256": "c9dbe87e268978bf6dd039e07b3c2b5d6db5c7d7d2a00e481e6574a1ae19f06a"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toml-dotted-promotion",
+      "format": "toml",
+      "purposes": [
+        "dotted key",
+        "repeated prefix declarations",
+        "implicit parent promotion",
+        "ordinary headers"
+      ],
+      "source_utf8": "x.y = 1\n[x.z]\nvalue = 2\n[a.b]\nvalue = 3\n[a]\nflag = true\n",
+      "source": {
+        "body_size_bytes": 56,
+        "body_sha256": "32e4c2332c39f46025aa4d95781ead1f72029ac50394cdddf9e39dd433e2371e",
+        "normalized_sha256": "32e4c2332c39f46025aa4d95781ead1f72029ac50394cdddf9e39dd433e2371e",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 7
+      },
+      "parser_cross_check": {
+        "stdlib": "tomllib.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "promotion": "[a.b] then [a] accepted"
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/a",
+            "/x"
+          ],
+          "value_span": null,
+          "declarations": []
+        },
+        {
+          "path": "/a",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/a/b",
+            "/a/flag"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 15,
+                "byte_end": 16,
+                "codepoint_start": 15,
+                "codepoint_end": 16,
+                "line_start": 3,
+                "column_start": 2,
+                "line_end": 3,
+                "column_end": 3,
+                "raw_sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+                "snippet_sha256": "9cfe9326a093ba971d37fdec22083b9a44ed0d4013370dfada81b9bd27994f3e"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 25,
+                "byte_end": 26,
+                "codepoint_start": 25,
+                "codepoint_end": 26,
+                "line_start": 4,
+                "column_start": 2,
+                "line_end": 4,
+                "column_end": 3,
+                "raw_sha256": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb",
+                "snippet_sha256": "0ba3544bde2559c126ca64998d8dc6f82d96fa4fc4b45cf435a0c8907ab974db"
+              }
+            },
+            {
+              "kind": "toml_table",
+              "span": {
+                "byte_start": 40,
+                "byte_end": 43,
+                "codepoint_start": 40,
+                "codepoint_end": 43,
+                "line_start": 6,
+                "column_start": 1,
+                "line_end": 6,
+                "column_end": 4,
+                "raw_sha256": "32332ffee853ef6d87d16e1dbc55f72288c4fa960b2c44ee80d34b9993e0f7aa",
+                "snippet_sha256": "32332ffee853ef6d87d16e1dbc55f72288c4fa960b2c44ee80d34b9993e0f7aa"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/a/b",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/a/b/value"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_table",
+              "span": {
+                "byte_start": 24,
+                "byte_end": 29,
+                "codepoint_start": 24,
+                "codepoint_end": 29,
+                "line_start": 4,
+                "column_start": 1,
+                "line_end": 4,
+                "column_end": 6,
+                "raw_sha256": "0ba3544bde2559c126ca64998d8dc6f82d96fa4fc4b45cf435a0c8907ab974db",
+                "snippet_sha256": "0ba3544bde2559c126ca64998d8dc6f82d96fa4fc4b45cf435a0c8907ab974db"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 27,
+                "byte_end": 28,
+                "codepoint_start": 27,
+                "codepoint_end": 28,
+                "line_start": 4,
+                "column_start": 4,
+                "line_end": 4,
+                "column_end": 5,
+                "raw_sha256": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d",
+                "snippet_sha256": "0ba3544bde2559c126ca64998d8dc6f82d96fa4fc4b45cf435a0c8907ab974db"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/a/b/value",
+          "kind": "integer",
+          "value": "3",
+          "numeric_lexeme": "3",
+          "children": [],
+          "value_span": {
+            "byte_start": 38,
+            "byte_end": 39,
+            "codepoint_start": 38,
+            "codepoint_end": 39,
+            "line_start": 5,
+            "column_start": 9,
+            "line_end": 5,
+            "column_end": 10,
+            "raw_sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+            "snippet_sha256": "dcfcaba90ee8578f5099624ef521d90c3c88d1807f85c21b75c313fe09255a8d"
+          },
+          "declarations": []
+        },
+        {
+          "path": "/a/flag",
+          "kind": "boolean",
+          "value": true,
+          "numeric_lexeme": null,
+          "children": [],
+          "value_span": {
+            "byte_start": 51,
+            "byte_end": 55,
+            "codepoint_start": 51,
+            "codepoint_end": 55,
+            "line_start": 7,
+            "column_start": 8,
+            "line_end": 7,
+            "column_end": 12,
+            "raw_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+            "snippet_sha256": "f95ee72b98c13f088f49470f80ae9c92e58bdcf2746406e389432853c6cba6d9"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 44,
+                "byte_end": 48,
+                "codepoint_start": 44,
+                "codepoint_end": 48,
+                "line_start": 7,
+                "column_start": 1,
+                "line_end": 7,
+                "column_end": 5,
+                "raw_sha256": "807d0fbcae7c4b20518d4d85664f6820aafdf936104122c5073e7744c46c4b87",
+                "snippet_sha256": "f95ee72b98c13f088f49470f80ae9c92e58bdcf2746406e389432853c6cba6d9"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/x",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/x/y",
+            "/x/z"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 0,
+                "byte_end": 1,
+                "codepoint_start": 0,
+                "codepoint_end": 1,
+                "line_start": 1,
+                "column_start": 1,
+                "line_end": 1,
+                "column_end": 2,
+                "raw_sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "snippet_sha256": "174c4a89fe8dceb591304c11cdf6870769cf1b83ff751be69f76f78e707cbf2d"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 9,
+                "byte_end": 10,
+                "codepoint_start": 9,
+                "codepoint_end": 10,
+                "line_start": 2,
+                "column_start": 2,
+                "line_end": 2,
+                "column_end": 3,
+                "raw_sha256": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "snippet_sha256": "b1b6debcad78f93d31dc85de8899ce06f32df1c2a06a1ecfbed4907785e657d0"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/x/y",
+          "kind": "integer",
+          "value": "1",
+          "numeric_lexeme": "1",
+          "children": [],
+          "value_span": {
+            "byte_start": 6,
+            "byte_end": 7,
+            "codepoint_start": 6,
+            "codepoint_end": 7,
+            "line_start": 1,
+            "column_start": 7,
+            "line_end": 1,
+            "column_end": 8,
+            "raw_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            "snippet_sha256": "174c4a89fe8dceb591304c11cdf6870769cf1b83ff751be69f76f78e707cbf2d"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 2,
+                "byte_end": 3,
+                "codepoint_start": 2,
+                "codepoint_end": 3,
+                "line_start": 1,
+                "column_start": 3,
+                "line_end": 1,
+                "column_end": 4,
+                "raw_sha256": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa",
+                "snippet_sha256": "174c4a89fe8dceb591304c11cdf6870769cf1b83ff751be69f76f78e707cbf2d"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/x/z",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/x/z/value"
+          ],
+          "value_span": null,
+          "declarations": [
+            {
+              "kind": "toml_table",
+              "span": {
+                "byte_start": 8,
+                "byte_end": 13,
+                "codepoint_start": 8,
+                "codepoint_end": 13,
+                "line_start": 2,
+                "column_start": 1,
+                "line_end": 2,
+                "column_end": 6,
+                "raw_sha256": "b1b6debcad78f93d31dc85de8899ce06f32df1c2a06a1ecfbed4907785e657d0",
+                "snippet_sha256": "b1b6debcad78f93d31dc85de8899ce06f32df1c2a06a1ecfbed4907785e657d0"
+              }
+            },
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 11,
+                "byte_end": 12,
+                "codepoint_start": 11,
+                "codepoint_end": 12,
+                "line_start": 2,
+                "column_start": 4,
+                "line_end": 2,
+                "column_end": 5,
+                "raw_sha256": "594e519ae499312b29433b7dd8a97ff068defcba9755b6d5d00e84c524d67b06",
+                "snippet_sha256": "b1b6debcad78f93d31dc85de8899ce06f32df1c2a06a1ecfbed4907785e657d0"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/x/z/value",
+          "kind": "integer",
+          "value": "2",
+          "numeric_lexeme": "2",
+          "children": [],
+          "value_span": {
+            "byte_start": 22,
+            "byte_end": 23,
+            "codepoint_start": 22,
+            "codepoint_end": 23,
+            "line_start": 3,
+            "column_start": 9,
+            "line_end": 3,
+            "column_end": 10,
+            "raw_sha256": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+            "snippet_sha256": "9cfe9326a093ba971d37fdec22083b9a44ed0d4013370dfada81b9bd27994f3e"
+          },
+          "declarations": []
+        }
+      ]
+    },
+    {
+      "id": "toml-numeric-boundaries",
+      "format": "toml",
+      "purposes": [
+        "TOML plus sign",
+        "digit separators",
+        "decimal kind for 1e0",
+        "explicit exponent -128",
+        "64 coefficient digits"
+      ],
+      "source_utf8": "plus = +1_000\nrate = 1_0.5_0e+1\nunit = 1e0\ntiny = 1e-128\ncoefficient = 1111111111111111111111111111111111111111111111111111111111111111\n",
+      "source": {
+        "body_size_bytes": 136,
+        "body_sha256": "4338b6a5288175c960193158dfb98eb915580f38262b7e51cbfcb453dbcc76c6",
+        "normalized_sha256": "4338b6a5288175c960193158dfb98eb915580f38262b7e51cbfcb453dbcc76c6",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 5
+      },
+      "parser_cross_check": {
+        "stdlib": "tomllib.loads",
+        "parse_float": "Decimal",
+        "complete_tree_matches_authored": true,
+        "unit_parser_type": "Decimal",
+        "unit_parser_value": "1",
+        "coefficient_digits": 64
+      },
+      "expected_nodes": [
+        {
+          "path": "",
+          "kind": "object",
+          "value": null,
+          "numeric_lexeme": null,
+          "children": [
+            "/coefficient",
+            "/plus",
+            "/rate",
+            "/tiny",
+            "/unit"
+          ],
+          "value_span": null,
+          "declarations": []
+        },
+        {
+          "path": "/coefficient",
+          "kind": "integer",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111",
+          "numeric_lexeme": "1111111111111111111111111111111111111111111111111111111111111111",
+          "children": [],
+          "value_span": {
+            "byte_start": 71,
+            "byte_end": 135,
+            "codepoint_start": 71,
+            "codepoint_end": 135,
+            "line_start": 5,
+            "column_start": 15,
+            "line_end": 5,
+            "column_end": 79,
+            "raw_sha256": "3138bb9bc78df27c473ecfd1410f7bd45ebac1f59cf3ff9cfe4db77aab7aedd3",
+            "snippet_sha256": "b52550d22d3dbd27c361dd76853d867ebf4dcecafdd7e417e65d9e983e4626ea"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 57,
+                "byte_end": 68,
+                "codepoint_start": 57,
+                "codepoint_end": 68,
+                "line_start": 5,
+                "column_start": 1,
+                "line_end": 5,
+                "column_end": 12,
+                "raw_sha256": "7ef50ace94f83c5abe651bd8d36a10a075cfdaa9ae2b58946a2640da2d2b2fe9",
+                "snippet_sha256": "b52550d22d3dbd27c361dd76853d867ebf4dcecafdd7e417e65d9e983e4626ea"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/plus",
+          "kind": "integer",
+          "value": "1000",
+          "numeric_lexeme": "+1_000",
+          "children": [],
+          "value_span": {
+            "byte_start": 7,
+            "byte_end": 13,
+            "codepoint_start": 7,
+            "codepoint_end": 13,
+            "line_start": 1,
+            "column_start": 8,
+            "line_end": 1,
+            "column_end": 14,
+            "raw_sha256": "a796990c85d350eea731af2c502312990cb1404da31d16316c33ee4d6772a016",
+            "snippet_sha256": "ddd6de9ca9389f77723d9abdcdff3d6da142b86ee6b310f8d9e9b1298acff0ca"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 0,
+                "byte_end": 4,
+                "codepoint_start": 0,
+                "codepoint_end": 4,
+                "line_start": 1,
+                "column_start": 1,
+                "line_end": 1,
+                "column_end": 5,
+                "raw_sha256": "383ef36928344f56ffe8fe23ceed2ad8c0db8ec222c5f56c47163747dc738a0e",
+                "snippet_sha256": "ddd6de9ca9389f77723d9abdcdff3d6da142b86ee6b310f8d9e9b1298acff0ca"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/rate",
+          "kind": "decimal",
+          "value": "105",
+          "numeric_lexeme": "1_0.5_0e+1",
+          "children": [],
+          "value_span": {
+            "byte_start": 21,
+            "byte_end": 31,
+            "codepoint_start": 21,
+            "codepoint_end": 31,
+            "line_start": 2,
+            "column_start": 8,
+            "line_end": 2,
+            "column_end": 18,
+            "raw_sha256": "c3882c600637694d2373d10932bca95e7b1d629c375c6fbfa9ad928f20a877ea",
+            "snippet_sha256": "dac25e5b7aaebc94f4e64b954dad3ccdfbbb1eff8232a37a695d114641c65854"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 14,
+                "byte_end": 18,
+                "codepoint_start": 14,
+                "codepoint_end": 18,
+                "line_start": 2,
+                "column_start": 1,
+                "line_end": 2,
+                "column_end": 5,
+                "raw_sha256": "c549779d79e5c8e9c9a6b6da5f1c5e21075eb9319852f858acb227ee855e4ef5",
+                "snippet_sha256": "dac25e5b7aaebc94f4e64b954dad3ccdfbbb1eff8232a37a695d114641c65854"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/tiny",
+          "kind": "decimal",
+          "value": "0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+          "numeric_lexeme": "1e-128",
+          "children": [],
+          "value_span": {
+            "byte_start": 50,
+            "byte_end": 56,
+            "codepoint_start": 50,
+            "codepoint_end": 56,
+            "line_start": 4,
+            "column_start": 8,
+            "line_end": 4,
+            "column_end": 14,
+            "raw_sha256": "86d2386dc64c0c57787936e34e11ba7df886c469d69057089fdbacba2cdd1016",
+            "snippet_sha256": "c89afa5e9e7a5b65300a300d871014edf1fae6a0ae5eae46a9aefe51bf3b4728"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 43,
+                "byte_end": 47,
+                "codepoint_start": 43,
+                "codepoint_end": 47,
+                "line_start": 4,
+                "column_start": 1,
+                "line_end": 4,
+                "column_end": 5,
+                "raw_sha256": "8950abfda7b727630760dd35bcf5c3daa7631aff223a90f7728c0d2521dde10c",
+                "snippet_sha256": "c89afa5e9e7a5b65300a300d871014edf1fae6a0ae5eae46a9aefe51bf3b4728"
+              }
+            }
+          ]
+        },
+        {
+          "path": "/unit",
+          "kind": "decimal",
+          "value": "1",
+          "numeric_lexeme": "1e0",
+          "children": [],
+          "value_span": {
+            "byte_start": 39,
+            "byte_end": 42,
+            "codepoint_start": 39,
+            "codepoint_end": 42,
+            "line_start": 3,
+            "column_start": 8,
+            "line_end": 3,
+            "column_end": 11,
+            "raw_sha256": "bcac40fbed4ed4e1042a0c9dafbe9cdd58447415f19a11e59add45fdc083e2f5",
+            "snippet_sha256": "a22cc239f19f98f704eabbc1c4dd960d4404b0f64463b1f5abd677a56b8370d6"
+          },
+          "declarations": [
+            {
+              "kind": "toml_key",
+              "span": {
+                "byte_start": 32,
+                "byte_end": 36,
+                "codepoint_start": 32,
+                "codepoint_end": 36,
+                "line_start": 3,
+                "column_start": 1,
+                "line_end": 3,
+                "column_end": 5,
+                "raw_sha256": "385cfdbc00ec32031699460779c15099b2bba3cad0e440fffb08e10df0acb9e1",
+                "snippet_sha256": "a22cc239f19f98f704eabbc1c4dd960d4404b0f64463b1f5abd677a56b8370d6"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "refusal_vectors": [
+    {
+      "id": "json-duplicate-escaped-key",
+      "format": "json",
+      "source_utf8": "{\"x\": 1, \"\\u0078\": 2}",
+      "source": {
+        "body_size_bytes": 21,
+        "body_sha256": "fb24b0a8254abd800c27ce73458491f8211442ef11f48cf5f958ffd37b40fc9e",
+        "normalized_sha256": "fb24b0a8254abd800c27ce73458491f8211442ef11f48cf5f958ffd37b40fc9e",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_DUPLICATE_KEY",
+        "reason": "decoded key collision",
+        "anchor_span": {
+          "byte_start": 9,
+          "byte_end": 17,
+          "codepoint_start": 9,
+          "codepoint_end": 17,
+          "line_start": 1,
+          "column_start": 10,
+          "line_end": 1,
+          "column_end": 18,
+          "raw_sha256": "1e6c12e8ed347dd82bb0524e9081b9722e5a6ce038c723b69e7caa5556257eb5",
+          "snippet_sha256": "fb24b0a8254abd800c27ce73458491f8211442ef11f48cf5f958ffd37b40fc9e"
+        },
+        "anchor_lexeme": "\"\\u0078\""
+      },
+      "purposes": [
+        "escaped duplicate keys"
+      ]
+    },
+    {
+      "id": "json-plus-sign",
+      "format": "json",
+      "source_utf8": "{\"rate\": +1}",
+      "source": {
+        "body_size_bytes": 12,
+        "body_sha256": "1c205fcc9feddc24de62ce827ef6e8eb3ad82a3e27905ec4bfc3a36bda32ebc4",
+        "normalized_sha256": "1c205fcc9feddc24de62ce827ef6e8eb3ad82a3e27905ec4bfc3a36bda32ebc4",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "plus sign outside JSON number grammar",
+        "anchor_span": {
+          "byte_start": 9,
+          "byte_end": 10,
+          "codepoint_start": 9,
+          "codepoint_end": 10,
+          "line_start": 1,
+          "column_start": 10,
+          "line_end": 1,
+          "column_end": 11,
+          "raw_sha256": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b",
+          "snippet_sha256": "1c205fcc9feddc24de62ce827ef6e8eb3ad82a3e27905ec4bfc3a36bda32ebc4"
+        },
+        "anchor_lexeme": "+"
+      },
+      "purposes": [
+        "JSON plus grammar"
+      ]
+    },
+    {
+      "id": "json-leading-zero",
+      "format": "json",
+      "source_utf8": "{\"n\": 01}",
+      "source": {
+        "body_size_bytes": 9,
+        "body_sha256": "26cc4003c16cde6ce542a8de2088f0f6cf167f06d3d0ddc2b7b3ce092188e9c1",
+        "normalized_sha256": "26cc4003c16cde6ce542a8de2088f0f6cf167f06d3d0ddc2b7b3ce092188e9c1",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "leading zero outside JSON number grammar",
+        "anchor_span": {
+          "byte_start": 6,
+          "byte_end": 8,
+          "codepoint_start": 6,
+          "codepoint_end": 8,
+          "line_start": 1,
+          "column_start": 7,
+          "line_end": 1,
+          "column_end": 9,
+          "raw_sha256": "938db8c9f82c8cb58d3f3ef4fd250036a48d26a712753d2fde5abd03a85cabf4",
+          "snippet_sha256": "26cc4003c16cde6ce542a8de2088f0f6cf167f06d3d0ddc2b7b3ce092188e9c1"
+        },
+        "anchor_lexeme": "01"
+      },
+      "purposes": [
+        "JSON leading-zero grammar"
+      ]
+    },
+    {
+      "id": "json-underscore",
+      "format": "json",
+      "source_utf8": "{\"n\": 1_000}",
+      "source": {
+        "body_size_bytes": 12,
+        "body_sha256": "516411aa97d5fd5831946ec62a0be220fbffe085c86b6bc49d27681317b71fbf",
+        "normalized_sha256": "516411aa97d5fd5831946ec62a0be220fbffe085c86b6bc49d27681317b71fbf",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "underscore outside JSON number grammar",
+        "anchor_span": {
+          "byte_start": 6,
+          "byte_end": 11,
+          "codepoint_start": 6,
+          "codepoint_end": 11,
+          "line_start": 1,
+          "column_start": 7,
+          "line_end": 1,
+          "column_end": 12,
+          "raw_sha256": "5033ad0f2453310077c2a7969dea21a06947c6c4f06e6cba5cdaa754213affb2",
+          "snippet_sha256": "516411aa97d5fd5831946ec62a0be220fbffe085c86b6bc49d27681317b71fbf"
+        },
+        "anchor_lexeme": "1_000"
+      },
+      "purposes": [
+        "JSON underscore grammar"
+      ]
+    },
+    {
+      "id": "json-trailing-comma",
+      "format": "json",
+      "source_utf8": "{\"n\": 1,}",
+      "source": {
+        "body_size_bytes": 9,
+        "body_sha256": "5df38be6e5b0fbc4a725ad760dc01c4f261a4a834553e4acfed99646f30b7f0d",
+        "normalized_sha256": "5df38be6e5b0fbc4a725ad760dc01c4f261a4a834553e4acfed99646f30b7f0d",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "trailing comma outside JSON grammar",
+        "anchor_span": {
+          "byte_start": 8,
+          "byte_end": 9,
+          "codepoint_start": 8,
+          "codepoint_end": 9,
+          "line_start": 1,
+          "column_start": 9,
+          "line_end": 1,
+          "column_end": 10,
+          "raw_sha256": "d10b36aa74a59bcf4a88185837f658afaf3646eff2bb16c3928d0e9335e945d2",
+          "snippet_sha256": "5df38be6e5b0fbc4a725ad760dc01c4f261a4a834553e4acfed99646f30b7f0d"
+        },
+        "anchor_lexeme": "}"
+      },
+      "purposes": [
+        "JSON trailing comma"
+      ]
+    },
+    {
+      "id": "json-nonfinite",
+      "format": "json",
+      "source_utf8": "{\"n\": NaN}",
+      "source": {
+        "body_size_bytes": 10,
+        "body_sha256": "66243690ce523df587207a0c8dd37206d4aaac66e2f7d188f6d89b1e0c5d45c7",
+        "normalized_sha256": "66243690ce523df587207a0c8dd37206d4aaac66e2f7d188f6d89b1e0c5d45c7",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "nonfinite constant outside JSON grammar",
+        "anchor_span": {
+          "byte_start": 6,
+          "byte_end": 9,
+          "codepoint_start": 6,
+          "codepoint_end": 9,
+          "line_start": 1,
+          "column_start": 7,
+          "line_end": 1,
+          "column_end": 10,
+          "raw_sha256": "d5b592c05dc25b5032553f1b27f4139be95e881f73db33b02b05ab20c3f9981e",
+          "snippet_sha256": "66243690ce523df587207a0c8dd37206d4aaac66e2f7d188f6d89b1e0c5d45c7"
+        },
+        "anchor_lexeme": "NaN"
+      },
+      "purposes": [
+        "nonfinite refusal"
+      ]
+    },
+    {
+      "id": "json-negative-zero-integer",
+      "format": "json",
+      "source_utf8": "-0",
+      "source": {
+        "body_size_bytes": 2,
+        "body_sha256": "ed79f26d03f412bde3db206601a698e0bb451bea9e3cc25289636ac17ea74b0a",
+        "normalized_sha256": "ed79f26d03f412bde3db206601a698e0bb451bea9e3cc25289636ac17ea74b0a",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_NUMBER_INVALID",
+        "reason": "negative zero is refused",
+        "anchor_span": {
+          "byte_start": 0,
+          "byte_end": 2,
+          "codepoint_start": 0,
+          "codepoint_end": 2,
+          "line_start": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "column_end": 3,
+          "raw_sha256": "ed79f26d03f412bde3db206601a698e0bb451bea9e3cc25289636ac17ea74b0a",
+          "snippet_sha256": "ed79f26d03f412bde3db206601a698e0bb451bea9e3cc25289636ac17ea74b0a"
+        },
+        "anchor_lexeme": "-0"
+      },
+      "purposes": [
+        "negative-zero variants"
+      ]
+    },
+    {
+      "id": "json-negative-zero-decimal",
+      "format": "json",
+      "source_utf8": "-0.0",
+      "source": {
+        "body_size_bytes": 4,
+        "body_sha256": "c26617c7ccbcaa6631b45d851b8cf56e21d2ca624bdb1193afdbd4b560702cec",
+        "normalized_sha256": "c26617c7ccbcaa6631b45d851b8cf56e21d2ca624bdb1193afdbd4b560702cec",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_NUMBER_INVALID",
+        "reason": "negative zero is refused",
+        "anchor_span": {
+          "byte_start": 0,
+          "byte_end": 4,
+          "codepoint_start": 0,
+          "codepoint_end": 4,
+          "line_start": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "column_end": 5,
+          "raw_sha256": "c26617c7ccbcaa6631b45d851b8cf56e21d2ca624bdb1193afdbd4b560702cec",
+          "snippet_sha256": "c26617c7ccbcaa6631b45d851b8cf56e21d2ca624bdb1193afdbd4b560702cec"
+        },
+        "anchor_lexeme": "-0.0"
+      },
+      "purposes": [
+        "negative-zero variants"
+      ]
+    },
+    {
+      "id": "json-explicit-exponent-over",
+      "format": "json",
+      "source_utf8": "1e-129",
+      "source": {
+        "body_size_bytes": 6,
+        "body_sha256": "c8cb3f504946dde8700bebce52e437eb1e1c9e2ea6ee4e2a5135fe08a1f753c2",
+        "normalized_sha256": "c8cb3f504946dde8700bebce52e437eb1e1c9e2ea6ee4e2a5135fe08a1f753c2",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "reason": "numeric absolute exponent exceeds profile",
+        "limit_context": {
+          "limit_name": "max_numeric_abs_exponent",
+          "limit": 128,
+          "observed": 129
+        }
+      },
+      "purposes": [
+        "explicit exponent cap"
+      ]
+    },
+    {
+      "id": "json-tuple-exponent-over",
+      "format": "json",
+      "source_utf8": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
+      "source": {
+        "body_size_bytes": 131,
+        "body_sha256": "c89915ede39c3eb680baf8e022dc4c8f991951ace9c686ad478c328edc710fed",
+        "normalized_sha256": "c89915ede39c3eb680baf8e022dc4c8f991951ace9c686ad478c328edc710fed",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "reason": "exact Decimal tuple exponent exceeds profile",
+        "limit_context": {
+          "limit_name": "max_numeric_abs_exponent",
+          "limit": 128,
+          "observed": 129
+        }
+      },
+      "purposes": [
+        "tuple exponent cap"
+      ]
+    },
+    {
+      "id": "json-coefficient-over",
+      "format": "json",
+      "source_utf8": "11111111111111111111111111111111111111111111111111111111111111111",
+      "source": {
+        "body_size_bytes": 65,
+        "body_sha256": "7332b1bd371fcf26b956e8d07bd38d686ff4868f2c930f8dbeef23fb5663acd6",
+        "normalized_sha256": "7332b1bd371fcf26b956e8d07bd38d686ff4868f2c930f8dbeef23fb5663acd6",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "reason": "numeric coefficient digit count exceeds profile",
+        "limit_context": {
+          "limit_name": "max_numeric_coefficient_digits",
+          "limit": 64,
+          "observed": 65
+        }
+      },
+      "purposes": [
+        "coefficient cap"
+      ]
+    },
+    {
+      "id": "json-lowered-canonical-cap",
+      "format": "json",
+      "source_utf8": "1e-3",
+      "source": {
+        "body_size_bytes": 4,
+        "body_sha256": "0284f144df687ce1a1c243fbb7c3ca227f8de4da751170105109b133114af840",
+        "normalized_sha256": "0284f144df687ce1a1c243fbb7c3ca227f8de4da751170105109b133114af840",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_LIMIT_EXCEEDED",
+        "reason": "canonical decimal length exceeds supplied lowered profile",
+        "limit_context": {
+          "limit_name": "max_numeric_canonical_bytes",
+          "limit": 3,
+          "observed": 5
+        }
+      },
+      "purposes": [
+        "lowered canonical-length boundary"
+      ]
+    },
+    {
+      "id": "json-bom",
+      "format": "json",
+      "source_utf8": "﻿{\"x\": 1}",
+      "source": {
+        "body_size_bytes": 11,
+        "body_sha256": "1483e9c02fc283368aed5fad12eb3715aa6eeaee5c6b56b870d88ea0aa312884",
+        "normalized_sha256": "1483e9c02fc283368aed5fad12eb3715aa6eeaee5c6b56b870d88ea0aa312884",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_BYTES_INVALID",
+        "reason": "initial UTF-8 BOM",
+        "anchor_span": {
+          "byte_start": 0,
+          "byte_end": 3,
+          "codepoint_start": 0,
+          "codepoint_end": 1,
+          "line_start": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "column_end": 2,
+          "raw_sha256": "f1945cd6c19e56b3c1c78943ef5ec18116907a4ca1efc40a57d48ab1db7adfc5",
+          "snippet_sha256": "1483e9c02fc283368aed5fad12eb3715aa6eeaee5c6b56b870d88ea0aa312884"
+        },
+        "anchor_lexeme": "﻿"
+      },
+      "purposes": [
+        "BOM refusal"
+      ]
+    },
+    {
+      "id": "json-bare-cr",
+      "format": "json",
+      "source_utf8": "{\"x\":\r1}",
+      "source": {
+        "body_size_bytes": 8,
+        "body_sha256": "690297413c1698b2c4a1abb8c1c1a5729f400b0252089b38a2954ad4f67808d7",
+        "normalized_sha256": "690297413c1698b2c4a1abb8c1c1a5729f400b0252089b38a2954ad4f67808d7",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_BYTES_INVALID",
+        "reason": "bare CR",
+        "anchor_span": {
+          "byte_start": 5,
+          "byte_end": 6,
+          "codepoint_start": 5,
+          "codepoint_end": 6,
+          "line_start": 1,
+          "column_start": 6,
+          "line_end": 1,
+          "column_end": 7,
+          "raw_sha256": "9d1e0e2d9459d06523ad13e28a4093c2316baafe7aec5b25f30eba2e113599c4",
+          "snippet_sha256": "4e6b2749d66646bd1e2a5f95e351bec3c3077ece36169751e3fd857f45c4a579"
+        },
+        "anchor_lexeme": "\r"
+      },
+      "purposes": [
+        "bare CR refusal"
+      ]
+    },
+    {
+      "id": "json-comment",
+      "format": "json",
+      "source_utf8": "{\"x\": 1 // comment\n}",
+      "source": {
+        "body_size_bytes": 20,
+        "body_sha256": "3d068dfaf02a01c7123531b526c3b86e0a1427620575e0cd49ca2bb0e6def6e7",
+        "normalized_sha256": "3d068dfaf02a01c7123531b526c3b86e0a1427620575e0cd49ca2bb0e6def6e7",
+        "newline_style": "lf",
+        "ends_with_newline": false,
+        "line_count": 2
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "comments outside JSON grammar",
+        "anchor_span": {
+          "byte_start": 8,
+          "byte_end": 10,
+          "codepoint_start": 8,
+          "codepoint_end": 10,
+          "line_start": 1,
+          "column_start": 9,
+          "line_end": 1,
+          "column_end": 11,
+          "raw_sha256": "a2c2339691fc48fbd14fb307292dff3e21222712d9240810742d7df0c6d74dfb",
+          "snippet_sha256": "916868f9d1e79ddf2987aa38e1b9f539d9675c606632a17a9cfc022f2975b0c5"
+        },
+        "anchor_lexeme": "//"
+      },
+      "purposes": [
+        "comment refusal"
+      ]
+    },
+    {
+      "id": "toml-negative-zero-integer",
+      "format": "toml",
+      "source_utf8": "n = -0",
+      "source": {
+        "body_size_bytes": 6,
+        "body_sha256": "c0ccb0cd3115f8403ee1d6c4df1e02274da9e20d14648d353d4562303dbfdf41",
+        "normalized_sha256": "c0ccb0cd3115f8403ee1d6c4df1e02274da9e20d14648d353d4562303dbfdf41",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_NUMBER_INVALID",
+        "reason": "negative zero is refused",
+        "anchor_span": {
+          "byte_start": 4,
+          "byte_end": 6,
+          "codepoint_start": 4,
+          "codepoint_end": 6,
+          "line_start": 1,
+          "column_start": 5,
+          "line_end": 1,
+          "column_end": 7,
+          "raw_sha256": "ed79f26d03f412bde3db206601a698e0bb451bea9e3cc25289636ac17ea74b0a",
+          "snippet_sha256": "c0ccb0cd3115f8403ee1d6c4df1e02274da9e20d14648d353d4562303dbfdf41"
+        },
+        "anchor_lexeme": "-0"
+      },
+      "purposes": [
+        "negative-zero variants"
+      ]
+    },
+    {
+      "id": "toml-negative-zero-decimal",
+      "format": "toml",
+      "source_utf8": "n = -0.0",
+      "source": {
+        "body_size_bytes": 8,
+        "body_sha256": "59fae2d1d5557442d63fedd5e95df211124a4f98f446f260cb57db4c39da71a6",
+        "normalized_sha256": "59fae2d1d5557442d63fedd5e95df211124a4f98f446f260cb57db4c39da71a6",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_NUMBER_INVALID",
+        "reason": "negative zero is refused",
+        "anchor_span": {
+          "byte_start": 4,
+          "byte_end": 8,
+          "codepoint_start": 4,
+          "codepoint_end": 8,
+          "line_start": 1,
+          "column_start": 5,
+          "line_end": 1,
+          "column_end": 9,
+          "raw_sha256": "c26617c7ccbcaa6631b45d851b8cf56e21d2ca624bdb1193afdbd4b560702cec",
+          "snippet_sha256": "59fae2d1d5557442d63fedd5e95df211124a4f98f446f260cb57db4c39da71a6"
+        },
+        "anchor_lexeme": "-0.0"
+      },
+      "purposes": [
+        "negative-zero variants"
+      ]
+    },
+    {
+      "id": "toml-underscore-leading",
+      "format": "toml",
+      "source_utf8": "n = 1__0",
+      "source": {
+        "body_size_bytes": 8,
+        "body_sha256": "b2a71cdbb8cc2223e7bbea34229e5ab8d44324f060a38e8dfc993015e0dbc4f9",
+        "normalized_sha256": "b2a71cdbb8cc2223e7bbea34229e5ab8d44324f060a38e8dfc993015e0dbc4f9",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "invalid TOML digit separator placement",
+        "anchor_span": {
+          "byte_start": 4,
+          "byte_end": 8,
+          "codepoint_start": 4,
+          "codepoint_end": 8,
+          "line_start": 1,
+          "column_start": 5,
+          "line_end": 1,
+          "column_end": 9,
+          "raw_sha256": "5fe225ca8e769bdc132d669201caf6e9a39cbc5fa4cc8ce7bd84246303d9d4ca",
+          "snippet_sha256": "b2a71cdbb8cc2223e7bbea34229e5ab8d44324f060a38e8dfc993015e0dbc4f9"
+        },
+        "anchor_lexeme": "1__0"
+      },
+      "purposes": [
+        "TOML underscore grammar"
+      ]
+    },
+    {
+      "id": "toml-base-prefixed",
+      "format": "toml",
+      "source_utf8": "n = 0x10",
+      "source": {
+        "body_size_bytes": 8,
+        "body_sha256": "d931d3aba47ca932868d596d385f7c463b8b2f5873cf7ee07d6580bd8d633127",
+        "normalized_sha256": "d931d3aba47ca932868d596d385f7c463b8b2f5873cf7ee07d6580bd8d633127",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_UNSUPPORTED",
+        "reason": "base-prefixed integer outside subset",
+        "anchor_span": {
+          "byte_start": 4,
+          "byte_end": 8,
+          "codepoint_start": 4,
+          "codepoint_end": 8,
+          "line_start": 1,
+          "column_start": 5,
+          "line_end": 1,
+          "column_end": 9,
+          "raw_sha256": "bf9c4d8ecd7280186783365c73316cd064c58d6abdfe7ffbb79b6b99a21f56d0",
+          "snippet_sha256": "d931d3aba47ca932868d596d385f7c463b8b2f5873cf7ee07d6580bd8d633127"
+        },
+        "anchor_lexeme": "0x10"
+      },
+      "purposes": [
+        "unsupported numeric forms"
+      ]
+    },
+    {
+      "id": "toml-date",
+      "format": "toml",
+      "source_utf8": "when = 2026-09-09T00:00:00Z",
+      "source": {
+        "body_size_bytes": 27,
+        "body_sha256": "36a2f907a07183c74c8485a5b90098206e5fba3e735187cc9a2fd1ffc9175fc7",
+        "normalized_sha256": "36a2f907a07183c74c8485a5b90098206e5fba3e735187cc9a2fd1ffc9175fc7",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_UNSUPPORTED",
+        "reason": "date/time outside subset",
+        "anchor_span": {
+          "byte_start": 7,
+          "byte_end": 17,
+          "codepoint_start": 7,
+          "codepoint_end": 17,
+          "line_start": 1,
+          "column_start": 8,
+          "line_end": 1,
+          "column_end": 18,
+          "raw_sha256": "9b723f4d91897e1a8ac6f8ed3cfea22f8423dbfe61aa4748593398110403cc23",
+          "snippet_sha256": "36a2f907a07183c74c8485a5b90098206e5fba3e735187cc9a2fd1ffc9175fc7"
+        },
+        "anchor_lexeme": "2026-09-09"
+      },
+      "purposes": [
+        "unsupported date/time"
+      ]
+    },
+    {
+      "id": "toml-nan",
+      "format": "toml",
+      "source_utf8": "rate = nan",
+      "source": {
+        "body_size_bytes": 10,
+        "body_sha256": "bfb7d89306f5a1f568428f492abbdeff3bfde54072e731c96e623ebfef74e03b",
+        "normalized_sha256": "bfb7d89306f5a1f568428f492abbdeff3bfde54072e731c96e623ebfef74e03b",
+        "newline_style": "none",
+        "ends_with_newline": false,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_UNSUPPORTED",
+        "reason": "nonfinite TOML value outside subset",
+        "anchor_span": {
+          "byte_start": 7,
+          "byte_end": 10,
+          "codepoint_start": 7,
+          "codepoint_end": 10,
+          "line_start": 1,
+          "column_start": 8,
+          "line_end": 1,
+          "column_end": 11,
+          "raw_sha256": "9b2d5b4678781e53038e91ea5324530a03f27dc1d0e5f6c9bc9d493a23be9de0",
+          "snippet_sha256": "bfb7d89306f5a1f568428f492abbdeff3bfde54072e731c96e623ebfef74e03b"
+        },
+        "anchor_lexeme": "nan"
+      },
+      "purposes": [
+        "unsupported nonfinite"
+      ]
+    },
+    {
+      "id": "toml-multiline-array",
+      "format": "toml",
+      "source_utf8": "x = [\n  1,\n  2\n]\n",
+      "source": {
+        "body_size_bytes": 17,
+        "body_sha256": "059bf63b756931478de1110fbd26caca8c7c857b1c5ff46709df7f3287fab260",
+        "normalized_sha256": "059bf63b756931478de1110fbd26caca8c7c857b1c5ff46709df7f3287fab260",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 4
+      },
+      "expected": {
+        "code": "CODE_CONFIG_UNSUPPORTED",
+        "reason": "physical newline inside array outside subset",
+        "anchor_span": {
+          "byte_start": 4,
+          "byte_end": 5,
+          "codepoint_start": 4,
+          "codepoint_end": 5,
+          "line_start": 1,
+          "column_start": 5,
+          "line_end": 1,
+          "column_end": 6,
+          "raw_sha256": "245843abef9e72e7efac30138a994bf6301e7e1d7d7042a33d42e863d2638811",
+          "snippet_sha256": "65c16f07ceacdc4ac206a074c0cded901f576bc7ce046d5645fc3cc1b5baf3da"
+        },
+        "anchor_lexeme": "["
+      },
+      "purposes": [
+        "unsupported multiline array"
+      ]
+    },
+    {
+      "id": "toml-array-of-tables",
+      "format": "toml",
+      "source_utf8": "[[items]]\nvalue = 1\n",
+      "source": {
+        "body_size_bytes": 20,
+        "body_sha256": "ba0e021a504a834014d01c84ce3fd84de1122cd180b31b09598f34c014792f38",
+        "normalized_sha256": "ba0e021a504a834014d01c84ce3fd84de1122cd180b31b09598f34c014792f38",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 2
+      },
+      "expected": {
+        "code": "CODE_CONFIG_UNSUPPORTED",
+        "reason": "array of tables outside subset",
+        "anchor_span": {
+          "byte_start": 0,
+          "byte_end": 9,
+          "codepoint_start": 0,
+          "codepoint_end": 9,
+          "line_start": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "column_end": 10,
+          "raw_sha256": "55aa4a81e17514c26993a4f267c892b4311deaa93919c82d03d078a04c75a3ab",
+          "snippet_sha256": "55aa4a81e17514c26993a4f267c892b4311deaa93919c82d03d078a04c75a3ab"
+        },
+        "anchor_lexeme": "[[items]]"
+      },
+      "purposes": [
+        "unsupported array of tables"
+      ]
+    },
+    {
+      "id": "toml-inline-trailing-comma",
+      "format": "toml",
+      "source_utf8": "x = {a = 1,}\n",
+      "source": {
+        "body_size_bytes": 13,
+        "body_sha256": "2acea666896646ba476885a78aee5683b6793db4a172c47b31803d77fa0d75de",
+        "normalized_sha256": "2acea666896646ba476885a78aee5683b6793db4a172c47b31803d77fa0d75de",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_SYNTAX_INVALID",
+        "reason": "trailing comma not allowed in inline table",
+        "anchor_span": {
+          "byte_start": 11,
+          "byte_end": 12,
+          "codepoint_start": 11,
+          "codepoint_end": 12,
+          "line_start": 1,
+          "column_start": 12,
+          "line_end": 1,
+          "column_end": 13,
+          "raw_sha256": "d10b36aa74a59bcf4a88185837f658afaf3646eff2bb16c3928d0e9335e945d2",
+          "snippet_sha256": "28c2b56316ac4e76707dd55fe082d8a8f8fc025b31e9400238d743dfe6124b77"
+        },
+        "anchor_lexeme": "}"
+      },
+      "purposes": [
+        "inline trailing comma"
+      ]
+    },
+    {
+      "id": "toml-duplicate-header",
+      "format": "toml",
+      "source_utf8": "[a]\nx = 1\n[a]\ny = 2\n",
+      "source": {
+        "body_size_bytes": 20,
+        "body_sha256": "d5929cd6c073ac00bd8da95d7a95e4f147a6bda0266bde54ff7ab2b0a20636c0",
+        "normalized_sha256": "d5929cd6c073ac00bd8da95d7a95e4f147a6bda0266bde54ff7ab2b0a20636c0",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 4
+      },
+      "expected": {
+        "code": "CODE_CONFIG_DUPLICATE_KEY",
+        "reason": "repeated explicit table header",
+        "anchor_span": {
+          "byte_start": 0,
+          "byte_end": 3,
+          "codepoint_start": 0,
+          "codepoint_end": 3,
+          "line_start": 1,
+          "column_start": 1,
+          "line_end": 1,
+          "column_end": 4,
+          "raw_sha256": "32332ffee853ef6d87d16e1dbc55f72288c4fa960b2c44ee80d34b9993e0f7aa",
+          "snippet_sha256": "32332ffee853ef6d87d16e1dbc55f72288c4fa960b2c44ee80d34b9993e0f7aa"
+        },
+        "anchor_lexeme": "[a]"
+      },
+      "purposes": [
+        "TOML header redefinition"
+      ]
+    },
+    {
+      "id": "toml-inline-extension",
+      "format": "toml",
+      "source_utf8": "x = {a = 1}\n[x]\nb = 2\n",
+      "source": {
+        "body_size_bytes": 22,
+        "body_sha256": "4d0cc15e7249a337cef9e32dc3af410801c59d3e82120c902ce2dbcfb2451a72",
+        "normalized_sha256": "4d0cc15e7249a337cef9e32dc3af410801c59d3e82120c902ce2dbcfb2451a72",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 3
+      },
+      "expected": {
+        "code": "CODE_CONFIG_DUPLICATE_KEY",
+        "reason": "inline-table boundary cannot be extended",
+        "anchor_span": {
+          "byte_start": 12,
+          "byte_end": 15,
+          "codepoint_start": 12,
+          "codepoint_end": 15,
+          "line_start": 2,
+          "column_start": 1,
+          "line_end": 2,
+          "column_end": 4,
+          "raw_sha256": "225893dd7e0e2c46d089fb9c2e9108e02bf5721f3064a873f7df34c441f541a4",
+          "snippet_sha256": "225893dd7e0e2c46d089fb9c2e9108e02bf5721f3064a873f7df34c441f541a4"
+        },
+        "anchor_lexeme": "[x]"
+      },
+      "purposes": [
+        "inline-table boundary"
+      ]
+    },
+    {
+      "id": "toml-dynamic-interpolation",
+      "format": "toml",
+      "source_utf8": "rate = \"${BASE_RATE}\"\n",
+      "source": {
+        "body_size_bytes": 22,
+        "body_sha256": "aa059d7b918af6d778c23fadbec7dbc3a5da58a0f0581fe71a52f36aba1a6c6c",
+        "normalized_sha256": "aa059d7b918af6d778c23fadbec7dbc3a5da58a0f0581fe71a52f36aba1a6c6c",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "reason": "interpolation marker in decoded string",
+        "anchor_span": {
+          "byte_start": 7,
+          "byte_end": 21,
+          "codepoint_start": 7,
+          "codepoint_end": 21,
+          "line_start": 1,
+          "column_start": 8,
+          "line_end": 1,
+          "column_end": 22,
+          "raw_sha256": "17f796ab1c5080e678b722b3c435eadd8cdb3277c191d90117c0c3f792e80fbd",
+          "snippet_sha256": "7fc74db59c46b76d59c1ddbeb1662576f992abee1164c701baee697fa84084bf"
+        },
+        "anchor_lexeme": "\"${BASE_RATE}\""
+      },
+      "purposes": [
+        "dynamic marker"
+      ]
+    },
+    {
+      "id": "toml-dynamic-callable",
+      "format": "toml",
+      "source_utf8": "optimizer = \"torch.optim.AdamW(lr=1e-4)\"\n",
+      "source": {
+        "body_size_bytes": 41,
+        "body_sha256": "9434318ada65eef04fe01d7f7a70ab2b5c0aa42508870f8bfbb1e96ae13daf46",
+        "normalized_sha256": "9434318ada65eef04fe01d7f7a70ab2b5c0aa42508870f8bfbb1e96ae13daf46",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "reason": "callable-looking string",
+        "anchor_span": {
+          "byte_start": 12,
+          "byte_end": 40,
+          "codepoint_start": 12,
+          "codepoint_end": 40,
+          "line_start": 1,
+          "column_start": 13,
+          "line_end": 1,
+          "column_end": 41,
+          "raw_sha256": "bbf85a172d48d98bf1811423505975566543619979e5746c71ac727a227fe4ba",
+          "snippet_sha256": "932bc88565a79d9ef03681d269a1252767960593a722f2e8cf5d7c7876fb8d61"
+        },
+        "anchor_lexeme": "\"torch.optim.AdamW(lr=1e-4)\""
+      },
+      "purposes": [
+        "callable marker"
+      ]
+    },
+    {
+      "id": "toml-comment-dynamic-looking",
+      "format": "toml",
+      "source_utf8": "# ${BASE_RATE} and torch.optim.AdamW(x)\n",
+      "source": {
+        "body_size_bytes": 40,
+        "body_sha256": "8fa3a9bb3757a5000273769d232fa2933d57423406e41f176245d2b543a438c6",
+        "normalized_sha256": "8fa3a9bb3757a5000273769d232fa2933d57423406e41f176245d2b543a438c6",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 1
+      },
+      "expected": {
+        "code": "CODE_CONFIG_EMPTY",
+        "reason": "whitespace/comments-only document"
+      },
+      "purposes": [
+        "comment dynamic text"
+      ]
+    },
+    {
+      "id": "toml-multiline-string",
+      "format": "toml",
+      "source_utf8": "x = \"\"\"line\ntext\"\"\"\n",
+      "source": {
+        "body_size_bytes": 20,
+        "body_sha256": "1c73c46127384060f833242b8381cf6a5a2b48e0244ac3ce641a709c37da13a7",
+        "normalized_sha256": "1c73c46127384060f833242b8381cf6a5a2b48e0244ac3ce641a709c37da13a7",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 2
+      },
+      "expected": {
+        "code": "CODE_CONFIG_UNSUPPORTED",
+        "reason": "multiline string outside subset",
+        "anchor_span": {
+          "byte_start": 4,
+          "byte_end": 7,
+          "codepoint_start": 4,
+          "codepoint_end": 7,
+          "line_start": 1,
+          "column_start": 5,
+          "line_end": 1,
+          "column_end": 8,
+          "raw_sha256": "b6d267efe80a3dbcf2f2d67e21d8c15783a2f031427f827d43b6222fe9c4bf02",
+          "snippet_sha256": "a836a953b92111c8285e2a27c83f8ee011ed019c7d08bdfe503a85db05d3bc19"
+        },
+        "anchor_lexeme": "\"\"\""
+      },
+      "purposes": [
+        "unsupported multiline string"
+      ]
+    },
+    {
+      "id": "toml-comment-only",
+      "format": "toml",
+      "source_utf8": "# comment\n  # another\n",
+      "source": {
+        "body_size_bytes": 22,
+        "body_sha256": "f3427dce885e6e8571d3128784c85d5e9958f8a0ea1be7710c50093439611a5c",
+        "normalized_sha256": "f3427dce885e6e8571d3128784c85d5e9958f8a0ea1be7710c50093439611a5c",
+        "newline_style": "lf",
+        "ends_with_newline": true,
+        "line_count": 2
+      },
+      "expected": {
+        "code": "CODE_CONFIG_EMPTY",
+        "reason": "whitespace/comments-only document"
+      },
+      "purposes": [
+        "comment-only refusal"
+      ]
+    }
+  ],
+  "coverage": {
+    "success_vector_count": 7,
+    "refusal_vector_count": 31,
+    "formats": [
+      "json",
+      "toml"
+    ],
+    "required_topics": [
+      "1e-4",
+      "betas [0.9,0.999]",
+      "decimal 1e0",
+      "plus/underscore TOML grammar",
+      "JSON pointer escaping",
+      "Unicode and escaped Unicode",
+      "CRLF/LF/TAB",
+      "empty strings/keys/containers",
+      "TOML dotted keys and header promotion",
+      "inline arrays/tables",
+      "comments",
+      "negative-zero variants",
+      "explicit exponent cap",
+      "Decimal tuple exponent cap",
+      "coefficient boundary",
+      "lowered canonical-length boundary",
+      "unsupported multiline/date/base/inf/nan",
+      "dynamic markers and harmless comment text"
+    ]
+  },
+  "claims_not_made": [
+    "No whole-parser acceptance claim",
+    "No public error-wire freeze",
+    "No implementation or production/test mutation",
+    "No official repository or capability claim"
+  ]
+}

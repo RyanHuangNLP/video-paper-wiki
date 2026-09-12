@@ -1,0 +1,53 @@
+{
+  "schema": "lightweight-research-t2-independent-review-r1-erratum.v1",
+  "recorded_at_utc": "2026-09-08T12:26:44.612160000Z",
+  "clock_source": "date -u '+%Y-%m-%dT%H:%M:%S.%NZ' on the review host",
+  "original_record": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/independent-review-r1.json",
+    "sha256": "3ea7d21efd332265d883f770160f90d07675581c24e37bd3070c6df52bdb3c43",
+    "preservation": "The original review remains unchanged historical evidence."
+  },
+  "correction": {
+    "field": "preliminary publication provenance exactness",
+    "original_claim": "The publication preliminary before/after source hashes matched the stopped source and could bind the two publication reproductions to stopped R1.",
+    "corrected_claim": "That claim is false. The publication preliminary recorded light_knowledge.py=13e959043ac70e499f5549913dcca3832176549a6641c1e6aedc439cbea7afad, light_knowledge_batch.py=1043567fd9b405a726c0614f169c35d902454f9b37f83ae6626496db2a9ea037, and light_knowledge_refresh.py=29dbe1cd7335545a67659f6178937ee0c98d58ebaa7cbd6f7a1d627d494d4769, while stopped R1 is 5a51703068a88373feeff746e3fe14a08d95e8539fd21d19322a7e56eaa866b8, 4b58e9dc412872a157f1a02b4393b02dd37fe699efcc291d46ca6eb0aa6c4bca, and e30682610d69214f4c6b12dd5f8b1dae0aafdf0dacb292a5a0ee9d197df35ba3. It must not be treated as exact stopped-source evidence.",
+    "scope": "The original independent review was static for this correction and did not rerun any of the four publication/provenance fixtures."
+  },
+  "authoritative_stopped_reproduction": {
+    "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/architect-review-r1.json",
+    "sha256": "0ced884e765d50065a0253da2db923b77b4a055b5174d6b1880169ef947722c9",
+    "schema": "lightweight-research-architect-t2-r1-review.v1",
+    "decision": "CHANGES_REQUIRED_AT_STOPPED_T2_R1",
+    "snapshot_sha256": "5abc88dac56fc77f4ecbb9858f1f9c82950266a10558ee4a64842515a26a6181",
+    "source_and_frozen_copies_verified_before_after": true,
+    "four_reproductions": [
+      "T2-R1-01 interruption after HEAD before completion: retry returns LIGHT_BATCH_CONFLICT",
+      "T2-R1-02 nonexistent completion record: finalize returns OK/reused with nonexistent page",
+      "T2-R1-03 unknown empty directory: completed classification remains includable",
+      "T2-R1-04 rehashed record diverging from actual final merge: public list remains OK"
+    ],
+    "review_status": "This formal stopped-source Architect review is the exact evidence for all four reproductions; it is not an acceptance or source-transfer decision."
+  },
+  "stopped_source_revalidation": {
+    "candidate_snapshot_sha256": "5abc88dac56fc77f4ecbb9858f1f9c82950266a10558ee4a64842515a26a6181",
+    "handoff_path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/r1/handoff.json",
+    "handoff_sha256": "247c886af1ce154e9f1eacac0ca31006eead28c7cf7f35ff3f4c6be480eea524",
+    "ready_equals_handoff": true,
+    "architect_accepted": false,
+    "stopped_writing": true,
+    "eight_source_and_frozen_copy_hashes_rechecked": true,
+    "source_or_git_mutation": false,
+    "external_calls": false
+  },
+  "preliminary_record_hashes": {
+    "publication": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/architect-preliminary-publication-r1.json",
+      "sha256": "d848dc79ee22f2f16350b98ef14eac1d2ff8e2794d3fe6b7502de0232e906e6f"
+    },
+    "provenance": {
+      "path": "artifacts/verification/manual-pdf-v1/lightweight-research-v1/terminal-2/architect-preliminary-provenance-r1.json",
+      "sha256": "38681e6cd63eef602cc1fe2a99f4eff3cbc78efda3d187d68c527a5bcd45c548"
+    }
+  },
+  "decision": "METADATA_CORRECTED_USE_AUTHORITATIVE_STOPPED_REVIEW"
+}

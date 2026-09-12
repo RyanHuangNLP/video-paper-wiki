@@ -1,0 +1,70 @@
+{
+  "schema": "full-todo.foundation-integration-fix-instruction-review.v4",
+  "recorded_at_utc": "2026-09-11T02:16:12.803826+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_BOUNDED_R4_MICROFIX",
+  "scope": "Read-only review of the exact R4 natural-language integration correction instruction against the assembled R5 findings. No model call, source/test edit, build, test run, Git, UI, provider, network, lease or process action.",
+  "instruction": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-FOUNDATION-INTEGRATION-FIX-R4.md",
+    "size_bytes": 5209,
+    "sha256": "2f10b3e8509e0add6d5a62d75c487441115199d6a2576de4f9d6cdeedc589bfe"
+  },
+  "exact_scope_checks": {
+    "json_edit_schema": "foundation.integration-correction.v1",
+    "edit_count": 3,
+    "edit_kinds": [
+      "suppress_private_raise_context",
+      "pytest_exception_value",
+      "profile_inventory_key"
+    ],
+    "production_path": "src/video_paper_wiki/code_proof_resources.py",
+    "test_path": "tests/unit/test_code_proof_resources.py",
+    "production_symbols_exact": [
+      "_require_plain_json_tree",
+      "_canonical_list_index",
+      "_require_exact_mapping",
+      "_walk_schema_document",
+      "_validate_schema_references",
+      "CodeProofResources",
+      "compile_code_proof_resources"
+    ],
+    "exceptions_exact": [
+      "CodeProofResourceError",
+      "CodeProofStructureError"
+    ],
+    "test_symbols_exact": [
+      "test_structure_preflight_and_titles",
+      "test_limit_exact_key_and_value_types",
+      "test_profile_exact_builtin_keys",
+      "test_schema_reference_malformed_graphs",
+      "test_context_rejects_external_configuration"
+    ],
+    "helpers_exact": [
+      "_assert_resource",
+      "_assert_structure"
+    ],
+    "helper_variable": "exc",
+    "profile_change_exact": {
+      "symbol": "test_profile_exact_builtin_keys",
+      "old_key": "inventory",
+      "new_key": "schemas"
+    },
+    "new_regression_function_exact": "test_private_errors_suppress_outer_exception_context(resources)"
+  },
+  "coverage_assessment": {
+    "private_context_fix": "The first operation precisely targets the seven authorized top-level definitions and only direct raises whose AST cause is absent; it leaves explicit causes and bare re-raises unchanged. This covers the independently counted 29 production gaps.",
+    "helper_fix": "The second operation precisely changes the first argument of the 48 affected named helper calls in the five diagnosed tests from exc to exc.value, without changing helper definitions or unrelated older calls.",
+    "profile_fix": "The third operation changes the one diagnosed fixture key typo and leaves profile/resource bytes untouched.",
+    "regression_test": "The required single top-level test exercises unknown title, malformed limits, direct construction, malformed retained mapping, parser, profile and schema helpers while a dynamically composed outer RuntimeError is still active; it checks suppress_context, cause and traceback marker absence."
+  },
+  "scope_safety": {
+    "broadened_contract": false,
+    "full_module_regeneration": false,
+    "executable_script_or_regex": false,
+    "new_public_api": false,
+    "kernel_or_legacy_change": false,
+    "unrelated_files": false,
+    "assessment": "GO is limited to the declarative three-edit correction and one regression test exactly as written; it does not authorize implementation acceptance or any additional cleanup."
+  },
+  "required_post_fix_evidence": "Apply only the preserved-source recipe, inspect the exact diff, run the focused tests on both locked runtimes, replay the outer-context regression, and keep the result distinct from this pre-fix instruction review."
+}

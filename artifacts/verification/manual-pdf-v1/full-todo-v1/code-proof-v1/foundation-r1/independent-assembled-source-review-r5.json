@@ -1,0 +1,132 @@
+{
+  "schema": "full-todo.foundation-independent-assembled-source-review.v5",
+  "recorded_at_utc": "2026-09-11T02:16:12.803264+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "REJECT_PENDING_BOUNDED_INTEGRATION_MICROFIX",
+  "scope": "Independent read-only review of the assembled R5 foundation source and tests, including bounded Python 3.12/3.13 import/fixture probes and traceback-context probes. No source/test/build/Git/model/UI/provider/network/lease/process mutation or acceptance action.",
+  "reviewed_artifacts": [
+    {
+      "label": "assembled_production",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r5-code_proof_resources.py",
+      "size_bytes": 29122,
+      "sha256": "5bbace6bedafa46b16274dd1a842ee6d0e643fae042c905d9eb5a7699483d0a5"
+    },
+    {
+      "label": "assembled_tests",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembled-r5-test_code_proof_resources.py",
+      "size_bytes": 44029,
+      "sha256": "75e5d20582963324c15e70482f6f481cc1fe95dccd2b4e7250c4befee50e75c9"
+    },
+    {
+      "label": "grok_result",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/grok-foundation-r5-result.json",
+      "size_bytes": 2498,
+      "sha256": "79668321523563eaaada9df40385c2260828de1910fc9dc3bf406182deafc3bc"
+    },
+    {
+      "label": "assembly",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/assembly-r5.json",
+      "size_bytes": 5956,
+      "sha256": "14bbf4deed0167dce5be871a1ef85efc674424df5cdd61dae64352804f5b3c41"
+    },
+    {
+      "label": "preview_py312",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r5-py312.json",
+      "size_bytes": 1627,
+      "sha256": "656f4355c5a0a1a45e77d3bd8458a725377dd614d3aba335dbccdf259261f7db"
+    },
+    {
+      "label": "preview_py313",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r5-py313.json",
+      "size_bytes": 1645,
+      "sha256": "d19b1b0c79caee52c1fbb06c17ac51839fcfca14c8f6cecc81ddd1c50716aeaa"
+    },
+    {
+      "label": "preview_setup",
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-setup-r5.json",
+      "size_bytes": 588,
+      "sha256": "504e679151513f38d02782a97aecdff7fcf840716ceb1dd316ab944231e7a6d9"
+    }
+  ],
+  "production_review": {
+    "original_defects_verified_closed": [
+      "Exact builtin key handling now rejects non-string and string-subclass mapping keys before set comparisons.",
+      "JSON Pointer array indices reject empty, leading-zero and non-decimal tokens and cannot parse the huge-index mutation.",
+      "CodeProofResources cannot be externally constructed with caller-supplied digest, pins, validators or hard limits; the no-argument constructor refuses.",
+      "Schema reference validation registers active-path cycle detection for schema graph inputs while permitting shared acyclic nodes."
+    ],
+    "ast_private_raise_context_gap": {
+      "status": "PRODUCTION_BLOCKER",
+      "bare_direct_private_raises": 29,
+      "authorized_top_level_definitions": {
+        "_require_plain_json_tree": 5,
+        "_canonical_list_index": 4,
+        "_walk_schema_document": 2,
+        "_validate_schema_references": 5,
+        "_require_exact_mapping": 3,
+        "CodeProofResources": 10,
+        "compile_code_proof_resources": 0
+      },
+      "finding": "The 29 direct raises of CodeProofResourceError or CodeProofStructureError with no explicit AST cause can inherit an unrelated active exception context. They need from None inside the seven exact authorized definitions; existing explicit causes and bare re-raises must remain unchanged.",
+      "independent_traceback_probe": {
+        "outer_marker": "OUTER_MARKER_7e6f",
+        "cases": [
+          "_require_plain_json_tree",
+          "_canonical_list_index",
+          "_validate_schema_references",
+          "_require_exact_mapping",
+          "CodeProofResources.__init__",
+          "CodeProofResources.validate_structure",
+          "CodeProofResources.materialize_limits"
+        ],
+        "observed": "Each captured private error had cause=None but inherited an active RuntimeError context; traceback.format_exception(error) contained OUTER_MARKER_7e6f.",
+        "result": "CONFIRMED"
+      }
+    },
+    "no_other_production_flaw_found": "The assembled source imported on the available probe environment; exact pinned retained source resources compiled on both runtimes; all 264 structural fixture cases passed on Python 3.12 and 3.13; full and lowered independent limits materialized correctly; focused source review found no additional production defect beyond the missing private raise-context suppression."
+  },
+  "test_review": {
+    "focused_preview": {
+      "python_3_12": {
+        "passed": 261,
+        "failed": 5,
+        "exit_code": 1,
+        "evidence": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r5-py312.json"
+      },
+      "python_3_13": {
+        "passed": 261,
+        "failed": 5,
+        "exit_code": 1,
+        "evidence": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/preview-focused-r5-py313.json"
+      },
+      "failure_scope": "All five failures are integration-test defects; they fail in the existing assertion helpers before weakening or contradicting production behavior."
+    },
+    "exceptioninfo_helper_gap": {
+      "status": "TEST_BLOCKER",
+      "affected_tests": [
+        "test_structure_preflight_and_titles",
+        "test_limit_exact_key_and_value_types",
+        "test_profile_exact_builtin_keys",
+        "test_schema_reference_malformed_graphs",
+        "test_context_rejects_external_configuration"
+      ],
+      "helper_names": [
+        "_assert_resource",
+        "_assert_structure"
+      ],
+      "calls": 48,
+      "finding": "Every affected named helper call passes pytest ExceptionInfo variable exc instead of exc.value, so the helpers reject type(exc) before checking the captured private error."
+    },
+    "profile_inventory_key_gap": {
+      "status": "TEST_BLOCKER",
+      "affected_test": "test_profile_exact_builtin_keys",
+      "finding": "The profile top-level key is schemas, but the test reads mutated[\"inventory\"][0]; after the ExceptionInfo calls are corrected this lookup still raises before its intended assertion."
+    }
+  },
+  "probe_evidence": {
+    "fixture_replay": "Both Python 3.12 and 3.13 direct probes compiled the pinned eleven-byte resource mapping, passed all 264 fixture rows, and passed full/lowered three-group materialize_limits independence checks.",
+    "original_defect_probes": "Direct probes confirmed expected resource_shape/limits failures with cause=None for the key-type, huge-index, constructor and cycle cases; this does not waive the active-context leak in the remaining direct raises.",
+    "pytest_evidence": "The bounded focused preview records 261 passed and five failed on each runtime; no candidate acceptance is implied."
+  },
+  "acceptance_boundary": "Do not accept or dispatch the assembled R5 candidate until the exact three integration corrections are applied and independently replayed: suppress all 29 authorized private direct-raise contexts, pass exc.value in the 48 named helper calls across the five tests, and change only the single profile lookup from inventory to schemas."
+}

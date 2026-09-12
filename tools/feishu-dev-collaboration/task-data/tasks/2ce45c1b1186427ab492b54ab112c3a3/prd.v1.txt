@@ -1,0 +1,56 @@
+```markdown
+# PRD：实现整数加法函数
+
+## 背景
+
+项目中已存在 `test_add.py`，需要补充 `add.py`，使测试用例可通过。
+
+## 目标
+
+实现函数：
+
+```python
+def add(a: int, b: int) -> int:
+```
+
+函数返回两个整数 `a` 和 `b` 的和。
+
+## 范围
+
+### 包含
+
+- 新增或完善 `add.py`
+- 在 `add.py` 中实现 `add(a: int, b: int) -> int`
+- 保证执行以下命令通过：
+
+```bash
+python3 -m unittest test_add.py
+```
+
+### 不包含
+
+- 不修改 `test_add.py`
+- 不提交 Git commit
+- 不执行 Git push
+- 不访问项目外路径
+- 不修改 Vault
+- 不引入不必要依赖
+
+## 功能要求
+
+- `add` 接收两个整数参数 `a`、`b`
+- 返回 `a + b`
+- 返回值类型为整数
+- 函数应可被 `test_add.py` 正常导入
+
+## 验收标准
+
+- 存在 `add.py`
+- `add.py` 中定义了 `add(a: int, b: int) -> int`
+- `add(1, 2)` 返回 `3`
+- `add(0, 0)` 返回 `0`
+- `add(-1, 1)` 返回 `0`
+- 执行 `python3 -m unittest test_add.py` 通过
+- 未修改 Vault
+- 未执行 git commit 或 git push
+```

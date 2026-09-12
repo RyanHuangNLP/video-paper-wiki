@@ -1,0 +1,37 @@
+{
+  "schema": "lightweight-research-independent-review-r1.v1",
+  "at_utc": "2026-09-08T11:05:00Z",
+  "candidate_snapshot_sha256": "b7554d0e8542d779de1a2b0fa4ed4b113fc2c1853627648d5873dcf4b53f39e",
+  "source": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-research-v1/terminal-1/source",
+  "scope": "Read-only independent review of stopped T1 R1 and FIX-T1-R2-DRAFT.md. No source or Git mutation; disposable fixtures under /private/tmp.",
+  "r1_architect_observations": "Reviewed the architect-review-r1.json eight observations and the frozen T1 source/test handoff. They remain concrete changes-required findings; no attempt was made to relabel them as fixed.",
+  "decision": "CHANGES_REQUIRED_R2_MUST_INCLUDE_ADDITIONAL_FINDINGS",
+  "findings": [
+    {
+      "id": "T1-R1-ADDITIONAL-01",
+      "severity": "high",
+      "title": "Lone UTF-16 surrogate in original query or rewritten_query escapes closed validation and raises UnicodeEncodeError",
+      "reproduction": "On the frozen source, create a valid indexed fixture and call export_rewritten_context(workspace, kind='qa', query='\\ud800', rewrite={'schema':'video-paper-wiki.light-query-rewrite.v1','original_query':'\\ud800','rewritten_query':'quasar','language':'en'}).",
+      "actual": "Raises UnicodeEncodeError (surrogates not allowed) while canonicalizing the query plan; no JSON result/status is returned.",
+      "expected": "Closed QUERY_REWRITE_INVALID (or the contract's existing invalid-input status) with no query_plan and no traceback.",
+      "location": "src/video_paper_wiki_research/light_query.py:_canonical/_sha256_canonical and _build_query_plan; _checked_rewrite validates controls but not surrogate code points.",
+      "draft_gap": "FIX-T1-R2-DRAFT.md covers types, finite numbers and source/link safety but does not require UTF-8/surrogate rejection for model-supplied query strings. Add an explicit regression for surrogates in query and rewritten_query and reject before canonical hashing."
+    },
+    {
+      "id": "T1-R1-ADDITIONAL-02",
+      "severity": "medium",
+      "title": "Symlinked papers root or paper directory is silently treated as an empty corpus and can emit a valid NO_RESULTS trace",
+      "reproduction": "Create workspace/papers as a symlink to an empty directory, run legacy build_index (it records paper_count=0), then call export_rewritten_context with a valid rewrite. Equivalent result occurs for a symlinked papers/<64-hex> directory.",
+      "actual": "Returns ok=false, status=NO_RESULTS, query_plan present with both routes NO_RESULTS and empty paper_snapshots. No SOURCE_INVALID or unsafe-source refusal is emitted.",
+      "expected": "Reject unsafe live source edges before new export and traced-context import (SOURCE_INVALID or the designated closed unsafe status), rather than silently skipping the edge.",
+      "location": "src/video_paper_wiki_research/light_index.py:_paper_dirs returns [] for a symlinked papers root and skips symlinked paper directories; light_query.py then accepts the empty current snapshot.",
+      "draft_gap": "FIX-T1-R2-DRAFT.md item 6 says 'other unsafe live source edges' but explicitly names source.md/source.json only. Make papers and per-paper directory symlink refusal explicit in the R2 contract/tests, including unchanged outputs on refusal."
+    }
+  ],
+  "checks": {
+    "candidate_source_hashes_unchanged": true,
+    "legacy_focused_suite": "historical handoff: 63 passed",
+    "additional_dynamic_trace_or_legacy_regression": "none found beyond the two findings above during bounded review",
+    "writes": "only this review artifact; no production/test/Git changes"
+  }
+}

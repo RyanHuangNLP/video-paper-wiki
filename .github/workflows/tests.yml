@@ -1,0 +1,81 @@
+name: Tests
+
+on:
+  pull_request:
+    branches: [integration, main]
+  push:
+    branches: [integration]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+        python-version: ["3.12", "3.13"]
+    env:
+      PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+      UV_NO_PROGRESS: "1"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up uv and select Python
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          version: "0.12.7"
+          python-version: ${{ matrix.python-version }}
+          enable-cache: false
+
+      # Toolchain and dependency setup may use the network. No operator package,
+      # Docling extra, or parser models are installed by this workflow.
+      - name: Prepare the exact upstream compatibility fixture pin
+        run: |
+          set -euo pipefail
+          VPKB_UPSTREAM_PIN=9f8c1199047eac2c3828496279fbb7ba9540b90b
+          test "$(git ls-tree HEAD vendor/claude-obsidian | awk '{print $3}')" = "$VPKB_UPSTREAM_PIN"
+          git submodule update --init --checkout -- vendor/claude-obsidian
+          test "$(git -C vendor/claude-obsidian rev-parse HEAD)" = "$VPKB_UPSTREAM_PIN"
+          if git -C vendor/claude-obsidian symbolic-ref -q HEAD; then
+            echo 'Compatibility fixtures require the detached gitlink pin.' >&2
+            exit 1
+          fi
+          test -z "$(git -C vendor/claude-obsidian status --porcelain --untracked-files=all)"
+
+      - name: Install Python and locked default dependencies
+        run: |
+          uv python install "$UV_PYTHON"
+          uv sync --locked
+
+      - name: Run local checks without uv downloads or environment syncing
+        env:
+          UV_OFFLINE: "1"
+          UV_PYTHON_DOWNLOADS: never
+        run: |
+          set -euo pipefail
+          VPKB_TEST_TMP="$(mktemp -d "${RUNNER_TEMP}/vp.XXXXXX")"
+          VPKB_TEST_TMP="$(uv run --offline --no-sync python -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).resolve())' "$VPKB_TEST_TMP")"
+          trap 'rm -rf "$VPKB_TEST_TMP"' EXIT
+          uv --version
+          uv run --offline --no-sync python --version
+          uv run --offline --no-sync vpwiki doctor
+          # A short real path accommodates AF_UNIX fixtures and no-follow reads.
+          uv run --offline --no-sync python -m pytest -q --basetemp "$VPKB_TEST_TMP/p"
+          # --offline constrains uv, not arbitrary test-process network egress.
+          git diff --exit-code -- pyproject.toml uv.lock

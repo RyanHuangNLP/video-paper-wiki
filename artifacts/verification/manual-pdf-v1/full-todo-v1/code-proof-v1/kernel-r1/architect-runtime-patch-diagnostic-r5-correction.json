@@ -1,0 +1,21 @@
+{
+  "decision": "CORRECT_R5_DIAGNOSTIC_TRUNCATION_INFERENCE",
+  "recorded_at": "2026-09-10T01:34:09.489637+00:00",
+  "prior_diagnostic": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/kernel-r1/runtime-patch-diagnostic-r5.json",
+    "size_bytes": 4523,
+    "sha256": "fe3bc72c273b2981669d6afcdb57acde5d543f9ec5f783cf674902664940b54b"
+  },
+  "prior_preserved": true,
+  "observations": {
+    "canonical_prompt_entry_full": true,
+    "chat_history_user_record_type": "user",
+    "chat_history_user_text_bytes": 20089,
+    "explicit_middle_truncated_marker": true,
+    "explicit_full_request_offloaded_to_file_notice": true,
+    "read_file_attempts_denied": 3,
+    "termination": "max_turns_reached"
+  },
+  "correction": "The full canonical prompt archive does not establish that the full prompt was inline for model consumption. The actual chat-history user content explicitly contains a middle-truncated marker and a full-request offload notice. The earlier categorical NO_ACTUAL_PROMPT_TRUNCATION diagnosis is not supported. No direct raw model request payload was inspected.",
+  "effect": "R6 uses 11548 bytes, under the observed approximately20KB rendered user block, while preserving the same authorized project source subset. No permissions expanded."
+}

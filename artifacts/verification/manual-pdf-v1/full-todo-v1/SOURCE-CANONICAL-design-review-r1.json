@@ -1,0 +1,135 @@
+{
+  "schema": "full-todo.source-canonical-design-review.v1",
+  "revision": "R1",
+  "recorded_at_utc": "2026-09-09T01:19:46.106521Z",
+  "scope": "Read-only SOURCE2 semantic review; no implementation, schema edits, Git, Vault or external runtime actions.",
+  "source": {
+    "root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source",
+    "baseline_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+    "baseline_tree": "be13818d9a8d8afd0630672d58b952250dec6e10",
+    "status": "clean"
+  },
+  "design": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-CANONICAL-DESIGN-R1.md",
+    "sha256": "e46211baa9bba40f52746748757257ed49dbc3cb5c5801668824a486d900e5af"
+  },
+  "frozen_capture": {
+    "capture_contract": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-R1.md",
+      "sha256": "5bf912cc2aec0fec951168779d6336c95733c25be3e4377a611adb55296cacf8"
+    },
+    "capture_freeze": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-freeze-r1.json",
+      "sha256": "9daa95f62beadf7256dd09356232c78d3e1f8a3293536aea7b97a618963860d8"
+    },
+    "capture_allowlist": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-allowed-paths-r1.json",
+      "sha256": "f692648d42a18d3c310b310e5dba8ef19372dc032bf0cc9b99872cfe7bb75ece"
+    }
+  },
+  "actual_interface_hashes": {
+    "transaction_contracts": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/src/video_paper_wiki/transaction_contracts.py",
+      "sha256": "5a33f6d1c83972dd6548135ea5a8ff06968d9c77243b97b00814e3d676c61b65"
+    },
+    "identity": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/src/video_paper_wiki/identity.py",
+      "sha256": "660fe48b29f983eb14f61a33747107f948f4568783f11885465c091ea4cea6f6"
+    },
+    "ledger_locator": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/src/video_paper_wiki/ledger_locator.py",
+      "sha256": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0"
+    },
+    "assessment_history": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/src/video_paper_wiki/assessment_history.py",
+      "sha256": "db681b6c993e12837977c91e579959d26203e6b8a21e567f2b08961827bd7694"
+    },
+    "paper_record_v1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/schemas/video-paper-wiki.paper-record.v1.schema.json",
+      "sha256": "d3fa6fce60e48e4e43152cdcb93aded2cd428e672ff06dd3803557d488371f45"
+    },
+    "evidence_locator_v1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/schemas/video-paper-wiki.evidence-locator.v1.schema.json",
+      "sha256": "76511b6b063c98441ad047604600dbccfe4d5a87117c7588251f823c8fe58e2f"
+    },
+    "assessment_event_v1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/schemas/video-paper-wiki.assessment-event.v1.schema.json",
+      "sha256": "6d2f8bfce940fe6c274c06bcc6ae02cbcf3d1d18a04c0d671e0d14423385ec2f"
+    },
+    "operation_receipt_v1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/schemas/video-paper-wiki.operation-receipt.v1.schema.json",
+      "sha256": "41efe77ad8b57430661d9fc19e978f6a299bd28e6192f64c63257da05f60e367"
+    },
+    "projection_input_v1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source/src/video_paper_wiki/projection_input.py",
+      "sha256": "a8322a3c385e97ca482047fcc820f0c02dd5caf5738c5c07c758ec76b65fcd9e"
+    }
+  },
+  "decision": "BLOCKED_PENDING_SOURCE2_SEMANTICS_FREEZE",
+  "concrete_blockers": [
+    {
+      "id": "RECEIPT_SELF_REFERENCE",
+      "finding": "A source-version association cannot embed the future receipt hash of the same transaction. Capture has no receipt/head; source registration must first be operator-applied and audited, then association publication may reference that prior receipt.",
+      "required_rule": "First registered association requires an existing audited source-ledger registration receipt {path,sha256}; no self-reference or capture-result-as-receipt substitution."
+    },
+    {
+      "id": "VERSION_REUSE_PROVENANCE",
+      "finding": "source_id is only file locator+content SHA identity. Version identity and immutable observation association need separate keys.",
+      "required_rule": "source_version_id reuse key is domain-separated JCS({paper_id,version_descriptor,markdown_sha256}); declared same label+different bytes conflicts; unknown keys include markdown SHA; association/provenance bytes are immutable and never overwritten."
+    },
+    {
+      "id": "DISPLAY_AUTHORITY",
+      "finding": "Research proposals and a display-head cache cannot select the current source. Existing v1 transaction policy/catalog do not define a source-head registry.",
+      "required_rule": "Engine validates a complete nonforking append-only decision chain and materialized head in a successor namespace/transaction; imports never auto-select and rollback is a new decision."
+    },
+    {
+      "id": "MIXED_ASSESSMENT_PROFILES",
+      "finding": "v1 assessment_history/ledger_locator/identity only accept PDF/code and v1 fingerprints have no profile field.",
+      "required_rule": "v2 event/profile schema and fingerprint are explicit; one v1-to-v2 boundary event to provisional preserves the prior immutable v1 head/claim snapshot; no second independently authoritative assessment genesis and no v2 input to v1 validators."
+    },
+    {
+      "id": "SHA_TO_ARXIV_ALIAS",
+      "finding": "establish_canonical_paper_id rejects a higher-priority arXiv ID when existing paper_id is sha256.",
+      "required_rule": "Preserve existing paper/claim IDs and add a separately validated immutable alias binding only after same-source proof; refuse a second paper record or contradictory alias binding. Keep v1 function unchanged."
+    }
+  ],
+  "resolved_semantics": {
+    "same_version_same_bytes_different_provenance": "Reuse stable source_version_id/content association only when paper/version/Markdown bytes match; do not overwrite its observation. Preserve differing original_pdf_sha256/page metadata/observation as immutable provenance-variant record or return explicit PROVENANCE_VARIANT requiring follow-up. Never treat original_pdf_sha256 as source/version identity.",
+    "v1_to_v2_boundary": "Use one explicit v1-to-v2 boundary event to provisional that references prior v1 head/claim snapshot; preserve old v1 event bytes and do not create an independent authoritative second history.",
+    "first_association": "Requires prior audited source registration receipt; proposal may remain unregistered and must not claim current/receipt-backed."
+  },
+  "unresolved_freeze_questions": [
+    "Choose the exact immutable provenance-variant schema/path and whether a variant is accepted as a reusable association or only recorded as a refusal requiring explicit operator follow-up.",
+    "Freeze exact v2 event/profile IDs and the boundary event fields that reference the v1 head/claim snapshot.",
+    "Freeze engine-owned namespace/path and transaction successor for display decisions/head and alias bindings; do not imply current v1 registry support.",
+    "Freeze source-registration receipt reference shape and prior-receipt read preconditions in the first association publication."
+  ],
+  "bounded_first_pure_semantics_allowlist": [
+    "schemas/video-paper-wiki.source-version-association.v1.schema.json",
+    "schemas/video-paper-wiki.source-version-provenance.v1.schema.json",
+    "schemas/video-paper-wiki.source-display-decision.v1.schema.json",
+    "schemas/video-paper-wiki.source-display-head.v1.schema.json",
+    "schemas/video-paper-wiki.markdown-locator.v2.schema.json",
+    "schemas/video-paper-wiki.paper-identity-alias.v1.schema.json",
+    "schemas/video-paper-wiki.assessment-claim.v2.schema.json",
+    "schemas/video-paper-wiki.assessment-event.v2.schema.json",
+    "src/video_paper_wiki/source_semantics.py",
+    "src/video_paper_wiki/markdown_locator_v2.py",
+    "src/video_paper_wiki/assessment_history_v2.py",
+    "src/video_paper_wiki/contracts.py (registry handoff only)",
+    "tests/unit/test_source_semantics.py",
+    "tests/unit/test_markdown_locator_v2.py",
+    "tests/unit/test_assessment_history_v2.py",
+    "tests/security/test_source_semantics_boundary.py",
+    "tests/security/test_markdown_locator_v2_boundary.py",
+    "tests/contracts/test_source_semantics_contracts.py",
+    "tests/fixtures/contracts/valid/ (deterministic v2 fixtures only)"
+  ],
+  "excluded_until_follow_on_packets": [
+    "source-capture modules and frozen v1 observation schemas",
+    "identity.py, ledger_locator.py, assessment_history.py v1 behavior",
+    "transaction/publication/catalog/compiler/CLI changes",
+    "paper-record.v2 implementation and real Vault or operator apply"
+  ],
+  "stopped_writing": true
+}

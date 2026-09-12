@@ -1,0 +1,104 @@
+{
+  "record_type": "public-foundation-boundary-review-r1",
+  "reviewed_at_utc": "2026-09-10T16:01:46Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_FOR_CONCRETE_FOUNDATION_FREEZE_PREPARATION",
+  "implementation_authority": "not_granted",
+  "scope": "Bounded read-only architecture review of the private resource/validation foundation for public CODE implementation increment 1. No source, test, fixture, profile, schema, Git, model, provider, network, CLI, or UI action was performed.",
+  "reviewed_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-IMPLEMENTATION-SEQUENCE-R1.md",
+      "sha256": "f9edb49543f56f7081e4bf5a668f4cd237578717088fc1ed4d579028b0d2d95"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-IDENTITY-LAYOUT-R4.md",
+      "sha256": "4ff7a6bddd028903ca4bdfd4879cb2b8969c47eceda6c6e1ae6fde3aba255fe0"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-WIRE-R7.md",
+      "sha256": "373aba34cfe0240eba92183720aee86f3c36b4bd5f06092faced05de10ebd1f2"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RETAINED-CLARIFICATIONS-R8.md",
+      "sha256": "ecf9d1152e9ae55054e3d4aef6106ed9ad153e8819232e7fa7ecc2d15b08048f"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-GIT-KERNEL-INTEGRATION-R8.md",
+      "sha256": "dccf16f4897f466df214cedb3728c51b5479a00007e3e9f11c26b7f58c143a8d"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-PUBLIC-CLOSURE-R9.md",
+      "sha256": "d4bcffba1d01c86c2b5d2e97582989909de27b4d42fef63d1abc3f70a6eb2d62"
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/CODE-PROOF-RESOURCE-CONTRACT-R12.md",
+      "sha256": "f753c73d4d7e3d63d13b41877bea0e812c8bfe856ea73d0389d2036c06732d95"
+    }
+  ],
+  "architectural_consistency": [
+    "The sequence correctly makes the private foundation the first increment, keeps public identity/canonical bytes/cross-document replay separate, and prevents this increment from exposing a usable command.",
+    "R4/R7/R9 keep saved-envelope identity, canonical-byte, reference, order, derivation, state, and retained-lineage checks above schema acceptance; R12 correctly limits the registry to ten schemas plus the installed profile.",
+    "R6/R8 provide the required single retained graph, descriptor-relative ownership, source-versus-wheel resource origin rule, final verification groups, and lineage precedence."
+  ],
+  "required_freeze_items_before_builder_dispatch": [
+    {
+      "area": "Private API and ownership transfer",
+      "gap": "R6 gives the retained session surface but does not freeze the concrete resource-set object, constructor return type, ownership transfer, or whether resource acquisition is performed inside open_code_session or by a private factory.",
+      "action": "Freeze the private signatures and lifetime contract. The retained session must own one immutable resource set containing every descriptor, original named edge, first stamp, origin kind, relative resource name, size, pinned hash, and retained bytes. Callers receive immutable mappings/views only; they cannot pass descriptors, paths, resolver callbacks, or reusable registries, and the session closes resource descriptors after final verification in reverse acquisition order."
+    },
+    {
+      "area": "Origin selection and trust root",
+      "gap": "The contracts name source and wheel locations but do not give the concrete origin record or the exact source-layout discovery rule.",
+      "action": "Freeze source origin as the imported source package's sibling schemas directory plus package profiles directory, and wheel origin as package-data schemas/profiles. Require filesystem-backed origins, exact eleven pinned size/hash comparisons before registry creation, no CWD/cache/fallback origin, and an origin record retained through final verification. A profile or schema cannot authorize itself by agreeing with its own embedded inventory."
+    },
+    {
+      "area": "Registry and reference closure",
+      "gap": "R12 specifies allowed reference forms and denial of external retrieval but leaves the registry representation and resolution/error boundary implicit.",
+      "action": "Freeze an immutable registry keyed only by the ten exact schema $id values plus the explicit profile definition. Resolve same-document JSON Pointer fragments and exact declared $id fragments only; reject relative/external/dynamic refs, anchors, undeclared IDs, missing fragments, and any resolver/network/cache access. Parse and validate all eleven resources from the same retained bytes, then bind the registry to the session for the complete command."
+    },
+    {
+      "area": "Strict parser modes",
+      "gap": "The resource format requires UTF-8, one LF, finite integer resource values and duplicate-key rejection, while R4 preserves original numeric lexemes and selected source Unicode spelling. One undifferentiated parser could either admit unsafe resource syntax or destroy valid public source evidence.",
+      "action": "Freeze separate strict resource/profile and public input/saved parsing modes. Resource/profile mode rejects invalid UTF-8, BOM, duplicate keys, nonfinite values, floats, non-integer numeric values, surrogates, trailing bytes, and wrong terminal-LF format. Public document mode preserves original lexemes/bytes for the explicitly retained exceptions while enforcing exact builtin types, bool-before-int checks, string/surrogate/depth limits, and the R4/R7 NFC rule on metadata identity fields without normalizing source text, decoded config values/keys, pointers, or numeric lexemes."
+    },
+    {
+      "area": "Profile materialization and caller limits",
+      "gap": "The hard profile maxima, fixed admission caps, request lowering, and saved profile hash are specified separately but their one-time materialization boundary is not explicit.",
+      "action": "Freeze validation order: compare actual profile/schema bytes to production pins; validate profile shape and exact hard maxima/inventory; create the fresh registry; then materialize caller limits. Require positive exact integers, no omitted/extra keys, no caller increase, and fixed admission caps that are not lowerable. Bind request profile_sha256 only after the retained profile is established; ordinary request input must not gain a caller profile hash."
+    },
+    {
+      "area": "Resource/output disjointness and final checks",
+      "gap": "R8 states disjointness and retained origins but does not state the foundation's concrete check points for resource files versus output namespace.",
+      "action": "Freeze lexical equality/ancestor rejection plus retained descriptor/device/inode/link checks for every resource origin and file before output creation, after every retained-byte reread, and at final verification. Reject origin inside/equal to output and output inside a scoped resource directory, hardlink aliases, symlink/non-filesystem origins, and mode/type changes. Resource lineage failure must override resource parse, semantic, operation, and cleanup errors."
+    },
+    {
+      "area": "Error mapping and precedence",
+      "gap": "R8/R9 define the public contexts, but the foundation boundary does not explicitly map internal parser/validator failures to the closed public resource reasons.",
+      "action": "Freeze unchanged initial missing/mismatched/shape-invalid resources as CODE_PROOF_RESOURCE_INVALID with only the closed resource_hash, resource_shape, or resource_origin context; never expose source paths, resolver text, JSON parser text, or schema-validator text. A changed, replaced, uncheckable, or aliased retained resource is WORK_PATH_UNSAFE/resources and wins in final group order. Preserve operation/cleanup precedence only when all retained lineage remains valid."
+    },
+    {
+      "area": "Schema versus semantic boundary",
+      "gap": "The documents clearly separate these concerns, but the private API must make it impossible for a schema-valid resealed envelope to bypass public checks.",
+      "action": "Return structural validation results only to the later public orchestrator. Keep ce1 ID/JCS/saved-LF/reference checks, metadata NFC, order, profile binding, cross-document refs, raw-body hashes, derived replay, state, limits, and complete-set checks outside the registry. No foundation helper may write output, accept a saved envelope, or expose a command result."
+    }
+  ],
+  "required_validation_order": [
+    "Retain checkout authority and all resource origins through the one session graph; reject unsupported no-follow/descriptor primitives before output creation.",
+    "Validate origin spelling/disjointness and initial resource file type/mode/link policy; retain each named edge and immutable descriptor.",
+    "Charge bounded sizes and compare every retained byte stream with the exact pinned eleven-resource inventory.",
+    "Parse resources in strict resource/profile mode and validate profile shape, exact hard limits, admission caps, ten-row inventory, and no-external-ref closure.",
+    "Construct one fresh immutable registry from those retained bytes and bind it to the retained session.",
+    "Let the later public layer perform strict ordinary-input/document parsing, identity/JCS/saved-byte/reference checks, semantic replay, and output planning.",
+    "Before every output write and on every exit, reread/check retained resource names, descriptors, modes, link counts, bytes, and origins; apply R8 final lineage precedence before returning any result."
+  ],
+  "acceptance_evidence_expected": [
+    "A frozen private interface manifest naming resource-set/session classes, ownership and descriptor lifetimes, origin records, registry map and resolver denial behavior.",
+    "Focused tests for duplicate keys, BOM, invalid UTF-8, nonfinite/floats, bool/float/int subclasses, surrogate/NFC distinctions, undeclared/external refs, changed resources, origin/output overlap, hardlink aliases, and exact resource error mapping.",
+    "A test proving that a structurally valid resealed envelope is not accepted by the foundation and that the same retained resource descriptors survive setup, parsing, semantic handoff, final verification, and cleanup.",
+    "Source-checkout and installed-wheel parity evidence against the exact eleven resource bytes, with all public workflow and real-data/human gates still reported separately."
+  ],
+  "limitations": [
+    "This is an architecture advisory only; no implementation or test result is claimed.",
+    "The review does not freeze new source paths, schema/profile bytes, private signatures, or Builder scope and does not authorize dispatch."
+  ]
+}

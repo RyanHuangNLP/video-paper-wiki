@@ -1,0 +1,72 @@
+{
+  "candidate_snapshot": "e11be2214f411547295c8947245e56cbb05d9fe8600f94c9994244b5219ed2bf",
+  "contract_sha256": "7075cfb0a10e21448f942821dbae89028222161fbecca5b01f0feb06834fca12",
+  "controller_actions": {
+    "builder_launch": false,
+    "git_mutations": false,
+    "source_edits": false,
+    "vault_writes": false
+  },
+  "decision": "REJECTED_T2_R4_REQUIRES_FINAL_PREMOVE_STAGE_AND_OLD_PAYLOAD_RECHECK",
+  "freeze_sha256": "0a906e80e77450ebfbfae6fd4be5775e9b5e695778473115738beb02a5319853",
+  "handoff_sha256": "7f1e4355e971e1e17a98d98499a841f779970d62658e5dd26e2a10944d41fd68",
+  "independent_checks": {
+    "issue_count": 1,
+    "issues": [
+      {
+        "evidence": "At light_library.py:1516-1543, stage ownership/producer validation and the old live inventory check run before run_library_inject(\"before_old_archive\") at line 1542. The code then calls os.rename(old_live, archive_root / \"paper\") at line 1543 without repeating those checks. The three existing before_old_archive cases (unknown file, unknown empty directory, modified producer lock) preserve the introduced bytes and eventually close, but the old paper has already moved, violating the contract requirement that the old paper remain live when the final pre-move check fails.",
+        "function": "light_library._replace_forward",
+        "id": "T2-R4-IND-01",
+        "severity": "BLOCKER",
+        "status": "CONFIRMED"
+      }
+    ],
+    "r4_bounded_behavior": {
+      "after_replace_staged_cases_passed": 3,
+      "before_old_archive_cases_failed": 3,
+      "precapture_postextract_failures_closed": true
+    },
+    "temporary_roots": [
+      "/private/tmp/t2-r4-controller-bounded",
+      "/private/tmp/t2-r4-controller-history",
+      "/private/tmp/t2-r4-controller-premove"
+    ],
+    "test_runs": [
+      {
+        "command": "pytest -q architect_t2_r3_precapture.py architect_t2_r3_postextract.py",
+        "failed": 0,
+        "passed": 7,
+        "status": "PASS"
+      },
+      {
+        "command": "pytest -q architect_t2_history_checks.py architect_t2_regressions.py",
+        "failed": 0,
+        "passed": 30,
+        "status": "PASS"
+      },
+      {
+        "command": "pytest -q architect_t2_r4_premove.py",
+        "failed": 3,
+        "passed": 3,
+        "status": "FAIL_EXPECTED_R4_GAP"
+      }
+    ]
+  },
+  "lane": 2,
+  "next": "Preserve R4 source/evidence byte-for-byte. R5 may change only light_library.py and test_light_library_recovery.py, repeating complete stage/producer and old-payload checks immediately after before_old_archive and immediately before os.rename.",
+  "packet": "lightweight-library-v1",
+  "recorded_at_utc": "2026-09-08T05:23:56Z",
+  "revision": "r4",
+  "schema": "video-paper-wiki.library-controller-review.v1",
+  "scope_verification": {
+    "bundle": "artifacts/verification/manual-pdf-v1/lightweight-library-v1/terminal-2/r4",
+    "handoff_ready_byte_identical": true,
+    "manifest_count": 9,
+    "observed_model": "Cursor Grok 4.6 Extra High Fast",
+    "observed_session_id": "fd52ece9-a232-401c-8607-333652384b19",
+    "run_exit_code": 0,
+    "snapshot_recomputed": "e11be2214f411547295c8947245e56cbb05d9fe8600f94c9994244b5219ed2bf",
+    "source_bundle_hashes_match": true
+  },
+  "status": "R4_REJECTED_PENDING_BOUNDED_R5_FIX"
+}

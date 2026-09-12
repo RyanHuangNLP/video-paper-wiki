@@ -1,0 +1,25 @@
+.............F.F........................................................ [ 96%]
+...                                                                      [100%]
+=================================== FAILURES ===================================
+_______ test_live_selected_paper_no_results_and_conflict_preserve_output _______
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/research/test_light_workflow_cli.py:894: in test_live_selected_paper_no_results_and_conflict_preserve_output
+    assert conflict["status"] == "LIGHT_SESSION_CONFLICT"
+E   AssertionError: assert 'CITATION_MISMATCH' == 'LIGHT_SESSION_CONFLICT'
+E     
+E     - LIGHT_SESSION_CONFLICT
+E     + CITATION_MISMATCH
+_____________ test_live_source_edit_makes_export_and_status_stale ______________
+/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/research/test_light_workflow_cli.py:1024: in test_live_source_edit_makes_export_and_status_stale
+    markdown.write_text(markdown.read_text(encoding="utf-8").replace("lexical token", "replaced token"), encoding="utf-8")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/huangzhanpeng/miniconda3/lib/python3.13/pathlib/_local.py:546: in read_text
+    return PathBase.read_text(self, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/huangzhanpeng/miniconda3/lib/python3.13/pathlib/_abc.py:632: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/Users/huangzhanpeng/miniconda3/lib/python3.13/pathlib/_local.py:537: in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   FileNotFoundError: [Errno 2] No such file or directory: 'papers/fb8f50bcdf83e86c13ea24a4331e61506c7145841342c57c8257f028e859ac52/source.md'
+2 failed, 73 passed in 0.59s

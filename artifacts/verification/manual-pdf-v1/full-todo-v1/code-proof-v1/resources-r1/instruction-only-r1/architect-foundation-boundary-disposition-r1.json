@@ -1,0 +1,38 @@
+{
+  "schema": "full-todo.public-foundation-advisory-disposition.v1",
+  "recorded_at_utc": "2026-09-10T16:07:58.444982+00:00",
+  "decision": "USE_ADVISORY_WITH_EXPLICIT_PHASE_AND_CONTRACT_CORRECTIONS",
+  "review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/resources-r1/instruction-only-r1/I/public-foundation-boundary-review-r1.json",
+    "size_bytes": 10655,
+    "sha256": "e27870d56c1e84d3d07a1cc8a0c7b08954153544a6332216e00dc0a51a0e2b2e"
+  },
+  "clarifications": [
+    {
+      "area": "resource ownership",
+      "decision": "The future retained I/O session owns descriptors, edges, stamps and final verification. The first foundation increment only selects an origin plan and compiles an exact immutable byte collection into a structural resource view. It performs no resource file opens or cleanup and cannot establish lineage authority by itself."
+    },
+    {
+      "area": "registry inventory",
+      "decision": "Exactly ten schema IDs are registry resources. The profile is validated by the common schema /$defs/profile fragment; there is no eleventh schema resource or profile ID registration."
+    },
+    {
+      "area": "verification cadence",
+      "decision": "R8 governs: names/set checks surround each write, while full byte rereads occur at its bounded acquisition/publication/cleanup/fsync/final checkpoints. Do not demand a full reread of all resources after every one-byte short write."
+    },
+    {
+      "area": "structural versus semantic success",
+      "decision": "A valid resealed semantic forgery may pass structural validation. Foundation APIs must label that result structural only and cannot expose accepted/eligible/public-command success. The later public layer must reject the forgery through identity/reference/derived replay as applicable."
+    },
+    {
+      "area": "error ownership",
+      "decision": "The foundation reports fixed private resource reasons without exposing raw paths/parser/resolver data. The I/O boundary builds the full nine-field R8 context and retains missing/unsafe input reasons where contracted. Every final retained lineage failure takes R8 precedence; do not replace the R8 context with a smaller reason-only public error."
+    }
+  ],
+  "remaining_before_dispatch": [
+    "Exact resource successor local acceptance",
+    "Concrete private API/source/test allowlist and reviewed instruction-only packet",
+    "Freeze any introduced primitive bounds explicitly; metadata depth/integer-range limits are not inferred from jcs.py, which accepts arbitrary Python integers."
+  ],
+  "implementation_authorized": false
+}
