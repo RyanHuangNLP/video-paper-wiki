@@ -241,8 +241,8 @@ Python 侧继续只消费记录。官方性和“真的能够训练”的判定�
 - 问答按三轮的最低表现判定，同时报告中位数、范围和失败明细；文章与复现方案保留核心结论全量审阅及其余内容的既定抽样范围。
 
 具体干扰集、评分和语义审阅规则见
-DOMAIN-ACCEPTANCE-PREPARATION-R2.md（`packets/full-todo-v1/DOMAIN-ACCEPTANCE-PREPARATION-R2.md`）
-及 PRD 第 10 节（`video-generation-research-wiki-v1-prd-r3.3.md`）。
+[DOMAIN-ACCEPTANCE-PREPARATION-R2.md](packets/full-todo-v1/DOMAIN-ACCEPTANCE-PREPARATION-R2.md)
+及 [PRD 第 10 节](video-generation-research-wiki-v1-prd-r3.3.md)。
 这些是待工具化并验证的目标，不是当前成绩。67 条 seed 题录不能充当 67 篇已处理全文。
 真实科学结论的支持性需要实际审阅记录，不能由答案生成者自证。
 
@@ -351,17 +351,14 @@ OCR-first 扫描处理或视频摄取。需要这些能力时另行明确范围�
 
 ## 12. 盘点依据
 
-以下合同和审查路径是本地盘点的历史来源；除产品分支原有文件外，尚未随本次
-“两份文档与产品基线”公开交付。C1 开工前仍需核对合同可用性，不将计划本身当作冻结合同。
-
 - 最新产品源码：`codex/code-proof-v1@d440c7aaebb4dcc2c52cab719b0d73347a41493f`。
 - [当前开发账本](packets/full-todo-v1/status.json)：记录五块剩余工作及已有局部交付；其中“running”等历史状态不作为当前进程证明。
-- 上一版剩余清单（`packets/full-todo-v1/REMAINING-DEVELOPMENT-2026-09-11-R2.md`）。
-- CODE 实施顺序（`packets/full-todo-v1/CODE-PROOF-PUBLIC-IMPLEMENTATION-SEQUENCE-R1.md`）。
-- CODE 公共接口验收计划（`packets/full-todo-v1/CODE-PROOF-PUBLIC-ACCEPTANCE-PLAN-R2.md`）。
-- 未采纳 I/O 返回的独立复核（`../../artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/independent-returned-production-review-r1.json`）及补充复核（`../../artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/independent-returned-production-review-supplement-r2.json`）：用于 C1 的实际缺陷清单，不是已验收源码。
-- 领域与评测准备（`packets/full-todo-v1/DOMAIN-ACCEPTANCE-PREPARATION-R2.md`）。
-- 原始完整 PRD（`video-generation-research-wiki-v1-prd-r3.3.md`）：用于需求追溯；完成状态按后续源码与记录更新。
+- [上一版剩余清单](packets/full-todo-v1/REMAINING-DEVELOPMENT-2026-09-11-R2.md)。
+- [CODE 实施顺序](packets/full-todo-v1/CODE-PROOF-PUBLIC-IMPLEMENTATION-SEQUENCE-R1.md)。
+- [CODE 公共接口验收计划](packets/full-todo-v1/CODE-PROOF-PUBLIC-ACCEPTANCE-PLAN-R2.md)。
+- [未采纳 I/O 返回的独立复核](../../artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/independent-returned-production-review-r1.json)及[补充复核](../../artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/independent-returned-production-review-supplement-r2.json)：用于 C1 的实际缺陷清单，不是已验收源码。
+- [领域与评测准备](packets/full-todo-v1/DOMAIN-ACCEPTANCE-PREPARATION-R2.md)。
+- [原始完整 PRD](video-generation-research-wiki-v1-prd-r3.3.md)：用于需求追溯；完成状态按后续源码与记录更新。
 
 上述源码中的主要复用模块包括 `light_workflow`、`light_query`、`light_context`、
 `light_knowledge_batch`、`light_knowledge_refresh`、`light_writing_project`、`light_compare`、

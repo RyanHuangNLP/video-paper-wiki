@@ -1,4 +1,22 @@
-# Lightweight research enhancements — 2026-09-08
+# Current cloud development handoff — 2026-09-13
+
+Read [the group development brief](docs/ai/GROK-BOT-GROUP-DEVELOPMENT-BRIEF.md),
+[remaining development plan](docs/ai/remaining-development-plan-2026-09-13.md),
+and [BOOT-01 handoff](docs/ai/CLOUD-BOOT-01-HANDOFF.md) first.
+The user's current roles supersede the historical coordination below:
+ChatGPT/Codex designs, dispatches and reviews; Grok implements all product and
+test code; agy handles Git/PR/CI delivery; Grok Bot only relays tasks and results.
+Use existing Herdr agents as instructed by the user; do not rediscover or install
+the runtime for this handoff. One owner per task; parallelize only separable work.
+
+Develop from the published codex/code-proof-v1 handoff HEAD containing product
+baseline d440c7aaebb4dcc2c52cab719b0d73347a41493f and startup documents. Preserve
+historical evidence; old running states, dispatches and PR numbers are not current
+instructions. ChatGPT must prepare the current C1 task before Grok starts it.
+Keep draft PR delivery to integration, no automatic merge or main changes, and
+leave real Vault operations and human acceptance gates outside this handoff.
+
+# Preserved lightweight research enhancements — 2026-09-08
 
 This increment adds Chinese/English lexical retrieval handoffs, complete bounded
 long-paper processing, selective knowledge refresh, and outline/section writing

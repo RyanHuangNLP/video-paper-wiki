@@ -1,0 +1,165 @@
+{
+  "schema": "full-todo.code-io-bounded-diagnostics.v1",
+  "recorded_at_utc": "2026-09-11T03:50:19.215306+00:00",
+  "runtime": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+  "script": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_diagnostics_r1.py",
+    "size_bytes": 7338,
+    "sha256": "76c3a5fe7f1fbfa1e8ca0594b77ae1c2f77b2039e0b0e9ec4f4eaaf67d58b337"
+  },
+  "source": {
+    "path": "/private/tmp/cio-r1-iyedhdwx/source/src/video_paper_wiki/code_proof_io.py",
+    "size_bytes": 155603,
+    "sha256": "a5113bf49b469a5d8f62df599b40c6c13c5162e2f29be131a2b894ad1757e431"
+  },
+  "foundation": {
+    "path": "/private/tmp/cio-r1-iyedhdwx/source/src/video_paper_wiki/code_proof_resources.py",
+    "size_bytes": 29412,
+    "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6"
+  },
+  "scratch_root": "/private/tmp/cio-diag-jq6a8_si",
+  "observations": [
+    {
+      "name": "missing_output_namespace",
+      "expected": "success with empty snapshot and no creation",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofIOError",
+        "code": "WORK_PATH_UNSAFE",
+        "details": {
+          "phase": "final_verify",
+          "group": "output_layout",
+          "reason": "missing",
+          "operation": "stat",
+          "errno": null,
+          "prior_code": "WORK_PATH_UNSAFE",
+          "prior_operation": "stat",
+          "prior_errno": null,
+          "failed_groups": [
+            "output_layout"
+          ]
+        }
+      }
+    },
+    {
+      "name": "existing_empty_namespace_control",
+      "expected": "success with empty snapshot",
+      "actual": {
+        "outcome": "success",
+        "value": {}
+      }
+    },
+    {
+      "name": "namespace_unknown_late_arrival",
+      "expected": "WORK_PATH_UNSAFE for changed complete set",
+      "actual": {
+        "outcome": "success",
+        "value": {
+          "initial": [],
+          "after": [],
+          "external_file_remains": true
+        }
+      }
+    },
+    {
+      "name": "fixed_slot_late_arrival",
+      "expected": "WORK_PATH_UNSAFE for captured request absence",
+      "actual": {
+        "outcome": "success",
+        "value": {
+          "initial": [],
+          "after": [],
+          "external_file_remains": true
+        }
+      }
+    },
+    {
+      "name": "object_family_late_arrival",
+      "expected": "WORK_PATH_UNSAFE for changed complete set",
+      "actual": {
+        "outcome": "success",
+        "value": {
+          "initial": [],
+          "after": [],
+          "external_file_remains": true
+        }
+      }
+    },
+    {
+      "name": "failed_input_retains_named_edge",
+      "expected": "WORK_PATH_UNSAFE overriding original read error",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofIOError",
+        "code": "CODE_PROOF_IO_ERROR",
+        "details": {
+          "phase": "retaining",
+          "group": null,
+          "reason": "syscall_failed",
+          "operation": "read",
+          "errno": 5,
+          "prior_code": null,
+          "prior_operation": null,
+          "prior_errno": null,
+          "failed_groups": []
+        }
+      }
+    },
+    {
+      "name": "initial_request_per_file_limit",
+      "expected": "CODE_PROOF_LIMIT_EXCEEDED max_request_bytes=65536 observed=65537 pointer=/output",
+      "actual": {
+        "outcome": "exception",
+        "class": "CodeProofIOError",
+        "code": "CODE_PROOF_LIMIT_EXCEEDED",
+        "details": {
+          "instance_pointer": "/output",
+          "limit_name": "max_output_peak_bytes",
+          "limit": 134217728,
+          "observed": 65537
+        }
+      }
+    },
+    {
+      "name": "newly_installed_output_is_retained",
+      "expected": "WORK_PATH_UNSAFE for mutated current-command output",
+      "actual": {
+        "outcome": "success",
+        "value": {
+          "install": false,
+          "reported": "first",
+          "actual": "wrong"
+        }
+      }
+    },
+    {
+      "name": "second_install_failure_checked_cleanup",
+      "expected": "original refusal with no owned temporary left behind",
+      "actual": {
+        "outcome": "success",
+        "value": {
+          "caught": {
+            "code": "CODE_PROOF_IO_ERROR",
+            "details": {
+              "phase": "writing",
+              "group": "installation",
+              "reason": "syscall_failed",
+              "operation": "write",
+              "errno": 5,
+              "prior_code": null,
+              "prior_operation": null,
+              "prior_errno": null,
+              "failed_groups": []
+            }
+          },
+          "leftover_temporaries": [
+            ".ce-tmp-092fe4829b2e33f2a8c3fdcf56748450"
+          ],
+          "request_unchanged": true
+        }
+      }
+    }
+  ],
+  "candidate_accepted": false,
+  "product_source_modified": false
+}
