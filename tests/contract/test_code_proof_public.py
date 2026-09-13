@@ -9,19 +9,23 @@ import pytest
 
 from tests.code_proof_public_fixture import (
     JSON_BODY,
+    OUTPUT_LIMITS,
     SRC_BODY,
     default_files,
     dump_json,
     make_checkout,
     make_repo,
+    nested_json_object,
     observe_norm_doc,
     observe_raw_doc,
     parse_envelope,
     request_doc,
     run_module_cli,
+    seal,
     write_bundle,
     write_bytes,
 )
+from video_paper_wiki.code_proof_io import open_code_session
 from video_paper_wiki.cli import build_parser, main
 
 
@@ -191,3 +195,151 @@ def test_cli_help_mentions_recovery() -> None:
     text = "\n".join(combined)
     assert ".work/<batch-id>/code-evidence-v1/" in text
     assert "resume" in text.lower() or "Repeat" in text
+
+
+def test_cli_config_non_ascii_path_envelope(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+    write_bytes(
+        checkout / "request.json",
+        dump_json(request_doc(repo, [
+            {
+                "path": "config.json",
+                "roles": ["configuration"],
+                "allow_executable_source": False,
+            },
+            {
+                "path": "src.py",
+                "roles": ["implementation"],
+                "allow_executable_source": False,
+            },
+        ])),
+    )
+    req_proc = run_module_cli(
+        checkout,
+        ["code-evidence", "request", "--input", "request.json", "--batch-id", "cli-ua"],
+    )
+    req = parse_envelope(req_proc)
+    assert req_proc.returncode == 0
+    write_bundle(checkout, ".work/raw-ua", repo, req["data"]["request"])
+    write_bytes(checkout / "observe.json", dump_json(observe_raw_doc(repo)))
+    obs_proc = run_module_cli(
+        checkout,
+        [
+            "code-evidence",
+            "observe",
+            "--input",
+            "observe.json",
+            "--bundle-dir",
+            ".work/raw-ua",
+            "--batch-id",
+            "cli-ua",
+        ],
+    )
+    assert obs_proc.returncode == 0
+    proc = run_module_cli(
+        checkout,
+        [
+            "code-evidence",
+            "config",
+            "--path",
+            "配置.json",
+            "--format",
+            "json",
+            "--batch-id",
+            "cli-ua",
+        ],
+    )
+    payload = parse_envelope(proc)
+    assert proc.returncode == 2
+    assert "UnicodeEncodeError" not in proc.stderr
+    assert payload["ok"] is False
+    assert payload["command"] == "code-evidence.config"
+    assert payload["error"]["code"] == "CODE_PROOF_DOCUMENT_INVALID"
+    assert payload["error"]["details"]["reason"] == "path"
+
+
+def test_cli_leading_whitespace_and_depth(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+    raw = dump_json(request_doc(repo, [
+        {
+            "path": "config.json",
+            "roles": ["configuration"],
+            "allow_executable_source": False,
+        },
+        {
+            "path": "src.py",
+            "roles": ["implementation"],
+            "allow_executable_source": False,
+        },
+    ]))
+    write_bytes(checkout / "ws.json", b"\n  " + raw)
+    proc = run_module_cli(
+        checkout,
+        ["code-evidence", "request", "--input", "ws.json", "--batch-id", "cli-ws"],
+    )
+    payload = parse_envelope(proc)
+    assert proc.returncode == 0
+    assert payload["ok"] is True
+    write_bytes(checkout / "deep.json", nested_json_object(80))
+    deep = run_module_cli(
+        checkout,
+        ["code-evidence", "request", "--input", "deep.json", "--batch-id", "cli-deep"],
+    )
+    deep_payload = parse_envelope(deep)
+    assert deep.returncode == 2
+    assert "RecursionError" not in deep.stderr
+    assert deep_payload["ok"] is False
+    assert deep_payload["error"]["code"] == "CODE_PROOF_JSON_INVALID"
+    assert deep_payload["error"]["details"]["reason"] == "depth"
+
+
+def test_cli_orphan_intent_request_refuses(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+    write_bytes(checkout / "request.json", dump_json(request_doc(repo, [
+        {
+            "path": "config.json",
+            "roles": ["configuration"],
+            "allow_executable_source": False,
+        },
+        {
+            "path": "src.py",
+            "roles": ["implementation"],
+            "allow_executable_source": False,
+        },
+    ])))
+    with open_code_session(batch_id="cli-orphan") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        session.install(
+            "intent.json",
+            seal(
+                "code-acquisition-intent",
+                {
+                    "request": {
+                        "id": "ce1:code-proof-request:" + "a" * 64,
+                        "sha256": "b" * 64,
+                    },
+                    "mode": "git_objects",
+                    "acquisition": observe_raw_doc(repo),
+                    "bundle": None,
+                },
+            ),
+        )
+    ns = checkout / ".work" / "cli-orphan" / "code-evidence-v1"
+    original = (ns / "intent.json").read_bytes()
+    proc = run_module_cli(
+        checkout,
+        [
+            "code-evidence",
+            "request",
+            "--input",
+            "request.json",
+            "--batch-id",
+            "cli-orphan",
+        ],
+    )
+    payload = parse_envelope(proc)
+    assert proc.returncode == 2
+    assert payload["error"]["code"] == "CODE_PROOF_STATE_INVALID"
+    assert payload["error"]["details"]["reason"] == "missing_dependency"
+    assert not (ns / "request.json").exists()
+    assert (ns / "intent.json").read_bytes() == original

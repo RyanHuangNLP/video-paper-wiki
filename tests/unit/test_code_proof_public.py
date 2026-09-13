@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import errno
+import hashlib
 import json
 import os
 import socket
@@ -13,6 +15,7 @@ import pytest
 from tests.code_proof_public_fixture import (
     JSON_BODY,
     OBSERVED_AT,
+    OUTPUT_LIMITS,
     PAPER_ID,
     README_BODY,
     REPO_SAVED,
@@ -25,8 +28,10 @@ from tests.code_proof_public_fixture import (
     hosting_assertion,
     make_checkout,
     make_repo,
+    nested_json_object,
     observe_norm_doc,
     observe_raw_doc,
+    public_limits,
     request_doc,
     run_module_cli,
     parse_envelope,
@@ -34,8 +39,10 @@ from tests.code_proof_public_fixture import (
     write_bundle,
     write_bytes,
 )
+from video_paper_wiki import code_proof_io as io
+from video_paper_wiki import code_proof_public as public
 from video_paper_wiki.cli import build_parser, main
-from video_paper_wiki.code_proof_io import CodeProofIOError
+from video_paper_wiki.code_proof_io import CodeProofIOError, open_code_session
 from video_paper_wiki.code_proof_public import (
     CodeProofPublicError,
     config_code_proof,
@@ -619,3 +626,476 @@ def test_nonprefix_handoffs(checkout: Path) -> None:
     with pytest.raises(CodeProofPublicError) as caught:
         status_code_proof(batch_id="np")
     assert caught.value.details["reason"] == "nonprefix_handoffs"
+
+
+def _replace_keep_alive(path: Path, data: bytes) -> int:
+    fd = os.open(path, os.O_RDONLY)
+    sibling = path.parent / (path.name + ".repl")
+    sibling.write_bytes(data)
+    os.rename(sibling, path)
+    return fd
+
+
+def _dir_bytes(path: Path) -> dict[str, bytes]:
+    if not path.exists():
+        return {}
+    out = {}
+    for current, _dirs, files in os.walk(path):
+        rel_dir = os.path.relpath(current, path)
+        for name in files:
+            rel = name if rel_dir == "." else rel_dir + "/" + name
+            out[rel] = Path(current, name).read_bytes()
+    return out
+
+
+def test_tampered_pending_body_refuses(checkout: Path) -> None:
+    repo, _requested, _observed = _complete_raw(checkout, "sha1")
+    copy_outputs("b1", "tamper", ["request.json", "intent.json", "bundle.json"])
+    bundle = json.loads(
+        (Path(".work/b1/code-evidence-v1") / "bundle.json").read_bytes()
+    )
+    first_oid = bundle["data"]["objects"][0]["oid"]
+    with open_code_session(batch_id="tamper") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        session.install("objects/" + first_oid + ".body", b"tampered-body\n")
+    ns = checkout / ".work" / "tamper" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    with pytest.raises(CodeProofPublicError) as caught:
+        status_code_proof(batch_id="tamper")
+    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
+    assert caught.value.details["reason"] == "raw_body"
+    assert _dir_bytes(ns) == before
+
+
+def test_resealed_reordered_targets_refuses(checkout: Path) -> None:
+    _complete_raw(checkout, "sha1")
+    env = json.loads(
+        (Path(".work/b1/code-evidence-v1") / "request.json").read_bytes()
+    )
+    data = dict(env["data"])
+    data["targets"] = list(reversed(data["targets"]))
+    forged = seal("code-proof-request", data)
+    with open_code_session(batch_id="reorder") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        session.install("request.json", forged)
+    ns = checkout / ".work" / "reorder" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    with pytest.raises(CodeProofPublicError) as caught:
+        status_code_proof(batch_id="reorder")
+    assert caught.value.code == "CODE_PROOF_DOCUMENT_INVALID"
+    assert caught.value.details["reason"] == "target_order"
+    assert _dir_bytes(ns) == before
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    with pytest.raises(CodeProofPublicError) as caught:
+        request_code_proof(input_path="request.json", batch_id="reorder")
+    assert caught.value.code == "CODE_PROOF_DOCUMENT_INVALID"
+    assert caught.value.details["reason"] == "target_order"
+    assert not (ns / "intent.json").exists()
+    assert _dir_bytes(ns) == before
+
+
+def test_orphan_intent_request_refuses_without_new_output(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    with open_code_session(batch_id="orphan") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        session.install("intent.json", seal("code-acquisition-intent", {
+            "request": {"id": "ce1:code-proof-request:" + "a" * 64, "sha256": "b" * 64},
+            "mode": "git_objects",
+            "acquisition": observe_raw_doc(repo),
+            "bundle": None,
+        }))
+    ns = checkout / ".work" / "orphan" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    with pytest.raises(CodeProofPublicError) as caught:
+        request_code_proof(input_path="request.json", batch_id="orphan")
+    assert caught.value.code == "CODE_PROOF_STATE_INVALID"
+    assert caught.value.details["reason"] == "missing_dependency"
+    assert not (ns / "request.json").exists()
+    assert _dir_bytes(ns) == before
+
+
+def test_observation_without_intent_is_missing_dependency(checkout: Path) -> None:
+    _complete_raw(checkout, "sha1")
+    copy_outputs("b1", "obsorphan", ["request.json", "observation.json"])
+    ns = checkout / ".work" / "obsorphan" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    with pytest.raises(CodeProofPublicError) as caught:
+        status_code_proof(batch_id="obsorphan")
+    assert caught.value.code == "CODE_PROOF_STATE_INVALID"
+    assert caught.value.details["reason"] == "missing_dependency"
+    assert _dir_bytes(ns) == before
+
+
+def test_leading_whitespace_json_is_accepted(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+    raw = dump_json(request_doc(repo, default_targets()))
+    write_bytes(checkout / "ws.json", b"\n\t " + raw)
+    result = request_code_proof(input_path="ws.json", batch_id="ws")
+    assert result["already_staged"] is False
+    assert result["request"]["id"].startswith("ce1:code-proof-request:")
+
+
+def test_deep_nested_json_is_structured_depth_reject(checkout: Path) -> None:
+    write_bytes(checkout / "deep.json", nested_json_object(80))
+    with pytest.raises(CodeProofPublicError) as caught:
+        request_code_proof(input_path="deep.json", batch_id="deep")
+    assert caught.value.code == "CODE_PROOF_JSON_INVALID"
+    assert caught.value.details["reason"] == "depth"
+    assert not (checkout / ".work" / "deep").exists()
+
+
+def test_recursion_error_is_structured_depth_reject(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch, capsys
+) -> None:
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    real_parse = public._parse_json_bytes
+    real_raw = json.JSONDecoder.raw_decode
+
+    def boom(self, s, idx=0):
+        raise RecursionError("fixture decoder recursion")
+
+    def wrapped(payload, pointer):
+        monkeypatch.setattr(json.JSONDecoder, "raw_decode", boom)
+        try:
+            return real_parse(payload, pointer)
+        finally:
+            monkeypatch.setattr(json.JSONDecoder, "raw_decode", real_raw)
+
+    monkeypatch.setattr(public, "_parse_json_bytes", wrapped)
+    with pytest.raises(CodeProofPublicError) as caught:
+        request_code_proof(input_path="request.json", batch_id="rec")
+    assert caught.value.code == "CODE_PROOF_JSON_INVALID"
+    assert caught.value.details["reason"] == "depth"
+    assert not (checkout / ".work" / "rec" / "code-evidence-v1" / "request.json").exists()
+    code = main(
+        [
+            "code-evidence",
+            "request",
+            "--input",
+            "request.json",
+            "--batch-id",
+            "rec2",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "RecursionError" not in captured.err
+    payload = json.loads(captured.out.strip().splitlines()[-1])
+    assert payload["error"]["code"] == "CODE_PROOF_JSON_INVALID"
+    assert payload["error"]["details"]["reason"] == "depth"
+
+
+def test_config_non_ascii_path_is_structured_reject(checkout: Path, capsys) -> None:
+    _complete_raw(checkout, "sha1")
+    with pytest.raises(CodeProofPublicError) as caught:
+        config_code_proof(path="配置.json", config_format="json", batch_id="b1")
+    assert caught.value.code == "CODE_PROOF_DOCUMENT_INVALID"
+    assert caught.value.details["reason"] == "path"
+    code = main(
+        [
+            "code-evidence",
+            "config",
+            "--path",
+            "配置.json",
+            "--format",
+            "json",
+            "--batch-id",
+            "b1",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code == 2
+    assert "UnicodeEncodeError" not in captured.err
+    payload = json.loads(captured.out.strip().splitlines()[-1])
+    assert payload["ok"] is False
+    assert payload["command"] == "code-evidence.config"
+    assert payload["error"]["code"] == "CODE_PROOF_DOCUMENT_INVALID"
+    assert payload["error"]["details"]["reason"] == "path"
+
+
+def test_changed_commit_file_and_config(checkout: Path) -> None:
+    repo, requested, _observed = _complete_raw(checkout, "sha1")
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    original = (ns / "request.json").read_bytes()
+    other = request_doc(repo, default_targets())
+    other["commit_oid"] = "a" * 40
+    write_bytes(checkout / "commit.json", dump_json(other))
+    with pytest.raises(CodeProofIOError) as caught:
+        request_code_proof(input_path="commit.json", batch_id="b1")
+    assert caught.value.code == "CODE_PROOF_CONFLICT"
+    assert caught.value.details["reason"] == "request_changed"
+    assert (ns / "request.json").read_bytes() == original
+
+    files = request_doc(
+        repo,
+        [
+            {
+                "path": "src.py",
+                "roles": ["implementation"],
+                "allow_executable_source": False,
+            }
+        ],
+    )
+    write_bytes(checkout / "files.json", dump_json(files))
+    with pytest.raises(CodeProofIOError) as caught:
+        request_code_proof(input_path="files.json", batch_id="b1")
+    assert caught.value.details["reason"] == "request_changed"
+    assert (ns / "request.json").read_bytes() == original
+
+    _write_observe_raw(checkout, repo)
+    changed = observe_raw_doc(repo)
+    changed["observed_at"] = "2026-01-02T03:04:06Z"
+    write_bytes(checkout / "obs-changed.json", dump_json(changed))
+    with pytest.raises(CodeProofIOError) as caught:
+        observe_code_proof(
+            input_path="obs-changed.json",
+            batch_id="b1",
+            bundle_dir=".work/raw",
+        )
+    assert caught.value.details["reason"] == "acquisition_changed"
+    assert (ns / "observation.json").exists()
+    _ = requested
+
+
+def test_public_input_replacement_refuses(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = make_repo("sha1", default_files())
+    src = _write_request(checkout, repo)
+    original = src.read_bytes()
+    src_st = src.stat()
+    keep = {"fd": None}
+    real = io._read
+
+    def wrapped(fd, n):
+        data = real(fd, n)
+        try:
+            st = os.fstat(fd)
+        except OSError:
+            return data
+        if (
+            keep["fd"] is None
+            and st.st_ino == src_st.st_ino
+            and st.st_dev == src_st.st_dev
+        ):
+            keep["fd"] = _replace_keep_alive(src, original)
+            raise OSError(errno.EIO, "read fail")
+        return data
+
+    monkeypatch.setattr(io, "_read", wrapped)
+    try:
+        with pytest.raises(CodeProofIOError) as caught:
+            request_code_proof(input_path="request.json", batch_id="repl")
+        assert caught.value.code == "WORK_PATH_UNSAFE"
+    finally:
+        if keep["fd"] is None:
+            pass
+        else:
+            os.close(keep["fd"])
+    ns = checkout / ".work" / "repl" / "code-evidence-v1"
+    assert not (ns / "request.json").exists()
+
+
+def test_public_install_fail_zero_write(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+
+    def boom(_fd, _data):
+        raise OSError(errno.EIO, "write fail")
+
+    monkeypatch.setattr(io, "_write", boom)
+    with pytest.raises(CodeProofIOError) as caught:
+        request_code_proof(input_path="request.json", batch_id="wfail")
+    assert caught.value.code == "CODE_PROOF_IO_ERROR"
+    ns = checkout / ".work" / "wfail" / "code-evidence-v1"
+    assert not (ns / "request.json").exists()
+    if ns.exists():
+        leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+        assert leftover == []
+
+
+def test_public_observe_install_fail_keeps_request(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    result = request_code_proof(input_path="request.json", batch_id="ofail")
+    rel = write_bundle(checkout, ".work/raw-ofail", repo, result["request"])
+    _write_observe_raw(checkout, repo)
+    ns = checkout / ".work" / "ofail" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+
+    def boom(_fd, _data):
+        raise OSError(errno.EIO, "write fail")
+
+    monkeypatch.setattr(io, "_write", boom)
+    with pytest.raises(CodeProofIOError) as caught:
+        observe_code_proof(
+            input_path="observe.json", batch_id="ofail", bundle_dir=rel
+        )
+    assert caught.value.code == "CODE_PROOF_IO_ERROR"
+    assert _dir_bytes(ns) == before
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover == []
+
+
+def test_public_interrupt_preserves_identity(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    marker = KeyboardInterrupt()
+
+    def boom(_fd, _data):
+        raise marker
+
+    monkeypatch.setattr(io, "_write", boom)
+    with pytest.raises(KeyboardInterrupt) as caught:
+        request_code_proof(input_path="request.json", batch_id="intr")
+    assert caught.value is marker
+    ns = checkout / ".work" / "intr" / "code-evidence-v1"
+    assert not (ns / "request.json").exists()
+
+
+def test_public_lineage_overrides_semantic(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = make_repo("sha1", default_files())
+    src = _write_request(checkout, repo)
+    keep = {"fd": None}
+    real = public._parse_json_bytes
+
+    def wrapped(payload, pointer):
+        keep["fd"] = _replace_keep_alive(src, payload)
+        public._document("", "shape")
+
+    monkeypatch.setattr(public, "_parse_json_bytes", wrapped)
+    try:
+        with pytest.raises(CodeProofIOError) as caught:
+            request_code_proof(input_path="request.json", batch_id="prio")
+        assert caught.value.code == "WORK_PATH_UNSAFE"
+        assert caught.value.details["prior_code"] == "CODE_PROOF_DOCUMENT_INVALID"
+    finally:
+        if keep["fd"] is not None:
+            os.close(keep["fd"])
+    ns = checkout / ".work" / "prio" / "code-evidence-v1"
+    assert not (ns / "request.json").exists()
+    _ = real
+
+
+def test_failed_status_zero_write(checkout: Path) -> None:
+    _complete_raw(checkout, "sha1")
+    copy_outputs("b1", "failst", ["request.json", "observation.json"])
+    ns = checkout / ".work" / "failst" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    mtimes = {p.name: p.stat().st_mtime_ns for p in ns.iterdir()}
+    with pytest.raises(CodeProofPublicError):
+        status_code_proof(batch_id="failst")
+    assert _dir_bytes(ns) == before
+    assert {p.name: p.stat().st_mtime_ns for p in ns.iterdir()} == mtimes
+
+
+def test_saved_artifact_limit_bounds(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    probe = request_code_proof(input_path="request.json", batch_id="probe")
+    rel = write_bundle(checkout, ".work/raw-probe", repo, probe["request"])
+    _write_observe_raw(checkout, repo)
+    observe_code_proof(input_path="observe.json", batch_id="probe", bundle_dir=rel)
+    config_code_proof(path="config.json", config_format="json", batch_id="probe")
+    handoff_code_proof(batch_id="probe")
+    ns = Path(".work/probe/code-evidence-v1")
+    intent_size = len((ns / "intent.json").read_bytes())
+    obs_size = len((ns / "observation.json").read_bytes())
+    cfg_name = "configs/" + hashlib.sha256(b"config.json").hexdigest() + ".json"
+    cfg_size = len((ns / cfg_name).read_bytes())
+    hand_name = "handoffs/" + hashlib.sha256(b"config.json").hexdigest() + ".json"
+    hand_size = len((ns / hand_name).read_bytes())
+
+    def stage(batch, **public_overrides):
+        assert len(batch) == 5
+        write_bytes(
+            checkout / "lim-request.json",
+            dump_json(request_doc(repo, default_targets(), limits=public_limits(**public_overrides))),
+        )
+        req = request_code_proof(input_path="lim-request.json", batch_id=batch)
+        bundle = write_bundle(checkout, ".work/raw-" + batch, repo, req["request"])
+        write_bytes(checkout / "lim-observe.json", dump_json(observe_raw_doc(repo)))
+        return req, bundle
+
+    _req, bundle = stage("icap0", max_intent_bytes=intent_size)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="icap0", bundle_dir=bundle
+    )
+    _req, bundle = stage("icap1", max_intent_bytes=intent_size + 1)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="icap1", bundle_dir=bundle
+    )
+    _req, bundle = stage("icapx", max_intent_bytes=intent_size - 1)
+    before = _dir_bytes(checkout / ".work" / "icapx" / "code-evidence-v1")
+    with pytest.raises(CodeProofIOError) as caught:
+        observe_code_proof(
+            input_path="lim-observe.json", batch_id="icapx", bundle_dir=bundle
+        )
+    assert caught.value.details["limit_name"] == "max_intent_bytes"
+    assert caught.value.details["observed"] == intent_size
+    assert _dir_bytes(checkout / ".work" / "icapx" / "code-evidence-v1") == before
+    assert not (
+        checkout / ".work" / "icapx" / "code-evidence-v1" / "intent.json"
+    ).exists()
+
+    _req, bundle = stage("ocap0", max_observation_bytes=obs_size)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="ocap0", bundle_dir=bundle
+    )
+    _req, bundle = stage("ocapx", max_observation_bytes=obs_size - 1)
+    before = _dir_bytes(checkout / ".work" / "ocapx" / "code-evidence-v1")
+    with pytest.raises(CodeProofIOError) as caught:
+        observe_code_proof(
+            input_path="lim-observe.json", batch_id="ocapx", bundle_dir=bundle
+        )
+    assert caught.value.details["limit_name"] == "max_observation_bytes"
+    assert caught.value.details["observed"] == obs_size
+    assert _dir_bytes(checkout / ".work" / "ocapx" / "code-evidence-v1") == before
+    assert not (
+        checkout / ".work" / "ocapx" / "code-evidence-v1" / "intent.json"
+    ).exists()
+
+    _req, bundle = stage("ccap0", max_config_document_bytes=cfg_size)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="ccap0", bundle_dir=bundle
+    )
+    config_code_proof(path="config.json", config_format="json", batch_id="ccap0")
+    _req, bundle = stage("ccapx", max_config_document_bytes=cfg_size - 1)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="ccapx", bundle_dir=bundle
+    )
+    before = _dir_bytes(checkout / ".work" / "ccapx" / "code-evidence-v1")
+    with pytest.raises(CodeProofIOError) as caught:
+        config_code_proof(path="config.json", config_format="json", batch_id="ccapx")
+    assert caught.value.details["limit_name"] == "max_config_document_bytes"
+    assert caught.value.details["observed"] == cfg_size
+    assert _dir_bytes(checkout / ".work" / "ccapx" / "code-evidence-v1") == before
+
+    src_hand = "handoffs/" + hashlib.sha256(b"src.py").hexdigest() + ".json"
+    hand_max = max(hand_size, len((ns / src_hand).read_bytes()))
+    _req, bundle = stage("hcap0", max_handoff_bytes=hand_max)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="hcap0", bundle_dir=bundle
+    )
+    handoff_code_proof(batch_id="hcap0")
+    _req, bundle = stage("hcapx", max_handoff_bytes=hand_size - 1)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="hcapx", bundle_dir=bundle
+    )
+    before = _dir_bytes(checkout / ".work" / "hcapx" / "code-evidence-v1")
+    with pytest.raises(CodeProofIOError) as caught:
+        handoff_code_proof(batch_id="hcapx")
+    assert caught.value.details["limit_name"] == "max_handoff_bytes"
+    assert caught.value.details["observed"] == hand_size
+    assert _dir_bytes(checkout / ".work" / "hcapx" / "code-evidence-v1") == before

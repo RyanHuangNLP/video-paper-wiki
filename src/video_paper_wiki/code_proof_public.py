@@ -12,7 +12,11 @@ from video_paper_wiki.code_evidence_contracts import (
     code_text_metadata,
     normalize_code_bytes,
 )
-from video_paper_wiki.code_git_objects import CodeGitProofError, verify_code_git_objects
+from video_paper_wiki.code_git_objects import (
+    CodeGitProofError,
+    git_object_ids,
+    verify_code_git_objects,
+)
 from video_paper_wiki.code_proof_io import CodeProofIOError, open_code_session
 from video_paper_wiki.code_proof_resources import (
     CodeProofResourceError,
@@ -449,6 +453,12 @@ def _parse_json_bytes(payload, pointer):
         _json_invalid(pointer, "utf8")
     if text.startswith("\ufeff"):
         _json_invalid(pointer, "bom")
+    start = 0
+    length = len(text)
+    while start < length and text[start] in " \t\n\r":
+        start += 1
+    if start >= length:
+        _json_invalid(pointer, "syntax")
     decoder = json.JSONDecoder(
         object_pairs_hook=_pairs,
         parse_float=_parse_float,
@@ -457,16 +467,21 @@ def _parse_json_bytes(payload, pointer):
         strict=True,
     )
     try:
-        parsed, index = decoder.raw_decode(text)
+        parsed, index = decoder.raw_decode(text, start)
     except _JsonFail as exc:
         _json_invalid(pointer, exc.reason)
+    except RecursionError:
+        _json_invalid(pointer, "depth")
     except json.JSONDecodeError:
         _json_invalid(pointer, "syntax")
     trailing = text[index:]
     for char in trailing:
         if char not in " \t\n\r":
             _json_invalid(pointer, "trailing")
-    _walk_json(parsed, pointer)
+    try:
+        _walk_json(parsed, pointer)
+    except RecursionError:
+        _json_invalid(pointer, "depth")
     return parsed
 
 
@@ -1009,22 +1024,24 @@ def _normalized_targets(value, pointer, request_data, limits):
     return rows
 
 
-def _validate_observe_input(parsed, request_data, limits):
+def _validate_observe_input(parsed, request_data, limits, pointer=""):
     rec = _object(
         parsed,
-        "",
+        pointer,
         ("mode", "observed_at", "executor", "hosting_assertion"),
         optional=("targets",),
     )
-    mode = _str(rec["mode"], "/mode")
+    mode = _str(rec["mode"], pointer + "/mode")
     if mode != "git_objects" and mode != "normalized_text":
-        _document("/mode", "enum")
-    observed_at = _datetime(rec["observed_at"], "/observed_at")
-    executor = _executor(rec["executor"], "/executor")
-    hosting = _hosting(rec["hosting_assertion"], "/hosting_assertion", request_data)
+        _document(pointer + "/mode", "enum")
+    observed_at = _datetime(rec["observed_at"], pointer + "/observed_at")
+    executor = _executor(rec["executor"], pointer + "/executor")
+    hosting = _hosting(
+        rec["hosting_assertion"], pointer + "/hosting_assertion", request_data
+    )
     if mode == "git_objects":
         if "targets" in rec:
-            _document("", "shape")
+            _document(pointer, "shape")
         return {
             "mode": "git_objects",
             "observed_at": observed_at,
@@ -1032,8 +1049,10 @@ def _validate_observe_input(parsed, request_data, limits):
             "hosting_assertion": hosting,
         }
     if "targets" not in rec:
-        _document("/targets", "shape")
-    targets = _normalized_targets(rec["targets"], "/targets", request_data, limits)
+        _document(pointer + "/targets", "shape")
+    targets = _normalized_targets(
+        rec["targets"], pointer + "/targets", request_data, limits
+    )
     return {
         "mode": "normalized_text",
         "observed_at": observed_at,
@@ -1095,11 +1114,72 @@ def _parse_saved(session, payload, kind, pointer):
         session.validate_structure(_KINDS[kind], rec)
     except CodeProofStructureError:
         _document(pointer, "shape")
+    if kind == "code-proof-request":
+        rec["data"] = _validate_saved_request_data(session, rec["data"], pointer)
     return rec, _reference(payload, ident)
 
 
+def _validate_saved_request_data(session, data, pointer):
+    rec = _object(
+        data,
+        pointer,
+        (
+            "paper_id",
+            "source_association",
+            "repository",
+            "object_format",
+            "commit_oid",
+            "targets",
+            "require_repository_assertion",
+            "limits",
+            "profile_sha256",
+        ),
+    )
+    paper_id = _paper_id(rec["paper_id"], pointer + "/paper_id")
+    association = _association(
+        rec["source_association"], pointer + "/source_association"
+    )
+    repository = _repository_saved(rec["repository"], pointer + "/repository")
+    object_format = _object_format(rec["object_format"], pointer + "/object_format")
+    commit_oid = _oid(rec["commit_oid"], pointer + "/commit_oid", object_format)
+    require = _bool(
+        rec["require_repository_assertion"],
+        pointer + "/require_repository_assertion",
+    )
+    hard = _materialize(session, None, pointer + "/limits")
+    limits = _limits_map(rec["limits"], pointer + "/limits", hard)
+    limits = _materialize(session, limits, pointer + "/limits")
+    if limits != rec["limits"]:
+        _document(pointer + "/limits", "limits")
+    max_targets = limits["git"]["max_targets"]
+    targets = _request_targets(rec["targets"], pointer + "/targets", max_targets)
+    profile = _sha256(rec["profile_sha256"], pointer + "/profile_sha256")
+    rebuilt = {
+        "paper_id": paper_id,
+        "source_association": association,
+        "repository": repository,
+        "object_format": object_format,
+        "commit_oid": commit_oid,
+        "targets": targets,
+        "require_repository_assertion": require,
+        "limits": limits,
+        "profile_sha256": profile,
+    }
+    if rebuilt != rec:
+        _document(pointer, "canonical_bytes")
+    if profile != session.profile_sha256:
+        _binding(pointer + "/profile_sha256", "profile")
+    return rebuilt
+
+
 def _path_key(path):
-    return hashlib.sha256(path.encode("ascii")).hexdigest() + ".json"
+    if type(path) is not str:
+        _document("/path", "type")
+    try:
+        encoded = path.encode("ascii")
+    except UnicodeEncodeError:
+        _document("/path", "path")
+    return hashlib.sha256(encoded).hexdigest() + ".json"
 
 
 def _stored_body(batch_id, oid):
@@ -1318,6 +1398,39 @@ def _objects_prefix(expected_oids, snapshot):
         else:
             seen_missing = True
     return True, present
+
+
+def _bind_present_bodies(bundle_data, present_oids, snapshot):
+    by_oid = {}
+    for record in bundle_data["objects"]:
+        by_oid[record["oid"]] = record
+    object_format = bundle_data["object_format"]
+    for oid in present_oids:
+        name = "objects/" + oid + ".body"
+        payload = snapshot[name]
+        record = by_oid[oid]
+        if type(payload) is not bytes:
+            _binding("/objects", "raw_body")
+        if (
+            type(record.get("body_size_bytes")) is not int
+            or len(payload) != record["body_size_bytes"]
+        ):
+            _binding("/objects", "raw_body")
+        digest = hashlib.sha256(payload).hexdigest()
+        if digest != record.get("body_sha256"):
+            _binding("/objects", "raw_body")
+        try:
+            got_oid, body_sha, framed_sha = git_object_ids(
+                object_format, record["object_type"], payload
+            )
+        except (CodeGitProofError, KeyError, TypeError):
+            _binding("/objects", "raw_body")
+        if (
+            got_oid != oid
+            or body_sha != record.get("body_sha256")
+            or framed_sha != record.get("framed_sha256")
+        ):
+            _binding("/objects", "raw_body")
 
 
 def _handoff_prefix(paths, snapshot):
@@ -1732,7 +1845,17 @@ def _inspect(session, batch_id):
     )
     intent_data = intent_env["data"]
     _bind_ref(intent_data["request"], request_ref, "/intent/request", "request")
+    acquisition = _validate_observe_input(
+        intent_data["acquisition"],
+        request_data,
+        request_data["limits"],
+        "/intent/acquisition",
+    )
+    if acquisition != intent_data["acquisition"]:
+        _document("/intent/acquisition", "canonical_bytes")
     mode = intent_data["mode"]
+    if mode != acquisition["mode"]:
+        _document("/intent/mode", "shape")
     view["intent_env"] = intent_env
     view["intent_ref"] = intent_ref
     view["intent_data"] = intent_data
@@ -1800,10 +1923,17 @@ def _inspect(session, batch_id):
     view["bundle_env"] = bundle_env
     view["bundle_ref"] = bundle_ref
     view["bundle_data"] = bundle_data
+    previous_oid = None
+    for index, record in enumerate(bundle_data["objects"]):
+        oid = record["oid"]
+        if previous_oid is not None and oid <= previous_oid:
+            _document("/bundle/objects/" + str(index) + "/oid", "target_order")
+        previous_oid = oid
     expected_oids = [record["oid"] for record in bundle_data["objects"]]
     prefix_ok, present_oids = _objects_prefix(expected_oids, snapshot)
     if not prefix_ok:
         _state("/objects", "nonprefix_objects")
+    _bind_present_bodies(bundle_data, present_oids, snapshot)
     complete_objects = present_oids == expected_oids
     if not has_observation:
         if config_names or handoff_names or families["configs"] or families["handoffs"]:
@@ -2023,6 +2153,7 @@ def request_code_proof(*, input_path, batch_id):
         raw = session.retain_input(input_path, maximum=65536)
         parsed = _parse_json_bytes(raw, "/input")
         data = _validate_request_input(session, parsed)
+        _inspect(session, batch_id)
         _ensure_limits(session, data["limits"])
         envelope, saved, ref = _seal("code-proof-request", data)
         _check_size(
@@ -2211,6 +2342,7 @@ def config_code_proof(*, path, config_format, batch_id):
     _require_kw_str(batch_id, "/batch_id")
     if config_format not in ("json", "toml", "source-only"):
         _document("/format", "enum")
+    _git_path(path, "/path")
     with open_code_session(batch_id=batch_id) as session:
         snap = session.snapshot()
         if "request.json" not in snap:

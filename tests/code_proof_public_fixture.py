@@ -24,6 +24,49 @@ JSON_BODY = b'{"name":"demo"}\n'
 TOML_BODY = b'name = "demo"\n'
 SRC_BODY = b"print(1)\n"
 README_BODY = b"# demo\n"
+OUTPUT_LIMITS = {
+    "max_request_bytes": 65536,
+    "max_intent_bytes": 1048576,
+    "max_bundle_bytes": 1048576,
+    "max_observation_bytes": 2097152,
+    "max_config_document_bytes": 2097152,
+    "max_handoff_bytes": 131072,
+    "max_output_peak_bytes": 134217728,
+}
+HARD_LIMITS = {
+    "git": {
+        "max_targets": 32,
+        "max_objects": 2048,
+        "max_tree_entries": 32768,
+        "max_object_bytes": 8388608,
+        "max_total_object_bytes": 33554432,
+    },
+    "config": {
+        "max_source_bytes": 262144,
+        "max_depth": 32,
+        "max_nodes": 1024,
+        "max_array_items": 256,
+        "max_object_keys": 1024,
+        "max_key_bytes": 256,
+        "max_string_codepoints": 16384,
+        "max_scalars": 512,
+        "max_numeric_lexeme_bytes": 128,
+        "max_numeric_coefficient_digits": 64,
+        "max_numeric_abs_exponent": 128,
+        "max_numeric_canonical_bytes": 256,
+        "max_declarations": 4096,
+    },
+    "public": {
+        "max_bundle_bytes": 1048576,
+        "max_inline_normalized_bytes": 16384,
+        "max_request_bytes": 65536,
+        "max_intent_bytes": 1048576,
+        "max_observation_bytes": 2097152,
+        "max_config_document_bytes": 2097152,
+        "max_handoff_bytes": 131072,
+        "max_output_peak_bytes": 134217728,
+    },
+}
 
 
 def make_checkout(path: Path) -> Path:
@@ -255,19 +298,20 @@ def write_bundle(checkout: Path, relative: str, repo: dict, request_ref: dict) -
     return relative
 
 
+def public_limits(**public_overrides):
+    copied = {
+        "git": dict(HARD_LIMITS["git"]),
+        "config": dict(HARD_LIMITS["config"]),
+        "public": dict(HARD_LIMITS["public"]),
+    }
+    copied["public"].update(public_overrides)
+    return copied
+
+
 def copy_outputs(src_batch: str, dst_batch: str, names: list[str]) -> None:
     src_ns = Path(".work") / src_batch / "code-evidence-v1"
-    limits = {
-        "max_request_bytes": 65536,
-        "max_intent_bytes": 1048576,
-        "max_bundle_bytes": 1048576,
-        "max_observation_bytes": 2097152,
-        "max_config_document_bytes": 2097152,
-        "max_handoff_bytes": 131072,
-        "max_output_peak_bytes": 134217728,
-    }
     with open_code_session(batch_id=dst_batch) as session:
-        session.set_output_limits(limits)
+        session.set_output_limits(dict(OUTPUT_LIMITS))
         for name in names:
             session.install(name, (src_ns / name).read_bytes())
 
@@ -288,5 +332,12 @@ def run_module_cli(checkout: Path, argv: list[str]) -> subprocess.CompletedProce
 
 def parse_envelope(proc: subprocess.CompletedProcess[str]) -> dict:
     lines = [line for line in proc.stdout.splitlines() if line.strip()]
-    assert len(lines) == 1, proc.stdout
+    assert len(lines) == 1, proc.stdout + proc.stderr
     return json.loads(lines[0])
+
+
+def nested_json_object(depth: int) -> bytes:
+    text = "1"
+    for _ in range(depth):
+        text = '{"k":' + text + "}"
+    return text.encode("ascii") + b"\n"
