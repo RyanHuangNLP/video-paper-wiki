@@ -1206,6 +1206,20 @@ class _CodeSession:
         key = parent.key + (name,)
         existing = self._by_key.get(key)
         if existing is not None:
+            if output_dir or output_file or resource_file or input_file:
+                existing.role = role
+                existing.group = group
+            if existing.first_kind == "stat" and existing.first_stat is not None:
+                self._apply_observe_policy(
+                    existing,
+                    existing.first_stat,
+                    want_dir=want_dir,
+                    want_file=want_file,
+                    output_dir=output_dir,
+                    output_file=output_file,
+                    resource_file=resource_file,
+                    input_file=input_file,
+                )
             if open_it and existing.fd is None and existing.first_kind == "stat":
                 self._open_existing(existing, want_dir=want_dir, want_file=want_file)
             return existing
@@ -1248,6 +1262,36 @@ class _CodeSession:
                 raise
         else:
             node.first_stamp = (st.st_dev, st.st_ino, st.st_mode)
+        self._apply_observe_policy(
+            node,
+            st,
+            want_dir=want_dir,
+            want_file=want_file,
+            output_dir=output_dir,
+            output_file=output_file,
+            resource_file=resource_file,
+            input_file=input_file,
+        )
+        if not open_it:
+            return node
+        self._open_existing(node, want_dir=want_dir, want_file=want_file)
+        return node
+
+    def _apply_observe_policy(
+        self,
+        node,
+        st,
+        *,
+        want_dir=False,
+        want_file=False,
+        output_dir=False,
+        output_file=False,
+        resource_file=False,
+        input_file=False,
+    ):
+        is_dir = _is_dir_mode(st.st_mode)
+        is_reg = _is_reg_mode(st.st_mode)
+        group = node.group
         if want_dir and not is_dir:
             self._raise(
                 "WORK_PATH_UNSAFE",
@@ -1306,10 +1350,6 @@ class _CodeSession:
                     operation="stat",
                     group=group,
                 )
-        if not open_it:
-            return node
-        self._open_existing(node, want_dir=want_dir, want_file=want_file)
-        return node
 
     def _open_existing(self, node, *, want_dir=False, want_file=False):
         if node.fd is not None or node.parent is None or node.parent.fd is None:
@@ -2781,15 +2821,6 @@ class _CodeSession:
                     limit=git["max_object_bytes"],
                     observed=size,
                 )
-            total += size
-            if total > git["max_total_object_bytes"]:
-                self._raise(
-                    "CODE_PROOF_LIMIT_EXCEEDED",
-                    instance_pointer="/objects",
-                    limit_name="max_total_object_bytes",
-                    limit=git["max_total_object_bytes"],
-                    observed=total,
-                )
             filename = record["oid"] + ".body"
             node = self._observe_child(
                 parent,
@@ -2801,6 +2832,15 @@ class _CodeSession:
                 input_file=True,
             )
             payload = self._read_fd(node, git["max_object_bytes"], group="bundle")
+            total += len(payload)
+            if total > git["max_total_object_bytes"]:
+                self._raise(
+                    "CODE_PROOF_LIMIT_EXCEEDED",
+                    instance_pointer="/objects",
+                    limit_name="max_total_object_bytes",
+                    limit=git["max_total_object_bytes"],
+                    observed=total,
+                )
             bodies[record["oid"]] = payload
         self._bundle_bodies = dict(bodies)
         self._phase = "idle"
@@ -3071,14 +3111,11 @@ class _CodeSession:
             )
         target = self._by_key.get(parent.key + (base,))
         if target is not None and target.first_kind == "stat" and target.authorized_stamp is None:
-            if target.first_kind == "absent":
-                pass
-            else:
-                self._raise(
-                    "WORK_PATH_UNSAFE",
-                    reason="late_arrival",
-                    group="installation",
-                )
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="late_arrival",
+                group="installation",
+            )
         self._install.parent_node = parent
         temp_name = ".ce-tmp-" + os.urandom(16).hex()
         self._install.temp_name = temp_name
@@ -3326,19 +3363,20 @@ class _CodeSession:
                     errno=errn,
                     group="installation",
                 )
-            try:
-                after = _stat(base, dir_fd=parent.fd, follow_symlinks=False)
-            except OSError:
-                self._raise(
-                    "CODE_PROOF_IO_ERROR",
-                    reason="syscall_failed",
-                    operation="unlink",
-                    errno=errn,
-                    group="installation",
-                )
-            if after.st_nlink == 1 and _is_reg_mode(after.st_mode):
-                self._install.cleaned_prefix = True
-                self._install.phase = "cleaned"
+            final_st = self._require_final_matches_temp_fd(
+                parent,
+                base,
+                fd,
+                nlink=1,
+            )
+            self._mark_cleaned_prefix(
+                parent,
+                base,
+                temp_name,
+                payload,
+                final_node,
+                final_st,
+            )
             self._raise(
                 "CODE_PROOF_IO_ERROR",
                 reason="syscall_failed",
@@ -3357,27 +3395,20 @@ class _CodeSession:
                 reason="temp_ownership_lost",
                 group="installation",
             )
-        try:
-            final_st = _stat(base, dir_fd=parent.fd, follow_symlinks=False)
-        except OSError as exc:
-            self._raise(
-                "WORK_PATH_UNSAFE",
-                reason="syscall_failed",
-                operation="stat",
-                errno=_errno_of(exc),
-                group="installation",
-            )
-        if final_st.st_nlink != 1:
-            self._raise(
-                "WORK_PATH_UNSAFE",
-                reason="link_count",
-                group="installation",
-            )
-        self._install.phase = "cleaned"
-        self._phase = "cleaned"
-        self._install.cleaned_prefix = True
-        stamp = _file_stamp(final_st)
-        final_node.authorized_stamp = stamp
+        final_st = self._require_final_matches_temp_fd(
+            parent,
+            base,
+            fd,
+            nlink=1,
+        )
+        self._mark_cleaned_prefix(
+            parent,
+            base,
+            temp_name,
+            payload,
+            final_node,
+            final_st,
+        )
         try:
             opened = _open(base, self._file_flags, dir_fd=parent.fd)
         except OSError as exc:
@@ -3388,16 +3419,28 @@ class _CodeSession:
                 errno=_errno_of(exc),
                 group="installation",
             )
+        try:
+            opened_st = _fstat(opened)
+        except OSError as exc:
+            self._raise(
+                "CODE_PROOF_IO_ERROR",
+                reason="syscall_failed",
+                operation="fstat",
+                errno=_errno_of(exc),
+                group="installation",
+            )
+        if (
+            opened_st.st_dev != final_st.st_dev
+            or opened_st.st_ino != final_st.st_ino
+        ):
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="edge_changed",
+                operation="fstat",
+                group="installation",
+            )
         final_node.fd = self._track_fd(opened)
         final_node.payload = payload
-        for scan in self._scans:
-            if scan.parent is parent:
-                scan.additions.discard(temp_name)
-                scan.additions.add(base)
-                scan.removals.discard(base)
-        self._current_files[relative_name] = payload
-        self._logical_bytes += len(payload)
-        self._install.owned_temp = False
         err = self._verify_full_result(isolate=False)
         if err is not None:
             raise err from None
@@ -3417,6 +3460,96 @@ class _CodeSession:
         self._install.phase = "durable"
         self._phase = "durable"
 
+    def _require_final_matches_temp_fd(self, parent, base, temp_fd, *, nlink):
+        try:
+            fst = _fstat(temp_fd)
+        except OSError as exc:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="syscall_failed",
+                operation="fstat",
+                errno=_errno_of(exc),
+                group="installation",
+            )
+        try:
+            final_st = _stat(base, dir_fd=parent.fd, follow_symlinks=False)
+        except OSError as exc:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="syscall_failed",
+                operation="stat",
+                errno=_errno_of(exc),
+                group="installation",
+            )
+        if not _is_reg_mode(final_st.st_mode) or not _is_reg_mode(fst.st_mode):
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="unsafe_type",
+                group="installation",
+            )
+        if (
+            final_st.st_dev != fst.st_dev
+            or final_st.st_ino != fst.st_ino
+        ):
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="edge_changed",
+                group="installation",
+            )
+        if fst.st_nlink != nlink or final_st.st_nlink != nlink:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="link_count",
+                group="installation",
+            )
+        if not _output_file_mode_ok(final_st.st_mode):
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="unsafe_mode",
+                group="installation",
+            )
+        return final_st
+
+    def _mark_cleaned_prefix(
+        self,
+        parent,
+        base,
+        temp_name,
+        payload,
+        final_node,
+        final_st,
+    ):
+        self._install.phase = "cleaned"
+        self._phase = "cleaned"
+        self._install.cleaned_prefix = True
+        if final_node is not None:
+            final_node.authorized_stamp = _file_stamp(final_st)
+            final_node.authorized_kind = "file"
+            final_node.first_stat = final_st
+        for scan in self._scans:
+            if scan.parent is parent:
+                if temp_name is not None:
+                    scan.additions.discard(temp_name)
+                scan.additions.add(base)
+                scan.removals.discard(base)
+        target = self._install.target
+        if type(target) is str and target not in self._current_files:
+            self._current_files[target] = payload
+            self._logical_bytes += len(payload)
+        self._install.owned_temp = False
+
+    def _temp_identity(self, record):
+        expected = None
+        if record.temp_node is not None and record.temp_node.first_stamp is not None:
+            expected = record.temp_node.first_stamp
+        if expected is None and record.temp_fd is not None:
+            try:
+                fst = _fstat(record.temp_fd)
+            except OSError:
+                return None
+            expected = (fst.st_dev, fst.st_ino)
+        return expected
+
     def _cleanup_owned_temp(self):
         record = self._install
         if not record.owned_temp or record.temp_name is None or record.parent_node is None:
@@ -3424,25 +3557,49 @@ class _CodeSession:
         parent = record.parent_node
         if parent.fd is None:
             return _Failure("temp_ownership_lost", "unlink", None, "installation")
+        expected = self._temp_identity(record)
+        if expected is None:
+            return _Failure("temp_ownership_lost", "unlink", None, "installation")
         try:
             st = _stat(record.temp_name, dir_fd=parent.fd, follow_symlinks=False)
         except OSError as exc:
             if _errno_of(exc) == errno.ENOENT:
                 record.owned_temp = False
+                for scan in self._scans:
+                    if scan.parent is parent:
+                        scan.additions.discard(record.temp_name)
                 return None
             return _Failure(
                 "syscall_failed",
                 "stat",
                 _errno_of(exc),
                 "installation",
+                lineage=False,
+                code="CODE_PROOF_IO_ERROR",
             )
-        if record.temp_node is not None and record.temp_node.first_stamp is not None:
-            current = _file_stamp(st) if _is_reg_mode(st.st_mode) else None
-            expected = record.temp_node.first_stamp
-            if current is None or current[0] != expected[0] or current[1] != expected[1]:
+        if not _is_reg_mode(st.st_mode) or st.st_dev != expected[0] or st.st_ino != expected[1]:
+            return _Failure(
+                "temp_ownership_lost",
+                "unlink",
+                None,
+                "installation",
+            )
+        if record.temp_fd is not None:
+            try:
+                fst = _fstat(record.temp_fd)
+            except OSError as exc:
+                return _Failure(
+                    "syscall_failed",
+                    "fstat",
+                    _errno_of(exc),
+                    "installation",
+                    lineage=False,
+                    code="CODE_PROOF_IO_ERROR",
+                )
+            if fst.st_dev != expected[0] or fst.st_ino != expected[1]:
                 return _Failure(
                     "temp_ownership_lost",
-                    "unlink",
+                    "fstat",
                     None,
                     "installation",
                 )
@@ -3454,7 +3611,12 @@ class _CodeSession:
                 "unlink",
                 _errno_of(exc),
                 "installation",
+                lineage=False,
+                code="CODE_PROOF_IO_ERROR",
             )
+        for scan in self._scans:
+            if scan.parent is parent:
+                scan.additions.discard(record.temp_name)
         record.owned_temp = False
         return None
 
@@ -3530,6 +3692,8 @@ class _CodeSession:
             return _Failure("late_arrival", "stat", None, node.group)
         if node.first_kind != "stat" or node.parent is None or node.parent.fd is None:
             if node.first_kind == "stat_error":
+                if node.parent is None or node.parent.fd is None:
+                    return _Failure("missing", "stat", node.first_errno, node.group)
                 try:
                     _stat(node.name, dir_fd=node.parent.fd, follow_symlinks=False)
                 except OSError as exc:
@@ -3542,6 +3706,29 @@ class _CodeSession:
                         node.group,
                     )
                 return _Failure("edge_changed", "stat", None, node.group)
+            if node.first_kind == "stat" and node.fd is not None:
+                try:
+                    fst = _fstat(node.fd)
+                except OSError as exc:
+                    return _Failure(
+                        "syscall_failed",
+                        "fstat",
+                        _errno_of(exc),
+                        node.group,
+                    )
+                expected = node.authorized_stamp or node.first_stamp
+                if node.is_dir:
+                    if expected is not None and _dir_stamp(fst) != expected:
+                        return _Failure("edge_changed", "fstat", None, node.group)
+                elif expected is not None:
+                    try:
+                        if _file_stamp(fst) != expected and not allow_temp_write:
+                            return _Failure("edge_changed", "fstat", None, node.group)
+                    except CodeProofIOError:
+                        return _Failure("edge_changed", "fstat", None, node.group)
+                if node.parent is None:
+                    return None
+                return _Failure("missing", "stat", None, node.group)
             return None
         try:
             st = _stat(node.name, dir_fd=node.parent.fd, follow_symlinks=False)
@@ -3593,6 +3780,29 @@ class _CodeSession:
                 ):
                     if not allow_temp_write:
                         return _Failure("edge_changed", "fstat", None, node.group)
+        mode_err = self._role_mode_failure(node, st)
+        if mode_err is not None:
+            return mode_err
+        return None
+
+    def _role_mode_failure(self, node, st):
+        if node.role in ("namespace", "family"):
+            if not _is_dir_mode(st.st_mode):
+                return _Failure("unsafe_type", "stat", None, node.group)
+            if not _output_dir_mode_ok(st.st_mode):
+                return _Failure("unsafe_mode", "stat", None, node.group)
+        if node.role in ("slot", "output_file"):
+            if not _is_reg_mode(st.st_mode):
+                return _Failure("unsafe_type", "stat", None, node.group)
+            if not _output_file_mode_ok(st.st_mode):
+                return _Failure("unsafe_mode", "stat", None, node.group)
+        if node.role == "bundle_manifest":
+            if not _is_reg_mode(st.st_mode):
+                return _Failure("unsafe_type", "stat", None, node.group)
+            if st.st_nlink != 1:
+                return _Failure("link_count", "stat", None, node.group)
+            if not _resource_mode_ok(st.st_mode):
+                return _Failure("unsafe_mode", "stat", None, node.group)
         return None
 
     def _check_authorized(self, node):
@@ -3671,25 +3881,36 @@ class _CodeSession:
             return _Failure("set_changed", "scandir", None, scan.group)
         return None
 
+    def _check_group_nodes(self, group, *, skip=None):
+        skipped = skip if skip is not None else ()
+        for node in self._nodes:
+            if node.group != group or node in skipped:
+                continue
+            err = self._check_named_node(
+                node,
+                allow_temp_write=(
+                    group == "installation"
+                    and self._install.phase in ("temp_created", "writing")
+                ),
+            )
+            if err is not None:
+                return err
+        return None
+
     def _check_group_names(self, group):
         if group == "checkout":
-            for node in (
-                self._root_node,
-                self._checkout_node,
-                self._git_node,
-                self._project_node,
-            ):
-                err = self._check_named_node(node)
-                if err is not None:
-                    return err
-            return None
+            return self._check_group_nodes("checkout")
         if group == "ancestors":
-            for node in (self._work_node, self._batch_node):
-                err = self._check_named_node(node)
-                if err is not None:
-                    return err
-            return None
+            return self._check_group_nodes("ancestors")
         if group == "resources":
+            record_nodes = []
+            if self._resource_records is not None:
+                for record in self._resource_records:
+                    if record.node is not None:
+                        record_nodes.append(record.node)
+            err = self._check_group_nodes("resources", skip=record_nodes)
+            if err is not None:
+                return err
             if self._resource_records is None:
                 return None
             for record in self._resource_records:
@@ -3698,12 +3919,9 @@ class _CodeSession:
                     return err
             return None
         if group == "metadata":
-            return self._check_named_node(self._input_node)
+            return self._check_group_nodes("metadata")
         if group == "bundle":
-            err = self._check_named_node(self._bundle_root)
-            if err is not None:
-                return err
-            err = self._check_named_node(self._bundle_objects_dir)
+            err = self._check_group_nodes("bundle")
             if err is not None:
                 return err
             for scan in self._scans:
@@ -3713,13 +3931,9 @@ class _CodeSession:
                         return err
             return None
         if group == "output_layout":
-            err = self._check_named_node(self._namespace_node)
+            err = self._check_group_nodes("output_layout")
             if err is not None:
                 return err
-            for name in _FAMILY_NAMES:
-                err = self._check_named_node(self._family_nodes.get(name))
-                if err is not None:
-                    return err
             for scan in self._scans:
                 if scan.group in ("output_layout", "output_files"):
                     err = self._rescan_compare(scan)
@@ -3731,17 +3945,9 @@ class _CodeSession:
                 err = self._check_named_node(self._slot_nodes.get(name))
                 if err is not None:
                     return err
-            for node in self._nodes:
-                if node.group == "output_files" and node.role == "output_file":
-                    err = self._check_named_node(node)
-                    if err is not None:
-                        return err
-            return None
+            return self._check_group_nodes("output_files")
         if group == "installation":
-            err = self._check_install_nodes()
-            if err is not None:
-                return err
-            return None
+            return self._check_install_nodes()
         return None
 
     def _check_install_nodes(self):
@@ -3761,7 +3967,31 @@ class _CodeSession:
             except OSError as exc:
                 if _errno_of(exc) == errno.ENOENT:
                     if record.final_node is not None:
-                        return self._check_named_node(record.final_node)
+                        err = self._check_named_node(record.final_node)
+                        if err is not None:
+                            return err
+                    if (
+                        record.temp_fd is not None
+                        and record.final_node is not None
+                        and record.final_node.authorized_stamp is not None
+                    ):
+                        try:
+                            fst = _fstat(record.temp_fd)
+                        except OSError as exc2:
+                            return _Failure(
+                                "syscall_failed",
+                                "fstat",
+                                _errno_of(exc2),
+                                "installation",
+                            )
+                        expected = record.final_node.authorized_stamp
+                        if fst.st_dev != expected[0] or fst.st_ino != expected[1]:
+                            return _Failure(
+                                "edge_changed",
+                                "fstat",
+                                None,
+                                "installation",
+                            )
                     return None
                 return _Failure(
                     "syscall_failed",
@@ -4009,6 +4239,7 @@ class _CodeSession:
 
     def _close_all(self):
         cleanup = None
+        interrupt = None
         for fd in reversed(list(self._fd_order)):
             try:
                 _close(fd)
@@ -4032,6 +4263,9 @@ class _CodeSession:
                         lineage=False,
                         code="CODE_PROOF_IO_ERROR",
                     )
+            except BaseException as exc:
+                if interrupt is None:
+                    interrupt = exc
         self._fd_order = []
         if self._lock_dup_fd is not None:
             try:
@@ -4056,10 +4290,23 @@ class _CodeSession:
                         lineage=False,
                         code="CODE_PROOF_IO_ERROR",
                     )
+            except BaseException as exc:
+                if interrupt is None:
+                    interrupt = exc
             self._lock_dup_fd = None
-        return cleanup
+        return cleanup, interrupt
+
+    def _clear_install_refs(self):
+        record = self._install
+        record.temp_node = None
+        record.temp_fd = None
+        record.parent_node = None
+        record.final_node = None
+        record.payload = None
+        record.temp_name = None
 
     def _clear_graph(self):
+        self._clear_install_refs()
         self._resource_context = None
         self._resource_plan = None
         self._resource_records = None
@@ -4082,6 +4329,7 @@ class _CodeSession:
         self._bundle_root = None
         self._bundle_objects_dir = None
         self._lock_fd = None
+        self._lock_dup_fd = None
         self._closed_cleared = True
 
     def _finalize(self, original):
@@ -4090,6 +4338,7 @@ class _CodeSession:
         self._state = "finalizing"
         self._phase = "final_verify"
         failures = {}
+        interrupt = None
 
         def record(group, failure):
             if failure is None:
@@ -4097,30 +4346,73 @@ class _CodeSession:
             if group not in failures:
                 failures[group] = failure
 
+        def capture_interrupt(exc):
+            nonlocal interrupt
+            if type(exc) is KeyboardInterrupt or type(exc) is SystemExit:
+                if interrupt is None:
+                    interrupt = exc
+
         groups = [group for group in _GROUPS if group in self._reached_groups]
         for group in groups:
             try:
                 failure = self._verify_group_names(group)
-            except BaseException:
+            except BaseException as exc:
+                capture_interrupt(exc)
                 failure = _Failure("edge_changed", None, None, group, lineage=True)
             record(group, failure)
             try:
                 failure = self._verify_group_bytes(group)
-            except BaseException:
+            except BaseException as exc:
+                capture_interrupt(exc)
                 failure = _Failure("bytes_changed", "read", None, group, lineage=True)
             record(group, failure)
         for group in groups:
             try:
                 failure = self._verify_group_names(group)
-            except BaseException:
+            except BaseException as exc:
+                capture_interrupt(exc)
                 failure = _Failure("edge_changed", None, None, group, lineage=True)
             record(group, failure)
         self._phase = "closing"
-        cleanup = self._cleanup_owned_temp()
-        close_err = self._close_all()
+        cleanup = None
+        try:
+            cleanup = self._cleanup_owned_temp()
+        except BaseException as exc:
+            capture_interrupt(exc)
+            if cleanup is None and type(exc) is not KeyboardInterrupt and type(exc) is not SystemExit:
+                cleanup = _Failure(
+                    "syscall_failed",
+                    "unlink",
+                    _errno_of(exc) if isinstance(exc, OSError) else None,
+                    "installation",
+                    lineage=False,
+                    code="CODE_PROOF_IO_ERROR",
+                )
+        close_err = None
+        try:
+            close_err, close_interrupt = self._close_all()
+        except BaseException as exc:
+            capture_interrupt(exc)
+            close_err = None
+            close_interrupt = exc if type(exc) is KeyboardInterrupt or type(exc) is SystemExit else None
+            if close_interrupt is None and cleanup is None:
+                cleanup = _Failure(
+                    "syscall_failed",
+                    "close",
+                    None,
+                    None,
+                    lineage=False,
+                    code="CODE_PROOF_IO_ERROR",
+                )
+        else:
+            if interrupt is None:
+                interrupt = close_interrupt
         if cleanup is None:
             cleanup = close_err
-        self._clear_graph()
+        try:
+            self._clear_graph()
+        except BaseException as exc:
+            capture_interrupt(exc)
         self._state = "closed"
         self._phase = "closing"
         lineage_groups = [
@@ -4147,6 +4439,8 @@ class _CodeSession:
             )
         elif original is not None:
             selected = original
+        elif interrupt is not None:
+            selected = interrupt
         self._final_selected = selected
         return selected
 

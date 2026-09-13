@@ -253,6 +253,21 @@ def test_closed_session_rejects_wrappers(checkout: Path) -> None:
     assert held._profiles_directory is None
     assert held._nodes == []
     assert held._fd_order == []
+    assert held._install.temp_node is None
+    assert held._install.temp_fd is None
+    assert held._install.parent_node is None
+    assert held._install.final_node is None
+    assert held._install.payload is None
+    with open_code_session(batch_id="b2") as session:
+        session.set_output_limits(_HARD_OUTPUT)
+        session.install("request.json", b"{}\n")
+        held_install = session
+    assert held_install._state == "closed"
+    assert held_install._install.temp_node is None
+    assert held_install._install.temp_fd is None
+    assert held_install._install.parent_node is None
+    assert held_install._install.final_node is None
+    assert held_install._install.payload is None
 
 
 def test_capability_missing_primitive_creates_nothing(
@@ -700,17 +715,26 @@ def test_resource_persistent_missing_overrides_hash(
     checkout = _make_checkout(tmp_path / "co")
     monkeypatch.chdir(checkout)
     real_read = io._read
-    later = "video-paper-wiki.code-acquisition-intent.v1.schema.json"
+    later_path = (
+        origin.parent.parent.parent
+        / "schemas"
+        / "video-paper-wiki.code-acquisition-intent.v1.schema.json"
+    )
+    later_st = later_path.stat()
     removed = {"done": False}
 
     def wrapped(fd, n):
         data = real_read(fd, n)
         if not removed["done"]:
             try:
-                name = os.readlink(f"/proc/self/fd/{fd}")
+                st = os.fstat(fd)
             except OSError:
-                name = ""
-            if later in name:
+                st = None
+            if (
+                st is not None
+                and st.st_ino == later_st.st_ino
+                and st.st_dev == later_st.st_dev
+            ):
                 try:
                     profile.unlink()
                 except FileNotFoundError:
@@ -1328,3 +1352,210 @@ def test_bundle_overlap_output(checkout: Path) -> None:
         with open_code_session(batch_id="b1") as session:
             session.retain_bundle_manifest(".work/b1/code-evidence-v1")
     _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="overlap", group="bundle")
+
+
+def test_input_parent_directory_replacement_is_lineage(checkout: Path) -> None:
+    parent = checkout / "in_dir"
+    parent.mkdir()
+    src = parent / "input.json"
+    src.write_bytes(b'{"a":1}\n')
+    keep = None
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            assert session.retain_input("in_dir/input.json", maximum=65536) == b'{"a":1}\n'
+            keep = os.open(parent, os.O_RDONLY)
+            aside = checkout / "in_dir_aside"
+            os.rename(parent, aside)
+            parent.mkdir()
+            (parent / "input.json").write_bytes(b'{"a":1}\n')
+            session.verify()
+    if keep is not None:
+        os.close(keep)
+    _assert_io(caught.value, "WORK_PATH_UNSAFE")
+
+
+def test_existing_namespace_requires_0700(checkout: Path) -> None:
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    ns.mkdir(parents=True)
+    os.chmod(ns, 0o755)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1"):
+            pass
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="unsafe_mode")
+
+
+def test_existing_family_requires_0700(checkout: Path) -> None:
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    fam = ns / "configs"
+    ns.mkdir(parents=True)
+    fam.mkdir()
+    os.chmod(ns, 0o700)
+    os.chmod(fam, 0o755)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1"):
+            pass
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="unsafe_mode")
+
+
+def test_bundle_manifest_unsafe_mode_on_cached_observe(checkout: Path) -> None:
+    raw = checkout / ".work" / "raw"
+    objects = raw / "objects"
+    objects.mkdir(parents=True)
+    man = raw / "manifest.json"
+    man.write_bytes(b"{}\n")
+    os.chmod(man, 0o666)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.retain_bundle_manifest(".work/raw")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="unsafe_mode")
+
+
+def test_body_total_budget_charges_actual_bytes(checkout: Path) -> None:
+    raw = checkout / ".work" / "raw"
+    objects = raw / "objects"
+    objects.mkdir(parents=True)
+    (raw / "manifest.json").write_bytes(b"{}\n")
+    body_a = b"a" * 10
+    body_b = b"b" * 10
+    (objects / (_OID_A + ".body")).write_bytes(body_a)
+    (objects / (_OID_B + ".body")).write_bytes(body_b)
+    rec_a = _object_record(_OID_A, body_a)
+    rec_b = _object_record(_OID_B, body_b)
+    rec_a["body_size_bytes"] = 1
+    rec_b["body_size_bytes"] = 1
+    lowered = dict(_HARD_GIT)
+    lowered["max_total_object_bytes"] = 15
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.retain_bundle_manifest(".work/raw")
+            session.retain_bundle_bodies(
+                object_format="sha1",
+                objects=[rec_a, rec_b],
+                limits=lowered,
+            )
+    _assert_io(
+        caught.value,
+        "CODE_PROOF_LIMIT_EXCEEDED",
+        instance_pointer="/objects",
+        limit_name="max_total_object_bytes",
+        limit=15,
+        observed=20,
+    )
+
+
+def test_unlink_failure_before_effect(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def boom(*_a, **_k):
+        raise OSError(errno.EIO, "unlink fail")
+
+    monkeypatch.setattr(io, "_unlink", boom)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "CODE_PROOF_IO_ERROR", operation="unlink")
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    assert (ns / "request.json").read_bytes() == b"{}\n"
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover != []
+
+
+def test_unlink_failure_after_effect(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = io._unlink
+
+    def wrapped(*args, **kwargs):
+        real(*args, **kwargs)
+        raise OSError(errno.EIO, "unlinked-then-raise")
+
+    monkeypatch.setattr(io, "_unlink", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "CODE_PROOF_IO_ERROR", operation="unlink")
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    assert (ns / "request.json").read_bytes() == b"{}\n"
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover == []
+    with open_code_session(batch_id="b1") as session:
+        session.set_output_limits(_HARD_OUTPUT)
+        assert session.install("request.json", b"{}\n") is True
+
+
+def test_cleanup_requires_identity_before_unlink(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real_unlink = io._unlink
+    seen = {"n": 0}
+
+    def wrapped(*args, **kwargs):
+        seen["n"] += 1
+        return real_unlink(*args, **kwargs)
+
+    monkeypatch.setattr(io, "_unlink", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+
+            def clearing(fd, data):
+                session._install.temp_node = None
+                session._install.temp_fd = None
+                raise OSError(errno.EIO, "write fail")
+
+            monkeypatch.setattr(io, "_write", clearing)
+            session.install("request.json", b"{}\n")
+    assert seen["n"] == 0
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover != []
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="temp_ownership_lost")
+
+
+def test_directory_fsync_failure_after_cleaned_then_reentry(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = io._fsync
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            def wrapped(fd):
+                if session._install.phase == "cleaned" and stat.S_ISDIR(
+                    os.fstat(fd).st_mode
+                ):
+                    raise OSError(errno.EIO, "dir fsync after cleaned")
+                return real(fd)
+
+            monkeypatch.setattr(io, "_fsync", wrapped)
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "CODE_PROOF_IO_ERROR", operation="fsync")
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    assert (ns / "request.json").read_bytes() == b"{}\n"
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover == []
+    monkeypatch.setattr(io, "_fsync", real)
+    with open_code_session(batch_id="b1") as session:
+        session.set_output_limits(_HARD_OUTPUT)
+        assert session.install("request.json", b"{}\n") is True
+
+
+def test_keyboard_interrupt_during_close_finishes_remaining(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = io._close
+    seen = []
+
+    def wrapped(fd):
+        seen.append(fd)
+        if len(seen) == 1:
+            raise KeyboardInterrupt()
+        return real(fd)
+
+    monkeypatch.setattr(io, "_close", wrapped)
+    with pytest.raises(KeyboardInterrupt):
+        with open_code_session(batch_id="b1"):
+            pass
+    assert len(seen) == len(set(seen))
+    assert len(seen) >= 2
