@@ -1,0 +1,169 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-implementation-candidate.v1",
+  "authorized_byte_delta": {
+    "blank_at_eof_check": {
+      "command": "git diff --no-index --check -- /dev/null tests/upstream/_manual_pdf_capture_fixture.py",
+      "exit_code": 1,
+      "interpretation": "exit 1 denotes the expected untracked-file diff; empty diagnostics prove no whitespace error",
+      "stderr_size_bytes": 0,
+      "stdout_size_bytes": 0
+    },
+    "description": "removed exactly the final one-byte LF from an existing two-LF terminal run",
+    "exact_relation_verified": "new_bytes == old_bytes[:-1]",
+    "new": {
+      "sha256": "43e00708c7ee77c26ed650f5cb1f1302b37d67e2ca1adba822084ce18ab225d3",
+      "size_bytes": 1484,
+      "terminal_hex": "0a"
+    },
+    "old": {
+      "sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+      "size_bytes": 1485,
+      "terminal_hex": "0a0a"
+    },
+    "path": "tests/upstream/_manual_pdf_capture_fixture.py",
+    "removed_hex": "0a"
+  },
+  "baseline": {
+    "head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "tree": "9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca"
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+      "size_bytes": 74613
+    },
+    "src/video_paper_wiki/upstream_adapter.py": {
+      "sha256": "8f54858d3e16a66167e2b98edbf2eca6c67525aa501fb85c5c6603b0b8b72adc",
+      "size_bytes": 63527
+    },
+    "tests/contract/test_upstream_capture_authority.py": {
+      "sha256": "195f353403557dfd7e52a38a8cff53bb6ac36497fc67025aa0bb57f2acac68eb",
+      "size_bytes": 3333
+    },
+    "tests/security/test_upstream_capture_boundary.py": {
+      "sha256": "ad218f3335dfdf4778cd0d6fb5d73294a4c69d63452cdfe1d7c28a2979c7b49e",
+      "size_bytes": 14043
+    },
+    "tests/unit/test_upstream_adapter_capture.py": {
+      "sha256": "ec0e9bfb03796a94b9b8cf8b4d18c625f53be32853d5b01d254639062f530188",
+      "size_bytes": 6239
+    },
+    "tests/upstream/_manual_pdf_capture_fixture.py": {
+      "sha256": "43e00708c7ee77c26ed650f5cb1f1302b37d67e2ca1adba822084ce18ab225d3",
+      "size_bytes": 1484
+    },
+    "tests/upstream/test_vpkb001_manual_pdf_capture.py": {
+      "sha256": "6e7bd265528716506ae52daa43ba5e96bc74770dfae69dcb0447cef73bd6c486",
+      "size_bytes": 5443
+    }
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "includes_raw_bytes_directly": false,
+    "previous_r2_sha256": "4ae784a1ab302c626688ef3e724ee2cd546e502c42e74b4ea8c8fd6afcb5b3f3",
+    "sha256": "c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d"
+  },
+  "correction_authority": {
+    "r1_candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate.json",
+      "sha256": "14070f9dc7985a52dde69ba5074553664bc4823d1ca509ebd9c8c4e51686f6a8",
+      "size_bytes": 8069
+    },
+    "r1_work_package_archive": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package-r1.json",
+      "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+      "size_bytes": 20794
+    },
+    "r2_architect_acceptance_preflight_archive": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-local-acceptance-preflight-r2.json",
+      "sha256": "fc5dcfb9ef2173feb5678eae3d514874a9e42a409e11cdd2664a6ba1c2d018af",
+      "size_bytes": 10636
+    },
+    "r2_candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate-r2.json",
+      "sha256": "4b1fb44c43691c92b04f3a0443e18c06308aa27d211f8e810485a69d042939b5",
+      "size_bytes": 8057
+    },
+    "r2_delivery_candidate_preflight_archive": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate-preflight-r2.json",
+      "sha256": "8c5744df77f9b79a5cdd4d269311438a8e60349942b70f98e08991a243887dee",
+      "size_bytes": 15258
+    },
+    "revision_2_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json",
+      "sha256": "bab6c7fcf0691d15dfb0056712404daa6e67c0046c1c75ca25a1459e9ad9c522",
+      "size_bytes": 25490
+    },
+    "steward_delivery_r2": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-delivery-review-r2.json",
+      "sha256": "6dc1d437af63172a804f23cacb3e3c1c17948df91f77fd5c168894c01261a24a",
+      "size_bytes": 6303
+    }
+  },
+  "limitations": [
+    "Python 3.12 full suite, installed-wheel verification, independent review and final Architect acceptance remain separate acceptance work.",
+    "The probe uses disposable /private/tmp Vaults and does not authorize apply, real Vault use, network, models, mapper, ledger merge or publication."
+  ],
+  "revision": 3,
+  "scope_verification": {
+    "fixture_only_source_test_delta": true,
+    "git_branch_remote_pr_mutated": false,
+    "git_index_empty": true,
+    "protected_content_preserved": true,
+    "six_other_candidate_files_match_r2_hash_and_size": true
+  },
+  "status": "builder_candidate_local_only",
+  "tests": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/unit/test_upstream_adapter_capture.py tests/contract/test_upstream_capture_authority.py tests/security/test_upstream_capture_boundary.py tests/upstream/test_vpkb001_manual_pdf_capture.py tests/unit/test_upstream_adapter.py tests/contract/test_upstream_authority.py tests/security/test_upstream_adapter_boundary.py tests/upstream/test_vpkb001_transaction_inspect.py tests/contract/test_schemas.py tests/contract/test_capture_contracts.py --basetemp=<PRIVATE_TMP>/t --junitxml=<PRIVATE_TMP>/focused.xml",
+      "duration_seconds": 10.51,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpm-r3-focus313/focused.xml",
+        "sha256": "7424af3e5dec5e155ec2f7110bdc56146d560193dd23502479234dc69630767e",
+        "size_bytes": 51909
+      },
+      "log": {
+        "path": "/private/tmp/vpm-r3-focus313/focused.log",
+        "sha256": "9a84bd17818ed2c7d4f7e36c6392114aa485f91bc43b9423acc92e4dfcb6c167",
+        "size_bytes": 421
+      },
+      "name": "focused_required_ten_files",
+      "passed": 342,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 342
+    },
+    {
+      "cases": 6,
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 .venv/bin/python /private/tmp/vpm-steward-r1-probes.py",
+      "exit_code": 0,
+      "name": "real_pinned_create_noop_and_four_identity_replacements",
+      "python": "3.13.13",
+      "result": {
+        "path": "/private/tmp/vpm-r3-probe/probe.json",
+        "sha256": "0762713d92eea1725beeef231509d8a43951fc3cce4bb7ca482270794359e432",
+        "size_bytes": 956
+      },
+      "result_summary": {
+        "equal_sibling_inode_replacement": "sanitized UPSTREAM_CONTRACT_MISMATCH",
+        "private_root_execution_scratch_replacements": "all sanitized UPSTREAM_CONTRACT_MISMATCH",
+        "real_create": "accepted dry-run and Vault unchanged",
+        "real_noop": "accepted noop and Vault unchanged"
+      },
+      "runner": {
+        "path": "/private/tmp/vpm-steward-r1-probes.py",
+        "sha256": "43f4fbfcb31a0577d3a6adc33e0065d602cf549fbd743f7ec0a31cf4c6b9a879",
+        "size_bytes": 4640
+      },
+      "stderr": {
+        "path": "/private/tmp/vpm-r3-probe/probe.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      }
+    }
+  ],
+  "unresolved_contract_blockers": []
+}

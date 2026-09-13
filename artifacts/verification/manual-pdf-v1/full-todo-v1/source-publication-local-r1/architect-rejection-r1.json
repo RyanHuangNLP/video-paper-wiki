@@ -1,0 +1,17 @@
+{
+  "schema": "video-paper-wiki.source-publication-candidate-rejection.v1",
+  "recorded_at_utc": "2026-09-09T05:31:43.578977+00:00",
+  "candidate_sha256": "67e0daeb27d89c057c7b43d4d87fea9431a0923d245d06232e10aa53af284b62",
+  "snapshot_sha256": "6d4e89c7b8cefcfac6910ec984248fbb7736fcfef0a0b9ba13860cac16086204",
+  "decision": "REJECTED_R1_PUBLISHED_AT_COMPATIBILITY",
+  "finding": {
+    "path": "src/video_paper_wiki/source_state.py",
+    "sha256": "1bdee3ea91637eafc0e2a46b00418ab4f23beffd6350f17f417c951b0824b6b8",
+    "trigger": "A valid v1 or v2 paper record with published_at=2026-09-09T00:00:00Z",
+    "observed": "validate_document accepts the existing date-or-UTC-timestamp schema union, but validate_payload_documents rejects SCHEMA_INVALID at published_at because _document always invokes date-only calendar validation.",
+    "required_fix": "Choose the already-schema-validated date or UTC timestamp branch and preserve both accepted spellings; keep Gregorian validity and all UTC precision limits. Add v1/v2 date, whole/fractional UTC positive checks and impossible-date negative checks in the existing allowed source-state test path."
+  },
+  "source_frozen_while_full_runs_finish": true,
+  "old_evidence_preserved": true,
+  "remote_delivery_authorized": false
+}

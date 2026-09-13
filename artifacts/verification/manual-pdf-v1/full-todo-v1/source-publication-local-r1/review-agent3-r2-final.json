@@ -1,0 +1,98 @@
+{
+  "$schema": "full-todo.source-publication-local-review-agent3-r2-final.v1",
+  "packet": "SOURCE-PUBLICATION",
+  "revision": "R2-final-diff-review",
+  "recorded_at_utc": "2026-09-09T05:37:34Z",
+  "role": "Independent local implementation reviewer",
+  "reviewer": "Codex",
+  "scope": "Bounded successor review of the frozen R2 source-publication candidate. This review checks the exact 27-path candidate manifest against the frozen isolated source tree, verifies the four authorized R2 repairs against their R1 hashes, and runs the 16 new date/error-preservation regression cases plus the existing focused source-publication/state suites. No production Vault, Git, network, operator, or human-gate mutation was performed.",
+  "decision": "GO_FOR_ROOT_LOCAL_ACCEPTANCE_PENDING_ROOT_FULL_SUITES",
+  "baseline": {
+    "source_root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "baseline_head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "candidate": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/local-candidate-r2.json",
+      "sha256": "5ad4596b9e108eda54c29bf6d231fd1dc66a60a03fb6bab1af865b7d79744402",
+      "snapshot_sha256": "443d2cf980dd74aee8be235cac40d09e55de84e700697698c35d02ef392d21fb",
+      "status": "r2-frozen-pending-independent-review-full-tests-and-wheel",
+      "source_writes_stopped": true
+    },
+    "prior_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/review-agent3-r2.json",
+      "role": "immutable prior R2 implementation review"
+    },
+    "prior_supplemental": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/review-agent3-r2-supplemental.json",
+      "role": "immutable transport/no-op supplemental review"
+    }
+  },
+  "manifest_check": {
+    "candidate_file_count": 27,
+    "missing_paths": [],
+    "mismatched_paths": [],
+    "current_tree_matches_candidate": true,
+    "r1_to_r2_path_set_added": [],
+    "r1_to_r2_path_set_removed": [],
+    "authorized_changed_paths": [
+      "src/video_paper_wiki/source_publication_contracts.py",
+      "src/video_paper_wiki/source_state.py",
+      "tests/contract/test_source_publication_contracts.py",
+      "tests/unit/test_source_state.py"
+    ],
+    "unauthorized_changed_paths": [],
+    "changed_path_before_after": [
+      {
+        "path": "src/video_paper_wiki/source_publication_contracts.py",
+        "r1_sha256": "5f85b5a583d116d6c9ea81057661abe4a6d06ce77270e0dc3efacb511e301c5a",
+        "r2_sha256": "c18020822baffce8124fb6786a5bd6c4eacb055efab2f1e963fc9b669bdc67a2"
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "r1_sha256": "1bdee3ea91637eafc0e2a46b00418ab4f23beffd6350f17f417c951b0824b6b8",
+        "r2_sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d"
+      },
+      {
+        "path": "tests/contract/test_source_publication_contracts.py",
+        "r1_sha256": "c3eef09b3378f796e176884e58da34e93b5f52826d3108229a7d5246db9f33fb",
+        "r2_sha256": "b2bdccef1178519693db9cf2efec8ccb8b9000871ad9654065ac25f5fcf3dcd4"
+      },
+      {
+        "path": "tests/unit/test_source_state.py",
+        "r1_sha256": "013476e709a9aa98bb65f9f88893d21462ad753731ad4d6fa811542254f1cb08",
+        "r2_sha256": "c654582ea302047dc6191045846fb3d462e99ea26de52fab1d5e7769ee6ea401"
+      }
+    ]
+  },
+  "repair_verification": [
+    {
+      "id": "PUBLISHED-AT-GRAMMAR",
+      "status": "pass",
+      "evidence": "source_state._document now passes timestamp=False only for a ten-character date; UTC timestamp values, including fractional seconds, use timestamp=True. The v1 and v2 paper-record schema unions remain accepted, while invalid dates, invalid clock values and over-precision remain rejected."
+    },
+    {
+      "id": "PARSE-JSON-ERROR-PRESERVATION",
+      "status": "pass",
+      "evidence": "source_publication_contracts.parse_json now re-raises ContractError before the broad ValueError family. SOURCE_SEMANTICS_LIMIT remains observable for bounded-tree overflow, and schema ContractError code/message/details/exit_code match direct validation. SecureIOError conversion remains separate."
+    }
+  ],
+  "verification": {
+    "new_r2_regressions": {
+      "command": "PYTHONPATH=src:.:vendor/claude-obsidian /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -m pytest -q tests/contract/test_source_publication_contracts.py::test_json_node_limit_preserves_its_specific_error_code tests/contract/test_source_publication_contracts.py::test_json_contract_error_preserves_original_details tests/unit/test_source_state.py::test_published_date_retains_both_existing_schema_branches tests/unit/test_source_state.py::test_published_dates_still_require_real_calendar_and_utc_precision",
+      "result": "16 passed in 0.14s",
+      "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python"
+    },
+    "focused_source_publication_and_state": {
+      "command": "PYTHONPATH=src:.:vendor/claude-obsidian /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -m pytest -q tests/contract/test_source_publication_contracts.py tests/unit/test_source_publication.py tests/unit/test_source_state.py tests/upstream/test_source_publication.py",
+      "result": "143 passed in 58.73s",
+      "python": "/Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python"
+    },
+    "prior_r2_dynamic_and_focused_evidence": "Retained from review-agent3-r2.json: registration exact/cross-pair/wrong-mode, staged bad-digest/valid-install/directory-replacement probes passed; prior focused source-publication/state suite passed 144 tests before this R2-only four-path repair. This successor does not relabel those prior results as a new dynamic run."
+  },
+  "findings": [],
+  "limitations": [
+    "This is an independent bounded diff review of the frozen R2 candidate. Root's broader full suites, installed-wheel parity, exact commit/CI and Architect acceptance remain separate gates.",
+    "No real Vault, vpwiki-admin, operator apply, remote CI, merge or human gate was performed.",
+    "The source worktree is uncommitted; the candidate and source snapshot hashes above are the binding evidence for this review."
+  ],
+  "implementation_gate": "GO for root local acceptance of the exact R2 candidate after its remaining full-suite and wheel checks; no delivery or human acceptance is implied."
+}

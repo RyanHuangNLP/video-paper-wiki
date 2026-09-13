@@ -1,0 +1,80 @@
+{
+  "$schema": "full-todo.source-publication-local-review-agent3-r2-supplemental.v1",
+  "packet": "SOURCE-PUBLICATION",
+  "review_revision": "R4-local-implementation-independent-agent3-r2-supplemental",
+  "recorded_at_utc": "2026-09-09T05:40:00Z",
+  "decision": "NO_REMAINING_BLOCKER_FOUND",
+  "scope": "Bounded read-only supplemental check requested before freeze. It tests whether a hand-crafted canonical empty knowledge request can bypass the required no_change behavior and checks complete write/read/path transport limits through the existing bundle encoder and _transport_limits size guard. No production source, Vault, Git, network, operator, or human-gate mutation was performed.",
+  "source_root": ".work/parallel/source-publication-v1/terminal-1/source",
+  "source_hashes": [
+    {"path": "src/video_paper_wiki/source_publication.py", "sha256": "28107980dfce8f5016f10f594d21843dd9c937d2cde0d605af0d82f5e0ae4c50"},
+    {"path": "src/video_paper_wiki/source_publication_contracts.py", "sha256": "5f85b5a583d116d6c9ea81057661abe4a6d06ce77270e0dc3efacb511e301c5a"},
+    {"path": "src/video_paper_wiki/transaction_staging.py", "sha256": "71d77db124be2673362a6186f68af1df7e354f975bcac985c4bf2237927694b1"},
+    {"path": "schemas/video-paper-wiki.source-publication-request.v1.schema.json", "sha256": "8e487033c03ac40fecfe73f9afcdd1825a7ed86b3158a86d81803731d779ef22"}
+  ],
+  "candidate_binding": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/local-candidate-r1.json",
+    "sha256": "67e0daeb27d89c057c7b43d4d87fea9431a0923d245d06232e10aa53af284b62",
+    "snapshot_sha256": "6d4e89c7b8cefcfac6910ec984248fbb7736fcfef0a0b9ba13860cac16086204",
+    "status": "frozen-pending-independent-review-full-tests-and-wheel",
+    "source_writes_stopped": true,
+    "matching_reviewed_paths": [
+      "src/video_paper_wiki/source_publication.py",
+      "src/video_paper_wiki/source_publication_contracts.py",
+      "src/video_paper_wiki/source_publication_io.py",
+      "src/video_paper_wiki/source_state.py",
+      "src/video_paper_wiki/contracts.py",
+      "schemas/video-paper-wiki.assessment-heads.v2.schema.json",
+      "schemas/video-paper-wiki.source-publication-authority.v1.schema.json",
+      "schemas/video-paper-wiki.source-publication-proposal.v1.schema.json",
+      "schemas/video-paper-wiki.source-publication-request.v1.schema.json",
+      "tests/source_publication_fixture.py",
+      "tests/unit/test_source_state.py",
+      "tests/upstream/test_source_publication.py"
+    ],
+    "documented_differences": [
+      "R5 updates publication.py, markdown_source.py, catalog_collector.py, formal_source.py, cli.py and selected tests/fixtures for the command-tree fixture and current regressions; these are outside this supplemental probe's source-binding claims."
+    ],
+    "hash_replay": {
+      "probe": "/private/tmp/verify_candidate_hashes.py",
+      "result": "27 of 27 candidate files match their recorded hashes",
+      "candidate_snapshot_replayed": "6d4e89c7b8cefcfac6910ec984248fbb7736fcfef0a0b9ba13860cac16086204"
+    }
+  },
+  "empty_durable_request_check": {
+    "probe": "/private/tmp/source_pub_noop_transport_probe.py",
+    "probe_sha256": "d5ca092be98457246ba895dddc000b0a0c5598b7ee8df7483430712daf7ba9e3",
+    "setup": "A disposable synthetic Vault was advanced through registration and applied modern knowledge publication. A valid current basis and prospective inventory digest came from prepare_source_publication(payloads={}), whose result was state=no_change with no request path.",
+    "request": "A separate canonical request with the same current basis/prospective digest, kind=knowledge, registration=null, and payloads=[] was manually staged under a fresh fixed batch.",
+    "result": "PASS_ERROR SOURCE_PUBLICATION_INVALID",
+    "error_message": "input is not bounded strict UTF-8 JSON",
+    "interpretation": "The request cannot reach _assemble_publication_transaction or mint receipt/head authority. The rejection is caused by the request schema's minItems=1 rule, while the public prepare path returns no_change and does not stage a request. No no-op receipt authority bypass was reproduced."
+  },
+  "transport_limit_checks": {
+    "probe": "/private/tmp/source_pub_transport_static_probe.py",
+    "probe_sha256": "f4b9320645c443b0dc84fa75aba0741be825f8564978f9aae942105e9f48e449",
+    "checks": [
+      {
+        "case": "source payload path count 1023",
+        "result": "PASS_ERROR TRANSACTION_LIMIT_EXCEEDED",
+        "evidence": "payload_map enforces MAX_PAYLOADS=1022 before _transport_limits constructs receipt/head descriptors."
+      },
+      {
+        "case": "bundle write descriptor count 1025",
+        "result": "PASS_ERROR SCHEMA_INVALID",
+        "evidence": "encode_transaction_inspect_bundle rejects writes above 1024; an allowed 1022-business request plus receipt/head reaches exactly 1024 total writes."
+      },
+      {
+        "case": "complete read descriptor set",
+        "result": "PASS_OVER_LIMIT",
+        "evidence": "The existing encoder produced a 13,440,605-byte canonical bundle for 80,000 read preconditions against MAX_BUNDLE_BYTES=8,388,608. _transport_limits explicitly rejects len(bundle)>MAX_BUNDLE_BYTES after encoding, so it cannot truncate the complete read set."
+      }
+    ],
+    "static_conclusion": "No remaining transport-limit bypass was found in the reviewed path: business path count is bounded by payload_map, write count by the existing encoder/transaction contracts, and complete read-set size by the explicit _transport_limits encoded-bundle check."
+  },
+  "findings": [],
+  "limitations": [
+    "This supplemental check is bound to the frozen local candidate snapshot above; exact commit, full-suite, wheel, CI, and human gates remain open.",
+    "The no-op request's user-facing message is the existing generic SOURCE_PUBLICATION_INVALID wrapper text even though the schema minItems rule is the rejection cause; this affects diagnostic precision only and did not permit authority creation."
+  ]
+}

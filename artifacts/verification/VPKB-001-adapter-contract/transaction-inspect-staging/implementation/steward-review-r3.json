@@ -1,0 +1,225 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-steward-review.v1",
+  "authority": {
+    "baseline": {
+      "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+      "head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+      "tree": "37dfbba09e9f73656af4bb5510f7586bb5d4223e"
+    },
+    "builder_candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/builder-candidate-r3.json",
+      "revision": 3,
+      "sha256": "431a469fd36d4a663b09e47262a890c1f9be7c3c97baab9948cfeb855bba6258",
+      "size_bytes": 11170
+    },
+    "work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package.json",
+      "revision": 3,
+      "sha256": "1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67",
+      "size_bytes": 32329
+    }
+  },
+  "blockers": [],
+  "builder_full_and_wheel_evidence": {
+    "builder_temp_index_report": {
+      "path": "/private/tmp/vpkb-stage-r3-index-preflight.json",
+      "sha256": "5955f1812b4b3c98591db4146948207183a39e9e95c4f819a5d192ada623f43a",
+      "size_bytes": 2774
+    },
+    "python_3_12": {
+      "errors": 0,
+      "failures": 0,
+      "junit_sha256": "b2f629636c98557299cdcf31c9fa2bab25ab4ae502e73ab24a55ea52901c88fc",
+      "junit_size_bytes": 473233,
+      "log_sha256": "453737a477bf37e82c76a97b3900b21eae14f7c679e360997b029d0d0045da5e",
+      "log_size_bytes": 2192,
+      "skipped": 0,
+      "tests": 1895
+    },
+    "python_3_13": {
+      "errors": 0,
+      "failures": 0,
+      "junit_sha256": "c71ed8d299239949cee6db467d5c1ecd5e4be17de34f91927aa427517f3e6226",
+      "junit_size_bytes": 473233,
+      "log_sha256": "944acf4b159eae09eb9449e0fec741f3981e0c4133a9db7611d6699b50819c4a",
+      "log_size_bytes": 2192,
+      "skipped": 0,
+      "tests": 1895
+    },
+    "verified_raw_hashes": true,
+    "wheel": {
+      "path": "/private/tmp/vpkb-stage-r2-dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+      "sha256": "3d5c9e077fe26fc7ddc2f63f1c7dbd68d967c17703864b0630756ba23e67056f",
+      "size_bytes": 209365,
+      "smoke_log_sha256": "b1bce588911ca91294b7a533de40e9cb8217f45a92eb0c3eaca571aca181f9cd",
+      "smoke_log_size_bytes": 268,
+      "unchanged_reason": "The R3 byte correction is tests-only and no packaged byte changed."
+    }
+  },
+  "candidate_verification": {
+    "all_frozen_contract_schema_fixture_bindings_match": true,
+    "all_hashes_and_sizes_match_builder_r3": true,
+    "catalog_count": 67,
+    "declared_snapshot_sha256": "e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76",
+    "git_diff_check_exit_code": 0,
+    "git_index_empty_and_byte_identical": true,
+    "independently_recomputed_after_tests_sha256": "e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76",
+    "independently_recomputed_before_tests_sha256": "e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76",
+    "nonprotected_changes_outside_33_path_ceiling": [],
+    "only_r2_to_r3_changed_path": "tests/contract/test_transaction_staging.py",
+    "other_nine_byte_exact_to_r2": true,
+    "path_count": 10,
+    "protected_untracked_preserved_and_unstaged": true,
+    "r1_r2_archives_and_six_r2_records_byte_exact": true,
+    "three_architecture_post_ci_records_byte_exact": true
+  },
+  "generated_at_utc": "2026-09-01T09:08:21Z",
+  "independent_tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_staging.py tests/unit/test_transaction_staging.py tests/contract/test_transaction_staging.py tests/security/test_work_staging_boundary.py tests/security/test_transaction_staging_boundary.py tests/upstream/test_vpkb001_staged_transaction_inspect.py tests/unit/test_transaction_contracts.py tests/contract/test_transaction_contracts.py tests/unit/test_upstream_adapter.py tests/security/test_upstream_adapter_boundary.py tests/upstream/test_vpkb001_transaction_inspect.py tests/unit/test_upstream_adapter_capture.py tests/security/test_upstream_capture_boundary.py tests/contract/test_upstream_capture_authority.py tests/upstream/test_vpkb001_manual_pdf_capture.py tests/contract/test_schemas.py --basetemp=/private/tmp/vpkb-stage-r3-steward-focus -o cache_dir=/private/tmp/vpkb-stage-r3-steward-focus-cache --junitxml=/private/tmp/vpkb-stage-r3-steward-focus.xml",
+      "duration_seconds": 17.729,
+      "environment_note": "Managed permission used for local AF_UNIX fixtures; no network egress authorized.",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-r3-steward-focus.xml",
+        "sha256": "6cfd12fbe5e965ad8614f8ca581869e6de718f9b4579dddd6ddaa4c7ae5f075e",
+        "size_bytes": 64774
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-r3-steward-focus.log",
+        "sha256": "443c491791a3f73cd234faa1fdedb40d9c6c5c90f754ffd9320ba7cd9e4e6d20",
+        "size_bytes": 581
+      },
+      "name": "focused_contract_security_real_pinned_compatibility",
+      "passed": 435,
+      "python": "CPython 3.13.13",
+      "skipped": 0,
+      "tests": 435
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/security/test_work_staging_boundary.py::test_transaction_session_refuses_named_lineage_replacement_after_content tests/security/test_work_staging_boundary.py::test_transaction_session_rechecks_lineage_at_publication_boundaries tests/security/test_work_staging_boundary.py::test_transaction_session_rechecks_named_lineage_before_first_install tests/security/test_work_staging_boundary.py::test_transaction_session_refuses_deleted_open_content_directory tests/security/test_work_staging_boundary.py::test_transaction_session_final_set_rejects_content_tamper_after_bundle tests/security/test_work_staging_boundary.py::test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle tests/security/test_work_staging_boundary.py::test_unsafe_orphan_does_not_delete_preexisting_exact_bundle tests/security/test_work_staging_boundary.py::test_transaction_session_final_enumeration_rejects_new_extra_entry tests/unit/test_staging.py::test_transaction_session_allows_unrelated_safe_orphan_content tests/unit/test_staging.py::test_transaction_session_content_conflict_does_not_create_bundle tests/unit/test_staging.py::test_transaction_session_mid_content_failure_keeps_bundle_absent tests/unit/test_staging.py::test_transaction_session_bundle_conflict_keeps_exact_content tests/unit/test_transaction_staging.py::test_partial_exact_repair_is_not_full_reuse tests/unit/test_transaction_staging.py::test_bundle_digest_mismatch_precedes_bundle_limit tests/unit/test_transaction_staging.py::test_result_does_not_share_mutable_input --basetemp=/private/tmp/vpkb-stage-r3-steward-adversarial -o cache_dir=/private/tmp/vpkb-stage-r3-steward-adversarial-cache --junitxml=/private/tmp/vpkb-stage-r3-steward-adversarial.xml",
+      "duration_seconds": 0.112,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-r3-steward-adversarial.xml",
+        "sha256": "312c19a654f5f1bd4a0ff60d7e54982c414f50d350d90f0ffa0257c4d3bf0cf1",
+        "size_bytes": 3979
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-r3-steward-adversarial.log",
+        "sha256": "4f9d860411684c7c7f2c922d0a122f5bd517976eeb0fb14f6fb663ddf466701e",
+        "size_bytes": 99
+      },
+      "name": "retained_lineage_complete_set",
+      "passed": 24,
+      "python": "CPython 3.13.13",
+      "skipped": 0,
+      "tests": 24
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/upstream/test_vpkb001_staged_transaction_inspect.py --basetemp=/private/tmp/vpkb-stage-r3-steward-pinned -o cache_dir=/private/tmp/vpkb-stage-r3-steward-pinned-cache --junitxml=/private/tmp/vpkb-stage-r3-steward-pinned.xml",
+      "duration_seconds": 0.978,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-r3-steward-pinned.xml",
+        "sha256": "d2cdbeee2f4ff16c7b57633a2df29c1089a34ed57bc09ec0b215b9fdb1c89d19",
+        "size_bytes": 961
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-r3-steward-pinned.log",
+        "sha256": "5d0cc4658984d12ec4761f3cdd54060b37d5ee2346d2c58c35f23861d361d8d8",
+        "size_bytes": 98
+      },
+      "name": "four_real_pinned_operation_vectors",
+      "operation_vectors": [
+        "capture",
+        "generic genesis",
+        "later generic",
+        "ingest"
+      ],
+      "passed": 4,
+      "python": "CPython 3.13.13",
+      "skipped": 0,
+      "tests": 4
+    }
+  ],
+  "limitations": [
+    "Repo Steward independently reran the required focused, lineage and four pinned selections on Python 3.13.13; dual complete Python suites and wheel were verified from Builder raw evidence rather than rerun independently.",
+    "Architect must still perform final local acceptance, generate R3 delivery evidence, obtain a separate exact Git authorization, observe fresh merge-ref CI and issue exact-head acceptance.",
+    "No real Vault, network, Git/index/commit/push/PR mutation, merge or human-gate change was performed."
+  ],
+  "next_gate": "GO permits Architect R3 local acceptance only; it is not Git, CI, merge, PR-state or human-gate authorization.",
+  "one_byte_proof": {
+    "ast_dump_without_attributes_equal": true,
+    "exact_relation": "r2_bytes[:-1] == r3_bytes and removed byte == 0x0a",
+    "path": "tests/contract/test_transaction_staging.py",
+    "proof_log": {
+      "path": "/private/tmp/vpkb-stage-r3-byte-audit.log",
+      "sha256": "6c31b323755bbdfbdc0bd10fe206c197d6d9ad23064bddc5b89e8e9d1cebf6c0",
+      "size_bytes": 1604
+    },
+    "proof_script": {
+      "path": "/private/tmp/vpkb-stage-r3-byte-audit.py",
+      "sha256": "95108616bb93df30312993985ccf194c25cc3d3640577fa88a6866fd27745869",
+      "size_bytes": 1616
+    },
+    "r3": {
+      "sha256": "a24970e839051c43719996ab519b9e1405f1938aa201238d8681fd31c01dc797",
+      "size_bytes": 2848,
+      "trailing_lf_count": 1
+    },
+    "reconstructed_r2": {
+      "formula": "r3_current_bytes + b\\x0a",
+      "sha256": "80bd284fa2c66d1ca8ecd68ff7ed7aa9b481513b45450e3b8d8166b1b059a1a9",
+      "size_bytes": 2849,
+      "trailing_lf_count": 2
+    },
+    "relation_verified": true,
+    "semantic_token_rule": "Compared tokenize type/string pairs while ignoring ENCODING, NL, NEWLINE and COMMENT position-only tokens; INDENT, DEDENT, names, literals and operators remain material.",
+    "semantic_token_stream_equal": true
+  },
+  "revision": 3,
+  "role": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "temporary_index_preflight": {
+    "all_staged_blobs_equal_worktree": true,
+    "authorized_existing_path_count": 29,
+    "cached_diff_check_exit_code": 0,
+    "cached_diff_check_output": "",
+    "commands": [
+      "git read-tree HEAD",
+      "git add -- <each of the 29 currently existing literal authorized paths>",
+      "git diff --cached --name-only -z",
+      "git diff --cached --check",
+      "git show :<each staged path>"
+    ],
+    "external_29_path_snapshot_sha256": "371f902c93ce6cdc8b332842c2088047035bbf8e5a4747810f269e135ab35c7e",
+    "log": {
+      "path": "/private/tmp/vpkb-stage-r3-temp-index.log",
+      "sha256": "01284bc69f7e571a2bef2ec3136fb1b0f3ac2950be4820489ad1da95b540e0d5",
+      "size_bytes": 367
+    },
+    "method": "Independent GIT_INDEX_FILE and GIT_OBJECT_DIRECTORY under /private/tmp with repository .git/objects read only through GIT_ALTERNATE_OBJECT_DIRECTORIES.",
+    "path_set_exact": true,
+    "real_index_empty_before_and_after": true,
+    "real_index_initial_and_final_sha256": "0f6cdd7dc44a328b2a3b1a8c6f6814b6258a04fdfebaa14b4db5b82896816c44",
+    "real_index_size_bytes": 87976,
+    "script": {
+      "path": "/private/tmp/vpkb-stage-r3-temp-index.py",
+      "sha256": "205a928e5a8a694c8abc64a50a49287e511db40bad32cae66aff5e302dfc3bb5",
+      "size_bytes": 1675
+    },
+    "staged_path_count": 29
+  },
+  "verdict": "GO"
+}

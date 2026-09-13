@@ -1,0 +1,78 @@
+"""Architecture-only public CLI proof; envelope is not a released contract."""
+import copy, importlib.util, json, pathlib, sys, hashlib
+from video_paper_wiki.identity import claim_id, evidence_fingerprint
+from video_paper_wiki.jcs import canonicalize
+P=pathlib.Path
+repo=P.cwd()
+from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
+common=json.loads((repo/'schemas/video-paper-wiki.common.v1.schema.json').read_text())
+registry=Registry().with_resource(common['$id'],Resource.from_contents(common))
+pdf_validator=Draft202012Validator({'$ref':common['$id']+'#/$defs/pdf_locator'},registry=registry)
+fixture_artifact=b'{"fixture_only":true,"texts":[{"text":"fixture text"}]}\n'
+fixture_path='.raw/derived/fixture-pdf/docling/fp/document.json'
+fixture_locator={'kind':'pdf','source_id':'src-proof','page':1,'ref':'#/texts/0','bbox':[10.25,20.5,100.125,40.75],'charspan':[0,12],'artifact_path':fixture_path,'artifact_sha256':hashlib.sha256(fixture_artifact).hexdigest(),'text_sha256':hashlib.sha256(b'fixture text').hexdigest()}
+pdf_validator.validate(fixture_locator) # shape proof before any public CLI command
+
+spec=importlib.util.spec_from_file_location('project_fixture',repo/'tests/upstream/_transaction_fixture.py')
+f=importlib.util.module_from_spec(spec);spec.loader.exec_module(f)
+out=P('<TEMP_ROOT>/vpkb-locator-wire-proof-r2');out.mkdir()
+before=f.verify_sources(out)
+r=f.Runner(out);vault=out/'v';f.init(r,vault,'locator-init')
+raw=(repo/'tests/fixtures/pdfs/tiny.pdf').read_bytes();digest=f.sha(raw)
+(vault/'inbox/source.pdf').write_bytes(raw)
+args=['capture','apply','--vault',vault,'--operation-id','locator-capture','--generated-at',f.STAMP,'inbox/source.pdf']
+dry=r.cli('capture-dry',*args)
+cap=r.cli('capture-apply',*args,'--approved-plan-sha256',dry['approved_plan_sha256'],'--apply')
+stored=cap['items'][0]['stored_path'];assert (vault/stored).read_bytes()==raw
+sid=f.stable_source(r,'file',stored,digest)
+paper='sha256:'+digest;pagepath='wiki/papers/sha256-'+digest+'.md'
+text='The synthetic fixture carries a structured PDF locator; evidence remains uncertain.'
+cid=claim_id('paper:'+paper,text)
+locator=dict(fixture_locator,source_id=sid)
+pdf_validator.validate(locator)
+(out/'fixture-document.json').write_bytes(fixture_artifact)
+plain={k:v for k,v in locator.items() if k!='bbox'}
+envelope={'schema':'video-paper-wiki.ledger-locator.v1','locator':plain,'bbox_rationals':[list(v.as_integer_ratio()) for v in locator['bbox']]}
+wire='vpwiki-locator-v1:'+canonicalize(envelope).decode()
+assert 'relation' not in envelope and 'relation' not in envelope['locator']
+decoded=json.loads(wire.removeprefix('vpwiki-locator-v1:'))
+restored=dict(decoded['locator'],bbox=[n/d for n,d in decoded['bbox_rationals']])
+assert restored==locator
+fingerprint=evidence_fingerprint([dict(locator,relation='uncertain')])
+assert evidence_fingerprint([dict(restored,relation='uncertain')])==fingerprint
+source={'schema':'claude-obsidian.source-ledger.v1','generated_at':f.STAMP,'sources':{sid:{'origin':{'kind':'file','locator':stored},'content_kind':'synthetic','authority':'synthetic','title':'Disposable PDF locator fixture','content_sha256':digest,'ingested_at':f.DAY,'retrieved_at':None,'refresh_due':'2099-01-01','review_status':'unreviewed','independence_key':None,'pages':[pagepath],'supersedes':None}}}
+claim={'schema':'claude-obsidian.claim-ledger.v1','generated_at':f.STAMP,'claims':{cid:{'text':text,'risk':'normal','assessment':'provisional','confidence':'low','location':{'path':pagepath,'anchor':'^'+cid},'reviewed_at':None,'notes':'Architecture-only fixture; no scientific interpretation or human acceptance.','supersedes':None,'evidence':[{'source_id':sid,'relation':'context','locator':wire}]}}}
+page=(f.frontmatter('Structured locator fixture','paper')+'# Structured locator fixture\n\n'+text+' ^'+cid+'\n').encode()
+contents={'wiki/meta/ledgers/source-ledger.json':f.jsonbytes(source),'wiki/meta/ledgers/claim-ledger.json':f.jsonbytes(claim),pagepath:page}
+legacybefore=(vault/'.raw/.manifest.json').read_bytes()
+# Otherwise identical proposals: same operation_id and all business data; only relation differs.
+proposal=f.bundle(vault,'locator-ingest','ingest',contents,reads={stored:digest})
+def variant(relation):
+ c=copy.deepcopy(claim);c['claims'][cid]['evidence'][0]['relation']=relation
+ data=dict(contents);data['wiki/meta/ledgers/claim-ledger.json']=f.jsonbytes(c)
+ return f.bundle(vault,'locator-ingest','ingest',data,reads={stored:digest})
+support=r.inspect('supports-control-inspect',vault,variant('supports'))
+negative=variant('uncertain');f.dump(out/'uncertain.bundle.json',negative)
+ledgerbefore={p:(vault/p).read_bytes() for p in contents if (vault/p).exists()}
+refusal=r.cli('uncertain-inspect','transaction','inspect',out/'uncertain.bundle.json','--vault',vault,allowed=(2,))
+assert all((vault/p).read_bytes()==b for p,b in ledgerbefore.items())
+plan=r.inspect('context-inspect',vault,proposal)
+result=r.apply('context-apply',vault,proposal,plan)
+assert result['status']=='complete'
+assert set(plan['changed_paths'])==set(contents) and not proposal['address_requests'] and not proposal['source_manifest_updates']
+actual=json.loads((vault/'wiki/meta/ledgers/claim-ledger.json').read_text())['claims'][cid]['evidence'][0]
+assert actual=={'source_id':sid,'relation':'context','locator':wire}
+assert (vault/'wiki/meta/ledgers/claim-ledger.json').read_bytes()==contents['wiki/meta/ledgers/claim-ledger.json']
+assert (vault/'wiki/meta/ledgers/source-ledger.json').read_bytes()==contents['wiki/meta/ledgers/source-ledger.json']
+assert (vault/'.raw/.manifest.json').read_bytes()==legacybefore
+# The project relation mapping is explicit, not stored redundantly in the envelope.
+mapping={'supports':'supports','contradicts':'contradicts','context':'uncertain'}
+actualenvelope=json.loads(actual['locator'].removeprefix('vpwiki-locator-v1:'))
+actualloc=dict(actualenvelope['locator'],bbox=[n/d for n,d in actualenvelope['bbox_rationals']])
+assert actualloc==locator
+assert evidence_fingerprint([dict(actualloc,relation=mapping[actual['relation']])])==fingerprint
+after=f.snapshot(f.UP);assert after==before
+f.dump(out/'source-after.json',after)
+f.dump(out/'summary.json',{'status':'passed','scope':'architecture feasibility only; not a released wire codec/adapter/validator', 'source_pin':f.PIN,'upstream_inventory_unchanged':True,'source_inventory_sha256':f.sha(canonicalize(before)),'runner_sha256':f.sha(P(__file__).read_bytes()),'project_helper_sha256':f.sha((repo/'tests/upstream/_transaction_fixture.py').read_bytes()),'commands':len(r.results),'command_exit_codes':[x['exit_code'] for x in r.results],'common_schema_valid_before_cli':True,'common_schema_sha256':f.sha((repo/'schemas/video-paper-wiki.common.v1.schema.json').read_bytes()),'normative_envelope_schema':'video-paper-wiki.ledger-locator.v1','source_id':sid,'captured_sha256':digest,'wire':wire,'wire_sha256':f.sha(wire.encode()),'restored_locator':actualloc,'evidence_fingerprint':fingerprint,'upstream_context_preserved':True,'uncertain_refusal':refusal,'supports_control_passed':True,'canonical_ledger_bytes_exact':True,'legacy_manifest_unchanged':True,'changed_paths':result['changed_paths'],'limitations':['Source PDF is synthetic; derived document bytes are explicit fake fixture outside Vault, hash real for those bytes; locator shape common-valid but coordinates/ref not genuine PDF extraction. Only ledger string acceptance is proved, not artifact inventory closure.','Project relation mapping context -> uncertain is deliberate wire semantics, not upstream scientific interpretation.','Fractional bbox roundtrip proven; draft intentionally merges integer-valued floats with ints and both zero signs. Prototype is not full draft codec validation.','No production envelope validation/limits/canonical decoding implemented.','Only canonical upstream source/claim ledgers plus fixture Markdown are published; no project record, receipt/head or full projection acceptance asserted.','Only public init/capture/transaction CLI executes; pinned stable_source_id alone imported in isolated subprocess.','No real Vault/models/admin/network-producing commands; flags/environment are not OS network isolation proof.']})
+print(json.dumps({'out':str(out),'calls':len(r.results),'exit_codes':[x['exit_code'] for x in r.results],'fingerprint':fingerprint,'source_unchanged':True}))

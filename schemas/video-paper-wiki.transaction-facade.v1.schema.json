@@ -1,0 +1,427 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-facade.v1.schema.json",
+  "title": "video-paper-wiki.transaction-facade.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "phase",
+    "operation_id",
+    "operation_type",
+    "writes",
+    "expected_hashes",
+    "read_preconditions",
+    "claimed_inputs",
+    "address_requests",
+    "source_manifest_updates",
+    "engine_expanded_paths",
+    "receipt",
+    "head",
+    "input_bundle_sha256",
+    "declaration_sha256",
+    "inspection",
+    "runtime_result"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.transaction-facade.v1"
+    },
+    "phase": {
+      "enum": [
+        "proposal",
+        "inspected"
+      ]
+    },
+    "operation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "operation_type": {
+      "enum": [
+        "capture",
+        "ingest",
+        "generic"
+      ]
+    },
+    "writes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "role",
+          "mode",
+          "sha256",
+          "size_bytes",
+          "original_size_bytes",
+          "original_mode"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "role": {
+            "enum": [
+              "business",
+              "receipt",
+              "head"
+            ]
+          },
+          "mode": {
+            "enum": [
+              "create",
+              "replace"
+            ]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "original_size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "original_mode": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 511
+              }
+            ]
+          }
+        }
+      }
+    },
+    "expected_hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[\\s\\S]*$": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            }
+          ]
+        }
+      }
+    },
+    "read_preconditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[\\s\\S]*$": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            }
+          ]
+        }
+      }
+    },
+    "claimed_inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "mode",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "mode": {
+            "const": "read"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "minLength": 64,
+            "maxLength": 64
+          }
+        }
+      }
+    },
+    "address_requests": {
+      "type": "array",
+      "items": {},
+      "maxItems": 0
+    },
+    "source_manifest_updates": {
+      "type": "object",
+      "additionalProperties": false
+    },
+    "engine_expanded_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 0
+    },
+    "receipt": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.operation-receipt.v1.schema.json"
+        }
+      ]
+    },
+    "head": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.operation-head.v1.schema.json"
+        }
+      ]
+    },
+    "input_bundle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "declaration_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "inspection": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema",
+            "operation_id",
+            "operation_type",
+            "changed_paths",
+            "hashes",
+            "modes",
+            "expanded_bundle_sha256",
+            "approval_sha256",
+            "valid",
+            "input_bundle_sha256",
+            "vault_identity"
+          ],
+          "properties": {
+            "schema": {
+              "const": "claude-obsidian.transaction-plan.v1"
+            },
+            "operation_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+            },
+            "operation_type": {
+              "enum": [
+                "capture",
+                "ingest",
+                "generic"
+              ]
+            },
+            "changed_paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hashes": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[\\s\\S]*$": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "minLength": 64,
+                  "maxLength": 64
+                }
+              }
+            },
+            "modes": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[\\s\\S]*$": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 511
+                }
+              }
+            },
+            "expanded_bundle_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "approval_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "valid": {
+              "const": true
+            },
+            "input_bundle_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "vault_identity": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "device",
+                "inode"
+              ],
+              "properties": {
+                "state": {
+                  "const": "existing"
+                },
+                "device": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "inode": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "runtime_result": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema",
+            "operation_id",
+            "operation_type",
+            "changed_paths",
+            "hashes",
+            "modes",
+            "expanded_bundle_sha256",
+            "approval_sha256",
+            "bundle_sha256",
+            "status"
+          ],
+          "properties": {
+            "schema": {
+              "const": "claude-obsidian.transaction-result.v1"
+            },
+            "operation_id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+            },
+            "operation_type": {
+              "enum": [
+                "capture",
+                "ingest",
+                "generic"
+              ]
+            },
+            "changed_paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hashes": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[\\s\\S]*$": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "minLength": 64,
+                  "maxLength": 64
+                }
+              }
+            },
+            "modes": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^[\\s\\S]*$": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 511
+                }
+              }
+            },
+            "expanded_bundle_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "approval_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "bundle_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$",
+              "minLength": 64,
+              "maxLength": 64
+            },
+            "status": {
+              "const": "complete"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

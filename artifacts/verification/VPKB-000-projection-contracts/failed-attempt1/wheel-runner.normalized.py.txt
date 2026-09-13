@@ -1,0 +1,90 @@
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+
+ROOT = Path('<REPOSITORY>')
+OUT = Path('<TEMP_ROOT>/vpr-acceptance')
+UV = '<TEMP_ROOT>/vpkb-tooling.r892iw/bin/uv'
+PYTHON = '<TEMP_ROOT>/vpkb-wheel-venv/bin/python'
+environment = dict(os.environ, UV_CACHE_DIR='<TEMP_ROOT>/vpkb-uv-cache', PYTHONDONTWRITEBYTECODE='1')
+environment.pop('PYTHONPATH', None)
+environment.pop('PYTHONHOME', None)
+
+def sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
+expected = json.loads((OUT / 'source-files.json').read_text())['files']
+assert all(sha(ROOT / path) == value for path, value in expected.items())
+records = []
+
+def run(label, command, cwd):
+    start = time.time()
+    with (OUT / (label + '.log')).open('wb') as log:
+        result = subprocess.run(command, cwd=cwd, env=environment, stdout=log, stderr=subprocess.STDOUT)
+    record = dict(label=label, argv=command, cwd=str(cwd), exit_code=result.returncode,
+                  elapsed_seconds=time.time()-start, log_sha256=sha(OUT / (label + '.log')))
+    records.append(record)
+    print(json.dumps(record), flush=True)
+    if result.returncode:
+        raise SystemExit(result.returncode)
+
+run('wheel-build', [UV, 'build', '--offline', '--wheel', '--out-dir', str(OUT / 'dist')], ROOT)
+wheels = list((OUT / 'dist').glob('*.whl'))
+assert len(wheels) == 1
+run('wheel-install', [UV, 'pip', 'install', '--offline', '--no-deps', '--reinstall', '--python', PYTHON, str(wheels[0])], Path('<TEMP_ROOT>'))
+old = Path('<TEMP_ROOT>/vtf-wheel-smoke.py').read_text()
+assert old.count('assert len(names) == 16') == 1
+smoke = old.replace('assert len(names) == 16', 'assert len(names) == 18')
+smoke += '''
+import math
+from video_paper_wiki.projection_runtime import (
+    parse_projection_json, projection_value_bytes, projection_value_sha256,
+    validate_runtime_record, runtime_projection_bytes, runtime_projection_equal,
+    runtime_projection_sha256, markdown_projection_equal, PROFILE_TITLES,
+)
+values = {'null':None, 'true':True, 'one_int':1, 'one_float':1.0, 'zero_int':0,
+ 'negative_zero':-0.0, 'point_one':0.1, 'next_one':math.nextafter(1.0, math.inf),
+ 'k1':1.5, 'b':0.75, 'subnormal':float.fromhex('0x0.0000000000001p-1022'),
+ 'max_float':float.fromhex('0x1.fffffffffffffp+1023'), 'tag_like_array':['number',1,1],
+ 'utf16_order':{chr(0xe000):1,chr(0x10000):2}}
+vectors = json.loads((root / 'tests/fixtures/projection-runtime/number-vectors.json').read_text())
+for name, value in values.items():
+    assert projection_value_bytes(value, profile=vectors['profile']) == vectors['vectors'][name]['canonical_utf8'].encode()
+    assert projection_value_sha256(value, profile=vectors['profile']) == vectors['vectors'][name]['sha256']
+fixture = Path('<TEMP_ROOT>/vpr-root-target2/test_pinned_public_rebuild_cjk0')
+chunks = sorted((fixture / 'round-1/.vault-meta/chunks').glob('*/*.json'))
+assert chunks
+for path in chunks:
+    document = parse_projection_json(path.read_bytes())
+    validate_document(document, expected_schema=PROFILE_TITLES['chunk'])
+    assert validate_runtime_record('chunk', document) == document
+    changed = copy.deepcopy(document); changed['created_at'] = '2026-09-02T00:00:00Z'
+    assert runtime_projection_equal('chunk', document, changed)
+    assert runtime_projection_sha256('chunk', document) == hashlib.sha256(runtime_projection_bytes('chunk', document)).hexdigest()
+index = parse_projection_json((fixture / 'round-1/index.json').read_bytes())
+assert validate_document(index, expected_schema=PROFILE_TITLES['bm25']) == index
+assert runtime_projection_equal('bm25', index, parse_projection_json((fixture / 'round-2/index.json').read_bytes()))
+changed = copy.deepcopy(index); changed['params']['b'] = math.nextafter(changed['params']['b'], math.inf)
+assert not runtime_projection_equal('bm25', index, changed)
+changed = copy.deepcopy(index); changed['extra'] = 1
+try: validate_runtime_record('bm25', changed)
+except ContractError as exc: assert exc.code == 'RUNTIME_PROFILE_INVALID'
+else: raise AssertionError('upstream extension silently accepted')
+assert markdown_projection_equal(b'x', b'x') and not markdown_projection_equal(b'x', b'x\\n')
+print(json.dumps({'packet':'VPKB-000-projection-contracts', 'slice':'runtime', 'status':'passed',
+    'schema_count':len(names), 'independent_vectors':14, 'actual_fixture_chunks':len(chunks),
+    'actual_fixture_bm25_docs':index['doc_count'], 'module_path':video_paper_wiki.__file__,
+    'limitations':'Installed package validates supplied fixture bytes; no runtime builder/SQLite/input codec implementation or human acceptance.'}))
+'''
+path = OUT / 'wheel-smoke.py'
+path.write_text(smoke)
+run('wheel-smoke', [PYTHON, '-I', str(path)], Path('<TEMP_ROOT>'))
+after = {path:sha(ROOT / path) for path in expected}
+record = dict(status='passed', commands=records, wheel_sha256=sha(wheels[0]), wheel_path=str(wheels[0]),
+              smoke_source_sha256=sha(path), runner_sha256=sha(Path(__file__)), source_unchanged=after == expected,
+              source_snapshot_sha256=json.loads((OUT / 'source-files.json').read_text())['snapshot_sha256'],
+              environment_overrides={'UV_CACHE_DIR':environment['UV_CACHE_DIR'], 'PYTHONDONTWRITEBYTECODE':'1', 'PYTHONPATH':'removed', 'PYTHONHOME':'removed'})
+(OUT / 'wheel-result.json').write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
+print(json.dumps(record))
+assert record['source_unchanged']

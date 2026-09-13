@@ -1,0 +1,58 @@
+{
+  "$schema": "video-paper-wiki.source-semantics-legacy-bbox-r3-review.v1",
+  "recorded_at_utc": "2026-09-09T03:45:00Z",
+  "role": "Independent technical reviewer",
+  "reviewer": "Codex",
+  "scope": "Read-only review of the bounded R3 legacy PDF bbox compatibility amendment. No source, schema, fixture, Git, Vault, network, or external runtime mutation.",
+  "decision": "GO_FOR_SOURCE_SEMANTICS_R3_CONTRACT_FREEZE",
+  "no_blocker_found": true,
+  "amendment": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-LEGACY-BBOX-R3.md",
+    "sha256": "f1196fe43f815d388acb3359d75a045eca10643539ca0869065a09b81addd5b1",
+    "size_bytes": 2341,
+    "revision": "R3"
+  },
+  "resolution": [
+    "R3 correctly gives the unchanged accepted v1 PDF evidence behavior precedence over R2's blanket no-float preflight, while keeping every new identity field and metadata field integer-only.",
+    "The exception is bounded to an optional four-element bbox in actual PDF evidence positions: the evidence-wrapper item, assessment claim evidence arrays, compiler paper claim evidence arrays, and the unchanged compiler code[].alignment.officiality.evidence[] locator slots.",
+    "A coincidental kind:pdf object in events, concepts, metadata, or another unrelated object cannot activate the exception; source_semantics preflight remains strict by default.",
+    "Finite Python floats are display coordinates only. Nonfinite values, floats outside the admitted bbox slots, malformed bbox arrays, and wrong built-in types still refuse; cycle, depth, node, string, and traversal limits continue to apply before schema validation.",
+    "The amendment preserves the existing v1 schemas, production code, rational locator wire representation, and evidence fingerprint identity. bbox remains excluded from the frozen legacy evidence identity, so changing display coordinates cannot change a claim/evidence fingerprint."
+  ],
+  "implementation_obligations": [
+    {
+      "id": "R3-FLOAT-TYPE",
+      "requirement": "Recognize only exact built-in float values with type(value) is float and math.isfinite(value); do not admit bool, Decimal, subclasses, NaN, or infinity."
+    },
+    {
+      "id": "R3-CONTEXT-ALLOWLIST",
+      "requirement": "Thread contextual allowance only through the four declared evidence branches. Do not add a generic root allow_floats switch that could accept fake PDF-shaped objects elsewhere."
+    },
+    {
+      "id": "R3-STRUCTURAL-GUARDS",
+      "requirement": "Even admitted bbox arrays must pass cycle/depth/node, exact container/string limits, four-element shape, and schema checks before acceptance."
+    },
+    {
+      "id": "R3-IDENTITY",
+      "requirement": "Keep bbox out of identity/fingerprint material and preserve exact old evidence fingerprints when only bbox coordinates change."
+    },
+    {
+      "id": "R3-LEGACY-COMPAT",
+      "requirement": "Do not modify old v1 modules or schemas; preserve exact integer Markdown/raw-locator span coordinates and the existing ledger rational conversion."
+    }
+  ],
+  "required_acceptance_vectors": [
+    "Existing v1 finite float bbox round-trip through encode/decode and validation.",
+    "Exact fingerprint equality for equal evidence except bbox display changes; mixed PDF/Markdown evidence remains independent of bbox values.",
+    "Legacy and mixed compiler inputs with PDF evidence and code officiality evidence compile successfully with unchanged bytes where applicable.",
+    "Fake kind:pdf+bbox objects in events, concepts, metadata, and unrelated root/array fields are rejected by integer-only preflight.",
+    "NaN, infinity, wrong bbox length, strings/integers where coordinates are required, and floats in non-evidence identity or metadata fields are rejected.",
+    "Cycles, excessive depth/nodes, and malformed objects remain refused in both admitted and non-admitted contexts."
+  ],
+  "review_notes": [
+    "The existing accepted fixture uses bbox [10.25, 20.5, 100.125, 40.75]; this is the compatibility case the R3 amendment must retain.",
+    "No new PDF extraction authority, source identity, or real-data approval is implied by admitting display coordinates.",
+    "Final implementation acceptance must record these negative fake-PDF vectors and exact fingerprint assertions separately from local contract review."
+  ],
+  "implementation_gate": "Amendment is technically bounded and ready for final R3 freeze. Before implementation acceptance, verify the exact contextual call sites and all positive/negative vectors above; no implementation or delivery acceptance is claimed by this record."
+}

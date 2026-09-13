@@ -1,0 +1,240 @@
+{
+  "$schema": "video-paper-wiki.repo-steward-implementation-review.v1",
+  "authority": {
+    "builder_candidate_r3": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate-r3.json",
+      "sha256": "adfddd0e0f7cf6dd6b6d851af4d43a6c8ccb086fccc62dc4177e06afb558368a",
+      "size_bytes": 7972
+    },
+    "r2_delivery_rejection": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-delivery-review-r2.json",
+      "sha256": "6dc1d437af63172a804f23cacb3e3c1c17948df91f77fd5c168894c01261a24a",
+      "size_bytes": 6303
+    },
+    "revision_2_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json",
+      "sha256": "bab6c7fcf0691d15dfb0056712404daa6e67c0046c1c75ca25a1459e9ad9c522",
+      "size_bytes": 25490
+    }
+  },
+  "authorization": {
+    "auto_merge": false,
+    "commit": false,
+    "human_gate": false,
+    "merge": false,
+    "push": false,
+    "ready_for_review": false
+  },
+  "authorized_byte_delta": {
+    "path": "tests/upstream/_manual_pdf_capture_fixture.py",
+    "r2_sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+    "r2_size_bytes": 1485,
+    "r2_terminal_lf_count": 2,
+    "r3_sha256": "43e00708c7ee77c26ed650f5cb1f1302b37d67e2ca1adba822084ce18ab225d3",
+    "r3_size_bytes": 1484,
+    "r3_terminal_lf_count": 1,
+    "relation": "r2_bytes == r3_bytes + one LF byte",
+    "relation_sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+    "relation_size_bytes": 1485,
+    "semantic_change": false,
+    "six_other_candidate_files_byte_equal_to_r2": true
+  },
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "tree": "9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca"
+  },
+  "candidate": {
+    "all_hashes_and_sizes_match": true,
+    "expected_snapshot_sha256": "c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d",
+    "file_count": 7,
+    "files": {
+      "src/video_paper_wiki/contracts.py": {
+        "matches_candidate": true,
+        "sha256": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+        "size_bytes": 74613
+      },
+      "src/video_paper_wiki/upstream_adapter.py": {
+        "matches_candidate": true,
+        "sha256": "8f54858d3e16a66167e2b98edbf2eca6c67525aa501fb85c5c6603b0b8b72adc",
+        "size_bytes": 63527
+      },
+      "tests/contract/test_upstream_capture_authority.py": {
+        "matches_candidate": true,
+        "sha256": "195f353403557dfd7e52a38a8cff53bb6ac36497fc67025aa0bb57f2acac68eb",
+        "size_bytes": 3333
+      },
+      "tests/security/test_upstream_capture_boundary.py": {
+        "matches_candidate": true,
+        "sha256": "ad218f3335dfdf4778cd0d6fb5d73294a4c69d63452cdfe1d7c28a2979c7b49e",
+        "size_bytes": 14043
+      },
+      "tests/unit/test_upstream_adapter_capture.py": {
+        "matches_candidate": true,
+        "sha256": "ec0e9bfb03796a94b9b8cf8b4d18c625f53be32853d5b01d254639062f530188",
+        "size_bytes": 6239
+      },
+      "tests/upstream/_manual_pdf_capture_fixture.py": {
+        "matches_candidate": true,
+        "sha256": "43e00708c7ee77c26ed650f5cb1f1302b37d67e2ca1adba822084ce18ab225d3",
+        "size_bytes": 1484
+      },
+      "tests/upstream/test_vpkb001_manual_pdf_capture.py": {
+        "matches_candidate": true,
+        "sha256": "6e7bd265528716506ae52daa43ba5e96bc74770dfae69dcb0447cef73bd6c486",
+        "size_bytes": 5443
+      }
+    },
+    "snapshot_formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "snapshot_sha256": "c275904d2865cb1560408e1d3ba3894ed172e3a9ecf51c44d5c392e2d5b3a50d"
+  },
+  "immutable_history": {
+    "all_match_frozen_expected_bytes": true,
+    "files": [
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate.json",
+        "sha256": "14070f9dc7985a52dde69ba5074553664bc4823d1ca509ebd9c8c4e51686f6a8",
+        "size_bytes": 8069
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate-r2.json",
+        "sha256": "4b1fb44c43691c92b04f3a0443e18c06308aa27d211f8e810485a69d042939b5",
+        "size_bytes": 8057
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-review-r1.json",
+        "sha256": "43a60a6ce499f86910a1bb95f70faf8be31084018bc556fc65cd724060d6eb5d",
+        "size_bytes": 11274
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-review-r2.json",
+        "sha256": "38d49fccb9e02f021cf3b24e200ead2472b163c4aad5aafdd35dff8bb238e081",
+        "size_bytes": 15187
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package-r1.json",
+        "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+        "size_bytes": 20794
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-local-acceptance-preflight-r2.json",
+        "sha256": "fc5dcfb9ef2173feb5678eae3d514874a9e42a409e11cdd2664a6ba1c2d018af",
+        "size_bytes": 10636
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate-preflight-r2.json",
+        "sha256": "8c5744df77f9b79a5cdd4d269311438a8e60349942b70f98e08991a243887dee",
+        "size_bytes": 15258
+      },
+      {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-delivery-review-r2.json",
+        "sha256": "6dc1d437af63172a804f23cacb3e3c1c17948df91f77fd5c168894c01261a24a",
+        "size_bytes": 6303
+      }
+    ]
+  },
+  "independent_tests": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 /private/tmp/vpkb-py312-venv/bin/python -m pytest -q -p no:cacheprovider <exact ten work-package files> --basetemp=/private/tmp/vpm-steward-r3-focus12/t --junitxml=/private/tmp/vpm-steward-r3-focus12/focus.xml",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpm-steward-r3-focus12/focus.xml",
+        "sha256": "5e64fc9d7d5908916535c3b0f8b1e2dff883d8ad76e27254ea07ed02e782de7c",
+        "size_bytes": 51908
+      },
+      "log": {
+        "path": "/private/tmp/vpm-steward-r3-focus12/focus.log",
+        "sha256": "61e449819ce53710f9873fe88f96117e8a7dddae39fe4ca9e76444b9d975f43e",
+        "size_bytes": 420
+      },
+      "name": "required ten-file focused suite",
+      "passed": 342,
+      "python": "CPython 3.12.14",
+      "skipped": 0,
+      "tests": 342
+    },
+    {
+      "cases": 6,
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /private/tmp/vpkb-py312-venv/bin/python /private/tmp/vpm-steward-r1-probes.py",
+      "exit_code": 0,
+      "name": "real pinned create/noop and four identity replacements",
+      "observations": [
+        "real create accepted dry-run with Vault unchanged",
+        "real noop accepted with Vault unchanged",
+        "scratch replacement refused UPSTREAM_CONTRACT_MISMATCH",
+        "execution replacement refused UPSTREAM_CONTRACT_MISMATCH",
+        "root replacement refused UPSTREAM_CONTRACT_MISMATCH",
+        "equal-byte/mode sibling inode replacement with restored parent timestamp refused UPSTREAM_CONTRACT_MISMATCH"
+      ],
+      "python": "CPython 3.12.14",
+      "result": {
+        "path": "/private/tmp/vpm-steward-r3-probe12/probe.json",
+        "sha256": "5c98d38c75d9dc471c4cc7017447c698fda703921344ac4fc65595a11bac7c10",
+        "size_bytes": 956
+      },
+      "runner": {
+        "path": "/private/tmp/vpm-steward-r1-probes.py",
+        "sha256": "43f4fbfcb31a0577d3a6adc33e0065d602cf549fbd743f7ec0a31cf4c6b9a879",
+        "size_bytes": 4640
+      },
+      "stderr": {
+        "path": "/private/tmp/vpm-steward-r3-probe12/probe.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_bytes": 0
+      }
+    }
+  ],
+  "packet": "VPKB-001-adapter-contract",
+  "remaining_architect_and_delivery_gates": [
+    "Architect must run fresh complete locked suites on Python 3.12 and 3.13 against this R3 snapshot.",
+    "Architect must perform fresh offline wheel build/install/resource and real-pinned acceptance.",
+    "A fresh active local acceptance and delivery manifest must replace only their active paths while preserving R2 history.",
+    "Repo Steward must perform a new exact-stage cached diff-check before commit.",
+    "Fresh exact-head four-job CI and separate post-CI Architect acceptance remain mandatory."
+  ],
+  "review_conclusion": {
+    "blockers": [],
+    "semantic_review": "The one-byte terminal whitespace correction cannot alter Python semantics; both production files and the remaining four candidate test files are byte-identical to independently accepted R2. R1 identity and sibling blockers remain fixed under the independent R3 replay."
+  },
+  "reviewed_at_utc": "2026-09-01T06:15:02.768736+00:00",
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "revision": 3,
+  "scope_and_repository_guards": {
+    "catalog_count": 67,
+    "git_diff_check_passed": true,
+    "git_or_remote_or_pr_mutation_performed": false,
+    "head_unchanged": true,
+    "index_empty": true,
+    "only_authorized_source_test_delta": true,
+    "protected_untracked_preserved": [
+      ".DS_Store",
+      "five protected user docs",
+      "inbox/**",
+      "tools/**"
+    ],
+    "vendor_and_frozen_inputs_unchanged": true
+  },
+  "subrelease": "pinned-manual-pdf-capture-dry-run-v1",
+  "verdict": "GO_FOR_ARCHITECT_R3_ACCEPTANCE",
+  "whitespace_checks": {
+    "exit_interpretation": "git diff --no-index returns 1 because bytes differ from /dev/null; empty stdout/stderr means no whitespace diagnostic.",
+    "stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "tracked_diff_check": "passed with no diagnostics",
+    "untracked_helper_command": "git diff --no-index --check -- /dev/null tests/upstream/_manual_pdf_capture_fixture.py",
+    "untracked_helper_exit_code": 1
+  }
+}

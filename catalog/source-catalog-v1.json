@@ -1,0 +1,192 @@
+{
+  "schema": "video-paper-wiki.source-catalog-profile.v1",
+  "profile": "source-catalog-v1",
+  "artifact_schema": "video-paper-wiki.source-catalog.v1",
+  "digest": {
+    "algorithm": "sha256",
+    "domain": "video-paper-wiki.source-catalog.v1\u0000",
+    "encoding": "JCS UTF-8; catalog_sha256 omitted; no trailing LF",
+    "profile_sha256": "sha256 of complete raw profile resource bytes; no self-hash"
+  },
+  "row_groups": [
+    {
+      "name": "documents",
+      "keys": [
+        "path"
+      ]
+    },
+    {
+      "name": "papers",
+      "keys": [
+        "paper_id"
+      ]
+    },
+    {
+      "name": "repositories",
+      "keys": [
+        "repo_id"
+      ]
+    },
+    {
+      "name": "claims",
+      "keys": [
+        "claim_id"
+      ]
+    },
+    {
+      "name": "evidence",
+      "keys": [
+        "claim_id",
+        "ordinal"
+      ]
+    },
+    {
+      "name": "sources",
+      "keys": [
+        "source_id"
+      ]
+    },
+    {
+      "name": "associations",
+      "keys": [
+        "association_id"
+      ]
+    },
+    {
+      "name": "display_decisions",
+      "keys": [
+        "decision_id"
+      ]
+    },
+    {
+      "name": "assessment_heads",
+      "keys": [
+        "claim_id"
+      ]
+    },
+    {
+      "name": "display_heads",
+      "keys": [
+        "paper_id"
+      ]
+    },
+    {
+      "name": "artifacts",
+      "keys": [
+        "path"
+      ]
+    },
+    {
+      "name": "compiled_pages",
+      "keys": [
+        "path"
+      ]
+    },
+    {
+      "name": "coverage",
+      "keys": [
+        "kind",
+        "id"
+      ]
+    }
+  ],
+  "ordering": "UTF-8 exact identity bytes; numeric original evidence ordinal; nested original data order preserved",
+  "generation": {
+    "python_files": "all recursive video_paper_wiki/**/*.py with complete retained scoped sets",
+    "resources": [
+      "all canonical schema registry resources",
+      "taxonomy/v1.json",
+      "catalog/source-catalog-v1.json"
+    ],
+    "runtime": [
+      "python_implementation",
+      "python_version",
+      "unicode_version",
+      "jsonschema",
+      "referencing",
+      "rpds-py"
+    ]
+  },
+  "tokenizer": {
+    "version": 1,
+    "normalization": [
+      "NFKC",
+      "casefold"
+    ],
+    "ascii_words": "[a-z0-9]+",
+    "han_ranges": [
+      [
+        13312,
+        19903
+      ],
+      [
+        19968,
+        40959
+      ],
+      [
+        131072,
+        195103
+      ]
+    ],
+    "han_tokens": [
+      "single character",
+      "adjacent bigram in each contiguous Han run"
+    ],
+    "other_words": "contiguous Unicode alphabetic or digit characters excluding ASCII words and Han; punctuation/whitespace delimit",
+    "multiplicity": "preserve counts"
+  },
+  "ranking": {
+    "score": "floor(2000000 * multiset_overlap / (query_token_count + document_token_count))",
+    "positive_only": true,
+    "tie_order": [
+      "claims before source_excerpts",
+      "claim_id UTF-8 ascending",
+      "evidence ordinal ascending; claim=-1"
+    ]
+  },
+  "limits": {
+    "inventory_entries": 100000,
+    "rows": 1000000,
+    "cache_bytes": 67108864,
+    "document_bytes": 16777216,
+    "excerpt_bytes": 65536,
+    "query_characters": 512,
+    "query_bytes": 4096,
+    "query_tokens": 1000,
+    "limit_max": 1000,
+    "limit_default": 20,
+    "offset_max": 1000000
+  },
+  "resolution": {
+    "states": [
+      "RESOLVED",
+      "UNSUPPORTED_LEGACY_RESOLUTION"
+    ],
+    "unsupported_reasons": [
+      "legacy_json_pointer_unavailable",
+      "legacy_object_not_text",
+      "legacy_page_not_reconstructable",
+      "legacy_charspan_unavailable",
+      "excerpt_limit"
+    ],
+    "citation_display_separate": true,
+    "hash_or_span_mismatch": "SOURCE_CATALOG_EVIDENCE_INVALID"
+  },
+  "coverage_reasons": {
+    "registered_owned": "source_has_canonical_owner",
+    "registered_unclaimed": "source_has_no_canonical_owner",
+    "captured_registered": "capture_has_registered_source",
+    "captured_unregistered": "capture_has_no_source_row",
+    "derived_referenced": "artifact_in_canonical_evidence_ancestry",
+    "derived_unreferenced": "artifact_without_canonical_evidence_reference"
+  },
+  "cache": {
+    "relative": "source-catalog/catalog.json",
+    "root": "approved .work/<batch>",
+    "file_mode": 384,
+    "create": "absent exclusive no-clobber",
+    "reuse": "identical initial-present bytes only",
+    "replace": false,
+    "status_creates_directories": false
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "video-paper-wiki.source-conversion-architect-rejection.v1",
+  "recorded_at_utc": "2026-09-09T07:16:08.416654+00:00",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r1.json",
+    "sha256": "99e6eddc760f78229f806ba85584acf1dcfc5fc9e04b1d42e7f27a5def1bfb7e",
+    "size_bytes": 5004
+  },
+  "decision": "REJECTED_PENDING_CONVERSION_BOUNDARY_FIX",
+  "findings": [
+    {
+      "id": "CONVERSION-VAULT-SAFETY-CODE",
+      "expected": "WORK_PATH_UNSAFE",
+      "observed": "AUDIT_RACE",
+      "probe": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/probes/source-conversion-independent-r2/probe-result.json",
+        "sha256": "576ac367f3d6644bef0902fe203c2f53a92073e49a7fbaba55b3e7db640d1604",
+        "size_bytes": 3436
+      },
+      "required_fix": "Normalize actual AUDIT_RACE at convert API boundary only; preserve detailed error and all other lower-level errors. Add success/ordinary-failure named-file and ancestor replacement regressions."
+    }
+  ],
+  "full_suite_observations": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py312-r1.json",
+      "sha256": "10f65120bc5b67971dd4057f31920a3bb2fe1fb9863a37e4238e896425bb08bb",
+      "size_bytes": 101390
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-full-py313-r1.json",
+      "sha256": "619c589443cc2b414de8bc3be283ba0b7900d7682abfbc42cab1a5590e0b8d45",
+      "size_bytes": 101457
+    }
+  ],
+  "full_suite_environment_result": "Each locked Python:3338 passed,6 failed,33 errors. All failures are preexisting install-cache or Unixsocket fixture restrictions under the local sandbox; no conversion test failed. Normal host approval needed to execute the complete revised candidate suite. These runs are not accepted full passes.",
+  "additional_legacy_retirement_probe": "pending independent confirmation; no preemptive success/failure claim",
+  "prior_candidate_immutable": true,
+  "no_source_edits_during_runs": true,
+  "not_delivery_acceptance": true
+}

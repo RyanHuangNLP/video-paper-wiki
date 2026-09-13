@@ -1,0 +1,101 @@
+{
+  "accepted_head": "be7ecf303af2879459036ed8e6831291f168fac4",
+  "accepted_parent": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+  "accepted_tree": "757f33cfcfc561e919b0b5d2702e40834cb53204",
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "architect_independent_recheck": {
+    "commit_blobs": "all 25 commit paths byte-equal to the freeze manifest",
+    "local_suites": "CPython 3.12.14 and 3.13.13 each 1661 passed; installed wheel and private-source hostile-environment probe passed",
+    "merge_ref": "fresh GitHub REST: bd26ab57 with ordered base/head parents and tree 757f33cf; verified signature",
+    "pr": "fresh gh pr view: OPEN, draft, integration, exact head/base, CLEAN and four SUCCESS checks",
+    "run_and_jobs": "fresh gh run view: exact head, attempt 1, completed success and four expected successful jobs"
+  },
+  "closed_blockers": [
+    "ignored live-checkout pyc/import shadow",
+    "private scratch and hostile inherited environment",
+    "complete exact freeze evidence"
+  ],
+  "decided_at_utc": "2026-09-01T02:09:31.136036+00:00",
+  "decision": "ACCEPTED_VPKB_001_ADAPTER_ARCHITECTURE_FREEZE_AT_EXACT_HEAD",
+  "decision_date": "2026-09-01",
+  "freeze_manifest": {
+    "full_25_path_snapshot_sha256": "b27e9e46dae4f4d3a96c519eb9976050e72668775a2c899b9e1cf5fc7bc5869e",
+    "path": "artifacts/verification/VPKB-001-adapter-contract/freeze-candidate.json",
+    "sha256": "63fa8ab5cc9a5f6d9fed2bd225888f58013b11b401457163a85eac777c1998b7"
+  },
+  "fresh_ci": {
+    "attempt": 1,
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 99710888776,
+        "name": "ubuntu-24.04 / Python 3.12",
+        "passed": 1661,
+        "python": "3.12.14"
+      },
+      {
+        "id": 99710888930,
+        "name": "ubuntu-24.04 / Python 3.13",
+        "passed": 1661,
+        "python": "3.13.15"
+      },
+      {
+        "id": 99710888967,
+        "name": "macos-15 / Python 3.12",
+        "passed": 1661,
+        "python": "3.12.14"
+      },
+      {
+        "id": 99710888863,
+        "name": "macos-15 / Python 3.13",
+        "passed": 1661,
+        "python": "3.13.15"
+      }
+    ],
+    "merge_parents_path": "artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-merge-parents.json",
+    "merge_parents_sha256": "e92b2ca62710b1774d25b99241e359426daeab7a93238eaa78ed77695e152325",
+    "merge_sha": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+    "observation_path": "artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-ci-observation.json",
+    "observation_sha256": "28467e3a25cbb1fc33a2d82440a40e740b275ad0b921b2aba25a487e2e9d24ef",
+    "run_id": 33461002166
+  },
+  "frozen_core": {
+    "contract_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+    "packet_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+    "profile_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+    "schema_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+    "source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34"
+  },
+  "human_gate_changed": false,
+  "implementation_authorization": {
+    "architect_and_repo_steward_review_still_required": true,
+    "authorized": true,
+    "builder": "Codex gpt-5.6-sol medium",
+    "requires_separate_exact_allowed_paths": true,
+    "scope": "Only pinned read-only transaction inspect adapter v1 and isolated file stable_source_id described by the frozen contract."
+  },
+  "independent_reviews": {
+    "builder_sha256": "fb5f60464135c63a8f8e406c67f644a49cdc3377fd33c36482a833f9ea7e0bbc",
+    "precommit_audit_sha256": "9d3131fd3b80d2769912ad72603e72eafaba3ea051f99b2aa81a58a3a033070d",
+    "repo_steward_sha256": "82ae4380feedf85c9d5f80a1f8b20453c7f53bb941bc6b55bc7d5befd0d94f82",
+    "verdict": "GO with zero blockers"
+  },
+  "merge_authorized": false,
+  "persistence_note": "This post-CI record is intentionally not part of the already-tested freeze commit. It must be carried unchanged by the next implementation delivery and does not relabel old evidence.",
+  "pr_state_unchanged": true,
+  "schema": "video-paper-wiki.vpkb-001-architecture-freeze-architect-acceptance.v1",
+  "still_not_authorized": [
+    "apply/recover/admin/capture execution",
+    "real Vault mutation",
+    "network/models",
+    "ledger merge/integrity-runtime",
+    "mapper/compiler/index/retrieval",
+    "PR ready/review/merge/auto-merge",
+    "human gate change"
+  ]
+}

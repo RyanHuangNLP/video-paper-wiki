@@ -1,0 +1,40 @@
+{
+  "$schema": "video-paper-wiki.source-semantics-evidence-correction-r3.v1",
+  "recorded_at_utc": "2026-09-09T04:10:00Z",
+  "scope": "Evidence-label correction only. No source, Git, Vault, network, or runtime mutation.",
+  "historical_probe": {
+    "result_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/probes/registration_boundary_r1.result.json",
+    "result_sha256": "9b06d856f854a4616ec60f8b3f65dd6c2d2d4d94538943930df5a91f1478d46c",
+    "findings_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/probes/registration_boundary_r1.findings.json",
+    "findings_sha256": "b8ef690dc2c41b1b68146fd0a64188f6cc30700c9ab28873d8cee175316646ff",
+    "status": "DRAFT_REJECTED",
+    "reason": "The original probe leaked SecureIOError for malformed JSON and parser-depth overflow; it is preserved as rejected draft evidence."
+  },
+  "agent2_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/independent-registration-r1.json",
+    "sha256": "d219147a5b3432d85418bb7bda11a3370e8c93ee8562cc72a226774141e48d39",
+    "status": "CURRENT_GO",
+    "reason": "This is the separate current Agent2 registration review and must not be labeled as the rejected historical probe."
+  },
+  "agent3_semantic_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/independent-semantics-r1.json",
+    "sha256": "f72965f39da66e4db8153988f06d1798f1e751c3e15ffd92b91076a2cff85650",
+    "status": "SEMANTIC_GO_WITH_OBSOLETE_PROBE_CITATION",
+    "reason": "The semantic review conclusion was GO, but its supporting registration citation used the obsolete mislabeled result."
+  },
+  "r2_correction": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/independent-semantics-r2.json",
+    "sha256": "7f19460217917e8f28bbfd817ca2c9daa2403f1a05cb42d248a9bee7f2debe74",
+    "status": "FRESH_PROOF_VALID",
+    "reason": "R2 records the fresh proof and its stable ContractError mappings, but its prior_review link is mislabeled and is superseded by this correction."
+  },
+  "supersedes_only": [
+    "the evidence labels and cross-references above"
+  ],
+  "does_not_change": [
+    "the frozen candidate or its 29-path manifest",
+    "the historical rejected probe bytes",
+    "the source semantics contract or implementation",
+    "the separate Agent2 current GO review"
+  ]
+}

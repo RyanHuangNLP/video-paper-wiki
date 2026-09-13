@@ -1,0 +1,203 @@
+{
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "catalog_count": 67,
+    "head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+    "pull_request": "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94",
+    "pull_request_number": 94,
+    "state": "open-draft-at-last-persisted-observation",
+    "target": "integration",
+    "vpkb_000_acceptance_run_id": 33456016766
+  },
+  "decision": "GO_FOR_ARCHITECTURE_FREEZE_COMMIT_AND_FRESH_CI",
+  "decision_date": "2026-09-01",
+  "decision_scope": "Architecture, schema, static profile, fixtures, registry title, governance and verification evidence only.",
+  "documented_limits": [
+    "The public inspect plan does not independently attest facade original_size_bytes; a later integrity-runtime contract must bind an original-byte snapshot.",
+    "The checked-in authority example is a schema/semantic fixture, not a cross-host stdout/device/inode golden.",
+    "Private execution-tree checks close ordinary import inputs but do not claim an OS sandbox against a privileged same-host actor.",
+    "This POSIX/macOS/Linux mode contract does not claim a Windows implementation in this subrelease."
+  ],
+  "frozen_core": {
+    "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json": {
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "size_bytes": 5731
+    },
+    "docs/ai/contracts/vpkb-001-adapter-contract-v1.md": {
+      "sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "size_bytes": 17356
+    },
+    "docs/ai/packets/VPKB-001-adapter-contract.md": {
+      "sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+      "size_bytes": 6294
+    },
+    "schemas/video-paper-wiki.upstream-authority.v1.schema.json": {
+      "sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "size_bytes": 3741
+    },
+    "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-authority.v1.invalid.json": {
+      "sha256": "38719a382fea64e581db07f83c5e2e9c048ce3931530ee982927871a0ec74826",
+      "size_bytes": 5577
+    },
+    "tests/fixtures/contracts/valid/video-paper-wiki.upstream-authority.v1.json": {
+      "sha256": "f18f287fafe5feb557884db1080cbc38c2507cedf525f89285138d93a7e70af5",
+      "size_bytes": 5577
+    }
+  },
+  "generated_at_utc": "2026-09-01T01:55:04.127278+00:00",
+  "human_gate_changed": false,
+  "implementation_gate": {
+    "builder_assignment_after_acceptance": "A separate exact-head work package will name allowed production/test paths.",
+    "condition": "The exact freeze commit must pass fresh Linux/macOS x Python 3.12/3.13 merge-ref CI, then receive a separate Architect acceptance that names head, base, merge preview, run and all jobs.",
+    "production_implementation_authorized": false
+  },
+  "independent_reviews": {
+    "final_builder": {
+      "blocker_count": 0,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/builder-spec-review.json",
+      "sha256": "fb5f60464135c63a8f8e406c67f644a49cdc3377fd33c36482a833f9ea7e0bbc",
+      "size_bytes": 13088,
+      "verdict": "GO"
+    },
+    "final_repo_steward": {
+      "blocker_count": 0,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/steward-spec-review.json",
+      "sha256": "82ae4380feedf85c9d5f80a1f8b20453c7f53bb941bc6b55bc7d5befd0d94f82",
+      "size_bytes": 15227,
+      "verdict": "GO"
+    },
+    "preserved_history": [
+      {
+        "blocker_count": 1,
+        "path": "artifacts/verification/VPKB-001-adapter-contract/builder-spec-review-r1.json",
+        "sha256": "94a1e0728592278be36e77c34d0fb4dc96f0fecf58308ed1046130ffde6e87fd",
+        "size_bytes": 9830,
+        "verdict": "CHANGES_REQUIRED"
+      },
+      {
+        "blocker_count": 2,
+        "path": "artifacts/verification/VPKB-001-adapter-contract/steward-spec-review-r1.json",
+        "sha256": "f184fd056fe68955de47b72cd5efc9e653253a5b992cf767d0fee6d76ea77bca",
+        "size_bytes": 16854,
+        "verdict": "CHANGES_REQUIRED"
+      },
+      {
+        "blocker_count": 0,
+        "path": "artifacts/verification/VPKB-001-adapter-contract/builder-spec-review-r2.json",
+        "sha256": "2daa4c4b6076ba2d2e4609db49d94d237e9b3139a1644647ee4e2d087cf73bf2",
+        "size_bytes": 12034,
+        "verdict": "GO"
+      },
+      {
+        "blocker_count": 0,
+        "path": "artifacts/verification/VPKB-001-adapter-contract/steward-spec-review-r2.json",
+        "sha256": "0654a41087caebe7ed2c26cf3a2653c4d5e7b8c10ed5930e73322e2d1ab848c8",
+        "size_bytes": 16214,
+        "verdict": "GO"
+      }
+    ]
+  },
+  "local_verification": {
+    "catalog_count": 67,
+    "focused": {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/contract/test_schemas.py tests/contract/test_engine_mvp_seed.py tests/contract/test_engine_mvp_code_urls.py --basetemp=/private/tmp/vpkb001-root-freeze-r3",
+      "failures": 0,
+      "passed": 42
+    },
+    "full_suites": [
+      {
+        "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /private/tmp/vpkb-py312-venv/bin/python -m pytest -q tests -p no:cacheprovider --basetemp=/private/tmp/vpkb001-freeze-final312 --junitxml=/private/tmp/vpkb001-freeze-final312.xml",
+        "environment": "authorized host execution for AF_UNIX fixtures",
+        "errors": 0,
+        "failures": 0,
+        "junit_sha256": "34202ebe1296b6e472515fc5f11a3a5135468d206b3ac9d6e51d655bf8e1ecc6",
+        "passed": 1661,
+        "pytest_reported_seconds": 66.34,
+        "python": "CPython 3.12.14",
+        "skipped": 0
+      },
+      {
+        "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests -p no:cacheprovider --basetemp=/private/tmp/vpkb001-freeze-final313 --junitxml=/private/tmp/vpkb001-freeze-final313.xml",
+        "environment": "authorized host execution for AF_UNIX fixtures",
+        "errors": 0,
+        "failures": 0,
+        "junit_sha256": "7472f9e2753ac21f5a34dd0fd13ad8402ad446a93e085234344a7b443040656e",
+        "passed": 1661,
+        "pytest_reported_seconds": 63.63,
+        "python": "CPython 3.13.13",
+        "skipped": 0
+      }
+    ],
+    "git_diff_check": "passed",
+    "installed_wheel": {
+      "build": "offline uv wheel build",
+      "result": "PASS: installed module path, 22 schemas, central valid fixture acceptance, schema/profile byte equality.",
+      "smoke_log_sha256": "581fe3b28b163a7107db9a045ad5b8e3df153c1746809e818ca2b1cee626c643",
+      "wheel_sha256": "23b505f8a66decde4b31a62204c8dc21571b92935462f516cc910f92692f095d",
+      "wheel_size_bytes": 186001
+    },
+    "json_yaml_parse": "passed",
+    "managed_sandbox_diagnostic": "Both Python suites first produced only the five known AF_UNIX fixture PermissionError failures with 1656 passes; the exact test set passed under normal host socket permissions.",
+    "strict_snapshot_environment_probe": {
+      "external_result_sha256": "4fcf05d2c28fb5226c8652e768a9b0bd0723d99c2c086df49a180b4048951e4c",
+      "result": "PASS: real public inspect and source-ID child, exact four-key env mapping, 21 mode-0400 files, empty scratch after children, no pycache, and unchanged disposable Vault/live sources."
+    }
+  },
+  "merge_authorized": false,
+  "not_authorized": [
+    "production adapter code",
+    "apply/recover/admin/capture execution",
+    "real Vault mutation",
+    "network/models",
+    "mapper/compiler/index/retrieval",
+    "PR ready/review/merge/auto-merge",
+    "human gate change"
+  ],
+  "packet": "VPKB-001-adapter-contract",
+  "resolved_findings": [
+    {
+      "final_reviews": "GO",
+      "id": "EXECUTABLE_SOURCE_CLOSURE_IGNORES_IGNORED_BYTECODE",
+      "resolution": "Both children run only from a fresh exact 21-file private source tree; ignored live-checkout pyc and all extras are excluded; source tree and checkout are verified before and after."
+    },
+    {
+      "final_reviews": "GO",
+      "id": "CHILD_SCRATCH_ENVIRONMENT_IMPLEMENTATION_CONDITION",
+      "resolution": "The subprocess env mapping is replaced by exactly four scratch-root keys. Caller Vault, temp, Python, proxy, locale and credential values are not supplied."
+    },
+    {
+      "final_reviews": "GO-subject-to-final-manifest-generation",
+      "id": "FREEZE_EVIDENCE_SET_INCOMPLETE",
+      "resolution": "R1/R2 history and final R3 reviews are persisted; this Architect decision and the self-excluding exact-path manifest complete the precommit set."
+    }
+  ],
+  "schema": "video-paper-wiki.vpkb-001-architect-freeze.v1",
+  "subrelease": "pinned-read-only-transaction-inspect-adapter-v1",
+  "upstream_authority": {
+    "child_env_mapping": {
+      "keys": [
+        "HOME",
+        "TEMP",
+        "TMP",
+        "TMPDIR"
+      ],
+      "mode": "replace-subprocess-env-mapping",
+      "value": "private-scratch-directory"
+    },
+    "commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "distribution": "claude-obsidian",
+    "execution_directory_mode": "0700",
+    "execution_file_mode": "0400",
+    "execution_source": "fresh-private-profile-source-copy-v1",
+    "live_checkout_used_for_imports": false,
+    "source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+    "verified_file_count": 21,
+    "version": "2.1.1"
+  }
+}

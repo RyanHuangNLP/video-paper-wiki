@@ -1,0 +1,203 @@
+{
+  "baseline": {
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "catalog_count": 67,
+    "expected_state": "OPEN/draft -> integration",
+    "head": "17c13f6317416f47d2610240aaf905598131e5bc",
+    "index_empty": true,
+    "pull_request": 94,
+    "tracked_baseline_clean_before_architecture_changes": true
+  },
+  "blockers": [
+    {
+      "counterevidence": {
+        "allowed_as": "title-only schema-registry admission",
+        "change": "adds video-paper-wiki.upstream-capture-authority.v1 to the production schema title registry",
+        "path": "src/video_paper_wiki/contracts.py"
+      },
+      "id": "SCOPE-MACHINE-CLAIM-001",
+      "json_pointer": "/scope/production_code_changed",
+      "minimum_fix": "Replace the false field with production_code_changed=true and add a precise production_adapter_behavior_changed=false (or remove/rename the ambiguous field), while retaining the exact title-only restriction. Recompute the work-package hash and every downstream manifest/reference; obtain fresh independent review of the new bytes.",
+      "observed": false,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-work-package.json",
+      "reason": "The candidate is architecture-only in behavior, but it does change a production source file. The closed machine work package therefore makes a false scope claim and cannot be frozen as exact evidence."
+    }
+  ],
+  "candidate_core": [
+    {
+      "path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md",
+      "sha256": "df725681651984f69bd339592b50e8d271a6ca8a8e0e52a127ff3a564df30a54",
+      "size_bytes": 17234
+    },
+    {
+      "path": "schemas/video-paper-wiki.upstream-capture-authority.v1.schema.json",
+      "sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+      "size_bytes": 8032
+    },
+    {
+      "path": "catalog/claude-obsidian-capture-apply-dry-run-9f8c119-v1.profile.json",
+      "sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+      "size_bytes": 6221
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.upstream-capture-authority.v1.json",
+      "sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6",
+      "size_bytes": 3262
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-capture-authority.v1.invalid.json",
+      "sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+      "size_bytes": 3257
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-work-package.json",
+      "sha256": "d6292e2fc4115911bc765692d075e2136fd5954c97d76db884f7412ab6c49e33",
+      "size_bytes": 9188
+    }
+  ],
+  "checks": [
+    {
+      "evidence": "git rev-parse HEAD equals exact baseline; branch exact",
+      "id": "BASELINE-HEAD",
+      "result": "pass"
+    },
+    {
+      "evidence": "git diff --cached --name-only empty",
+      "id": "INDEX",
+      "result": "pass"
+    },
+    {
+      "evidence": "tracked governance and byte-fixed prior evidence consistently require OPEN/draft -> integration, new exact-head merge-ref CI, separate Architect acceptance, and no merge/ready/review/auto-merge/human-gate action",
+      "id": "PR-FLOW",
+      "result": "pass"
+    },
+    {
+      "evidence": "three files parse; SHA-256 values are 6d60cdd9678fa9ea49807af7c7ff56d298bfafa90d3568e6a752e920def73dc6, 20788ae4b7315fa87ee8df1c2ba812e92d211bf8cd1f9c76f67e3957d163cfc3, 56a6732afcce17e79bf5bbeb5ae609b39367638e45c2fd1119d86a11d329f8e6; packet/work package require byte-exact successor carriage",
+      "id": "PRIOR-EVIDENCE-CARRIAGE",
+      "result": "pass"
+    },
+    {
+      "evidence": "git diff against HEAD is empty for accepted v1 contract/schema/profile/valid-invalid fixtures; upstream_adapter.py is unchanged",
+      "id": "OLD-V1-IMMUTABILITY",
+      "result": "pass"
+    },
+    {
+      "evidence": "all 15 current candidate_files in architecture-work-package match declared SHA-256 and size",
+      "id": "CORE-HASH-SIZE",
+      "result": "pass"
+    },
+    {
+      "evidence": "all candidate JSON and three acceptance JSON parse; task-index parses with Ruby Psych",
+      "id": "JSON-YAML-PARSE",
+      "result": "pass"
+    },
+    {
+      "evidence": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/contract/test_schemas.py --basetemp=/private/tmp/vpkb001-capture-spec-steward-r1 => 42 passed",
+      "id": "SCHEMA-REGISTRY",
+      "result": "pass"
+    },
+    {
+      "evidence": "21 verified vendor files match declared size/SHA; independently recomputed snapshot 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+      "id": "UPSTREAM-PROFILE-SNAPSHOT",
+      "result": "pass"
+    },
+    {
+      "evidence": "pinned public command_capture_apply emits dry-run/noop, one operation, and create-only approved_plan_sha256/generated_at/approval_hint as specified; no --apply is authorized",
+      "id": "COMMAND-PROFILE-COMPATIBILITY",
+      "result": "pass"
+    },
+    {
+      "evidence": "closed schema admits valid create fixture and rejects invalid media_type fixture; constants bind profile SHA, upstream pin/tree and source snapshot",
+      "id": "CONTRACT-SCHEMA-FIXTURES",
+      "result": "pass"
+    },
+    {
+      "evidence": "docs/seed/engine-mvp.json papers count remains 67; seed/overlay files are outside candidate",
+      "id": "CATALOG",
+      "result": "pass"
+    },
+    {
+      "evidence": "git diff --check returned success",
+      "id": "DIFF-CHECK",
+      "result": "pass"
+    },
+    {
+      "evidence": "no adapter behavior, CLI, dependency, lock, workflow, vendor, Vault, facade, capture helper, generation, catalog-row or retrieval change; only production edit is title registry admission, which makes the machine scope boolean false as described in blocker",
+      "id": "ARCHITECTURE-ONLY-BEHAVIOR",
+      "result": "pass-with-blocker"
+    }
+  ],
+  "immutable_v1_inputs": [
+    {
+      "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md",
+      "sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "size_bytes": 17356
+    },
+    {
+      "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+      "sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "size_bytes": 3741
+    },
+    {
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "size_bytes": 5731
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.upstream-authority.v1.json",
+      "sha256": "f18f287fafe5feb557884db1080cbc38c2507cedf525f89285138d93a7e70af5",
+      "size_bytes": 5577
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-authority.v1.invalid.json",
+      "sha256": "38719a382fea64e581db07f83c5e2e9c048ce3931530ee982927871a0ec74826",
+      "size_bytes": 5577
+    }
+  ],
+  "nonblocking_limitations": [
+    "No real pinned CLI execution, dual-Python full suite, installed-wheel check, remote CI, or Architect freeze acceptance was performed by this review; those remain later gates.",
+    "execution_snapshot.host_path_serialized=true describes the pinned raw stdout containing an absolute content_file; host_path_serialization_policy and the authority schema retain only stdout hash/size and omit that path. This is acceptable only with that distinction preserved.",
+    "The contract should clarify that validate_upstream_capture_authority schema-shape failures retain SCHEMA_INVALID while post-schema correlation failures use UPSTREAM_CONTRACT_MISMATCH; current text defines constructed-authority mismatch but leaves the object-only entry point implicit.",
+    "The final source filename restrictions of the pinned upstream include a 240-byte limit and reserved Windows basenames beyond the stated request regex. The implementation may map those public refusals, but explicitly documenting whether they are phase-1 ADAPTER_PATH_INVALID or upstream refusal would make the accepted input set exact.",
+    "Post-child snapshot wording should be read as applying only after a baseline Vault snapshot exists; phase-1 argument refusals must continue to perform no filesystem I/O."
+  ],
+  "prior_acceptance_records": [
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/ci-observation.json",
+      "sha256": "6d60cdd9678fa9ea49807af7c7ff56d298bfafa90d3568e6a752e920def73dc6",
+      "size_bytes": 12109
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/merge-parents.json",
+      "sha256": "20788ae4b7315fa87ee8df1c2ba812e92d211bf8cd1f9c76f67e3957d163cfc3",
+      "size_bytes": 3396
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/architect-acceptance.json",
+      "sha256": "56a6732afcce17e79bf5bbeb5ae609b39367638e45c2fd1119d86a11d329f8e6",
+      "size_bytes": 6078
+    }
+  ],
+  "re_review_condition": "Review a new exact candidate only after the machine scope claim and all dependent hashes/references are updated; do not relabel this R1 report as GO.",
+  "reviewed_at_utc": "2026-09-01T03:54:42.362696+00:00",
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-steward-spec-review.v1",
+  "scope_assessment": {
+    "accepted_v1_paths_excluded_from_edit": true,
+    "allowed_path_list_is_narrow_and_explicit": true,
+    "git_or_remote_mutation_authorized": false,
+    "human_gate_changed": false,
+    "integrity_runtime_unblocked": false,
+    "merge_authorized": false,
+    "production_adapter_implementation_authorized": false,
+    "protected_user_paths_excluded": true,
+    "vpkb_001_complete": false
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

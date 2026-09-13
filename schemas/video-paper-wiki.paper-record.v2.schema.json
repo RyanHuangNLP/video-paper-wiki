@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.paper-record.v2.schema.json",
+  "title": "video-paper-wiki.paper-record.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "paper_id",
+    "title",
+    "title_zh",
+    "authors",
+    "published_at",
+    "aliases",
+    "source_ids",
+    "taxonomy",
+    "active_extraction_path",
+    "active_extraction_sha256",
+    "section_claim_refs",
+    "created_at",
+    "updated_at",
+    "source_associations",
+    "display_head"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.paper-record.v2"
+    },
+    "paper_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+    },
+    "title": {
+      "type": "string"
+    },
+    "title_zh": {
+      "type": "string"
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+        }
+      ]
+    },
+    "arxiv_id": {
+      "type": "string"
+    },
+    "doi": {
+      "type": "string"
+    },
+    "aliases": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "source_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+      }
+    },
+    "code_urls": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"
+      }
+    },
+    "active_extraction_path": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"
+        }
+      ]
+    },
+    "active_extraction_sha256": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      ]
+    },
+    "taxonomy": {
+      "type": "array",
+      "items": {
+        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/taxonomy_ref"
+      }
+    },
+    "section_claim_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/section_claim_ref"
+      }
+    },
+    "created_at": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+    },
+    "updated_at": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+    },
+    "source_associations": {
+      "type": "array",
+      "maxItems": 1024,
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "association_id",
+          "sha256"
+        ],
+        "properties": {
+          "association_id": {
+            "type": "string",
+            "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "display_head": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decision_id",
+            "sha256"
+          ],
+          "properties": {
+            "decision_id": {
+              "type": "string",
+              "pattern": "^svd-[0-9a-f]{64}$(?![\\s\\S])"
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "section_claim_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "section",
+        "claim_id",
+        "core",
+        "lifecycle"
+      ],
+      "properties": {
+        "section": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/section_id"
+        },
+        "claim_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+        },
+        "core": {
+          "type": "boolean"
+        },
+        "lifecycle": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/lifecycle"
+        }
+      }
+    }
+  }
+}

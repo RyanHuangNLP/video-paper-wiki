@@ -1,0 +1,219 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-architect-local-acceptance.v1",
+  "revision": 6,
+  "issued_at_utc": "2026-09-01T20:46:04Z",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "staged-pdf-capture-inspect-v1",
+  "decision": "PASSED_LOCAL_R6_PORTABLE_TEST_FIXTURE_CANDIDATE_PENDING_EXACT_DELIVERY_AND_FRESH_CI",
+  "authority": {
+    "work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json",
+      "sha256": "8843af7b2ac29a737dd47c367fc019579510e7a398fe7fd371b79df83853e842",
+      "size_bytes": 12933
+    },
+    "builder_candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r6.json",
+      "sha256": "e94de4bebb2a1094e910bdfeb2651728c2746fc0d38ca0e1942f57fa615667aa",
+      "size_bytes": 14030
+    },
+    "independent_review": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/steward-review-r6.json",
+      "sha256": "736c4e4296f611b2c4cd5f012498cc24c97cc3790dff56643626c372d4f9722a",
+      "size_bytes": 13761
+    },
+    "r5_ci_failure_observation": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/ci-failure-observation-r5.json",
+      "sha256": "a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34",
+      "size_bytes": 5843
+    }
+  },
+  "candidate": {
+    "baseline_head": "39d279fa8b357d63ef282cbc9dee35a93773e4d4",
+    "r5_failed_tree": "e740f43de6c39922cfe3f799c6574183d406d2a6",
+    "source_test_changed_paths": [
+      "tests/unit/test_prepare.py"
+    ],
+    "test_file": {
+      "path": "tests/unit/test_prepare.py",
+      "sha256": "1d34edeac903268f1bec8551449b3c8091c06e592afbfe99cb31aed49c40f6a6",
+      "size_bytes": 32657
+    },
+    "candidate_source_snapshot_sha256": "da6c2472cd1a6714ce9a3ba03b7851006cf8a3292d3a77e734ae17ef51a6171c",
+    "candidate_source_path_count": 18,
+    "production_files": {
+      "src/video_paper_wiki/captured_snapshot.py": {
+        "path": "src/video_paper_wiki/captured_snapshot.py",
+        "sha256": "3455186ec7a87c29a67314779eeed941aedc91009ad224c0b79382068276d018",
+        "size_bytes": 9423,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/cli.py": {
+        "path": "src/video_paper_wiki/cli.py",
+        "sha256": "53f7d77ab1c34d96b2c400839abbe499845ae50dd5b9f292d108f10eaa81acfb",
+        "size_bytes": 8644,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/commands/capture.py": {
+        "path": "src/video_paper_wiki/commands/capture.py",
+        "sha256": "7067dce5aabba67894fe856a36045ddce323a6ec69cd8f011ff23d122324f6df",
+        "size_bytes": 230,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/commands/prepare.py": {
+        "path": "src/video_paper_wiki/commands/prepare.py",
+        "sha256": "5bfb14e73d2f25589316c0cda7832933624a3bad2ed521a528a2161a943e5b3b",
+        "size_bytes": 12610,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/contracts.py": {
+        "path": "src/video_paper_wiki/contracts.py",
+        "sha256": "06aa47e58e35fb87d1c8ce520e499bf1dbedc022f0f42a4ed9be1d1533682906",
+        "size_bytes": 75547,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/staged_capture.py": {
+        "path": "src/video_paper_wiki/staged_capture.py",
+        "sha256": "0904042ead608af849587e64bbd1a755c7d3d20a504c77fe8fb92beb929d23d5",
+        "size_bytes": 24854,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/staging.py": {
+        "path": "src/video_paper_wiki/staging.py",
+        "sha256": "60016d344a227a1a98bc7b9475fe553ed81fa4bd6f8ffc57a28c461daf4e821d",
+        "size_bytes": 54921,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/transaction_staging.py": {
+        "path": "src/video_paper_wiki/transaction_staging.py",
+        "sha256": "71d77db124be2673362a6186f68af1df7e354f975bcac985c4bf2237927694b1",
+        "size_bytes": 11104,
+        "unchanged_from_r5": true
+      },
+      "src/video_paper_wiki/upstream_adapter.py": {
+        "path": "src/video_paper_wiki/upstream_adapter.py",
+        "sha256": "4ffe8d84be005d25cc3d5e377e8a5ca9f79d5b9441e5075682552e884aa23406",
+        "size_bytes": 64058,
+        "unchanged_from_r5": true
+      }
+    }
+  },
+  "architect_review": {
+    "fixture_mechanism": "The helper creates a byte-identical same-directory sibling while the original target still has its directory entry, proves different live (st_dev, st_ino), preserves permission bits/size/mtime, atomically replaces the name, and verifies the name resolves to the pre-observed replacement identity and exact bytes.",
+    "portable_failure_closed": "It does not depend on allocation after unlink, so immediate inode reuse on Ubuntu cannot falsify the fixture.",
+    "security_semantics_preserved": [
+      "exit status 2",
+      "WORK_PATH_UNSAFE",
+      "blob-window request remains unpublished",
+      "request-window safe blob remains exact",
+      "zero-network assertions"
+    ],
+    "forbidden_shortcuts_absent": [
+      "no skip or xfail",
+      "no retry or sleep",
+      "no acceptance of equal identity",
+      "no production change",
+      "no contract/schema/CLI/error-code change"
+    ],
+    "findings": []
+  },
+  "independent_verification": {
+    "candidate_sha_size_map_recomputed": true,
+    "candidate_snapshot_recomputed": true,
+    "builder_logs_and_junit_rehashed": true,
+    "builder_junit_counts_reparsed": true,
+    "root_tests": [
+      {
+        "name": "two_ci_failure_nodes",
+        "python": "3.13.13",
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "junit": {
+          "path": "/private/tmp/vpkb-spci-r6-root-nodes.xml",
+          "sha256": "c888b03dfb27515162c105b5401fc15ed252c1e6c34cf056bbbe87c776e736c4",
+          "size_bytes": 533
+        }
+      },
+      {
+        "name": "focused_15_file_matrix",
+        "python": "3.13.13",
+        "passed": 289,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "junit": {
+          "path": "/private/tmp/vpkb-spci-r6-root-focus.xml",
+          "sha256": "a855379ba0ea03376ac6525feb6ab7b627904a86541a7df5df589bad44310625",
+          "size_bytes": 42073
+        },
+        "log": {
+          "path": "/private/tmp/vpkb-spci-r6-root-focus.log",
+          "sha256": "e0ebf7bf4d8c8a0bee4745693dbc40a0193c08c6e9f3bac45a89889350b9d452",
+          "size_bytes": 421
+        }
+      },
+      {
+        "name": "complete_python_3_13",
+        "python": "3.13.13",
+        "passed": 1962,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "junit": {
+          "path": "/private/tmp/vpkb-spci-r6-root-full313.xml",
+          "sha256": "d13d245c5124140db31a570432fd6485433462e75a4f66439b3cb6d529ea7c51",
+          "size_bytes": 482812
+        }
+      },
+      {
+        "name": "complete_python_3_12",
+        "python": "3.12.14",
+        "passed": 1962,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "junit": {
+          "path": "/private/tmp/vpkb-spci-r6-root-full312.xml",
+          "sha256": "787ccddad60be2b52eebf083100864ebd050ac3cc11f90f5f876d3eda221e9b3",
+          "size_bytes": 482812
+        }
+      }
+    ],
+    "repo_steward_result": "GO_FOR_ARCHITECT_R6_LOCAL_ACCEPTANCE",
+    "repo_steward_independent_counts": {
+      "two_nodes": 2,
+      "prepare_module": 53,
+      "focused": 289
+    },
+    "sandbox_adjudication": "Full and focused suites were run with local AF_UNIX permission because the managed sandbox denies socket.bind; no external network or real Vault access was authorized or used."
+  },
+  "scope_invariants": {
+    "catalog_count": 67,
+    "git_diff_check_exit_code": 0,
+    "git_index_empty": true,
+    "protected_paths_untouched": true,
+    "real_vault_accessed": false,
+    "network_accessed": false,
+    "pr_mutated": false,
+    "all_production_source_unchanged_from_r5": true
+  },
+  "remaining_gates": [
+    "create and independently audit an exact R6 delivery manifest",
+    "commit only the exact authorized successor path set and push normally",
+    "obtain fresh four-job pull_request CI for the new exact head",
+    "bind actual merge preview and ordered parents",
+    "issue separate exact-head Architect acceptance; keep PR draft and user human gate open"
+  ],
+  "authorization": {
+    "local_candidate_accepted": true,
+    "exact_git_delivery_authorized_by_this_record_alone": false,
+    "merge_authorized": false,
+    "ready_for_review_authorized": false,
+    "human_gate_closed": false
+  }
+}

@@ -2,20 +2,110 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.prepared.v1.schema.json",
   "title": "video-paper-wiki.prepared.v1",
-  "type": "object", "additionalProperties": false,
+  "type": "object",
+  "additionalProperties": false,
   "required": ["schema", "batch_id", "pdf_sha256", "media_type", "page_count", "byte_count", "docling_version", "docling_core_version", "parser_config_sha256", "model_manifest_sha256", "pipeline_fingerprint", "artifacts", "metadata_candidates"],
   "properties": {
-    "schema": {"const": "video-paper-wiki.prepared.v1"}, "batch_id": {"type": "string", "minLength": 1},
-    "pdf_sha256": {"$ref": "#/$defs/sha256"}, "media_type": {"const": "application/pdf"},
-    "page_count": {"type": "integer", "minimum": 1}, "byte_count": {"type": "integer", "minimum": 1},
-    "docling_version": {"type": "string", "minLength": 1}, "docling_core_version": {"type": "string", "minLength": 1},
-    "parser_config_sha256": {"$ref": "#/$defs/sha256"}, "model_manifest_sha256": {"$ref": "#/$defs/sha256"},
-    "pipeline_fingerprint": {"type": "string", "minLength": 1},
-    "artifacts": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
-    "metadata_candidates": {"type": "object", "additionalProperties": false, "properties": {"title": {"type": "string"}, "title_zh": {"type": "string"}, "authors": {"type": "array", "items": {"type": "string"}}, "arxiv_id": {"type": "string"}, "doi": {"type": "string"}}}
+    "schema": {"const": "video-paper-wiki.prepared.v1"},
+    "batch_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"},
+    "pdf_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+    "media_type": {"const": "application/pdf"},
+    "page_count": {"type": "integer", "minimum": 1, "maximum": 300},
+    "byte_count": {"type": "integer", "minimum": 1, "maximum": 67108864},
+    "docling_version": {"const": "2.117.0"},
+    "docling_core_version": {"const": "2.92.0"},
+    "parser_config_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+    "model_manifest_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+    "pipeline_fingerprint": {
+      "$comment": "SHA-256 of RFC8785-JCS({engine, engine_version, core_version, config_sha256, model_manifest_sha256}).",
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 3,
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/artifact"},
+      "allOf": [
+        {
+          "contains": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "path", "sha256"],
+            "properties": {
+              "kind": {"const": "document_json"},
+              "path": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"},
+              "sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "path", "sha256"],
+            "properties": {
+              "kind": {"const": "parser_config"},
+              "path": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"},
+              "sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "path", "sha256"],
+            "properties": {
+              "kind": {"const": "model_manifest"},
+              "path": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"},
+              "sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+            }
+          },
+          "minContains": 1,
+          "maxContains": 1
+        },
+        {
+          "contains": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["kind", "path", "sha256"],
+            "properties": {
+              "kind": {"const": "run_record"},
+              "path": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"},
+              "sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+            }
+          },
+          "minContains": 0,
+          "maxContains": 1
+        }
+      ]
+    },
+    "metadata_candidates": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {"type": "string"},
+        "title_zh": {"type": "string"},
+        "authors": {"type": "array", "items": {"type": "string"}},
+        "arxiv_id": {"type": "string"},
+        "doi": {"type": "string"}
+      }
+    }
   },
   "$defs": {
-    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-    "artifact": {"type": "object", "additionalProperties": false, "required": ["kind", "path", "sha256"], "properties": {"kind": {"enum": ["document_json", "parser_config", "model_manifest", "run_record"]}, "path": {"type": "string"}, "sha256": {"$ref": "#/$defs/sha256"}}}
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256"],
+      "properties": {
+        "kind": {"enum": ["document_json", "parser_config", "model_manifest", "run_record"]},
+        "path": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"},
+        "sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+      }
+    }
   }
 }

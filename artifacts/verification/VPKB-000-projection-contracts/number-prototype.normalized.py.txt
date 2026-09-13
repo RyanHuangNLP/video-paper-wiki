@@ -1,0 +1,98 @@
+"""Review-only candidate codec; not released production contract or implementation."""
+import copy
+import hashlib
+import json
+import math
+from pathlib import Path
+from video_paper_wiki.contracts import validate_document
+from video_paper_wiki.identity import evidence_fingerprint
+from video_paper_wiki.jcs import CanonicalJsonError, canonicalize
+
+repo = Path.cwd()
+fixtures = repo / 'tests/fixtures/contracts'
+evidence = json.loads((fixtures / 'identity/evidence_order_a.json').read_text())
+fractional = copy.deepcopy(evidence)
+next(e for e in fractional if e['kind'] == 'pdf')['bbox'] = [10.25, 20.5, 100.125, 40.75]
+expected = json.loads((fixtures / 'identity/formulas.json').read_text())['evidence_fingerprint']['expected']
+assert evidence_fingerprint(evidence) == evidence_fingerprint(fractional) == expected
+paper = json.loads((fixtures / 'valid/video-paper-wiki.paper-analysis-draft.v1.json').read_text())
+paper['claims'][0]['locators'][0]['bbox'] = [10.25, 20.5, 100.125, 40.75]
+validate_document(paper)
+try:
+    canonicalize(paper)
+except CanonicalJsonError as exc:
+    direct = exc.code
+else:
+    raise AssertionError('Direct whole-document JCS should reject float')
+
+# Tree uses arrays for object members, so even the independent final serializer
+# needs only ASCII wrapper-key sorting. UTF16 member sorting is explicit below.
+def tree(value):
+    t = type(value)
+    if value is None:
+        return ['null']
+    if t is bool:
+        return ['bool', value]
+    if t is int:
+        return ['number', value, 1]
+    if t is float:
+        if not math.isfinite(value):
+            raise ValueError('nonfinite')
+        n, d = value.as_integer_ratio()
+        return ['number', n, d]
+    if t is str:
+        value.encode('utf-8')
+        return ['string', value]
+    if t is list:
+        return ['array', [tree(item) for item in value]]
+    if t is dict:
+        if not all(type(key) is str for key in value):
+            raise ValueError('non-string key')
+        for key in value:
+            key.encode('utf-8')
+        return ['object', [[key, tree(value[key])] for key in sorted(value, key=lambda key: key.encode('utf-16-be'))]]
+    raise ValueError('unsupported type')
+
+def material(value, profile='review-vector-v1'):
+    wrapped = {'codec': 'vpwiki.runtime-tree.v1', 'profile': profile, 'tree': tree(value)}
+    independent = json.dumps(wrapped, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False).encode('utf-8')
+    assert independent == canonicalize(wrapped)
+    return independent
+
+vectors = {}
+for name, value in [('null', None), ('true', True), ('one_int', 1), ('one_float', 1.0), ('zero_int', 0), ('negative_zero', -0.0), ('point_one', 0.1), ('next_one', math.nextafter(1.0, math.inf)), ('k1', 1.5), ('b', 0.75), ('subnormal', math.ulp(0.0)), ('max_float', float.fromhex('0x1.fffffffffffffp+1023')), ('tag_like_array', ['number', 1, 1]), ('utf16_order', {'\ue000': 1, '\U00010000': 2})]:
+    data = material(value)
+    vectors[name] = {'canonical_utf8': data.decode(), 'sha256': hashlib.sha256(data).hexdigest()}
+assert vectors['one_int'] == vectors['one_float']
+assert vectors['zero_int'] == vectors['negative_zero']
+assert vectors['true'] != vectors['one_int']
+assert vectors['one_float'] != vectors['next_one']
+assert vectors['tag_like_array'] != vectors['one_int']
+assert tree({'\ue000': 1, '\U00010000': 2})[1][0][0] == '\U00010000'
+for invalid in (float('nan'), float('inf'), -float('inf'), '\ud800', {1: 'x'}, (1, 2)):
+    try:
+        material(invalid)
+    except (ValueError, UnicodeError):
+        pass
+    else:
+        raise AssertionError(repr(invalid))
+
+bm25path = Path('<TEMP_ROOT>/vtf13-r2-final/up0/v/.vault-meta/bm25/index.json')
+bm25 = json.loads(bm25path.read_text())
+# Artifact came from accepted fixture; this prototype does not claim to validate
+# a future closed emitter schema or enforce cycle/depth/size limits.
+assert bm25['schema_version'] == 2
+without_timestamp = {key: value for key, value in bm25.items() if key != 'updated_at'}
+baseline = material(without_timestamp, 'bm25-emitter-v2')
+changed = copy.deepcopy(without_timestamp)
+changed['params']['b'] = math.nextafter(changed['params']['b'], math.inf)
+assert material(changed, 'bm25-emitter-v2') != baseline
+out = {
+    'status': 'review-only-not-frozen',
+    'bbox': {'fractional_document_validate': 'passed', 'evidence_fingerprint_unchanged': expected, 'direct_whole_document_jcs': direct},
+    'codec_vectors': vectors,
+    'actual_fixture_bm25': {'raw_sha256': hashlib.sha256(bm25path.read_bytes()).hexdigest(), 'params': bm25['params'], 'avg_dl': bm25['avg_dl'], 'doc_count': bm25['doc_count'], 'candidate_comparison_sha256': hashlib.sha256(baseline).hexdigest(), 'one_ulp_b_change_detected': True},
+    'limits': ['No proposed emitter validation implemented', 'No recursive cycle/depth/size defenses implemented', 'No production or upstream code invoked except project validation/identity/JCS', 'No original runtime artifact changed']
+}
+Path('<TEMP_ROOT>/vpkb-projection-steward-number-review.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({key: val for key, val in out.items() if key != 'codec_vectors'}, indent=2))

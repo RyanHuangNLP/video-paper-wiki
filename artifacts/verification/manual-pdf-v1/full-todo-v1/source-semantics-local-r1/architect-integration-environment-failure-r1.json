@@ -1,0 +1,60 @@
+{
+  "schema": "video-paper-wiki.source-semantics-integration-environment-failure.v1",
+  "recorded_at_utc": "2026-09-09T04:07:17.727548+00:00",
+  "candidate": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/candidate-r1.json",
+    "sha256": "62773fe7abcfdf0ab4aa6b12a40ceb3d14e2f23fe4fac5248a6682b8daa52afa",
+    "size_bytes": 6784
+  },
+  "integrated_preparation": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/integrated-candidate-r1.json",
+    "sha256": "dd7b05f73b04a08183bc1550f7dc16d6f4b08135159d818fcc8fcc2a3d8f8f7e",
+    "size_bytes": 32455
+  },
+  "source_snapshot_sha256": "b06328417faaf1abac4ae39b8fa5521a72a8c58297d6194a5dd48c91c4c526c5",
+  "decision": "FULL_SUITE_R1_NOT_ACCEPTED_MISSING_PINNED_VENDOR_CHECKOUT",
+  "observations": {
+    "vendor_directory_empty": true,
+    "vendor_dot_git_absent": true,
+    "git_show_toplevel_returns_parent_integration_checkout": true,
+    "gitlink_status": "-9f8c1199047eac2c3828496279fbb7ba9540b90b vendor/claude-obsidian",
+    "manifest_vendor_match": false,
+    "manifest_checks_vendor_pin_exact": true,
+    "failure_cause": "The manifest checked a recorded gitlink rather than a populated pinned vendor repository. Both full runs hit missing upstream or UPSTREAM_PIN_MISMATCH. Source remains unchanged."
+  },
+  "runs": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-full-py312-r1.json",
+      "sha256": "3857cc84141094dcddfc5ec1dc6cf8203df3beeda4e043d4fd9964a4fcb0cdf7",
+      "size_bytes": 97170,
+      "passed": false,
+      "source_unchanged": true,
+      "summary": "68 failed, 3008 passed, 31 errors in 190.25s (0:03:10)",
+      "stdout": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-full-py312-r1.stdout.log",
+        "sha256": "0e0a4fd266ba1fdf351a28c2d42ce49a268ee64cf3cda1f1f995bf513edbc8d1"
+      },
+      "stderr": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-full-py312-r1.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-full-py313-r1.json",
+      "sha256": "9fb9db26216023b85ac78867626fe4f376485edfcf94f5f6f08e142c5ef143ca",
+      "size_bytes": 97237,
+      "passed": false,
+      "source_unchanged": true,
+      "summary": "68 failed, 3008 passed, 31 errors in 185.29s (0:03:05)",
+      "stdout": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-full-py313-r1.stdout.log",
+        "sha256": "11c3a7364403e7d411dfe3b9bddb995208b2b5ee190a3577da0057f83ebc1400"
+      },
+      "stderr": {
+        "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-semantics-local-r1/architect-full-py313-r1.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "remediation": "Repo Steward prepares an actual local pinned clone and records a successor preparation; root replays both frozen full suites. No source changes or test weakening authorized."
+}

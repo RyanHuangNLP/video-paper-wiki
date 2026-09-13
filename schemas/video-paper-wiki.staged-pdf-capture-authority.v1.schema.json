@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+  "title": "video-paper-wiki.staged-pdf-capture-authority.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "requested_operation_id",
+    "request_file",
+    "request_sha256",
+    "request",
+    "disposition",
+    "inspection",
+    "transaction_staging",
+    "upstream_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.staged-pdf-capture-authority.v1"
+    },
+    "requested_operation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$(?![\\s\\S])",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "request_file": {
+      "const": "prepared/staged-pdf-capture-request.v1.json"
+    },
+    "request_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "request": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json"
+    },
+    "disposition": {
+      "enum": [
+        "create",
+        "reuse"
+      ]
+    },
+    "inspection": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.capture-inspection.v1.schema.json"
+    },
+    "transaction_staging": {
+      "oneOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-staging.v1.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "upstream_authority": {
+      "oneOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-authority.v1.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "patternProperties": {
+          "^disposition$": {
+            "const": "create"
+          }
+        },
+        "required": [
+          "disposition"
+        ]
+      },
+      "then": {
+        "patternProperties": {
+          "^inspection$": {
+            "patternProperties": {
+              "^would_change$": {
+                "const": true
+              }
+            }
+          },
+          "^transaction_staging$": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-staging.v1.schema.json"
+          },
+          "^upstream_authority$": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-authority.v1.schema.json"
+          }
+        }
+      },
+      "else": {
+        "patternProperties": {
+          "^inspection$": {
+            "patternProperties": {
+              "^would_change$": {
+                "const": false
+              }
+            }
+          },
+          "^transaction_staging$": {
+            "type": "null"
+          },
+          "^upstream_authority$": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ]
+}

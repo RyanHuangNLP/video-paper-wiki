@@ -1,0 +1,71 @@
+{
+  "changed_sources": {
+    "schemas/video-paper-wiki.markdown-capture-approval-ref.v1.schema.json": {
+      "sha256": "de166b0d75c0e39c19f5587b5349473f74d02c515239477c4fa267b5a3f3c952",
+      "size_bytes": 970
+    },
+    "schemas/video-paper-wiki.markdown-capture-authority.v1.schema.json": {
+      "sha256": "6aa174100212a1f7ec354dab4e9ae54e8b6ba0383a35be6d5b3b301da618717b",
+      "size_bytes": 1756
+    },
+    "schemas/video-paper-wiki.markdown-capture-plan.v1.schema.json": {
+      "sha256": "ddf60aa25e45c721cdc350d574a2bdc4f1a7772e6f591d9de16bda1a33d0126d",
+      "size_bytes": 2034
+    },
+    "schemas/video-paper-wiki.markdown-capture-request.v1.schema.json": {
+      "sha256": "6904b8920d7b1b07643999a4f147e805ea4f16cd51e50b5cebb32b1b7c6f28d8",
+      "size_bytes": 1095
+    },
+    "schemas/video-paper-wiki.markdown-source-observation.v1.schema.json": {
+      "sha256": "8da92711aac250ccb0ef26bf7e78a8d91e687c92649f7b211c38ea45c4b2445a",
+      "size_bytes": 3410
+    },
+    "src/video_paper_wiki/markdown_source.py": {
+      "sha256": "243cabd3ca94f10cb18db3d4772e9fe0475deab7574fe174044e60d094f8ecd6",
+      "size_bytes": 16936
+    },
+    "src/video_paper_wiki/markdown_source_contracts.py": {
+      "sha256": "24f2d2ce2e12ea4546349829a010a1f6bf622ce43ac99baf718e83315f3f6346",
+      "size_bytes": 8560
+    },
+    "src/video_paper_wiki/markdown_source_io.py": {
+      "sha256": "3fb3636d872977827b3f0c10f45f95296e484a0f8e6dbc1e10a363749ad1bd40",
+      "size_bytes": 13712
+    },
+    "src/video_paper_wiki_research/formal_source.py": {
+      "sha256": "d99babbf7ab7129aa9f1617e2ad90582ed564b159215c3ab13631318e6c925f0",
+      "size_bytes": 11282
+    }
+  },
+  "findings": [
+    {
+      "contract": "SOURCE-CAPTURE-R1 I/O contract requires refusal of hardlinks and reuse must verify an existing safe exact .md sibling.",
+      "evidence": "A disposable Vault with a real applied generic capture was modified by unlinking .raw/captured/<sha>.md and hardlinking an identical external file at that exact slot. inspect_markdown_capture returned {state:capture_reused, authority.disposition:reuse} while st_nlink=2.",
+      "id": "MD-SOURCE-REVIEW-001",
+      "impact": "An unsafe external inode can be treated as a reusable captured source and then cited by later admission; admission audit may catch it later, but inspect has already emitted a reusable authority.",
+      "locations": [
+        "src/video_paper_wiki/captured_snapshot.py:148-160",
+        "src/video_paper_wiki/markdown_source.py:135-141"
+      ],
+      "probe_command": "PYTHONPATH=src:. /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python /private/tmp/md_hardlink_probe.py",
+      "probe_output": "ACCEPTED capture_reused reuse nlink 2",
+      "severity": "P2",
+      "status": "reproduced",
+      "suggested_fix": "At the Markdown adapter boundary, require the selected .md sibling to be regular, single-link (st_nlink==1), and stable across the retained snapshot; expose enough descriptor state from capture_snapshot or add an adapter-side no-follow stat check.",
+      "title": "Reuse inspection accepts a hardlinked captured Markdown sibling"
+    }
+  ],
+  "focused_tests": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python -m pytest -q tests/contract/test_schemas.py tests/unit/test_markdown_source.py tests/security/test_markdown_source_boundary.py tests/research/test_formal_source.py tests/upstream/test_markdown_source.py --basetemp=/private/tmp/vpkb-md-review-final",
+    "result": "101 passed in 17.74s"
+  },
+  "head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+  "lane": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-1/source",
+  "limitations": [
+    "No product/test/Git files changed in lane-1; only this verification artifact was written.",
+    "The focused suite passed; this finding is outside the current tests."
+  ],
+  "schema": "video-paper-wiki.source-capture-draft-review.v1",
+  "scope": "read-only lane-1 review",
+  "tree": "be13818d9a8d8afd0630672d58b952250dec6e10"
+}

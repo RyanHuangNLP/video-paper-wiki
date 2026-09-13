@@ -1,0 +1,145 @@
+{
+  "$schema": "full-todo.source-publication-contract-review-agent3-r1.v1",
+  "packet": "SOURCE-PUBLICATION",
+  "revision": "R1-independent-agent3",
+  "recorded_at_utc": "2026-09-09T04:20:00Z",
+  "role": "Independent architecture reviewer",
+  "reviewer": "Codex",
+  "scope": "Read-only review of the SOURCE-PUBLICATION-R1 draft. Focus: public prepare/proposal/request/authority closure, no-op semantics, registration admission profile, typed source/claim mapping, schema resources/errors, and untrusted original-path retention. No implementation, source, Git, Vault, network, or runtime mutation.",
+  "decision": "CHANGES_REQUIRED_BEFORE_FREEZE",
+  "contract": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R1.md",
+    "sha256": "80728c1cb070d0c0ba19ff5e9bee9f1414e647f4334f14f3a0e0413dbd069e0d",
+    "allowlist_path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-allowed-paths-r1.json",
+    "allowlist_sha256": "1a7d3b54c3d9695941bc87a04a53c6096a0ed393f24e008229e83cf775484c61",
+    "allowlist_count": 26,
+    "new_schema_paths": [
+      "schemas/video-paper-wiki.assessment-heads.v2.schema.json",
+      "schemas/video-paper-wiki.source-publication-authority.v1.schema.json",
+      "schemas/video-paper-wiki.source-publication-proposal.v1.schema.json",
+      "schemas/video-paper-wiki.source-publication-request.v1.schema.json"
+    ],
+    "upstream_semantics_sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+    "upstream_capture_sha256": "5bf912cc2aec0fec951168779d6336c95733c25be3e4377a611adb55296cacf8"
+  },
+  "positive_checks": [
+    {
+      "id": "FOUR-SCHEMA-SCOPE",
+      "status": "pass",
+      "evidence": "The 26-path allowlist names exactly the four requested durable schemas: proposal, request, authority, and assessment-heads.v2."
+    },
+    {
+      "id": "RETAINED-SESSION-BOUNDARY",
+      "status": "pass",
+      "evidence": "The draft requires one retained Vault snapshot, named directory ancestors, complete fixed slots, success/exception rechecks, and no agent-side apply."
+    },
+    {
+      "id": "LEGACY-PROFILE-SEPARATION",
+      "status": "pass",
+      "evidence": "The draft preserves v1 entrypoints and requires an explicit refusal when a legacy publisher encounters recognized version-aware state."
+    },
+    {
+      "id": "CAPTURE-REGISTRATION-DISTINCTION",
+      "status": "pass",
+      "evidence": "The draft correctly keeps generic Markdown capture receipt=null/head=null and makes registration a separate ingest request with an external capture result."
+    }
+  ],
+  "findings": [
+    {
+      "id": "PROPOSAL-DISCRIMINATOR-AND-SLOT",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The entrypoint describes source-publication-proposal.v1 as exactly {schema, payloads, registration}, while the generated request has an independent kind field. It does not define a proposal kind discriminator, the fixed proposal path, the exact content sibling directory, or a digest/size binding for each content_file.",
+      "impact": "A prepare call cannot unambiguously distinguish knowledge from registration, and an untrusted content_file can be interpreted inconsistently or point outside the retained proposal set.",
+      "required_fix": "Freeze proposal as a closed object with an explicit kind (knowledge|registration), exact registration child shape, sorted unique managed payload paths, and content_file values restricted to the fixed batch-local content directory. Require the filename to equal the computed SHA-256 and size, retain proposal/content ancestors before parsing, reject absolute/traversal/symlink/hardlink/unknown entries, and state the exact fixed proposal slot used by --proposal."
+    },
+    {
+      "id": "NOOP-OUTPUT-SEMANTICS",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The draft says preparation returns a stable explicit no-change result without a transaction, but no exact output fields, digest formula, state vocabulary, or CLI behavior is frozen. The four-schema allowlist contains no no-op result schema.",
+      "impact": "A caller cannot distinguish an idempotent no-op from a missing request, and inspect/apply tooling can accidentally treat a no-op as an unpublished or incomplete transaction.",
+      "required_fix": "Freeze an exact non-durable result envelope (or add an explicitly authorized result schema) with state=no_change, kind, current basis, prospective inventory digest, request_path=null, request_sha256=null, changed_paths=[], published=false, applied=false, and next_action=no_change. Define separate already-registered registration output, prohibit an authority for no-op, and make inspect reject a no-op result deterministically."
+    },
+    {
+      "id": "REGISTRATION-PROFILE-BINDING",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The draft adds publication_profile=legacy-v1|source-v1 to the Markdown admission API and CLI but does not define the source-v1 return envelope, exact delegation call, profile-specific fixed slots, or how the existing admit_markdown_source path stops using the legacy publication inspector.",
+      "impact": "A source-v1 request could silently fall through to the current legacy source-ledger publication path, which cannot validate the version-aware state or four new schemas.",
+      "required_fix": "Specify source-v1 as an explicit dispatch branch that consumes the validated Markdown capture authority plus operation-result authority, constructs kind=registration, and returns the new source-publication prepared/authority or no-change envelope. Require distinct admission batch/operation IDs from capture, exact raw path/hash/mode proof, one new source row only, and no association/display/claim/page writes. Preserve the current legacy-v1 output bytes and refusal behavior. Add the CLI flag, defaults, and stable profile errors to the freeze."
+    },
+    {
+      "id": "KNOWLEDGE-MUST-NOT-REGISTER",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The prospective constraints say knowledge requests may create/replace source and claim ledgers, while registration is described as the distinct source-ledger admission request.",
+      "impact": "A knowledge proposal could add or rewrite a source-ledger row without the required capture proof, registration receipt, source snapshot, or operator-owned admission transition.",
+      "required_fix": "Restrict kind=knowledge to preserving the current source-ledger bytes and source-row identity; it may reference already registered source IDs but may not add, remove, or change source rows. Only kind=registration may add exactly one source row and its content-addressed snapshots, after the exact capture proof and registration branch are validated. Claim-ledger changes must still pass complete owner/evidence/event mapping."
+    },
+    {
+      "id": "LEDGER-CLAIM-OWNER-MAPPING",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The draft calls the claim ledger a pinned closed wire schema, but the existing claim-ledger format is validated through the upstream bounded projection rather than one of the four new schema resources. The draft does not spell out mapping from paper section_claim_refs and repo capability_claim_refs to claim-ledger rows, stable subjects, text, evidence, assessment, and event ownership.",
+      "impact": "A typed collector could accept an orphan ledger claim, silently change claim text/assessment/evidence, or derive the wrong stable subject while still passing the outer JSON shape.",
+      "required_fix": "Freeze a local bounded claim-ledger projection with exact root and row fields, allowed optional/null fields, limits, enum sets, and canonical evidence-wire union, then run the full pinned inspector separately. Build one owner map from complete paper/repo references; derive paper:<paper_id> or repo:<repo_id>, require claim_id(stable_subject,text), and compare ledger text, evidence, assessment, reviewed_at, location, and event paths to the typed claim/event material. Every ledger row and event must have exactly one owner."
+    },
+    {
+      "id": "PARTIAL-LEGACY-MIGRATION",
+      "severity": "high",
+      "status": "open",
+      "evidence": "The draft requires complete claim/event/association/head coverage during collection, but existing valid legacy Vaults can contain structurally valid provisional paper records whose current material is not yet a complete v2 prospective group.",
+      "impact": "Registration or an unrelated read can deadlock on an old partial v1 record, while explicit v1-to-v2 migration should be the point that requires complete prospective validation.",
+      "required_fix": "Separate current structural collection from prospective-complete validation. Preserve and type-check valid partial legacy records as opaque/current v1 state; require complete owner, claim, event, source-association, display-head and rendered-page coverage when that record is touched or explicitly migrated to v2. Do not permit partial material in a v2 write, but do not reject an otherwise valid untouched legacy state merely because it lacks v2 registries."
+    },
+    {
+      "id": "BASIS-AND-AUTHORITY-DIGESTS",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "basis.operation_head_sha256, basis.inventory_sha256, and authority.prospective_inventory_sha256 are named, but their exact canonical input is not frozen. The transaction relationship is also ambiguous because transaction writes include receipt/head business-independent writes while request.payloads describe only business payloads.",
+      "impact": "Two implementations can calculate different stale checks or authority equality while accepting the same Vault, and a child transaction can be incorrectly compared to request payloads.",
+      "required_fix": "Define canonical digest material: ordered path/hash/size/mode inventory, exact head bytes, and current-plus-overlay prospective inventory. Define whether digest input includes absent fixed slots and how modes are encoded. Freeze the transaction comparison as business writes=request payloads, with receipt/head writes and read preconditions checked separately in exact order; bind kind, operation IDs, claimed inputs, and all generated snapshot writes."
+    },
+    {
+      "id": "REGISTRATION-SNAPSHOT-PROOF",
+      "severity": "high",
+      "status": "open",
+      "evidence": "The draft requires preserving a current ledger snapshot when absent and writing the new registration snapshot, but does not define how a pristine genesis ledger, its existing receipt write, a pending source-ledger write, and the derived snapshot paths relate in one transaction.",
+      "impact": "The first registration can either reject a valid pristine genesis state or create a snapshot/receipt path that source_registration.registration_proof cannot bind to the first qualifying ingest write.",
+      "required_fix": "Freeze the registration write set and proof order. Permit the prior snapshot to match the pristine genesis source-ledger bytes when its digest/path is absent, require the pending new snapshot bytes to equal the prospective source-ledger write, and only admit that snapshot after the exact capture proof and one-row registration branch are verified. Reject substitutions, extra snapshot rows, prior ingest claims, and any snapshot that is not bound to the actual receipt/ledger write."
+    },
+    {
+      "id": "SCHEMA-RESOURCE-AND-ERROR-CLOSURE",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The draft names four schema files and stable high-level error codes but does not freeze their exact closed JSON fields/refs, registry dispatch, post-schema checks, installed-wheel resource parity, fixture count, or pointer/exit-code precedence for parse, stale, profile, history, and retained-path failures.",
+      "impact": "A schema can validate in the repo but disappear from the installed package, or the same malformed input can produce unstable error codes and mutate staging before refusal.",
+      "required_fix": "Add exact schema definitions with additionalProperties=false, child refs, canonical bounds, and cross-object checks; add all four to _SCHEMA_TITLES, validate_document dispatch, and package resources. Freeze valid fixture names/count, byte-exact wheel checks, and an error table covering code, exit code, instance pointer, phase precedence, and mutation/authority guarantee."
+    },
+    {
+      "id": "UNTRUSTED-ORIGINAL-PATH-RETENTION",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "The draft says the proposal is an external-input transport and says not to follow caller paths outside the fixed set, but it does not explicitly separate retained original source paths from durable canonical paths or require every proposal/content path ancestor to remain retained through hashing and staging.",
+      "impact": "An absolute, traversal, symlink, hardlink, or replacement path could leak a caller workspace path into canonical source state or change the bytes after proposal hashing.",
+      "required_fix": "Require all proposal/content paths to be fixed batch-local names retained before parsing and through every success/exception exit. Never serialize workspace_root, source_markdown_path, source_metadata_path, approval-ref path, or caller-supplied original_path into source-ledger, association, request, or page authority. Durable source identity must use only the fixed `.raw/captured/<sha256>.md` path, accepted source ID, metadata digest, and exact derived observation bytes."
+    }
+  ],
+  "required_acceptance_matrix": [
+    "proposal kind and fixed slot/content digest closure, including unknown-entry and replacement races",
+    "knowledge no-op, registration already-registered no-op, and inspect rejection for no-op output",
+    "legacy-v1 admission byte parity and source-v1 dispatch to the new registration request",
+    "knowledge cannot add/change source rows; registration adds exactly one row with capture proof",
+    "claim-ledger bounded projection plus full pinned inspector, owner/text/evidence/event mapping, and orphan refusal",
+    "pristine genesis plus first registration snapshot proof and pending source-ledger write binding",
+    "partial legacy structural collection versus explicit complete v2 migration",
+    "basis/prospective inventory digest parity and transaction business-write versus receipt/head comparison",
+    "all four schema resources in repo and installed wheel with exact fixtures and error precedence",
+    "original path traversal/symlink/hardlink/ancestor replacement and no durable original-path retention"
+  ],
+  "limitations": [
+    "This review covers the contract draft only; no source-publication implementation candidate exists in the reviewed allowlist.",
+    "No real Vault, operator application, human provenance, or CI acceptance is claimed."
+  ]
+}

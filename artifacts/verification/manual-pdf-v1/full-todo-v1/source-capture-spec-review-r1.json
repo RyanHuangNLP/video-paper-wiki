@@ -1,0 +1,31 @@
+{
+  "schema": "video-paper-wiki.source-capture-spec-review.v1",
+  "reviewed_at": "2026-09-09",
+  "decision": "GO_FOR_SOURCE_CAPTURE_R1_FREEZE",
+  "scope": "Read-only bounded review of the frozen SOURCE-CAPTURE-R1 contract; no source, Git, Vault, or external process mutation.",
+  "packet": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-R1.md",
+    "sha256": "5bf912cc2aec0fec951168779d6336c95733c25be3e4377a611adb55296cacf8",
+    "size_bytes": 14565
+  },
+  "actual_bounded_review": [
+    "Five closed objects have explicit bindings and preserve legacy PDF, code, ingest-plan, approval-ref, paper-record, Docling, and evidence-locator contracts.",
+    "The capture target is digest-addressed .raw/captured/<sha>.md; Markdown inspection must reject same-digest alternate-extension siblings and preserve raw bytes.",
+    "The plan/ref/request/authority flow keeps external approval separate from agent validation and keeps capture staging separate from first canonical source-ledger ingest.",
+    "The first admit requires an externally bound generic capture operation result and current retained bytes; it does not invent or require a canonical capture receipt because capture transactions cannot publish one.",
+    "Admission identifiers are a distinct new ingest batch/operation, and nullable hash-only original PDF provenance does not authorize reading or copying PDF bytes.",
+    "The packet specifies retained descriptor lineage, complete-set checks, all-exits verification, exact idempotence/conflict cases, and no agent-side Vault mutation.",
+    "The separate allowlist freezes exactly 24 writable paths: five engine schemas, three engine Markdown modules plus contracts registry, research formal-source/CLI, five schema fixtures, fixture helper, four focused suites, quickstart, and the formal-source skill/reference."
+  ],
+  "review_notes": [
+    "Implementation acceptance must verify the .md override on missing and reuse paths, alternate-extension conflicts, bound result path/hash/mode checks, current orphan snapshot checks, and batch/operation binding."
+  ],
+  "review_artifact": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-spec-review-r1.json",
+  "allowlist": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-CAPTURE-allowed-paths-r1.json",
+    "sha256": "f692648d42a18d3c310b310e5dba8ef19372dc032bf0cc9b99872cfe7bb75ece",
+    "size_bytes": 1457,
+    "path_count": 24,
+    "verdict": "GO_FOR_EXACT_24_PATH_SCOPE"
+  }
+}

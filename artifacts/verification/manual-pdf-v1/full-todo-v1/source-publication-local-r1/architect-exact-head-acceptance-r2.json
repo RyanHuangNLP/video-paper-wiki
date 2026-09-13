@@ -1,0 +1,98 @@
+{
+  "schema": "video-paper-wiki.source-publication-architect-acceptance.v1",
+  "recorded_at": "2026-09-09T06:45:26.106786+00:00",
+  "decision": "ACCEPTED_SOURCE_PUBLICATION_R2_AT_EXACT_HEAD",
+  "packet_baseline": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+  "reviewed_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+  "head_tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+  "pr": {
+    "number": 95,
+    "draft": true,
+    "target": "integration",
+    "current_base": "08709894adfb20ec07e976783f0ba436d975b74f"
+  },
+  "actual_ci_checkout": "e209c35a1c860cc2ce304bdfb9ec107e28850ff4",
+  "ci": {
+    "run_id": 34318336303,
+    "attempt": 1,
+    "jobs": [
+      {
+        "id": 102359227643,
+        "name": "macos-15 / Python 3.12",
+        "tests_passed": 3285
+      },
+      {
+        "id": 102359227621,
+        "name": "macos-15 / Python 3.13",
+        "tests_passed": 3285
+      },
+      {
+        "id": 102359227610,
+        "name": "ubuntu-24.04 / Python 3.12",
+        "tests_passed": 3285
+      },
+      {
+        "id": 102359227513,
+        "name": "ubuntu-24.04 / Python 3.13",
+        "tests_passed": 3285
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/architect-local-acceptance-r2.json",
+      "sha256": "d331ee0bf77a7145ed35b2ac341ecddb868ff960af70d7589d21506d239c1ebe",
+      "size_bytes": 6029
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/delivery-manifest-r2.json",
+      "sha256": "40f500d383f69b4eaf5f3a4639295bbebf0be5934d385171eb467601058f3d2a",
+      "size_bytes": 42931
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/delivery-allowlist-r2.json",
+      "sha256": "302e4c3cc70b2fbc1cc9ffebc5b88b785b49267bff91fc54ae770f8005526cf4",
+      "size_bytes": 8620
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/ci-observation-r1.json",
+      "sha256": "8c09bf3bb136aaacb37fb677b825b6e1374b041e15b2c3313edd00e40cdc5f37",
+      "size_bytes": 8811
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/merge-parents-r1.json",
+      "sha256": "a4cf4f4b8d107b308269b1e59f32d13088dfce9110771327af4bb871e5d9e6ab",
+      "size_bytes": 2714
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/ci-observation-r2.json",
+      "sha256": "f77ab14c2ce7a23a4f38e0adcb345c839c2ad1b7438c27ce34abc151fe51a247",
+      "size_bytes": 11696
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/merge-parents-r2.json",
+      "sha256": "11ab34f3a9248b6e9f9abfe763a529b4a40741137366cc852b896d63cc3b8ee9",
+      "size_bytes": 4150
+    }
+  ],
+  "verification": [
+    "Root independently verified exact 87 committed delivery paths and every manifest byte against git show before this CI decision.",
+    "Root independently read all four actual job logs and verified their hashes, actual merge checkout and 3285-test pass lines.",
+    "Root checked raw GitHub run, jobs, PR, merge-preview and delivery-commit records: head, parent, base, tree and four jobs are distinct and consistent.",
+    "The initial CI R1 candidate baseline/parent metadata wrongly used the PR base. Those records remain immutable history; the corrected R2 evidence binds the actual c32 packet baseline and parent."
+  ],
+  "carriage": {
+    "contained_in_tested_commit": false,
+    "successor_must_carry_exact_bytes_if_cited": true
+  },
+  "remaining": [
+    "SOURCE-CONVERSION implementation and acceptance",
+    "Source-aware catalog and remaining full TODO packets",
+    "Real-data quality and human semantic review gates remain open"
+  ],
+  "authorization": {
+    "merge": false,
+    "human_gate_closure": false,
+    "real_vault": false
+  }
+}

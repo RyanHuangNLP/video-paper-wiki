@@ -1,0 +1,421 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-implementation-work-package.v1",
+  "revision": 2,
+  "issued_at_utc": "2026-09-01T11:15:36Z",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "staged-pdf-capture-inspect-v1",
+  "status": "AUTHORIZED_FOR_BUILDER_IMPLEMENTATION_AND_TESTS_ONLY",
+  "supersedes": {
+    "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r1.json",
+    "revision": 1,
+    "sha256": "ddb0ecb1aab3da105fe6eb5f7606036d8605111973e42fd41540e7ff110e013e",
+    "size_bytes": 17824,
+    "immutability": "historical R1 bytes preserved exactly"
+  },
+  "roles": {
+    "architect": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "ultra",
+      "owns": [
+        "architecture",
+        "frozen contracts/schemas",
+        "integration review",
+        "final acceptance"
+      ]
+    },
+    "builder": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "owns": [
+        "main implementation",
+        "bounded tests",
+        "builder candidate evidence"
+      ]
+    },
+    "repo_steward": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "owns": [
+        "independent review",
+        "exact delivery audit",
+        "Git and CI after Architect GO"
+      ]
+    }
+  },
+  "accepted_architecture": {
+    "decision": "ACCEPTED_VPKB_001_STAGED_PDF_CAPTURE_INSPECT_ARCHITECTURE_AT_EXACT_HEAD",
+    "head": "4168e151c332cdcf89227bf086d4a6bc5308e649",
+    "parent": "fb2cbcb565195a232f22d02c0474ac1b1b34f7d3",
+    "tree": "78d43e20f8937a96c6cc86357729c72d295658cb",
+    "path_count": 22,
+    "full_22_path_snapshot_sha256": "519c67b78f151d3446de6745855fd4d730557e5a4f76abcb8f9f84e485ebf8dc",
+    "fresh_ci_run_id": 33497663181,
+    "tested_merge_sha": "f48d3cc3323958270f2e249d8e6a71f853df2150",
+    "ordered_merge_parents": [
+      "08709894adfb20ec07e976783f0ba436d975b74f",
+      "4168e151c332cdcf89227bf086d4a6bc5308e649"
+    ],
+    "tests_per_job": 1901,
+    "job_ids": [
+      99823465639,
+      99823465854,
+      99823465926,
+      99823466000
+    ]
+  },
+  "successor_carried_architecture_records": [
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-ci-observation.json",
+      "sha256": "b1413e978123804f8d071fa1f078c665bbad4a73c7c8ba9afa9afd32b3254ea3",
+      "size_bytes": 7713,
+      "immutability": "carry byte-for-byte"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-merge-parents.json",
+      "sha256": "1c8b5c7c59169542993c154640e3f635346318ed056c26784187846f06d0cbbb",
+      "size_bytes": 3474,
+      "immutability": "carry byte-for-byte"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-architect-acceptance.json",
+      "sha256": "3e18f60f70b759e03ead8cb14fa2882afc15036e4bd52062b940c64557ad5432",
+      "size_bytes": 12528,
+      "immutability": "carry byte-for-byte"
+    }
+  ],
+  "frozen_authority": {
+    "contract": {
+      "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+      "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f",
+      "mutable": false
+    },
+    "request_schema": {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f",
+      "mutable": false
+    },
+    "authority_schema": {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+      "mutable": false
+    },
+    "architecture_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+      "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421",
+      "mutable": false
+    },
+    "architect_acceptance": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-architect-acceptance.json",
+      "sha256": "3e18f60f70b759e03ead8cb14fa2882afc15036e4bd52062b940c64557ad5432",
+      "size_bytes": 12528,
+      "mutable": false
+    }
+  },
+  "public_surface": {
+    "module": "src/video_paper_wiki/staged_capture.py",
+    "functions": [
+      "validate_staged_pdf_capture_request(document: object) -> dict[str, object]",
+      "validate_staged_pdf_capture_authority(document: object) -> dict[str, object]",
+      "inspect_staged_pdf_capture(*, prepared: Path | str, operation_id: object, upstream_root: Path | str, vault_root: Path | str) -> dict[str, object]"
+    ],
+    "shared_encoder": "video_paper_wiki.transaction_staging.encode_transaction_inspect_bundle(material: object) -> bytes",
+    "cli": "vpwiki capture inspect --prepared <path> --operation-id <id> --upstream-root <absolute-path> --vault-root <absolute-path>"
+  },
+  "builder_owned_paths": {
+    "production": [
+      "src/video_paper_wiki/staged_capture.py",
+      "src/video_paper_wiki/captured_snapshot.py",
+      "src/video_paper_wiki/commands/capture.py",
+      "src/video_paper_wiki/commands/prepare.py",
+      "src/video_paper_wiki/cli.py",
+      "src/video_paper_wiki/contracts.py",
+      "src/video_paper_wiki/staging.py",
+      "src/video_paper_wiki/transaction_staging.py",
+      "src/video_paper_wiki/upstream_adapter.py"
+    ],
+    "tests": [
+      "tests/support.py",
+      "tests/unit/test_staged_capture.py",
+      "tests/contract/test_staged_pdf_capture.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/upstream/test_vpkb001_staged_pdf_capture.py",
+      "tests/unit/test_prepare.py",
+      "tests/security/test_prepare_offline.py",
+      "tests/security/test_work_staging_boundary.py",
+      "tests/security/test_cli_isolation.py",
+      "tests/contract/test_agent_command_tree.py",
+      "tests/unit/test_transaction_staging.py",
+      "tests/security/test_transaction_staging_boundary.py",
+      "tests/upstream/test_vpkb001_staged_transaction_inspect.py",
+      "tests/unit/test_upstream_adapter_capture.py",
+      "tests/security/test_upstream_adapter_boundary.py",
+      "tests/unit/test_json_boundary.py",
+      "tests/fixtures/staged-pdf-capture/**"
+    ],
+    "evidence": [
+      "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate.json"
+    ],
+    "path_rules": [
+      "Only these exact production/test paths may be edited or created by Builder. The fixture suffix /** means files strictly below that one directory only.",
+      "Do not edit frozen contract, schemas, architecture evidence, status documents, task index, AGENTS.md or successor-carried records.",
+      "Do not stage, commit, push, alter PR state, access a real Vault, or use network/models.",
+      "If any frozen contract or schema is internally inconsistent, stop and report the exact blocker; do not repair architecture bytes."
+    ]
+  },
+  "implementation_sequence": [
+    {
+      "id": "ENCODER",
+      "paths": [
+        "src/video_paper_wiki/transaction_staging.py",
+        "src/video_paper_wiki/staging.py",
+        "src/video_paper_wiki/upstream_adapter.py"
+      ],
+      "requirements": [
+        "Extract one public pure encode_transaction_inspect_bundle with the frozen exact built-in shape, bounded grammar, portable collision, map-correlation and disjointness checks.",
+        "Preserve accepted compact bytes for every existing staging/upstream vector.",
+        "The encoder does no I/O and does not enforce 8 MiB. Existing staging retains digest-mismatch-before-limit order; staged capture records the computed digest then applies the limit.",
+        "The adapter private compatibility wrapper delegates and maps the impossible post-proposal failure to its existing caller-selected mismatch code."
+      ]
+    },
+    {
+      "id": "PREPARE",
+      "paths": [
+        "src/video_paper_wiki/commands/prepare.py"
+      ],
+      "requirements": [
+        "For paper-source only, publish prepared/<approval-ref input sha>.blob then prepared/staged-pdf-capture-request.v1.json in one retained checkout/work/batch/prepared session.",
+        "Embed the parsed nine-field desensitized approval-ref and exact canonical plan/PDF descriptors; never store approval-ref path/raw bytes or claim approval authority.",
+        "Validate canonical plan bytes, approval binding, pipeline/limits/network digests, PDF magic/parse/encryption/pages/bytes before publication.",
+        "Use one retained lineage with plan sibling checks around each install and success; two independent stage_bytes calls are forbidden.",
+        "Idempotent reuse, missing-blob repair, conflicts, replacements and safe blob orphan behavior must match the contract.",
+        "Code-evidence prepare bytes and behavior remain unchanged."
+      ]
+    },
+    {
+      "id": "CAPTURED_SNAPSHOT",
+      "paths": [
+        "src/video_paper_wiki/captured_snapshot.py"
+      ],
+      "requirements": [
+        "Implement staged-route complete no-follow vault_root/.raw/captured session with maximum 1024 entries.",
+        "Select 0 or 1 portable <payload sha>.* sibling; preserve real suffix/mode for reuse. Multiple/malformed/symlink/directory/special/hash/drift cases fail closed.",
+        "Retain and reproduce complete name/type/identity inventory around branch, staging, child, error and success boundaries.",
+        "Observed drift overrides downstream results with sanitized CAPTURE_SNAPSHOT_INVALID or accepted limit error."
+      ]
+    },
+    {
+      "id": "STAGED_CAPTURE",
+      "paths": [
+        "src/video_paper_wiki/staged_capture.py",
+        "src/video_paper_wiki/contracts.py",
+        "src/video_paper_wiki/staging.py"
+      ],
+      "requirements": [
+        "Object-only request/authority validators return deep independent copies and central validate_document dispatches title-scoped semantic checks.",
+        "Pure argument/root checks precede filesystem; prepared normalizes to the one fixed request path and derives the batch.",
+        "Read canonical request/plan/blob through one retained lineage, bind approval ref, validate PDF and recheck named identities/bytes at every frozen boundary.",
+        "Reuse preserves requested_operation_id but creates no facade, encoder call, staging, child, network attempt or write; downstream fields are null.",
+        "Create builds exactly one capture facade for .raw/captured/<sha>.pdf, stages exact maps in the retained batch session, invokes accepted pinned read-only inspect and cross-binds the complete authority.",
+        "Staging success followed by child failure leaves deterministic staging reusable and never mutates Vault.",
+        "Return no absolute paths, bytes, inode/device, environment, credentials, child raw output or timestamp."
+      ]
+    },
+    {
+      "id": "CLI",
+      "paths": [
+        "src/video_paper_wiki/commands/capture.py",
+        "src/video_paper_wiki/cli.py"
+      ],
+      "requirements": [
+        "Add only capture inspect with four required flags; argparse abbreviation remains disabled.",
+        "No batch/digest/plan/blob/work/bundle/target/suffix/apply/cleanup/network/overwrite option is admitted.",
+        "Emit the existing closed single JSON envelope and stable errors; zero egress and no admin/apply path."
+      ]
+    },
+    {
+      "id": "TESTS",
+      "paths": [
+        "tests/support.py",
+        "tests/unit/test_staged_capture.py",
+        "tests/contract/test_staged_pdf_capture.py",
+        "tests/security/test_staged_pdf_capture_boundary.py",
+        "tests/upstream/test_vpkb001_staged_pdf_capture.py",
+        "tests/unit/test_prepare.py",
+        "tests/security/test_prepare_offline.py",
+        "tests/security/test_work_staging_boundary.py",
+        "tests/security/test_cli_isolation.py",
+        "tests/contract/test_agent_command_tree.py",
+        "tests/unit/test_transaction_staging.py",
+        "tests/security/test_transaction_staging_boundary.py",
+        "tests/upstream/test_vpkb001_staged_transaction_inspect.py",
+        "tests/unit/test_upstream_adapter_capture.py",
+        "tests/security/test_upstream_adapter_boundary.py",
+        "tests/unit/test_json_boundary.py",
+        "tests/fixtures/staged-pdf-capture/**"
+      ],
+      "requirements": [
+        "Cover request and authority semantics, deep-copy isolation and unknown/crossed child rejection.",
+        "Cover local-blob/arXiv binding, canonical bytes, prepare idempotence/repair/conflicts, blob-first/request-last and every named-lineage replacement boundary.",
+        "Cover PDF magic/parsing/encryption and inclusive byte/page limits.",
+        "Cover exact CLI tree/path/root isolation, complete Vault create/reuse/multiple/mismatch/symlink/special/races and retained batch replacement.",
+        "Prove reuse has zero process/network/write attempts.",
+        "Exercise create through a real pinned public transaction inspector with disposable roots; prove staging reuse after downstream failure.",
+        "Lock shared encoder bytes/error order and all accepted staging/adapter vectors.",
+        "Assert sanitized errors and no stdout/stderr leakage."
+      ]
+    }
+  ],
+  "revision_2_scope_resolution": {
+    "reason": "A pre-existing unit test required whitespace-padded ingest plan bytes to prepare successfully, but the accepted staged-pdf-capture-inspect contract requires paper-source plan bytes to equal canonicalize(validated_plan) exactly.",
+    "contract_disposition": "The accepted contract, schemas, architecture evidence, production implementation and failure ordering remain unchanged. The canonical ingest-plan byte requirement is deliberate and must not be loosened.",
+    "newly_authorized_test": {
+      "path": "tests/unit/test_json_boundary.py",
+      "baseline_sha256": "22267391b192b9f91803826e5a0ad09745f701c3322005cff2599f605258fa05",
+      "baseline_size_bytes": 4330
+    },
+    "authorized_change": [
+      "Update only the old JSON-whitespace test semantics needed to distinguish ingest from code-map.",
+      "Keep whitespace-padded request JSON and approval-ref JSON accepted for both families.",
+      "For ingest only, require whitespace-padded plan bytes to fail closed with CLI exit 2 and error code WORK_PATH_UNSAFE, without staged publication, additional writes or network attempts.",
+      "For code-map, retain the existing successful prepare assertion and exact staged bytes/approval-ref binding.",
+      "Keep every unrelated test in tests/unit/test_json_boundary.py unchanged."
+    ],
+    "forbidden_change": [
+      "No production-code change is authorized by this scope resolution.",
+      "Do not weaken canonical paper-source plan bytes, change an accepted contract/schema/architecture record, or broaden JSON whitespace rejection to request, approval-ref or code-map behavior.",
+      "Do not edit any additional path because of this conflict."
+    ],
+    "validation": [
+      "Run the revised JSON-boundary test directly.",
+      "Rerun the complete locked Python 3.13 suite without deselection.",
+      "Run the complete locked Python 3.12 suite if available and report exact counts."
+    ]
+  },
+  "frozen_branch_outputs": {
+    "reuse": {
+      "disposition": "reuse",
+      "inspection_would_change": false,
+      "inspection_operation_id": null,
+      "transaction_staging": null,
+      "upstream_authority": null,
+      "forbidden_effects": [
+        "facade proposal",
+        "encoder",
+        "staging",
+        "child process",
+        "network",
+        "write"
+      ]
+    },
+    "create": {
+      "disposition": "create",
+      "target": ".raw/captured/<payload-sha256>.pdf",
+      "write_mode": "create",
+      "write_count": 1,
+      "transaction_staging": "nonnull exact retained-batch result",
+      "upstream_authority": "nonnull exact pinned inspection",
+      "inspection_would_change": true,
+      "proposal_sha256": null,
+      "vault_mutation": false
+    }
+  },
+  "failure_order": [
+    "operation/path/root shape and separation",
+    "request path/session safety",
+    "request JSON/schema/semantic checks",
+    "canonical plan semantics and descriptor correlation",
+    "payload/PDF checks",
+    "complete Vault snapshot",
+    "reuse final postchecks OR create proposal/encoder",
+    "retained staging",
+    "pinned inspector",
+    "wrapper correlation",
+    "final input/Vault postchecks"
+  ],
+  "new_semantic_codes": [
+    "STAGED_CAPTURE_REQUEST_MISMATCH",
+    "STAGED_CAPTURE_RESULT_MISMATCH"
+  ],
+  "preserved_error_domains": [
+    "ContractError",
+    "ApprovalError",
+    "StagingError",
+    "secure-I/O errors",
+    "CAPTURE_SNAPSHOT_INVALID",
+    "existing transaction/upstream codes"
+  ],
+  "acceptance_tests": {
+    "builder_focused": [
+      "tests/unit/test_staged_capture.py",
+      "tests/contract/test_staged_pdf_capture.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/upstream/test_vpkb001_staged_pdf_capture.py",
+      "tests/unit/test_prepare.py",
+      "tests/security/test_prepare_offline.py",
+      "tests/security/test_work_staging_boundary.py",
+      "tests/security/test_cli_isolation.py",
+      "tests/contract/test_agent_command_tree.py",
+      "tests/unit/test_transaction_staging.py",
+      "tests/security/test_transaction_staging_boundary.py",
+      "tests/upstream/test_vpkb001_staged_transaction_inspect.py",
+      "tests/unit/test_upstream_adapter_capture.py",
+      "tests/security/test_upstream_adapter_boundary.py",
+      "tests/unit/test_json_boundary.py"
+    ],
+    "builder_complete": [
+      "Run the complete suite on the available locked Python 3.13 environment.",
+      "If the existing Python 3.12 environment is available, run it too; Architect will independently replay both lines."
+    ],
+    "architect_final": [
+      "independent diff and contract review",
+      "focused/adversarial/real-pinned selections",
+      "complete Python 3.12 and 3.13 suites",
+      "fresh offline wheel install/resource/API smoke",
+      "exact-path manifest and cached diff audit",
+      "fresh four-job merge-ref CI",
+      "separate exact-head acceptance"
+    ]
+  },
+  "builder_candidate_requirements": [
+    "Record exact changed path set and per-file SHA256/size.",
+    "Record focused and complete commands, interpreter versions, counts and JUnit/log hashes when available.",
+    "Record frozen contract/schema/architecture acceptance hashes and verify they are unchanged.",
+    "Record catalog count 67, git diff --check, no protected path edits, no real Vault/network/process beyond disposable pinned fixture behavior.",
+    "State known limitations and any test not run; never relabel a failure as environment-only without evidence.",
+    "Return control to Architect without staging, committing, pushing or editing status files."
+  ],
+  "absolute_exclusions": [
+    ".DS_Store",
+    "docs/feishu-multi-bot-phase1-plan.md",
+    "docs/hermes-subscription-collaboration-prd.md",
+    "docs/pi-feishu-cli-assessment.md",
+    "docs/video-paper-wiki-development-plan-v0.3.2.md",
+    "docs/video-paper-wiki-development-plan.md",
+    "inbox/**",
+    "tools/**",
+    ".github/workflows/**",
+    "pyproject.toml",
+    "uv.lock",
+    "vendor/**",
+    "catalog/**",
+    "schemas/**",
+    "docs/ai/contracts/**",
+    "accepted architecture evidence except Builder candidate",
+    "real Vault/**",
+    ".work runtime outputs",
+    "manual-inbox semantic changes",
+    "staged code capture",
+    "transaction apply/recover/admin/runtime result",
+    "ledger/audit/integrity/mapper/index/retrieval",
+    "PR state/merge/human-gate changes"
+  ],
+  "handoff": {
+    "on_success": "Builder writes only builder-candidate.json and reports exact paths/tests/hashes. Architect reviews; Repo Steward then performs independent candidate review.",
+    "on_blocker": "Stop before architectural invention and report the smallest reproducible contract ambiguity or missing allowed path.",
+    "git_owner": "Repo Steward only after Architect exact-delivery GO.",
+    "implementation_complete_by_this_package_alone": false
+  }
+}

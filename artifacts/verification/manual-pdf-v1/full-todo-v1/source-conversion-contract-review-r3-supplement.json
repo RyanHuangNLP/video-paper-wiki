@@ -1,0 +1,115 @@
+{
+  "schema": "video-paper-wiki.source-conversion-contract-review.r3-supplement.v1",
+  "reviewed_at": "2026-09-09T06:26:10Z",
+  "scope": "Bounded final read-only review of the new SOURCE-CONVERSION-R3 compatibility claims. R1 and R2 remain the governing input and are not re-reviewed here. No source, test, Git, Vault, network, or external-process mutation.",
+  "decision": "GO_FOR_R3_SUPPLEMENT",
+  "freeze_status": "The R3 supplement is effective only when the future conversion freeze binds the exact R1, R2, R3 and allowlist bytes, the R1 section mapping, and the delivered source-publication base.",
+  "base_reference": {
+    "r2_review_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-contract-review-r2.json",
+    "r2_review_sha256": "b6085bc977cf0ce2de17c322ab2f35f3f55d7a10e1d01acbd16ce191bbd289d4"
+  },
+  "contract_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R1.md",
+      "sha256": "464e3e98e8aa51199df5b93834bf196e49829918e95589c29de0c7572dfb5c72",
+      "size_bytes": 15251
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R2.md",
+      "sha256": "c4374416cb546fbef7abd33bc78c7074738a88a940967f059a938f991cf01029",
+      "size_bytes": 1266
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R3.md",
+      "sha256": "cb18df54729f32a12aacf10e2dfe8b3c5f655e8789df33ce29a430fed54d1880",
+      "size_bytes": 3396
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-allowed-paths-r1.json",
+      "sha256": "d0670bd28cf9dfb2682412abad94ba4d6590eb56401c43dc2375787d35cfeb36",
+      "size_bytes": 840,
+      "path_count": 13
+    }
+  ],
+  "section_mapping": [
+    {"light_section": "summary", "v2_subject": "one_sentence_conclusion", "core_only": true},
+    {"light_section": "method", "v2_subject": "method", "core_only": false},
+    {"light_section": "architecture", "v2_subject": "representation_architecture", "core_only": false},
+    {"light_section": "training_data", "v2_subject": "training_data", "core_only": false},
+    {"light_section": "experiments", "v2_subject": "experiments_results", "core_only": false},
+    {"light_section": "limitations", "v2_subject": "limitations", "core_only": false},
+    {"light_section": "code_resources", "v2_subject": "code_resources", "core_only": false},
+    {"light_section": "open_questions", "v2_subject": "research_question", "core_only": false}
+  ],
+  "inspected_compatibility_inputs": [
+    {
+      "root": ".work/parallel/source-publication-v1/terminal-1/source",
+      "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+      "tree": "d70b6efb5e8e65bb89760f9396f0d94ea8e56e6d"
+    },
+    {
+      "path": "src/video_paper_wiki/source_semantics_contracts.py",
+      "sha256": "406a1c1b14e53dcaec7bd9f3656de877923a46575423fa5d37549cebd082b790"
+    },
+    {
+      "path": "src/video_paper_wiki/source_state.py",
+      "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d"
+    },
+    {
+      "path": "src/video_paper_wiki/source_versions.py",
+      "sha256": "c93765c6940d1e1e0a6719d4e56d99c6e6d045fe37b2f1cd2fac6e150889cbb1"
+    }
+  ],
+  "checks": [
+    {
+      "id": "COMPLETE_EVIDENCE_GATE",
+      "status": "PASS",
+      "evidence": "R3 requires every claim owned by the upgraded v2 paper to have nonempty evidence after provisional sections are applied. A preserved empty legacy claim refuses SOURCE_CONVERSION_UNSUPPORTED_CHANGE before staging; a valid newly mapped citation may satisfy the ordinary evidence-invalidation path. No evidence is invented, retired, deleted, or silently dropped."
+    },
+    {
+      "id": "LEGACY_EXTRACTION_HISTORY_BOUNDARY",
+      "status": "PASS",
+      "evidence": "The actual legacy active-extraction, raw, parser, run, and source inventory bytes remain historical inputs. The conversion does not promote the v1 active-extraction pointer into v2 history or association state; display_head and active-extraction mirrors remain null until an explicit display decision."
+    },
+    {
+      "id": "UNRELATED_RECORD_PRESERVATION",
+      "status": "PASS",
+      "evidence": "Unrelated paper and repository records, claim rows, and history remain unchanged. A regenerated unrelated rendered page is allowed only as an explicit compiler payload followed by full prospective validation and page-retirement refusal."
+    },
+    {
+      "id": "CLAIM_RESULT_PARTITION",
+      "status": "PASS",
+      "evidence": "created_claim_ids, invalidated_claim_ids, and unchanged_claim_ids are sorted pairwise-disjoint sets whose union is exactly the IDs produced by provisional sections. location_migrated_claim_ids is independent, may overlap invalidated or unchanged and include preserved selected-paper claims absent from the light record, and never contains a created claim. Existing evidence spelling/order survives unchanged rows; missing reviewed_at gains only null."
+    },
+    {
+      "id": "EVENT_IDENTITY_AND_REASONS",
+      "status": "PASS",
+      "evidence": "New events use actor and decided_by exactly source-conversion-v1. Genesis and invalidation reasons are the exact R3 strings with validated record_id and association_id substitutions. No event is emitted when fingerprint and profile are unchanged, even if the light record ID changes. The v2 event validator requires nonempty reason/decided_by and content-derived event identity."
+    },
+    {
+      "id": "ASSOCIATION_SELECTION_AND_CONFLICTS",
+      "status": "PASS",
+      "evidence": "associate_source validates the complete association inventory, full observation/version key, exact raw bytes, and registration proof. Selection is independent of source_id and display_head; multiple declared versions may share raw bytes. Existing registration, version-conflict, and provenance-variant refusals remain active."
+    },
+    {
+      "id": "CANONICAL_PAPER_IDENTIFIERS",
+      "status": "PASS",
+      "evidence": "Supplied DOI and arXiv identifiers must normalize to the canonical paper ID or an existing canonical alias. Existing aliases remain immutable; the light sha256 paper identifier is not substituted for the formal canonical identity."
+    },
+    {
+      "id": "SECTION_MAPPING_BINDING",
+      "status": "PASS",
+      "evidence": "The freeze carries the unchanged R1 mapping explicitly: summary→one_sentence_conclusion (only core=true); method→method; architecture→representation_architecture; training_data→training_data; experiments→experiments_results; limitations→limitations; code_resources→code_resources; open_questions→research_question."
+    }
+  ],
+  "blockers": [],
+  "implementation_watchpoints": [
+    "Apply the empty-evidence refusal before any staging write and preserve the exact refusal code.",
+    "Use the complete association inventory and exact raw/registration proof before selecting a reusable association.",
+    "Keep location migration independent from the three result sets and retain the exact legacy evidence wire form for unchanged claims.",
+    "Bind the explicit section_mapping above in the conversion freeze rather than relying only on the R1 prose reference."
+  ],
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false
+}

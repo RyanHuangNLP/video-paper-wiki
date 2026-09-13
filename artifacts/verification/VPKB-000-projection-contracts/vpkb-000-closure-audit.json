@@ -1,0 +1,509 @@
+{
+  "base_foundation_post_ci_triplet": {
+    "all_checks_pass": true,
+    "checks": {
+      "acceptance_binds_ci_observation_sha256": true,
+      "acceptance_binds_merge_parent_observation_sha256": true,
+      "acceptance_is_later_separate_decision": true,
+      "all_three_json_parse": true,
+      "base_consistent": true,
+      "candidate_head_consistent": true,
+      "checkout_consistent": true,
+      "four_jobs_each_1658_success": true,
+      "job_set_consistent": true,
+      "merge_parents_consistent": true,
+      "run_consistent": true
+    },
+    "files": [
+      {
+        "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-acceptance.json",
+        "sha256": "15033085d1739c6d6407c5dea2e40f4be897e688a9462975784bcabd109271af"
+      },
+      {
+        "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/ci-observation.json",
+        "sha256": "2faadc8911531a0fe97407a99bfddd048b0aeb106bb6730c32ef1f63c881b95b"
+      },
+      {
+        "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/merge-parents.json",
+        "sha256": "ebb5ca907499b444acbb7f85d04bf1dca903ace8488f371f46893be72afa2184"
+      }
+    ],
+    "historical_pending_note": "ci-observation intentionally preserves pending separate decision; architect-acceptance is the later exact-candidate decision and binds ci-observation by SHA."
+  },
+  "completion_rule": "Close only after the complete VPKB-000 requirements have reviewable evidence; completing one PR follow-up packet alone does not close VPKB-000.",
+  "conclusions": {
+    "coverage_qualification": "All listed reference-head technical gaps have reviewable evidence within their explicitly bounded scopes. Dependency/license evidence is observational and base foundation excludes runtime writers/bytes-to-rows/real parser work assigned later.",
+    "durable_closure_metadata_at_current_head": false,
+    "metadata_successor_head_requires_fresh_ci": true,
+    "technical_reference_head_gaps_covered": true,
+    "verdict": "GO_FOR_CLOSURE_DELIVERY",
+    "verdict_meaning": "Safe to prepare a bounded closure metadata delivery and whole-package Architect decision. Do not mark VPKB-000 complete until that decision is recorded against the resulting exact head and fresh CI; no merge or human gate is implied.",
+    "whole_vpkb_000_architect_acceptance_present": false,
+    "whole_vpkb_000_status_may_be_marked_complete_now": false
+  },
+  "generated_at_utc": "2026-09-01T00:22:03.339129+00:00",
+  "mode": "read-only repository audit; only this /private/tmp report was written",
+  "repository": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "expected_head": "58ddf533f7c30b66a0f80443d5108f1970365ab2",
+    "head": "58ddf533f7c30b66a0f80443d5108f1970365ab2",
+    "task_index": {
+      "bytes": 28080,
+      "path": "docs/ai/task-index.yaml",
+      "role": "authoritative handoff metadata under review",
+      "sha256": "ffa0aad4cf4b93c3abe7c2d6f5b1b0a0c6e42da7e1b103320cd9e2b28f4175f4"
+    }
+  },
+  "required_next_actions": [
+    "Record a whole-VPKB-000 Architect acceptance that cites all slice acceptances and limitations; base-foundation acceptance alone is insufficient.",
+    "Update historical handoff/status fields without rewriting remaining_at_reference_head as if it were current state.",
+    "Commit only the reviewed closure metadata/evidence scope; the resulting new head must receive fresh four-job merge-ref CI and exact-head acceptance.",
+    "Keep VPKB-001 prerequisite not-satisfied until the whole VPKB-000 closure rule is met.",
+    "Do not infer merge, ready-for-review, auto-merge or human-gate authorization."
+  ],
+  "requirements": [
+    {
+      "accepted_head": "9d87dc67b949fc0cef5ac64b91a2d15aea8ec0fe",
+      "ci": {
+        "attempt": 1,
+        "checkout": "3c0adb319fe768ba583d6efcdf836949161d7d8b",
+        "run_id": 33420150322,
+        "tests_per_job": 899
+      },
+      "evidence": [
+        {
+          "bytes": 15734,
+          "path": "docs/ai/contracts/capture-contracts-v1.md",
+          "role": "frozen contract revision 2",
+          "sha256": "d54e1c36608ca0d57c0ea467f208a9645259ff2c879f23958a58c2280ed9e23d"
+        },
+        {
+          "bytes": 38346,
+          "path": "artifacts/verification/VPKB-000-capture-contracts/local-results.json",
+          "role": "local/wheel/source snapshot and local Architect decision",
+          "sha256": "d78a16d1a6bdd20071a1ad9f0171eb7286e6a8c4fc34a13205b39a3494ccbd26"
+        },
+        {
+          "bytes": 99,
+          "path": "artifacts/verification/VPKB-000-capture-contracts/independent.log",
+          "role": "independent 45-check log",
+          "sha256": "31b9727a16d6b7e78588cd622df1ba7b7a271efbda701924ee419948c8bd8812"
+        },
+        {
+          "bytes": 3663,
+          "path": "artifacts/verification/VPKB-000-capture-contracts/ci-observation.json",
+          "role": "exact candidate four-job CI",
+          "sha256": "0af3b60ace66a5c9154f3a2d4a5cf2036e0b4164f6294f80eccb0de63f98acce"
+        }
+      ],
+      "id": "capture_and_code_evidence_contracts",
+      "limits": [
+        "Pure contracts only; no VPKB-001 capture runtime, real Vault, parser/model run or merge authorization.",
+        "Architect acceptance is recorded in task-index/local result rather than a later standalone exact-CI acceptance JSON."
+      ],
+      "reference_head_requirement": "Capture-inspection and code-evidence-manifest schemas and pure fixtures.",
+      "technical_coverage": "covered"
+    },
+    {
+      "accepted_head": "5f4c186566c15ab5ee8df10c587e4709d6223f32",
+      "ci": {
+        "attempt": 1,
+        "checkout": "8eba91629628058614ec7cd8a88dab501c567be7",
+        "run_id": 33426054898,
+        "tests_per_job": 1239
+      },
+      "evidence": [
+        {
+          "bytes": 21769,
+          "path": "docs/ai/contracts/transaction-facade-v1.md",
+          "role": "frozen contract",
+          "sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67"
+        },
+        {
+          "bytes": 8408,
+          "path": "artifacts/verification/VPKB-000-transaction-facade/local-results.json",
+          "role": "local/wheel/source evidence",
+          "sha256": "959b042ec1fbe2433dc7715cd67fe17391212ff20625ef71240501b1917b6d0e"
+        },
+        {
+          "bytes": 1439,
+          "path": "artifacts/verification/VPKB-000-transaction-facade/architect-acceptance.json",
+          "role": "exact-slice Architect acceptance",
+          "sha256": "74bd4542ea9a438dc5e80ad57fdd5c5bc54df58fc1e45ccb03fb202a269d645c"
+        },
+        {
+          "bytes": 4429,
+          "path": "artifacts/verification/VPKB-000-transaction-facade/ci-observation.json",
+          "role": "exact candidate four-job CI",
+          "sha256": "7ac6c3d6512d47dff7aa6b57999c9ccfd9deef26aa47cf9ac8eb2b7ba1cfa06a"
+        }
+      ],
+      "id": "unified_transaction_facade",
+      "limits": [
+        "Non-persistent pure facade; not the VPKB-001 adapter, private upstream API, full record/locator domain or publication authorization."
+      ],
+      "reference_head_requirement": "Unified non-persistent transaction facade and its contract fixtures.",
+      "technical_coverage": "covered"
+    },
+    {
+      "accepted_head": "58ddf533f7c30b66a0f80443d5108f1970365ab2",
+      "ci": {
+        "attempt": 1,
+        "checkout": "1ad9f4063693468454bed9b2207aad54740da2fb",
+        "run_id": 33453091285,
+        "tests_per_job": 1658
+      },
+      "evidence": [
+        {
+          "bytes": 19279,
+          "path": "docs/ai/contracts/projection-input-v1.md",
+          "role": "frozen input contract",
+          "sha256": "79a500abca2406f060b9363b4675bd07b9fedbbccf78e2aac058763de13892c8"
+        },
+        {
+          "bytes": 19002,
+          "path": "docs/ai/contracts/projection-catalog-v1.md",
+          "role": "frozen catalog/generation contract",
+          "sha256": "c0628175053da604267005a643020f03de9018b93132fd378b9ac57e8e8366bc"
+        },
+        {
+          "bytes": 27269,
+          "path": "catalog/base-catalog-v1.sql",
+          "role": "34-table STRICT DDL",
+          "sha256": "3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c"
+        },
+        {
+          "bytes": 140705,
+          "path": "catalog/base-catalog-v1.columns.json",
+          "role": "230-column manifest and semantic checks",
+          "sha256": "439024fa2eed6695725c8fdfbe8d03e982e776160f5548f6201d99caaa0ee50c"
+        },
+        {
+          "bytes": 7616,
+          "path": "catalog/base-catalog-v1.generation-profile.json",
+          "role": "generation profile/resource closure",
+          "sha256": "7b4e95e7b1ad89e492bab98486de359fe125854215fd2de5e7aaab3f4b8e333a"
+        },
+        {
+          "bytes": 4449,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-local-acceptance-correction-1.json",
+          "role": "local exact-candidate acceptance",
+          "sha256": "b3a9a2db0e070e19b7efdb3d3ca3737f08879f596ea26705795b2b799f6686d2"
+        },
+        {
+          "bytes": 4894,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/vpkb-base-foundation-steward-review-correction-1-final.json",
+          "role": "independent correction review",
+          "sha256": "3afe960fb96e0dc597db44970b09eec603a46b7f7ff67a180412913a1f53c371"
+        },
+        {
+          "bytes": 6930,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/ci-observation.json",
+          "role": "exact candidate CI",
+          "sha256": "2faadc8911531a0fe97407a99bfddd048b0aeb106bb6730c32ef1f63c881b95b"
+        },
+        {
+          "bytes": 855,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/merge-parents.json",
+          "role": "actual merge-ref parents",
+          "sha256": "ebb5ca907499b444acbb7f85d04bf1dca903ace8488f371f46893be72afa2184"
+        },
+        {
+          "bytes": 6276,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-acceptance.json",
+          "role": "exact-slice Architect acceptance",
+          "sha256": "15033085d1739c6d6407c5dea2e40f4be897e688a9462975784bcabd109271af"
+        }
+      ],
+      "id": "catalog_sqlite_base_generation",
+      "limits": [
+        "Base inventory/row consistency/generation only; no SQLite writer, bytes-to-rows compiler, faithful Docling parsing, retrieval or publication."
+      ],
+      "reference_head_requirement": "Catalog SQLite base DDL, keys, ordering, generation/stale digest contracts.",
+      "technical_coverage": "covered_for_frozen_base_foundation_scope"
+    },
+    {
+      "accepted_head": "208c206801214bb8f6e2f58f995ad7755ce87332",
+      "ci": {
+        "attempt": 1,
+        "checkout": "1776de9b413d21471ccf2717910d10dbadb39ba6",
+        "run_id": 33431642237,
+        "tests_per_job": 1357
+      },
+      "evidence": [
+        {
+          "bytes": 15309,
+          "path": "docs/ai/contracts/projection-runtime-v1.md",
+          "role": "frozen runtime contract",
+          "sha256": "e72531c11bb7cfdee2c5d73bc51006edaa6d7226f091c7008ea03d77a52411dc"
+        },
+        {
+          "bytes": 6840,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/runtime-public-observation.json",
+          "role": "pinned public CLI/object/source observation",
+          "sha256": "359cdb59d43c05b2b1969dddaee1f0fbb35c408b99ba21aa97302539fa3a3f17"
+        },
+        {
+          "bytes": 7696,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/runtime-ci-observation.json",
+          "role": "exact candidate CI",
+          "sha256": "fa60a2526db4f14a87e2c204548bb792dde4f7da44535ed42aebd94919341903"
+        },
+        {
+          "bytes": 2244,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/runtime-architect-acceptance.json",
+          "role": "exact-slice Architect acceptance",
+          "sha256": "e88834ac8de079237c9273eb2247422d724c3f25da9818ec3beb189ac68eb817"
+        }
+      ],
+      "id": "projection_runtime_comparator",
+      "limits": [
+        "Comparator validates closed profiles; it does not implement tokenizer/query engine, retrieval config/gold or VPKB-001/002 ingestion."
+      ],
+      "reference_head_requirement": "Projection stability comparator and exact runtime volatile-field allowlist.",
+      "technical_coverage": "covered"
+    },
+    {
+      "accepted_heads": [
+        "3e2bebb1d50928a7af95e07b4868bdbe8113cd0b",
+        "951131d7b9cfd59a56abce430b5d5ceb3fe331c1"
+      ],
+      "ci": [
+        {
+          "attempt": 1,
+          "checkout": "e1ad0bac031867ceaf3342bd5f24d8a2d1b307fb",
+          "run_id": 33434824681,
+          "tests_per_job": 1464
+        },
+        {
+          "attempt": 1,
+          "checkout": "bdf80bd6145c5351ee34f459eede1bb121a28441",
+          "run_id": 33437880575,
+          "tests_per_job": 1596
+        }
+      ],
+      "evidence": [
+        {
+          "bytes": 11111,
+          "path": "docs/ai/contracts/ledger-locator-v1.md",
+          "role": "frozen locator wire contract",
+          "sha256": "493fc3d135141512c7956f3729726ae72febbb1a34cc8cd5669add96af16e191"
+        },
+        {
+          "bytes": 2402,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/ledger-locator/architect-acceptance.json",
+          "role": "locator exact-slice acceptance",
+          "sha256": "430761d4f273202b2b486a584948819fe8958e85495d8cd011eba4c03f3df9ad"
+        },
+        {
+          "bytes": 9235,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/ledger-locator/ci-observation.json",
+          "role": "locator exact CI",
+          "sha256": "9ccbd6c72d5d1d3c1170f0430b7fea4b1eb01687a414d12178e92f67e70d1928"
+        },
+        {
+          "bytes": 15224,
+          "path": "docs/ai/contracts/assessment-history-v1.md",
+          "role": "frozen history contract",
+          "sha256": "ff7e7830d9931c52c447a2a95818dca091cb6d5bc97184d1be1103072ecf44cb"
+        },
+        {
+          "bytes": 2655,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/assessment-history/architect-acceptance.json",
+          "role": "history exact-slice acceptance",
+          "sha256": "07a2d4b222558bd0889c40f511b2a19a212215a6cb2440212effc6c993c71775"
+        },
+        {
+          "bytes": 9223,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/assessment-history/ci-observation.json",
+          "role": "history exact CI",
+          "sha256": "1b136b6cf1edef7026938ccdb860cad9c4e3429f45cbf2ec6abf7da028de2107"
+        }
+      ],
+      "id": "ledger_locator_and_assessment_history",
+      "limits": [
+        "Transport and immutable history derivation only; no mutable assessment registry, real publication or human-gate decision."
+      ],
+      "reference_head_requirement": "Supporting projection locator transport and immutable assessment graph required by the complete shared projection contracts.",
+      "technical_coverage": "covered"
+    },
+    {
+      "accepted_head": "208c206801214bb8f6e2f58f995ad7755ce87332",
+      "ci": {
+        "attempt": 1,
+        "checkout": "1776de9b413d21471ccf2717910d10dbadb39ba6",
+        "run_id": 33431642237,
+        "tests_per_job": 1357
+      },
+      "evidence": [
+        {
+          "bytes": 1812,
+          "path": "schemas/video-paper-wiki.upstream-chunk-profile.v1.schema.json",
+          "role": "closed upstream chunk profile",
+          "sha256": "8b5547d336167210d0f6590dd0e8384b35e00e01044411adeb285902c2f0dd3b"
+        },
+        {
+          "bytes": 3209,
+          "path": "schemas/video-paper-wiki.upstream-bm25-profile.v1.schema.json",
+          "role": "closed upstream BM25 profile",
+          "sha256": "f003da4e353aca7b753bfd3168fc070aca499da90e050a1183788dbefe08c2d5"
+        },
+        {
+          "bytes": 6497,
+          "path": "tests/test_projection_runtime_upstream.py",
+          "role": "pinned public CLI double-rebuild regression",
+          "sha256": "fc0ce62025fb5c2444869a1671389bf1610b1fc756455af2fb550ce0fc910994"
+        },
+        {
+          "bytes": 6840,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/runtime-public-observation.json",
+          "role": "eight chunk/eight BM25 digests and CJK/NFKC/overlap results",
+          "sha256": "359cdb59d43c05b2b1969dddaee1f0fbb35c408b99ba21aa97302539fa3a3f17"
+        },
+        {
+          "bytes": 2244,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/runtime-architect-acceptance.json",
+          "role": "slice acceptance",
+          "sha256": "e88834ac8de079237c9273eb2247422d724c3f25da9818ec3beb189ac68eb817"
+        }
+      ],
+      "id": "pinned_chunk_bm25_tokenizer_source_digests",
+      "limits": [
+        "Tokenizer behavior is observed through pinned public CLI CJK/NFKC controls; no tokenizer is implemented or treated as an independent oracle.",
+        "Retrieval configuration, query policy and gold remain outside VPKB-000."
+      ],
+      "reference_head_requirement": "Pinned upstream chunk/BM25/tokenizer fixtures and source-digest evidence.",
+      "technical_coverage": "covered_for_declared_stability_profile"
+    },
+    {
+      "accepted_head": null,
+      "ci": null,
+      "evidence": [
+        {
+          "bytes": 635,
+          "path": "docs/dependencies/vpkb-000-upstream.json",
+          "role": "unchanged two-pin manifest",
+          "sha256": "69c90170034a82d58d42fcc69b694f51eda179d615c8193c4d59c4b728d64af7"
+        },
+        {
+          "bytes": 11260,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/dependency-source/source-license-observation.json",
+          "role": "exact artifact/METADATA/LICENSE/source observation",
+          "sha256": "491b9486e7d92f2c3760c479730dd2d257235ec580fa49070d8aecefef820a5f"
+        },
+        {
+          "bytes": 1133,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/dependency-source/architect-review.json",
+          "role": "independent Architect bounded review",
+          "sha256": "1fa9f336bf94feedc357f14d6d6bf1024fbfee9231bfcb00ae0280ea91b67635"
+        },
+        {
+          "bytes": 1114,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/dependency-source/locked-artifacts.json",
+          "role": "lock artifact inventory",
+          "sha256": "cc2f246bed06c9161af2c99240c074362b3fa6416b99cb5bc53214291059f59b"
+        },
+        {
+          "bytes": 4540,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/dependency-source/archive-manifest.json",
+          "role": "durable archive hashes",
+          "sha256": "955c4201c3bfcf69b5a83106bda9432c8df4dcf9ecf7f7313cb491da194699e2"
+        }
+      ],
+      "id": "dependency_source_license_evidence",
+      "limits": [
+        "Only docling 2.117.0, docling-slim 2.117.0, docling-core 2.92.0 and pinned claude-obsidian are observed.",
+        "No exact PyPI-to-Git provenance, transitive/model license audit, parser execution, legal conclusion or redistribution permission is claimed.",
+        "Upstream manifest status remains pinned, not verified."
+      ],
+      "reference_head_requirement": "Dependency/license verification evidence, distinct from version pins.",
+      "technical_coverage": "covered_as_bounded_observation"
+    },
+    {
+      "accepted_head": "58ddf533f7c30b66a0f80443d5108f1970365ab2",
+      "ci": {
+        "attempt": 1,
+        "checkout": "1ad9f4063693468454bed9b2207aad54740da2fb",
+        "run_id": 33453091285,
+        "tests_per_job": 1658
+      },
+      "evidence": [
+        {
+          "bytes": 2973,
+          "path": ".github/workflows/tests.yml",
+          "role": "explicit network setup followed by locked offline/no-sync checks",
+          "sha256": "a46548e0649e2cb830d693a17b1d39426a95dffd5878c6cc07624fcd5be22bd2"
+        },
+        {
+          "bytes": 5221,
+          "path": "README.md",
+          "role": "short-real-temp replay and pinned preparation instructions",
+          "sha256": "d61ef2e4346731f6b60ec042cbb3cce5e1bcb28a8dcb6c47a0bb1d2ea4792057"
+        },
+        {
+          "bytes": 6930,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/ci-observation.json",
+          "role": "fresh four-job exact-candidate CI",
+          "sha256": "2faadc8911531a0fe97407a99bfddd048b0aeb106bb6730c32ef1f63c881b95b"
+        },
+        {
+          "bytes": 6276,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-acceptance.json",
+          "role": "exact base-foundation decision",
+          "sha256": "15033085d1739c6d6407c5dea2e40f4be897e688a9462975784bcabd109271af"
+        }
+      ],
+      "id": "offline_ci_and_validation_evidence",
+      "limits": [
+        "The CI setup may fetch the exact submodule pin before offline pytest; pytest itself does not download.",
+        "A metadata-only successor head cannot inherit this exact-head CI."
+      ],
+      "reference_head_requirement": "Reproducible offline CI and recorded validation evidence.",
+      "technical_coverage": "covered_for_current_candidate_and_prior_slices"
+    },
+    {
+      "accepted_head": null,
+      "ci": null,
+      "evidence": [
+        {
+          "bytes": 28080,
+          "path": "docs/ai/task-index.yaml",
+          "role": "current handoff metadata",
+          "sha256": "ffa0aad4cf4b93c3abe7c2d6f5b1b0a0c6e42da7e1b103320cd9e2b28f4175f4"
+        },
+        {
+          "bytes": 5857,
+          "path": "docs/ai/work-packet-template.md",
+          "role": "packet template",
+          "sha256": "f6d2901814674b612ecefacadbc277a5ec756363dc0327fa2f3ed98f7db1fd39"
+        },
+        {
+          "bytes": 11551,
+          "path": "docs/ai/codex-team.md",
+          "role": "role/delivery rules",
+          "sha256": "c12bc48a8732f1f73e7f6d5e6b1c139aa83a67c7787ac35e9feac02bc1edb093"
+        },
+        {
+          "bytes": 14290,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/README.md",
+          "role": "projection evidence index",
+          "sha256": "45384e39601d1927ab1c1e69ddd3cd2f678b6f7151402e8e61cb5240fcd520eb"
+        },
+        {
+          "bytes": 6276,
+          "path": "artifacts/verification/VPKB-000-projection-contracts/base-foundation/architect-acceptance.json",
+          "role": "post-CI exact-slice acceptance",
+          "sha256": "15033085d1739c6d6407c5dea2e40f4be897e688a9462975784bcabd109271af"
+        }
+      ],
+      "id": "task_index_packet_template_durable_handoff",
+      "limits": [
+        "task-index still describes base-foundation as pending commit/CI and the complete projection/VPKB-000 packet as in progress.",
+        "The three post-CI base-foundation JSON records were produced after accepted head 58ddf533 and are not evidence that a later metadata head passed CI."
+      ],
+      "reference_head_requirement": "Task index, work-packet template, and durable verification handoff.",
+      "technical_coverage": "partially_covered_pending_closure_delivery"
+    }
+  ],
+  "schema": "video-paper-wiki.vpkb-000-closure-audit.v1"
+}

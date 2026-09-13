@@ -1,0 +1,82 @@
+{
+  "schema": "video-paper-wiki.upstream-capture-authority.v1",
+  "profile": "claude-obsidian-capture-apply-dry-run-9f8c119-v1",
+  "upstream": {
+    "distribution": "claude-obsidian",
+    "version": "2.1.1",
+    "commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+    "tracked_and_untracked_clean": true,
+    "profile_sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+    "source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34"
+  },
+  "request": {
+    "route": "manual-inbox",
+    "source_path": "inbox/paper.pdf",
+    "operation_id": "capture-manual-pdf-001",
+    "generated_at": "2026-09-01T04:00:00Z",
+    "budget": {
+      "max_items": 1,
+      "max_total_bytes": 67108864,
+      "max_file_bytes": 67108864,
+      "max_captured_directory_entries": 4096
+    }
+  },
+  "transport": {
+    "stdout_sha256": "cd3f8069606f4885047714bb174957c7e5437cb97c05423273492ab1ae5f092a",
+    "stdout_size_bytes": 1804
+  },
+  "observation": {
+    "status": "dry-run",
+    "item": {
+      "schema": "claude-obsidian.filesystem-capture-plan.v1",
+      "adapter": "filesystem",
+      "execute": false,
+      "source_identity": "cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d",
+      "source": "inbox/paper.pdf",
+      "stored_path": ".raw/captured/cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d.pdf",
+      "would_change": true,
+      "skip_reason": null,
+      "metadata": {
+        "name": "paper.pdf",
+        "extension": ".pdf",
+        "size_bytes": 21,
+        "sha256": "cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d",
+        "kind": "pdf",
+        "media_type": "application/pdf",
+        "detected_by": "magic"
+      }
+    },
+    "operation": {
+      "schema": "claude-obsidian.transaction.v1",
+      "operation_id": "capture-manual-pdf-001",
+      "operation_type": "capture",
+      "expected_path": ".raw/captured/cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d.pdf",
+      "write": {
+        "path": ".raw/captured/cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d.pdf",
+        "mode": "create",
+        "sha256": "cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d"
+      }
+    },
+    "approved_plan_sha256": "137143d00e4ca638de1a9ea9363d2010a9025b62d2876c3690713547b7e89bf7",
+    "generated_at": "2026-09-01T04:00:00Z"
+  },
+  "inspection": {
+    "schema": "video-paper-wiki.capture-inspection.v1",
+    "route": "manual-inbox",
+    "media_type": "application/pdf",
+    "payload": {
+      "sha256": "cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d",
+      "size_bytes": 21
+    },
+    "source_path": "inbox/paper.pdf",
+    "proposal_sha256": null,
+    "stored_path": ".raw/captured/cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d.pdf",
+    "source_identity": "cdc34c97ed87cb5e00549c600317c64109eaecd9174ce7136c30d45e256b155d",
+    "siblings": [],
+    "would_change": true,
+    "operation_id": "capture-manual-pdf-001",
+    "upstream_plan_sha256": "137143d00e4ca638de1a9ea9363d2010a9025b62d2876c3690713547b7e89bf7",
+    "approval_hash": "918259d22fb879f454e01e782f6b4119932afb075688146049c0ce7fa0002fe0"
+  }
+}

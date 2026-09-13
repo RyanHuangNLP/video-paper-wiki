@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-authority.v1.schema.json",
+  "title": "video-paper-wiki.markdown-capture-authority.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "requested_operation_id",
+    "request",
+    "request_sha256",
+    "disposition",
+    "stored_path",
+    "source_id",
+    "transaction_staging",
+    "upstream_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.markdown-capture-authority.v1"
+    },
+    "requested_operation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$(?![\\s\\S])"
+    },
+    "request": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-request.v1.schema.json"
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "disposition": {
+      "enum": [
+        "create",
+        "reuse"
+      ]
+    },
+    "stored_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "source_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+    },
+    "transaction_staging": {
+      "oneOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-staging.v1.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "upstream_authority": {
+      "oneOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-authority.v1.schema.json"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

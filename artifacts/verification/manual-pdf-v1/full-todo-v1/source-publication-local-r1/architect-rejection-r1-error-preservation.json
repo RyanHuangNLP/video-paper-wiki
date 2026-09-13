@@ -1,0 +1,20 @@
+{
+  "schema": "video-paper-wiki.source-publication-candidate-rejection.v1",
+  "recorded_at_utc": "2026-09-09T05:34:23.940958+00:00",
+  "candidate_sha256": "67e0daeb27d89c057c7b43d4d87fea9431a0923d245d06232e10aa53af284b62",
+  "decision": "R1_ADDITIONAL_SPECIFIC_ERROR_PRESERVATION_DEFECT",
+  "path": "src/video_paper_wiki/source_publication_contracts.py",
+  "source_sha256": "5f85b5a583d116d6c9ea81057661abe4a6d06ce77270e0dc3efacb511e301c5a",
+  "reproduction": {
+    "value": "[None] * 100001",
+    "direct_preflight_code": "SOURCE_SEMANTICS_LIMIT",
+    "parse_json_code": "SOURCE_PUBLICATION_INVALID"
+  },
+  "cause": "ContractError subclasses ValueError; parse_json broad ValueError branch masks the existing stable code/details/exit_code.",
+  "required_fix": "Explicitly rethrow ContractError before the broad JSON conversion handler, preserving separate SecureIOError conversion.",
+  "full_suites_completed_on_unchanged_rejected_r1": {
+    "python313": "3269 passed in 317.69s",
+    "python312": "3269 passed in 333.28s"
+  },
+  "remote_delivery_authorized": false
+}

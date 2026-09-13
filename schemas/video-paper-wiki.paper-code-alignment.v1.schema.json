@@ -2,27 +2,96 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.paper-code-alignment.v1.schema.json",
   "title": "video-paper-wiki.paper-code-alignment.v1",
-  "type": "object", "additionalProperties": false,
+  "type": "object",
+  "additionalProperties": false,
   "required": ["schema", "paper_id", "repository", "commit", "officiality", "license", "archived", "capabilities"],
   "properties": {
-    "schema": {"const": "video-paper-wiki.paper-code-alignment.v1"}, "paper_id": {"type": "string", "minLength": 1}, "repository": {"$ref": "#/$defs/repository"}, "commit": {"$ref": "#/$defs/commit"},
-    "officiality": {"type": "object", "additionalProperties": false, "required": ["status", "evidence"], "properties": {"status": {"enum": ["official", "unofficial", "unverified_candidate"]}, "evidence": {"type": "array", "items": {"$ref": "#/$defs/pdf_locator"}}}},
-    "license": {"$ref": "#/$defs/license"}, "archived": {"type": "boolean"},
-    "capabilities": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/capability"}, "allOf": [
-      {"contains": {"required": ["name"], "patternProperties": {"^name$": {"const": "training"}}}, "minContains": 1, "maxContains": 1},
-      {"contains": {"required": ["name"], "patternProperties": {"^name$": {"const": "inference"}}}, "minContains": 1, "maxContains": 1},
-      {"contains": {"required": ["name"], "patternProperties": {"^name$": {"const": "data"}}}, "minContains": 1, "maxContains": 1},
-      {"contains": {"required": ["name"], "patternProperties": {"^name$": {"const": "evaluation"}}}, "minContains": 1, "maxContains": 1},
-      {"contains": {"required": ["name"], "patternProperties": {"^name$": {"const": "checkpoints"}}}, "minContains": 1, "maxContains": 1}
-    ]}
+    "schema": {"const": "video-paper-wiki.paper-code-alignment.v1"},
+    "paper_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"},
+    "repository": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"},
+    "commit": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"},
+    "officiality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evidence"],
+      "properties": {
+        "status": {"enum": ["official", "unofficial", "unverified_candidate"]},
+        "evidence": {
+          "type": "array",
+          "items": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/pdf_locator"}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"required": ["status"], "patternProperties": {"^status$": {"const": "official"}}},
+          "then": {"patternProperties": {"^evidence$": {"minItems": 1}}}
+        }
+      ]
+    },
+    "license": {"$ref": "#/$defs/license"},
+    "archived": {"type": "boolean"},
+    "capabilities": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {"$ref": "#/$defs/capability"},
+      "allOf": [
+        {"contains": {"type": "object", "additionalProperties": false, "required": ["name"], "properties": {"name": {"const": "training"}, "status": {"enum": ["present", "absent", "partial", "unverified"]}, "locators": {"type": "array"}, "absence_scope": {"type": ["object", "null"]}, "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"type": "object", "additionalProperties": false, "required": ["name"], "properties": {"name": {"const": "inference"}, "status": {"enum": ["present", "absent", "partial", "unverified"]}, "locators": {"type": "array"}, "absence_scope": {"type": ["object", "null"]}, "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"type": "object", "additionalProperties": false, "required": ["name"], "properties": {"name": {"const": "data"}, "status": {"enum": ["present", "absent", "partial", "unverified"]}, "locators": {"type": "array"}, "absence_scope": {"type": ["object", "null"]}, "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"type": "object", "additionalProperties": false, "required": ["name"], "properties": {"name": {"const": "evaluation"}, "status": {"enum": ["present", "absent", "partial", "unverified"]}, "locators": {"type": "array"}, "absence_scope": {"type": ["object", "null"]}, "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}}}, "minContains": 1, "maxContains": 1},
+        {"contains": {"type": "object", "additionalProperties": false, "required": ["name"], "properties": {"name": {"const": "checkpoints"}, "status": {"enum": ["present", "absent", "partial", "unverified"]}, "locators": {"type": "array"}, "absence_scope": {"type": ["object", "null"]}, "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}}}, "minContains": 1, "maxContains": 1}
+      ]
+    }
   },
   "$defs": {
-    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "repository": {"type": "string", "pattern": "^[^/]+/[^/]+$"},
-    "license": {"type": "object", "additionalProperties": false, "required": ["spdx_id", "notes"], "properties": {"spdx_id": {"type": ["string", "null"]}, "notes": {"type": "string"}}},
-    "lines": {"type": "object", "additionalProperties": false, "required": ["start", "end"], "properties": {"start": {"type": "integer", "minimum": 1}, "end": {"type": "integer", "minimum": 1}}},
-    "absence_scope": {"type": "object", "additionalProperties": false, "required": ["commit", "tree_prefix", "search_patterns"], "properties": {"commit": {"$ref": "#/$defs/commit"}, "tree_prefix": {"type": "string"}, "search_patterns": {"type": "array", "items": {"type": "string"}}}},
-    "capability": {"type": "object", "additionalProperties": false, "required": ["name", "status", "locators"], "properties": {"name": {"enum": ["training", "inference", "data", "evaluation", "checkpoints"]}, "status": {"enum": ["present", "absent", "partial", "unverified"]}, "locators": {"type": "array", "items": {"$ref": "#/$defs/code_locator"}}, "absence_scope": {"$ref": "#/$defs/absence_scope"}, "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}}, "allOf": [{"if": {"required": ["status"], "patternProperties": {"^status$": {"const": "absent"}}}, "then": {"required": ["absence_scope"]}}, {"if": {"required": ["checkpoint_kind"]}, "then": {"patternProperties": {"^name$": {"const": "checkpoints"}}}}]},
-    "pdf_locator": {"type": "object", "additionalProperties": false, "required": ["kind", "source_id", "page", "ref", "artifact_path", "artifact_sha256", "text_sha256"], "properties": {"kind": {"const": "pdf"}, "source_id": {"type": "string"}, "page": {"type": "integer", "minimum": 1}, "ref": {"type": "string"}, "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}}, "charspan": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}}, "artifact_path": {"type": "string"}, "artifact_sha256": {"$ref": "#/$defs/sha256"}, "text_sha256": {"$ref": "#/$defs/sha256"}}},
-    "code_locator": {"type": "object", "additionalProperties": false, "required": ["kind", "source_id", "repository", "commit", "path", "lines", "snippet_sha256"], "properties": {"kind": {"const": "code"}, "source_id": {"type": "string"}, "repository": {"$ref": "#/$defs/repository"}, "commit": {"$ref": "#/$defs/commit"}, "path": {"type": "string"}, "lines": {"$ref": "#/$defs/lines"}, "symbol": {"type": "string"}, "snippet_sha256": {"$ref": "#/$defs/sha256"}}}
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdx_id", "notes"],
+      "properties": {
+        "spdx_id": {"type": ["string", "null"]},
+        "notes": {"type": "string"}
+      }
+    },
+    "absence_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree_prefix", "search_patterns"],
+      "properties": {
+        "commit": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"},
+        "tree_prefix": {"type": "string"},
+        "search_patterns": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "capability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "locators"],
+      "properties": {
+        "name": {"enum": ["training", "inference", "data", "evaluation", "checkpoints"]},
+        "status": {"enum": ["present", "absent", "partial", "unverified"]},
+        "locators": {
+          "type": "array",
+          "items": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/code_locator"}
+        },
+        "absence_scope": {"$ref": "#/$defs/absence_scope"},
+        "checkpoint_kind": {"enum": ["link_only", "artifact_verified"]}
+      },
+      "allOf": [
+        {
+          "if": {"required": ["status"], "patternProperties": {"^status$": {"const": "absent"}}},
+          "then": {"required": ["absence_scope"]}
+        },
+        {
+          "if": {"required": ["status"], "patternProperties": {"^status$": {"enum": ["present", "partial"]}}},
+          "then": {"patternProperties": {"^locators$": {"minItems": 1}}}
+        },
+        {
+          "if": {"required": ["checkpoint_kind"]},
+          "then": {"patternProperties": {"^name$": {"const": "checkpoints"}}}
+        }
+      ]
+    }
   }
 }

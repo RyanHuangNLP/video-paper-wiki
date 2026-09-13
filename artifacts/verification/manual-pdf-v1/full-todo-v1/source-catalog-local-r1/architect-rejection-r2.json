@@ -1,0 +1,48 @@
+{
+  "schema": "full-todo.source-catalog-architect-rejection.v1",
+  "revision": 2,
+  "recorded_at_utc": "2026-09-09T09:14:27.533098+00:00",
+  "decision": "REJECTED_R2_INSTALLED_CLI_ENVELOPE_AND_STAGING_EXCEPTION",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r2.json",
+    "sha256": "09fca6277e15de4bdb1eebaebcac62a30d18b8928965f9c1f83f53013aab7714",
+    "size_bytes": 4670
+  },
+  "snapshot_sha256": "3e2d6fe9ba9595e08bc3709144f204b0abaeeee393f20e55a0cdc4916c03624c",
+  "local_full_suites": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-full-py313-r2.json",
+      "sha256": "9bdd1f7dea37e87833b13ad0e30f23479072ca3a6fcf30ad1e30d91092de5f22",
+      "size_bytes": 103243
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-full-py312-r2.json",
+      "sha256": "f26c9b298b63d31ddcec561e7e844098541e67645908517ce71f3d02a9e47f39",
+      "size_bytes": 103176
+    }
+  ],
+  "local_full_suite_summary": "Both Python 3.12 and 3.13 passed 3535 tests; these do not cover the discovered installed CLI failures.",
+  "installed_cli": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/installed-wheel-cli-r2/cli-summary.json",
+    "sha256": "fa16c574ce5d1d521de020d574c0055aa106b0dc00148d61eb22585b19819db4",
+    "size_bytes": 70756
+  },
+  "blockers": [
+    {
+      "code": "CLI_ENVELOPE_MISSING",
+      "observed": "All 5 commands per runtime return dict through main and sys.exit: exit1, empty stdout, dict stderr. Handler must emit one success/error envelope, return numeric exit status and preserve public Python dict APIs."
+    },
+    {
+      "code": "STAGING_EXCEPTION_LOST",
+      "observed": "Direct source_catalog_status and cli.main with batch_id ../bad raise AttributeError because StagingError has no exit_code. Replay was local; no Vault or .work operation reached. Preserve INVALID_BATCH_ID and WORK codes, using shared staging exit conventions."
+    }
+  ],
+  "r3_allowed_repairs": [
+    "src/video_paper_wiki/source_catalog.py",
+    "tests/unit/test_source_catalog.py"
+  ],
+  "historical_source_archive": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/rejected-r2-source",
+  "other_17_files_must_remain_unchanged": true,
+  "ci_acceptance": false,
+  "no_merge": true
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-publication-proposal.v1.schema.json",
+  "title": "video-paper-wiki.source-publication-proposal.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "kind",
+    "payloads",
+    "registration"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.source-publication-proposal.v1"
+    },
+    "kind": {
+      "enum": [
+        "knowledge",
+        "registration"
+      ]
+    },
+    "payloads": {
+      "type": "array",
+      "maxItems": 1022,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "content_file"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "content_file": {
+            "type": "string",
+            "pattern": "^content/[0-9a-f]{64}$(?![\\s\\S])"
+          }
+        }
+      }
+    },
+    "registration": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "authority",
+            "capture_result",
+            "ingested_at"
+          ],
+          "properties": {
+            "authority": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-authority.v1.schema.json"
+            },
+            "capture_result": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.operation-result-authority.v1.schema.json"
+            },
+            "ingested_at": {
+              "type": "string",
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$(?![\\s\\S])"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

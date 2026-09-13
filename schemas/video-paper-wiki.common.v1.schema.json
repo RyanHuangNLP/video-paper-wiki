@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json",
+  "title": "video-paper-wiki.common.v1",
+  "$comment": "Shared identity, path, locator, host, and timestamp grammars. Not a root document schema. Page slugs are not canonical IDs.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {},
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "full_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "batch_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "canonical_paper_id": {
+      "type": "string",
+      "pattern": "^(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/[\\x21-\\x40\\x5b-\\x7e]+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
+    },
+    "repo_id": {
+      "type": "string",
+      "pattern": "^github:[a-z0-9._-]+/[a-z0-9._-]+$"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]+/[A-Za-z0-9._-]+$"
+    },
+    "claim_id": {
+      "type": "string",
+      "pattern": "^clm-[0-9a-f]{20}$"
+    },
+    "assessment_event_id": {
+      "type": "string",
+      "pattern": "^ase-[0-9a-f]{20}$"
+    },
+    "gate_event_id": {
+      "type": "string",
+      "pattern": "^gde-[0-9a-f]{20}$"
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "paper_subject_id": {
+      "type": "string",
+      "pattern": "^paper:(arxiv:[0-9]{4}\\.[0-9]{4,5}|arxiv:[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}|doi:10\\.[0-9]{4,9}/[\\x21-\\x40\\x5b-\\x7e]+|openalex:W[0-9]+|sha256:[0-9a-f]{64})$"
+    },
+    "repo_subject_id": {
+      "type": "string",
+      "pattern": "^repo:github:[a-z0-9._-]+/[a-z0-9._-]+$"
+    },
+    "concept_subject_id": {
+      "type": "string",
+      "pattern": "^concept:v[0-9]+:[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+    },
+    "stable_subject_id": {
+      "type": "string",
+      "oneOf": [
+        {"$ref": "#/$defs/paper_subject_id"},
+        {"$ref": "#/$defs/repo_subject_id"},
+        {"$ref": "#/$defs/concept_subject_id"}
+      ]
+    },
+    "portable_vault_relative_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
+    },
+    "derived_artifact_path": {
+      "type": "string",
+      "pattern": "^\\.raw/derived/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
+    },
+    "captured_artifact_path": {
+      "type": "string",
+      "pattern": "^\\.raw/captured/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
+    },
+    "business_managed_path": {
+      "type": "string",
+      "pattern": "^(?:\\.raw/(?:captured|derived)|wiki/(?:papers|code|concepts)|wiki/meta/(?:ledgers|records|reviews|gates|operations|registries))/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$"
+    },
+    "receipt_path": {
+      "type": "string",
+      "pattern": "^wiki/meta/operations/[0-9]{12}-[A-Za-z0-9._-]+\\.json$"
+    },
+    "https_url": {
+      "type": "string",
+      "pattern": "^https://[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*(?::[0-9]{1,5})?(?:[/?#][^@]*)?$"
+    },
+    "exact_host": {
+      "type": "string",
+      "pattern": "^(?![0-9.]+$)(?!\\[)(?!localhost$)(?!.*\\*)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$"
+    },
+    "paper_host": {
+      "type": "string",
+      "enum": ["arxiv.org", "export.arxiv.org", "api.openalex.org"]
+    },
+    "code_host": {
+      "type": "string",
+      "enum": ["api.github.com", "github.com", "raw.githubusercontent.com", "codeload.github.com"]
+    },
+    "utc_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{1,9})?Z$"
+    },
+    "section_id": {
+      "enum": ["one_sentence_conclusion", "research_question", "method", "representation_architecture", "training_data", "experiments_results", "limitations", "code_resources", "evidence_status", "related"]
+    },
+    "axis": {
+      "enum": ["task/conditioning", "formulation/objective", "representation/tokenizer", "backbone", "spatial-temporal-modeling", "data/captioning/filtering", "training/parallelism/optimization", "inference/distillation/acceleration", "control", "evaluation/dataset/benchmark"]
+    },
+    "taxonomy_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["axis", "slug"],
+      "properties": {
+        "axis": {"$ref": "#/$defs/axis"},
+        "slug": {"type": "string", "minLength": 1, "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"}
+      }
+    },
+    "lifecycle": {
+      "enum": ["active", "retired"]
+    },
+    "lines": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": {
+        "start": {"type": "integer", "minimum": 1},
+        "end": {"type": "integer", "minimum": 1}
+      }
+    },
+    "pdf_locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_id", "page", "ref", "artifact_path", "artifact_sha256", "text_sha256"],
+      "properties": {
+        "kind": {"const": "pdf"},
+        "source_id": {"$ref": "#/$defs/source_id"},
+        "page": {"type": "integer", "minimum": 1, "maximum": 300},
+        "ref": {"type": "string", "minLength": 1},
+        "bbox": {"type": "array", "minItems": 4, "maxItems": 4, "items": {"type": "number"}},
+        "charspan": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "integer"}},
+        "artifact_path": {"$ref": "#/$defs/derived_artifact_path"},
+        "artifact_sha256": {"$ref": "#/$defs/sha256"},
+        "text_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "code_locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "source_id", "repository", "commit", "path", "lines", "snippet_sha256"],
+      "properties": {
+        "kind": {"const": "code"},
+        "source_id": {"$ref": "#/$defs/source_id"},
+        "repository": {"$ref": "#/$defs/repository"},
+        "commit": {"$ref": "#/$defs/full_commit"},
+        "path": {"$ref": "#/$defs/portable_vault_relative_path"},
+        "lines": {"$ref": "#/$defs/lines"},
+        "symbol": {"type": "string", "minLength": 1},
+        "snippet_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    }
+  }
+}

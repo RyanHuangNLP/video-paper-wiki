@@ -1,0 +1,37 @@
+{
+  "schema": "full-todo.source-catalog-architect-rejection.v1",
+  "recorded_at_utc": "2026-09-09T08:58:35.383445+00:00",
+  "decision": "REJECTED_CATALOG_R1_FULL_REGRESSION_COMPATIBILITY",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r1.json",
+    "sha256": "52c85d4e36f746d8edc212db050278d6977ebee13f3241e1b1b739eed232a15d",
+    "snapshot_sha256": "aba54b97d1db9c016ce14ce67f6f7234066417652bf749058dd48b1b5e16812e"
+  },
+  "reports": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-full-py312-r1.json",
+      "sha256": "288221934391af66fe1901a7963cee5bf7bc2468e9189f34f7546a8ed3399991",
+      "size_bytes": 103083,
+      "summary": "2 failed, 3533 passed in 570.05s (0:09:30)",
+      "exit_code": 1
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/architect-full-py313-r1.json",
+      "sha256": "96ccdeeb7c0d188e73ba7bcfb960f23ed35312a150c5fadc41e9907ade51245b",
+      "size_bytes": 103150,
+      "summary": "2 failed, 3533 passed in 567.24s (0:09:27)",
+      "exit_code": 1
+    }
+  ],
+  "immutable_source_archive": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/rejected-r1-source",
+  "allowed_repair_paths": [
+    "schemas/video-paper-wiki.source-catalog.v1.schema.json",
+    "src/video_paper_wiki/contracts.py"
+  ],
+  "repair_contract": [
+    "Rewrite the new resolution/coverage conditional schemas as equivalent complete closed discriminated branches. Preserve supported field values and all refusal semantics; leave the existing closure test unchanged.",
+    "Rename the extracted pure schema-registry helper to a schema-specific name that complies with the existing contracts.py scope policy. Do not add engine behavior or relax the policy.",
+    "Preserve other17candidatepaths,allR1reports/reviews/candidate/profile. FreezeR2onlyafterindependent two-file review, relevant old+new tests, fullbothPython and installedwheel parity."
+  ],
+  "real_or_human_gates_closed": false
+}

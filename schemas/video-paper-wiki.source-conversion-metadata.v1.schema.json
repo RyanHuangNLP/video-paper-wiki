@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-conversion-metadata.v1.schema.json",
+  "title": "video-paper-wiki.source-conversion-metadata.v1",
+  "required": [
+    "schema",
+    "paper_id",
+    "title",
+    "title_zh",
+    "authors",
+    "published_at",
+    "aliases",
+    "taxonomy",
+    "code_urls"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.source-conversion-metadata.v1"
+    },
+    "paper_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id",
+      "maxLength": 16384
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 16384,
+      "pattern": "\\S"
+    },
+    "title_zh": {
+      "type": "string",
+      "maxLength": 16384
+    },
+    "authors": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 16384
+      },
+      "maxItems": 256
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+        }
+      ]
+    },
+    "aliases": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 16384
+      },
+      "maxItems": 256
+    },
+    "taxonomy": {
+      "type": "array",
+      "items": {
+        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/taxonomy_ref"
+      },
+      "maxItems": 256
+    },
+    "code_urls": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url",
+        "maxLength": 16384
+      },
+      "maxItems": 256
+    },
+    "arxiv_id": {
+      "type": "string",
+      "maxLength": 16384
+    },
+    "doi": {
+      "type": "string",
+      "maxLength": 16384
+    }
+  }
+}

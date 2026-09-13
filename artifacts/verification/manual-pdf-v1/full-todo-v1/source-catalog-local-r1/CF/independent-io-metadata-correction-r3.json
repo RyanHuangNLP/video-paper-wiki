@@ -1,0 +1,63 @@
+{
+  "$schema": "full-todo.source-catalog-io-metadata-correction-r3.v1",
+  "schema": "full-todo.source-catalog-io-metadata-correction-r3.v1",
+  "reviewed_at_utc": "2026-09-09T09:07:36.097952Z",
+  "scope": "Metadata-only successor to independent-io-acceptance-review-r2. Corrects the recorded target-probe duration from the preserved raw stdout and keeps the original R1-bound candidate/suite scope. No source, test, catalog, Git, Vault, network, or remote mutation.",
+  "decision": "METADATA_CORRECTION_ACCEPTED",
+  "status": "SUCCESSOR_METADATA_ONLY",
+  "prior_report": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/independent-io-acceptance-review-r2.json",
+    "sha256": "9043e76a639a9eb9e5b7d06f165432efa002fbe46e554302111d595aeca08a5b",
+    "recorded_target_result": "6 passed in 2.06s",
+    "immutable": true
+  },
+  "candidate_scope": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "local_candidate_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r1.json",
+    "local_candidate_sha256": "52c85d4e36f746d8edc212db050278d6977ebee13f3241e1b1b739eed232a15d",
+    "snapshot_sha256": "aba54b97d1db9c016ce14ce67f6f7234066417652bf749058dd48b1b5e16812e",
+    "file_count": 19,
+    "source_catalog_io_sha256": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+    "scope_note": "The retained 71-case security replay remains bound to this R1 candidate review. It is not relabelled as a new R2 suite. The focused R2 resource-isolation successor changed registry/resource-view handling only; source_catalog_io.py remained unchanged."
+  },
+  "raw_evidence_loaded_programmatically": {
+    "stdout": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-target.stdout.log",
+      "sha256": "c716f3909efaec539ef90b0655a0a6e99f0e38fe1b19fdbf201956b901c7debf",
+      "parsed_result": "6 passed in 2.08s"
+    },
+    "stderr": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-target.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "correction": {
+    "field": "checks[R2-ACQUISITION-FINAL-CHECKS].result",
+    "old_value": "6 passed in 2.06s",
+    "corrected_value": "6 passed in 2.08s",
+    "reason": "The preserved raw stdout is authoritative for the elapsed-time text; pass count and probe meaning are unchanged."
+  },
+  "unchanged_claims": {
+    "security_replay": "The 71-case security replay remains exactly the prior R1-bound evidence and is not newly rerun or relabelled here.",
+    "target_probe_pass_count": "6 passed",
+    "candidate_manifest": "The prior exact head/tree/snapshot and 19-path manifest binding are unchanged.",
+    "resource_isolation_successor": "Preserved separately at artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/independent-resource-isolation-review-r2.json."
+  },
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "catalog": false,
+    "git": false,
+    "vault": false,
+    "network": false,
+    "remote": false,
+    "review_artifact_only": true
+  },
+  "remaining_gates": [
+    "This successor does not add full-suite, wheel, exact-head, CI, delivery, or human acceptance evidence.",
+    "The original R2 report remains immutable; consumers should use this successor for the corrected target-probe duration."
+  ]
+}

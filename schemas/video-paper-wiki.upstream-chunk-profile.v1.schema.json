@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-chunk-profile.v1.schema.json",
+  "title": "video-paper-wiki.upstream-chunk-profile.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "page_path",
+    "page_address",
+    "chunk_index",
+    "raw_text",
+    "contextualized_text",
+    "prefix",
+    "prefix_source",
+    "char_count",
+    "body_hash",
+    "page_body_hash",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "page_path": {
+      "type": "string",
+      "pattern": "^wiki/.*\\.md$",
+      "minLength": 8
+    },
+    "page_address": {
+      "type": "string",
+      "pattern": "^(?:[cl]-[0-9]{6}|syn-[0-9a-f]{64})$",
+      "maxLength": 68
+    },
+    "chunk_index": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "raw_text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "contextualized_text": {
+      "type": "string"
+    },
+    "prefix": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "prefix_source": {
+      "enum": [
+        "synthetic",
+        "anthropic-api",
+        "claude-cli"
+      ]
+    },
+    "char_count": {
+      "type": "integer"
+    },
+    "body_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "minLength": 71,
+      "maxLength": 71
+    },
+    "page_body_hash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "minLength": 71,
+      "maxLength": 71
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 20,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    }
+  }
+}

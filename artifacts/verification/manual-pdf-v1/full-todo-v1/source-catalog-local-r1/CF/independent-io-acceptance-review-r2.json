@@ -1,0 +1,91 @@
+{
+  "$schema": "full-todo.source-catalog-io-acceptance-review-r2.v1",
+  "schema": "full-todo.source-catalog-io-acceptance-review-r2.v1",
+  "reviewed_at_utc": "2026-09-09T08:51:37.103407Z",
+  "scope": "Independent read-only acceptance review of the exact frozen 19-path source-catalog candidate. Replays the 71-case security boundary suite and adds acquisition/final-check probes for absent optional package resources, first-stat classifier retention, all-check continuation after an earlier failure, and read-only missing-slot behavior.",
+  "decision": "GO_FOR_FROZEN_IO_ACCEPTANCE_REVIEW",
+  "status": "PASS_INDEPENDENT_FROZEN_IO_REVIEW",
+  "candidate": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "local_candidate_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r1.json",
+    "local_candidate_sha256": "52c85d4e36f746d8edc212db050278d6977ebee13f3241e1b1b739eed232a15d",
+    "snapshot_sha256": "aba54b97d1db9c016ce14ce67f6f7234066417652bf749058dd48b1b5e16812e",
+    "file_count": 19,
+    "manifest_replay": {
+      "mismatches": []
+    },
+    "bound_io_hashes": {
+      "src/video_paper_wiki/source_catalog_io.py": "ae81e7335b564c270e00378123a47646764c9745f8935ce6955aeea2b631bb1f",
+      "src/video_paper_wiki/resources.py": "95384ca279a5d58dd581604b1d8e60bff6bb10c82190f05038ba96465d5220e1",
+      "src/video_paper_wiki/contracts.py": "6eec9b537a579211fe471df5d638be9033cc5e34c5b467f867a475d12389ed31",
+      "src/video_paper_wiki/source_catalog.py": "d76cf2b1fbc0e82cb9ed815fb65bad60f067d502003545718100f1bea93cad78",
+      "tests/unit/test_source_catalog.py": "8bf775b1acefb753c0a34572d0509439234127c377e65d6feafd9cc187bc419f"
+    }
+  },
+  "prior_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/independent-resource-isolation-review-r2.json",
+    "sha256": "44f0ca82156ef98b93294f9d0fb7aff4a2e4a1f1c32cf0b1164fcd0cc4b8ce0f",
+    "decision": "GO_FOR_RESOURCE_CONTEXT_ISOLATION_REPAIR",
+    "preserved_r1": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/independent-wip-io-r1.json"
+  },
+  "checks": [
+    {
+      "id": "R2-SECURITY-71",
+      "status": "PASS",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 UV_OFFLINE=1 UV_PYTHON_DOWNLOADS=never PYTHONPATH=src /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -B -m pytest -q tests/security/test_source_catalog_boundary.py --basetemp=/private/tmp/source-catalog-io-review-r2-security-pytest -o cache_dir=/private/tmp/source-catalog-io-review-r2-security-cache",
+      "cwd": ".work/parallel/source-catalog-v1/terminal-1/source",
+      "result": "71 passed in 50.24s",
+      "stdout_artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-security.stdout.log",
+      "stdout_sha256": "235d543360f0ab0b75d7d406556a1cf8f2357db0b65cefa27916305a865565e7",
+      "stderr_artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-security.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "coverage": "Cache symlink, hardlink, directory, FIFO, permissions, foreign siblings; retained-vault and retained-cache replacement on ordinary/error exits; missing-edge appearances; all five public commands; cache ancestor/set/metadata/bytes changes; generation file/set/ancestry/byte changes; pycache exclusion; no CWD fallback; captured-resource and zero-egress behavior."
+    },
+    {
+      "id": "R2-ACQUISITION-FINAL-CHECKS",
+      "status": "PASS",
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 UV_OFFLINE=1 UV_PYTHON_DOWNLOADS=never PYTHONPATH=src /Users/huangzhanpeng/python_code/video-paper-wiki/.venv/bin/python -B -m pytest -q /private/tmp/source_catalog_io_review_r2.py --basetemp=/private/tmp/source-catalog-io-review-r2-target-pytest3 -o cache_dir=/private/tmp/source-catalog-io-review-r2-target-cache3",
+      "cwd": ".work/parallel/source-catalog-v1/terminal-1/source",
+      "result": "6 passed in 2.06s",
+      "probe_artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-target.py",
+      "probe_sha256": "7d1778b1b2533f62544cd1bc1d2d4f6c19e829bf6a405975ae04799057f060f3",
+      "stdout_artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-target.stdout.log",
+      "stdout_sha256": "c716f3909efaec539ef90b0655a0a6e99f0e38fe1b19fdbf201956b901c7debf",
+      "stderr_artifact": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/io-acceptance-target.stderr.log",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "findings": [
+        "Each absent installed package schema/taxonomy/profile slot failed closed as SOURCE_CATALOG_INVALID; the absent node remained absent and no CWD fallback or .work batch was created.",
+        "A replacement after the first classifier os.stat but before opening the file was rejected as WORK_PATH_UNSAFE, proving the first stat identity is retained.",
+        "verify_all ran the second checker after the first checker failed and re-raised the first failure.",
+        "Read-only catalog_slot on an absent batch returned no slot and did not create .work/<batch>."
+      ]
+    },
+    {
+      "id": "R2-FROZEN-MANIFEST",
+      "status": "PASS",
+      "evidence": "Recomputed all 19 manifest hashes against local-candidate-r1.json: zero mismatches; candidate HEAD and tree match the recorded values."
+    }
+  ],
+  "reviewed_invariants": [
+    "No-follow descriptors and retained named edges are checked during acquisition and finalization.",
+    "Complete sets and first classifier observations are retained; later additions, deletions, replacements, links, bytes, mode changes and foreign siblings fail closed.",
+    "All verification groups continue after an earlier failure, while the first unsafe error remains authoritative.",
+    "Optional read-only slots remain absent and installation writes only the intended private cache slot.",
+    "Captured generation uses package/source resources and fails closed when required package resources are missing; generated staging is the only mutable output boundary."
+  ],
+  "mutations": {
+    "frozen_candidate_source": false,
+    "candidate_tests": false,
+    "catalog_resources": false,
+    "git": false,
+    "real_vault": false,
+    "network": false,
+    "review_artifacts_only": true
+  },
+  "remaining_gates": [
+    "Full dual-Python candidate suites and installed-wheel parity remain with the parent.",
+    "Exact commit/delivery, fresh CI and human acceptance gates remain open; this review does not claim them."
+  ]
+}

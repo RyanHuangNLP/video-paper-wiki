@@ -1,0 +1,70 @@
+{
+  "observed_at": "2026-08-31T20:01:48.976588+00:00",
+  "review_status": "passed-no-blocker",
+  "candidate_filelist_sha256": "0e5c6d116df9291392516a1ff7d1ed74d07147d9188359fe4142090eb6c91074",
+  "after_focus_source_hashes": {
+    "src/video_paper_wiki/ledger_locator.py": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0",
+    "tests/test_ledger_locator.py": "b18752f720cc631c2b377c75540914564ab52167f7e7e5b3d15ba306a631de51",
+    "tests/test_ledger_locator_upstream.py": "12f9d61019c34a88e319f2e5ccb4c88a416702ae991b71168d1abe38367f93ac",
+    "tests/fixtures/ledger-locator/wire-vectors.json": "ec0f8ea95957d4bcc005687f159ced396b95011087b8ac517bcab53ab4330255"
+  },
+  "original_283_sources_unchanged": true,
+  "independent_probe_results": {
+    "path": "<TMP>/vpl-steward-review-candidate.json",
+    "sha256": "d1eb8a10284a029b45651cf6df4c4214ee74f13714c3b3562c63b3ecd211d3aa",
+    "passed": 54,
+    "failed": 0
+  },
+  "focused_pytest": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/test_ledger_locator.py tests/contract/test_identity.py tests/unit/test_identity.py --basetemp=<TMP>/vpl-steward-focus --junitxml=<TMP>/vpl-steward-focus.xml > <TMP>/vpl-steward-focus.log 2>&1",
+    "exit_code": 0,
+    "counts": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "130",
+      "time": "0.078",
+      "timestamp": "2026-09-01T03:58:16.969369+08:00",
+      "hostname": "HuangzhanpengdeMacBook-Pro.local"
+    },
+    "raw_log_sha256": "0976cbc7758976ae2943853b54720b5cf0a988e88203f93716716f1666222b13",
+    "raw_junit_sha256": "31a59bb689dbefbab62e2b20aa288c040a1b6ebe0b08edfb93bd39b4edcd93d6"
+  },
+  "existing_public_cli_artifact_audit": {
+    "rerun": false,
+    "vendor_head": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "version": "2.1.1",
+    "inventory_entries": 201,
+    "inventory_before_equals_after": true,
+    "command_exit_codes": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0,
+      0
+    ],
+    "wire_sha256": "3bd6e51ebde4cc6df7494e6b3cc2f2ed3b17d8c710f58f482e89d8a45009a174",
+    "persisted_evidence_decode_reencode_equal": true,
+    "artifact_raw_sha256": {
+      "commands.json": "c22bd88b94387648e4db3c648cfa9078688532dece47bb618a20cbe03efe7c6f",
+      "source-provenance.json": "a3611ce5c459bcef502cccd97233a598f97b01723b83fe674869d631f23b78cf",
+      "source-after.json": "e7cf699ed70a9d86e28ad73bd55543ef76853af4cd3f0bc98bf5a33eee401653",
+      "codec-transport-results.json": "76a08a427638705bed40b933127caf76c24615079581cad06b73af5e3ba36280",
+      "07-uncertain-refusal.stderr": "ab88509650a2ce2642956803b4ca82f59e0074ed0265799f8b0201830f62d36e",
+      "v/wiki/meta/ledgers/claim-ledger.json": "7a4a34e9af346da4294ffbcd1c31ece2efbfa0a6350fed8b99d70adb8fe91880",
+      "v/wiki/meta/ledgers/source-ledger.json": "90e9ba59752b111dd3b98823d2ed31fba0ef717001d5ac839ac15cbc69413114"
+    }
+  },
+  "limits": [
+    "Independent checks are bounded, not proof of all possible inputs.",
+    "Warm-registry no-I/O check allows immutable packaged schema loading.",
+    "Public CLI artifacts are Builder execution audited by Steward; no second CLI run claimed.",
+    "Synthetic coordinates and fixture artifact: no real extraction, artifact closure, complete record/receipt/head, human acceptance, or VPKB-001 completion.",
+    "No repository, Git, production, schema, dependency, or vendor edits by this review."
+  ]
+}

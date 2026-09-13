@@ -1,0 +1,129 @@
+{
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "tree": "757f33cfcfc561e919b0b5d2702e40834cb53204"
+  },
+  "candidate": {
+    "builder_evidence": "builder-candidate-r2.json",
+    "builder_evidence_sha256": "d0ec923d72b86ec1d1c0b49d64941751caf5182d5c41ebe9deea29795358531e",
+    "file_count": 7,
+    "files": {
+      "src/video_paper_wiki/contracts.py": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+      "src/video_paper_wiki/upstream_adapter.py": "febf3e08274892f50d3a8e01bcc06c72362000db6f279f37a9f3d41db5c7c199",
+      "tests/contract/test_upstream_authority.py": "8d51287f233563265ae84a6cd040a3700571143f885885ce5beb958f9dff21d4",
+      "tests/fixtures/upstream-authority/source-id-vectors.json": "adf41eb1599df42a95324c3f8c732e5a61c255a623d482e4450833a5f8f8bb93",
+      "tests/security/test_upstream_adapter_boundary.py": "262c0f22ac935cd58fe5731b5074adb74e6951df3f07c103f899791ca0017a47",
+      "tests/unit/test_upstream_adapter.py": "26b5d8d214c7d4b0dd7798518710d9cc460b505989ee4011c9bc2dc8ce818d89",
+      "tests/upstream/test_vpkb001_transaction_inspect.py": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817"
+    },
+    "git_diff_check": "passed",
+    "git_index": "empty",
+    "source_before_after_equal": true,
+    "source_snapshot_formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "source_snapshot_sha256": "2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f"
+  },
+  "decided_at_utc": "2026-09-01T03:10:13.614816+00:00",
+  "decision": "PASSED_LOCAL_CANDIDATE_PENDING_COMMIT_AND_CI",
+  "frozen_inputs": {
+    "architecture_acceptance": {
+      "path": "../vpkb-001-architecture-freeze-architect-acceptance.json",
+      "sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827"
+    },
+    "contract_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+    "packet_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+    "profile_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+    "schema_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+    "upstream_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "upstream_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "upstream_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a"
+  },
+  "independent_review": {
+    "blockers": [],
+    "prior_blocker_vectors": {
+      "failed": 0,
+      "passed": 27
+    },
+    "report": "steward-review-r2.json",
+    "report_sha256": "0540117c58f7509b752a5ca80f3a36570f4fc5352426b443f702636afdd0299e",
+    "security_and_schema": {
+      "failed": 0,
+      "passed": 472
+    },
+    "superseded_r1_report": "steward-review-r1.json",
+    "superseded_r1_report_sha256": "5b4fb1012912cb6e000144fca3d7df858721b5e8456cc87139233123e9a76790",
+    "verdict": "GO_FOR_ARCHITECT_ACCEPTANCE"
+  },
+  "invariants": {
+    "catalog_count": 67,
+    "dependency_lock_sha256": "67e928d696ad5e73e3635a67c8b231867734a0b93ba937cbb0a58b655d64afc0",
+    "frozen_generation_revision": 1,
+    "human_gate_changed": false,
+    "merge_authorized": false,
+    "network_or_real_vault_used": false,
+    "profile_file_count": 21,
+    "protected_user_untracked_preserved": true,
+    "pyproject_sha256": "5d9c487b0979bfe06a2c5fcb4e1e765760475fa9e80a60fa23f47b035d9d0a9a",
+    "schema_count": 22,
+    "vendor_changed": false
+  },
+  "local_full_suites": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 /private/tmp/vpkb-py312-venv/bin/python -B -m pytest -p no:cacheprovider --basetemp=<PRIVATE_TMP> --junitxml=<PRIVATE_TMP>/full.xml",
+      "duration_seconds": 73.22,
+      "errors": 0,
+      "failed": 0,
+      "junit_archived": false,
+      "junit_raw_sha256": "f3a0db2824c2cce37e3693f39875df899ba13ec44ee6c3386b96718fb22608b2",
+      "junit_size_bytes": 450256,
+      "passed": 1747,
+      "python": "CPython 3.12.14",
+      "skipped": 0
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -p no:cacheprovider --basetemp=<PRIVATE_TMP> --junitxml=<PRIVATE_TMP>/full.xml",
+      "duration_seconds": 68.74,
+      "errors": 0,
+      "failed": 0,
+      "junit_archived": false,
+      "junit_raw_sha256": "b0cfcc234f4bcb4e53fe8488b28a5b47b5ed1b0ca0613c00c3338cfa0eb2e1f5",
+      "junit_size_bytes": 450256,
+      "passed": 1747,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    }
+  ],
+  "limitations": [
+    "This is working-tree local acceptance; no implementation commit or exact candidate head exists yet.",
+    "Fresh Linux/macOS x Python 3.12/3.13 merge-ref CI and a separate exact-head Architect decision remain required.",
+    "The upstream original_size_bytes value is preserved but is not independently attested by transaction inspect.",
+    "Git authentication still applies its output limit after subprocess collection; this is a documented nonblocking observation under the frozen contract.",
+    "This record does not authorize apply/recover/admin, ledger merge, mapper/compiler, models/network, real Vault mutation, PR readiness, merge, auto-merge or a human-gate change."
+  ],
+  "schema": "video-paper-wiki.vpkb-001-adapter-implementation-architect-local-acceptance.v1",
+  "wheel": {
+    "build_command": "UV_CACHE_DIR=<PRIVATE_TMP>/uv-cache uv build --offline --wheel --out-dir <PRIVATE_TMP>/dist",
+    "install_command": "UV_CACHE_DIR=<PRIVATE_TMP>/uv-cache uv pip install --offline --no-deps --reinstall --python <PRIVATE_TMP>/wheel-venv/bin/python <PRIVATE_TMP>/dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+    "installed_adapter_sha256": "febf3e08274892f50d3a8e01bcc06c72362000db6f279f37a9f3d41db5c7c199",
+    "installed_contracts_sha256": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+    "missing_upstream_code": "ADAPTER_PATH_INVALID",
+    "network_attempts": 0,
+    "profile_bytes_equal_checkout": true,
+    "schema_bytes_equal_checkout": true,
+    "schema_count": 22,
+    "smoke_command": "PYTHONDONTWRITEBYTECODE=1 <PRIVATE_TMP>/wheel-venv/bin/python -I -B <PRIVATE_TMP>/wheel-smoke.py",
+    "smoke_output_raw_sha256": "5a888ad50356668f1a798244d5b974c19c044c77769480716c8d93bd30da137e",
+    "smoke_script_archived": false,
+    "smoke_script_raw_sha256": "25f63ddc0556a732b3a6d2107bf129b29f0c86a43059db1a7e95349ed93d4255",
+    "status": "passed from outside the repository with isolated import path",
+    "valid_authority_deep_copy": true,
+    "wheel_archived": false,
+    "wheel_sha256": "eb3f1dae1a793df68808c18781a70210ee175fdd50c89e4a72ed86ea16dbfeb1",
+    "wheel_size_bytes": 195209
+  }
+}

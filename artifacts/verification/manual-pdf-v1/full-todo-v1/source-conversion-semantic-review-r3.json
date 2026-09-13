@@ -1,0 +1,167 @@
+{
+  "$schema": "full-todo.source-conversion-semantic-review-r3.v1",
+  "packet": "SOURCE-CONVERSION",
+  "revision": "R3-independent-semantic-review",
+  "reviewed_at_utc": "2026-09-09T06:25:41Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent read-only semantic reviewer"
+  },
+  "scope": "Read-only semantic review of SOURCE-CONVERSION-R1, timestamp amendment R2, and legacy-migration/summary closure R3 against the accepted source-publication compiler, assessment-history, source-association and preservation contracts. No production, test, Git, Vault, network, operator or external-process mutation.",
+  "decision": "GO_FOR_SOURCE_CONVERSION_R3_FREEZE",
+  "baseline": {
+    "source_publication_delivered_base": {
+      "commit": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+      "status": "provided exact committed source-publication baseline; not relabelled by this review"
+    }
+  },
+  "contract_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R1.md",
+      "sha256": "464e3e98e8aa51199df5b93834bf196e49829918e95589c29de0c7572dfb5c72",
+      "size_bytes": 15251
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R2.md",
+      "sha256": "c4374416cb546fbef7abd33bc78c7074738a88a940967f059a938f991cf01029",
+      "size_bytes": 1266
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R3.md",
+      "sha256": "cb18df54729f32a12aacf10e2dfe8b3c5f655e8789df33ce29a430fed54d1880",
+      "size_bytes": 3396
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-allowed-paths-r1.json",
+      "sha256": "d0670bd28cf9dfb2682412abad94ba4d6590eb56401c43dc2375787d35cfeb36",
+      "size_bytes": 840
+    }
+  ],
+  "allowlist": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-allowed-paths-r1.json",
+    "sha256": "d0670bd28cf9dfb2682412abad94ba4d6590eb56401c43dc2375787d35cfeb36",
+    "path_count": 13,
+    "paths": [
+      "docs/source-conversion.md",
+      "schemas/video-paper-wiki.source-conversion-metadata.v1.schema.json",
+      "src/video_paper_wiki/source_publication.py",
+      "src/video_paper_wiki_research/formal_source.py",
+      "src/video_paper_wiki_research/source_conversion.py",
+      "src/video_paper_wiki_research/source_conversion_io.py",
+      "src/video_paper_wiki_research/source_conversion_model.py",
+      "tests/contract/test_schemas.py",
+      "tests/contract/test_source_conversion_metadata.py",
+      "tests/fixtures/contracts/valid/video-paper-wiki.source-conversion-metadata.v1.json",
+      "tests/research/test_source_conversion.py",
+      "tests/security/test_source_conversion_boundary.py",
+      "tests/upstream/test_source_conversion.py"
+    ]
+  },
+  "actual_contract_checks": [
+    {
+      "id": "V1_EMPTY_EVIDENCE_MIGRATION",
+      "status": "PASS",
+      "evidence": "R3 requires SOURCE_CONVERSION_UNSUPPORTED_CHANGE before staging when a preserved upgraded-paper claim remains evidence-empty. This matches canonical_compiler_v2._versioned, which rejects every versioned claim without evidence; a formerly empty claim may proceed only when explicit section mapping supplies valid new evidence and the v2 invalidation chain."
+    },
+    {
+      "id": "V1_ACTIVE_EXTRACTION_HISTORY",
+      "status": "PASS",
+      "evidence": "R3 defines historical retention as exact legacy raw/parser/run/source inventory bytes. It does not invent a v2 active-extraction history field; without a display decision v2 display_head and active-extraction mirrors remain null, while source_state._legacy_artifacts continues to validate the retained legacy artifact inventory."
+    },
+    {
+      "id": "UNRELATED_RENDERED_PAGE_CHANGE",
+      "status": "PASS",
+      "evidence": "R3 distinguishes unchanged paper/repository records and claim history from compiler-regenerated pages. canonical_compiler_v2 may update an unrelated rendered page for changed cross-paper concept links; those page bytes are explicit payloads and remain covered by collect_source_state, complete-page validation and SOURCE_PUBLICATION_UNSUPPORTED_CHANGE for retirement."
+    },
+    {
+      "id": "SECTION_MAPPING_AND_CORE_FLAG",
+      "status": "PASS",
+      "evidence": "The final review binds the effective R1 section map exactly: summary→one_sentence_conclusion (core=true only), method→method, architecture→representation_architecture, training_data→training_data, experiments→experiments_results, limitations→limitations, code_resources→code_resources, open_questions→research_question; unknown sections produce no claim."
+    },
+    {
+      "id": "CONVERSION_SUMMARY_PARTITIONS",
+      "status": "PASS",
+      "evidence": "R3 makes created, invalidated and unchanged IDs pairwise disjoint sorted sets whose union is exactly the IDs produced by selected provisional sections. Location migration is an independent non-created set and may overlap the other categories."
+    },
+    {
+      "id": "EVENT_IDEMPOTENCE_AND_REASONS",
+      "status": "PASS",
+      "evidence": "R3 freezes source-conversion-v1 as actor/decided_by and gives exact genesis and invalidation reason templates. It also forbids a new event whenever profile/fingerprint is unchanged, even if the light record ID changes."
+    },
+    {
+      "id": "SOURCE_ASSOCIATION_SELECTION",
+      "status": "PASS",
+      "evidence": "R3 requires associate_source to receive the complete inventory and selects by the complete observation/version key plus exact raw and registration proof, never source_id alone or display_head. This matches source_versions.associate_source and its existing version/provenance conflict refusals."
+    },
+    {
+      "id": "METADATA_IDENTITY_BOUNDARY",
+      "status": "PASS",
+      "evidence": "R3 requires supplied DOI/arXiv values to normalize to the canonical paper ID or an already present alias, which is necessary because existing aliases are immutable and canonical_compiler_v2 validates explicit identifier bindings for v2 records."
+    },
+    {
+      "id": "V2_SOURCE_ID_UNION_AND_ANCHOR",
+      "status": "PASS",
+      "evidence": "R1/R3 refuse an unrepresentable uncited legacy source ID. This matches canonical_compiler_v2._versioned requiring source_ids to equal the sorted union of association/evidence source IDs, and source_state._ownership requiring every v2 claim ledger location to use ^<claim_id>."
+    },
+    {
+      "id": "MIXED_ASSESSMENT_HISTORY",
+      "status": "PASS",
+      "evidence": "R1/R3 preserve unchanged v1 event bytes and append exactly one v2 system evidence_invalidation when evidence profile/fingerprint changes. This matches assessment_history_v2 mixed-chain rules and prevents a second genesis or synthetic human review."
+    },
+    {
+      "id": "TIMESTAMP_AND_NOOP_RULES",
+      "status": "PASS",
+      "evidence": "R2 fixes proposed_at to whole-second UTC. Changed source/claim ledgers, paper records and appended events check chronology and persist proposed_at; unchanged no-op validates grammar only and persists no timestamp/request."
+    },
+    {
+      "id": "READONLY_SESSION_AND_ALLOWLIST",
+      "status": "PASS",
+      "evidence": "R1 freezes complete-tree mirror/all-exit verification, path-independent light validators, one retained Vault session and the exact 13-path allowlist. No additional writable source or schema path is required by the resolved semantic contract."
+    }
+  ],
+  "blockers": [],
+  "implementation_watchpoints": [
+    "Freeze JSON must bind all three conversion contract hashes, the allowlist hash, and the delivered source-publication base before implementation.",
+    "Implementation acceptance must prove the exact R3 summary partition, reason strings, source-association disambiguation, empty-evidence refusal, and no-op timestamp behavior in focused tests.",
+    "Implementation acceptance must retain the complete lightweight tree and selected source/authority/metadata inputs through success and exception paths, with WORK_PATH_UNSAFE precedence unchanged."
+  ],
+  "source_git_edited": false,
+  "production_edits": false,
+  "test_edits": false,
+  "vault_mutation": false,
+  "network_or_external_process": false,
+  "section_mapping": {
+    "summary": {
+      "canonical_section": "one_sentence_conclusion",
+      "core": true
+    },
+    "method": {
+      "canonical_section": "method",
+      "core": false
+    },
+    "architecture": {
+      "canonical_section": "representation_architecture",
+      "core": false
+    },
+    "training_data": {
+      "canonical_section": "training_data",
+      "core": false
+    },
+    "experiments": {
+      "canonical_section": "experiments_results",
+      "core": false
+    },
+    "limitations": {
+      "canonical_section": "limitations",
+      "core": false
+    },
+    "code_resources": {
+      "canonical_section": "code_resources",
+      "core": false
+    },
+    "open_questions": {
+      "canonical_section": "research_question",
+      "core": false
+    }
+  }
+}

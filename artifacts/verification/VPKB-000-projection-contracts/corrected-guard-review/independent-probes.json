@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "r2_filelist_sha256": "4f225f8802c4e356635c2432cd0b337a75f58a84737ae1ba2ef469d8a2909793",
+  "reviewed_files": {
+    "src/video_paper_wiki/projection_runtime.py": "87f426511f722c65660d548b83af70d0fe2d2afaae1be83bebf2b3348bd149c7",
+    "src/video_paper_wiki/contracts.py": "009128b55e7cee9480388d2df9a701431491301d587aab0022e7871e0e238aa7",
+    "schemas/video-paper-wiki.upstream-chunk-profile.v1.schema.json": "8b5547d336167210d0f6590dd0e8384b35e00e01044411adeb285902c2f0dd3b",
+    "schemas/video-paper-wiki.upstream-bm25-profile.v1.schema.json": "f003da4e353aca7b753bfd3168fc070aca499da90e050a1183788dbefe08c2d5",
+    "tests/test_projection_runtime.py": "e9dff6b1209fb10b0329309e4f3a5cb201479a20829579c2ff59e1d041b2aaf7",
+    "tests/test_projection_runtime_upstream.py": "fc0ce62025fb5c2444869a1671389bf1610b1fc756455af2fb550ce0fc910994",
+    "tests/fixtures/projection-runtime/number-vectors.json": "1c4869b32d129d472f04d6ef08ba27a09e2ab7b0df954df2994dfde4bb7f6640",
+    "tests/contract/test_schemas.py": "4a1b4add1ace161bc84ffa473b08a4ae48756de585ca607219bc0fe8f1b25fd8",
+    "tests/unit/test_search.py": "91996a70e802b7689fe9d4d53c66b53cff9254b01b1205743163f6e83e4bc982",
+    "tests/security/_projection_scope_policy.py": "65e52587df55cc94729d6f4a5225dcaca268a168f6b5afb91bcba71a9926ccc5",
+    "tests/security/test_projection_scope_policy.py": "f1dc21c6b3315c784fc82c4c19a3d8f762df3a7883434f165edd983674d0f9ea"
+  },
+  "original_8_identical": true,
+  "independent_refusal_cases": [
+    {
+      "path": "nested/contracts.py",
+      "source": "x=\"bm25\""
+    },
+    {
+      "path": "contracts.py",
+      "source": "import claude_obsidian.transaction as t"
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "from subprocess import run as execute_upstream"
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "from importlib import import_module as load"
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "def calculate(doc):\n return query(doc)"
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "def calculate(doc):\n return tokenizer(doc)"
+    },
+    {
+      "path": "contracts.py",
+      "source": "import socket as net"
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "def f(p):\n return p.write_bytes(b\"x\")"
+    },
+    {
+      "path": "other.py",
+      "source": "x=\"retrieval_gold\""
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "f=\"bm25-index.py\""
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "import sqlite3 as db"
+    },
+    {
+      "path": "projection_runtime.py",
+      "source": "__import__(\"claude_obsidian\")"
+    }
+  ],
+  "production_two_allowed_files_pass": true,
+  "limitations": "Ordinary AST source policy, not arbitrary dataflow/semantic engine detection or OS isolation; runtime I/O/security/CLI tests remain separate."
+}

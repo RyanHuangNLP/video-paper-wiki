@@ -1,0 +1,90 @@
+{
+  "schema": "video-paper-wiki.architecture-review.v1",
+  "review": "vpkb-001-adapter-freeze-builder",
+  "reviewed_on": "2026-09-01",
+  "role": {"name": "Builder", "model": "gpt-5.6-sol", "reasoning_effort": "medium"},
+  "baseline": {
+    "expected_head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+    "observed_head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+    "vendor_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "vendor_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a"
+  },
+  "inputs": {
+    "docs/ai/contracts/vpkb-001-adapter-contract-v1.md": {"sha256": "9fd5af55a474430aeeddceed28daae4e01fa8f4075ad486577af84aa7e486f84", "size_bytes": 13444},
+    "docs/ai/packets/VPKB-001-adapter-contract.md": {"sha256": "94cc02227f46c038b59b3d8fe7814b9ddb60f8a4da0bf669e91bed9f6a77e17c", "size_bytes": 5872},
+    "schemas/video-paper-wiki.upstream-authority.v1.schema.json": {"sha256": "e9721e1444c0ffa0d507eec559c21be51a12b6c99eee8f7bed5c33389463f207", "size_bytes": 3741},
+    "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json": {"sha256": "1142a5d3ce7a27354b012201cf27ae72b4f4da03af693301a8ba41755ce0625c", "size_bytes": 4973},
+    "tests/fixtures/contracts/valid/video-paper-wiki.upstream-authority.v1.json": {"sha256": "ff85d6e006cbd86ae8e17e79c39b779ab3a3c46f67b0bba4a5fa1462e90c6077", "size_bytes": 5577},
+    "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-authority.v1.invalid.json": {"sha256": "5147f7bc65764ffd15b2a125de603d04298697e9d5969b5d07166fcebbfebeea", "size_bytes": 5577},
+    "schemas/video-paper-wiki.transaction-facade.v1.schema.json": {"sha256": "8239fbec8be17093ed4594bd1f69adde6fd21ee37e641408d1dfb6beb6cf62f8", "size_bytes": 10418},
+    "docs/ai/contracts/transaction-facade-v1.md": {"sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67", "size_bytes": 21769},
+    "docs/ai/contracts/capture-contracts-v1.md": {"sha256": "d54e1c36608ca0d57c0ea467f208a9645259ff2c879f23958a58c2280ed9e23d", "size_bytes": 15734},
+    "src/video_paper_wiki/contracts.py": {"sha256": "0b52db19cfa826c9c8fbbba17edc5c3962183794d71ec360c556d115fefdfa2f", "size_bytes": 73871},
+    "src/video_paper_wiki/transaction_contracts.py": {"sha256": "e6e3c7e9e97cdcd9c0d080e846b9c5ef7211331162823e999b47aac9d855a0d3", "size_bytes": 19863},
+    "src/video_paper_wiki/capture_contracts.py": {"sha256": "ae257bed78036511ef12a70fee15e718522bc95e9dc300f53ea5bdb628cd85af", "size_bytes": 7759},
+    "src/video_paper_wiki/staging.py": {"sha256": "b486c5000d2284f03d1aa8ab55136e8deb8735bbdf7e3560ad2cb6e1f67015b0", "size_bytes": 25133},
+    "vendor/claude-obsidian/AGENTS.md": {"sha256": "f12fe295445b942a38c82e07f486428f548df32f9ca9ca2302b58ace8c68cf99", "size_bytes": 4775},
+    "vendor/claude-obsidian/scripts/claude-obsidian.py": {"sha256": "34f3030da4a0ebc223a5dfba7f7180638d08dffa3d044be33fa72234866900c2", "size_bytes": 357},
+    "vendor/claude-obsidian/claude_obsidian/cli.py": {"sha256": "38703e6db742f1c76ba6f8cce797b8ecf69a7cdf2ff1f9c739df60acab7e973a", "size_bytes": 44772},
+    "vendor/claude-obsidian/claude_obsidian/transaction.py": {"sha256": "e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2", "size_bytes": 179506},
+    "vendor/claude-obsidian/claude_obsidian/ledgers.py": {"sha256": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1", "size_bytes": 53046},
+    "pyproject.toml": {"sha256": "5d9c487b0979bfe06a2c5fcb4e1e765760475fa9e80a60fa23f47b035d9d0a9a", "size_bytes": 850}
+  },
+  "machine_checks": {
+    "json_resources_parsed": true,
+    "profile_sha_matches_authority_const": true,
+    "profile_verified_file_count": 21,
+    "profile_all_file_hashes_and_sizes_match": true,
+    "profile_source_snapshot_formula_recomputed": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "profile_source_snapshot_matches": true,
+    "schema_and_closed_object_tests": {"command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -B -m pytest -q -p no:cacheprovider tests/contract/test_schemas.py tests/contract/test_additional_properties.py", "passed": 43, "failed": 0, "exit_code": 0, "duration_seconds": 0.13},
+    "ignored_bytecode_observation": {
+      "ignore_rule": ".gitignore:25:__pycache__/",
+      "examples": [
+        "claude_obsidian/__pycache__/__init__.cpython-313.pyc",
+        "claude_obsidian/__pycache__/transaction.cpython-313.pyc",
+        "claude_obsidian/__pycache__/ledgers.cpython-313.pyc"
+      ],
+      "timestamp_headers_match_current_sources": true,
+      "meaning": "These ignored timestamp-valid pyc files are outside git porcelain and the 21-file profile. CPython -B suppresses bytecode writes but does not require source-only imports, so the exact configured invocation can execute bytes not authenticated by the profile."
+    }
+  },
+  "previous_blockers": [
+    {"id": "PLAN_DIGEST_DOMAIN", "status": "resolved", "evidence": "capture upstream_plan_sha256 is explicitly approval_sha256; bundle and stdout hashes are separate"},
+    {"id": "PINNED_CLI_DISCOVERY", "status": "not_fully_resolved", "evidence": "commit/tree/clean/version/profile and 21-file snapshot are exact, but execution remains from the supplied checkout where ignored importable pyc is permitted"},
+    {"id": "GENERATION_BINDING", "status": "resolved_for_this_non_row_slice", "evidence": "base-catalog-v1 remains unchanged; first mapper/compiler must introduce a new generation revision binding adapter/schema/profile/authority digest"},
+    {"id": "ERROR_MAPPING", "status": "resolved", "evidence": "nine-stage order and stable exit/code mapping are explicit; upstream failure details are allowlisted"},
+    {"id": "VAULT_AND_WORK_ROOT_AUTHORITY", "status": "resolved", "evidence": "all roots and bundle path are explicit absolute normalized inputs with no-follow, exact layout, and disjointness checks; adapter is read-only"},
+    {"id": "SOURCE_ID_SCOPE", "status": "resolved", "evidence": "only file origin is exposed, stored_path and full content SHA are required, fixture and expected mismatch behavior are fixed"},
+    {"id": "AUTHORITY_LIFETIME", "status": "resolved", "evidence": "authority is .work inspection provenance only; future integrity runtime must bind its digest and existing ledgers/receipts/run/generation are not widened"}
+  ],
+  "blockers": [
+    {
+      "id": "UNAUTHENTICATED_IMPORT_BYTECODE_AND_EXECUTION_TOCTOU",
+      "severity": "freeze_blocker",
+      "problem": "The contract requires executing <upstream>/scripts/claude-obsidian.py directly after authenticating only source files and an empty non-ignored porcelain. The actual checkout contains ignored, timestamp-valid claude_obsidian/__pycache__/*.pyc. -B does not make imports source-only. Therefore the claimed complete source snapshot does not identify all executable bytes, and before/after source checks do not bind the bytes imported during the child.",
+      "required_contract_change": "Execute both public inspect and the isolated stable_source_id helper from a private ephemeral execution snapshot assembled exclusively from the 21 profile-verified raw source files. Read source components no-follow; create only exact profile paths under a private 0700 temporary root; write exact verified bytes without pycache/extras; re-hash the snapshot before execution; use the snapshot public script; assert package/module __file__ paths point to the snapshot; re-hash snapshot and original profile sources after execution; never serialize the temporary host path. Explicitly permit this private temporary copy while retaining the prohibition on staging/Vault mutation. Keep the checkout git pin/tree/clean checks as provenance authentication.",
+      "scope_note": "This does not claim an OS sandbox against a privileged same-host actor. It removes the concrete ignored-bytecode/import-shadow path and binds ordinary execution to authenticated bytes. The current exact argv and 'upstream path' wording must be revised rather than implemented inconsistently."
+    }
+  ],
+  "warnings": [
+    {
+      "id": "ORIGINAL_SIZE_IS_PROPOSAL_LOCAL",
+      "text": "The public bundle/plan contains expected hashes and modes but not facade original_size_bytes. The authority can prove new content size/hash and upstream precondition acceptance, but cannot prove a replace descriptor's original_size_bytes solely from public inspect output. Keep this limitation explicit or require a separately frozen secure original-byte snapshot in the later integrity slice; do not imply validate_upstream_authority proves full old-byte closure."
+    },
+    {
+      "id": "STATIC_FIXTURE_STDOUT_NOT_PORTABLE_REPLAY_PROOF",
+      "text": "The valid fixture embeds a concrete vault device/inode and stdout digest. It is suitable as a closed schema fixture, not as a cross-host stdout golden. Disposable upstream tests must compute and correlate the genuine stdout for their actual Vault identity."
+    }
+  ],
+  "implementability_after_blocker": {
+    "api": "implementable",
+    "schema": "closed and implementable",
+    "transport": "implementable with no-follow bounded reads",
+    "facade_correlation": "implementable through validate_transaction and attach_upstream_inspection plus authority semantic checks",
+    "source_id": "implementable only after the same private execution-snapshot correction",
+    "package_data": "no pyproject change required for schema/catalog inclusion"
+  },
+  "verdict": "CHANGES_REQUIRED",
+  "verdict_reason": "The seven prior architectural decisions are substantively resolved except pin execution authenticity. Direct execution from a checkout containing ignored valid pyc contradicts the authority profile's claim that its verified source snapshot identifies executed upstream code. Freeze after specifying the private exact-source execution snapshot and updating the corresponding argv/__file__/temporary-I/O rules."
+}

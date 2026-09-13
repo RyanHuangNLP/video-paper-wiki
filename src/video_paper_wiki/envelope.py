@@ -42,3 +42,12 @@ def emit_error(
         }
     )
     return exit_code
+
+
+def emit_staging_error(command: str, exc: object) -> int:
+    code = str(getattr(exc, "code", "WORK_PATH_UNSAFE"))
+    message = str(getattr(exc, "message", exc))
+    raw_details = getattr(exc, "details", None)
+    details = dict(raw_details) if isinstance(raw_details, Mapping) else {}
+    exit_code = EXIT_TEMPORARY_FAILURE if code == "STAGING_CONFLICT" else EXIT_REFUSAL
+    return emit_error(command, code, message, details, exit_code=exit_code)

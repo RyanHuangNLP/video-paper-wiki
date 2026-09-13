@@ -1,0 +1,28 @@
+{
+  "schema": "video-paper-wiki.source-publication-guard-review.v1",
+  "revision": "R5-candidate-guard-supplement",
+  "recorded_at_utc": "2026-09-09T05:32:00Z",
+  "status": "PASS_FOR_INDEPENDENT_REVIEW",
+  "candidate_manifest_sha256": "67e0daeb27d89c057c7b43d4d87fea9431a0923d245d06232e10aa53af284b62",
+  "reviewed_paths": [
+    "src/video_paper_wiki/publication.py",
+    "tests/unit/test_source_publication.py"
+  ],
+  "guard_delta": {
+    "source_path": "src/video_paper_wiki/publication.py:146-149",
+    "behavior": "Before require_legacy_profile, require a Mapping whose every key is exactly str and every value is exactly bytes; otherwise raise PUBLICATION_REQUEST_INVALID.",
+    "test_path": "tests/unit/test_source_publication.py:217-222",
+    "cases": ["None", "list", "non-string key", "string value", "mixed invalid map"],
+    "review": "The delta closes the previously observed AttributeError path while preserving the existing second-loop defensive check. Valid legacy payload maps still enter require_legacy_profile and follow the unchanged staging path.",
+    "result": "PASS"
+  },
+  "evidence": {
+    "candidate_reported_guard_tests": 5,
+    "candidate_reported_additional_and_prior_unit_boundary": 63,
+    "no_code_mutation_by_reviewer": true
+  },
+  "non_claims": [
+    "This is an independent bounded review, not Architect acceptance.",
+    "It does not replace locked full-suite, wheel, CI, or human-gate evidence."
+  ]
+}

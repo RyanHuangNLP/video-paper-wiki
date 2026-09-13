@@ -1,0 +1,162 @@
+{
+  "failed_node_ids": [
+    "tests/unit/test_prepare.py::test_missing_blob_install_refuses_same_bytes_inode_replacement",
+    "tests/unit/test_prepare.py::test_missing_request_install_refuses_same_bytes_inode_replacement"
+  ],
+  "failure_assessment": {
+    "observed_error_code": "WORK_PATH_UNSAFE",
+    "product_acceptance_implication": "R5 exact-head acceptance did not pass because the required four-job matrix was not all successful.",
+    "required_follow_up": "Narrowly repair the test fixture for R6 without weakening the WORK_PATH_UNSAFE behavior, then deliver a new exact head and obtain fresh CI. This run cannot be inherited.",
+    "security_error_code_assertions_passed": true,
+    "sole_failed_assertion_class": "non-portable auxiliary assertion that unlink followed by same-byte recreation must change st_ino",
+    "ubuntu_observation": "The filesystem immediately reused each removed inode, so before_inode == after_inode even though the replacement sequence executed."
+  },
+  "jobs": [
+    {
+      "completed_at": "2026-09-01T20:22:23Z",
+      "conclusion": "failure",
+      "database_id": 100012383083,
+      "name": "ubuntu-24.04 / Python 3.12",
+      "pytest": {
+        "errors": 0,
+        "failed": 2,
+        "passed": 1960
+      },
+      "raw_log": {
+        "path": "/private/tmp/vpkb-spci-r5-ci-ubuntu312.log",
+        "sha256": "de880f6a96f9cb5a6fd8e48de1f5a2342b378d3695ac2f0660921939d0c38bae",
+        "size_bytes": 50053
+      },
+      "started_at": "2026-09-01T20:19:40Z",
+      "tested_ref": "refs/remotes/pull/94/merge",
+      "tested_sha": "49e987c4228406fde3b33ab7cf73966b31c73f59"
+    },
+    {
+      "completed_at": "2026-09-01T20:23:59Z",
+      "conclusion": "success",
+      "database_id": 100012383299,
+      "name": "macos-15 / Python 3.13",
+      "pytest": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 1962
+      },
+      "raw_log": {
+        "path": "/private/tmp/vpkb-spci-r5-ci-macos313.log",
+        "sha256": "1749c1199d6c48d29cdb550eb7f78433deec73d3fcb4d1c5bcf21cac0490188b",
+        "size_bytes": 38756
+      },
+      "started_at": "2026-09-01T20:19:41Z",
+      "tested_ref": "refs/remotes/pull/94/merge",
+      "tested_sha": "49e987c4228406fde3b33ab7cf73966b31c73f59"
+    },
+    {
+      "completed_at": "2026-09-01T20:23:13Z",
+      "conclusion": "success",
+      "database_id": 100012383402,
+      "name": "macos-15 / Python 3.12",
+      "pytest": {
+        "errors": 0,
+        "failed": 0,
+        "passed": 1962
+      },
+      "raw_log": {
+        "path": "/private/tmp/vpkb-spci-r5-ci-macos312.log",
+        "sha256": "6e81ad38a3b44a71b8a374a78a96ea895929d069cf4835ac97605c6cec7daccd",
+        "size_bytes": 38850
+      },
+      "started_at": "2026-09-01T20:19:41Z",
+      "tested_ref": "refs/remotes/pull/94/merge",
+      "tested_sha": "49e987c4228406fde3b33ab7cf73966b31c73f59"
+    },
+    {
+      "completed_at": "2026-09-01T20:23:01Z",
+      "conclusion": "failure",
+      "database_id": 100012383464,
+      "name": "ubuntu-24.04 / Python 3.13",
+      "pytest": {
+        "errors": 0,
+        "failed": 2,
+        "passed": 1960
+      },
+      "raw_log": {
+        "path": "/private/tmp/vpkb-spci-r5-ci-ubuntu313.log",
+        "sha256": "10d9683ec0e0cf23b5b17f74291298621f9f2883adb0dd269f34a15d03e673bf",
+        "size_bytes": 49953
+      },
+      "started_at": "2026-09-01T20:19:40Z",
+      "tested_ref": "refs/remotes/pull/94/merge",
+      "tested_sha": "49e987c4228406fde3b33ab7cf73966b31c73f59"
+    }
+  ],
+  "merge_preview": {
+    "checkout_ref": "refs/remotes/pull/94/merge",
+    "ordered_parents": [
+      "08709894adfb20ec07e976783f0ba436d975b74f",
+      "39d279fa8b357d63ef282cbc9dee35a93773e4d4"
+    ],
+    "ref": "refs/pull/94/merge",
+    "sha": "49e987c4228406fde3b33ab7cf73966b31c73f59",
+    "signature_verification": {
+      "reason": "valid",
+      "verified": true
+    },
+    "tree_sha": "e740f43de6c39922cfe3f799c6574183d406d2a6"
+  },
+  "packet": "VPKB-001 staged-pdf-capture-inspect R5",
+  "pr_observation": {
+    "base_ref": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "draft": true,
+    "head_ref": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head_sha": "39d279fa8b357d63ef282cbc9dee35a93773e4d4",
+    "mergeable": "MERGEABLE",
+    "number": 94,
+    "state": "OPEN"
+  },
+  "raw_evidence": {
+    "merge_commit_json": {
+      "path": "/private/tmp/vpkb-spci-r5-ci-merge-commit.json",
+      "sha256": "a53824fd307d2c115b3ae2ec4c22b5b5bc138572a9c017e7b7b9cf6061c84fb9",
+      "size_bytes": 2742
+    },
+    "merge_ref_json": {
+      "path": "/private/tmp/vpkb-spci-r5-ci-merge-ref.json",
+      "sha256": "87c50dfe5d8edfb9ebc47f37942b3e3c0bb53d91db77f673adb8d7fe56fcb418",
+      "size_bytes": 366
+    },
+    "pr_json": {
+      "path": "/private/tmp/vpkb-spci-r5-ci-pr.json",
+      "sha256": "ab93aec49662c0f79b530d8965af6df3c5b18bd8206848f5dcab99f89510ee62",
+      "size_bytes": 322
+    },
+    "run_json": {
+      "path": "/private/tmp/vpkb-spci-r5-ci-run.json",
+      "sha256": "8142c1a13c608957be382a5b359ffc997da89b855b46dfdf9c22e4754edd3eda",
+      "size_bytes": 7541
+    }
+  },
+  "record_kind": "ci_failure_observation",
+  "run": {
+    "attempt": 1,
+    "conclusion": "failure",
+    "database_id": 33554650002,
+    "event": "pull_request",
+    "head_sha": "39d279fa8b357d63ef282cbc9dee35a93773e4d4",
+    "status": "completed",
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33554650002",
+    "workflow": "Tests"
+  },
+  "schema_version": 1,
+  "scope_and_authorization": {
+    "committed": false,
+    "merge_authorized": false,
+    "pr_mutation_performed": false,
+    "pushed": false,
+    "ready_for_review_authorized": false,
+    "record_generated_after_tested_commit": true,
+    "record_in_tested_commit": false,
+    "rerun_or_cancel_performed": false,
+    "staged": false
+  }
+}

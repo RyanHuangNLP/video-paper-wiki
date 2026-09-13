@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-staging.v1.schema.json",
+  "title": "video-paper-wiki.transaction-staging.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "operation_id",
+    "operation_type",
+    "transaction_declaration_sha256",
+    "bundle_file",
+    "bundle_sha256",
+    "bundle_size_bytes",
+    "content_files",
+    "already_staged"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.transaction-staging.v1"
+    },
+    "batch_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?$(?![\\s\\S])",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "operation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$(?![\\s\\S])",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "operation_type": {
+      "enum": [
+        "capture",
+        "ingest",
+        "generic"
+      ]
+    },
+    "transaction_declaration_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "bundle_file": {
+      "const": "transaction-inspect/bundle.json"
+    },
+    "bundle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "bundle_size_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8388608
+    },
+    "content_files": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1024,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "content_file",
+          "sha256",
+          "size_bytes"
+        ],
+        "properties": {
+          "content_file": {
+            "type": "string",
+            "pattern": "^transaction-inspect/content/[0-9a-f]{64}$(?![\\s\\S])",
+            "minLength": 92,
+            "maxLength": 92
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$(?![\\s\\S])",
+            "minLength": 64,
+            "maxLength": 64
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 67108864
+          }
+        }
+      }
+    },
+    "already_staged": {
+      "type": "boolean"
+    }
+  }
+}

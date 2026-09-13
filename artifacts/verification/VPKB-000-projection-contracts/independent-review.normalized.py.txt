@@ -1,0 +1,59 @@
+import copy,hashlib,json,math,pathlib,random,tracemalloc
+from video_paper_wiki import projection_runtime as p
+from video_paper_wiki.contracts import ContractError,validate_document
+P=pathlib.Path;manifest=json.loads(P('<TEMP_ROOT>/vpr-runtime-candidate.json').read_text())
+before={name:hashlib.sha256(P(name).read_bytes()).hexdigest() for name in manifest['files']};assert before==manifest['files']
+old=json.loads(P('<TEMP_ROOT>/vpkb-projection-steward-number-review.json').read_text())['codec_vectors']
+values={'null':None,'true':True,'one_int':1,'one_float':1.0,'zero_int':0,'negative_zero':-0.0,'point_one':0.1,'next_one':math.nextafter(1.,math.inf),'k1':1.5,'b':.75,'subnormal':math.ulp(0.),'max_float':float.fromhex('0x1.fffffffffffffp+1023'),'tag_like_array':['number',1,1],'utf16_order':{'\ue000':1,'\U00010000':2}}
+for name,v in values.items():
+ assert p.projection_value_bytes(v,profile='review-vector-v1').decode()==old[name]['canonical_utf8']
+ assert p.projection_value_sha256(v,profile='review-vector-v1')==old[name]['sha256']
+base=P('<TEMP_ROOT>/vtf13-r2-final/up0/v/.vault-meta');chunks=[json.loads(x.read_text()) for x in (base/'chunks').glob('*/chunk-*.json')]
+index=json.loads((base/'bm25/index.json').read_text())
+for kind,objs in [('chunk',chunks),('bm25',[index])]:
+ for doc in objs:
+  assert p.validate_runtime_record(kind,doc)==doc
+  assert validate_document(doc,expected_schema=p.PROFILE_TITLES[kind])==doc
+  changed=copy.deepcopy(doc);changed['created_at' if kind=='chunk' else 'updated_at']='2026-09-01T00:00:00Z'
+  assert p.runtime_projection_equal(kind,doc,changed)
+small=copy.deepcopy(chunks[0]);small['page_path']='wiki/.md';small['page_address']='syn-'+hashlib.sha256(b'wiki/.md').hexdigest();assert p.validate_runtime_record('chunk',small)==small
+rng=random.Random(937)
+strings=['a','quote"brace[{}]','back\\\\\\"tail','\n\r\t','\x00','𐀀é','\\u0061',',:{}[]"','']
+def gen(depth=0):
+ if depth>3 or rng.randrange(3)==0:return rng.choice(strings+[None,False,True,0,1,-100,1.25,1e-200,1e200])
+ if rng.randrange(2):return [gen(depth+1) for _ in range(rng.randrange(4))]
+ return {rng.choice(strings)+str(i):gen(depth+1) for i in range(rng.randrange(4))}
+def count(v):
+ if type(v) is list:return 1+sum(count(x) for x in v)
+ if type(v) is dict:return 1+len(v)+sum(count(x) for x in v.values())
+ return 1
+oldlimit=p.MAX_OCCURRENCES
+try:
+ for i in range(1000):
+  v=gen();data=json.dumps(v,ensure_ascii=i%2==0,indent=2 if i%3==0 else None).encode();n=count(v)
+  p.MAX_OCCURRENCES=n;assert p.parse_projection_json(data)==v
+  p.MAX_OCCURRENCES=n-1
+  try:p.parse_projection_json(data)
+  except ContractError as e:assert e.code=='PROJECTION_LIMIT_EXCEEDED'
+  else:raise AssertionError(('scanner undercount',data))
+finally:p.MAX_OCCURRENCES=oldlimit
+x=object();key='x'*4096
+for _ in range(64):x={key:x}
+tracemalloc.start()
+try:p.projection_value_bytes(x,profile='review')
+except ContractError as e:assert e.code=='PROJECTION_VALUE_INVALID';ptrlen=len(e.details['instance_pointer'])
+_,peak=tracemalloc.get_traced_memory();tracemalloc.stop()
+# Inspect completed CLI evidence, never invoke upstream internals.
+up=P('<TEMP_ROOT>/vpr-target3/test_pinned_public_rebuild_cjk0')
+provenance=json.loads((up/'source-provenance.json').read_text());after_up=json.loads((up/'source-after.json').read_text());assert provenance['source_inventory']==after_up
+commands=json.loads((up/'commands.json').read_text());assert len(commands)==10 and all(c['exit_code']==0 for c in commands)
+rounds=[]
+for n in [1,2]:
+ r=up/f'round-{n}';b=p.validate_runtime_record('bm25',p.parse_projection_json((r/'index.json').read_bytes()));cs={x.relative_to(r).as_posix():p.validate_runtime_record('chunk',p.parse_projection_json(x.read_bytes())) for x in (r/'.vault-meta/chunks').glob('*/chunk-*.json')};rounds.append((b,cs))
+assert p.runtime_projection_equal('bm25',rounds[0][0],rounds[1][0]) and rounds[0][1].keys()==rounds[1][1].keys()
+assert all(p.runtime_projection_equal('chunk',rounds[0][1][key],rounds[1][1][key]) for key in rounds[0][1])
+assert json.loads((up/'09-query-ascii.json').read_text())==json.loads((up/'10-query-nfkc.json').read_text())
+after={name:hashlib.sha256(P(name).read_bytes()).hexdigest() for name in manifest['files']};assert after==before
+out={'status':'independent stable-candidate focused review only, pending Architect final acceptance','before':before,'after':after,'independent_number_vectors':len(values),'accepted_old_chunks':len(chunks),'accepted_old_bm25_docs':len(index['docs']),'scanner_exact_budget_cases':1000,'wiki_dotmd':'passed','pointer_probe':{'scalar_key_budget':262272,'pointer_bytes':ptrlen,'tracemalloc_peak_bytes':peak},'upstream_evidence':{'commands':len(commands),'exit0':True,'inventory_unchanged':True,'rounds':2,'chunk_count':len(rounds[1][1]),'results':json.loads((up/'runtime-results.json').read_text())}}
+P('<TEMP_ROOT>/vpr-steward-stable-review.json').write_text(json.dumps(out,indent=2)+'\n')
+print(json.dumps({k:v for k,v in out.items() if k not in ['before','after','upstream_evidence']}))

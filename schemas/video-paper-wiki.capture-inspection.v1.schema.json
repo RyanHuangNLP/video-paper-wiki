@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.capture-inspection.v1.schema.json",
+  "title": "video-paper-wiki.capture-inspection.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "route",
+    "media_type",
+    "payload",
+    "source_path",
+    "proposal_sha256",
+    "stored_path",
+    "source_identity",
+    "siblings",
+    "would_change",
+    "operation_id",
+    "upstream_plan_sha256",
+    "approval_hash"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.capture-inspection.v1"
+    },
+    "route": {
+      "enum": [
+        "manual-inbox",
+        "staged-capture"
+      ]
+    },
+    "media_type": {
+      "enum": [
+        "application/pdf",
+        "text/plain"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 67108864
+        }
+      }
+    },
+    "source_path": {
+      "anyOf": [
+        {
+          "allOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/portable_vault_relative_path"
+            },
+            {
+              "pattern": "^inbox/.+\\.pdf$"
+            }
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "proposal_sha256": {
+      "anyOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stored_path": {
+      "type": "string",
+      "pattern": "^\\.raw/captured/[0-9a-f]{64}\\.[A-Za-z0-9][A-Za-z0-9._-]*$"
+    },
+    "source_identity": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "siblings": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 1024,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "kind",
+          "sha256",
+          "mode"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^\\.raw/captured/[0-9a-f]{64}\\.[A-Za-z0-9][A-Za-z0-9._-]*$"
+          },
+          "kind": {
+            "enum": [
+              "regular",
+              "symlink",
+              "special"
+            ]
+          },
+          "sha256": {
+            "anyOf": [
+              {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "mode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          }
+        }
+      }
+    },
+    "would_change": {
+      "type": "boolean"
+    },
+    "operation_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "upstream_plan_sha256": {
+      "anyOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "approval_hash": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    }
+  }
+}

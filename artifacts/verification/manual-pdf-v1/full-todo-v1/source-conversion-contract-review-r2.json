@@ -1,0 +1,137 @@
+{
+  "schema": "video-paper-wiki.source-conversion-contract-review.v2",
+  "reviewed_at": "2026-09-09T06:19:24Z",
+  "scope": "Bounded final read-only review of SOURCE-CONVERSION-R1 plus timestamp amendment R2. Reviewed input mirror/state lifetimes, error precedence, shared retained prepare helper, exact source scope, and the 13-path allowlist. No source, test, Git, Vault, network, or external-process mutation.",
+  "decision": "GO_FOR_SOURCE_CONVERSION_R1_R2_FREEZE",
+  "freeze_status": "The contract remains effective only when the future SOURCE-CONVERSION-freeze-r1.json binds these exact bytes, the allowlist, and the delivered source-publication base.",
+  "base_reference": {
+    "source_publication_local_accepted_head": "d331ee0b",
+    "source_publication_reference": "Provided by root as the about-to-be-delivered R2 base; this review does not relabel or independently accept that candidate."
+  },
+  "contract_inputs": [
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R1.md",
+      "sha256": "464e3e98e8aa51199df5b93834bf196e49829918e95589c29de0c7572dfb5c72",
+      "size_bytes": 15251
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-R2.md",
+      "sha256": "c4374416cb546fbef7abd33bc78c7074738a88a940967f059a938f991cf01029",
+      "size_bytes": 1266
+    },
+    {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CONVERSION-allowed-paths-r1.json",
+      "sha256": "d0670bd28cf9dfb2682412abad94ba4d6590eb56401c43dc2375787d35cfeb36",
+      "size_bytes": 840,
+      "path_count": 13
+    }
+  ],
+  "inspected_source": {
+    "root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "tree": "d70b6efb5e8e65bb89760f9396f0d94ea8e56e6d",
+    "files": [
+      {
+        "path": "src/video_paper_wiki_research/light_knowledge.py",
+        "sha256": "b73ab71336e7ac5fa2843cdf750b81e4586ca8de244ea0f4faa1d19ef2cbd2c0"
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_knowledge_batch.py",
+        "sha256": "4c94eabbcbbeae84651542d94e0de53cf22ec23539461e1967c58c089fdad54c"
+      },
+      {
+        "path": "src/video_paper_wiki_research/light_index.py",
+        "sha256": "2a7027baa26681034473955935c1888103289bb0f076dd7f9c380028fa7ce768"
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d"
+      },
+      {
+        "path": "src/video_paper_wiki/source_publication.py",
+        "sha256": "28107980dfce8f5016f10f594d21843dd9c937d2cde0d605af0d82f5e0ae4c50"
+      },
+      {
+        "path": "src/video_paper_wiki/source_publication_io.py",
+        "sha256": "fbcf97563d7f4ac67eea449e09a7fd5976298d761095db759cabb284662cbc62"
+      },
+      {
+        "path": "src/video_paper_wiki_research/formal_source.py",
+        "sha256": "015b32300833e33659cfb874518450fa057dd3679bf5c96e1a65d1f2c883e732"
+      },
+      {
+        "path": "src/video_paper_wiki/receipt_audit.py",
+        "sha256": "561ce75adbd6f5c5dff1be6ca5eebef2c9064ab87280ea2abcb107279e58275a"
+      },
+      {
+        "path": "src/video_paper_wiki/markdown_source_io.py",
+        "sha256": "3fb3636d872977827b3f0c10f45f95296e484a0f8e6dbc1e10a363749ad1bd40"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "PUBLIC_LEAF_AND_SCOPE",
+      "status": "PASS",
+      "evidence": "R1 fixes the existing formal-source convert leaf and keeps registration, operator apply, promotion, and display selection outside the command. The 13-path allowlist contains the formal_source registration, conversion modules, shared source-publication module, schema, docs, and contract/security/upstream tests only."
+    },
+    {
+      "id": "FULL_LIGHT_TREE_RETENTION",
+      "status": "PASS",
+      "evidence": "The concrete session retains the named .light-knowledge root and ancestors, captures every entry including unrelated records/jobs/staging/views/ownership and empty directories, and rejects links, special files, path aliases, non-NFC names, casefold collisions, and complete-set changes."
+    },
+    {
+      "id": "SOURCE_FILE_AND_PARENT_LIFETIME",
+      "status": "PASS",
+      "evidence": "The selected source.md/source.json, capture authority, and optional metadata are retained before typed parsing and through every exit. The descriptor-relative retained-file pattern retains all named ancestors and rereads bytes and identity; implementation must apply the same named-edge lifetime to the workspace/papers/<digest> path used for acquisition."
+    },
+    {
+      "id": "ORIGINAL_AND_MIRROR_ALL_EXITS",
+      "status": "PASS",
+      "evidence": "R1 requires a fresh nonce mirror under .work/<batch>/source-conversion/inputs-<32-lowercase-hex>, no live-root fallback, immediate mirror complete-set capture, retention through validation/assembly/staging, and original-plus-mirror verification on success, ordinary failure, and acquisition failure."
+    },
+    {
+      "id": "SAFETY_ERROR_PRECEDENCE",
+      "status": "PASS",
+      "evidence": "WORK_PATH_UNSAFE explicitly supersedes an ordinary validation or staleness error when final retained-input safety verification fails; semantic ContractError codes, pointers, and exit codes survive when safety is unchanged."
+    },
+    {
+      "id": "READONLY_LIGHT_VALIDATORS",
+      "status": "PASS",
+      "evidence": "The allowed branch is limited to current_head_record_id, _owned_record_bundle, _record_bundle_ok, _record_source_status, _load_paper, and _derived_chunks on the mirror. No resume, import, finalize, current-plan-binding, workspace identity regeneration, index rebuild, or search route is permitted."
+    },
+    {
+      "id": "NO_INDEX_OR_PATH_REWRITE",
+      "status": "PASS",
+      "evidence": "The selected record/source validation path is independent of .light-index. Existing plan.workspace_id remains persisted original data and is never rewritten for the generated mirror."
+    },
+    {
+      "id": "FORMAL_OBSERVATION_AND_PDF_BOUNDARY",
+      "status": "PASS",
+      "evidence": "R1 requires recomputation of formal_source._observe with the authority canonical ID/version and exact observation/raw-byte equality. The declared original_pdf_sha256 remains metadata provenance; no original PDF read or copy is introduced and no new _observe restriction is added."
+    },
+    {
+      "id": "ONE_SHARED_PREPARE_HELPER",
+      "status": "PASS",
+      "evidence": "The private helper receives already validated batch/operation/current/audit/retained snapshot state. The public prepare wrapper opens its own audited snapshot; conversion passes its existing session state, preventing a second live Vault read while preserving request, transaction, payload, no-op, and error behavior."
+    },
+    {
+      "id": "TIMESTAMP_PRECISION_R2",
+      "status": "PASS",
+      "evidence": "R2 requires proposed_at to be explicit, calendar-valid, whole-second UTC YYYY-MM-DDTHH:MM:SSZ. This matches the existing source-ledger and claim-ledger generated_at 20-character requirement. It correctly leaves metadata.published_at as the existing date/UTC union, permits equal timestamps, skips chronology comparisons for unchanged no-ops, and preserves the prior source-ledger snapshot before the first modification."
+    },
+    {
+      "id": "ERROR_AND_REFUSAL_BOUNDARY",
+      "status": "PASS",
+      "evidence": "R1 separates SOURCE_CONVERSION_INVALID, SOURCE_CONVERSION_STALE, and SOURCE_CONVERSION_UNSUPPORTED_CHANGE from lower-level schema/identity/registration/publication errors; stale/unsupported remain exit 75 and safety remains WORK_PATH_UNSAFE."
+    }
+  ],
+  "blockers": [],
+  "implementation_watchpoints": [
+    "The source_conversion_io implementation must retain and verify the workspace/papers/<digest> ancestor chain as well as the two selected source files, so direct acquisition cannot escape through a replaced parent directory.",
+    "The helper extraction must be byte-compatible with the accepted source-publication base before conversion-specific assembly is added.",
+    "The future freeze JSON must bind this R1, the R2 amendment, the 13-path allowlist, and the exact delivered source-publication base."
+  ],
+  "source_git_edited": false,
+  "production_edits": false
+}

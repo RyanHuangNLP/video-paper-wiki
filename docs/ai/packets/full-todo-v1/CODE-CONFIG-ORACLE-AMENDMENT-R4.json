@@ -1,0 +1,67 @@
+{
+  "schema": "full-todo.code-config-oracle-amendment.v1",
+  "revision": 4,
+  "decision": "ACCEPTED_BOUNDED_ORACLE_AND_TEST_INTEGRATION_AFTER_GROK_PATCH_STOP",
+  "recorded_at_utc": "2026-09-10T05:12:54.693048+00:00",
+  "original_stopped_candidate": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-stopped-candidate-r1.json",
+    "size_bytes": 2526,
+    "sha256": "90b701881508a7ddff143a7075feece8e67b1038e23071a24a77153c856a2b73"
+  },
+  "clarification": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-CONFIG-ORACLE-CLARIFICATIONS-R3.md",
+    "size_bytes": 5526,
+    "sha256": "c047451f5adf1be3f42deb7bf46947c15dfceba9246e0f039c2ee05e27e0b59e"
+  },
+  "fixture": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/static-vectors-r4.json",
+    "size_bytes": 133118,
+    "sha256": "512384681dac91c737106d6cb84949aa446a9de9c015694582703be71485dfff"
+  },
+  "fixture_acceptance": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-static-fixture-acceptance-r4.json",
+    "size_bytes": 2990,
+    "sha256": "a1aac3282867f9aec9200c47c32536dfdf7f86a78d857d91c20a4cb3ad1136cd"
+  },
+  "test_patch": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r4.patch",
+    "size_bytes": 8157,
+    "sha256": "9ace08cf209cf2508d7cd457d915963d24cfe95424e2d2bda1a3adfa7e293c49"
+  },
+  "test_proposal": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-test-correction-r4.proposed.py",
+    "size_bytes": 36695,
+    "sha256": "89287d24f9698540098cc0d042b8e517091a37b06a4ac4e7a788be1206553cdd"
+  },
+  "independent_test_review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/steward-test-correction-review-r4.json",
+    "size_bytes": 5282,
+    "sha256": "32735788c3c93a6a6c0a3ce8b75502beea936c0be01d87fe5b6197a618a90aa9"
+  },
+  "root_proposal_checks": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-proposed-test-py312-r4.json",
+      "size_bytes": 451,
+      "sha256": "ba421a6d37e6e395b570857e76a2ad024e77e6af0e05cfdbd74e753567e936bf"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/config-r1/architect-proposed-test-py313-r4.json",
+      "size_bytes": 451,
+      "sha256": "cf93208ba27b43b532a5bd94e7bac4b1fc7c2efdc7ad05a2984f5a18d1c07e1e"
+    }
+  ],
+  "source_paths": [
+    "tests/fixtures/code-config-vectors-v1.json",
+    "tests/unit/test_code_config_parser.py"
+  ],
+  "ownership": "Architect may mechanically copy the reviewed fixture and apply exactly the two reviewed test correction hunks after the independent Grok repair process has exited and its complete patch has been inspected. Grok remains sole production author.",
+  "integration_conditions": [
+    "Keep all R1/R2/R3 artifacts, original candidate and all rejection evidence unchanged.",
+    "Do not modify any candidate file while the frozen Grok patch request is active.",
+    "Preserve all separately returned Grok regression additions when applying the two reviewed hunks.",
+    "Freeze exact resulting three-file candidate before tests and independent review.",
+    "Repeat focused tests, generated JSON and adversarial checks on both locked Pythons, plus direct subtype regression replay."
+  ],
+  "production_acceptance": false,
+  "git_or_ci_acceptance": false
+}

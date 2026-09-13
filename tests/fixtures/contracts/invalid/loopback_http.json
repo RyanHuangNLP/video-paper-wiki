@@ -1,0 +1,33 @@
+{
+  "schema": "video-paper-wiki.ingest-plan.v1",
+  "plan_kind": "paper-source",
+  "batch_id": "batch-0001",
+  "stable_subject_id": "paper:arxiv:2311.15127",
+  "input": {
+    "kind": "local-blob",
+    "local_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "arxiv_id": "2311.15127"
+  },
+  "limits": {
+    "max_pages": 200,
+    "max_bytes": 50000000,
+    "max_requests": 1
+  },
+  "network_targets": [
+    {
+      "url": "http://127.0.0.1/abs/2311.15127",
+      "host": "127.0.0.1",
+      "method": "GET",
+      "redirect_hosts": [],
+      "max_bytes": 1000
+    }
+  ],
+  "parser": {
+    "engine": "docling",
+    "engine_version": "2.117.0",
+    "core_version": "2.92.0",
+    "config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "model_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "approval_hash": "00387f5769a57a2690b6e5c36337aa9dec000218a9b49ad66a9cf3f35d50e56b"
+}

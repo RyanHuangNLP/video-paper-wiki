@@ -1,0 +1,97 @@
+{
+  "schema_version": "skill-contract.v1",
+  "skill_name": "video-paper-preview",
+  "skill_revision": 1,
+  "skill_md_sha256": "aab3b3192bb1f106455dd246feb6a7d95c03ac9c9affb990a4ae8d62f188c5c5",
+  "intents": [
+    "Preview a specific arXiv abstract in Chinese",
+    "Revisit saved paper previews",
+    "Record an explicit user version choice"
+  ],
+  "commands": [
+    "vpwiki-research paper request --arxiv INPUT --session SESSION [--now UTC] [--refresh]",
+    "vpwiki-research paper observe --session SESSION --request REQUEST.json --observation INPUT.json",
+    "vpwiki-research paper preview context --session SESSION --metadata METADATA.json",
+    "vpwiki-research paper preview validate --session SESSION --metadata METADATA.json --proposal PROPOSAL.json",
+    "vpwiki-research paper preview render --session SESSION --preview PREVIEW.json",
+    "vpwiki-research paper decide --session SESSION --preview PREVIEW.json --action ingest|skip|later --event-id ID --user-text TEXT --source user_message|fixture [--selected-version N] [--recorded-at UTC]",
+    "vpwiki-research paper list --session SESSION"
+  ],
+  "input_schemas": [
+    "connector-request.v1",
+    "connector-observation.v1",
+    "arxiv-metadata.v1",
+    "paper-preview.v1"
+  ],
+  "output_schemas": [
+    "connector-request.v1",
+    "connector-observation.v1",
+    "arxiv-metadata.v1",
+    "paper-preview.v1",
+    "preview-decision.v1"
+  ],
+  "allowed_tools": [
+    "local-cli",
+    "current-model",
+    "platform-web-open"
+  ],
+  "network_policy": {
+    "executor": "platform-read-only-web-open",
+    "allowed_hosts": [
+      "arxiv.org"
+    ],
+    "python_egress": false,
+    "pdf_fetch": false
+  },
+  "write_policy": {
+    "root": ".work/research/<session>/preview-v1",
+    "families": [
+      "requests",
+      "observations",
+      "metadata",
+      "proposals",
+      "decisions"
+    ]
+  },
+  "budget": {
+    "max_requests": 1,
+    "deadline_seconds": 20,
+    "max_normalized_bytes": 1048576,
+    "max_transport_bytes": 1048576,
+    "min_interval_seconds": 3,
+    "max_redirects": 2
+  },
+  "retry_policy": {
+    "automatic_retries": 0
+  },
+  "idempotency": "Canonical immutable artifacts; 24-hour policy-specific cache; session-wide append-only decisions with unique event IDs and exact-payload replay. Manifest documents policy and does not certify transport enforcement.",
+  "stable_errors": [
+    "ARXIV_ID_INVALID",
+    "CONNECTOR_REQUEST_INVALID",
+    "CONNECTOR_CAPABILITY_UNAVAILABLE",
+    "OBSERVATION_MISSING",
+    "OBSERVATION_BINDING_MISMATCH",
+    "OBSERVATION_PROFILE_INSUFFICIENT",
+    "RESPONSE_TOO_LARGE",
+    "MEDIA_TYPE_REFUSED",
+    "ARXIV_ENTRY_NOT_FOUND",
+    "ARXIV_ID_MISMATCH",
+    "ARXIV_VERSION_MISMATCH",
+    "ARXIV_VERSION_UNAVAILABLE",
+    "ARXIV_VERSION_UNCONFIRMED",
+    "ARXIV_METADATA_INCOMPLETE",
+    "CONNECTOR_TIMEOUT",
+    "CONNECTOR_RATE_LIMITED",
+    "CONNECTOR_FAILURE",
+    "PREVIEW_PROPOSAL_INVALID",
+    "PREVIEW_SCOPE_INVALID",
+    "DECISION_INVALID",
+    "DECISION_CONFLICT",
+    "ARTIFACT_INVALID",
+    "ARTIFACT_BINDING_MISMATCH",
+    "SESSION_LIMIT_EXCEEDED",
+    "WORK_PATH_UNSAFE",
+    "STAGING_CONFLICT",
+    "USAGE_ERROR"
+  ]
+}

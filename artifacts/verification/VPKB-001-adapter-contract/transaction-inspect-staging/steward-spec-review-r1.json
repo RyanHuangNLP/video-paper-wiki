@@ -1,0 +1,143 @@
+{
+  "schema": "video-paper-wiki.repo-steward-architecture-review.v1",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "deterministic-transaction-inspect-staging-v1",
+  "role": "Repo Steward",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "medium",
+  "reviewed_baseline": {
+    "head": "57c2519425dbccd6bb48a0f82e77699e17afcfb6",
+    "tree": "c77a7c6ccc8bae3292611c2b24c33255f248710c",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "pr": 94,
+    "pr_state": "OPEN",
+    "pr_draft": true,
+    "pr_mergeable": "MERGEABLE",
+    "base_branch": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f"
+  },
+  "candidate_core": [
+    {
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "size_bytes": 14236,
+      "sha256": "10b2ece4d4ff123e563d946f2a322272cb76bf8d24dd4d868e86efdc39223bc4"
+    },
+    {
+      "path": "schemas/video-paper-wiki.transaction-staging.v1.schema.json",
+      "size_bytes": 2470,
+      "sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78"
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json",
+      "size_bytes": 1186,
+      "sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5"
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json",
+      "size_bytes": 710,
+      "sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json",
+      "size_bytes": 12381,
+      "sha256": "e8c717da1df1835c8c18924930035a2f5b752bfc753c8fdc87a2a234f9b8d62b"
+    }
+  ],
+  "carried_exact_head_records": [
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/ci-observation.json",
+      "size_bytes": 12561,
+      "sha256": "35e7ef971ebb7d0b504705f650a8842d8800a7793a7ba72874d800c49ce7e5e6"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/merge-parents.json",
+      "size_bytes": 4259,
+      "sha256": "021c76c8f2bcad6e31e443335e766be9dbdf789ca0fb3b674397fd360d1ffc97"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-acceptance.json",
+      "size_bytes": 9995,
+      "sha256": "752a94704d167b3f6619267e87059e6e7dffd44ddc980b9ed5b9a74dfc301c0e"
+    }
+  ],
+  "accepted_frozen_inputs": [
+    {
+      "path": "docs/ai/contracts/transaction-facade-v1.md",
+      "sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67"
+    },
+    {
+      "path": "schemas/video-paper-wiki.transaction-facade.v1.schema.json",
+      "sha256": "8239fbec8be17093ed4594bd1f69adde6fd21ee37e641408d1dfb6beb6cf62f8"
+    },
+    {
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1"
+    }
+  ],
+  "checks": {
+    "architecture_allowed_path_count": 19,
+    "architecture_allowed_paths_unique": true,
+    "owner_union_equals_allowed_paths": true,
+    "owner_assignments_disjoint": true,
+    "git_index_empty": true,
+    "git_diff_check": "passed",
+    "task_index_yaml_parse": "passed",
+    "schema_draft_2020_12_meta_validation": "passed",
+    "valid_fixture_schema_errors": 0,
+    "invalid_fixture_schema_errors": 0,
+    "invalid_fixture_note": "The invalid fixture is deliberately schema-valid and is rejected only by the future title-scoped semantic validator because content_file and sha256 disagree.",
+    "focused_schema_tests": "44 passed in 0.15s",
+    "catalog_paper_count": 67,
+    "protected_untracked_preserved": [
+      ".DS_Store",
+      "docs/feishu-multi-bot-phase1-plan.md",
+      "docs/hermes-subscription-collaboration-prd.md",
+      "docs/pi-feishu-cli-assessment.md",
+      "docs/video-paper-wiki-development-plan-v0.3.2.md",
+      "docs/video-paper-wiki-development-plan.md",
+      "inbox/",
+      "tools/"
+    ],
+    "implementation_authorized": false,
+    "merge_authorized": false,
+    "human_gate_changed": false,
+    "fresh_ci_required_for_new_head": true
+  },
+  "blockers": [
+    {
+      "id": "SCOPE-MACHINE-CLAIM-001",
+      "severity": "blocker",
+      "location": "architecture-work-package.json:20,51-70,72-90",
+      "finding": "The machine work package absolutely excludes all production implementation before architecture acceptance while the same architecture candidate explicitly allows and assigns src/video_paper_wiki/contracts.py, and the working tree changes that production file by registering the new title. The intended title-only registry edit may be appropriate, but the current closed machine claims cannot both be true.",
+      "minimal_fix": "State explicitly that production_code_changed is true and production_adapter_behavior_changed is false; describe the exact title-registration delta as an architecture integration exception. Narrow the absolute exclusion to all other production implementation and bind the allowed contracts.py bytes in the final manifest. Do not authorize transaction_staging.py or runtime behavior in the architecture commit."
+    },
+    {
+      "id": "CROSS-CALL-TRANSPORT-IDENTITY-001",
+      "severity": "blocker",
+      "location": "vpkb-001-transaction-inspect-staging-v1.md:156-189; src/video_paper_wiki/staging.py:661-731",
+      "finding": "The contract requires checkout/.work/batch/transaction-inspect replacement during the invocation to fail closed, but stage_bytes authenticates and closes a fresh directory chain independently for each file. The contract freezes multiple calls without freezing a common directory-identity baseline or a final complete-layout postcheck. A local actor can replace the batch or transaction-inspect directory between two successful stage_bytes calls, so content may be installed in one directory epoch and bundle.json in another while the wrapper can still report success. The post-return mutation disclaimer does not cover replacement before return.",
+      "minimal_fix": "Keep stage_bytes as the sole writer, but freeze an invocation-level checkout/.work/batch/transaction-inspect identity baseline once the first call establishes it; compare identities before and after every subsequent call and before returning, and verify the complete exact content-plus-bundle layout in the same final directory epoch. Map any within-invocation replacement to WORK_PATH_UNSAFE. Add deterministic batch/transport replacement tests between content calls and between last content and bundle. If the existing public primitive cannot expose enough identity evidence, explicitly authorize a narrow staging helper change in the later implementation work package rather than silently weakening the guarantee."
+    }
+  ],
+  "warnings": [
+    {
+      "id": "README-RENDER-001",
+      "location": "artifacts/verification/VPKB-001-adapter-contract/README.md:84-90",
+      "finding": "Seven continuation lines are indented by four spaces and will render as a code block instead of prose.",
+      "minimal_fix": "Remove the unintended four-space indentation before the exact-path, commit, run, merge-preview, job-count, acceptance and carry sentences; keep their factual bytes and hashes updated through the final candidate manifest."
+    }
+  ],
+  "implementability_assessment": {
+    "bundle_encoding_and_byte_map_correlation": "supported by the accepted facade helpers and accepted adapter byte domain",
+    "single_file_no_follow_write_and_exact_reuse": "supported by stage_bytes",
+    "content_first_bundle_last_and_partial_orphan_policy": "supported by serial stage_bytes calls",
+    "single_invocation_multi_file_identity_coherence": "not yet fully specified or supported by the public stage_bytes result",
+    "architecture_and_future_implementation_separation": "not closed until SCOPE-MACHINE-CLAIM-001 is corrected"
+  },
+  "verdict": "CHANGES_REQUIRED",
+  "limitations": [
+    "No production implementation exists or was reviewed.",
+    "No filesystem mutation, real Vault, upstream process, network action, Git mutation or PR mutation was performed.",
+    "Full dual-Python, wheel and fresh merge-ref CI remain later acceptance gates."
+  ]
+}

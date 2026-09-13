@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.arxiv-metadata.v1.schema.json",
+  "title": "video-paper-wiki-research.arxiv-metadata.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "arxiv-metadata.v1"
+    },
+    "kind": {
+      "const": "metadata"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^rw1:metadata:[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/sha256"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "observation",
+        "entity_id",
+        "requested_version",
+        "resolved_version",
+        "latest_at_observation",
+        "other_versions_exist",
+        "observed_at",
+        "title",
+        "authors",
+        "published_at",
+        "updated_at",
+        "categories",
+        "abstract",
+        "abstract_url",
+        "pdf_url",
+        "adapter",
+        "preview_only",
+        "ingest_authorized"
+      ],
+      "properties": {
+        "request": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/reference"
+        },
+        "observation": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/reference"
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "requested_version": {
+          "oneOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/version"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolved_version": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/version"
+        },
+        "latest_at_observation": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "other_versions_exist": {
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "observed_at": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/utc_timestamp"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "authors": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "published_at": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/utc_timestamp"
+        },
+        "updated_at": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/utc_timestamp"
+        },
+        "categories": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "abstract": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32768
+        },
+        "abstract_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "pdf_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "adapter": {
+          "const": "arxiv-abs-normalized-v1"
+        },
+        "preview_only": {
+          "const": true
+        },
+        "ingest_authorized": {
+          "const": false
+        }
+      }
+    }
+  }
+}

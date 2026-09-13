@@ -1,15 +1,51 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema", "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.repo-record.v1.schema.json", "title": "video-paper-wiki.repo-record.v1",
-  "type": "object", "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.repo-record.v1.schema.json",
+  "title": "video-paper-wiki.repo-record.v1",
+  "type": "object",
+  "additionalProperties": false,
   "required": ["schema", "repo_id", "canonical_repository", "canonical_commit", "paper_ids", "officiality", "license", "capability_claim_refs", "created_at", "updated_at"],
   "properties": {
-    "schema": {"const": "video-paper-wiki.repo-record.v1"}, "repo_id": {"type": "string", "pattern": "^github:[a-z0-9._-]+/[a-z0-9._-]+$"}, "canonical_repository": {"type": "string", "pattern": "^[^/]+/[^/]+$"}, "canonical_commit": {"$ref": "#/$defs/commit"},
-    "paper_ids": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "officiality": {"enum": ["official", "unofficial", "unverified_candidate"]}, "license": {"$ref": "#/$defs/license"}, "archived": {"type": "boolean"},
-    "capability_claim_refs": {"type": "array", "items": {"$ref": "#/$defs/capability_claim_ref"}}, "created_at": {"type": "string", "format": "date-time"}, "updated_at": {"type": "string", "format": "date-time"}
+    "schema": {"const": "video-paper-wiki.repo-record.v1"},
+    "repo_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"},
+    "canonical_repository": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"},
+    "canonical_commit": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"},
+    "paper_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"}
+    },
+    "officiality": {"enum": ["official", "unofficial", "unverified_candidate"]},
+    "license": {"$ref": "#/$defs/license"},
+    "archived": {"type": "boolean"},
+    "capability_claim_refs": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"$ref": "#/$defs/capability_claim_ref"}
+    },
+    "created_at": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"},
+    "updated_at": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"}
   },
   "$defs": {
-    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "claim_id": {"type": "string", "pattern": "^clm-[0-9a-f]{20}$"},
-    "license": {"type": "object", "additionalProperties": false, "required": ["spdx_id", "notes"], "properties": {"spdx_id": {"type": ["string", "null"]}, "notes": {"type": "string"}}},
-    "capability_claim_ref": {"type": "object", "additionalProperties": false, "required": ["capability", "claim_id", "lifecycle"], "properties": {"capability": {"enum": ["training", "inference", "data", "evaluation", "checkpoints"]}, "claim_id": {"$ref": "#/$defs/claim_id"}, "lifecycle": {"enum": ["active", "retired"]}}}
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdx_id", "notes"],
+      "properties": {
+        "spdx_id": {"type": ["string", "null"]},
+        "notes": {"type": "string"}
+      }
+    },
+    "capability_claim_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["capability", "claim_id", "lifecycle"],
+      "properties": {
+        "capability": {"enum": ["training", "inference", "data", "evaluation", "checkpoints"]},
+        "claim_id": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"},
+        "lifecycle": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/lifecycle"}
+      }
+    }
   }
 }

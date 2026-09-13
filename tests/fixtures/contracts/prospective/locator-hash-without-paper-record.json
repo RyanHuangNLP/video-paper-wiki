@@ -1,0 +1,149 @@
+{
+  "plan": {
+    "schema": "video-paper-wiki.ingest-plan.v1",
+    "plan_kind": "paper-source",
+    "batch_id": "batch-0001",
+    "stable_subject_id": "paper:arxiv:2311.15127",
+    "input": {
+      "kind": "local-blob",
+      "local_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "arxiv_id": "2311.15127"
+    },
+    "limits": {
+      "max_pages": 200,
+      "max_bytes": 50000000,
+      "max_requests": 1
+    },
+    "network_targets": [],
+    "parser": {
+      "engine": "docling",
+      "engine_version": "2.117.0",
+      "core_version": "2.92.0",
+      "config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "model_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+    },
+    "approval_hash": "7830f21a4b4dbc7c914da30425f88595859a4489bb23a4ed6780cc6574e26109"
+  },
+  "prepared": {
+    "schema": "video-paper-wiki.prepared.v1",
+    "batch_id": "batch-0001",
+    "pdf_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "media_type": "application/pdf",
+    "page_count": 24,
+    "byte_count": 123456,
+    "docling_version": "2.117.0",
+    "docling_core_version": "2.92.0",
+    "parser_config_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "model_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_fingerprint": "1c290635a9581cf3d4d0790f28e7e63b0f99130cd0791e10e7c8734625796817",
+    "artifacts": [
+      {
+        "kind": "document_json",
+        "path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+        "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      },
+      {
+        "kind": "parser_config",
+        "path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/parser-config.json",
+        "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      {
+        "kind": "model_manifest",
+        "path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/model-manifest.json",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ],
+    "metadata_candidates": {
+      "title": "A Video Paper",
+      "title_zh": "一篇视频论文",
+      "authors": [
+        "Ada Example"
+      ],
+      "arxiv_id": "2311.15127"
+    }
+  },
+  "draft": {
+    "schema": "video-paper-wiki.paper-analysis-draft.v1",
+    "paper_id": "arxiv:2311.15127",
+    "title": "A Video Paper",
+    "title_zh": "一篇视频论文",
+    "sections": [
+      {
+        "id": "one_sentence_conclusion",
+        "heading_zh": "一句话结论"
+      },
+      {
+        "id": "research_question",
+        "heading_zh": "研究问题"
+      },
+      {
+        "id": "method",
+        "heading_zh": "方法"
+      },
+      {
+        "id": "representation_architecture",
+        "heading_zh": "表示与架构"
+      },
+      {
+        "id": "training_data",
+        "heading_zh": "训练与数据"
+      },
+      {
+        "id": "experiments_results",
+        "heading_zh": "实验与结果"
+      },
+      {
+        "id": "limitations",
+        "heading_zh": "局限"
+      },
+      {
+        "id": "code_resources",
+        "heading_zh": "代码与资源"
+      },
+      {
+        "id": "evidence_status",
+        "heading_zh": "证据状态"
+      },
+      {
+        "id": "related",
+        "heading_zh": "关联"
+      }
+    ],
+    "taxonomy": [
+      {
+        "axis": "backbone",
+        "slug": "dit"
+      }
+    ],
+    "claims": [
+      {
+        "claim_id": "clm-fc3a0a81a0e8e2bbf906",
+        "claim_text": "The model uses a diffusion transformer.",
+        "section": "method",
+        "core": true,
+        "locators": [
+          {
+            "kind": "pdf",
+            "source_id": "src-paper",
+            "page": 3,
+            "ref": "#/texts/7",
+            "bbox": [
+              10,
+              20,
+              100,
+              40
+            ],
+            "charspan": [
+              0,
+              47
+            ],
+            "artifact_path": ".raw/derived/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/docling/fp/document.json",
+            "artifact_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "text_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+          }
+        ],
+        "assessment": "provisional"
+      }
+    ]
+  }
+}
