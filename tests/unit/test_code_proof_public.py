@@ -857,6 +857,74 @@ def test_changed_commit_file_and_config(checkout: Path) -> None:
         )
     assert caught.value.details["reason"] == "acquisition_changed"
     assert (ns / "observation.json").exists()
+
+    config_code_proof(path="config.json", config_format="json", batch_id="b1")
+    cfg_name = "configs/" + hashlib.sha256(b"config.json").hexdigest() + ".json"
+    original_cfg = (ns / cfg_name).read_bytes()
+    mutated = json.loads(original_cfg)
+    value_changes = 0
+    for node in mutated["data"]["result"]["nodes"]:
+        if node.get("value") == "demo":
+            node["value"] = "other"
+            value_changes += 1
+    assert value_changes == 1
+    forged_cfg = seal("code-config-evidence", mutated["data"])
+    assert forged_cfg != original_cfg
+    copy_outputs(
+        "b1",
+        "cfgval",
+        ["request.json", "intent.json", "bundle.json", "observation.json"]
+        + ["objects/" + rec["oid"] + ".body" for rec in repo["objects"]],
+    )
+    with open_code_session(batch_id="cfgval") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        session.install(cfg_name, forged_cfg)
+    val_ns = checkout / ".work" / "cfgval" / "code-evidence-v1"
+    before_cfg = _dir_bytes(val_ns)
+    with pytest.raises(CodeProofPublicError) as caught:
+        status_code_proof(batch_id="cfgval")
+    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
+    assert caught.value.details["reason"] == "derived"
+    assert caught.value.details["instance_pointer"] == "/config"
+    assert _dir_bytes(val_ns) == before_cfg
+    with pytest.raises(CodeProofPublicError) as caught:
+        config_code_proof(path="config.json", config_format="json", batch_id="cfgval")
+    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
+    assert caught.value.details["reason"] == "derived"
+    assert caught.value.details["instance_pointer"] == "/config"
+    assert _dir_bytes(val_ns) == before_cfg
+    assert (val_ns / "observation.json").read_bytes() == (ns / "observation.json").read_bytes()
+
+    other = make_repo(
+        "sha1",
+        {"config.json": (b'{"name":"other"}\n', False), "src.py": (SRC_BODY, False)},
+    )
+    write_bytes(
+        checkout / "cfg-content.json",
+        dump_json(request_doc(other, default_targets())),
+    )
+    oreq = request_code_proof(input_path="cfg-content.json", batch_id="cfgct")
+    orel = write_bundle(checkout, ".work/raw-cfgct", other, oreq["request"])
+    write_bytes(checkout / "cfg-content-obs.json", dump_json(observe_raw_doc(other)))
+    observe_code_proof(
+        input_path="cfg-content-obs.json", batch_id="cfgct", bundle_dir=orel
+    )
+    with open_code_session(batch_id="cfgct") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        session.install(cfg_name, original_cfg)
+    content_ns = checkout / ".work" / "cfgct" / "code-evidence-v1"
+    before_content = _dir_bytes(content_ns)
+    with pytest.raises(CodeProofPublicError) as caught:
+        status_code_proof(batch_id="cfgct")
+    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
+    assert caught.value.details["reason"] == "derived"
+    assert caught.value.details["instance_pointer"] == "/config"
+    assert _dir_bytes(content_ns) == before_content
+    with pytest.raises(CodeProofPublicError) as caught:
+        config_code_proof(path="config.json", config_format="json", batch_id="cfgct")
+    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
+    assert caught.value.details["reason"] == "derived"
+    assert (ns / cfg_name).read_bytes() == original_cfg
     _ = requested
 
 
@@ -1099,3 +1167,110 @@ def test_saved_artifact_limit_bounds(checkout: Path) -> None:
     assert caught.value.details["limit_name"] == "max_handoff_bytes"
     assert caught.value.details["observed"] == hand_size
     assert _dir_bytes(checkout / ".work" / "hcapx" / "code-evidence-v1") == before
+
+
+def test_saved_request_and_canonical_bundle_limit_bounds(checkout: Path) -> None:
+    repo = make_repo("sha1", default_files())
+
+    def write_limited(name, **public_overrides):
+        write_bytes(
+            checkout / (name + ".json"),
+            dump_json(
+                request_doc(
+                    repo,
+                    default_targets(),
+                    limits=public_limits(**public_overrides),
+                )
+            ),
+        )
+
+    def saved_request_size(batch, max_request_bytes):
+        write_limited(batch, max_request_bytes=max_request_bytes)
+        request_code_proof(input_path=batch + ".json", batch_id=batch)
+        path = checkout / ".work" / batch / "code-evidence-v1" / "request.json"
+        return len(path.read_bytes())
+
+    size = saved_request_size("rprobe", 65536)
+    for step in range(3):
+        nxt = saved_request_size("rprobe" + str(step), size)
+        if nxt == size:
+            break
+        size = nxt
+    else:
+        raise AssertionError("saved request size did not stabilize")
+    assert len(str(size - 1)) == len(str(size)) == len(str(size + 1))
+
+    write_limited("rcap0", max_request_bytes=size)
+    request_code_proof(input_path="rcap0.json", batch_id="rcap0")
+    assert (
+        len((checkout / ".work" / "rcap0" / "code-evidence-v1" / "request.json").read_bytes())
+        == size
+    )
+    write_limited("rcap1", max_request_bytes=size + 1)
+    request_code_proof(input_path="rcap1.json", batch_id="rcap1")
+    assert (
+        len((checkout / ".work" / "rcap1" / "code-evidence-v1" / "request.json").read_bytes())
+        == size
+    )
+
+    write_limited("rcapx", max_request_bytes=size - 1)
+    nsx = checkout / ".work" / "rcapx" / "code-evidence-v1"
+    before = _dir_bytes(nsx)
+    with pytest.raises(CodeProofIOError) as caught:
+        request_code_proof(input_path="rcapx.json", batch_id="rcapx")
+    assert caught.value.code == "CODE_PROOF_LIMIT_EXCEEDED"
+    assert caught.value.details["limit_name"] == "max_request_bytes"
+    assert caught.value.details["instance_pointer"] == "/request"
+    assert caught.value.details["limit"] == size - 1
+    assert caught.value.details["observed"] == size
+    assert _dir_bytes(nsx) == before
+    assert not (nsx / "request.json").exists()
+    if nsx.exists():
+        leftover = [p.name for p in nsx.iterdir() if p.name.startswith(".ce-tmp-")]
+        assert leftover == []
+
+    write_limited("bprobe")
+    probe = request_code_proof(input_path="bprobe.json", batch_id="bprobe")
+    rel = write_bundle(checkout, ".work/raw-bprobe", repo, probe["request"])
+    write_bytes(checkout / "lim-observe.json", dump_json(observe_raw_doc(repo)))
+    observe_code_proof(input_path="lim-observe.json", batch_id="bprobe", bundle_dir=rel)
+    bundle_size = len(
+        (checkout / ".work" / "bprobe" / "code-evidence-v1" / "bundle.json").read_bytes()
+    )
+
+    def stage_bundle(batch, max_bundle_bytes):
+        write_limited(batch, max_bundle_bytes=max_bundle_bytes)
+        req = request_code_proof(input_path=batch + ".json", batch_id=batch)
+        return write_bundle(checkout, ".work/raw-" + batch, repo, req["request"])
+
+    bundle = stage_bundle("bcap0", bundle_size)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="bcap0", bundle_dir=bundle
+    )
+    assert (
+        len((checkout / ".work" / "bcap0" / "code-evidence-v1" / "bundle.json").read_bytes())
+        == bundle_size
+    )
+    bundle = stage_bundle("bcap1", bundle_size + 1)
+    observe_code_proof(
+        input_path="lim-observe.json", batch_id="bcap1", bundle_dir=bundle
+    )
+
+    bundle = stage_bundle("bcapx", bundle_size - 1)
+    nsb = checkout / ".work" / "bcapx" / "code-evidence-v1"
+    before = _dir_bytes(nsb)
+    with pytest.raises(CodeProofIOError) as caught:
+        observe_code_proof(
+            input_path="lim-observe.json", batch_id="bcapx", bundle_dir=bundle
+        )
+    assert caught.value.code == "CODE_PROOF_LIMIT_EXCEEDED"
+    assert caught.value.details["limit_name"] == "max_bundle_bytes"
+    assert caught.value.details["instance_pointer"] == "/bundle"
+    assert caught.value.details["limit"] == bundle_size - 1
+    assert caught.value.details["observed"] == bundle_size
+    assert _dir_bytes(nsb) == before
+    assert not (nsb / "intent.json").exists()
+    assert not (nsb / "bundle.json").exists()
+    assert not (nsb / "observation.json").exists()
+    leftover = [p.name for p in nsb.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover == []
