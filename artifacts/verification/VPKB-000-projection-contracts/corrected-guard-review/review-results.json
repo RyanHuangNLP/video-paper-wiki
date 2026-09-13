@@ -1,0 +1,50 @@
+{
+  "status": "independent corrected test-guard review passed; final full-suite/wheel/CI not inferred",
+  "r2_filelist_sha256": "4f225f8802c4e356635c2432cd0b337a75f58a84737ae1ba2ef469d8a2909793",
+  "only_additional_changes": [
+    "tests/unit/test_search.py",
+    "tests/security/_projection_scope_policy.py",
+    "tests/security/test_projection_scope_policy.py"
+  ],
+  "original_8_runtime_files_unchanged": true,
+  "independent_probes": 12,
+  "focused": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q tests/unit/test_search.py tests/security/test_projection_scope_policy.py --basetemp=<TEMP_ROOT>/vpr-steward-guard1 --junitxml=<TEMP_ROOT>/vpr-steward-guard1.xml > <TEMP_ROOT>/vpr-steward-guard1.log 2>&1",
+    "cwd": "<REPOSITORY>",
+    "exit_code": 0,
+    "junit_counts": {
+      "tests": "55",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.103"
+    },
+    "raw_junit_sha256": "5b7085f0bdf5571429e0168fe2d57835252e40efd345a7f9550d7ab0fe8fd5dc",
+    "raw_junit_archived": false
+  },
+  "review": {
+    "exact_path_allowlist": [
+      "projection_runtime.py",
+      "contracts.py"
+    ],
+    "not_blanket_skip": true,
+    "all_other_source_bm25_and_global_retrieval_gold_ban_retained": true,
+    "approved_paths_still_check_imports_functions_calls_and_literal_names": true,
+    "existing_runtime_network_cli_vault_controls_unchanged": true,
+    "scope": "AST recognizer for ordinary source forms, not complete dataflow or semantic engine detection; not OS isolation"
+  },
+  "normalization_records": [
+    {
+      "source_basename": "vpr-steward-guard-probes.json",
+      "archive": "independent-probes.json",
+      "raw_sha256": "b4bc7909443965ef0f63b21d37789f8a195c53dd8be51ace6f7894439466e1d0",
+      "normalized_sha256": "b4bc7909443965ef0f63b21d37789f8a195c53dd8be51ace6f7894439466e1d0"
+    },
+    {
+      "source_basename": "vpr-steward-guard1.log",
+      "archive": "focused.normalized.log",
+      "raw_sha256": "8cc0a76dd4c2089ff0f025bab734814ba45813be862f0465bbc98ba15a4edc72",
+      "normalized_sha256": "8cc0a76dd4c2089ff0f025bab734814ba45813be862f0465bbc98ba15a4edc72"
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+{
+  "actions_performed": [
+    "read-only bounded polling",
+    "read-only run/PR/ref/commit API queries",
+    "read-only job-log download to /private/tmp",
+    "local read-only commit-blob revalidation"
+  ],
+  "blockers": [],
+  "candidate": {
+    "blob_mismatches": [],
+    "commit_blobs_reverified_against_freeze_manifest": true,
+    "commit_path_count": 25,
+    "head_sha": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "parent_sha": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+    "tree_sha": "757f33cfcfc561e919b0b5d2702e40834cb53204"
+  },
+  "forbidden_mutations_performed": false,
+  "limitations": [
+    "This record observes the GitHub Tests workflow only; it does not treat an external/Railway suite as equivalent or required Tests evidence.",
+    "The checkout log prints the merge SHA fully in fetch and only seven characters in HEAD summary; the full SHA is independently bound by merge-ref and commit APIs.",
+    "Passing CI and this observation do not authorize merge, review, ready-for-review, auto-merge, PR metadata changes, production implementation, or a human gate. Architect freeze acceptance remains a separate decision."
+  ],
+  "merge_preview": {
+    "actions_checkout_ref": "refs/remotes/pull/94/merge",
+    "expected_ordered_parents": [
+      "08709894adfb20ec07e976783f0ba436d975b74f",
+      "be7ecf303af2879459036ed8e6831291f168fac4"
+    ],
+    "message": "Merge be7ecf303af2879459036ed8e6831291f168fac4 into 08709894adfb20ec07e976783f0ba436d975b74f",
+    "ordered_parents": [
+      "08709894adfb20ec07e976783f0ba436d975b74f",
+      "be7ecf303af2879459036ed8e6831291f168fac4"
+    ],
+    "parent_order_exact": true,
+    "ref_api_value": "refs/pull/94/merge",
+    "sha": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+    "tree_sha": "757f33cfcfc561e919b0b5d2702e40834cb53204",
+    "verified_signature": true
+  },
+  "observed_at_utc": "2026-09-01T02:07:40.979717+00:00",
+  "pull_request": {
+    "all_tests_checks_success": true,
+    "base_ref": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "draft": true,
+    "head_ref": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head_sha": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "merge_state_status": "CLEAN",
+    "number": 94,
+    "state": "OPEN",
+    "tests_check_count": 4,
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
+  },
+  "raw_evidence": [
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/excerpts.json",
+      "sha256": "42bf6a91d7f04b0c2c03d647a960a30c1f17b76b8b61d4e98251511cba579545",
+      "size_bytes": 5113
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/macos-3.12.log",
+      "sha256": "e29dcad363f68403aa26a8cd79c1bc37e0472681e7208a7e5f8c6a337a1e708a",
+      "size_bytes": 38270
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/macos-3.13.log",
+      "sha256": "10cbe688e7fc96016fbf28a9ddd7324ffc2f64bb599bf13ba2fb18ebf8649c59",
+      "size_bytes": 38177
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/merge-commit.json",
+      "sha256": "512d6acec64946b87bed6d0d7870d7e89622d6c1f79f9da6e2610c325336297b",
+      "size_bytes": 2742
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/merge-ref.json",
+      "sha256": "205bea5d8adcdf60054debb87b97a343f79b2753c256e8ca233d776617afb54c",
+      "size_bytes": 366
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/pr.json",
+      "sha256": "d60c2b769f79c91395c6ca200874d63a2a5fd59d3708b8a0e307d587a21c8768",
+      "size_bytes": 1575
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/run.json",
+      "sha256": "29f05f3bb44f40b8b3c1f645d0fb28f870668dd654bcfebc8ff2b9794e79b978",
+      "size_bytes": 7655
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/ubuntu-3.12.log",
+      "sha256": "ee16489e9eff9be8853c47f05ecfb6c4d37fdd5d83879a97ea11594faca5af1a",
+      "size_bytes": 40451
+    },
+    {
+      "path": "/private/tmp/vpkb-001-architecture-freeze-ci/ubuntu-3.13.log",
+      "sha256": "7fc8b9fad8d31be0c0cca5ce139cd722ab3f7eade36f86fb2e8d5a07c1b83c19",
+      "size_bytes": 40353
+    }
+  ],
+  "raw_evidence_directory": "/private/tmp/vpkb-001-architecture-freeze-ci",
+  "ready_for_architect_freeze_decision": true,
+  "result": "PASS",
+  "run": {
+    "attempt": 1,
+    "conclusion": "success",
+    "created_at": "2026-09-01T02:01:55Z",
+    "event": "pull_request",
+    "head_branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head_sha": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "id": 33461002166,
+    "job_count": 4,
+    "jobs": [
+      {
+        "completed_at": "2026-09-01T02:05:37Z",
+        "conclusion": "success",
+        "evidence_lines": {
+          "checkout_fetch": {
+            "line": 99,
+            "text": "2026-09-01T02:02:02.0161720Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +bd26ab57e9f200181fed7b3175256fdbe39dbfad:refs/remotes/pull/94/merge"
+          },
+          "checkout_head": {
+            "line": 126,
+            "text": "2026-09-01T02:02:02.9766317Z HEAD is now at bd26ab5 Merge be7ecf303af2879459036ed8e6831291f168fac4 into 08709894adfb20ec07e976783f0ba436d975b74f"
+          },
+          "checkout_ref": {
+            "line": 108,
+            "text": "2026-09-01T02:02:02.9320736Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/94/merge"
+          },
+          "image": {
+            "line": 16,
+            "text": "2026-09-01T02:02:00.2596404Z Image: ubuntu-24.04"
+          },
+          "image_version": {
+            "line": 17,
+            "text": "2026-09-01T02:02:00.2597701Z Version: 20260823.283.1"
+          },
+          "pytest": {
+            "line": 300,
+            "text": "2026-09-01T02:05:33.0536481Z 1661 passed in 204.14s (0:03:24)"
+          },
+          "python": {
+            "line": 228,
+            "text": "2026-09-01T02:02:07.0890356Z Installed Python 3.12.14 in 1.04s"
+          },
+          "runner": {
+            "line": 1,
+            "text": "﻿2026-09-01T02:02:00.2541410Z Current runner version: '2.337.0'"
+          }
+        },
+        "id": 99710888776,
+        "name": "ubuntu-24.04 / Python 3.12",
+        "operating_system": "Ubuntu 24.04.4",
+        "pytest": {
+          "errors": 0,
+          "failures": 0,
+          "passed": 1661,
+          "seconds": 204.14,
+          "skipped": 0
+        },
+        "python_version": "3.12.14",
+        "raw_log": "/private/tmp/vpkb-001-architecture-freeze-ci/ubuntu-3.12.log",
+        "raw_log_sha256": "ee16489e9eff9be8853c47f05ecfb6c4d37fdd5d83879a97ea11594faca5af1a",
+        "runner_image": "ubuntu-24.04",
+        "runner_image_version": "20260823.283.1",
+        "runner_version": "2.337.0",
+        "started_at": "2026-09-01T02:01:59Z",
+        "status": "completed",
+        "tested_checkout_sha": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+        "tested_ref": "refs/remotes/pull/94/merge",
+        "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33461002166/job/99710888776"
+      },
+      {
+        "completed_at": "2026-09-01T02:05:03Z",
+        "conclusion": "success",
+        "evidence_lines": {
+          "checkout_fetch": {
+            "line": 99,
+            "text": "2026-09-01T02:02:00.9354126Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +bd26ab57e9f200181fed7b3175256fdbe39dbfad:refs/remotes/pull/94/merge"
+          },
+          "checkout_head": {
+            "line": 126,
+            "text": "2026-09-01T02:02:02.5135812Z HEAD is now at bd26ab5 Merge be7ecf303af2879459036ed8e6831291f168fac4 into 08709894adfb20ec07e976783f0ba436d975b74f"
+          },
+          "checkout_ref": {
+            "line": 108,
+            "text": "2026-09-01T02:02:02.1127364Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/94/merge"
+          },
+          "image": {
+            "line": 16,
+            "text": "2026-09-01T02:01:59.7154039Z Image: ubuntu-24.04"
+          },
+          "image_version": {
+            "line": 17,
+            "text": "2026-09-01T02:01:59.7154959Z Version: 20260823.283.1"
+          },
+          "pytest": {
+            "line": 299,
+            "text": "2026-09-01T02:05:01.5627478Z 1661 passed in 173.43s (0:02:53)"
+          },
+          "python": {
+            "line": 228,
+            "text": "2026-09-01T02:02:05.9566754Z Installed Python 3.13.15 in 965ms"
+          },
+          "runner": {
+            "line": 1,
+            "text": "﻿2026-09-01T02:01:59.7095360Z Current runner version: '2.337.0'"
+          }
+        },
+        "id": 99710888930,
+        "name": "ubuntu-24.04 / Python 3.13",
+        "operating_system": "Ubuntu 24.04.4",
+        "pytest": {
+          "errors": 0,
+          "failures": 0,
+          "passed": 1661,
+          "seconds": 173.43,
+          "skipped": 0
+        },
+        "python_version": "3.13.15",
+        "raw_log": "/private/tmp/vpkb-001-architecture-freeze-ci/ubuntu-3.13.log",
+        "raw_log_sha256": "7fc8b9fad8d31be0c0cca5ce139cd722ab3f7eade36f86fb2e8d5a07c1b83c19",
+        "runner_image": "ubuntu-24.04",
+        "runner_image_version": "20260823.283.1",
+        "runner_version": "2.337.0",
+        "started_at": "2026-09-01T02:01:58Z",
+        "status": "completed",
+        "tested_checkout_sha": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+        "tested_ref": "refs/remotes/pull/94/merge",
+        "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33461002166/job/99710888930"
+      },
+      {
+        "completed_at": "2026-09-01T02:04:37Z",
+        "conclusion": "success",
+        "evidence_lines": {
+          "checkout_fetch": {
+            "line": 100,
+            "text": "2026-09-01T02:02:01.8409000Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +bd26ab57e9f200181fed7b3175256fdbe39dbfad:refs/remotes/pull/94/merge"
+          },
+          "checkout_head": {
+            "line": 110,
+            "text": "2026-09-01T02:02:03.0516330Z HEAD is now at bd26ab5 Merge be7ecf303af2879459036ed8e6831291f168fac4 into 08709894adfb20ec07e976783f0ba436d975b74f"
+          },
+          "checkout_ref": {
+            "line": 109,
+            "text": "2026-09-01T02:02:02.9752690Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/94/merge"
+          },
+          "image": {
+            "line": 16,
+            "text": "2026-09-01T02:01:59.2821830Z Image: macos-15-arm64"
+          },
+          "image_version": {
+            "line": 17,
+            "text": "2026-09-01T02:01:59.2822210Z Version: 20260727.0256.1"
+          },
+          "pytest": {
+            "line": 284,
+            "text": "2026-09-01T02:04:33.1469770Z 1661 passed in 142.94s (0:02:22)"
+          },
+          "python": {
+            "line": 212,
+            "text": "2026-09-01T02:02:08.3246940Z Installed Python 3.12.14 in 1.91s"
+          },
+          "runner": {
+            "line": 1,
+            "text": "﻿2026-09-01T02:01:59.2795600Z Current runner version: '2.336.0'"
+          }
+        },
+        "id": 99710888967,
+        "name": "macos-15 / Python 3.12",
+        "operating_system": "macOS 15.7.7",
+        "pytest": {
+          "errors": 0,
+          "failures": 0,
+          "passed": 1661,
+          "seconds": 142.94,
+          "skipped": 0
+        },
+        "python_version": "3.12.14",
+        "raw_log": "/private/tmp/vpkb-001-architecture-freeze-ci/macos-3.12.log",
+        "raw_log_sha256": "e29dcad363f68403aa26a8cd79c1bc37e0472681e7208a7e5f8c6a337a1e708a",
+        "runner_image": "macos-15-arm64",
+        "runner_image_version": "20260727.0256.1",
+        "runner_version": "2.336.0",
+        "started_at": "2026-09-01T02:01:59Z",
+        "status": "completed",
+        "tested_checkout_sha": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+        "tested_ref": "refs/remotes/pull/94/merge",
+        "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33461002166/job/99710888967"
+      },
+      {
+        "completed_at": "2026-09-01T02:04:28Z",
+        "conclusion": "success",
+        "evidence_lines": {
+          "checkout_fetch": {
+            "line": 100,
+            "text": "2026-09-01T02:02:02.1949540Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +bd26ab57e9f200181fed7b3175256fdbe39dbfad:refs/remotes/pull/94/merge"
+          },
+          "checkout_head": {
+            "line": 110,
+            "text": "2026-09-01T02:02:03.0830580Z HEAD is now at bd26ab5 Merge be7ecf303af2879459036ed8e6831291f168fac4 into 08709894adfb20ec07e976783f0ba436d975b74f"
+          },
+          "checkout_ref": {
+            "line": 109,
+            "text": "2026-09-01T02:02:02.9498200Z [command]/opt/homebrew/bin/git checkout --progress --force refs/remotes/pull/94/merge"
+          },
+          "image": {
+            "line": 16,
+            "text": "2026-09-01T02:01:59.8535410Z Image: macos-15-arm64"
+          },
+          "image_version": {
+            "line": 17,
+            "text": "2026-09-01T02:01:59.8535860Z Version: 20260727.0256.1"
+          },
+          "pytest": {
+            "line": 283,
+            "text": "2026-09-01T02:04:24.5772820Z 1661 passed in 132.63s (0:02:12)"
+          },
+          "python": {
+            "line": 212,
+            "text": "2026-09-01T02:02:09.8098340Z Installed Python 3.13.15 in 2.42s"
+          },
+          "runner": {
+            "line": 1,
+            "text": "﻿2026-09-01T02:01:59.8503540Z Current runner version: '2.336.0'"
+          }
+        },
+        "id": 99710888863,
+        "name": "macos-15 / Python 3.13",
+        "operating_system": "macOS 15.7.7",
+        "pytest": {
+          "errors": 0,
+          "failures": 0,
+          "passed": 1661,
+          "seconds": 132.63,
+          "skipped": 0
+        },
+        "python_version": "3.13.15",
+        "raw_log": "/private/tmp/vpkb-001-architecture-freeze-ci/macos-3.13.log",
+        "raw_log_sha256": "10cbe688e7fc96016fbf28a9ddd7324ffc2f64bb599bf13ba2fb18ebf8649c59",
+        "runner_image": "macos-15-arm64",
+        "runner_image_version": "20260727.0256.1",
+        "runner_version": "2.336.0",
+        "started_at": "2026-09-01T02:01:59Z",
+        "status": "completed",
+        "tested_checkout_sha": "bd26ab57e9f200181fed7b3175256fdbe39dbfad",
+        "tested_ref": "refs/remotes/pull/94/merge",
+        "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33461002166/job/99710888863"
+      }
+    ],
+    "status": "completed",
+    "updated_at": "2026-09-01T02:05:37Z",
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki/actions/runs/33461002166",
+    "workflow": "Tests"
+  },
+  "schema": "vpkb-001.architecture-freeze-ci-observation.v1",
+  "verification": {
+    "all_four_1661_passed": true,
+    "all_four_jobs_success": true,
+    "all_four_tested_same_merge_ref": true,
+    "all_four_tested_same_merge_sha": true,
+    "old_ci_inherited": false,
+    "pr_head_base_exact": true,
+    "pr_open_draft_integration": true,
+    "python_versions_exact": true,
+    "run_head_exact": true
+  }
+}

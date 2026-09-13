@@ -1,0 +1,259 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-implementation-work-package.v1",
+  "revision": 6,
+  "issued_at_utc": "2026-09-01T20:31:26Z",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "staged-pdf-capture-inspect-v1",
+  "status": "AUTHORIZED_FOR_BUILDER_PORTABLE_TEST_FIXTURE_CORRECTION_AND_TESTS_ONLY",
+  "supersedes": {
+    "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r5.json",
+    "revision": 5,
+    "sha256": "71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5",
+    "size_bytes": 19409,
+    "immutability": "archived R5 bytes preserved exactly"
+  },
+  "failed_r5_delivery": {
+    "commit": "39d279fa8b357d63ef282cbc9dee35a93773e4d4",
+    "tree": "e740f43de6c39922cfe3f799c6574183d406d2a6",
+    "parent": "4168e151c332cdcf89227bf086d4a6bc5308e649",
+    "candidate_sha256": "e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f",
+    "candidate_source_snapshot_sha256": "c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d",
+    "exact_delivery_path_count": 39,
+    "exact_delivery_snapshot_sha256": "377aa5e574c4bc36f8718c6b04d642a2a11a85dd6aa4e66d50911274a9f1be14",
+    "ci_failure_observation": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/ci-failure-observation-r5.json",
+      "sha256": "a6baa458dfce401272ead3cc8085fa491684eb6bf60e6ad25a59b0f26388fb34",
+      "size_bytes": 5843,
+      "run_id": 33554650002,
+      "attempt": 1,
+      "conclusion": "failure",
+      "tested_merge_sha": "49e987c4228406fde3b33ab7cf73966b31c73f59",
+      "ordered_parents": [
+        "08709894adfb20ec07e976783f0ba436d975b74f",
+        "39d279fa8b357d63ef282cbc9dee35a93773e4d4"
+      ]
+    },
+    "acceptance_disposition": "R5 exact-head acceptance was not issued; the failed run is immutable evidence and cannot be relabelled or inherited."
+  },
+  "roles": {
+    "architect": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "ultra",
+      "owns": [
+        "R6 work package",
+        "contract freeze",
+        "integration review",
+        "final acceptance"
+      ]
+    },
+    "builder": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "owns": [
+        "one-file portable fixture correction",
+        "tests",
+        "builder candidate evidence"
+      ]
+    },
+    "repo_steward": {
+      "agent": "Codex",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "medium",
+      "owns": [
+        "independent candidate review",
+        "exact Git delivery",
+        "fresh CI evidence"
+      ]
+    }
+  },
+  "frozen_authority": {
+    "staged_capture_contract": {
+      "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+      "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f",
+      "mutable": false
+    },
+    "staging_contract": {
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "mutable": false
+    },
+    "request_schema": {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f",
+      "mutable": false
+    },
+    "authority_schema": {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+      "mutable": false
+    },
+    "architecture_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+      "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421",
+      "mutable": false
+    }
+  },
+  "contract_disposition": "No production defect was observed. R6 changes only the adversarial test fixture so it deterministically creates a same-byte named replacement with a distinct live filesystem identity. Public behavior, error codes, interfaces, schemas and all production bytes remain frozen.",
+  "architect_blocker": {
+    "id": "CI_PORTABLE_INODE_REPLACEMENT_FIXTURE_001",
+    "failed_nodes": [
+      "tests/unit/test_prepare.py::test_missing_blob_install_refuses_same_bytes_inode_replacement",
+      "tests/unit/test_prepare.py::test_missing_request_install_refuses_same_bytes_inode_replacement"
+    ],
+    "observed": "Both Ubuntu jobs first passed the WORK_PATH_UNSAFE assertion, then failed only because unlink plus recreate immediately reused st_ino. Both macOS jobs passed all 1962 tests.",
+    "root_cause": "The fixture assumes an unlinked inode cannot be reused for the immediately recreated file. POSIX filesystems may reuse that inode once the old file has no live link or descriptor.",
+    "security_assessment": "Production rejection remained correct; the test must still prove a real distinct-identity replacement rather than remove or relax the security assertion."
+  },
+  "required_correction": [
+    "In tests/unit/test_prepare.py only, replace both unlink-then-write race fixtures with one clear private test helper or equivalent shared mechanism.",
+    "Create the same-directory replacement while the original target still exists, write byte-identical content, preserve the original regular-file permission bits, size and mtime, and establish that the replacement has a different (st_dev, st_ino) from the still-live original.",
+    "Atomically install that already-distinct replacement with os.replace, then establish that the named target has the pre-observed replacement identity and byte-identical content.",
+    "Keep both command assertions at exit 2 and WORK_PATH_UNSAFE, and keep the blob/request publication assertions and zero-network checks.",
+    "Use exclusive non-following creation where supported or an equally deterministic same-directory mechanism; clean up any helper path on exceptional test exits."
+  ],
+  "forbidden_correction": [
+    "Do not edit production code, contracts, schemas, CLI behavior, error mapping or frozen evidence.",
+    "Do not delete the two hostile tests, skip/xfail by platform, accept equal identity, add retries hoping for another inode, sleep, or weaken WORK_PATH_UNSAFE/publication assertions.",
+    "Do not change workflow, dependency, lock, catalog or unrelated test formatting.",
+    "Do not stage, commit, push, alter PR state, access network/models or a real Vault as Builder."
+  ],
+  "builder_owned_paths": {
+    "tests": [
+      "tests/unit/test_prepare.py"
+    ],
+    "evidence": [
+      "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r6.json"
+    ],
+    "baseline": {
+      "tests/unit/test_prepare.py": {
+        "sha256": "9d660f548b590a1e5a1d88bceee3fdb29da59a7777aad100ce153e79b4c1c102",
+        "size_bytes": 31022
+      }
+    },
+    "path_rules": [
+      "Builder may edit exactly tests/unit/test_prepare.py and create exactly builder-candidate-r6.json.",
+      "All production source bytes and every other source/test path are immutable for R6.",
+      "Do not edit this work package, implementation-work-package-r5.json, ci-failure-observation-r5.json, prior candidates, status documents or task index.",
+      "If the correction cannot be completed inside these two paths without semantic production change, stop and report the missing capability."
+    ]
+  },
+  "required_regression_probes": [
+    {
+      "name": "missing blob install same-byte distinct-identity replacement",
+      "expected": "fixture pre-proves different live (st_dev,st_ino); command returns WORK_PATH_UNSAFE; request is absent"
+    },
+    {
+      "name": "missing request install same-byte distinct-identity replacement",
+      "expected": "fixture pre-proves different live (st_dev,st_ino); command returns WORK_PATH_UNSAFE; safe blob remains"
+    },
+    {
+      "name": "complete prepare unit module",
+      "expected": "all pass with no platform-specific skip"
+    },
+    {
+      "name": "R5 focused staged capture matrix",
+      "expected": "all prior semantic behavior and exact bytes unchanged"
+    }
+  ],
+  "candidate_snapshot": {
+    "algorithm": "SHA-256 over UTF-8 lines path + TAB + file_sha256 + TAB + decimal_size + LF, paths sorted by raw repository-relative UTF-8 bytes",
+    "path_count": 18,
+    "paths": [
+      "src/video_paper_wiki/captured_snapshot.py",
+      "src/video_paper_wiki/cli.py",
+      "src/video_paper_wiki/commands/capture.py",
+      "src/video_paper_wiki/commands/prepare.py",
+      "src/video_paper_wiki/contracts.py",
+      "src/video_paper_wiki/staged_capture.py",
+      "src/video_paper_wiki/staging.py",
+      "src/video_paper_wiki/transaction_staging.py",
+      "src/video_paper_wiki/upstream_adapter.py",
+      "tests/contract/test_staged_pdf_capture.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/security/test_work_staging_boundary.py",
+      "tests/support.py",
+      "tests/unit/test_json_boundary.py",
+      "tests/unit/test_prepare.py",
+      "tests/unit/test_staged_capture.py",
+      "tests/unit/test_transaction_staging.py",
+      "tests/upstream/test_vpkb001_staged_pdf_capture.py"
+    ],
+    "candidate_itself_excluded": true,
+    "r5_snapshot_before_test_fixture_correction": "c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d"
+  },
+  "acceptance_tests": {
+    "builder_targeted": [
+      "the two failed node IDs together",
+      "complete tests/unit/test_prepare.py"
+    ],
+    "builder_focused": [
+      "tests/unit/test_staged_capture.py",
+      "tests/contract/test_staged_pdf_capture.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/upstream/test_vpkb001_staged_pdf_capture.py",
+      "tests/unit/test_prepare.py",
+      "tests/security/test_prepare_offline.py",
+      "tests/security/test_work_staging_boundary.py",
+      "tests/security/test_cli_isolation.py",
+      "tests/contract/test_agent_command_tree.py",
+      "tests/unit/test_transaction_staging.py",
+      "tests/security/test_transaction_staging_boundary.py",
+      "tests/upstream/test_vpkb001_staged_transaction_inspect.py",
+      "tests/unit/test_upstream_adapter_capture.py",
+      "tests/security/test_upstream_adapter_boundary.py",
+      "tests/unit/test_json_boundary.py"
+    ],
+    "builder_complete": [
+      "complete locked Python 3.13 suite without deselection",
+      "complete locked Python 3.12 suite without deselection"
+    ],
+    "architect_final": [
+      "independently inspect the fixture mechanism and one-file diff",
+      "replay the two exact hostile nodes and focused matrix",
+      "complete Python 3.13 and 3.12 suites",
+      "verify all production source hashes remain at R5 candidate bytes",
+      "exact-path cached diff audit",
+      "fresh four-job pull_request merge-ref CI",
+      "separate exact-head acceptance"
+    ]
+  },
+  "builder_candidate_requirements": [
+    "Write builder-candidate-r6.json only after the test edit and all local runs stop.",
+    "Bind this exact R6 work-package SHA-256/size, the immutable R5 work-package SHA/size, the R5 failed commit and CI observation SHA/size.",
+    "Record the exact 18-path SHA256/size map and computed snapshot; explicitly prove all nine production paths are unchanged from R5.",
+    "Record exact targeted, test-module, focused and both complete-suite commands, Python versions, counts, log/JUnit SHA256 and sizes.",
+    "Record the one source/test changed path, catalog count 67, git diff --check, empty index, protected paths untouched and no network/real Vault use.",
+    "Return without Git or PR mutation."
+  ],
+  "absolute_exclusions": [
+    ".DS_Store",
+    "docs/feishu-multi-bot-phase1-plan.md",
+    "docs/hermes-subscription-collaboration-prd.md",
+    "docs/pi-feishu-cli-assessment.md",
+    "docs/video-paper-wiki-development-plan-v0.3.2.md",
+    "docs/video-paper-wiki-development-plan.md",
+    "inbox/**",
+    "tools/**",
+    ".github/workflows/**",
+    "pyproject.toml",
+    "uv.lock",
+    "vendor/**",
+    "catalog/**",
+    "schemas/**",
+    "docs/ai/contracts/**",
+    "all source paths",
+    "all test paths except tests/unit/test_prepare.py",
+    "all prior candidate/evidence/work-package records",
+    "real Vault/**",
+    ".work runtime outputs",
+    "PR state/merge/human-gate changes"
+  ],
+  "handoff": {
+    "on_success": "Builder writes only builder-candidate-r6.json and reports the one-file correction plus exact tests/hashes. Architect reviews; Repo Steward then independently reviews and audits delivery.",
+    "on_blocker": "Stop before broadening scope or changing production architecture and report the smallest reproducible missing capability.",
+    "git_owner": "Repo Steward only after Architect exact-delivery GO.",
+    "implementation_complete_by_this_package_alone": false
+  }
+}

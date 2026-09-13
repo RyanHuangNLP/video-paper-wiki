@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-publication-authority.v1.schema.json",
+  "title": "video-paper-wiki.source-publication-authority.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_sha256",
+    "request",
+    "prospective_inventory_sha256",
+    "transaction",
+    "transaction_staging",
+    "upstream_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.source-publication-authority.v1"
+    },
+    "request_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "request": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-publication-request.v1.schema.json"
+    },
+    "prospective_inventory_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "transaction": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-facade.v1.schema.json"
+    },
+    "transaction_staging": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.transaction-staging.v1.schema.json"
+    },
+    "upstream_authority": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-authority.v1.schema.json"
+    }
+  }
+}

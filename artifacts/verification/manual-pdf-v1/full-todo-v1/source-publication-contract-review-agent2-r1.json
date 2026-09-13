@@ -1,0 +1,153 @@
+{
+  "schema": "video-paper-wiki.source-publication-contract-review.v1",
+  "reviewed_at": "2026-09-09",
+  "decision": "CHANGES_REQUIRED_FOR_R2",
+  "scope": "Read-only bounded review of SOURCE-PUBLICATION revision 1 against the accepted source-capture, source-semantics, receipt-audit, transaction, catalog, compiler and backup contracts. No source, Git, Vault, upstream or operator mutation was performed.",
+  "packet": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R1.md",
+    "sha256": "80728c1cb070d0c0ba19ff5e9bee9f1414e647f4334f14f3a0e0413dbd069e0d",
+    "size_bytes": 16802
+  },
+  "reviewed_inputs": {
+    "source_semantics_r2": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+    "source_semantics_legacy_bbox_r3": "f1196fe43f815d388acb3359d75a045eca10643539ca0869065a09b81addd5b1",
+    "source_semantics_freeze": "3fc048e58b9e3a32b2861335d466ed431229a9afffd71af66a4b1cd4735b3129",
+    "source_capture_r1": "5bf912cc2aec0fec951168779d6336c95733c25be3e4377a611adb55296cacf8"
+  },
+  "findings": [
+    {
+      "id": "SP-R1-001",
+      "severity": "blocker",
+      "title": "Historical source-ledger snapshot binding omits genesis read claims",
+      "evidence": "SOURCE-SEMANTICS-R2 requires a snapshot to match the source-ledger write by the first receipt that claims the captured raw path. The receipt replay in receipt_audit.py:319-335 also seeds pristine ledger claims at genesis, while transaction_contracts.py:261-270 binds the prior receipt through read_preconditions. A preserved prior ledger can therefore be the genesis source-ledger read claim even when no matching genesis after-write has that digest.",
+      "required_fix": "Define the registration snapshot proof as a tagged union: either the exact source-ledger after_sha256 of the first registration receipt's source-ledger business write, or the exact genesis pristine source-ledger claim that is the preimage for that write. Record the binding kind and receipt/entry pointer. Do not accept an arbitrary source-ledger claim from a later receipt or current bytes substituted for missing history.",
+      "acceptance": "Fixture with pristine genesis ledgers plus first registration proves the accepted binding; a snapshot whose bytes match only a non-genesis read claim is refused with SOURCE_REGISTRATION_INVALID."
+    },
+    {
+      "id": "SP-R1-002",
+      "severity": "blocker",
+      "title": "A new registration snapshot cannot satisfy post-publication history before apply",
+      "evidence": "The draft requires registration to write a new source-ledger snapshot and says source associations validate snapshots against the actual receipt chain. During prepare/inspect the new source-ledger write has no actual receipt yet, and the existing publication authority is an inspect result with transaction but no applied receipt. Requiring actual-chain matching at this point makes a valid registration impossible; accepting it as historical would falsely promote a prospective write.",
+      "required_fix": "Define two states. In the registration transaction, the new ledger snapshot is a content-addressed business write whose bytes equal the prospective source-ledger descriptor; no association may reference it before the registration is applied. Prospective validation may accept exactly this named pending snapshot under a `pending_registration_snapshot` proof tied to the inspected transaction. After apply, typed audit must require the same digest to be present in the receipt chain and reject a missing or substituted snapshot. Never treat the pending exception as historical registration proof.",
+      "acceptance": "Prepare/inspect of a registration succeeds with the paired ledger and snapshot writes; pre-apply association import refuses; after a fixture apply the same bytes pass actual-chain validation; changed snapshot or absent receipt fails."
+    },
+    {
+      "id": "SP-R1-003",
+      "severity": "blocker",
+      "title": "Legacy record-only/provisional state needs a structural migration mode",
+      "evidence": "The frozen v2 compiler requires complete histories and eligible render material, while existing legal v1 receipt state can contain v1 paper records, provisional or record-only material that is valid legacy state but cannot satisfy a v2 complete-set render. A collector that strictly validates every current object before overlay cannot migrate such a Vault. The draft mentions pure legacy state but does not define the validation phase or legal incomplete legacy cases.",
+      "required_fix": "Add an explicit baseline classification. For pure legacy state (no v2 association/decision/event/head/observation namespace), validate v1 object shapes, receipt replay and immutable identity only; preserve all bytes and defer full history/render checks to the prospective overlay. A migration overlay must then supply complete v2 groups and pass canonical_compiler_v2. If any v2 namespace is present in the current state, require the whole current version-aware graph to be complete and valid before overlay. Keep render-required and structural-only modes distinct.",
+      "acceptance": "Legacy v1 record-only/provisional fixture is accepted as baseline, succeeds only with a complete migration overlay, and remains byte-identical when unchanged; the same fixture with a pre-existing malformed v2 event refuses before proposal assembly."
+    },
+    {
+      "id": "SP-R1-004",
+      "severity": "blocker",
+      "title": "No-op result has no closed output shape",
+      "evidence": "The proposed authority schema has required non-null transaction, transaction_staging and upstream_authority fields, while the draft simultaneously requires no-op preparation to avoid inventing a transaction. Existing publication-authority.v1 is closed and requires those three child authorities. The draft does not define whether a no-op stages a request, which operation identity it returns, or whether inspect accepts it.",
+      "required_fix": "Freeze a separate closed `source-publication-prepared.v1` no-change result (or an explicit authority union) with exact fields such as schema, status=`no_change`, batch_id, operation_id, basis, prospective_inventory_sha256, request_sha256-or-null and reason. Set transaction, staging and upstream children to null only in that no-change branch, prohibit inspect/apply for it, and specify byte-stable retry behavior and whether the fixed request/content slots are retained. Do not overload publication-authority.v1 with undocumented nulls.",
+      "acceptance": "Repeated identical no-op preparation returns byte-identical no-change output and creates no transaction/receipt/head; a caller attempting inspect or apply receives the named stable refusal."
+    },
+    {
+      "id": "SP-R1-005",
+      "severity": "blocker",
+      "title": "Upstream full-ledger validation boundary is ambiguous",
+      "evidence": "SOURCE-SEMANTICS-R2 explicitly freezes a local bounded historical ledger projection and says full prospective source/claim validation remains a later pinned inspect. The upstream ledgers.py validator is not the closed local schema and is only available inside the isolated pinned runtime. The draft says both `source ledger uses the existing bounded historical projection` and `pinned inspector's full prospective ledger validation` without specifying which bytes are locally validated, how the pinned result is correlated, or what happens when the runtime validator accepts fields outside the local projection.",
+      "required_fix": "State the boundary explicitly: source_state/source_registration performs the exact local closed projection and identity checks from SOURCE-SEMANTICS-R2 over retained bytes; the isolated pinned adapter separately validates the prospective ledger/transaction. Bind its returned operation, payload write descriptors, ledger digest and bundle/authority hashes into the source publication authority. Do not import or treat ledgers.py as the local schema, and do not allow a runtime success to bypass local closed validation.",
+      "acceptance": "Extra upstream ledger fields are retained only as opaque bytes where allowed and do not enter the local typed projection; malformed local projection refuses before subprocess; a pinned result with a crossed ledger digest or write set refuses after subprocess."
+    },
+    {
+      "id": "SP-R1-006",
+      "severity": "blocker",
+      "title": "Basis hashes have no canonical formula or empty/genesis semantics",
+      "evidence": "The request requires operation_head_sha256 and inventory_sha256, but audit_integrity returns head=null for an empty Vault and does not return an inventory digest. The current inventory helper has separate read_bytes modes and can include directory pseudo-identities in the non-byte walk (receipt_audit.py:181-242), while read_bytes mode hashes selected files. No canonical encoding, file/dir inclusion rule, mode encoding or null sentinel is frozen.",
+      "required_fix": "Define a canonical basis object and byte formula. Use `operation_head_sha256=null` only for a validated empty state, otherwise SHA-256 of exact canonical head bytes. Define inventory as sorted file-only tuples `{path,sha256,size_bytes,mode}` over the complete selected managed set, with directories represented only by the retained lineage checks, then hash canonical JSON with no LF. Expose that exact inventory authority from audit and recompute it before and after overlay/inspect.",
+      "acceptance": "Empty, genesis and nonempty fixtures have distinct documented basis values; changing only a directory inode does not alter inventory digest but is caught by lineage verification; changing file bytes, mode or selected-set membership changes inventory digest."
+    },
+    {
+      "id": "SP-R1-007",
+      "severity": "blocker",
+      "title": "Receipt claims/read-preconditions contradict the complete-audit requirement",
+      "evidence": "The draft says every other audited current file is a read precondition, but transaction_contracts.py:185-199 requires read/write path disjointness, and transaction_contracts.py:230 rejects claims unless they are business paths with equal read digests. HEAD and operation receipts are not business claim paths, yet both are in the audited inventory; a complete inventory may exceed transaction and bundle limits.",
+      "required_fix": "Separate the audit basis byte map from transaction read preconditions. Read preconditions must include only named business inputs used by validation plus the previous receipt path; HEAD is an explicit retained head precondition or declared transaction edge, never a claim. Exclude all receipt/head write paths and document a bounded deterministic set. The authority must carry the full audit basis separately without forcing it into claimed_inputs.",
+      "acceptance": "A large Vault stays within the accepted transaction/bundle limits, previous receipt races are detected, HEAD/operation paths never appear as claims, and changing an unrelated audited file changes basis/staleness only when it is in the declared basis map."
+    },
+    {
+      "id": "SP-R1-008",
+      "severity": "blocker",
+      "title": "Registration claim authority is underspecified",
+      "evidence": "The draft says knowledge claims are empty and registration claims exactly the registered raw path/hash, while shared transaction construction derives claims from read preconditions. Existing source capture admission intentionally claims the raw path for the ingest publication, and transaction_contracts.py requires every claim to have an equal read digest. The draft does not say whether source-ledger bytes, prior receipt and basis files are claims, additional reads, or separate authority edges.",
+      "required_fix": "Freeze per-kind tables listing payload writes, `claimed_inputs`, `additional_read_paths`, audit-basis paths and retained-only paths. For registration, claim exactly the captured raw path; read the old source ledger and previous receipt as non-claim read preconditions, and pair the new ledger/snapshot writes explicitly. For knowledge, either define the minimal semantic claim set or state that it has no claims while all other inputs are retained reads; ensure the helper's receipt projection remains valid.",
+      "acceptance": "Both request kinds produce transaction documents satisfying claim/read equality and disjointness; no registration can omit the raw claim or claim HEAD/operations; knowledge remains claim-empty without losing stale-input detection."
+    },
+    {
+      "id": "SP-R1-009",
+      "severity": "blocker",
+      "title": "Overlay replacement and immutable-prefix rules are not executable",
+      "evidence": "The draft allows source/claim ledgers, paper records and pages to be replaced while making associations, decisions, events and derived artifacts immutable. It does not define the preimage required for replacements, whether equal-byte replacement is a no-op, how overlay complete sets are formed, or how replacement of a ledger is checked against the preserved receipt history.",
+      "required_fix": "Add a path-role table with exact create/replace policy. Every replacement must carry the retained preimage hash/mode and equal the current snapshot; equal bytes are idempotent. Immutable prefixes may only be created once and must match any existing bytes exactly; no delete is allowed. Define prospective complete-set as current map overlaid by declared writes, then apply namespace-specific identity and reference checks before compiler/render.",
+      "acceptance": "Changed preimage, path alias, delete, immutable-byte replacement and orphan overlay vectors refuse; identical replacement is stable; allowed ledger/page replacement passes only with exact current preimage and complete future state."
+    },
+    {
+      "id": "SP-R1-010",
+      "severity": "blocker",
+      "title": "New head schemas and registry dispatch are not frozen",
+      "evidence": "The draft names `assessment-heads.v2` and source-display-heads paths, but does not provide exact schema documents, field closure, schema registry resources, or dispatch rules. Existing projection_input.py accepts a fixed branch set and catalog_collector.py filters recognized kinds; adding files without updating those contracts either rejects them or silently omits them.",
+      "required_fix": "Add exact schema/resource IDs, JSON shapes, path-to-schema mappings, contracts.py dispatch, installed-wheel resources, collector `_kind` entries and complete-set rules. Preserve the frozen v1 source-display-heads shape where SOURCE-SEMANTICS-R2 defines it; if assessment-heads.v2 is new, specify its hash/profile fields and whether an empty registry is required for each state class.",
+      "acceptance": "Installed registry validates every new schema; collector includes every new namespace exactly once; unknown names/versions refuse; pure legacy and version-aware state have documented registry presence rules."
+    },
+    {
+      "id": "SP-R1-011",
+      "severity": "blocker",
+      "title": "Existing binding/collector paths only understand v1 material",
+      "evidence": "Current publication._existing_bindings() parses only paper-record.v1 and claim-ledger rows, while canonical_compiler.py and catalog_collector.py dispatch v1 event/record kinds. SOURCE-SEMANTICS-R2 requires v1/v2 records/events, exact immutable historical bytes and mixed compilation. The draft does not specify how current v1/v2 objects are normalized for collection without rewriting v1 bytes.",
+      "required_fix": "Define a version-aware source_state collector that parses each accepted v1/v2 schema, preserves raw bytes and immutable IDs, materializes a common internal state, and calls canonical_compiler_v2 with complete association/raw/extraction/receipt material. Keep the legacy collector/profile refusal explicit for recognized version-aware namespaces and preserve byte-identical legacy outputs where the related set is unchanged.",
+      "acceptance": "Mixed v1/v2 fixture compiles and audits with unchanged v1 event/ledger bytes; legacy catalog entrypoints return SOURCE_PROFILE_REQUIRED before filtering; v2 objects cannot be silently dropped."
+    },
+    {
+      "id": "SP-R1-012",
+      "severity": "blocker",
+      "title": "Source-ledger replacement cannot recover missing historical bytes",
+      "evidence": "The draft says to preserve the current ledger before replacement but also says missing historical bytes must refuse. If an association points to an older digest whose snapshot is absent, reading the current ledger or the receipt hash cannot reconstruct those bytes. The timing and transaction writes for the preserved old snapshot are not specified.",
+      "required_fix": "Before every source-ledger replacement, require the retained current ledger bytes and write its content-addressed snapshot in the same transaction if absent; bind the snapshot to the exact current receipt state. If any existing association references an older missing digest, refuse before staging and report that digest. Never synthesize history from a hash-only receipt field.",
+      "acceptance": "Replacement with available current bytes creates/reuses the exact snapshot; replacement with a missing association snapshot refuses even when the current ledger is valid; snapshot conflicts and equal-byte retries are deterministic."
+    },
+    {
+      "id": "SP-R1-013",
+      "severity": "blocker",
+      "title": "Prospective inventory equivalence is not defined",
+      "evidence": "The authority contains prospective_inventory_sha256 and the draft says inspect recomputes basis, but no canonical pre-overlay/post-overlay inventory object or equivalence rule is stated. Replacement modes, new immutable snapshots, receipt/head writes and absent slots can otherwise produce different hash domains between prepare and inspect.",
+      "required_fix": "Define `current_inventory` from one retained audit, `prospective_inventory` as the exact current file tuple map after validated writes (including content-addressed snapshots and excluding generated receipt/head until transaction construction), and a canonical hash for each. Require prepare's prospective hash to equal inspect's recomputation before pinned inspection; bind expected post-transaction descriptors separately.",
+      "acceptance": "Prepare/inspect agree on create, replace, equal-byte reuse, absent-slot and snapshot cases; changing an undeclared current file or overlay path returns SOURCE_PUBLICATION_STALE before transaction inspection."
+    },
+    {
+      "id": "SP-R1-014",
+      "severity": "blocker",
+      "title": "Registration capture result fields need exact binding to the accepted capture authority",
+      "evidence": "The accepted Markdown capture authority has exact fields and `_capture_proof` checks the generic capture operation, target `.raw/captured/<sha>.md`, raw hash/size and retained mode. SOURCE-PUBLICATION only says `capture_result` is bound and uses a whole-second `ingested_at`; it does not state the authority schema, create/reuse behavior, operation-result fields, or mode comparison.",
+      "required_fix": "Name the exact accepted `video-paper-wiki.markdown-capture-authority.v1` and `operation-result-authority.v1` objects, require `_capture_proof` equivalence against the retained raw file and actual mode, and state that reuse has no new capture result while first registration of an orphan cannot proceed without the external generic result. Keep `ingested_at` as actual UTC whole-second and distinct from capture generated_at.",
+      "acceptance": "Create, reuse, missing-result, crossed-operation, changed-mode, wrong raw path/hash and noncanonical timestamp fixtures produce the specified stable result."
+    },
+    {
+      "id": "SP-R1-015",
+      "severity": "blocker",
+      "title": "Backup and restore coverage does not include the new semantic namespaces",
+      "evidence": "backup_manifest.py currently scans receipt-authorized `.raw` plus `wiki` files under fixed roots and restore_verification.py runs the legacy lint/catalog/query/report checks. The draft requires byte-for-byte backup and typed audit agreement for new heads, associations, observations, snapshots and events but does not freeze whether all are included, how raw authorization covers snapshots, or which source-profile audit runs after restore.",
+      "required_fix": "Extend the source-publication contract's backup section with an exact inclusion map for all new namespace paths and content-addressed snapshots, receipt authorization rules, manifest hash coverage and post-restore source-profile typed-audit/collector checks. Preserve excluded `.work` semantics and require exact file/mode/path equality before semantic verification.",
+      "acceptance": "A mixed source Vault backup/restore retains every new byte and audit/collector state exactly; an omitted head, association, observation or snapshot fails manifest or post-restore verification."
+    },
+    {
+      "id": "SP-R1-016",
+      "severity": "blocker",
+      "title": "Requested schemas and allowlist are not sufficient implementation authorization",
+      "evidence": "The packet names request/authority/head additions and CLI operations but does not enumerate exact schema files, registry/resource edits, source_state module/API signatures, tests, or all backup/restore paths in the visible contract. The current installed registry still has only knowledge-publication/publication-authority v1; source semantics freeze explicitly requires exact resources and dispatch.",
+      "required_fix": "Publish an R2 contract/allowlist that lists every writable implementation, schema, resource, CLI and focused test path, exact closed fields and cross-object formulas, and explicit exclusions. Include the five root-identified fixes above before any builder dispatch; do not infer additional writable paths from prose.",
+      "acceptance": "R2 work-package hashes the exact contract and allowlist; preflight confirms every required resource/path exists and no implementation begins while any schema or boundary is unresolved."
+    }
+  ],
+  "review_notes": [
+    "The five R2 self-review gaps supplied by the coordinator are confirmed as blockers: genesis-read snapshot binding, pending registration snapshot semantics, legacy migration mode, no-op schema/output, and the local-versus-pinned ledger validation boundary.",
+    "The existing receipt, audit, source-capture, compiler and backup modules provide reusable primitives, but their current closed schemas and fixed branch sets do not automatically implement the new source-publication profile.",
+    "No implementation, Git mutation, Vault mutation, subprocess, remote action or human-gate claim is included in this review."
+  ],
+  "implementation_gate": "Do not freeze or dispatch SOURCE-PUBLICATION implementation until all blocker fixes have exact closed shapes, formulas, path/receipt bindings and acceptance vectors in a successor R2 packet."
+}

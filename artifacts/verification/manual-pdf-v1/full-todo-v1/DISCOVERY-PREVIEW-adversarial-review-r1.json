@@ -1,0 +1,424 @@
+{
+  "schema": "full-todo.discovery-preview-adversarial-review.v1",
+  "revision": "R1",
+  "recorded_at_utc": "2026-09-09T01:21:40.268887Z",
+  "scope": "Read-only review of frozen DISCOVERY-PREVIEW-R1; no implementation, source/Git/Vault mutation or network execution.",
+  "baseline": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/full-todo-v1/terminal-2/source",
+    "head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+    "tree": "be13818d9a8d8afd0630672d58b952250dec6e10",
+    "status": "clean"
+  },
+  "contract_refs": {
+    "packet": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PREVIEW-R1.md",
+      "sha256": "61869d187c4eca01aee093726463676877368993e233c9940e338b1a23094fbf"
+    },
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PREVIEW-freeze-r1.json",
+      "sha256": "5b2bd1000a534b507c65b95edc8f423e53f4a9bd9c19b368f250ff7ff7c7af8a"
+    },
+    "historical_contract": {
+      "path": "docs/ai/contracts/research-wiki-w1-preview-v1.md",
+      "sha256": "1ac864cc19e8080cba19d98b2157fd8d8ea59f277f361df4851dcfca05c864d3"
+    },
+    "allowlist": {
+      "path": "docs/ai/packets/full-todo-v1/DISCOVERY-PREVIEW-allowed-paths-r1.json",
+      "sha256": "bb667b29fe0b9d9531b5b99c0981ba4dbf7d60309080d06de71b4a3ecbc44c34"
+    },
+    "baseline_cli": {
+      "path": "src/video_paper_wiki_research/cli.py",
+      "sha256": "c9de12e98e70254990762ef4276f6666997eeedfb5e3bd3222f7cb02321c7a8f"
+    },
+    "cap_excerpt": {
+      "path": "artifacts/verification/RESEARCH-WIKI-W1-PREVIEW/CAP-WEB-OBS-001/observation-samples.json",
+      "sha256": "68518fe631e9e7163d97d8a2c5ed7326e8eec620148a665be42857b517db395a",
+      "size_bytes": 5804
+    }
+  },
+  "decision": "REVIEW_READY_PENDING_CANDIDATE",
+  "adversarial_vectors": [
+    {
+      "id": "REQ-001",
+      "area": "request/parser",
+      "input": "bare 2401.00001",
+      "expect": "accept; canonical entity_id=arxiv:2401.00001; generated URL exact HTTPS /abs/2401.00001",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-002",
+      "area": "request/parser",
+      "input": "2400.00001",
+      "expect": "ARXIV_ID_INVALID (month 00)",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-003",
+      "area": "request/parser",
+      "input": "2413.00001",
+      "expect": "ARXIV_ID_INVALID (month 13)",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-004",
+      "area": "request/parser",
+      "input": "arXiv:hep-th/9901001v2",
+      "expect": "accept; lowercase canonical prefix, legacy category preserved",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-005",
+      "area": "request/parser",
+      "input": "https://arxiv.org/abs/2401.00001v2?x=1",
+      "expect": "ARXIV_ID_INVALID (query forbidden)",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-006",
+      "area": "request/parser",
+      "input": "http://arxiv.org/abs/2401.00001",
+      "expect": "ARXIV_ID_INVALID (HTTP forbidden)",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-007",
+      "area": "request/parser",
+      "input": "https://user:pass@arxiv.org/abs/2401.00001",
+      "expect": "ARXIV_ID_INVALID (userinfo)",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-008",
+      "area": "request/parser",
+      "input": "https://arxiv.org:443/abs/2401.00001",
+      "expect": "ARXIV_ID_INVALID (port)",
+      "priority": "P1"
+    },
+    {
+      "id": "REQ-009",
+      "area": "request/parser",
+      "input": "https://arxiv.org/abs/2401.00001/extra",
+      "expect": "ARXIV_ID_INVALID (extra path)",
+      "priority": "P0"
+    },
+    {
+      "id": "REQ-010",
+      "area": "request/parser",
+      "input": "2401.00001%76",
+      "expect": "ARXIV_ID_INVALID (percent ambiguity)",
+      "priority": "P1"
+    },
+    {
+      "id": "REQ-011",
+      "area": "request/parser",
+      "input": " 2401.00001 ",
+      "expect": "accept after boundary trim; no whitespace in canonical ID",
+      "priority": "P1"
+    },
+    {
+      "id": "REQ-012",
+      "area": "request/parser",
+      "input": "2401.00001v0 / 2401.00001v10000",
+      "expect": "ARXIV_ID_INVALID (version zero/oversized)",
+      "priority": "P0"
+    },
+    {
+      "id": "OBS-001",
+      "area": "observation/binding",
+      "input": "source_url differs from request generated URL",
+      "expect": "OBSERVATION_BINDING_MISMATCH",
+      "priority": "P0"
+    },
+    {
+      "id": "OBS-002",
+      "area": "observation/profile",
+      "input": "capability_profile=raw-response-reference-v1",
+      "expect": "CONNECTOR_CAPABILITY_UNAVAILABLE before raw parsing; no raw path opened",
+      "priority": "P0"
+    },
+    {
+      "id": "OBS-003",
+      "area": "observation/media",
+      "input": "reported_content_type=image/png",
+      "expect": "MEDIA_TYPE_REFUSED; absent report remains allowed only with unavailable reason",
+      "priority": "P0"
+    },
+    {
+      "id": "OBS-004",
+      "area": "observation/transport",
+      "input": "normalized profile with non-null raw_response_sha256 or tool-reported content copied into headers",
+      "expect": "OBSERVATION_PROFILE_INSUFFICIENT or binding refusal",
+      "priority": "P0"
+    },
+    {
+      "id": "OBS-005",
+      "area": "observation/transport",
+      "input": "redirect_chain >2, cross-origin URL, URL query/fragment, or wire_bytes>1048576",
+      "expect": "OBSERVATION_PROFILE_INSUFFICIENT/RESPONSE_TOO_LARGE; no metadata",
+      "priority": "P0"
+    },
+    {
+      "id": "OBS-006",
+      "area": "observation/json",
+      "input": "duplicate JSON keys, NaN/Infinity, depth 33, invalid UTF-8, >1 MiB",
+      "expect": "stable ARTIFACT_INVALID/OBSERVATION_MISSING/limit refusal before writes; no traceback",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-001",
+      "area": "normalized parser",
+      "input": "complete synthetic named sections with consecutive L<number>: prefixes on one physical line",
+      "expect": "accept; title/authors/abstract/subjects/cite/history extracted only from named sections",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-002",
+      "area": "normalized parser",
+      "input": "CAP-WEB-OBS-001 incomplete 5804-byte excerpt",
+      "expect": "ARXIV_METADATA_INCOMPLETE; never infer abstract/dates from footer links",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-003",
+      "area": "normalized parser",
+      "input": "missing Abstract, duplicate conflicting Title, duplicate conflicting Cite-as, truncated section",
+      "expect": "ARXIV_METADATA_INCOMPLETE or ARXIV_VERSION_MISMATCH; no partial metadata",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-004",
+      "area": "normalized parser",
+      "input": "page ID/cite marker belongs to another paper",
+      "expect": "ARXIV_ID_MISMATCH",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-005",
+      "area": "version",
+      "input": "explicit request v2 but page proves v1; explicit not_found",
+      "expect": "ARXIV_VERSION_MISMATCH / ARXIV_VERSION_UNAVAILABLE, respectively; no fallback request",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-006",
+      "area": "version",
+      "input": "unversioned page with current version but incomplete submission history",
+      "expect": "metadata succeeds with resolved_version and latest_at_observation=null; other_versions_exist=unknown",
+      "priority": "P0"
+    },
+    {
+      "id": "PAGE-007",
+      "area": "version",
+      "input": "complete history where resolved version=max(history)",
+      "expect": "latest_at_observation=true; history proving another version exists is retained",
+      "priority": "P1"
+    },
+    {
+      "id": "PAGE-008",
+      "area": "version",
+      "input": "only one observed version string with no explicit latest marker/history",
+      "expect": "never infer v1/latest; use null/unknown",
+      "priority": "P0"
+    },
+    {
+      "id": "META-001",
+      "area": "metadata derivation",
+      "input": "caller changes abstract/date/resolved_version while resealing envelope",
+      "expect": "ARTIFACT_BINDING_MISMATCH or ARXIV_* refusal; metadata must derive from observation",
+      "priority": "P0"
+    },
+    {
+      "id": "CACHE-001",
+      "area": "cache",
+      "input": "matching graph age 24h-1s",
+      "expect": "exact reference reuse, same timestamps/capability, no new observation",
+      "priority": "P1"
+    },
+    {
+      "id": "CACHE-002",
+      "area": "cache",
+      "input": "matching graph age 24h+1s or --refresh",
+      "expect": "fetch required; no Python network call; no mutation except valid staged request if contract permits",
+      "priority": "P0"
+    },
+    {
+      "id": "CACHE-003",
+      "area": "cache",
+      "input": "corrupt matching graph / same request with explicit-vs-unversioned policy",
+      "expect": "refusal, never cache miss; policy-separated keys",
+      "priority": "P0"
+    },
+    {
+      "id": "PREVIEW-001",
+      "area": "prompt/proposal",
+      "input": "prompt template or metadata bytes tampered; unknown model/runtime with empty reason",
+      "expect": "prompt hash/binding refusal; unknown identity shape refusal",
+      "priority": "P0"
+    },
+    {
+      "id": "PREVIEW-002",
+      "area": "proposal",
+      "input": "section missing/extra, empty text, >4000 chars, wrong classification, non-abstract extracted fact",
+      "expect": "PREVIEW_PROPOSAL_INVALID or scope refusal",
+      "priority": "P0"
+    },
+    {
+      "id": "PREVIEW-003",
+      "area": "render",
+      "input": "hostile title/section/source strings with Markdown delimiters/newlines",
+      "expect": "escaped deterministic Markdown; no link/frontmatter injection",
+      "priority": "P1"
+    },
+    {
+      "id": "STORE-001",
+      "area": "storage",
+      "input": "session path outside .work/research, traversal, symlink ancestor, FIFO/special file, hardlink",
+      "expect": "WORK_PATH_UNSAFE/ARTIFACT_INVALID before writes",
+      "priority": "P0"
+    },
+    {
+      "id": "STORE-002",
+      "area": "storage",
+      "input": "unexpected file/dir in five family dirs, >256 files, >256 decisions, missing named ancestor appears mid-operation",
+      "expect": "SESSION_LIMIT_EXCEEDED or WORK_PATH_UNSAFE; complete graph not reported current",
+      "priority": "P0"
+    },
+    {
+      "id": "STORE-003",
+      "area": "storage",
+      "input": "same digest path different bytes or same decision event_id changed payload",
+      "expect": "conflict; preserve old bytes; DECISION_CONFLICT exit 75 for event reuse",
+      "priority": "P0"
+    },
+    {
+      "id": "STORE-004",
+      "area": "storage",
+      "input": "persistent replacement of session/family/reference directory during success and exception paths",
+      "expect": "WORK_PATH_UNSAFE dominates child/parser error; no false success",
+      "priority": "P0"
+    },
+    {
+      "id": "GRAPH-001",
+      "area": "graph",
+      "input": "wrong session/kind/hash/ref ID, gap/divergent previous, missing metadata/observation",
+      "expect": "ARTIFACT_BINDING_MISMATCH or DECISION_INVALID; list/cache validates full graph",
+      "priority": "P0"
+    },
+    {
+      "id": "DEC-001",
+      "area": "decision",
+      "input": "skip/later with selected_version; ingest without --selected-version; selected version != resolved",
+      "expect": "DECISION_INVALID; no decision file",
+      "priority": "P0"
+    },
+    {
+      "id": "DEC-002",
+      "area": "decision",
+      "input": "same event exact replay; same event changed preview/action/text; same sequence divergent predecessor/competing writer",
+      "expect": "exact reuse; DECISION_CONFLICT exit 75; chain remains contiguous",
+      "priority": "P0"
+    },
+    {
+      "id": "DEC-003",
+      "area": "decision",
+      "input": "fixture source vs user_message source; unversioned latest_unknown ingest",
+      "expect": "fixture visibly labeled; ingest requires explicit resolved version and shows latest_unknown",
+      "priority": "P0"
+    },
+    {
+      "id": "CLI-001",
+      "area": "public CLI",
+      "input": "missing option, unknown subcommand, malformed JSON path, internal error",
+      "expect": "JSON envelope, exit 2/refusal, no traceback or unlimited echo",
+      "priority": "P0"
+    },
+    {
+      "id": "SEC-001",
+      "area": "offline boundary",
+      "input": "monkeypatch socket/subprocess, admin sentinel PATH, snapshot Vault/catalog/seed/other commands",
+      "expect": "no network/admin/subprocess; bytes unchanged; only .work/research/session writes",
+      "priority": "P0"
+    },
+    {
+      "id": "PKG-001",
+      "area": "wheel",
+      "input": "isolated install/import",
+      "expect": "research CLI, 7 schemas + prompt byte-exact; existing common.v1 and commands byte-exact",
+      "priority": "P0"
+    }
+  ],
+  "public_acceptance_plan": [
+    {
+      "phase": "A-baseline",
+      "actions": [
+        "verify packet/freeze/contract/allowlist hashes and lane-2 HEAD/tree/gitlink",
+        "verify lane-2 clean and no PDFs introduced",
+        "record candidate exact source head before review"
+      ],
+      "pass": "all refs exact; no source changes"
+    },
+    {
+      "phase": "B-parser-contracts",
+      "actions": [
+        "run request ID/URL adversarial vectors",
+        "run observation envelope/profile/transport/outcome vectors",
+        "run complete synthetic normalized page plus CAP incomplete fixture",
+        "run explicit mismatch/unavailable/unconfirmed/latest-unknown cases"
+      ],
+      "pass": "stable codes/exit classes and no metadata on incomplete/refused inputs"
+    },
+    {
+      "phase": "C-storage-graph",
+      "actions": [
+        "run session boundary/complete-set/lineage replacement tests",
+        "run cache TTL/refresh/corruption/policy separation",
+        "run metadata-preview reference tamper tests",
+        "run decision idempotency/conflict/gap/list tests"
+      ],
+      "pass": "old bytes preserved; unsafe lineage dominates; full graph revalidated"
+    },
+    {
+      "phase": "D-public-cli",
+      "actions": [
+        "exercise all seven paper command forms through installed entrypoint and module main",
+        "assert every success/error is JSON envelope with bounded details",
+        "assert exact refs and selected version in W2 handoff"
+      ],
+      "pass": "no traceback; exit 0 success, 2 refusal, 75 conflict"
+    },
+    {
+      "phase": "E-security/offline",
+      "actions": [
+        "socket/subprocess/admin sentinel guards",
+        "snapshot frozen Vault/catalog/67 seed-overlays and compare",
+        "inspect all writes under .work/research/<session>/preview-v1 only"
+      ],
+      "pass": "zero network/admin/Vault/index mutation"
+    },
+    {
+      "phase": "F-wheel/regression",
+      "actions": [
+        "build isolated wheel and verify 7 schema/prompt bytes",
+        "run existing research tests and full locked Python 3.12/3.13 suites",
+        "run fresh four-job CI after serial integration"
+      ],
+      "pass": "exact resource bytes and all suites pass; no exact-head acceptance until current head recorded"
+    },
+    {
+      "phase": "G-human-separation",
+      "actions": [
+        "record real arXiv observation separately if available",
+        "record actual user selection separately from fixtures",
+        "keep latest_unknown/selection pending visible"
+      ],
+      "pass": "no fixture closes human gate or claims source capture/receipt"
+    }
+  ],
+  "unresolved_review_points": [
+    "Candidate review must confirm normalized parser accepts the frozen consecutive-prefix stream without accidentally consuming section labels or footer links.",
+    "Candidate must prove metadata is derived from trusted named sections and not from generic URL/footer scanning.",
+    "Storage tests must inject directory replacement on both success and exception paths and prove WORK_PATH_UNSAFE takes precedence.",
+    "The six freeze conditions (CAP exact bytes, one CLI registration call, 1 MiB limit, exit 75 conflicts, seven wheel resources, concise Skill) need exact candidate evidence."
+  ],
+  "stopped_writing": true
+}

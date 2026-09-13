@@ -1,0 +1,142 @@
+{
+  "$schema": "video-paper-wiki.source-catalog-installed-wheel-cli-acceptance-plan-r1.v1",
+  "revision": 1,
+  "status": "READY_WITH_REQUIRED_CLI_RECHECK",
+  "recorded_at_utc": "2026-09-09T08:44:58.199355+00:00",
+  "scope": "Read-only acceptance plan for the current uncommitted SOURCE-CATALOG WIP. No wheel build, installed CLI invocation, Vault mutation, source/test edit, Git mutation, network or human-gate action was performed.",
+  "inputs": {
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-catalog-v1/terminal-1/source",
+    "baseline_head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "baseline_tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "worktree_status_count": 19,
+    "contracts": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md",
+        "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46",
+        "size_bytes": 17546
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md",
+        "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c",
+        "size_bytes": 4579
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R3.md",
+        "sha256": "c4b7cadcf83a427be690470adcf6c2b7709a8c4a6b493197106ec98ab95af7f4",
+        "size_bytes": 4540
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R4-PARALLEL-START.md",
+        "sha256": "aab6dd8c33ba2d28847e2d0b43b78160c5cd57568162b713747c2ae566be6c1d",
+        "size_bytes": 1386
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R5-RESOURCE-VIEW.md",
+        "sha256": "f71ff416a93e277fd24c8fac1021174474119111a8e5993c06b548a05050275d",
+        "size_bytes": 4194
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+        "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+        "size_bytes": 4376
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-allowed-paths-r2.json",
+        "sha256": "059e68788ecf03e5bba3d767fd47b143a0d121099e1b6c06d0dde9e26386493f",
+        "size_bytes": 1143
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-freeze-r1.json",
+        "sha256": "678cb93d0a45bf5a33f9738ef9711f19167a6a0ce9c088996608a5b11e062752",
+        "size_bytes": 7444
+      }
+    ]
+  },
+  "executed_read_only_checks": [
+    {
+      "id": "PROFILE_RAW_BYTE_PARITY",
+      "status": "PASS",
+      "details": "catalog/source-catalog-v1.json equals frozen SOURCE-CATALOG-PROFILE-R1.json byte-for-byte, raw SHA-256 3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8, 4376 bytes."
+    },
+    {
+      "id": "SCHEMA_REGISTRY_INVENTORY",
+      "status": "PASS",
+      "details": "WIP schemas/ contains 71 *.schema.json files; sorted path/hash/size manifest SHA-256 c58e8a7cdd5a6fba5cc4ccc099b3de4e3c662ec0831ce8b33eed58867c463422."
+    },
+    {
+      "id": "PACKAGE_IMPLEMENTATION_INVENTORY",
+      "status": "PASS",
+      "details": "WIP src/video_paper_wiki contains 104 recursive *.py files; sorted path/hash/size manifest SHA-256 40ff4472b28b52c2c8a3981f9d9757ece7db933c25eddb44ce3544aa6403ed37."
+    },
+    {
+      "id": "WHEEL_FORCE_INCLUDE_STATIC",
+      "status": "PASS",
+      "details": "pyproject.toml force-includes schemas, taxonomy/v1.json and catalog; Hatchling wheel target is present."
+    },
+    {
+      "id": "CLI_LEAF_REGISTRATION_STATIC",
+      "status": "PASS",
+      "details": "cli.py registers source-catalog leaves build, status, lookup, query and resolve, all with vault-root and batch-id."
+    },
+    {
+      "id": "CLI_ENVELOPE_WRAPPING_RECHECK",
+      "status": "OPEN",
+      "severity": "P1",
+      "details": "source_catalog.py has no emit_success/emit_error wrapper and run_source_catalog_command returns operation data directly. The installed five-command run must be repeated after the owner closes this CLI envelope/exit-code gap; acceptance requires one valid JSON envelope and exit 0 per successful leaf."
+    }
+  ],
+  "acceptance_recipe": {
+    "wheel_and_install": {
+      "build": "uv build --offline --wheel --out-dir <wheel-dir> <source-root>",
+      "install": "uv pip install --offline --no-cache --no-deps --python <locked-python> <wheel>",
+      "runtimes": [
+        "locked Python 3.12",
+        "locked Python 3.13"
+      ],
+      "origin_rule": "Run with -I/-B, empty PYTHONPATH, and assert imported video_paper_wiki modules resolve under the isolated install, never source-root."
+    },
+    "resource_parity": {
+      "expect_schema_count": 71,
+      "compare": "For every sorted wheel schemas/*.schema.json row compare source bytes, SHA-256 and size; compare taxonomy/v1.json and catalog/source-catalog-v1.json likewise. Profile must equal frozen raw bytes/hash above. Record missing/extra/mismatch lists and both manifest hashes."
+    },
+    "source_manifest_parity": {
+      "scope": "Every recursive src/video_paper_wiki/**/*.py file captured by the catalog generation manifest (current WIP count 104).",
+      "compare": "Build sorted path/SHA-256/size rows from source package and installed wheel package; require exact set and byte parity, including transitive modules. Record source and wheel manifest hashes."
+    },
+    "cli_unrelated_cwd": {
+      "cwd": "A disposable minimal checkout unrelated to source-root: .git directory plus pyproject.toml project name video-paper-wiki; invoke installed bin/vpwiki with PYTHONPATH unset.",
+      "fixture": "Prepare a disposable fully audited/published synthetic Vault before the run using existing test fixture constructors; do not use a real Vault or approval.",
+      "commands": [
+        "vpwiki source-catalog build --vault-root <vault> --batch-id cli-catalog",
+        "vpwiki source-catalog status --vault-root <vault> --batch-id cli-catalog",
+        "vpwiki source-catalog lookup --vault-root <vault> --batch-id cli-catalog --kind paper --key <paper-id> --catalog-sha256 <catalog-sha256>",
+        "vpwiki source-catalog query --vault-root <vault> --batch-id cli-catalog --text \"temporal attention\" --catalog-sha256 <catalog-sha256>",
+        "vpwiki source-catalog resolve --vault-root <vault> --batch-id cli-catalog --claim-id <claim-id> --evidence-ordinal 0 --catalog-sha256 <catalog-sha256>"
+      ],
+      "assertions": "Each command exits 0, emits one cli-envelope JSON object, binds the same catalog digest, and build creates only .work/cli-catalog/source-catalog/catalog.json."
+    },
+    "legacy_status": {
+      "command": "vpwiki index status --vault-root <legacy-vault> --upstream-root <pinned-vendor> --config <valid-existing-legacy-config>",
+      "fixture": "Existing valid legacy catalog database plus structural source state that requires explicit source profile; no malformed-cache shortcut.",
+      "expect_exit": 75,
+      "expect_error_code": "SOURCE_PROFILE_REQUIRED",
+      "forbidden": "CATALOG_STALE or generic stale rewriting; verify stdout envelope preserves code/message/details and no writes."
+    }
+  },
+  "evidence_to_record": [
+    "wheel build log and wheel SHA/size",
+    "per-runtime module origins",
+    "71-schema/profile/taxonomy resource parity manifest",
+    "source-vs-installed implementation manifest rows and hashes",
+    "five CLI stdout/stderr/exit records and catalog cache bytes/hash",
+    "legacy index.status stdout/stderr/exit record and before/after Vault snapshot"
+  ],
+  "scope_controls": {
+    "source_writes_by_this_plan": false,
+    "test_writes_by_this_plan": false,
+    "git_mutation": false,
+    "network": false,
+    "real_vault": false,
+    "human_gate_closed": false
+  }
+}

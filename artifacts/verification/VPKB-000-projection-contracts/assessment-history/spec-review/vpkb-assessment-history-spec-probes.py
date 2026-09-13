@@ -1,0 +1,12 @@
+from pathlib import Path
+import json,hashlib,copy
+from video_paper_wiki.identity import claim_id,assessment_event_id,evidence_fingerprint
+from video_paper_wiki.contracts import validate_document
+from video_paper_wiki.ledger_locator import encode_ledger_evidence
+sha=lambda b:hashlib.sha256(b).hexdigest();subject='paper:sha256:'+'a'*64;text='A\u00a0claim';alternative='A claim';claim=claim_id(subject,text);assert claim==claim_id(subject,alternative);assert sha(text.encode())!=sha(alternative.encode())
+ev=json.loads(Path('<TMP>/vpl-steward-vectors.json').read_text())['valid_vectors'][1]['input_locator'];ev['relation']='supports';encode_ledger_evidence(ev);fp=evidence_fingerprint([ev]);display=copy.deepcopy(ev);display['bbox'][0]+=0.125;encode_ledger_evidence(display);assert evidence_fingerprint([display])==fp;assert evidence_fingerprint([ev,ev])!=fp
+old=evidence_fingerprint([]);rows=[];prev=None
+for actor,kind,from_,to,ef,time in [('system','genesis',None,'provisional',old,'2026-09-01T12:00:00Z'),('human','human_assessment','provisional','accepted',old,'2026-09-01T12:00:00.100Z'),('system','evidence_invalidation','accepted','provisional',fp,'2026-08-31T00:00:00Z'),('human','human_assessment','provisional','contested',fp,'2026-08-31T00:00:00Z')]:
+ e=dict(schema='video-paper-wiki.assessment-event.v1',claim_id=claim,previous_event_id=prev,actor_kind=actor,transition_kind=kind,from_assessment=from_,to_assessment=to,claim_text_sha256=sha(text.encode()),evidence_fingerprint=ef,decided_by='fixture',decided_at=time,reason='synthetic specification compatibility control')
+ expected='ase-'+sha(json.dumps(e,sort_keys=True,separators=(',',':'),ensure_ascii=False).encode())[:20];assert assessment_event_id(e)==expected;e['event_id']=expected;validate_document(e);rows.append(e);prev=expected
+Path('<TMP>/vpkb-assessment-history-spec-probes.json').write_text(json.dumps({'status':'passed existing-helper/schema compatibility controls; no new history implementation tested','normalized_identity_raw_text_distinction':True,'bbox_excluded_from_existing_fp':True,'evidence_multiplicity_material':True,'events':rows,'independent_event_id_method':'stdlib compact sorted ASCII-key JSON; does not call existing JCS for expected hash','limits':'Synthetic fixtures only. Equal/decreasing timestamps and head-only current FP follow proposed graph rules; no complete-history validator exists yet.'},indent=2)+'\n');print('existing-helper compatibility controls passed')
