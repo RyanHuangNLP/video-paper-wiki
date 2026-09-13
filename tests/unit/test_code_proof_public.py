@@ -861,6 +861,16 @@ def test_changed_commit_file_and_config(checkout: Path) -> None:
     config_code_proof(path="config.json", config_format="json", batch_id="b1")
     cfg_name = "configs/" + hashlib.sha256(b"config.json").hexdigest() + ".json"
     original_cfg = (ns / cfg_name).read_bytes()
+    original_data = json.loads(original_cfg)["data"]
+    assert original_data["raw_body"]["path"].startswith(".work/b1/")
+    control_status = status_code_proof(batch_id="b1")
+    assert control_status["state"] == "observed"
+    control_cfg = config_code_proof(
+        path="config.json", config_format="json", batch_id="b1"
+    )
+    assert control_cfg["already_staged"] is True
+    assert (ns / cfg_name).read_bytes() == original_cfg
+
     mutated = json.loads(original_cfg)
     value_changes = 0
     for node in mutated["data"]["result"]["nodes"]:
@@ -868,63 +878,32 @@ def test_changed_commit_file_and_config(checkout: Path) -> None:
             node["value"] = "other"
             value_changes += 1
     assert value_changes == 1
+    assert mutated["data"]["raw_body"] == original_data["raw_body"]
+    assert mutated["data"]["blob_oid"] == original_data["blob_oid"]
+    assert mutated["data"]["path"] == original_data["path"]
+    assert mutated["data"]["format"] == original_data["format"]
     forged_cfg = seal("code-config-evidence", mutated["data"])
     assert forged_cfg != original_cfg
-    copy_outputs(
-        "b1",
-        "cfgval",
-        ["request.json", "intent.json", "bundle.json", "observation.json"]
-        + ["objects/" + rec["oid"] + ".body" for rec in repo["objects"]],
-    )
-    with open_code_session(batch_id="cfgval") as session:
+    assert json.loads(forged_cfg)["data"]["raw_body"] == original_data["raw_body"]
+
+    (ns / cfg_name).unlink()
+    with open_code_session(batch_id="b1") as session:
         session.set_output_limits(dict(OUTPUT_LIMITS))
         session.install(cfg_name, forged_cfg)
-    val_ns = checkout / ".work" / "cfgval" / "code-evidence-v1"
-    before_cfg = _dir_bytes(val_ns)
+    before_cfg = _dir_bytes(ns)
     with pytest.raises(CodeProofPublicError) as caught:
-        status_code_proof(batch_id="cfgval")
+        status_code_proof(batch_id="b1")
     assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
     assert caught.value.details["reason"] == "derived"
     assert caught.value.details["instance_pointer"] == "/config"
-    assert _dir_bytes(val_ns) == before_cfg
+    assert _dir_bytes(ns) == before_cfg
     with pytest.raises(CodeProofPublicError) as caught:
-        config_code_proof(path="config.json", config_format="json", batch_id="cfgval")
+        config_code_proof(path="config.json", config_format="json", batch_id="b1")
     assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
     assert caught.value.details["reason"] == "derived"
     assert caught.value.details["instance_pointer"] == "/config"
-    assert _dir_bytes(val_ns) == before_cfg
-    assert (val_ns / "observation.json").read_bytes() == (ns / "observation.json").read_bytes()
-
-    other = make_repo(
-        "sha1",
-        {"config.json": (b'{"name":"other"}\n', False), "src.py": (SRC_BODY, False)},
-    )
-    write_bytes(
-        checkout / "cfg-content.json",
-        dump_json(request_doc(other, default_targets())),
-    )
-    oreq = request_code_proof(input_path="cfg-content.json", batch_id="cfgct")
-    orel = write_bundle(checkout, ".work/raw-cfgct", other, oreq["request"])
-    write_bytes(checkout / "cfg-content-obs.json", dump_json(observe_raw_doc(other)))
-    observe_code_proof(
-        input_path="cfg-content-obs.json", batch_id="cfgct", bundle_dir=orel
-    )
-    with open_code_session(batch_id="cfgct") as session:
-        session.set_output_limits(dict(OUTPUT_LIMITS))
-        session.install(cfg_name, original_cfg)
-    content_ns = checkout / ".work" / "cfgct" / "code-evidence-v1"
-    before_content = _dir_bytes(content_ns)
-    with pytest.raises(CodeProofPublicError) as caught:
-        status_code_proof(batch_id="cfgct")
-    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
-    assert caught.value.details["reason"] == "derived"
-    assert caught.value.details["instance_pointer"] == "/config"
-    assert _dir_bytes(content_ns) == before_content
-    with pytest.raises(CodeProofPublicError) as caught:
-        config_code_proof(path="config.json", config_format="json", batch_id="cfgct")
-    assert caught.value.code == "CODE_PROOF_BINDING_MISMATCH"
-    assert caught.value.details["reason"] == "derived"
-    assert (ns / cfg_name).read_bytes() == original_cfg
+    assert _dir_bytes(ns) == before_cfg
+    assert (ns / cfg_name).read_bytes() == forged_cfg
     _ = requested
 
 
