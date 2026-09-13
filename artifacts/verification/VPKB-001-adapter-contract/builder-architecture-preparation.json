@@ -1,0 +1,472 @@
+{
+  "schema": "video-paper-wiki.vpkb-001-inspect-adapter-builder-design.v1",
+  "generated_at": "2026-09-01T09:08:51+08:00",
+  "role": "Builder read-only architecture preparation; NOT FROZEN and NOT production authorization",
+  "baseline": {
+    "repo_head": "acd3821b15e62bce13fa07b82c1665d501f27f67",
+    "upstream_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "upstream_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+    "upstream_version": "2.1.1",
+    "vendor_status": "detached exact HEAD and porcelain-clean at review",
+    "vpkb_000_decision": "whole-packet accepted separately; this report only prepares VPKB-001 architecture/contract freeze"
+  },
+  "recommended_first_slice": {
+    "name": "pinned-read-only-transaction-inspect-adapter-v1",
+    "goal": "Authenticate one already-staged deterministic upstream bundle against the exact pinned public transaction inspect CLI, attach the genuine plan to the frozen transaction facade, and optionally verify stable_source_id through a separately isolated pinned public function call.",
+    "non_goals": [
+      "capture apply",
+      "transaction apply",
+      "transaction recover",
+      "vpwiki-admin",
+      "ledger merge",
+      "receipt-chain audit",
+      "managed-prefix audit",
+      "mapper/compiler",
+      "real Vault mutation",
+      "Docling/parser/models",
+      "BM25/retrieval/index publication"
+    ],
+    "preconditions": [
+      "proposal already passes validate_transaction in phase=proposal and carries the locally constructed deterministic input_bundle_sha256",
+      "bundle.json and content/<sha256> files already exist below one approved .work/<batch>/transaction-inspect directory; this adapter never stages or writes them",
+      "vault_root is an explicit existing disposable/test or operator-selected Vault path; inspect is read-only but may read declared targets and preconditions",
+      "upstream_root is the exact clean pinned submodule checkout and is authenticated before any upstream Python starts"
+    ],
+    "postconditions": [
+      "returned transaction is an independent phase=inspected facade with runtime_result=null and raw public-CLI plan attached",
+      "returned authority record binds the exact compact bundle bytes, all referenced content bytes, pinned source identity, exact stdout bytes, and attached facade declaration",
+      "Vault namespace snapshot is unchanged by the adapter; no claim is made about atime or upstream temporary directories",
+      "no approval, apply success, receipt-chain validity, source-ledger merge, or human authorization is inferred"
+    ]
+  },
+  "recommended_python_api": [
+    {
+      "signature": "inspect_pinned_transaction(proposal: object, *, upstream_root: os.PathLike[str], vault_root: os.PathLike[str], bundle_path: os.PathLike[str]) -> dict[str, object]",
+      "return": "A deep-independent video-paper-wiki.upstream-authority.v1 object whose transaction field is the inspected facade; never returns CompletedProcess, absolute command text, or an apply token wrapper.",
+      "io": "Reads authenticated upstream checkout, bundle/content files and Vault preconditions; executes only sys.executable -I <pinned>/scripts/claude-obsidian.py transaction inspect <absolute bundle> --vault <absolute vault>; captures bounded stdout/stderr; writes nothing."
+    },
+    {
+      "signature": "validate_upstream_authority(document: object) -> dict[str, object]",
+      "return": "Deep-independent validated copy.",
+      "io": "Pure except immutable packaged schema/profile loading; no caller path read or subprocess."
+    },
+    {
+      "signature": "verify_pinned_source_id(*, upstream_root: os.PathLike[str], origin_kind: str, locator: str, content_sha256: str | None, expected_source_id: str | None = None) -> str",
+      "return": "Exact src-<20 lowercase hex> emitted by isolated claude_obsidian.ledgers.stable_source_id; when expected_source_id is supplied it must match.",
+      "io": "Authenticates the same pin, then uses sys.executable -I with a fixed non-caller Python program. No transaction/ledger validator private API and no network."
+    }
+  ],
+  "deterministic_transport": {
+    "bundle_filename": "bundle.json",
+    "bundle_bytes": "UTF-8 json.dumps(object, sort_keys=True, separators=(comma,colon), ensure_ascii=False, allow_nan=False), no BOM and no trailing LF",
+    "bundle_hash_rule": "SHA256(raw bundle bytes) must equal proposal.input_bundle_sha256 and the public plan input_bundle_sha256. This works because pinned transaction.py:1011-1026 uses exactly compact sorted JSON for bundle_sha256; the adapter must fixture this rather than generalize it to another pin.",
+    "bundle_object": "Exactly upstream schema/operation_id/operation_type/expected_hashes/writes/address_requests/source_manifest_updates. Writes preserve facade order and contain exactly path,mode,content_file,sha256. Requests are [] and {}.",
+    "content_file_rule": "Every write uses exactly content/<write sha256>, lowercase ASCII, relative to bundle.json parent, with no absolute path, backslash, dot/dotdot, suffix, alternate spelling or symlink. Equal-byte writes share the same content file. Referenced unique files are ASCII-sorted by digest.",
+    "content_binding": "Each content file is no-follow regular; byte length/hash equals the facade write descriptor. The adapter rejects inline content in this profile. Upstream independently rereads/hash-checks it.",
+    "read_and_original_state": "Never encoded as content files. expected_hashes is exact; current target/read hashes and original modes remain public inspect observations correlated by attach_upstream_inspection.",
+    "managed_requests": "Always address_requests=[] and source_manifest_updates={}; therefore plan input_bundle_sha256 == expanded_bundle_sha256 and changed_paths equals facade writes."
+  },
+  "upstream_authority_v1_schema_draft": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "video-paper-wiki.upstream-authority.v1",
+    "closed": true,
+    "required": [
+      "schema",
+      "profile",
+      "upstream",
+      "transport",
+      "transaction"
+    ],
+    "fields": {
+      "schema": {
+        "const": "video-paper-wiki.upstream-authority.v1"
+      },
+      "profile": {
+        "const": "claude-obsidian-transaction-inspect-9f8c119-v1"
+      },
+      "upstream": {
+        "closed": true,
+        "required": [
+          "name",
+          "version",
+          "commit",
+          "tree",
+          "source_snapshot_sha256",
+          "verified_files"
+        ],
+        "rules": {
+          "name": "claude-obsidian",
+          "version": "2.1.1",
+          "commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+          "tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+          "source_snapshot_sha256": "lowercase sha256",
+          "verified_files": "closed [{path,sha256,size_bytes}] equal an immutable profile-owned exact ASCII-sorted list; caller cannot select it"
+        }
+      },
+      "transport": {
+        "closed": true,
+        "required": [
+          "bundle_file",
+          "bundle_sha256",
+          "bundle_size_bytes",
+          "content_files",
+          "stdout_sha256",
+          "stdout_size_bytes"
+        ],
+        "rules": {
+          "bundle_file": "const bundle.json",
+          "bundle_sha256": "lowercase sha256 equal transaction.input_bundle_sha256",
+          "bundle_size_bytes": "integer 1..142606336 and exact bytes",
+          "content_files": "closed sorted [{write_path,content_file,sha256,size_bytes}], exact one entry per write with duplicate digest paths allowed to reference the same regular file",
+          "stdout_sha256": "sha256 of exact public CLI stdout bytes",
+          "stdout_size_bytes": "bounded integer; stderr must be empty on success and is never persisted as authority material"
+        }
+      },
+      "transaction": {
+        "$ref": "video-paper-wiki.transaction-facade.v1",
+        "semantic": "must be phase=inspected, inspection nonnull, runtime_result=null; plan/file/transport correlations all exact"
+      }
+    },
+    "semantic_checks": [
+      "all fixed strings and verified_files equal the packaged authority profile",
+      "bundle hash/size and content entries reconstruct exactly from the transaction",
+      "transaction declaration hash remains the proposal hash; attaching plan does not alter it",
+      "plan input and expanded hashes equal transport bundle hash; plan paths/hashes/modes equal transaction writes",
+      "plan vault_identity is retained raw as volatile upstream evidence; no absolute vault path is serialized",
+      "authority is staging/inspection provenance, not a canonical source ledger, operation receipt, run success, or generation output"
+    ]
+  },
+  "error_order": [
+    {
+      "phase": 1,
+      "checks": "Python argument/JSON shape and proposal validate_transaction",
+      "codes": "SCHEMA_INVALID or existing frozen TRANSACTION_* code; no filesystem read yet"
+    },
+    {
+      "phase": 2,
+      "checks": "path argument exact type, absolute lexical form, approved .work confinement, bundle basename",
+      "codes": "ADAPTER_PATH_INVALID"
+    },
+    {
+      "phase": 3,
+      "checks": "upstream commit/tree/version/clean checkout/profile file snapshot before execution",
+      "codes": "UPSTREAM_PIN_MISMATCH"
+    },
+    {
+      "phase": 4,
+      "checks": "bundle no-follow regular/size/strict JSON/exact compact bytes/reconstruction and content_file path/type/hash/size",
+      "codes": "UPSTREAM_TRANSPORT_MISMATCH or UPSTREAM_LIMIT_EXCEEDED"
+    },
+    {
+      "phase": 5,
+      "checks": "explicit Vault root identity/safe readability precheck, without mutation",
+      "codes": "UPSTREAM_VAULT_INVALID"
+    },
+    {
+      "phase": 6,
+      "checks": "fixed argv/env subprocess start, timeout and bounded stdout/stderr",
+      "codes": "UPSTREAM_EXECUTION_FAILED for spawn/timeout/unknown exit; UPSTREAM_LIMIT_EXCEEDED for output cap"
+    },
+    {
+      "phase": 7,
+      "checks": "public exit code",
+      "codes": "exit 75 -> UPSTREAM_CONFLICT(exit_code=75); expected validation exit 2 -> UPSTREAM_CONTRACT_MISMATCH(exit_code=2); never silently fallback"
+    },
+    {
+      "phase": 8,
+      "checks": "single UTF-8 JSON stdout, exact closed plan shape, stderr empty, plan/transport/facade attach correlation",
+      "codes": "UPSTREAM_CONTRACT_MISMATCH"
+    },
+    {
+      "phase": 9,
+      "checks": "authority schema/profile/hash construction and deep-copy isolation",
+      "codes": "UPSTREAM_CONTRACT_MISMATCH for impossible adapter output; no raw caller bytes/path objects in details"
+    }
+  ],
+  "public_upstream_evidence": {
+    "source": [
+      {
+        "path": "vendor/claude-obsidian/claude_obsidian/cli.py",
+        "lines": "61-69,205-208,919-966,1245-1274",
+        "fact": "inspect uses explicit --vault and bundle path, emits pretty sorted UTF-8 JSON, maps TransactionValidationError to ERR CODE stderr and exit 2."
+      },
+      {
+        "path": "vendor/claude-obsidian/claude_obsidian/transaction.py",
+        "lines": "2580-2655,2658-2750",
+        "fact": "bundle is no-follow regular/strict JSON/size bounded; relative content_file resolves from bundle parent and is no-follow regular, stable-read and 64MiB bounded."
+      },
+      {
+        "path": "vendor/claude-obsidian/claude_obsidian/transaction.py",
+        "lines": "998-1026,3390-3447",
+        "fact": "compact sorted UTF-8 semantic bundle hash; content_file requires declared SHA and exact bytes; create target mode is prepared."
+      },
+      {
+        "path": "vendor/claude-obsidian/claude_obsidian/transaction.py",
+        "lines": "4358-4430",
+        "fact": "inspect is read-only and returns exact transaction-plan.v1 fields including paths/hashes/modes, input/expanded hashes, vault identity and approval."
+      },
+      {
+        "path": "vendor/claude-obsidian/claude_obsidian/ledgers.py",
+        "lines": "396-414,590-624",
+        "fact": "stable_source_id is a public non-underscore function; ledger validator recomputes it for file/url/manual source records."
+      },
+      {
+        "path": "vendor/claude-obsidian/skills/wiki/references/operation-transactions.md",
+        "lines": "23-92,115-126",
+        "fact": "public workflow requires inspect before apply, bundle-relative content_file is supported, limits and no-write validation failure are documented."
+      }
+    ],
+    "live_disposable_probe": {
+      "directory": "/private/tmp/vpkb001-inspect-isrqvvqg",
+      "results_sha256": "411a7070a58a9e659263b0324b89a23a2039057f5e7d983e572ec6fb5c1c66e0",
+      "stable_source_result_sha256": "af45f637d40b3c46ae2080cf06131ff64acfe2c10541bb5bdf4fed0176941fad",
+      "positive": "public script transaction inspect returned 0; plan input==expanded==raw compact bundle SHA c6b5b8b3...; one changed captured path/hash/mode384; Vault file inventory unchanged",
+      "negative": [
+        "wrong declared content hash -> exit2 ERR CONTENT_HASH_MISMATCH",
+        "missing relative content file -> exit2 ERR CONTENT_FILE_MISSING"
+      ],
+      "stable_source": "isolated public stable_source_id returned src-d2827b40fe87c342e5b0 for the captured file vector and reported version 2.1.1",
+      "qualification": "Synthetic disposable evidence only; no apply/recover/admin/real Vault/model/network."
+    }
+  },
+  "fixture_and_test_matrix": {
+    "unit_pure": [
+      "authority valid/invalid/closed nested objects",
+      "deep-copy and non-string/cycle/bool/float/LF refusal",
+      "deterministic bundle object/bytes goldens independent of production helper",
+      "duplicate digest shares one content path",
+      "capture/ingest/generic facade binding and runtime_result remains null"
+    ],
+    "adapter_positive": [
+      "public capture binary content_file",
+      "public generic genesis receipt/head",
+      "public later ingest with raw previous receipt read precondition",
+      "exact plan fields and authority record",
+      "stable_source_id file/url/manual independent goldens",
+      "same inputs rebuild identical bundle/input hash while approval may differ with Vault path/inode"
+    ],
+    "adapter_negative": [
+      "missing/dirty/wrong pin or version/tree/profile file",
+      "bundle/content symlink, FIFO, directory, missing, changed, oversize",
+      "absolute/traversal/noncanonical/wrong deterministic content_file",
+      "inline content or bundle raw bytes not exact compact form",
+      "wrong hash/size/mode/path/order/managed request",
+      "read conflict exit75",
+      "malformed/extra stdout, stderr on zero, oversized output, timeout, signal/unknown exit",
+      "plan extra/missing field, false valid, input/expanded/approval mismatch",
+      "stable source expected mismatch"
+    ],
+    "security": [
+      "fixed argv list with shell=False and sys.executable -I",
+      "sanitized environment and no network clients",
+      "no apply/recover/admin token in production adapter command builder",
+      "Vault tree bytes/modes unchanged before/after success and every failure",
+      "only .work input reads; no staging writer in this slice"
+    ],
+    "packaging": [
+      "schema count 21->22",
+      "offline central registry/ref resolution",
+      "wheel contains schema and authority profile",
+      "installed wheel fails clearly when pinned external checkout is absent; never downloads/skips"
+    ]
+  },
+  "suggested_allowed_paths": {
+    "builder": [
+      "src/video_paper_wiki/upstream_adapter.py",
+      "schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+      "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "src/video_paper_wiki/contracts.py (title-scoped registration/dispatch only)",
+      "tests/unit/test_upstream_adapter.py",
+      "tests/contract/test_upstream_authority.py",
+      "tests/upstream/test_vpkb001_transaction_inspect.py",
+      "tests/fixtures/upstream-authority/**",
+      "tests/contract/test_schemas.py (22 count/title/offline registry only)",
+      "tests/contract/test_additional_properties.py (new closed schema coverage only)",
+      "tests/security/test_upstream_adapter_boundary.py"
+    ],
+    "architect": [
+      "docs/ai/contracts/upstream-inspect-adapter-v1.md",
+      "docs/ai/packets/VPKB-001-adapter-contract.md",
+      "docs/ai/task-index.yaml",
+      "docs/ai/codex-team.md",
+      "generation-profile revision decision"
+    ],
+    "not_needed": "pyproject.toml force-include already packages the complete schemas and catalog directories; no new CLI entry point or dependency is required for this slice."
+  },
+  "generation_profile_binding_risks": [
+    "Frozen base-catalog-v1 lists exactly 13 project implementation files and 25 resources. A new adapter module, schema and authority profile are outside that exact material, so changing adapter behavior would not currently stale base generation.",
+    "The upstream profile lists 8 files but public transaction inspect actually executes scripts/claude-obsidian.py and imports claude_obsidian/cli.py plus its import-time module closure; neither entrypoint is in the current 8-file set. The existing profile cannot be cited as complete CLI authority.",
+    "Do not silently edit frozen revision1/profile. Architect must freeze either a projection-generation/profile revision that binds adapter files/resources and the actual public-CLI authority profile, or a separately versioned adapter authority digest that VPKB-001 receipts/run manifests and later projection generation explicitly consume.",
+    "Raw plan vault_identity and approval are host/Vault volatile and must stay inspection provenance; they must not enter canonical content-generation equality unless a reviewed volatile-field rule says so."
+  ],
+  "architect_blockers_before_freeze": [
+    {
+      "id": "PLAN_DIGEST_DOMAIN",
+      "question": "Freeze capture-inspection.upstream_plan_sha256 as which exact value: public plan approval_sha256, SHA256 of exact stdout, or another canonical plan hash. Recommendation: approval_sha256 because it is the upstream-reviewed vault/expanded/prepared binding; authority separately records stdout SHA. Never call input_bundle_sha256 a plan hash."
+    },
+    {
+      "id": "PINNED_CLI_DISCOVERY",
+      "question": "Freeze how production locates/authenticates upstream. Recommendation for this first repo-local slice: explicit upstream_root allowed only when it is the exact gitlink checkout at commit/tree, porcelain-clean, with a profile-owned complete source snapshot; missing checkout is hard UPSTREAM_PIN_MISMATCH, no download or alternate installed package."
+    },
+    {
+      "id": "GENERATION_BINDING",
+      "question": "Choose and freeze the generation/profile revision or separate consumed authority digest described above. Current frozen base profile does not cover the new adapter or actual CLI entrypoint."
+    },
+    {
+      "id": "ERROR_MAPPING",
+      "question": "Freeze whether upstream exit75 remains UPSTREAM_CONFLICT with exit75 and all expected exit2 codes collapse to UPSTREAM_CONTRACT_MISMATCH or preserve a closed raw_upstream_code detail. Recommendation: stable project code plus closed raw code detail; unknown codes/output -> UPSTREAM_EXECUTION_FAILED, never fallback."
+    },
+    {
+      "id": "VAULT_AND_WORK_ROOT_AUTHORITY",
+      "question": "Freeze who supplies approved .work root and read-only Vault root, canonical path/symlink rules, and whether a filesystem permission check is required or only before/after mutation sentinel. Do not let an arbitrary caller path become executable authority."
+    },
+    {
+      "id": "SOURCE_ID_SCOPE",
+      "question": "Freeze stable_source_id accepted origin kinds and expected-value behavior. Recommendation: exact upstream file/url/manual domain, nullable content hash as upstream permits, isolated fixed helper after pin verification, full result grammar src-[0-9a-f]{20}; no local algorithm copy."
+    },
+    {
+      "id": "AUTHORITY_LIFETIME",
+      "question": "Freeze upstream-authority.v1 as .work inspection provenance (recommended), not a canonical ledger/receipt/run success. Decide which later receipt/run field binds its hash; existing run-manifest has no authority hash field and must not be silently widened."
+    }
+  ],
+  "file_sha256": {
+    "AGENTS.md": {
+      "sha256": "4ca40619cc9e1460f68c6668a6117a06755ac8d5987b40971b15e1837ac336c8",
+      "size_bytes": 4537
+    },
+    "docs/ai/task-index.yaml": {
+      "sha256": "9e9821fa6a29b2081f9f006474ee4497818fa254eafd9bb8e7eb05ef863c1fc2",
+      "size_bytes": 30046
+    },
+    "docs/ai/codex-team.md": {
+      "sha256": "eff61b73b7c225838a581bfe565f6376e656d56f616479bedf9ca3b7e9ac086b",
+      "size_bytes": 11830
+    },
+    "docs/video-paper-wiki-development-plan.md": {
+      "sha256": "3738176a71f82464ece997ab75e0cdbd91c7d1ad08276e6072f323bf38812ea3",
+      "size_bytes": 85578
+    },
+    "docs/ai/contracts/capture-contracts-v1.md": {
+      "sha256": "d54e1c36608ca0d57c0ea467f208a9645259ff2c879f23958a58c2280ed9e23d",
+      "size_bytes": 15734
+    },
+    "docs/ai/contracts/transaction-facade-v1.md": {
+      "sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67",
+      "size_bytes": 21769
+    },
+    "docs/ai/contracts/projection-catalog-v1.md": {
+      "sha256": "c0628175053da604267005a643020f03de9018b93132fd378b9ac57e8e8366bc",
+      "size_bytes": 19002
+    },
+    "src/video_paper_wiki/capture_contracts.py": {
+      "sha256": "ae257bed78036511ef12a70fee15e718522bc95e9dc300f53ea5bdb628cd85af",
+      "size_bytes": 7759
+    },
+    "src/video_paper_wiki/code_evidence_contracts.py": {
+      "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+      "size_bytes": 10125
+    },
+    "src/video_paper_wiki/transaction_contracts.py": {
+      "sha256": "e6e3c7e9e97cdcd9c0d080e846b9c5ef7211331162823e999b47aac9d855a0d3",
+      "size_bytes": 19863
+    },
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "0cd91d374dcf5f219658789bf2169eac55951055e48986159e05b31e6169b97e",
+      "size_bytes": 73825
+    },
+    "src/video_paper_wiki/identity.py": {
+      "sha256": "bc976ea3e1779eb378c11f3518cdc9211866190b2c5434e486664b0f799cf681",
+      "size_bytes": 21763
+    },
+    "src/video_paper_wiki/resources.py": {
+      "sha256": "3617fa4cbb5693fde15eb9f134a1ecd5e6f1bd5d19c8a6719646df1755615470",
+      "size_bytes": 6287
+    },
+    "schemas/video-paper-wiki.capture-inspection.v1.schema.json": {
+      "sha256": "7b1116a1e9ec6491c2bd61b00a809b8e432d3a47af14f8cf07cde112a54100d6",
+      "size_bytes": 3808
+    },
+    "schemas/video-paper-wiki.transaction-facade.v1.schema.json": {
+      "sha256": "8239fbec8be17093ed4594bd1f69adde6fd21ee37e641408d1dfb6beb6cf62f8",
+      "size_bytes": 10418
+    },
+    "schemas/video-paper-wiki.run-manifest.v1.schema.json": {
+      "sha256": "1f0f6d70ae1252e0bc694b207cb3c6e4c2f71e5b4ced2eab23b67276ea55b916",
+      "size_bytes": 2800
+    },
+    "catalog/base-catalog-v1.generation-profile.json": {
+      "sha256": "7b4e95e7b1ad89e492bab98486de359fe125854215fd2de5e7aaab3f4b8e333a",
+      "size_bytes": 7616
+    },
+    "pyproject.toml": {
+      "sha256": "5d9c487b0979bfe06a2c5fcb4e1e765760475fa9e80a60fa23f47b035d9d0a9a",
+      "size_bytes": 850
+    },
+    "tests/upstream/_transaction_fixture.py": {
+      "sha256": "3dc38937955977b5101bfd8ab71fe395704a613d3b42485e507ada5e09b411ed",
+      "size_bytes": 23800
+    },
+    "tests/upstream/test_transaction_compatibility.py": {
+      "sha256": "502fd7656e5e330f4638e6dd6ffe97a0ccf710bb119a5d037ab071e46c07833c",
+      "size_bytes": 1243
+    },
+    "tests/contract/test_schemas.py": {
+      "sha256": "8a0c3324355d46416ba490769070720c146c645bfaad6f2fc8da20bd1e8de5f9",
+      "size_bytes": 11145
+    },
+    "vendor/claude-obsidian/AGENTS.md": {
+      "sha256": "f12fe295445b942a38c82e07f486428f548df32f9ca9ca2302b58ace8c68cf99",
+      "size_bytes": 4775
+    },
+    "vendor/claude-obsidian/README.md": {
+      "sha256": "b384f942c9c728340f1f9880bf96a43ab18802751c4614e72afbd7d46f747985",
+      "size_bytes": 16778
+    },
+    "vendor/claude-obsidian/scripts/claude-obsidian.py": {
+      "sha256": "34f3030da4a0ebc223a5dfba7f7180638d08dffa3d044be33fa72234866900c2",
+      "size_bytes": 357
+    },
+    "vendor/claude-obsidian/claude_obsidian/__init__.py": {
+      "sha256": "fc9eded2259f55c00e36899e2572a876c110e3c0d6b51084d860aabe2d52be24",
+      "size_bytes": 296
+    },
+    "vendor/claude-obsidian/claude_obsidian/__main__.py": {
+      "sha256": "9573278a10fd58f03b8d2480311533fb9d8ceec8e0ec13ce414b811d27c78c04",
+      "size_bytes": 85
+    },
+    "vendor/claude-obsidian/claude_obsidian/cli.py": {
+      "sha256": "38703e6db742f1c76ba6f8cce797b8ecf69a7cdf2ff1f9c739df60acab7e973a",
+      "size_bytes": 44772
+    },
+    "vendor/claude-obsidian/claude_obsidian/transaction.py": {
+      "sha256": "e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2",
+      "size_bytes": 179506
+    },
+    "vendor/claude-obsidian/claude_obsidian/paths.py": {
+      "sha256": "970e7ba997d9a7666d99c24562881a3ea677053d77fe8fd3c689fd3b7988bbf6",
+      "size_bytes": 14533
+    },
+    "vendor/claude-obsidian/claude_obsidian/ledgers.py": {
+      "sha256": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1",
+      "size_bytes": 53046
+    },
+    "vendor/claude-obsidian/claude_obsidian/json_utils.py": {
+      "sha256": "31143eebb4e9d22de3159753a368a71ef2a15f3c84177e0507a29885ac1d31f1",
+      "size_bytes": 1105
+    },
+    "vendor/claude-obsidian/skills/wiki/references/operation-transactions.md": {
+      "sha256": "75a6c01950983c6210647ee11104f3be0c389fd7f81458d9d0f06306401a8f83",
+      "size_bytes": 6155
+    },
+    "vendor/claude-obsidian/tests/test_transaction.py": {
+      "sha256": "8ae629551c3cd50255d2f0a23c4c6203599a21f083a2d6a9d6f462897cac516e",
+      "size_bytes": 104048
+    },
+    "vendor/claude-obsidian/tests/test_cli_approval.py": {
+      "sha256": "b18ba6035cff0d0548aebb2ded8c575d41de1268dee815a43bee8335ab207aff",
+      "size_bytes": 13076
+    }
+  },
+  "repo_modified": false,
+  "git_mutated": false
+}

@@ -1,0 +1,62 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "<TMP>/vpkb-tooling.r892iw/bin/uv",
+        "build",
+        "--offline",
+        "--wheel",
+        "--out-dir",
+        "<TMP>/vph-acceptance/dist"
+      ],
+      "cwd": "<REPO>",
+      "elapsed_seconds": 0.2539980411529541,
+      "exit_code": 0,
+      "label": "wheel-build",
+      "log_sha256": "5df44e075c69b5d08f3343c59c65f01ade8e09aa9ed4ef79090b4e0e1e9825f4"
+    },
+    {
+      "argv": [
+        "<TMP>/vpkb-tooling.r892iw/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "<TMP>/vpkb-wheel-venv/bin/python",
+        "<TMP>/vph-acceptance/dist/video_paper_wiki-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "<TMP>",
+      "elapsed_seconds": 0.06014895439147949,
+      "exit_code": 0,
+      "label": "wheel-install",
+      "log_sha256": "9e6eb472d0754410ba14ffc746970ea0f30461dbbe6faf11190113b5a8f6b10d"
+    },
+    {
+      "argv": [
+        "<TMP>/vpkb-wheel-venv/bin/python",
+        "-I",
+        "<TMP>/vph-acceptance/wheel-smoke.py"
+      ],
+      "cwd": "<TMP>",
+      "elapsed_seconds": 1.6349220275878906,
+      "exit_code": 0,
+      "label": "wheel-smoke",
+      "log_sha256": "eb631eeb62ba88755c6208d0308829e0b4797422eba6e6f0ede0dcdbcb13b206"
+    }
+  ],
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHOME": "removed",
+    "PYTHONPATH": "removed",
+    "UV_CACHE_DIR": "<TMP>/vpkb-uv-cache"
+  },
+  "runner_sha256": "767ff741d0b0c8b268f692e43607e8b6845f69aa77278a10c6d94ab6368aff46",
+  "smoke_source_sha256": "f10e6df6055d5ff1712bce04f48249e5bd0a1d2d02eb7a8f3a5698da057960e7",
+  "source_snapshot_sha256": "3564cd9e769825c6190fc4c03d93655bd2deed2b022ef752762c51244b7f41ae",
+  "source_unchanged": true,
+  "status": "passed",
+  "wheel_path": "<TMP>/vph-acceptance/dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "23d40bf7676eeb631e1b8cb0fe4e7fc8c268ccfba529a2e625a2618f43d8fa15"
+}

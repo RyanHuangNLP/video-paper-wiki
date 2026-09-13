@@ -1,0 +1,90 @@
+{
+  "schema": "video-paper-wiki.architect-local-acceptance.v1",
+  "recorded_at_utc": "2026-09-09T02:18:58.680600+00:00",
+  "packet": "SOURCE-CAPTURE",
+  "revision": 4,
+  "decision": "PASSED_LOCAL_SOURCE_CAPTURE_R4_PENDING_EXACT_COMMIT_AND_CI",
+  "baseline_head": "62e05c08be73e84b0eb2d3c89b619c89de14ac86",
+  "candidate": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/candidate-r4.json",
+    "sha256": "272b1bb1bdac0866e37b4c5350a27561c3b23a18db8a3965dc76b9891e963d72",
+    "size_bytes": 5919,
+    "snapshot_sha256": "4f227d2caedc7b1dbbf005329fcb08a21de60a479aae6deb8531d2ee5098c957",
+    "prior_candidate_sha256": "dc7182c5d782e22a5d2d831db8de3891f16b2286a5cab233129f141aa82bdb0a",
+    "revision": 4
+  },
+  "scope_paths": 25,
+  "checks": {
+    "source_hashes": "25/25 unchanged",
+    "focused_tests": 105,
+    "full_tests_per_python": 2763,
+    "python_versions": [
+      "3.12",
+      "3.13"
+    ],
+    "wheel": "58 schemas and122 Python modules byte-exact; two wheels identical",
+    "independent_review": "Repo Steward R4 scope and wheel GO; Agent2 R3 filesystem and fixed-missing-slot probes GO; Agent3 R3 semantic bindings and R4 single Skill clarification GO, received via coordination messages",
+    "r4_only_change": "Skill prohibition wording, all production/test bytes same as R3"
+  },
+  "evidence": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/candidate-r4.json",
+      "sha256": "272b1bb1bdac0866e37b4c5350a27561c3b23a18db8a3965dc76b9891e963d72",
+      "size_bytes": 5919
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/delivery-manifest-r4-preflight.json",
+      "sha256": "a34e083d15855d62a0f612a1668d72f67c8d579ecb8acf6967f15d861b5c2dd3",
+      "size_bytes": 11466
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/wheel-resource-module-comparison-r4.json",
+      "sha256": "80e5abe05a7f3a50a7d348bf659a3b2252dfcd602bf8a4a13c53863a4c28f48d",
+      "size_bytes": 4495
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/full-py312-r4-host.json",
+      "sha256": "90e58862fa7c876a80404ab841692037fcffd51ab747dc31ab4803a6eeb1fb0e",
+      "size_bytes": 89671
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/full-py313-r4-host.json",
+      "sha256": "4c9ebb7287ddf3fad7c1ff5a04d5abfbbe8c0a34a70359a651281e1602c24ade",
+      "size_bytes": 89738
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/focused-r3.log",
+      "sha256": "2c429b7efc94bd01c7da5a2648f04f6655476e6fba227eb9fa1b6920144ee74d",
+      "size_bytes": 181
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-capture-local-r1/real-source-plans-r3.json",
+      "sha256": "cc76842cef31c653f3e3aeb3a5b9f637cb458afb58da40326a807b82ca234267",
+      "size_bytes": 27556
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/probes/probe_source_capture_boundary_r3.result.json",
+      "sha256": "f133d0c0fb9e71f68e14103ffbfd04133516d25c95abf03d1809995e1b4991ea",
+      "size_bytes": 398
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/probes/probe_missing_fixed_slots_r3.result.json",
+      "sha256": "3f2985b25a1ea1eb82225e9d53b1e69cde64c5610720f628145146b236ce2cbd",
+      "size_bytes": 599
+    }
+  ],
+  "delivery_authority": {
+    "draft_pr": 95,
+    "branch": "integrate/manual-pdf-pipeline",
+    "target_base": "integration",
+    "expected_base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "commit_and_push_after_exact_manifest_preflight": true,
+    "merge": false
+  },
+  "limitations": [
+    "Fresh exact-head four-job CI and separate Architect post-CI acceptance remain required.",
+    "Real PDF-derived Markdown plans for three papers are plan-only, with no external approval or capture application.",
+    "SOURCE version proof and later canonical workflows are subsequent packets; this decision covers only SOURCE-CAPTURE.",
+    "Real Vault/operator/human gates remain open."
+  ]
+}

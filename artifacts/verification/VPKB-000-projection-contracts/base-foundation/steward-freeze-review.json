@@ -1,0 +1,110 @@
+{
+  "review": "VPKB-000 base inventory/catalog/generation revision-2 freeze",
+  "verdict": "GO_FOR_ARCHITECTURE_FREEZE_ONLY",
+  "architecture_freeze_go": true,
+  "implementation_delivery_go": false,
+  "blocking_architecture_findings": [],
+  "conditions": [
+    {
+      "id": "C1_SCHEMA_REGRESSION",
+      "phase": "implementation_acceptance",
+      "requirement": "Change the existing schema registry count assertion from 18 to 21, add explicit new-title/offline-reference/strict-terminal regressions, and obtain a green focused and full suite. The current 1 failed / 30 passed result must remain recorded as pre-implementation evidence.",
+      "blocks_architecture_freeze": false,
+      "blocks_implementation_delivery": true
+    },
+    {
+      "id": "C2_EXACT_IMPLEMENTATION",
+      "phase": "implementation_acceptance",
+      "requirement": "Implement the frozen phase/error order, pure-Python row acceptance, runtime-selected exact dependency closure and explicit UTC/date format profile; package all 21 schemas and the three catalog resources; qualify on both supported local Python lines, wheel isolation and fresh PR merge-ref CI.",
+      "blocks_architecture_freeze": false,
+      "blocks_implementation_delivery": true
+    },
+    {
+      "id": "C3_EXACT_BYTES",
+      "phase": "change_control",
+      "requirement": "Freeze only the eight reviewed SHA-256 values. Any normative byte change requires renewed review; test success or this review does not authorize commit, push, PR state change or merge.",
+      "blocks_architecture_freeze": false,
+      "blocks_implementation_delivery": true
+    }
+  ],
+  "authority": {
+    "candidate_path": "/private/tmp/vpkb-base-freeze-revision2-candidate.md",
+    "candidate_sha256": "ee7ccb4b86e9af7df2eff0a7adadc3746a663e11d82a002ce3c800bcbda284d9",
+    "machine_evidence_path": "/private/tmp/vpkb-base-freeze-delta-check.json",
+    "machine_evidence_sha256": "870b14f3a45f2618ea75d704ff37d0cbad42f48fe5091b14e8a76dead67cf96e"
+  },
+  "reviewed_hashes": {
+    "docs/ai/contracts/projection-input-v1.md": "209e052c8692af13fae1d0d932a21b98e61cc707ab83091b71b5bb5d88c533fd",
+    "docs/ai/contracts/projection-catalog-v1.md": "e08e781b1e4deefdd1300f4123a1581ac3e1f48ea9283da8428b55f10e57776b",
+    "catalog/base-catalog-v1.sql": "3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c",
+    "catalog/base-catalog-v1.columns.json": "439024fa2eed6695725c8fdfbe8d03e982e776160f5548f6201d99caaa0ee50c",
+    "catalog/base-catalog-v1.generation-profile.json": "7b4e95e7b1ad89e492bab98486de359fe125854215fd2de5e7aaab3f4b8e333a",
+    "schemas/video-paper-wiki.projection-input.v1.schema.json": "e2788477088eb8e5110c8c2d8e2c160c4c33cb26258da68c72897ddfcaa4169c",
+    "schemas/video-paper-wiki.projection-generation.v1.schema.json": "38e962a184b9048932103c0b710f98f41e2ed2686c4079628870e8fe98a4c255",
+    "schemas/video-paper-wiki.catalog-rows.v1.schema.json": "085e76c2b0f4b1f0cf546aa2ebbc44c548456adb2e180c93c5e3b190231373b6"
+  },
+  "independent_results": {
+    "independent_checks": 21,
+    "independent_failures": 0,
+    "schema_registry_count": 21,
+    "draft_2020_12_schema_errors": 0,
+    "offline_registry_new_titles_and_generation_input_ref": "pass",
+    "strict_pattern_count": 38,
+    "strict_positive_vectors": 38,
+    "strict_suffix_negative_vectors": 190,
+    "ddl_tables": 34,
+    "ddl_columns": 230,
+    "ddl_pk_uq_fk_strict_manifest_agreement": "pass",
+    "ddl_foreign_keys": 54,
+    "ddl_deferrable_initially_deferred_clauses": 54,
+    "semantic_check_ids": 25,
+    "semantic_check_ids_unique": true,
+    "sqlite_design_probes": 752,
+    "sqlite_design_probe_failures": 0,
+    "catalog_entries": 67,
+    "dependency_sets": {
+      "CPython-3.12.14": 6,
+      "CPython-3.13.13": 5,
+      "CPython-3.13.15": 5
+    },
+    "format_profile": "vpwiki-jsonschema-date-utc-v1",
+    "sqlite_in_canonical_row_acceptance": false,
+    "sqlite_runtime_or_whole_uv_lock_in_generation_material": false,
+    "claim_outer_and_alignment_direct_locator_boundary": "pass",
+    "code_declared_relation_and_payload_byte_boundary": "pass",
+    "phase_and_error_order": "pass",
+    "machine_review_state_or_absolute_path_leak": false,
+    "git_diff_check": "pass",
+    "git_index_staged_paths": 0,
+    "user_untracked_preserved": true
+  },
+  "known_preimplementation_test": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/contract/test_schemas.py --basetemp=/private/tmp/vpkb-r2-schema-test",
+    "exit_code": 1,
+    "passed": 30,
+    "failed": 1,
+    "sole_failure": "tests/contract/test_schemas.py:30 asserts 18 schemas while the reviewed registry contains 21",
+    "interpretation": "This is an explicit implementation collateral task and therefore does not reopen or block the exact architecture freeze. It does block any claim that the current worktree is an accepted implementation or deliverable candidate."
+  },
+  "local_process_boundary": {
+    "head": "951131d7b9cfd59a56abce430b5d5ceb3fe331c1",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "index_clean": true,
+    "remote_query_performed": false,
+    "remote_mutation_performed": false,
+    "git_mutation_performed": false,
+    "note": "The task prohibited network and PR/Git changes. Remote PR state was not refreshed and is not used as architecture-freeze evidence."
+  },
+  "evidence": {
+    "independent_script": "/private/tmp/vpkb-base-freeze-r2-independent.py",
+    "independent_script_sha256": "cb6c94ef754d4c20ec0e3a96519fbef2b9f808e5b6c2a2d4685f783ef4d3ac48",
+    "independent_results": "/private/tmp/vpkb-base-freeze-r2-independent.json",
+    "independent_results_sha256": "b0fed72b9117cc41f93546e803ec527c8da1e2a14033f6cf3e230603054c55fe",
+    "schema_test_log": "/private/tmp/vpkb-base-freeze-r2-schema-test.log",
+    "schema_test_log_sha256": "dcc50d29c41d349527412b2839aa9113ff3c0aca0460e735d14e0c21cb719fdd",
+    "schema_test_exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "ddl_probe_log": "/private/tmp/vpkb-base-freeze-r2-ddl-probes.log",
+    "ddl_probe_log_sha256": "465bb4d4a974d59951e270e7c7e5a15889298e458d6d4f0d3c6bf543741c744b"
+  },
+  "scope": "Read-only repository review; temporary evidence only; no repository, Git, PR or network mutation."
+}

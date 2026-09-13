@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.assessment-heads.v2.schema.json",
+  "title": "video-paper-wiki.assessment-heads.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "heads"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.assessment-heads.v2"
+    },
+    "heads": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 4096,
+      "patternProperties": {
+        "^clm-[0-9a-f]{20}$(?![\\s\\S])": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "event_id",
+            "event_sha256",
+            "evidence_profile"
+          ],
+          "properties": {
+            "event_id": {
+              "type": "string",
+              "pattern": "^ase-[0-9a-f]{20}$(?![\\s\\S])"
+            },
+            "event_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+            },
+            "evidence_profile": {
+              "enum": [
+                "legacy-v1",
+                "mixed-v2"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

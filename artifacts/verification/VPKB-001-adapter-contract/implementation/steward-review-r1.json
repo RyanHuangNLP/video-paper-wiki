@@ -1,0 +1,269 @@
+{
+  "acceptance_work_not_run_due_to_code_blockers": [
+    "full Python 3.12 local suite",
+    "independent full Python 3.13 suite",
+    "installed-wheel build/install/-I smoke including adapter module and frozen schema/profile",
+    "fresh Linux/macOS x Python 3.12/3.13 CI and exact merge-parent evidence"
+  ],
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "index_empty": true
+  },
+  "blockers": [
+    {
+      "actual": "UPSTREAM_PIN_MISMATCH; _authenticate called",
+      "contract_lines": "181-184, 281-289",
+      "counterexamples": [
+        "existing wrong-named work_root",
+        "bundle path with invalid batch/layout"
+      ],
+      "evidence": "/private/tmp/vpkb001-steward-adversarial.json",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "work_root name, bundle fixed layout, and batch grammar are checked only inside _transport after profile/pin authentication and private allocation. Invalid phase-2 arguments therefore perform pin I/O and return UPSTREAM_PIN_MISMATCH instead of ADAPTER_PATH_INVALID.",
+      "id": "B1_PHASE2_STAGING_LAYOUT_AFTER_PIN",
+      "lines": "607-616 and 461-475",
+      "required": "perform all lexical work_root/bundle layout/batch checks in phase 2 before _profile/_authenticate, while retaining no-follow opens and byte checks in phase 4",
+      "severity": "blocker"
+    },
+    {
+      "actual": "NO_ERROR from both validators",
+      "contract_lines": "181-194, 227-238",
+      "evidence": "/private/tmp/vpkb001-steward-adversarial.json",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "object-only semantic validation does not reconstruct canonical bundle bytes and correlate bundle_size_bytes. A valid authority with bundle_size_bytes changed 1039 to 1040 is accepted by both public and central validators.",
+      "id": "B2_AUTHORITY_BUNDLE_SIZE_NOT_CORRELATED",
+      "lines": "698-716",
+      "required": "reconstruct the deterministic bundle from the inspected transaction, canonicalize with the frozen encoding, and compare both digest and byte count; mismatch must be UPSTREAM_CONTRACT_MISMATCH",
+      "severity": "blocker"
+    },
+    {
+      "actual": [
+        "ValueError: lstat embedded null character in path",
+        "UnicodeEncodeError containing the surrogate path position"
+      ],
+      "contract_lines": "146-149, 275-305",
+      "evidence": "/private/tmp/vpkb001-steward-path-hostile.json",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "_path_argument catches OSError only. Absolute strings containing NUL or an unpaired surrogate escape as ValueError/UnicodeEncodeError, with raw caller path fragments in messages.",
+      "id": "B3_HOSTILE_PATH_RAW_EXCEPTIONS_AND_LEAK",
+      "lines": "122-138",
+      "required": "treat ValueError and UnicodeError from path normalization/resolution as sanitized ADAPTER_PATH_INVALID without including the value",
+      "severity": "blocker"
+    },
+    {
+      "actual": [
+        "root chmod 0755 accepted",
+        "scratch replaced by regular file mode 0700 accepted"
+      ],
+      "contract_lines": "41-72",
+      "evidence": "/private/tmp/vpkb001-steward-allocation-shape.json",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "_verify_allocation never checks allocation.root type/mode and accepts scratch as a mode-0700 regular file. It therefore does not reverify the promised private 0700 root and scratch directory after the child.",
+      "id": "B4_PRIVATE_ALLOCATION_SHAPE_NOT_REVERIFIED",
+      "lines": "345-384",
+      "required": "lstat root/execution/scratch, require no-follow directories and exact root/execution/scratch 0700 modes before and after child",
+      "severity": "blocker"
+    },
+    {
+      "contract_lines": "23-39, 41-77",
+      "evidence": "source lines and Architect reproduction communicated during review",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "git commands disable system/global config but retain checkout-local configuration. git status can invoke caller-controlled core.fsmonitor before source-only child isolation and can influence the clean observation. This executes from the live provenance checkout, outside the exact four-key child environment.",
+      "id": "B5_CHECKOUT_LOCAL_FSMONITOR_EXECUTION",
+      "independent_scope_note": "source/argv/env path independently verified; exact hook-marker execution was reproduced by Architect and was not repeated because this review was forbidden from mutating a Git checkout",
+      "lines": "210-227, 272-287",
+      "required": "disable local fsmonitor for every authentication command (for example global git option -c core.fsmonitor=false), add a marker regression, and consider GIT_OPTIONAL_LOCKS=0/--no-optional-locks to keep provenance status observational",
+      "severity": "blocker"
+    },
+    {
+      "actual": "forced cleanup failure left allocation and source bytes while returning UPSTREAM_PIN_MISMATCH",
+      "contract_lines": "66-72",
+      "evidence": "/private/tmp/vpkb001-steward-partial-cleanup.json",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "failure during private tree construction/initial verification calls shutil.rmtree(..., ignore_errors=True) and preserves the original error even when removal fails, silently leaving authenticated source bytes on disk.",
+      "id": "B6_CONSTRUCTION_CLEANUP_FAILURE_IGNORED",
+      "lines": "308-342",
+      "required": "do not ignore construction cleanup failures; sanitize and map removal failure to UPSTREAM_CONTRACT_MISMATCH and verify no residual allocation",
+      "severity": "blocker"
+    },
+    {
+      "actual": "TRANSACTION_UPSTREAM_MISMATCH with /inspection detail",
+      "contract_lines": "299-302",
+      "counterexample": "real pinned plan with only operation_id changed to another schema-valid string",
+      "evidence": "/private/tmp/vpkb001-steward-plan-mapping.json",
+      "file": "src/video_paper_wiki/upstream_adapter.py",
+      "finding": "after a schema-closed successful stdout plan, facade correlation errors from attach_upstream_inspection/constructed authority escape under existing facade/schema codes rather than the frozen adapter code.",
+      "id": "B7_WRONG_PLAN_ERROR_NOT_REMAPPED",
+      "lines": "634-637",
+      "required": "map attach/constructed-authority ContractError failures after successful transport to sanitized UPSTREAM_CONTRACT_MISMATCH; cover operation_id, changed_paths, hashes, modes, bundle and approval correlations",
+      "severity": "blocker"
+    }
+  ],
+  "candidate": {
+    "all_file_hashes_match": true,
+    "declared_manifest_sha256": "6956a0ca43f2be06dc5b4a23bfe64487780e019193f10d79253452606bc2f635",
+    "file_hashes": {
+      "src/video_paper_wiki/contracts.py": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+      "src/video_paper_wiki/upstream_adapter.py": "30c662d31a8ef77123bfe0057596bdb24e0f140951b9733f3826debcf1594f3f",
+      "tests/contract/test_upstream_authority.py": "20045d21002ba520d6f66d8668e04773ac2b029cd8600f125dd5b1fef8784001",
+      "tests/fixtures/upstream-authority/source-id-vectors.json": "adf41eb1599df42a95324c3f8c732e5a61c255a623d482e4450833a5f8f8bb93",
+      "tests/security/test_upstream_adapter_boundary.py": "02b53cdb7393508962e121bacd83baf738d20a3ddbbcc033d7d2652711aa19ba",
+      "tests/unit/test_upstream_adapter.py": "5b5c603ca519678f02485637dc871a41dcde8bfeaab0dad78f1712a7f374773b",
+      "tests/upstream/test_vpkb001_transaction_inspect.py": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817"
+    },
+    "manifest_path": "artifacts/verification/VPKB-001-adapter-contract/implementation/builder-candidate.json",
+    "manifest_sha256": "6956a0ca43f2be06dc5b4a23bfe64487780e019193f10d79253452606bc2f635",
+    "scope_observation": "seven implementation/test/fixture files plus the builder-candidate evidence file are within the frozen eight allowed path classes; the three pre-existing architecture-freeze post-CI records are root-owned and were not treated as Builder scope drift",
+    "seven_file_snapshot_actual": "44db08d313bae3d8aa4668bc9c760cd7130fb8d74cf5664237756b329f10bcff",
+    "seven_file_snapshot_declared": "44db08d313bae3d8aa4668bc9c760cd7130fb8d74cf5664237756b329f10bcff"
+  },
+  "decision": "The exact 44db08d candidate is not eligible for Architect implementation acceptance. Builder must correct all blockers, freeze a new source snapshot, and the independent focused/adversarial review must be rerun before Python 3.12/wheel/full/CI acceptance.",
+  "evidence": {
+    "/private/tmp/vpkb001-steward-adversarial.json": {
+      "sha256": "0a24ee3de6cb0d00e73e639a3fffaf5b5b1bf3e00d2d12e1549e8822664523e9",
+      "size_bytes": 1763
+    },
+    "/private/tmp/vpkb001-steward-allocation-shape.json": {
+      "sha256": "19a30a2ea55ce7716196bd9a5ea4bef41eda96c8f532139947ae21601cd670f7",
+      "size_bytes": 220
+    },
+    "/private/tmp/vpkb001-steward-focused.xml": {
+      "sha256": "c6464047d653a1df8733c4e6e953660a1c7dfbd5967be9984c789ddc507d78d0",
+      "size_bytes": 7804
+    },
+    "/private/tmp/vpkb001-steward-partial-cleanup.json": {
+      "sha256": "71ed73e2a14aaf142d0e153c644bfee86d806f7f8a5a559a4bfe2375b5a0a511",
+      "size_bytes": 175
+    },
+    "/private/tmp/vpkb001-steward-path-hostile.json": {
+      "sha256": "bb71ce9a79bb2de2556c0eef757995ed9fea0f4eae181a4276171442f30a7c4e",
+      "size_bytes": 550
+    },
+    "/private/tmp/vpkb001-steward-plan-mapping.json": {
+      "sha256": "61215eebbca05554fe516d9676e1a91a8691356fb2f9c79ceca4f001237001d7",
+      "size_bytes": 289
+    },
+    "/private/tmp/vpkb001-steward-policy.xml": {
+      "sha256": "945a791f9f3942a5e44dbe83678e0c5a21672698d006fe517f995fe7ae637d8c",
+      "size_bytes": 29547
+    },
+    "/private/tmp/vpkb001-steward-real-control.json": {
+      "sha256": "1c591cfa1d7468fd03bce98147717a3a9322f3ff1058256c0ddb26c3c038f87c",
+      "size_bytes": 294
+    },
+    "/private/tmp/vpkb001-steward-source-snapshot.json": {
+      "sha256": "81f3ac49d81427cefb141f148d05917ef9bf76f2027974c2107b18a1e75b5caf",
+      "size_bytes": 439
+    },
+    "/private/tmp/vpkb001-steward-static-preflight.json": {
+      "sha256": "b223d441108487421b25f6e706788a2c07fa90cb9bd1bb0b0dcf517a984c2b6b",
+      "size_bytes": 3432
+    }
+  },
+  "frozen_inputs": {
+    "architect_acceptance": {
+      "actual_sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827",
+      "expected_sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827",
+      "match": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-architect-acceptance.json"
+    },
+    "contract": {
+      "actual_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "expected_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "match": true,
+      "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md"
+    },
+    "packet": {
+      "actual_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+      "expected_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+      "match": true,
+      "path": "docs/ai/packets/VPKB-001-adapter-contract.md"
+    },
+    "profile": {
+      "actual_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "expected_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "match": true,
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json"
+    },
+    "schema": {
+      "actual_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "expected_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "match": true,
+      "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json"
+    }
+  },
+  "limitations": [
+    "No real Vault, network, model, admin, apply, recover, or remote action was used.",
+    "No repository file, index, Git object, branch, PR, or CI state was modified.",
+    "The frozen contract disclaims an OS sandbox against a privileged concurrent actor; this review does not claim one."
+  ],
+  "passed_observations": [
+    "all candidate and frozen hashes match; baseline/index/scope/catalog/vendor guards pass",
+    "AST parse passed; no network-capable import, shell=True, or staging/Vault mutation call found",
+    "independent focused candidate suite: 52 passed, 0 failed/errors/skips on Python 3.13.13",
+    "independent schema/security policy suite: 170 passed, 0 failed/errors/skips",
+    "real pinned capture control preserved complete Vault and staging tree bytes/types/modes, left no new private temp allocation, and returned a deep-independent result",
+    "replacement child environment observed only HOME/TEMP/TMP/TMPDIR supplied and platform-generated LC_CTYPE=C.UTF-8; caller value was not inherited",
+    "21 fixed source paths were unique/sorted/regular/non-symlink with exact sizes/digests and snapshot; ignored live __pycache__ was not copied",
+    "representative upstream refusal and strict-JSON errors did not expose raw message/path details"
+  ],
+  "repository_guards": {
+    "authenticated_source_file_count": 21,
+    "authenticated_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "catalog_count": 67,
+    "git_diff_check": "pass",
+    "index_paths": [],
+    "live_ignored_pycache_present_but_excluded_from_execution_tree": true,
+    "protected_user_paths": "present and unstaged; .DS_Store, five user docs, inbox/**, tools/** excluded",
+    "repo_or_remote_writes_performed": false,
+    "vendor_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "vendor_ordinary_status_clean": true,
+    "vendor_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a"
+  },
+  "review_mode": "independent read-only exact frozen candidate",
+  "role": "Repo Steward",
+  "schema": "video-paper-wiki.vpkb-001-implementation-steward-review.v1",
+  "test_evidence": {
+    "builder_focused": {
+      "errors": 0,
+      "failures": 0,
+      "junit_sha256": "56d3bc441cf1b678561a610a75896bb09da5e23db695d0ffafb684b9027d959f",
+      "log_sha256": "f00ede91e2d71b97c596448b3708b5e12d6997cf317855f3d018cdf2edd2c397",
+      "python": "3.13.13",
+      "skips": 0,
+      "tests": 52
+    },
+    "builder_full": {
+      "errors": 0,
+      "failures": 0,
+      "independent_rerun": false,
+      "junit_sha256": "2c5f5594d032b583ba595717b0f312bfc316668d461d9671d379cf8e413bfd2a",
+      "log_sha256": "f25785c3d3702cbe37c24b37a3613d214092bbd1816f09e9f64470e072e9385b",
+      "python": "3.13.13",
+      "skips": 0,
+      "tests": 1713
+    },
+    "steward_focused": {
+      "errors": 0,
+      "failures": 0,
+      "junit_sha256": "c6464047d653a1df8733c4e6e953660a1c7dfbd5967be9984c789ddc507d78d0",
+      "python": "3.13.13",
+      "skips": 0,
+      "tests": 52
+    },
+    "steward_policy_schema": {
+      "errors": 0,
+      "failures": 0,
+      "junit_sha256": "945a791f9f3942a5e44dbe83678e0c5a21672698d006fe517f995fe7ae637d8c",
+      "python": "3.13.13",
+      "skips": 0,
+      "tests": 170
+    }
+  },
+  "verdict": "CHANGES_REQUIRED",
+  "warnings_nonblocking_after_blocker_fix": [
+    "git subprocess.run captures git stdout/stderr in memory before applying MAX_OUTPUT_BYTES; a hostile very large checkout can exceed the intended post-hoc cap",
+    "Git status may refresh checkout index unless optional locks are disabled; contract explicitly prohibits Vault/staging mutation but provenance-only behavior favors GIT_OPTIONAL_LOCKS=0"
+  ]
+}

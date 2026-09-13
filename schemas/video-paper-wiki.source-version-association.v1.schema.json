@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-version-association.v1.schema.json",
+  "title": "video-paper-wiki.source-version-association.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "association_id",
+    "paper_id",
+    "source_id",
+    "version",
+    "raw",
+    "observation",
+    "registration",
+    "extraction"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.source-version-association.v1"
+    },
+    "association_id": {
+      "type": "string",
+      "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "paper_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+    },
+    "source_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+    },
+    "version": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-source-observation.v1.schema.json#/properties/version"
+    },
+    "raw": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^\\.raw/captured/[0-9a-f]{64}\\.md$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        }
+      }
+    },
+    "observation": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-source-observation.v1.schema.json"
+    },
+    "registration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "receipt_path",
+        "receipt_sha256",
+        "source_ledger_path",
+        "source_ledger_sha256"
+      ],
+      "properties": {
+        "receipt_path": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/receipt_path"
+        },
+        "receipt_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "source_ledger_path": {
+          "type": "string",
+          "pattern": "^\\.raw/derived/source-ledgers/[0-9a-f]{64}\\.json$(?![\\s\\S])"
+        },
+        "source_ledger_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^\\.raw/derived/markdown-source/[0-9a-f]{64}/[0-9a-f]{64}\\.json$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        }
+      }
+    }
+  },
+  "$defs": {
+    "association_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "association_id",
+        "sha256"
+      ],
+      "properties": {
+        "association_id": {
+          "type": "string",
+          "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    }
+  }
+}

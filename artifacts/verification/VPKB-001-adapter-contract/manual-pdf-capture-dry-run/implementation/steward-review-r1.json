@@ -1,0 +1,237 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-implementation-steward-review.v1",
+  "acceptance_limitations": [
+    "Python 3.12 complete-suite verification remains Architect acceptance work.",
+    "Fresh offline wheel build/install/smoke remains Architect acceptance work.",
+    "This R1 is rejected. Preserve builder-candidate.json and this review byte-for-byte as history; any correction must use builder-candidate-r2.json and steward-review-r2.json with a new exact seven-file snapshot."
+  ],
+  "authority_binding": {
+    "architecture_acceptance_sha256": "e7261b9ec0bfaa5dd3378fb58aedcb09fe70066a798e4f063e6bbd1fa11bb25d",
+    "architecture_ci_observation_sha256": "0c072258f001146bc7ebbf7e84f086f01c899d6d0c6f56b82c9c49d176419784",
+    "architecture_merge_parents_sha256": "63ae48c50bbc0cce79db484f0ad7d04925d5eb156120f6fa9402ebc90630832f",
+    "frozen_contract_sha256": "6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b",
+    "implementation_work_package_sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+    "implementation_work_package_size_bytes": 20794,
+    "revision": 1
+  },
+  "authorization": {
+    "git_mutation_authorized": false,
+    "human_gate_changed": false,
+    "merge_authorized": false,
+    "pr_state_change_authorized": false,
+    "source_or_test_edit_authorized": false
+  },
+  "blockers": [
+    {
+      "finding": "Allocation construction does not retain root/execution/scratch device+inode identities. Postcheck revalidates only current shape, mode, names and source bytes, so replacement by distinct equal trees is admitted.",
+      "id": "PRIVATE-TREE-IDENTITY-001",
+      "location": [
+        "src/video_paper_wiki/upstream_adapter.py:365",
+        "src/video_paper_wiki/upstream_adapter.py:406",
+        "src/video_paper_wiki/upstream_adapter.py:1104",
+        "src/video_paper_wiki/upstream_adapter.py:1117"
+      ],
+      "minimal_fix": "Record root/execution/scratch dev+ino and exact modes immediately after exclusive construction, bind them in _Allocation or a closed fingerprint, and compare before child and in every postcheck while retaining exact entry/mode/source-byte and scratch-empty checks. Add real-child regressions for all three replacements.",
+      "normative_conflict": "Frozen private execution requires exact pre/post private-tree authentication; any private-tree postcheck change must become UPSTREAM_CONTRACT_MISMATCH.",
+      "reproduction": {
+        "actual": "all accepted and returned dry-run authority",
+        "cases": [
+          "replace-private-scratch-identity",
+          "replace-private-execution-identity",
+          "replace-private-root-identity"
+        ],
+        "expected": "sanitized UPSTREAM_CONTRACT_MISMATCH",
+        "runner": "/private/tmp/vpm-steward-r1-probes.py"
+      },
+      "severity": "blocker"
+    },
+    {
+      "finding": "The matching reuse sibling is checked for stability only during one read, then persisted as path/kind/digest/mode. Its dev, inode, size and mtime_ns are omitted from _CaptureSnapshot.fingerprints. Replacing it with equal bytes/mode and restoring the parent directory timestamp is admitted.",
+      "id": "CAPTURED-SIBLING-IDENTITY-001",
+      "location": [
+        "src/video_paper_wiki/upstream_adapter.py:948",
+        "src/video_paper_wiki/upstream_adapter.py:1002",
+        "src/video_paper_wiki/upstream_adapter.py:1051",
+        "src/video_paper_wiki/upstream_adapter.py:1056"
+      ],
+      "minimal_fix": "Append the matching sibling fingerprint (dev, inode, permission bits, size, mtime_ns) to the closed capture snapshot and compare it post-child. Add a real-child equal-byte/equal-mode inode replacement regression.",
+      "normative_conflict": "The frozen snapshot explicitly retains matching sibling identity/type/mode/size/hash and requires replacement to be UPSTREAM_CONTRACT_MISMATCH.",
+      "reproduction": {
+        "actual": {
+          "accepted": true,
+          "new_inode": 4595090,
+          "old_inode": 4595063,
+          "status": "noop"
+        },
+        "case": "replace-captured-sibling-identity-equal-bytes-mode",
+        "expected": "sanitized UPSTREAM_CONTRACT_MISMATCH",
+        "runner": "/private/tmp/vpm-steward-r1-probes.py"
+      },
+      "severity": "blocker"
+    },
+    {
+      "finding": "The checked-in new tests do not exercise the two identity invariants above. They also do not independently demonstrate the work-package zero-network condition or capture-specific full-path boundary/cleanup/refusal/postcheck coverage; shared helper tests do not prove the omitted capture snapshot correlation.",
+      "id": "REQUIRED-VECTOR-COVERAGE-001",
+      "location": [
+        "tests/security/test_upstream_capture_boundary.py",
+        "tests/upstream/test_vpkb001_manual_pdf_capture.py",
+        "tests/contract/test_upstream_capture_authority.py"
+      ],
+      "minimal_fix": "Add the two replacement regressions at minimum, then close the work-package matrix with explicit source 5-byte/64-MiB boundaries, exact 4096-entry acceptance, capture-specific timeout/overflow/cleanup and well-formed exit postchecks, zero-network observation, and representative complete authority correlation mutations. Preserve accepted-v1 tests unchanged.",
+      "severity": "blocker"
+    }
+  ],
+  "candidate_binding": {
+    "baseline_head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "baseline_tree": "9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca",
+    "builder_candidate_path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate.json",
+    "builder_candidate_sha256": "14070f9dc7985a52dde69ba5074553664bc4823d1ca509ebd9c8c4e51686f6a8",
+    "builder_candidate_size_bytes": 8069,
+    "candidate_file_count": 7,
+    "candidate_files": {
+      "src/video_paper_wiki/contracts.py": {
+        "sha256": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+        "size_bytes": 74613
+      },
+      "src/video_paper_wiki/upstream_adapter.py": {
+        "sha256": "9b43036ff1be16fae8fbdb4a696877c97fa5321822459c324fc71bec8c2ce9e7",
+        "size_bytes": 61849
+      },
+      "tests/contract/test_upstream_capture_authority.py": {
+        "sha256": "0322318e8d25f01af7223331325868d240ae16d910a492c520f94ed50c60b7d1",
+        "size_bytes": 1980
+      },
+      "tests/security/test_upstream_capture_boundary.py": {
+        "sha256": "0459712ad15c9c5a3f1f67a78a614eaece3e8579720482bf720d592c58907d59",
+        "size_bytes": 6617
+      },
+      "tests/unit/test_upstream_adapter_capture.py": {
+        "sha256": "95cd10c43567253b3d2f5426db0d98c119996d69efbad9f6215884c189d68eb2",
+        "size_bytes": 5464
+      },
+      "tests/upstream/_manual_pdf_capture_fixture.py": {
+        "sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+        "size_bytes": 1485
+      },
+      "tests/upstream/test_vpkb001_manual_pdf_capture.py": {
+        "sha256": "e75fbed711da885d8bd82bfbcb7e4ecf6648325154c8568d6ee055296b24c307",
+        "size_bytes": 2523
+      }
+    },
+    "source_snapshot_formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "source_snapshot_sha256": "ac2164090a710123ecedaf8199ecd582cf13307aea70cff4a2bd74795ffede58"
+  },
+  "independent_execution": {
+    "adversarial_and_real_pinned_probe": {
+      "controls": "Genuine public create and noop both succeeded and left the disposable Vault byte/type/mode snapshot unchanged.",
+      "python": "3.13.13",
+      "result": {
+        "sha256": "0675499f022d14f98c8b09a6db1eca57dc3922c200728cd533a468c0623525ee",
+        "size_bytes": 881
+      },
+      "results": [
+        {
+          "accepted": true,
+          "name": "real-create",
+          "status": "dry-run",
+          "vault_unchanged": true
+        },
+        {
+          "accepted": true,
+          "name": "real-noop",
+          "status": "noop",
+          "vault_unchanged": true
+        },
+        {
+          "accepted": true,
+          "name": "replace-private-scratch-identity",
+          "replaced": true,
+          "status": "dry-run"
+        },
+        {
+          "accepted": true,
+          "name": "replace-private-execution-identity",
+          "replaced": true,
+          "status": "dry-run"
+        },
+        {
+          "accepted": true,
+          "name": "replace-private-root-identity",
+          "replaced": true,
+          "status": "dry-run"
+        },
+        {
+          "accepted": true,
+          "name": "replace-captured-sibling-identity-equal-bytes-mode",
+          "new_inode": 4595090,
+          "old_inode": 4595063,
+          "replaced": true,
+          "status": "noop"
+        }
+      ],
+      "runner": {
+        "sha256": "43f4fbfcb31a0577d3a6adc33e0065d602cf549fbd743f7ec0a31cf4c6b9a879",
+        "size_bytes": 4640
+      }
+    },
+    "corrected_focused_suite": {
+      "duration_seconds": 6.2,
+      "errors": 0,
+      "failures": 0,
+      "junit": {
+        "sha256": "6c15c6badcd47b45d68132b6a4e35c8b0e3436107931b298c8a3ac00ca573b95",
+        "size_bytes": 45596
+      },
+      "log": {
+        "sha256": "d57792e63733f258bad8f703dd2d87b1bfa06b7cea7dd78daa8c2b5617d36ed3",
+        "size_bytes": 420
+      },
+      "passed": 308,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 308
+    },
+    "reviewer_setup_invalid_attempt": {
+      "candidate_failure": false,
+      "errors": 78,
+      "junit": {
+        "sha256": "c412c8257962cb7f572cce326228e215414f3e9475ffd4423718960fef226e54",
+        "size_bytes": 94815
+      },
+      "reason": "Reviewer supplied a basetemp whose parent did not exist; pytest fixture setup failed. The parent was created and the same selection was rerun successfully.",
+      "tests": 308
+    }
+  },
+  "reviewed_at_utc": "2026-09-01T05:15:20Z",
+  "reviewed_contract_areas": {
+    "authority_and_copy": "Public/central schema dispatch, normalized nested semantics, capture approval and deep-copy path reviewed.",
+    "old_v1_compatibility": "Only title-scoped contracts dispatch and keyword-only _run_bounded cwd default extension affect shared accepted code; corrected focused old-v1 tests pass.",
+    "seven_phase_error_order": "Reviewed argument, root/layout, profile/Git/private tree, source/sibling, process, mapped refusal, success/postcheck/cleanup paths.",
+    "strict_transport_and_projection": "Strict UTF-8 JSON, duplicates/floats/large integers/trailing bytes, exact create/noop field sets, argv and correlations reviewed."
+  },
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "scope_checks": {
+    "branch_or_remote_mutated_by_review": false,
+    "candidate_hashes_and_sizes_match": true,
+    "catalog_count": 67,
+    "five_new_test_helper_paths_are_allowed": true,
+    "frozen_inputs_match": true,
+    "git_index_empty": true,
+    "old_v1_compatibility_bytes_match_work_package": true,
+    "only_allowed_production_paths_modified": true,
+    "protected_untracked_preserved": {
+      "ds_store": true,
+      "five_user_docs": 5,
+      "inbox_entries": 3,
+      "tools_entries": 67
+    },
+    "seven_file_snapshot_matches": true,
+    "vendor_pin": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

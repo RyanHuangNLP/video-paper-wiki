@@ -1,0 +1,232 @@
+{
+  "authority": {
+    "architecture_work_package_path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-work-package.json",
+    "architecture_work_package_sha256": "aba25225dfb85d1344f7301ba8892a78529b72c71fa581bd55b004114b7b9c9d",
+    "contract_path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md",
+    "contract_sha256": "6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b",
+    "invalid_fixture_sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+    "preserved_r1_review_sha256": "9c63ab1ce517982c15c6982e0112c45988457532cc0d1568d0d0a4ec8dcae243",
+    "profile_sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+    "schema_sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+    "source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "valid_fixture_sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6"
+  },
+  "baseline": {
+    "head": "17c13f6317416f47d2610240aaf905598131e5bc",
+    "verification_mode": "caller-supplied exact baseline and byte-bound architecture work package; no Git command invoked"
+  },
+  "blockers": [],
+  "checks": [
+    {
+      "evidence": "10657 bytes; aba25225dfb85d1344f7301ba8892a78529b72c71fa581bd55b004114b7b9c9d",
+      "name": "work_package_digest",
+      "result": "PASS"
+    },
+    {
+      "evidence": "15 of 15 files match declared SHA-256 and size",
+      "name": "candidate_file_manifest",
+      "result": "PASS"
+    },
+    {
+      "evidence": "R1 review remains byte-equal at 9c63ab1ce517982c15c6982e0112c45988457532cc0d1568d0d0a4ec8dcae243",
+      "name": "preserved_r1",
+      "result": "PASS"
+    },
+    {
+      "evidence": "21 sorted path+NUL+file-sha+LF records recompute 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+      "name": "source_snapshot_formula",
+      "result": "PASS"
+    },
+    {
+      "evidence": "21 of 21 pinned vendor files match exact profile size and SHA-256",
+      "name": "profile_vendor_files",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Valid fixture passes central schema; invalid media type fails SCHEMA_INVALID at the closed field; capture approval recomputes exactly",
+      "name": "authority_fixtures",
+      "result": "PASS"
+    },
+    {
+      "evidence": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/contract/test_schemas.py tests/contract/test_capture_contracts.py; 171 passed in 0.21s",
+      "name": "focused_contract_tests",
+      "result": "PASS"
+    },
+    {
+      "evidence": "exit 0, empty stderr, dry-run, exact 7 top-level keys, one expected hash/write, disposable Vault snapshot unchanged",
+      "name": "fresh_private_public_cli_create",
+      "result": "PASS"
+    },
+    {
+      "evidence": "exit 0, empty stderr, noop, exact 4 top-level keys, empty expected hashes/writes, disposable Vault snapshot unchanged",
+      "name": "fresh_private_public_cli_reuse",
+      "result": "PASS"
+    },
+    {
+      "evidence": "No core/protected edit, Git, remote, real Vault, apply, recover, admin, network or model operation; only this assigned R2 report is written",
+      "name": "forbidden_operations",
+      "result": "PASS"
+    }
+  ],
+  "clarification_review": [
+    {
+      "evidence": "Contract lines 87-95 exactly promote the pinned 240-byte final-name and reserved-stem rules to phase-1 ADAPTER_PATH_INVALID; the remaining upstream NFC/control/trailing-space rules are already excluded by the ASCII portable grammar and lowercase .pdf suffix.",
+      "id": "FILENAME",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Contract lines 101-109 define .vault-meta and capture as absent-or-no-follow-directory and config.json as absent, making the traversal and race baseline implementable without inventing configuration semantics.",
+      "id": "CONFIG",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Contract lines 265-282 define JSON/schema failures as SCHEMA_INVALID and normalize admitted nested inspection or authority semantic failures to sanitized UPSTREAM_CONTRACT_MISMATCH for both wrapper and central title dispatch.",
+      "id": "OBJECT_VALIDATOR",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Contract lines 190-197 limit mandatory repeated snapshots to paths after a pre-child Vault baseline exists, removing the impossible requirement to postcheck before baseline construction.",
+      "id": "POST_BASELINE",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Contract lines 157-167 explicitly classify the checked-in authority as a semantic exemplar and require runtime-derived raw stdout/approval values.",
+      "id": "HOST_DEPENDENT_FIXTURE",
+      "result": "PASS"
+    },
+    {
+      "evidence": "Contract lines 357-358 explicitly scope private-tree modes and no-follow behavior to accepted POSIX macOS/Linux and make no Windows claim.",
+      "id": "POSIX",
+      "result": "PASS"
+    },
+    {
+      "evidence": "The work package records production_code_changed=true only for title admission and production_adapter_behavior_changed=false; future adapter implementation remains unauthorized until a later exact work package.",
+      "id": "MACHINE_SCOPE",
+      "result": "PASS"
+    }
+  ],
+  "generated_at_utc": "2026-09-01T04:02:20.865046Z",
+  "implementability": {
+    "authority_binding": "The adapter can transiently verify content_file and exact raw create/noop output, omit host paths from authority, correlate request/item/operation/sibling/inspection, recompute capture_approval_hash, and deep-copy the validated authority.",
+    "error_order": "Pure arguments including filename; roots/layout/config; pin/private tree; PDF/sibling and limits; execution; typed exit 75/2; successful transport/projection/postcheck/cleanup/authority mismatch is complete and deterministic.",
+    "old_v1_boundary": "Old v1 contract/schema/profile/fixtures and API behavior are byte/semantic compatibility inputs; only separate capture constants/helpers/APIs may be added to the shared module.",
+    "result": "PASS",
+    "summary": "The API can be implemented with a command-specific immutable profile loader and branch-isolated capture path in the shared adapter, reuse of accepted authentication/private-copy/process primitives, a new no-follow Vault/source/sibling snapshot, strict raw stdout projection, capture-inspection construction, and title-scoped semantic dispatch. No frozen old v1 behavior needs reinterpretation."
+  },
+  "non_blocking_limitations": [
+    {
+      "description": "The current candidate admits the schema title but intentionally contains no production capture semantic dispatch or adapter execution. Freeze acceptance and a later exact implementation work package remain mandatory.",
+      "id": "ARCHITECTURE_ONLY"
+    },
+    {
+      "description": "Raw create stdout hash and approval depend on the disposable Vault path/identity; portable authority projection is the cross-host contract and runtime tests must derive raw values per invocation.",
+      "id": "HOST_SCOPED_TRANSPORT"
+    },
+    {
+      "description": "This subrelease intentionally has no Windows implementation claim.",
+      "id": "POSIX_ONLY"
+    }
+  ],
+  "r1_resolution": {
+    "evidence": [
+      {
+        "finding": "The accepted v1 contract/schema/profile/fixtures and public APIs/constants/profile selection/error order/output behavior/tests/goldens are immutable, while the complete upstream_adapter.py is expressly shared for branch-isolated capture additions that cannot alter old semantics.",
+        "lines": "319-338",
+        "path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md"
+      },
+      {
+        "finding": "The future Builder allowlist and compatibility freeze use the same explicit shared-module distinction.",
+        "lines": "102-124",
+        "path": "docs/ai/packets/VPKB-001-adapter-contract.md"
+      }
+    ],
+    "id": "B1_SHARED_MODULE_FREEZE_CONTRADICTION",
+    "result": "RESOLVED"
+  },
+  "reviewed_candidate_files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "246e91a63bec5b025fde46525514f930ebe33bce54c2622bd5c86c00f7793687",
+      "size_bytes": 5034
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/README.md",
+      "sha256": "c94a132d24f0d4f4b3f49948e861f4454742e0e830099c009e4c18fedb1859e4",
+      "size_bytes": 4188
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/architect-acceptance.json",
+      "sha256": "56a6732afcce17e79bf5bbeb5ae609b39367638e45c2fd1119d86a11d329f8e6",
+      "size_bytes": 6078
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/ci-observation.json",
+      "sha256": "6d60cdd9678fa9ea49807af7c7ff56d298bfafa90d3568e6a752e920def73dc6",
+      "size_bytes": 12109
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/implementation/merge-parents.json",
+      "sha256": "20788ae4b7315fa87ee8df1c2ba812e92d211bf8cd1f9c76f67e3957d163cfc3",
+      "size_bytes": 3396
+    },
+    {
+      "path": "catalog/claude-obsidian-capture-apply-dry-run-9f8c119-v1.profile.json",
+      "sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+      "size_bytes": 6221
+    },
+    {
+      "path": "docs/ai/codex-team.md",
+      "sha256": "82b5fd4985b5cebb41d7bded7581da40325adfa0c196d9080af4f48dad878972",
+      "size_bytes": 9106
+    },
+    {
+      "path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md",
+      "sha256": "6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b",
+      "size_bytes": 18851
+    },
+    {
+      "path": "docs/ai/packets/VPKB-001-adapter-contract.md",
+      "sha256": "64f9e82a1325138c5bf97eafd5cf590274df8cc945ab357e636dd6cf6ba5a879",
+      "size_bytes": 8076
+    },
+    {
+      "path": "docs/ai/task-index.yaml",
+      "sha256": "9d07b39c2aaf96418031ec770b02eae8ce0601fa4b40deecc498a301353a146e",
+      "size_bytes": 38636
+    },
+    {
+      "path": "schemas/video-paper-wiki.upstream-capture-authority.v1.schema.json",
+      "sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+      "size_bytes": 8032
+    },
+    {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "d4e21ec74f88ad7c8ed8d8df5571ae3aa24b20507bd094f4895caad32fca8e67",
+      "size_bytes": 74278
+    },
+    {
+      "path": "tests/contract/test_schemas.py",
+      "sha256": "064702aa9c1f032ed9deb78c0e7de817f3b2bc5aa0087f3322d064154a702523",
+      "size_bytes": 11337
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-capture-authority.v1.invalid.json",
+      "sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+      "size_bytes": 3257
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.upstream-capture-authority.v1.json",
+      "sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6",
+      "size_bytes": 3262
+    }
+  ],
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Builder"
+  },
+  "revision": 2,
+  "schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-builder-spec-review.v1",
+  "verdict": "GO"
+}

@@ -2,14 +2,50 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.run-manifest.v1.schema.json",
   "title": "video-paper-wiki.run-manifest.v1",
-  "type": "object", "additionalProperties": false,
+  "type": "object",
+  "additionalProperties": false,
   "required": ["schema", "run_id", "tool_versions", "input_hashes", "output_hashes", "started_at", "ended_at", "error_code"],
   "properties": {
-    "schema": {"const": "video-paper-wiki.run-manifest.v1"}, "run_id": {"type": "string"},
-    "tool_versions": {"type": "object", "additionalProperties": false, "required": ["vpwiki", "python"], "properties": {"vpwiki": {"type": "string"}, "python": {"type": "string"}, "docling": {"type": "string"}, "docling_core": {"type": "string"}, "claude_obsidian": {"type": "string"}}},
-    "input_hashes": {"type": "object", "additionalProperties": false, "properties": {"ingest_plan_sha256": {"$ref": "#/$defs/sha256"}, "prepared_sha256": {"$ref": "#/$defs/sha256"}, "source_sha256": {"$ref": "#/$defs/sha256"}, "parser_config_sha256": {"$ref": "#/$defs/sha256"}, "model_manifest_sha256": {"$ref": "#/$defs/sha256"}}},
-    "output_hashes": {"type": "object", "additionalProperties": false, "properties": {"document_json_sha256": {"$ref": "#/$defs/sha256"}, "draft_sha256": {"$ref": "#/$defs/sha256"}, "receipt_sha256": {"$ref": "#/$defs/sha256"}}},
-    "started_at": {"type": "string", "format": "date-time"}, "ended_at": {"type": "string", "format": "date-time"}, "error_code": {"type": ["string", "null"]}
-  },
-  "$defs": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+    "schema": {"const": "video-paper-wiki.run-manifest.v1"},
+    "run_id": {"type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"},
+    "tool_versions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vpwiki", "python"],
+      "properties": {
+        "vpwiki": {"type": "string", "minLength": 1},
+        "python": {"type": "string", "minLength": 1},
+        "docling": {"const": "2.117.0"},
+        "docling_core": {"const": "2.92.0"},
+        "claude_obsidian": {"type": "string", "minLength": 1}
+      }
+    },
+    "input_hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ingest_plan_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "prepared_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "source_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "parser_config_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "model_manifest_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+      }
+    },
+    "output_hashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "document_json_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "draft_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"},
+        "receipt_sha256": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"}
+      }
+    },
+    "started_at": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"},
+    "ended_at": {"$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"},
+    "error_code": {"type": ["string", "null"]},
+    "pipeline_fingerprint": {
+      "$comment": "If present, SHA-256 of RFC8785-JCS of the bound pipeline object.",
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    }
+  }
 }

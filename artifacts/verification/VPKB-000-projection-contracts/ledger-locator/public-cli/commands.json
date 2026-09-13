@@ -1,0 +1,245 @@
+[
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "init",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v",
+      "--operation-id",
+      "locator-codec-init",
+      "--generated-at",
+      "2026-08-31T00:00:00Z"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "locator-codec-init-dry",
+    "stderr_file": "01-locator-codec-init-dry.stderr",
+    "stdout_file": "01-locator-codec-init-dry.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "init",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v",
+      "--operation-id",
+      "locator-codec-init",
+      "--generated-at",
+      "2026-08-31T00:00:00Z",
+      "--approved-plan-sha256",
+      "d899310fce8494bba0f0e97d3bfbc2ebdfe419ecdcb989a06ba52fa5c501a41f",
+      "--apply"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "locator-codec-init-apply",
+    "stderr_file": "02-locator-codec-init-apply.stderr",
+    "stdout_file": "02-locator-codec-init-apply.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "capture",
+      "apply",
+      "--vault",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v",
+      "--operation-id",
+      "locator-codec-capture",
+      "--generated-at",
+      "2026-08-31T00:00:00Z",
+      "inbox/source.pdf"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "capture-dry",
+    "stderr_file": "03-capture-dry.stderr",
+    "stdout_file": "03-capture-dry.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "capture",
+      "apply",
+      "--vault",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v",
+      "--operation-id",
+      "locator-codec-capture",
+      "--generated-at",
+      "2026-08-31T00:00:00Z",
+      "inbox/source.pdf",
+      "--approved-plan-sha256",
+      "c4e32d9f16a74f7f7b8af17dbe218aae45351ef70cebc9523fcf18f3cea45a02",
+      "--apply"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "capture-apply",
+    "stderr_file": "04-capture-apply.stderr",
+    "stdout_file": "04-capture-apply.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "-c",
+      "\nimport json, pathlib, sys\nroot = pathlib.Path(sys.argv[1]).resolve()\nsys.path.insert(0, str(root))\nimport claude_obsidian\nfrom claude_obsidian import ledgers\nassert claude_obsidian.__version__ == '2.1.1'\nassert pathlib.Path(ledgers.__file__).resolve() == root / 'claude_obsidian/ledgers.py'\nassert ledgers.stable_source_id('file', '.raw/captured/' + 'a' * 64 + '.pdf', 'a' * 64) == 'src-42baa0cddcfa30cdd5af'\nprint(json.dumps(ledgers.stable_source_id(*sys.argv[2:])))\n",
+      "<REPO>/vendor/claude-obsidian",
+      "file",
+      ".raw/captured/c37df90f89d97fd1e575ee894c8fce6c2a979b2de76332a20105f1af70d8c7b9.pdf",
+      "c37df90f89d97fd1e575ee894c8fce6c2a979b2de76332a20105f1af70d8c7b9"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "stable-source-id",
+    "stderr_file": "05-stable-source-id.stderr",
+    "stdout_file": "05-stable-source-id.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "transaction",
+      "inspect",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/supports-inspect.bundle.json",
+      "--vault",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "supports-inspect",
+    "stderr_file": "06-supports-inspect.stderr",
+    "stdout_file": "06-supports-inspect.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "transaction",
+      "inspect",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/uncertain.bundle.json",
+      "--vault",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 2,
+    "name": "uncertain-refusal",
+    "stderr_file": "07-uncertain-refusal.stderr",
+    "stdout_file": "07-uncertain-refusal.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "transaction",
+      "inspect",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/context-inspect.bundle.json",
+      "--vault",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "context-inspect",
+    "stderr_file": "08-context-inspect.stderr",
+    "stdout_file": "08-context-inspect.stdout"
+  },
+  {
+    "argv": [
+      "<REPO>/.venv/bin/python",
+      "-B",
+      "<REPO>/vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "transaction",
+      "apply",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/context-apply.bundle.json",
+      "--vault",
+      "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/v",
+      "--approved-plan-sha256",
+      "7e2e4ba91a6a0ff841cc31dd016508219c29fe98298cda06be64ac265484db44"
+    ],
+    "cwd": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0",
+    "environment": {
+      "HOME": "<TMP>/vpl-target2/test_pinned_public_cli_preserv0/home",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "PATH": "/usr/bin:/bin",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONNOUSERSITE": "1"
+    },
+    "exit_code": 0,
+    "name": "context-apply",
+    "stderr_file": "09-context-apply.stderr",
+    "stdout_file": "09-context-apply.stdout"
+  }
+]

@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "authority": {
+    "active_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package.json",
+      "revision": 3,
+      "sha256": "1ba273bd9ae25f00583a4dac4c881b5eeb0d3796faf8b7cc10fffa34e918ac67",
+      "size_bytes": 32329
+    },
+    "architect_acceptance": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/architect-local-acceptance-r3.json",
+      "sha256": "a4ce61b1035960131d7e6484e637464ee0c302ce8242212dc449287ebc86c8a8",
+      "size_bytes": 11030
+    },
+    "delivery_manifest": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/delivery-candidate-r3.json",
+      "sha256": "1abffc1c5b9af378eb31ab3a921d007ee85f885b1f63bb99605eb87a7c251f88",
+      "size_bytes": 18693
+    },
+    "steward_candidate_review": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-review-r3.json",
+      "sha256": "6c174fa4bfc16c22f4708716937ae2561e67e11defc6b3ddc1a357e838d6d641",
+      "size_bytes": 12243,
+      "verdict": "GO"
+    }
+  },
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "tree": "37dfbba09e9f73656af4bb5510f7586bb5d4223e"
+  },
+  "binding_model": {
+    "manifest_self_exclusion": "delivery-candidate-r3.json cannot contain its own raw-byte hash; this review independently binds it to 1abffc1c5b9af378eb31ab3a921d007ee85f885b1f63bb99605eb87a7c251f88.",
+    "no_recursive_acceptance_claim": true,
+    "reviewer_self_late_binding": "This review was absent during the isolated 32-path preflight and cannot hash itself. Architect must independently hash these final bytes and bind the full 33-path candidate before authorizing real Git mutation."
+  },
+  "exact_path_review": {
+    "all_31_hash_size_mode_tracked_fields_match": true,
+    "currently_existing_path_count": 32,
+    "hashed_existing_non_self_non_reviewer_count": 31,
+    "manifest_allowed_path_count": 33,
+    "only_missing_path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-delivery-review-r3.json",
+    "ordered_lists_byte_for_byte_equal": true,
+    "snapshot_formula": "sha256(concat(sorted_by_raw_utf8(path) of utf8(path) || TAB || ascii(sha256(raw_file_bytes)) || TAB || ascii(decimal_size_bytes) || LF))",
+    "snapshot_sha256": "1cd1108c286b98856fc2f43204cbf2e5771ca9e03315b29f7aad40cde34e6509",
+    "unique_paths": true,
+    "work_package_allowed_path_count": 33
+  },
+  "limitations_and_gates": [
+    "This review authorizes no Git index mutation, commit, push, PR state change, merge, review, ready-for-review, auto-merge, or human gate.",
+    "Any byte, path, local HEAD, remote head, PR base, or PR state change invalidates this exact-byte GO and requires renewed review.",
+    "Fresh exact-head CI and separate Architect acceptance remain required after any authorized successor commit."
+  ],
+  "parsing_and_format_checks": {
+    "all_existing_allowed_json_parse": true,
+    "task_index_yaml_parse_with_ruby_psych": true,
+    "working_tree_git_diff_check_exit_code": 0
+  },
+  "real_index": {
+    "after_sha256": "0f6cdd7dc44a328b2a3b1a8c6f6814b6258a04fdfebaa14b4db5b82896816c44",
+    "after_size_bytes": 87976,
+    "before_sha256": "0f6cdd7dc44a328b2a3b1a8c6f6814b6258a04fdfebaa14b4db5b82896816c44",
+    "before_size_bytes": 87976,
+    "empty_before_and_after": true
+  },
+  "record_type": "vpkb-001-transaction-inspect-staging-steward-delivery-review",
+  "remote_observation": {
+    "base_ref": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "draft": true,
+    "head_ref": "repair/vpkb000-plan-approval-prepare-follow2",
+    "mergeable": "MERGEABLE",
+    "mutation_performed": false,
+    "pr": 94,
+    "pr_head_sha": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "remote_branch_sha": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "state": "OPEN",
+    "url": "https://github.com/RyanHuangNLP/video-paper-wiki/pull/94"
+  },
+  "revision": 3,
+  "scope_and_protection": {
+    "git_status_entry_count": 108,
+    "nonprotected_status_paths_outside_33_path_ceiling": [],
+    "protected_groups_observed": [
+      ".DS_Store",
+      "five user documents",
+      "inbox/**",
+      "tools/**"
+    ],
+    "protected_paths_added_to_any_index": false,
+    "protected_status_entry_count": 76
+  },
+  "source_and_history_review": {
+    "all_r1_r2_history_and_architecture_carriage_hashes_match_manifest": true,
+    "candidate_source_path_count": 10,
+    "candidate_source_snapshot_sha256": "e5f9f9b8e8686023183c5871ebb55b4d5ac8c6a9494646f91bb614fab1cedc76",
+    "one_byte_relation": {
+      "current_bytes_plus_lf_sha256": "80bd284fa2c66d1ca8ecd68ff7ed7aa9b481513b45450e3b8d8166b1b059a1a9",
+      "current_bytes_plus_lf_size_bytes": 2849,
+      "current_sha256": "a24970e839051c43719996ab519b9e1405f1938aa201238d8681fd31c01dc797",
+      "current_size_bytes": 2848,
+      "current_trailing_lf_count": 1,
+      "path": "tests/contract/test_transaction_staging.py"
+    }
+  },
+  "temporary_index_preflight": {
+    "all_staged_blobs_equal_working_tree_bytes": true,
+    "git_diff_cached_check": {
+      "exit_code": 0,
+      "stderr_bytes": 0,
+      "stdout_bytes": 0
+    },
+    "isolation": "GIT_INDEX_FILE and GIT_OBJECT_DIRECTORY under a private /private/tmp directory; repository objects read only through GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "log": {
+      "path": "/private/tmp/vpkb-stage-r3-delivery-local-audit.log",
+      "sha256": "824c6a66e725d36d7dd9f462790087b5dc1bff2bd2c5c2c44266cd1f8d51406c"
+    },
+    "script": {
+      "path": "/private/tmp/vpkb-stage-r3-delivery-local-audit.py",
+      "sha256": "569e67c4ef72d0e92413cf9bf595c67a30bd5669a79bf3efd071d069527743e9"
+    },
+    "staged_existing_path_count": 32,
+    "staged_path_set_exactly_equals_current_existing_allowed_paths": true
+  },
+  "verdict": "GO_FOR_EXACT_GIT_AUTHORIZATION"
+}

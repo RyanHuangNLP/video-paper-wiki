@@ -1,0 +1,266 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-implementation-architect-local-acceptance.v1",
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "baseline": {
+    "base_branch": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "pull_request": 94,
+    "tree": "37dfbba09e9f73656af4bb5510f7586bb5d4223e"
+  },
+  "candidate": {
+    "builder_evidence": {
+      "path": "builder-candidate-r2.json",
+      "sha256": "82792c4d6bb72dcf4fdd24ce48dad6ad404f15060d4d975189d8cfc2fa894303",
+      "size_bytes": 10878
+    },
+    "candidate_files": {
+      "src/video_paper_wiki/contracts.py": {
+        "sha256": "99cd327c23bafda60c77e51ed3be2e1e133292b7aa8155f8dcc34a9691093c47",
+        "size_bytes": 74963
+      },
+      "src/video_paper_wiki/staging.py": {
+        "sha256": "91baae30b77e77f588f605ec1cec4bbff993a13b9a147f63a78631891b56a0d8",
+        "size_bytes": 34712
+      },
+      "src/video_paper_wiki/transaction_staging.py": {
+        "sha256": "31bbbfe4d201e6f9b2625ddb485cdfeaf14c9867424b3677634eb64d007055ab",
+        "size_bytes": 6084
+      },
+      "tests/contract/test_transaction_staging.py": {
+        "sha256": "80bd284fa2c66d1ca8ecd68ff7ed7aa9b481513b45450e3b8d8166b1b059a1a9",
+        "size_bytes": 2849
+      },
+      "tests/security/test_transaction_staging_boundary.py": {
+        "sha256": "167aac1265704e89b7252494da1a38e24658903f72b35fd71711cb431563c2f7",
+        "size_bytes": 4142
+      },
+      "tests/security/test_work_staging_boundary.py": {
+        "sha256": "78abc0cc95f711c2b27ac275fdcb1672edc513b9d40a2ea71a7009e304f469e7",
+        "size_bytes": 36031
+      },
+      "tests/unit/test_staging.py": {
+        "sha256": "8f8811ebf7afe484121d3d3a32a9933d9c9d40534fe1f84d58e3563734435bd7",
+        "size_bytes": 14593
+      },
+      "tests/unit/test_transaction_staging.py": {
+        "sha256": "a49d147495d8f433c2637e6f8202f38a9e8a40afb716baffafe07fe15c1437b6",
+        "size_bytes": 11251
+      },
+      "tests/upstream/_transaction_staging_fixture.py": {
+        "sha256": "defe2ce3260f0d20c2e4be64596d2f716834e605fa2194b05f1d1c8ace973dc1",
+        "size_bytes": 2815
+      },
+      "tests/upstream/test_vpkb001_staged_transaction_inspect.py": {
+        "sha256": "3fbc2e954c05edd7a838f5f7268e81b2bba037d98a429906b10941750387e890",
+        "size_bytes": 1832
+      }
+    },
+    "path_count": 10,
+    "r1_to_r2_changed_paths": [
+      "src/video_paper_wiki/staging.py",
+      "tests/security/test_work_staging_boundary.py"
+    ],
+    "source_snapshot_formula": "sha256(concat(sorted_by_raw_utf8(path) of utf8(path) || TAB || ascii(sha256(raw_file_bytes)) || TAB || ascii(decimal_size_bytes) || LF))",
+    "source_snapshot_sha256": "75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2"
+  },
+  "code_review": {
+    "blockers": [],
+    "findings": [
+      "Both complete-set phases enumerate the retained transport and content directory descriptors rather than reopening caller-controlled paths.",
+      "The pre-bundle transport set is content plus an optional bundle.json; the final set requires content plus bundle.json and rejects every other transport name.",
+      "Every content entry must have a full lowercase 64-hex name and a no-follow regular-file stat; FIFO, symlink, directory, non-digest regular and transport-root extras fail closed.",
+      "Unreferenced digest-named regular orphan bytes are not opened or hashed; expected content and bundle files retain exact-byte verification.",
+      "The retained checkout, .work, batch, transport and content identities remain named-reopened around every install and before return.",
+      "A preexisting exact bundle is not deleted on unsafe pre-bundle discovery; new publication remains content-first and bundle-last.",
+      "Public stage_bytes behavior, exact portable result validation, proposal/error order, deep-copy behavior and process/network purity remain unchanged from the otherwise accepted R1 review."
+    ]
+  },
+  "decided_at_utc": "2026-09-01T08:40:38.341323+00:00",
+  "decision": "PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI",
+  "frozen_inputs": {
+    "architecture_acceptance": {
+      "path": "../architecture-freeze-architect-acceptance.json",
+      "sha256": "333db38ead0900706f692a09bcc065fc0b3be25c26bd402d56931456a62a0f5b",
+      "size_bytes": 10642
+    },
+    "architecture_ci_run_id": 33481415882,
+    "architecture_head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "architecture_post_ci_records": {
+      "../architecture-freeze-ci-observation.json": {
+        "sha256": "8fa0ad8f7c32ca22b1857ba26b1ba19872af9349f07484f2c2ee61a26e9e57aa",
+        "size_bytes": 8279
+      },
+      "../architecture-freeze-merge-parents.json": {
+        "sha256": "a04cd348498a76ffbb880f8d1581292e3a0e4541505baeb78f4162440d77a0a0",
+        "size_bytes": 4286
+      }
+    },
+    "architecture_tested_merge_sha": "910e272879b728aef8d1da1db2ba88d70feba5b0",
+    "contract": {
+      "path": "../../../../../docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "size_bytes": 16847
+    },
+    "historical_r1": {
+      "builder_candidate_sha256": "d180b6143115c8f96a6b3fa52e8429d5fbb4e479eaf8a7050b7048f0ac90def3",
+      "builder_candidate_size_bytes": 10720,
+      "source_snapshot_sha256": "dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d",
+      "steward_review_sha256": "175374326431284916b62479ee05239a68883caea63df2da68539a3f9c0b559b",
+      "steward_review_size_bytes": 11687,
+      "work_package_sha256": "13a739ac8ad38bdf5935df202c52fa9d980d1f81899cbbfffdcfd453a00e023a",
+      "work_package_size_bytes": 22084
+    },
+    "implementation_work_package": {
+      "revision": 2,
+      "sha256": "c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633",
+      "size_bytes": 25850
+    },
+    "invalid_fixture": {
+      "sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "size_bytes": 710
+    },
+    "schema": {
+      "sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "size_bytes": 2470
+    },
+    "valid_fixture": {
+      "sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "size_bytes": 1186
+    }
+  },
+  "independent_review": {
+    "blockers": [],
+    "candidate_snapshot_before_after_stable": true,
+    "focused": "435 passed",
+    "lineage_complete_set": "24 passed",
+    "probe_cases": {
+      "content_directory": "WORK_PATH_UNSAFE; no new bundle",
+      "content_fifo": "WORK_PATH_UNSAFE; no new bundle",
+      "content_non_digest_regular": "WORK_PATH_UNSAFE; no new bundle",
+      "content_symlink": "WORK_PATH_UNSAFE; no new bundle",
+      "final_transport_extra": "WORK_PATH_UNSAFE",
+      "preexisting_bundle_retained": true,
+      "safe_digest_orphan": "accepted unchanged without reading bytes",
+      "transport_extra": "WORK_PATH_UNSAFE; no new bundle"
+    },
+    "report": "steward-review-r2.json",
+    "report_sha256": "1523f8ac0b3cfe93c013abce39332df60616d6d5d578f13ff89307459f08d80e",
+    "report_size_bytes": 12698,
+    "verdict": "GO"
+  },
+  "invariants": {
+    "catalog_count": 67,
+    "catalog_sha256": "31ea7461e3cf313a4cd49b651a281e6d7ec8e70b5d98119071bbc4b2d3f79025",
+    "dependency_lock_sha256": "67e928d696ad5e73e3635a67c8b231867734a0b93ba937cbb0a58b655d64afc0",
+    "frozen_generation_revision": 1,
+    "git_diff_check": "passed",
+    "git_index": "empty",
+    "human_gate_changed": false,
+    "merge_authorized": false,
+    "network_or_real_vault_used": false,
+    "profile_or_catalog_changed": false,
+    "protected_user_untracked_preserved": true,
+    "pyproject_sha256": "5d9c487b0979bfe06a2c5fcb4e1e765760475fa9e80a60fa23f47b035d9d0a9a",
+    "schema_count": 24,
+    "vendor_or_workflow_changed": false
+  },
+  "limitations": [
+    "This accepts only the frozen working-tree R2 implementation candidate; no implementation commit or exact implementation head exists yet.",
+    "A separate exact-path Steward delivery audit, normal non-force commit/push, fresh Linux/macOS x Python 3.12/3.13 merge-ref CI and a later exact-head Architect decision remain required.",
+    "The successful offline build reused the already populated locked build cache. A deliberately empty offline cache failed before build because hatchling was absent; that setup failure did not touch candidate bytes.",
+    "The isolated package installation reused locked runtime dependency modules from the existing local environment without network; the installed video_paper_wiki module itself resolved only from the checkout-external venv.",
+    "Zero-network evidence is bounded to production source policy, monkeypatched runtime attempts and offline build/install flags; it is not an operating-system egress proof.",
+    "This record does not authorize apply/recover/admin, operation-result handling, ledger/integrity work, models/network, real Vault mutation, PR readiness, review submission, auto-merge, merge or a human-gate change."
+  ],
+  "local_tests": [
+    {
+      "command": "<PY313>/python -m pytest -q <EXACT_16_BUILDER_R2_FOCUSED_FILES> --basetemp=/private/tmp/vpkb-stage-r2-architect-focus -o cache_dir=/private/tmp/vpkb-stage-r2-architect-focus-cache --junitxml=/private/tmp/vpkb-stage-r2-architect-focus.xml",
+      "duration_seconds": 17.642,
+      "errors": 0,
+      "failed": 0,
+      "junit_sha256": "78f5a4754dc69a0120abfd88b346279091adabdd076bdf7d44840698aa3fbd37",
+      "junit_size_bytes": 64774,
+      "name": "focused_contract_security_real_pinned_compatibility",
+      "passed": 435,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PY313>/python -m pytest -q <EXACT_15_LINEAGE_COMPLETE_SET_NODE_IDS> --basetemp=/private/tmp/vpkb-stage-r2-architect-adversarial --junitxml=/private/tmp/vpkb-stage-r2-architect-adversarial.xml",
+      "duration_seconds": 0.107,
+      "errors": 0,
+      "failed": 0,
+      "junit_sha256": "2503c03dc4a71e40c91ddf7861ef84228058647e28a699dc576205254f5ec03a",
+      "junit_size_bytes": 3979,
+      "name": "retained_lineage_complete_set_adversarial",
+      "passed": 24,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PY313>/python -m pytest -q tests/upstream/test_vpkb001_staged_transaction_inspect.py --basetemp=/private/tmp/vpkb-stage-r2-architect-pinned --junitxml=/private/tmp/vpkb-stage-r2-architect-pinned.xml",
+      "duration_seconds": 0.976,
+      "errors": 0,
+      "failed": 0,
+      "junit_sha256": "d7316702e57701c0b9ddfa85b4ccf95f0075a061286146a0e287065bf15aa5d1",
+      "junit_size_bytes": 961,
+      "name": "real_pinned_disposable_vault_operation_vectors",
+      "operation_vectors": [
+        "capture",
+        "generic genesis",
+        "later generic",
+        "ingest"
+      ],
+      "passed": 4,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <LOCKED_PY312>/python -m pytest -q --basetemp=/private/tmp/vpkb-stage-r2-architect-full12 --junitxml=/private/tmp/vpkb-stage-r2-architect-full12.xml",
+      "duration_seconds": 76.613,
+      "errors": 0,
+      "failed": 0,
+      "junit_sha256": "722cc9d3de4d08f726d4a34b0c1054b0ea38544ba0c09a70e18daf0c216e2ccc",
+      "junit_size_bytes": 473233,
+      "name": "complete_python_3_12",
+      "passed": 1895,
+      "python": "CPython 3.12.14",
+      "skipped": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 <PY313>/python -m pytest -q --basetemp=/private/tmp/vpkb-stage-r2-architect-full13 --junitxml=/private/tmp/vpkb-stage-r2-architect-full13.xml",
+      "duration_seconds": 74.543,
+      "errors": 0,
+      "failed": 0,
+      "junit_sha256": "0e3449669a9837f4c471359c123e2d4d2d74e180b4c56c1603e38a2c48d93000",
+      "junit_size_bytes": 473233,
+      "name": "complete_python_3_13",
+      "passed": 1895,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    }
+  ],
+  "wheel": {
+    "build_command": "UV_CACHE_DIR=/private/tmp/vpkb-uv-cache uv build --offline --out-dir /private/tmp/vpkb-stage-r2-architect-dist-20260901b",
+    "build_exit_code": 0,
+    "installed_module": "/private/tmp/vpkb-stage-r2-architect-wheel-venv-20260901/lib/python3.13/site-packages/video_paper_wiki/__init__.py",
+    "installed_outside_checkout": true,
+    "module_and_api_imported": [
+      "stage_transaction_inspect_transport",
+      "validate_transaction_staging"
+    ],
+    "pip_check": "No broken requirements found",
+    "schema_count": 24,
+    "schema_sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+    "schema_size_bytes": 2470,
+    "status": "passed from outside the checkout without network",
+    "wheel_sha256": "3d5c9e077fe26fc7ddc2f63f1c7dbd68d967c17703864b0630756ba23e67056f",
+    "wheel_size_bytes": 209365
+  }
+}

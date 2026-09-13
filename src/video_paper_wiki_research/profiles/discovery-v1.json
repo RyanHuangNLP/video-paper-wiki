@@ -1,0 +1,116 @@
+{
+  "hard_limits": {
+    "observations": 32,
+    "payload_bytes": 1048576,
+    "per_page": 20,
+    "per_round_requests": 8,
+    "requests": 32,
+    "results_per_observation": 100,
+    "rounds": 8,
+    "total_payload_bytes": 16777216,
+    "total_results": 2048,
+    "unique_candidates": 256
+  },
+  "id_prefix": "rw3",
+  "kind_families": {
+    "candidate-decision": "decisions",
+    "discovery-observation": "observations",
+    "discovery-request": "requests",
+    "paper-candidate-set": "proposals",
+    "paper-rank": "proposals",
+    "research-assessment": "decisions",
+    "research-config": "metadata",
+    "research-control-event": "decisions",
+    "research-round-event": "metadata",
+    "research-round-plan": "metadata",
+    "research-session": "metadata",
+    "research-stop-decision": "proposals"
+  },
+  "lenses": [
+    "method",
+    "benchmark",
+    "implementation",
+    "counterevidence",
+    "reproduction"
+  ],
+  "observation_outcomes": [
+    "success",
+    "partial",
+    "timeout",
+    "rate_limited",
+    "capability_unavailable",
+    "failure"
+  ],
+  "operation_order": [
+    "lookup",
+    "references",
+    "citations",
+    "related",
+    "topic",
+    "project"
+  ],
+  "physical": {
+    "candidate_decisions": 256,
+    "controls": 64,
+    "decisions_files": 512,
+    "expansion_selections": 3,
+    "family_bytes": 33554432,
+    "family_files": 256,
+    "pending_total_bytes": 14680064,
+    "total_bytes": 67108864
+  },
+  "providers": {
+    "openalex-rest-normalized-v1": {
+      "base_url": "https://api.openalex.org/works",
+      "batch_filter": "openalex",
+      "citation_filter": "cites",
+      "cursor_operations": [
+        "citations",
+        "topic"
+      ],
+      "kind": "http_get",
+      "select": "id,ids,title,publication_date,cited_by_count,authorships,locations,referenced_works,related_works",
+      "sort_neighbors": "cited_by_count:desc",
+      "sort_topic": "relevance_score:desc"
+    },
+    "platform-web-search-normalized-v1": {
+      "cursor_operations": [],
+      "kind": "web_search",
+      "operations": [
+        "lookup",
+        "topic",
+        "project"
+      ]
+    }
+  },
+  "ranking": {
+    "default_rrf_k": 60,
+    "max_rrf_k": 1000,
+    "min_rrf_k": 1,
+    "score_scale": 1000000
+  },
+  "saved_byte_caps": {
+    "candidate-decision": 65536,
+    "discovery-observation": 1114112,
+    "discovery-request": 65536,
+    "paper-candidate-set": 2097152,
+    "paper-rank": 1048576,
+    "research-assessment": 262144,
+    "research-config": 65536,
+    "research-control-event": 65536,
+    "research-round-event": 65536,
+    "research-round-plan": 65536,
+    "research-session": 65536,
+    "research-stop-decision": 262144
+  },
+  "schema": "video-paper-wiki-research.discovery-profile.v1",
+  "stop_reason_order": [
+    "budget_exhausted",
+    "paths_covered",
+    "duplicate_ratio",
+    "yield_below_threshold"
+  ],
+  "strict_observation_admission": true,
+  "version": "discovery-v1",
+  "zero_egress": true
+}

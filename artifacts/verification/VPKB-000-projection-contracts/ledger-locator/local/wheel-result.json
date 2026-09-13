@@ -1,0 +1,62 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "<TMP>/vpkb-tooling.r892iw/bin/uv",
+        "build",
+        "--offline",
+        "--wheel",
+        "--out-dir",
+        "<TMP>/vpl-acceptance/dist"
+      ],
+      "cwd": "<REPO>",
+      "elapsed_seconds": 0.22357606887817383,
+      "exit_code": 0,
+      "label": "wheel-build",
+      "log_sha256": "a3a57d186ff56c6e6d979e85f10eddca2916953fe358d576902f90fb9b7395da"
+    },
+    {
+      "argv": [
+        "<TMP>/vpkb-tooling.r892iw/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--no-deps",
+        "--reinstall",
+        "--python",
+        "<TMP>/vpkb-wheel-venv/bin/python",
+        "<TMP>/vpl-acceptance/dist/video_paper_wiki-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "<TMP>",
+      "elapsed_seconds": 0.07028365135192871,
+      "exit_code": 0,
+      "label": "wheel-install",
+      "log_sha256": "b3b46feb0fdad8a58a62d99de845f46a43b6adf86e3fa52a7542db50d39aea32"
+    },
+    {
+      "argv": [
+        "<TMP>/vpkb-wheel-venv/bin/python",
+        "-I",
+        "<TMP>/vpl-acceptance/wheel-smoke.py"
+      ],
+      "cwd": "<TMP>",
+      "elapsed_seconds": 0.9172689914703369,
+      "exit_code": 0,
+      "label": "wheel-smoke",
+      "log_sha256": "88228269919f10bfbe2080a3bfbaf77501cf3d76df7b1449c9e690dad71c0573"
+    }
+  ],
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONHOME": "removed",
+    "PYTHONPATH": "removed",
+    "UV_CACHE_DIR": "<TMP>/vpkb-uv-cache"
+  },
+  "runner_sha256": "df590eea658f747ed1ac733edf156f142d89b0a89c8b794919009ee033c1774c",
+  "smoke_source_sha256": "a1e18c52497159d998899ade54529058fa7f828a16e784fa21f0e7eb962c2e08",
+  "source_snapshot_sha256": "b689ce10e8325ee430b9a893bf5da54a9f6a2f69b59d2e4dedbb76dca7e30fed",
+  "source_unchanged": true,
+  "status": "passed",
+  "wheel_path": "<TMP>/vpl-acceptance/dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+  "wheel_sha256": "b3aeded7505f67e6eb7c205c38afdb2d843be1fe9c386e9f8e4a5666cf8bd4ed"
+}

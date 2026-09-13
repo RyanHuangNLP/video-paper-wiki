@@ -1,0 +1,306 @@
+{
+  "schema": "full-todo.code-config-toml-transition-matrix.v1",
+  "revision": 2,
+  "authority": "Architect/root",
+  "purpose": "Hand-authored finite promotion/descent/redefinition vectors. Stdlib observations are separately recorded; not production parser output.",
+  "cases": [
+    {
+      "id": "header_parent_promotion",
+      "source": "[a.b]\nv=1\n[a]\nw=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "v": 1
+            },
+            "w": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "header_child_descent",
+      "source": "[a]\nv=1\n[a.b]\nw=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "v": 1,
+            "b": {
+              "w": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "deep_header_parent_promotion",
+      "source": "[a.b.c]\nx=1\n[a.b]\ny=2\n[a]\nz=3\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": {
+                "x": 1
+              },
+              "y": 2
+            },
+            "z": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "root_dotted_siblings",
+      "source": "a.b=1\na.c=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "dotted_parent_child_header",
+      "source": "a.b=1\n[a.c]\nx=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": 1,
+            "c": {
+              "x": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "dotted_descendant_child_header",
+      "source": "[a]\nb.c=1\n[a.b.d]\ne=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": 1,
+              "d": {
+                "e": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "implicit_parent_to_current_dotted",
+      "source": "[a.b.c]\nx=1\n[a]\nb.d=2\nb.e=3\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": {
+                "x": 1
+              },
+              "d": 2,
+              "e": 3
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "sealed_dotted_parent_new_child",
+      "source": "[a.b.c]\nx=1\n[a]\nb.d=2\n[a.b.f]\ny=3\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": {
+                "x": 1
+              },
+              "d": 2,
+              "f": {
+                "y": 3
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "quoted_components_equivalent",
+      "source": "[a.\"b\"]\nx=1\n[a]\nc=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "x": 1
+            },
+            "c": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "literal_dot_distinct",
+      "source": "\"a.b\"=1\na.b=2\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a.b": 1,
+          "a": {
+            "b": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "inline_dotted_siblings",
+      "source": "a={b.c=1,b.d=2}\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {
+              "c": 1,
+              "d": 2
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "empty_implicit_header_parent",
+      "source": "[a.b]\n[a]\n",
+      "expected": {
+        "accepted": true,
+        "semantic_value": {
+          "a": {
+            "b": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "repeated_explicit_header",
+      "source": "[a]\nx=1\n[a]\ny=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "quoted_header_duplicate",
+      "source": "[a.b]\nx=1\n[\"a\".\"b\"]\ny=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "dotted_parent_header_redefinition",
+      "source": "a.b=1\n[a]\nx=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "dotted_descendant_header_redefinition",
+      "source": "[a]\nb.c=1\n[a.b]\nx=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "explicit_child_via_parent_dotted_refusal",
+      "source": "[a.b]\nx=1\n[a]\nb.y=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "sealed_dotted_parent_reopen_refusal",
+      "source": "[a.b.c]\nx=1\n[a]\nb.d=2\n[a.b]\ny=3\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "scalar_parent_descent_refusal",
+      "source": "a=1\n[a.b]\nx=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "scalar_terminal_header_refusal",
+      "source": "a.b=1\n[a.b]\nx=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "inline_table_extension_refusal",
+      "source": "a={b=1}\na.c=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "inline_nested_extension_refusal",
+      "source": "a={b={c=1},b.d=2}\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "inline_header_descent_refusal",
+      "source": "a={b=1}\n[a.c]\nx=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "array_header_descent_refusal",
+      "source": "a=[{b=1}]\n[a.c]\nx=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "quoted_dotted_key_duplicate",
+      "source": "a.\"b\"=1\na.b=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    },
+    {
+      "id": "dotted_map_to_scalar_refusal",
+      "source": "a.b=1\na=2\n",
+      "expected": {
+        "accepted": false,
+        "error_code": "CODE_CONFIG_DUPLICATE_KEY"
+      }
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.projection-generation.v1.schema.json",
+  "title": "video-paper-wiki.projection-generation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile",
+    "inventory",
+    "implementation",
+    "resources",
+    "dependencies",
+    "upstream",
+    "runtime"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.projection-generation.v1"
+    },
+    "profile": {
+      "const": "base-catalog-v1"
+    },
+    "inventory": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.projection-input.v1.schema.json"
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "package_version",
+        "files"
+      ],
+      "properties": {
+        "package_version": {
+          "const": "0.1.0"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?:[\\x21-\\x7e]+)$(?![\\s\\S])"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "files"
+      ],
+      "properties": {
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?:[\\x21-\\x7e]+)$(?![\\s\\S])"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile",
+        "distributions"
+      ],
+      "properties": {
+        "profile": {
+          "const": "vpwiki-jsonschema-date-utc-v1"
+        },
+        "distributions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "version"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*)$(?![\\s\\S])"
+              },
+              "version": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?:[0-9A-Za-z][0-9A-Za-z.+!-]*)$(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    },
+    "upstream": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "version",
+        "files"
+      ],
+      "properties": {
+        "commit": {
+          "const": "9f8c1199047eac2c3828496279fbb7ba9540b90b"
+        },
+        "version": {
+          "const": "2.1.1"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?:[\\x21-\\x7e]+)$(?![\\s\\S])"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^(?:[0-9a-f]{64})$(?![\\s\\S])"
+              }
+            }
+          }
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "python_implementation",
+        "python_version",
+        "unicode_version",
+        "prefix_mode",
+        "chunk_profile",
+        "bm25_profile"
+      ],
+      "properties": {
+        "python_implementation": {
+          "const": "CPython"
+        },
+        "python_version": {
+          "type": "string"
+        },
+        "unicode_version": {
+          "type": "string"
+        },
+        "prefix_mode": {
+          "const": "synthetic"
+        },
+        "chunk_profile": {
+          "const": "claude-obsidian.chunk.v1"
+        },
+        "bm25_profile": {
+          "const": "claude-obsidian.bm25.v2"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "python_version": {
+              "const": "3.12.14"
+            },
+            "unicode_version": {
+              "const": "15.0.0"
+            }
+          }
+        },
+        {
+          "properties": {
+            "python_version": {
+              "const": "3.13.13"
+            },
+            "unicode_version": {
+              "const": "15.1.0"
+            }
+          }
+        },
+        {
+          "properties": {
+            "python_version": {
+              "const": "3.13.15"
+            },
+            "unicode_version": {
+              "const": "15.1.0"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
