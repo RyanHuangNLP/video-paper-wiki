@@ -1783,3 +1783,128 @@ def test_final_fd_closed_on_identity_mismatch(
     assert final_fds
     for fd in final_fds:
         assert fd in closed
+
+
+def test_retain_input_overflow_reads_cap_plus_one_not_stat_size(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    src = checkout / "input.json"
+    src.write_bytes(b"x" * 200000)
+    transferred = {"n": 0}
+    counting = {"on": False}
+    real = io._read
+
+    def wrapped(fd, n):
+        data = real(fd, n)
+        if counting["on"]:
+            transferred["n"] += len(data)
+        return data
+
+    monkeypatch.setattr(io, "_read", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            counting["on"] = True
+            try:
+                session.retain_input("input.json", maximum=65536)
+            finally:
+                counting["on"] = False
+    _assert_io(
+        caught.value,
+        "CODE_PROOF_LIMIT_EXCEEDED",
+        instance_pointer="/input",
+        limit_name="max_request_input_bytes",
+        limit=65536,
+        observed=65537,
+    )
+    assert transferred["n"] == 65537
+    assert not (checkout / ".work" / "b1" / "code-evidence-v1").exists()
+
+
+def test_retain_input_observe_overflow_reports_cap_plus_one(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    src = checkout / "observe.json"
+    src.write_bytes(b"y" * 2000000)
+    transferred = {"n": 0}
+    counting = {"on": False}
+    real = io._read
+
+    def wrapped(fd, n):
+        data = real(fd, n)
+        if counting["on"]:
+            transferred["n"] += len(data)
+        return data
+
+    monkeypatch.setattr(io, "_read", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            counting["on"] = True
+            try:
+                session.retain_input("observe.json", maximum=1048576)
+            finally:
+                counting["on"] = False
+    _assert_io(
+        caught.value,
+        "CODE_PROOF_LIMIT_EXCEEDED",
+        instance_pointer="/input",
+        limit_name="max_observe_input_bytes",
+        limit=1048576,
+        observed=1048577,
+    )
+    assert transferred["n"] == 1048577
+
+
+def test_bundle_initial_unknown_entry_not_set_changed(checkout: Path) -> None:
+    raw = checkout / ".work" / "raw"
+    objects = raw / "objects"
+    objects.mkdir(parents=True)
+    (raw / "manifest.json").write_bytes(b"{}\n")
+    (raw / "foreign.bin").write_bytes(b"x")
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.retain_bundle_manifest(".work/raw")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="unknown_entry", group="bundle")
+
+
+def test_bundle_initial_missing_manifest_not_set_changed(checkout: Path) -> None:
+    raw = checkout / ".work" / "raw"
+    (raw / "objects").mkdir(parents=True)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.retain_bundle_manifest(".work/raw")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="missing", group="bundle")
+
+
+def test_bundle_initial_empty_root_is_missing(checkout: Path) -> None:
+    raw = checkout / ".work" / "raw"
+    raw.mkdir(parents=True)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.retain_bundle_manifest(".work/raw")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="missing", group="bundle")
+
+
+def test_bundle_enumeration_failure_not_unknown_entry(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    raw = checkout / ".work" / "raw"
+    objects = raw / "objects"
+    objects.mkdir(parents=True)
+    (raw / "manifest.json").write_bytes(b"{}\n")
+    real = io._scandir
+
+    def wrapped(fd):
+        raise OSError(errno.EIO, "scan fail")
+
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            monkeypatch.setattr(io, "_scandir", wrapped)
+            session.retain_bundle_manifest(".work/raw")
+    _assert_io(
+        caught.value,
+        "WORK_PATH_UNSAFE",
+        reason="syscall_failed",
+        operation="scandir",
+        group="bundle",
+    )
+    monkeypatch.setattr(io, "_scandir", real)

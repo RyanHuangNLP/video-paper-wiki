@@ -1572,6 +1572,76 @@ class _CodeSession:
         node.payload = payload
         return payload
 
+    def _read_bounded_input(self, node, maximum, *, group, limit_name):
+        fd = node.fd
+        try:
+            _seek(fd, 0, os.SEEK_SET)
+        except OSError as exc:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="syscall_failed",
+                operation="seek",
+                errno=_errno_of(exc),
+                group=group,
+            )
+        chunks = []
+        got = 0
+        bound = maximum + 1
+        while got < bound:
+            n = bound - got
+            if n > _WRITE_CHUNK:
+                n = _WRITE_CHUNK
+            try:
+                data = _read(fd, n)
+            except OSError as exc:
+                self._raise(
+                    "WORK_PATH_UNSAFE",
+                    reason="syscall_failed",
+                    operation="read",
+                    errno=_errno_of(exc),
+                    group=group,
+                )
+            if not data:
+                break
+            chunks.append(data)
+            got += len(data)
+        try:
+            fst = _fstat(fd)
+        except OSError as exc:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="syscall_failed",
+                operation="fstat",
+                errno=_errno_of(exc),
+                group=group,
+            )
+        if _file_stamp(fst) != node.first_stamp:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="edge_changed",
+                operation="fstat",
+                group=group,
+            )
+        if got > maximum:
+            self._raise(
+                "CODE_PROOF_LIMIT_EXCEEDED",
+                instance_pointer="/input",
+                limit_name=limit_name,
+                limit=maximum,
+                observed=got,
+            )
+        size = node.first_stamp[3]
+        if got != size:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="bytes_changed",
+                operation="read",
+                group=group,
+            )
+        payload = b"".join(chunks)
+        node.payload = payload
+        return payload
+
     def _retain_markers(self):
         git = self._observe_child(
             self._checkout_node,
@@ -2418,16 +2488,12 @@ class _CodeSession:
         limit_name = (
             "max_request_input_bytes" if maximum == 65536 else "max_observe_input_bytes"
         )
-        size = node.first_stamp[3]
-        if size > maximum:
-            self._raise(
-                "CODE_PROOF_LIMIT_EXCEEDED",
-                instance_pointer="/input",
-                limit_name=limit_name,
-                limit=maximum,
-                observed=size,
-            )
-        payload = self._read_fd(node, maximum, group="metadata")
+        payload = self._read_bounded_input(
+            node,
+            maximum,
+            group="metadata",
+            limit_name=limit_name,
+        )
         self._phase = "idle"
         return payload
 
@@ -2501,18 +2567,27 @@ class _CodeSession:
                 group="bundle",
             )
         scan = self._scan_directory(root, _RAW_ROOT_CAP, "bundle", charge=False)
-        if scan.over_cap or set(scan.names) != {"manifest.json", "objects"}:
-            self._raise(
-                "WORK_PATH_UNSAFE",
-                reason="set_changed" if scan.complete else "unknown_entry",
-                group="bundle",
-            )
         if scan.error is not None:
             self._raise(
                 "WORK_PATH_UNSAFE",
                 reason=scan.error.reason,
                 operation=scan.error.operation,
                 errno=scan.error.errno,
+                group="bundle",
+            )
+        expected = {"manifest.json", "objects"}
+        names = set(scan.names)
+        if scan.over_cap or (names - expected):
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="unknown_entry",
+                group="bundle",
+            )
+        if names != expected:
+            self._raise(
+                "WORK_PATH_UNSAFE",
+                reason="missing",
+                operation="stat",
                 group="bundle",
             )
         objects = self._observe_child(
