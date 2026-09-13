@@ -14,6 +14,7 @@ from video_paper_wiki.commands import prepare as prepare_commands
 from video_paper_wiki.commands import review as review_commands
 from video_paper_wiki.commands import publication as publication_commands
 from video_paper_wiki.staged_code_capture import run_code_inspect_command
+from video_paper_wiki.code_proof_public import run_code_evidence_command
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
 from video_paper_wiki.notes.encoding import InvalidEncoding
 from video_paper_wiki.staging import StagingError
@@ -199,6 +200,113 @@ def build_parser() -> argparse.ArgumentParser:
             command.add_argument("--lifecycle", default="active")
             command.add_argument("--limit", type=int, default=20)
             command.add_argument("--offset", type=int, default=0)
+
+    code_evidence = _add_parser(
+        sub,
+        "code-evidence",
+        help="Request, observe, status, config, and handoff for code evidence",
+    )
+    code_evidence_sub = code_evidence.add_subparsers(
+        dest="code_evidence_cmd", required=True
+    )
+    code_evidence_request = _add_parser(
+        code_evidence_sub,
+        "request",
+        help=(
+            "Save an immutable code-evidence request and return host acquisition "
+            "targets. Input is a JSON request file. Results are stored under "
+            ".work/<batch-id>/code-evidence-v1/. Repeat the same input to reuse a "
+            "valid request; recover a changed request with a new batch."
+        ),
+        description=(
+            "Save an immutable code-evidence request and return host acquisition "
+            "targets. Input is a JSON request file. Results are stored under "
+            ".work/<batch-id>/code-evidence-v1/. Repeat the same input to reuse a "
+            "valid request; recover a changed request with a new batch."
+        ),
+    )
+    code_evidence_request.add_argument("--input", required=True)
+    code_evidence_request.add_argument("--batch-id", required=True)
+    code_evidence_request.set_defaults(handler=run_code_evidence_command)
+    code_evidence_observe = _add_parser(
+        code_evidence_sub,
+        "observe",
+        help=(
+            "Validate an external acquisition record and save evidence. Raw mode "
+            "requires --bundle-dir; normalized mode forbids it. Results are stored "
+            "under .work/<batch-id>/code-evidence-v1/. Interrupted installs resume "
+            "from the same bound inputs; a changed acquisition needs a new batch."
+        ),
+        description=(
+            "Validate an external acquisition record and save evidence. Raw mode "
+            "requires --bundle-dir; normalized mode forbids it. Results are stored "
+            "under .work/<batch-id>/code-evidence-v1/. Interrupted installs resume "
+            "from the same bound inputs; a changed acquisition needs a new batch."
+        ),
+    )
+    code_evidence_observe.add_argument("--input", required=True)
+    code_evidence_observe.add_argument("--bundle-dir")
+    code_evidence_observe.add_argument("--batch-id", required=True)
+    code_evidence_observe.set_defaults(handler=run_code_evidence_command)
+    code_evidence_status = _add_parser(
+        code_evidence_sub,
+        "status",
+        help=(
+            "Read-only report of code-evidence state, missing files, and the next "
+            "action. This command never creates or repairs files. Recover by "
+            "repeating request or observe with the original bound inputs."
+        ),
+        description=(
+            "Read-only report of code-evidence state, missing files, and the next "
+            "action. This command never creates or repairs files. Recover by "
+            "repeating request or observe with the original bound inputs."
+        ),
+    )
+    code_evidence_status.add_argument("--batch-id", required=True)
+    code_evidence_status.set_defaults(handler=run_code_evidence_command)
+    code_evidence_config = _add_parser(
+        code_evidence_sub,
+        "config",
+        help=(
+            "Derive a configuration record from saved raw evidence for one requested "
+            "path. Input is a logical git path and json, toml, or source-only format. "
+            "Results are stored under .work/<batch-id>/code-evidence-v1/configs/. "
+            "Repeat the same path and format to reuse; a different format needs a new batch."
+        ),
+        description=(
+            "Derive a configuration record from saved raw evidence for one requested "
+            "path. Input is a logical git path and json, toml, or source-only format. "
+            "Results are stored under .work/<batch-id>/code-evidence-v1/configs/. "
+            "Repeat the same path and format to reuse; a different format needs a new batch."
+        ),
+    )
+    code_evidence_config.add_argument("--path", required=True)
+    code_evidence_config.add_argument(
+        "--format",
+        dest="format",
+        required=True,
+        choices=("json", "toml", "source-only"),
+    )
+    code_evidence_config.add_argument("--batch-id", required=True)
+    code_evidence_config.set_defaults(handler=run_code_evidence_command)
+    code_evidence_handoff = _add_parser(
+        code_evidence_sub,
+        "handoff",
+        help=(
+            "Validate the complete source-text target set and write successor-only "
+            "handoff records. Results are stored under "
+            ".work/<batch-id>/code-evidence-v1/handoffs/ and reference existing body "
+            "files. Interrupted handoffs resume as a path prefix; do not repair or force."
+        ),
+        description=(
+            "Validate the complete source-text target set and write successor-only "
+            "handoff records. Results are stored under "
+            ".work/<batch-id>/code-evidence-v1/handoffs/ and reference existing body "
+            "files. Interrupted handoffs resume as a path prefix; do not repair or force."
+        ),
+    )
+    code_evidence_handoff.add_argument("--batch-id", required=True)
+    code_evidence_handoff.set_defaults(handler=run_code_evidence_command)
 
     code_map = _add_parser(sub, "code-map")
     code_map_sub = code_map.add_subparsers(dest="code_map_cmd", required=True)

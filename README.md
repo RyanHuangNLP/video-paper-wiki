@@ -82,6 +82,17 @@ vpwiki code-map prepare --plan .work/<batch>/plan/ingest-plan.v1.json \
 vpwiki code-map inspect --prepared .work/<batch>/prepared/staged-code-capture-request.v1.json \
   --operation-id <id> --upstream-root vendor/claude-obsidian --vault-root /path/to/vault
 
+# Code evidence: request → observe → status → config/handoff
+# Input is JSON. Results are stored under .work/<batch-id>/code-evidence-v1/.
+# Repeat the same bound inputs to reuse or resume a valid prefix. Status never
+# creates or repairs files. A changed request, acquisition, or config format
+# needs a new batch. There is no --root, --profile, --force, or --repair flag.
+vpwiki code-evidence request --input request.json --batch-id <batch>
+vpwiki code-evidence observe --input observe.json --bundle-dir .work/raw-bundle --batch-id <batch>
+vpwiki code-evidence status --batch-id <batch>
+vpwiki code-evidence config --path config.json --format json --batch-id <batch>
+vpwiki code-evidence handoff --batch-id <batch>
+
 # 对生成的 transaction bundle，写入由交互式 operator 明确委托固定上游
 vpwiki-admin transaction apply --bundle .work/<batch>/transaction-inspect/bundle.json \
   --vault-root /path/to/vault --upstream-root vendor/claude-obsidian \
