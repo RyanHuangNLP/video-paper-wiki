@@ -94,6 +94,8 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.gate-head-registry.v1",
     "video-paper-wiki.gate-consumption.v1",
     "video-paper-wiki.gate-publication-authority.v1",
+    "video-paper-wiki.domain-proposal.v1",
+    "video-paper-wiki.domain-proposal-report.v1",
 }
 
 
