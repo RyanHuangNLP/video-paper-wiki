@@ -1459,6 +1459,15 @@ def test_unlink_failure_before_effect(
     assert (ns / "request.json").read_bytes() == b"{}\n"
     leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
     assert leftover != []
+    monkeypatch.setattr(io, "_unlink", boom)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE")
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover != []
+    assert (ns / "request.json").exists()
 
 
 def test_unlink_failure_after_effect(
@@ -1546,16 +1555,231 @@ def test_keyboard_interrupt_during_close_finishes_remaining(
 ) -> None:
     real = io._close
     seen = []
+    expected = {"order": None, "dup": None}
+    marker = KeyboardInterrupt()
 
     def wrapped(fd):
         seen.append(fd)
         if len(seen) == 1:
-            raise KeyboardInterrupt()
+            raise marker
         return real(fd)
 
     monkeypatch.setattr(io, "_close", wrapped)
-    with pytest.raises(KeyboardInterrupt):
+    with pytest.raises(KeyboardInterrupt) as caught:
+        with open_code_session(batch_id="b1") as session:
+            expected["order"] = list(session._fd_order)
+            expected["dup"] = session._lock_dup_fd
+    assert caught.value is marker
+    assert expected["dup"] not in expected["order"]
+    assert seen == list(reversed(expected["order"])) + [expected["dup"]]
+
+
+def test_system_exit_during_close_finishes_remaining(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = io._close
+    seen = []
+    expected = {"order": None, "dup": None}
+    marker = SystemExit(2)
+
+    def wrapped(fd):
+        seen.append(fd)
+        if len(seen) == 1:
+            raise marker
+        return real(fd)
+
+    monkeypatch.setattr(io, "_close", wrapped)
+    with pytest.raises(SystemExit) as caught:
+        with open_code_session(batch_id="b1") as session:
+            expected["order"] = list(session._fd_order)
+            expected["dup"] = session._lock_dup_fd
+    assert caught.value is marker
+    assert expected["dup"] not in expected["order"]
+    assert seen == list(reversed(expected["order"])) + [expected["dup"]]
+
+
+def test_close_cleanup_exception_finishes_remaining(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = io._close
+    seen = []
+    expected = {"order": None, "dup": None}
+
+    def wrapped(fd):
+        seen.append(fd)
+        if len(seen) == 1:
+            raise RuntimeError("close cleanup")
+        return real(fd)
+
+    monkeypatch.setattr(io, "_close", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            expected["order"] = list(session._fd_order)
+            expected["dup"] = session._lock_dup_fd
+    _assert_io(caught.value, "CODE_PROOF_IO_ERROR", operation="close")
+    assert expected["dup"] not in expected["order"]
+    assert seen == list(reversed(expected["order"])) + [expected["dup"]]
+
+
+def test_initial_scan_over_hard_peak(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    ns.mkdir(parents=True)
+    os.chmod(ns, 0o700)
+    payload = b"0123456789abcdef"
+    target = ns / "request.json"
+    target.write_bytes(payload)
+    os.chmod(target, 0o600)
+    monkeypatch.setattr(io, "_HARD_PEAK", 8)
+    with pytest.raises(CodeProofIOError) as caught:
         with open_code_session(batch_id="b1"):
             pass
-    assert len(seen) == len(set(seen))
-    assert len(seen) >= 2
+    _assert_io(
+        caught.value,
+        "CODE_PROOF_LIMIT_EXCEEDED",
+        instance_pointer="/output",
+        limit_name="max_output_peak_bytes",
+        limit=8,
+        observed=16,
+    )
+
+
+def test_initial_scan_budget_retains_observed_identity(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    ns.mkdir(parents=True)
+    os.chmod(ns, 0o700)
+    target = ns / "request.json"
+    target.write_bytes(b"0123456789abcdef")
+    os.chmod(target, 0o600)
+    monkeypatch.setattr(io, "_HARD_PEAK", 8)
+    keep = {"fd": None}
+    real_stat = io._stat
+
+    def wrapped(*args, **kwargs):
+        st = real_stat(*args, **kwargs)
+        name = args[0] if args else kwargs.get("path")
+        if name == "request.json" and keep["fd"] is None:
+            keep["fd"] = _replace_keep_alive(target, b"0123456789abcdef")
+        return st
+
+    monkeypatch.setattr(io, "_stat", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1"):
+            pass
+    if keep["fd"] is not None:
+        os.close(keep["fd"])
+    _assert_io(caught.value, "WORK_PATH_UNSAFE")
+
+
+def test_unlink_after_effect_same_inode_rewrite_is_lineage(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = io._unlink
+
+    def wrapped(*args, **kwargs):
+        real(*args, **kwargs)
+        path = Path(os.getcwd()) / ".work" / "b1" / "code-evidence-v1" / "request.json"
+        raw = os.open(path, os.O_WRONLY)
+        try:
+            os.write(raw, b"!!\n")
+        finally:
+            os.close(raw)
+        raise OSError(errno.EIO, "unlinked-then-raise")
+
+    monkeypatch.setattr(io, "_unlink", wrapped)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE")
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    leftover = [p.name for p in ns.iterdir() if p.name.startswith(".ce-tmp-")]
+    assert leftover == []
+
+
+def test_final_fd_closed_on_fstat_failure(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real_open = io._open
+    real_fstat = io._fstat
+    real_close = io._close
+    final_fds = []
+    closed = []
+
+    def wrapped_open(*args, **kwargs):
+        fd = real_open(*args, **kwargs)
+        name = args[0] if args else None
+        if name == "request.json":
+            final_fds.append(fd)
+        return fd
+
+    def wrapped_fstat(fd):
+        if fd in final_fds:
+            raise OSError(errno.EIO, "final fstat")
+        return real_fstat(fd)
+
+    def wrapped_close(fd):
+        closed.append(fd)
+        return real_close(fd)
+
+    monkeypatch.setattr(io, "_open", wrapped_open)
+    monkeypatch.setattr(io, "_fstat", wrapped_fstat)
+    monkeypatch.setattr(io, "_close", wrapped_close)
+    with pytest.raises(CodeProofIOError):
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    assert final_fds
+    for fd in final_fds:
+        assert fd in closed
+
+
+def test_final_fd_closed_on_identity_mismatch(
+    checkout: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real_open = io._open
+    real_fstat = io._fstat
+    real_close = io._close
+    final_fds = []
+    closed = []
+
+    class _Shifted:
+        def __init__(self, st):
+            self._st = st
+
+        def __getattr__(self, name):
+            if name == "st_ino":
+                return self._st.st_ino + 1
+            return getattr(self._st, name)
+
+    def wrapped_open(*args, **kwargs):
+        fd = real_open(*args, **kwargs)
+        name = args[0] if args else None
+        if name == "request.json":
+            final_fds.append(fd)
+        return fd
+
+    def wrapped_fstat(fd):
+        st = real_fstat(fd)
+        if fd in final_fds:
+            return _Shifted(st)
+        return st
+
+    def wrapped_close(fd):
+        closed.append(fd)
+        return real_close(fd)
+
+    monkeypatch.setattr(io, "_open", wrapped_open)
+    monkeypatch.setattr(io, "_fstat", wrapped_fstat)
+    monkeypatch.setattr(io, "_close", wrapped_close)
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE")
+    assert final_fds
+    for fd in final_fds:
+        assert fd in closed

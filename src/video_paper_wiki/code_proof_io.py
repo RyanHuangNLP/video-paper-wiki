@@ -1999,17 +1999,6 @@ class _CodeSession:
                 )
                 self._scan_failed = True
                 return scan
-            if charge and _is_reg_mode(st.st_mode):
-                scan.charged += st.st_size
-                self._logical_bytes += st.st_size
-                if self._logical_bytes > _HARD_PEAK:
-                    self._raise(
-                        "CODE_PROOF_LIMIT_EXCEEDED",
-                        instance_pointer="/output",
-                        limit_name="max_output_peak_bytes",
-                        limit=_HARD_PEAK,
-                        observed=self._logical_bytes,
-                    )
             child_key = parent.key + (name,)
             if child_key not in self._by_key:
                 child = _Node(child_key, parent, name, "scan", group)
@@ -2023,6 +2012,17 @@ class _CodeSession:
                 else:
                     child.first_stamp = (st.st_dev, st.st_ino, st.st_mode)
                 self._register(child)
+            if charge and _is_reg_mode(st.st_mode):
+                scan.charged += st.st_size
+                self._logical_bytes += st.st_size
+                if self._logical_bytes > _HARD_PEAK:
+                    self._raise(
+                        "CODE_PROOF_LIMIT_EXCEEDED",
+                        instance_pointer="/output",
+                        limit_name="max_output_peak_bytes",
+                        limit=_HARD_PEAK,
+                        observed=self._logical_bytes,
+                    )
         scan.complete = scan.error is None and not scan.over_cap
         return scan
 
@@ -3345,6 +3345,7 @@ class _CodeSession:
             self._register(final_node)
         self._install.final_node = final_node
         self._install.unlink_attempted = True
+        unlink_after_error = None
         try:
             _unlink(temp_name, dir_fd=parent.fd)
         except OSError as exc:
@@ -3363,44 +3364,26 @@ class _CodeSession:
                     errno=errn,
                     group="installation",
                 )
-            final_st = self._require_final_matches_temp_fd(
-                parent,
-                base,
-                fd,
-                nlink=1,
-            )
-            self._mark_cleaned_prefix(
-                parent,
-                base,
-                temp_name,
-                payload,
-                final_node,
-                final_st,
-            )
-            self._raise(
-                "CODE_PROOF_IO_ERROR",
-                reason="syscall_failed",
-                operation="unlink",
-                errno=errn,
-                group="installation",
-            )
-        try:
-            _stat(temp_name, dir_fd=parent.fd, follow_symlinks=False)
-            gone = False
-        except OSError as exc:
-            gone = _errno_of(exc) == errno.ENOENT
-        if not gone:
-            self._raise(
-                "WORK_PATH_UNSAFE",
-                reason="temp_ownership_lost",
-                group="installation",
-            )
+            unlink_after_error = errn
+        if unlink_after_error is None:
+            try:
+                _stat(temp_name, dir_fd=parent.fd, follow_symlinks=False)
+                gone = False
+            except OSError as exc:
+                gone = _errno_of(exc) == errno.ENOENT
+            if not gone:
+                self._raise(
+                    "WORK_PATH_UNSAFE",
+                    reason="temp_ownership_lost",
+                    group="installation",
+                )
         final_st = self._require_final_matches_temp_fd(
             parent,
             base,
             fd,
             nlink=1,
         )
+        self._bind_final_file(parent, base, final_node, final_st, payload)
         self._mark_cleaned_prefix(
             parent,
             base,
@@ -3409,38 +3392,14 @@ class _CodeSession:
             final_node,
             final_st,
         )
-        try:
-            opened = _open(base, self._file_flags, dir_fd=parent.fd)
-        except OSError as exc:
+        if unlink_after_error is not None:
             self._raise(
                 "CODE_PROOF_IO_ERROR",
                 reason="syscall_failed",
-                operation="open",
-                errno=_errno_of(exc),
+                operation="unlink",
+                errno=unlink_after_error,
                 group="installation",
             )
-        try:
-            opened_st = _fstat(opened)
-        except OSError as exc:
-            self._raise(
-                "CODE_PROOF_IO_ERROR",
-                reason="syscall_failed",
-                operation="fstat",
-                errno=_errno_of(exc),
-                group="installation",
-            )
-        if (
-            opened_st.st_dev != final_st.st_dev
-            or opened_st.st_ino != final_st.st_ino
-        ):
-            self._raise(
-                "WORK_PATH_UNSAFE",
-                reason="edge_changed",
-                operation="fstat",
-                group="installation",
-            )
-        final_node.fd = self._track_fd(opened)
-        final_node.payload = payload
         err = self._verify_full_result(isolate=False)
         if err is not None:
             raise err from None
@@ -3509,6 +3468,48 @@ class _CodeSession:
                 group="installation",
             )
         return final_st
+
+    def _bind_final_file(self, parent, base, final_node, final_st, payload):
+        try:
+            opened = _open(base, self._file_flags, dir_fd=parent.fd)
+        except OSError as exc:
+            self._raise(
+                "CODE_PROOF_IO_ERROR",
+                reason="syscall_failed",
+                operation="open",
+                errno=_errno_of(exc),
+                group="installation",
+            )
+        try:
+            try:
+                opened_st = _fstat(opened)
+            except OSError as exc:
+                self._raise(
+                    "CODE_PROOF_IO_ERROR",
+                    reason="syscall_failed",
+                    operation="fstat",
+                    errno=_errno_of(exc),
+                    group="installation",
+                )
+            if (
+                opened_st.st_dev != final_st.st_dev
+                or opened_st.st_ino != final_st.st_ino
+            ):
+                self._raise(
+                    "WORK_PATH_UNSAFE",
+                    reason="edge_changed",
+                    operation="fstat",
+                    group="installation",
+                )
+            final_node.fd = self._track_fd(opened)
+            final_node.payload = payload
+            opened = None
+        finally:
+            if opened is not None:
+                try:
+                    _close(opened)
+                except OSError:
+                    pass
 
     def _mark_cleaned_prefix(
         self,
@@ -4126,7 +4127,6 @@ class _CodeSession:
                 record.phase in ("temp_ready", "linked", "cleaned", "durable")
                 and record.temp_fd is not None
                 and record.payload is not None
-                and record.phase != "cleaned"
                 and record.phase != "durable"
             ):
                 try:
