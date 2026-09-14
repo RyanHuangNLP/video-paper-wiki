@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import errno
 import json
 import os
 import socket
@@ -28,6 +29,7 @@ from tests.unit.test_domain_store import (
     _review,
     _successor_proposal,
 )
+from video_paper_wiki import domain_apply
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.domain_apply import DomainApplyError, apply_domain_publication
 from video_paper_wiki.domain_publication import (
@@ -339,6 +341,46 @@ def test_apply_changed_vault_and_faults(world):
     with pytest.raises(DomainStoreError) as status_err:
         status_domain_store(vault_root=str(world["vault"]))
     assert status_err.value.code == "DOMAIN_STORE_INVALID"
+
+
+def test_apply_write_phase_oserror_unlinks_orphan(world, monkeypatch):
+    first = _record(world, valid_proposal(world), name="g.json", batch="g1")
+    _compile(world, "g1")
+    _apply(world, "g1")
+    successor = _record(
+        world,
+        _successor_proposal(world),
+        name="s.json",
+        previous=first["record"]["annotation_id"],
+        recorded_at=LATER_AT,
+        batch="s1",
+    )
+    _compile(world, "s1")
+    lid = first["record"]["lineage_id"]
+    aid = successor["record"]["annotation_id"]
+    relative = "wiki/meta/domain/annotations/" + lid + "/" + aid + ".json"
+    orphan = world["vault"] / relative
+    assert (world["vault"] / "wiki/meta/domain/annotations" / lid).is_dir()
+    vault_before = _snapshot(world["vault"])
+    real_write = domain_apply.os.write
+
+    def write_fail(fd, data):
+        try:
+            path = os.readlink("/proc/self/fd/" + str(int(fd)))
+        except OSError:
+            path = ""
+        if "wiki/meta/domain/annotations/" in path.replace("\\", "/"):
+            raise OSError(errno.ENOSPC, "No space left on device")
+        return real_write(fd, data)
+
+    monkeypatch.setattr(domain_apply.os, "write", write_fail)
+    err = _expect(lambda: _apply(world, "s1"), "DOMAIN_APPLY_WRITE_FAILED")
+    assert err.details["phase"] == "write"
+    assert err.details.get("errno") == errno.ENOSPC
+    assert relative in err.details["rolled_back"]
+    assert err.details["rollback_complete"] is True
+    assert not orphan.exists()
+    assert _snapshot(world["vault"]) == vault_before
 
 
 def test_apply_head_stale_and_review_invalid(world):

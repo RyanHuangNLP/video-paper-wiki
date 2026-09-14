@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.unit.test_domain_proposal import make_world, valid_proposal
+from tests.unit.test_domain_proposal import _snapshot, make_world, valid_proposal
 from tests.unit.test_domain_store import _record
 from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.domain_publication import compile_domain_publication

@@ -128,9 +128,11 @@ def _read_child(parent_fd, name, *, max_bytes=MAX_RECORD_BYTES):
         os.close(fd)
 
 
-def _write_excl(parent_fd, name, data):
+def _write_excl(parent_fd, name, data, created_files=None, created_path=None):
     fd = os.open(name, WRITE_FLAGS, 0o600, dir_fd=parent_fd)
     try:
+        if created_files is not None and created_path is not None:
+            created_files.append(created_path)
         view = memoryview(data)
         while view:
             view = view[os.write(fd, view) :]
@@ -510,8 +512,13 @@ def _write_create_payloads(domain_fd, request, content, created_dirs, created_fi
                     kind_fds[kind], lineage, lineage_rel, created_dirs
                 )
             parent_fd = lineage_fds[lineage_rel]
-            _write_excl(parent_fd, filename, content[item["after_sha256"]])
-            created_files.append(item["path"])
+            _write_excl(
+                parent_fd,
+                filename,
+                content[item["after_sha256"]],
+                created_files,
+                item["path"],
+            )
     finally:
         for fd in lineage_fds.values():
             close_fd(fd)
