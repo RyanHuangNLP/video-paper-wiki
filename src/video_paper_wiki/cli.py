@@ -354,6 +354,11 @@ def build_parser() -> argparse.ArgumentParser:
         run_experiments_record_command,
         run_experiments_status_command,
     )
+    from video_paper_wiki.experiment_publication_cli import (
+        run_experiments_compile_command,
+        run_experiments_publish_inspect_command,
+    )
+    from video_paper_wiki.experiment_matrix_cli import run_experiments_matrix_command
     domain = _add_parser(
         sub,
         "domain",
@@ -612,6 +617,65 @@ def build_parser() -> argparse.ArgumentParser:
     experiments_status.add_argument("--vault-root", dest="vault_root", required=True)
     experiments_status.add_argument("--paper-id", dest="paper_id")
     experiments_status.set_defaults(handler=run_experiments_status_command)
+    experiments_compile = _add_parser(
+        experiments_sub,
+        "compile",
+        help=(
+            "Compile a staged experiment batch into an unpublished publication "
+            "request under .work/<batch-id>/experiment-publication/. Does not write "
+            "the Vault, write canonical official facts, or rank settings. Apply is "
+            "only via vpwiki-admin."
+        ),
+        description=(
+            "Read wiki/meta/experiments from --vault-root and "
+            ".work/<batch-id>/experiments/, then stage a closed unpublished "
+            "experiment-publication-request.v1 plus content under "
+            ".work/<batch-id>/experiment-publication/. The command does not write "
+            "the Vault, write canonical official facts, or rank settings. Apply is "
+            "only via vpwiki-admin."
+        ),
+    )
+    experiments_compile.add_argument("--vault-root", dest="vault_root", required=True)
+    experiments_compile.add_argument("--batch-id", dest="batch_id", required=True)
+    experiments_compile.set_defaults(handler=run_experiments_compile_command)
+    experiments_publish_inspect = _add_parser(
+        experiments_sub,
+        "publish-inspect",
+        help=(
+            "Read-only inspect of a staged experiment publication request. Does not "
+            "write the Vault or .work staging, write canonical official facts, or "
+            "rank settings. Apply is only via vpwiki-admin."
+        ),
+        description=(
+            "Load a closed experiment-publication-request.v1 from --prepared, "
+            "recompute the write set against --vault-root, and emit a closed "
+            "unpublished inspection. The command is read-only: it does not write "
+            "the Vault or .work staging, write canonical official facts, or rank "
+            "settings. Apply is only via vpwiki-admin."
+        ),
+    )
+    experiments_publish_inspect.add_argument("--prepared", required=True)
+    experiments_publish_inspect.add_argument("--vault-root", dest="vault_root", required=True)
+    experiments_publish_inspect.set_defaults(handler=run_experiments_publish_inspect_command)
+    experiments_matrix = _add_parser(
+        experiments_sub,
+        "matrix",
+        help=(
+            "Read-only experiment comparison matrix. Does not write the Vault or "
+            ".work staging, write canonical official facts, or rank settings. Apply "
+            "is only via vpwiki-admin."
+        ),
+        description=(
+            "Read wiki/meta/experiments under --vault-root and emit a closed "
+            "unpublished experiment-comparison-matrix.v1. Optional --paper-id "
+            "filters to one paper. The command is read-only: it does not write the "
+            "Vault or .work staging, write canonical official facts, or rank "
+            "settings. Apply is only via vpwiki-admin."
+        ),
+    )
+    experiments_matrix.add_argument("--vault-root", dest="vault_root", required=True)
+    experiments_matrix.add_argument("--paper-id", dest="paper_id")
+    experiments_matrix.set_defaults(handler=run_experiments_matrix_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")

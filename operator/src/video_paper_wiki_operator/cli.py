@@ -423,6 +423,28 @@ def _main(argv:list[str]|None=None)->int:
             details=dict(getattr(exc,'details',{}) or {})
             if 'next_action' not in details:details['next_action']='repair_input'
             sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
+    if words[:2]==['experiments','apply']:
+        command=_Parser(prog='vpwiki-admin experiments apply');command.add_argument('--prepared',required=True);command.add_argument('--vault-root',required=True);args=command.parse_args(words[2:])
+        if ns.upstream_root is not None:parser.error('experiments apply does not use an upstream root')
+        from video_paper_wiki.contracts import ContractError
+        from video_paper_wiki.experiment_apply import ExperimentApplyError,apply_experiment_publication
+        from video_paper_wiki.experiment_publication import ExperimentPublicationError
+        from video_paper_wiki.experiment_store import ExperimentStoreError
+        from video_paper_wiki.domain_publication import DomainPublicationError
+        from video_paper_wiki.domain_store import DomainStoreError
+        from video_paper_wiki.domain_proposal import DomainProposalError
+        from video_paper_wiki.jcs import canonicalize
+        from video_paper_wiki.secure_io import SecureIOError
+        from video_paper_wiki.staging import StagingError
+        def _experiments_apply_confirm(summary):
+            sys.stderr.buffer.write(canonicalize(summary)+b'\n');sys.stderr.buffer.flush();return _confirm(words)
+        try:
+            result=apply_experiment_publication(prepared=args.prepared,vault_root=args.vault_root,confirm=_experiments_apply_confirm)
+            sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
+        except (ExperimentApplyError,ExperimentPublicationError,ExperimentStoreError,DomainPublicationError,DomainStoreError,DomainProposalError,StagingError,ContractError,SecureIOError) as exc:
+            details=dict(getattr(exc,'details',{}) or {})
+            if 'next_action' not in details:details['next_action']='repair_input'
+            sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
     if ns.upstream_root is None:parser.error('--upstream-root is required for upstream passthrough')
     root=_verified_root(ns.upstream_root)
     if words[0]=='index':
