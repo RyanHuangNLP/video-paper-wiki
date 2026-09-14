@@ -336,6 +336,41 @@ def build_parser() -> argparse.ArgumentParser:
     catalog = _add_parser(sub,"catalog");catalog_sub=catalog.add_subparsers(dest="catalog_cmd",required=True)
     catalog_report=_add_parser(catalog_sub,"report");catalog_report.add_argument("--json",action="store_true",required=True);catalog_report.add_argument("--vault-root",required=True);catalog_report.add_argument("--upstream-root",required=True);catalog_report.add_argument("--config",required=True);catalog_report.add_argument("--kind",required=True,choices=("code-openness","paper-lifecycle","evidence-coverage"));catalog_report.add_argument("--paper-id");catalog_report.set_defaults(handler=domain_commands.catalog_report)
 
+    from video_paper_wiki.domain_proposal_cli import run_domain_inspect_command
+    domain = _add_parser(
+        sub,
+        "domain",
+        help="Read-only domain annotation and paper-code relation candidate inspect",
+        description=(
+            "Read-only domain proposal inspect. Input is a closed versioned proposal. "
+            "The command reads one paper source version and one repository commit from "
+            "existing source and code-evidence authority. JSON is written to stdout. "
+            "Output is proposal-only, unpublished, and pending semantic review. "
+            "This command does not write a Vault, create a fact store, or publish a current head."
+        ),
+    )
+    domain_sub = domain.add_subparsers(dest="domain_cmd", required=True)
+    domain_inspect = _add_parser(
+        domain_sub,
+        "inspect",
+        help=(
+            "Validate a domain proposal against existing source, claim, and C2 handoff "
+            "authority. JSON report to stdout. Repeat the same input for identical bytes."
+        ),
+        description=(
+            "Validate a domain proposal against existing source, claim, and C2 handoff "
+            "authority. Input is --input JSON. Source records are read from --vault-root. "
+            "Code evidence is read from --code-batch-id under .work/<batch-id>/code-evidence-v1/. "
+            "The command is read-only: it does not write the Vault or code-evidence tree. "
+            "The report is proposal-only, unpublished, and pending semantic review. "
+            "Repair a refused proposal and repeat inspect; do not force officiality."
+        ),
+    )
+    domain_inspect.add_argument("--input", required=True)
+    domain_inspect.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_inspect.add_argument("--code-batch-id", dest="code_batch_id", required=True)
+    domain_inspect.set_defaults(handler=run_domain_inspect_command)
+
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
     audit.set_defaults(handler=domain_commands.audit)
