@@ -1,0 +1,1767 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.experiment-condition-record.v1.schema.json",
+  "title": "video-paper-wiki.experiment-condition-record.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "record_id",
+    "condition_id",
+    "previous_record_id",
+    "recorded_by",
+    "recorded_at",
+    "paper_id",
+    "source_association",
+    "source_digest",
+    "code_binding",
+    "setting_key",
+    "conditions",
+    "claim_refs",
+    "content_sha256",
+    "publication",
+    "typed_fact_promotion",
+    "canonical_official",
+    "current_supported_typed_fact"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.experiment-condition-record.v1"
+    },
+    "record_id": {
+      "type": "string",
+      "pattern": "^exr-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "condition_id": {
+      "type": "string",
+      "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "previous_record_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^exr-[0-9a-f]{20}$(?![\\s\\S])"
+        }
+      ]
+    },
+    "recorded_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "recorded_at": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+    },
+    "paper_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+    },
+    "source_association": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal.v1.schema.json#/$defs/association_ref"
+    },
+    "source_digest": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal.v1.schema.json#/$defs/byte_digest"
+    },
+    "code_binding": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/code_binding"
+        }
+      ]
+    },
+    "setting_key": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$(?![\\s\\S])"
+    },
+    "conditions": {
+      "$ref": "#/$defs/conditions"
+    },
+    "claim_refs": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 64,
+      "items": {
+        "$ref": "#/$defs/claim_ref"
+      }
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "publication": {
+      "const": "unpublished"
+    },
+    "typed_fact_promotion": {
+      "const": "none"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "value_source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "locator",
+            "quote_sha256"
+          ],
+          "properties": {
+            "kind": {
+              "const": "paper_direct"
+            },
+            "locator": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal.v1.schema.json#/$defs/paper_direct_locator"
+            },
+            "quote_sha256": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "locator",
+            "quote_sha256"
+          ],
+          "properties": {
+            "kind": {
+              "const": "project_page"
+            },
+            "locator": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal.v1.schema.json#/$defs/project_page_evidence"
+            },
+            "quote_sha256": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "locator",
+            "quote_sha256"
+          ],
+          "properties": {
+            "kind": {
+              "const": "repository_text"
+            },
+            "locator": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal.v1.schema.json#/$defs/repository_text_locator"
+            },
+            "quote_sha256": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+            }
+          }
+        }
+      ]
+    },
+    "search_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_paths",
+        "search_terms"
+      ],
+      "properties": {
+        "artifact_paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/portable_vault_relative_path"
+          }
+        },
+        "search_terms": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "code_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineage_id",
+        "annotation_id",
+        "repository",
+        "commit"
+      ],
+      "properties": {
+        "lineage_id": {
+          "type": "string",
+          "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+        },
+        "annotation_id": {
+          "type": "string",
+          "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+        },
+        "repository": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+        },
+        "commit": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"
+        }
+      }
+    },
+    "model_checkpoint_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "checkpoint_ref",
+        "checkpoint_sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "checkpoint_ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "checkpoint_sha256": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "parameter_count_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "basis"
+      ],
+      "properties": {
+        "count": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000000000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basis": {
+          "enum": [
+            "total",
+            "trainable",
+            "backbone_only",
+            "excluding_text_encoder",
+            "unspecified"
+          ]
+        }
+      }
+    },
+    "dataset_split_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataset",
+        "split",
+        "subset"
+      ],
+      "properties": {
+        "dataset": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "split": {
+          "enum": [
+            "train",
+            "val",
+            "test",
+            "custom",
+            "unspecified"
+          ]
+        },
+        "subset": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "unit",
+        "value",
+        "higher_is_better",
+        "definition_source"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "unit": {
+          "enum": [
+            "score",
+            "percent",
+            "fvd",
+            "fid",
+            "kvd",
+            "is",
+            "clip_score",
+            "ms",
+            "seconds",
+            "fps",
+            "unitless",
+            "other"
+          ]
+        },
+        "value": {
+          "type": "number"
+        },
+        "higher_is_better": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "definition_source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/value_source"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "metrics_value": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/metric"
+      }
+    },
+    "resolution_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width",
+        "height"
+      ],
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        }
+      }
+    },
+    "frames_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "fps"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "fps": {
+          "anyOf": [
+            {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "inference_steps_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "steps",
+        "scheduler"
+      ],
+      "properties": {
+        "steps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "scheduler": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "sampling_guidance_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "guidance_scale",
+        "sampler",
+        "seed"
+      ],
+      "properties": {
+        "guidance_scale": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sampler": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "evaluation_setup_value": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol",
+        "num_samples",
+        "evaluator"
+      ],
+      "properties": {
+        "protocol": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "num_samples": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100000000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evaluator": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "conditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_checkpoint",
+        "parameter_count",
+        "dataset_split",
+        "metrics",
+        "resolution",
+        "frames",
+        "inference_steps",
+        "sampling_guidance",
+        "evaluation_setup"
+      ],
+      "properties": {
+        "model_checkpoint": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/model_checkpoint_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "parameter_count": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/parameter_count_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "dataset_split": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/dataset_split_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "metrics": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/metrics_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "resolution": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/resolution_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "frames": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/frames_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "inference_steps": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/inference_steps_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "sampling_guidance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/sampling_guidance_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        },
+        "evaluation_setup": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "enum": [
+                    "reported",
+                    "derived"
+                  ]
+                },
+                "value": {
+                  "$ref": "#/$defs/evaluation_setup_value"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 8,
+                  "items": {
+                    "$ref": "#/$defs/value_source"
+                  }
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "unknown"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "$ref": "#/$defs/search_scope"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "value",
+                "basis_note",
+                "sources",
+                "search_scope"
+              ],
+              "properties": {
+                "status": {
+                  "const": "not_applicable"
+                },
+                "value": {
+                  "type": "null"
+                },
+                "basis_note": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 1024
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "sources": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 0,
+                  "items": false
+                },
+                "search_scope": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "claim_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "claim_kind",
+        "claim_text",
+        "evidence_fingerprint",
+        "assessment_head"
+      ],
+      "properties": {
+        "claim_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+        },
+        "claim_kind": {
+          "const": "empirical_result"
+        },
+        "claim_text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        },
+        "evidence_fingerprint": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "assessment_head": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal.v1.schema.json#/$defs/assessment_head"
+        }
+      }
+    }
+  }
+}
