@@ -131,7 +131,7 @@ def test_cli_help_four_leaves(capsys):
     for action in parent._actions:
         if getattr(action, "choices", None):
             leaves.update(action.choices)
-    assert set(leaves) == {"inspect", "record", "review", "status"}
+    assert set(leaves) == {"inspect", "record", "review", "status", "compile", "publish-inspect"}
     record_help = leaves["record"].format_help()
     assert "--input" in record_help
     assert "--vault-root" in record_help
