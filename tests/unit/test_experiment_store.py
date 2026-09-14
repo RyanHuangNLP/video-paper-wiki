@@ -483,6 +483,19 @@ def test_input_and_shape_failures(world):
         ),
         "EXPERIMENT_RECORD_INVALID",
     )
+    for name, association, reason in (
+        ("sa-str.json", "sva-not-a-dict", "type"),
+        ("sa-missing.json", {"sha256": "0" * 64}, "input_keys"),
+        ("sa-null.json", None, "type"),
+    ):
+        payload = valid_condition_input(world)
+        payload["source_association"] = association
+        err = _expect(lambda p=payload, n=name: _record_exp(world, p, name=n), "EXPERIMENT_RECORD_INVALID")
+        assert type(err) is ExperimentStoreError
+        assert err.exit_code == 2
+        assert err.details["reason"] == reason
+        assert err.details["instance_pointer"].startswith("/source_association")
+        assert err.details["next_action"] == "repair_input"
 
 
 def test_binding_failures(world):

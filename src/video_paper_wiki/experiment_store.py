@@ -788,7 +788,32 @@ def _require_claims(record, authority):
             )
 
 
+def _require_input_identity(payload):
+    if type(payload.get("paper_id")) is not str:
+        _fail("EXPERIMENT_RECORD_INVALID", "/paper_id", "repair_input", {"reason": "type"})
+    if type(payload.get("setting_key")) is not str:
+        _fail("EXPERIMENT_RECORD_INVALID", "/setting_key", "repair_input", {"reason": "type"})
+    association = payload.get("source_association")
+    if type(association) is not dict:
+        _fail("EXPERIMENT_RECORD_INVALID", "/source_association", "repair_input", {"reason": "type"})
+    if "association_id" not in association:
+        _fail(
+            "EXPERIMENT_RECORD_INVALID",
+            "/source_association/association_id",
+            "repair_input",
+            {"reason": "input_keys"},
+        )
+    if type(association["association_id"]) is not str:
+        _fail(
+            "EXPERIMENT_RECORD_INVALID",
+            "/source_association/association_id",
+            "repair_input",
+            {"reason": "type"},
+        )
+
+
 def _build_record(*, payload, previous, recorded_by, recorded_at):
+    _require_input_identity(payload)
     condition_id = condition_id_from_record(payload)
     content_sha256 = content_sha256_from_record(payload)
     body = {

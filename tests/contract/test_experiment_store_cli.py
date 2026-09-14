@@ -165,3 +165,34 @@ def test_cli_forbidden_leaves_and_no_network(world, monkeypatch, capsys):
         envelope = json.loads(out.strip().splitlines()[-1])
         assert code == 2
         assert envelope["error"]["code"] == "USAGE"
+
+
+def test_cli_malformed_source_association_record(world):
+    payload = valid_condition_input(world)
+    payload["source_association"] = "sva-not-a-dict"
+    write_bytes(world["checkout"] / "bad-assoc.json", canonicalize(payload) + b"\n")
+    proc = run_module_cli(
+        world["checkout"],
+        [
+            "experiments",
+            "record",
+            "--input",
+            "bad-assoc.json",
+            "--vault-root",
+            str(world["vault"]),
+            "--batch-id",
+            BATCH,
+            "--recorded-by",
+            RECORDED_BY,
+            "--recorded-at",
+            RECORDED_AT,
+        ],
+    )
+    assert proc.returncode == 2
+    assert "Traceback" not in proc.stderr
+    assert "Traceback" not in proc.stdout
+    lines = [line for line in proc.stdout.splitlines() if line.strip()]
+    assert len(lines) == 1
+    envelope = json.loads(lines[0])
+    assert envelope["ok"] is False
+    assert envelope["error"]["code"] == "EXPERIMENT_RECORD_INVALID"
