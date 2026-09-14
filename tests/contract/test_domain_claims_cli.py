@@ -129,7 +129,7 @@ def test_domain_apply_is_still_usage(world, capsys):
             leaves.update(action.choices)
     assert "apply" not in leaves
     assert "claims" in leaves
-    assert len(leaves) == 9
+    assert len(leaves) == 10
     code = main(["domain", "apply", "--help"])
     out = capsys.readouterr().out
     envelope = json.loads(out.strip().splitlines()[-1])

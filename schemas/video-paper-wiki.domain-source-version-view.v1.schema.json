@@ -1,0 +1,889 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-source-version-view.v1.schema.json",
+  "title": "video-paper-wiki.domain-source-version-view.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "basis",
+    "paper_filter",
+    "lineage_count",
+    "lineages",
+    "versions",
+    "papers",
+    "findings",
+    "publication",
+    "write_kind",
+    "audit_coverage",
+    "code_freshness",
+    "evidence_recheck",
+    "source_recheck",
+    "source_association_verified",
+    "typed_fact_promotion",
+    "experiment_conditions",
+    "canonical_official",
+    "current_supported_typed_fact",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.domain-source-version-view.v1"
+    },
+    "basis": {
+      "$ref": "#/$defs/basis"
+    },
+    "paper_filter": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        }
+      ]
+    },
+    "lineage_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4096
+    },
+    "lineages": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/lineage_view"
+      }
+    },
+    "versions": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/registry_version"
+      }
+    },
+    "papers": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 4096,
+      "items": {
+        "$ref": "#/$defs/paper_view"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32768,
+      "items": {
+        "$ref": "#/$defs/finding_row"
+      }
+    },
+    "publication": {
+      "const": "unpublished"
+    },
+    "write_kind": {
+      "const": "read_only"
+    },
+    "audit_coverage": {
+      "const": "not_wired"
+    },
+    "code_freshness": {
+      "const": "not_checked"
+    },
+    "evidence_recheck": {
+      "const": "not_performed"
+    },
+    "source_recheck": {
+      "const": "captured_markdown_digest"
+    },
+    "source_association_verified": {
+      "const": false,
+      "type": "boolean"
+    },
+    "typed_fact_promotion": {
+      "const": "none"
+    },
+    "experiment_conditions": {
+      "const": "not_modeled"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    },
+    "next_action": {
+      "enum": [
+        "none",
+        "review_findings",
+        "re_record_annotation"
+      ]
+    }
+  },
+  "$defs": {
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain_store_inventory_sha256",
+        "claim_ledger_sha256",
+        "assessment_heads_sha256"
+      ],
+      "properties": {
+        "domain_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "claim_ledger_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "assessment_heads_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "lineage_id": {
+      "type": "string",
+      "minLength": 24,
+      "maxLength": 24,
+      "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "annotation_id": {
+      "type": "string",
+      "minLength": 24,
+      "maxLength": 24,
+      "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "review_id": {
+      "type": "string",
+      "minLength": 24,
+      "maxLength": 24,
+      "pattern": "^drv-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "association_id": {
+      "type": "string",
+      "minLength": 68,
+      "maxLength": 68,
+      "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "relation_kind": {
+      "enum": [
+        "this_paper_implementation",
+        "baseline",
+        "dependency",
+        "third_party_reproduction",
+        "unknown"
+      ]
+    },
+    "reviewed_officiality": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "official",
+            "unofficial",
+            "unverified_candidate"
+          ]
+        }
+      ]
+    },
+    "review_decision": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "enum": [
+            "accepted",
+            "contested",
+            "rejected"
+          ]
+        }
+      ]
+    },
+    "association_status": {
+      "enum": [
+        "bound",
+        "changed",
+        "missing",
+        "identity_mismatch"
+      ]
+    },
+    "source_status": {
+      "enum": [
+        "bound",
+        "changed",
+        "missing"
+      ]
+    },
+    "version_status": {
+      "enum": [
+        "proposal_only",
+        "reviewed_accepted",
+        "reviewed_contested",
+        "reviewed_rejected",
+        "stale"
+      ]
+    },
+    "record_status": {
+      "enum": [
+        "present",
+        "missing"
+      ]
+    },
+    "claim_freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "head_bound",
+        "stale"
+      ],
+      "properties": {
+        "head_bound": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        },
+        "stale": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        }
+      }
+    },
+    "source_digest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        }
+      }
+    },
+    "source_id_or_null": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+        }
+      ]
+    },
+    "version_or_null": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-source-observation.v1.schema.json#/properties/version"
+        }
+      ]
+    },
+    "sha256_or_null": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      ]
+    },
+    "history_changes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "association_rebound"
+      ],
+      "properties": {
+        "association_rebound": {
+          "type": "boolean"
+        }
+      }
+    },
+    "history_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "annotation_id",
+        "previous_annotation_id",
+        "recorded_at",
+        "commit",
+        "report_sha256",
+        "recorded_association_sha256",
+        "source_digest_sha256",
+        "changes_from_previous"
+      ],
+      "properties": {
+        "annotation_id": {
+          "$ref": "#/$defs/annotation_id"
+        },
+        "previous_annotation_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/annotation_id"
+            }
+          ]
+        },
+        "recorded_at": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+        },
+        "commit": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"
+        },
+        "report_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "recorded_association_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "source_digest_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "changes_from_previous": {
+          "$ref": "#/$defs/history_changes"
+        }
+      }
+    },
+    "lineage_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineage_id",
+        "paper_id",
+        "repository",
+        "commit",
+        "head_annotation_id",
+        "head_report_sha256",
+        "current_review_id",
+        "review_decision",
+        "reviewed_officiality",
+        "relation_kind",
+        "source_association_id",
+        "recorded_association_sha256",
+        "association_status",
+        "association_record_sha256",
+        "source_id",
+        "version",
+        "source_digest",
+        "source_status",
+        "claim_freshness",
+        "version_status",
+        "binding_revisions",
+        "history"
+      ],
+      "properties": {
+        "lineage_id": {
+          "$ref": "#/$defs/lineage_id"
+        },
+        "paper_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        },
+        "repository": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+        },
+        "commit": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"
+        },
+        "head_annotation_id": {
+          "$ref": "#/$defs/annotation_id"
+        },
+        "head_report_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "current_review_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/review_id"
+            }
+          ]
+        },
+        "review_decision": {
+          "$ref": "#/$defs/review_decision"
+        },
+        "reviewed_officiality": {
+          "$ref": "#/$defs/reviewed_officiality"
+        },
+        "relation_kind": {
+          "$ref": "#/$defs/relation_kind"
+        },
+        "source_association_id": {
+          "$ref": "#/$defs/association_id"
+        },
+        "recorded_association_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "association_status": {
+          "$ref": "#/$defs/association_status"
+        },
+        "association_record_sha256": {
+          "$ref": "#/$defs/sha256_or_null"
+        },
+        "source_id": {
+          "$ref": "#/$defs/source_id_or_null"
+        },
+        "version": {
+          "$ref": "#/$defs/version_or_null"
+        },
+        "source_digest": {
+          "$ref": "#/$defs/source_digest"
+        },
+        "source_status": {
+          "$ref": "#/$defs/source_status"
+        },
+        "claim_freshness": {
+          "$ref": "#/$defs/claim_freshness"
+        },
+        "version_status": {
+          "$ref": "#/$defs/version_status"
+        },
+        "binding_revisions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "history": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/history_row"
+          }
+        }
+      }
+    },
+    "status_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bound",
+        "changed",
+        "missing",
+        "identity_mismatch"
+      ],
+      "properties": {
+        "bound": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "changed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "missing": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "identity_mismatch": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        }
+      }
+    },
+    "source_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bound",
+        "changed",
+        "missing"
+      ],
+      "properties": {
+        "bound": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "changed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "missing": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        }
+      }
+    },
+    "registry_version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_association_id",
+        "paper_ids",
+        "record_status",
+        "association_record_sha256",
+        "recorded_association_sha256s",
+        "status_counts",
+        "source_id",
+        "version",
+        "source_digest_sha256s",
+        "repositories",
+        "lineage_ids"
+      ],
+      "properties": {
+        "source_association_id": {
+          "$ref": "#/$defs/association_id"
+        },
+        "paper_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+          }
+        },
+        "record_status": {
+          "$ref": "#/$defs/record_status"
+        },
+        "association_record_sha256": {
+          "$ref": "#/$defs/sha256_or_null"
+        },
+        "recorded_association_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+          }
+        },
+        "status_counts": {
+          "$ref": "#/$defs/status_counts"
+        },
+        "source_id": {
+          "$ref": "#/$defs/source_id_or_null"
+        },
+        "version": {
+          "$ref": "#/$defs/version_or_null"
+        },
+        "source_digest_sha256s": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+          }
+        },
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+          }
+        },
+        "lineage_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/lineage_id"
+          }
+        }
+      }
+    },
+    "paper_version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_association_id",
+        "source_id",
+        "version",
+        "association_counts",
+        "source_counts",
+        "repositories",
+        "lineage_ids"
+      ],
+      "properties": {
+        "source_association_id": {
+          "$ref": "#/$defs/association_id"
+        },
+        "source_id": {
+          "$ref": "#/$defs/source_id_or_null"
+        },
+        "version": {
+          "$ref": "#/$defs/version_or_null"
+        },
+        "association_counts": {
+          "$ref": "#/$defs/status_counts"
+        },
+        "source_counts": {
+          "$ref": "#/$defs/source_counts"
+        },
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+          }
+        },
+        "lineage_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/lineage_id"
+          }
+        }
+      }
+    },
+    "paper_lineage_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineage_id",
+        "source_association_id",
+        "commit",
+        "relation_kind",
+        "reviewed_officiality",
+        "version_status",
+        "association_status",
+        "source_status"
+      ],
+      "properties": {
+        "lineage_id": {
+          "$ref": "#/$defs/lineage_id"
+        },
+        "source_association_id": {
+          "$ref": "#/$defs/association_id"
+        },
+        "commit": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"
+        },
+        "relation_kind": {
+          "$ref": "#/$defs/relation_kind"
+        },
+        "reviewed_officiality": {
+          "$ref": "#/$defs/reviewed_officiality"
+        },
+        "version_status": {
+          "$ref": "#/$defs/version_status"
+        },
+        "association_status": {
+          "$ref": "#/$defs/association_status"
+        },
+        "source_status": {
+          "$ref": "#/$defs/source_status"
+        }
+      }
+    },
+    "paper_repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "lineages"
+      ],
+      "properties": {
+        "repository": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+        },
+        "lineages": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "$ref": "#/$defs/paper_lineage_ref"
+          }
+        }
+      }
+    },
+    "search_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineage_ids",
+        "head_annotation_ids",
+        "association_record_paths",
+        "claim_ledger_sha256",
+        "assessment_heads_sha256"
+      ],
+      "properties": {
+        "lineage_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/lineage_id"
+          }
+        },
+        "head_annotation_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/annotation_id"
+          }
+        },
+        "association_record_paths": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        "claim_ledger_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "assessment_heads_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "paper_view": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_id",
+        "versions",
+        "repositories",
+        "declared_version_count",
+        "unlabeled_versions",
+        "search_scope",
+        "finding_count"
+      ],
+      "properties": {
+        "paper_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        },
+        "versions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "$ref": "#/$defs/paper_version"
+          }
+        },
+        "repositories": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "$ref": "#/$defs/paper_repository"
+          }
+        },
+        "declared_version_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "unlabeled_versions": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/association_id"
+          }
+        },
+        "search_scope": {
+          "$ref": "#/$defs/search_scope"
+        },
+        "finding_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32768
+        }
+      }
+    },
+    "finding_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "subject",
+        "paper_ids",
+        "lineage_ids",
+        "detail"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "association_missing",
+            "association_changed",
+            "association_identity_mismatch",
+            "source_missing",
+            "source_changed",
+            "association_binding_divergence",
+            "association_paper_divergence",
+            "version_label_collision"
+          ]
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "paper_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+          }
+        },
+        "lineage_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/lineage_id"
+          }
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    }
+  }
+}
