@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-annotation-record.v1.schema.json",
+  "title": "video-paper-wiki.domain-annotation-record.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "annotation_id",
+    "lineage_id",
+    "previous_annotation_id",
+    "recorded_by",
+    "recorded_at",
+    "report",
+    "report_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.domain-annotation-record.v1"
+    },
+    "annotation_id": {
+      "type": "string",
+      "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "lineage_id": {
+      "type": "string",
+      "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "previous_annotation_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+        }
+      ]
+    },
+    "recorded_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "recorded_at": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+    },
+    "report": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-proposal-report.v1.schema.json"
+    },
+    "report_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    }
+  }
+}

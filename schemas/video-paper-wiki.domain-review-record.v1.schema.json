@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-review-record.v1.schema.json",
+  "title": "video-paper-wiki.domain-review-record.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "review_id",
+    "lineage_id",
+    "annotation_id",
+    "annotation_sha256",
+    "previous_review_id",
+    "actor_kind",
+    "decision",
+    "decided_by",
+    "decided_at",
+    "reason"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.domain-review-record.v1"
+    },
+    "review_id": {
+      "type": "string",
+      "pattern": "^drv-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "lineage_id": {
+      "type": "string",
+      "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "annotation_id": {
+      "type": "string",
+      "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+    },
+    "annotation_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "previous_review_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^drv-[0-9a-f]{20}$(?![\\s\\S])"
+        }
+      ]
+    },
+    "actor_kind": {
+      "const": "human"
+    },
+    "decision": {
+      "enum": [
+        "accepted",
+        "contested",
+        "rejected"
+      ]
+    },
+    "relation_review": {
+      "$ref": "#/$defs/relation_review"
+    },
+    "decided_by": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "decided_at": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    }
+  },
+  "$defs": {
+    "relation_review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewed_officiality",
+        "evidence_classes_relied_on",
+        "missing_evidence",
+        "reason"
+      ],
+      "properties": {
+        "reviewed_officiality": {
+          "enum": [
+            "official",
+            "unofficial",
+            "unverified_candidate"
+          ]
+        },
+        "evidence_classes_relied_on": {
+          "type": "array",
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D"
+            ]
+          }
+        },
+        "missing_evidence": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      }
+    }
+  }
+}
