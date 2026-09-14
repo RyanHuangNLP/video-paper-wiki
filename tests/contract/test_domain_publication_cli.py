@@ -181,6 +181,7 @@ def test_cli_help_six_leaves(capsys):
         if getattr(action, "choices", None):
             leaves.update(action.choices)
     assert set(leaves) == {
+        "claims",
         "inspect",
         "record",
         "relations",
