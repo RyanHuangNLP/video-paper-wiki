@@ -100,6 +100,8 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.domain-review-decision.v1",
     "video-paper-wiki.domain-review-record.v1",
     "video-paper-wiki.domain-heads.v1",
+    "video-paper-wiki.domain-publication-request.v1",
+    "video-paper-wiki.domain-publication-inspection.v1",
 }
 
 
