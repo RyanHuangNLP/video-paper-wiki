@@ -337,6 +337,11 @@ def build_parser() -> argparse.ArgumentParser:
     catalog_report=_add_parser(catalog_sub,"report");catalog_report.add_argument("--json",action="store_true",required=True);catalog_report.add_argument("--vault-root",required=True);catalog_report.add_argument("--upstream-root",required=True);catalog_report.add_argument("--config",required=True);catalog_report.add_argument("--kind",required=True,choices=("code-openness","paper-lifecycle","evidence-coverage"));catalog_report.add_argument("--paper-id");catalog_report.set_defaults(handler=domain_commands.catalog_report)
 
     from video_paper_wiki.domain_proposal_cli import run_domain_inspect_command
+    from video_paper_wiki.domain_store_cli import (
+        run_domain_record_command,
+        run_domain_review_command,
+        run_domain_status_command,
+    )
     domain = _add_parser(
         sub,
         "domain",
@@ -370,6 +375,63 @@ def build_parser() -> argparse.ArgumentParser:
     domain_inspect.add_argument("--vault-root", dest="vault_root", required=True)
     domain_inspect.add_argument("--code-batch-id", dest="code_batch_id", required=True)
     domain_inspect.set_defaults(handler=run_domain_inspect_command)
+    domain_record = _add_parser(
+        domain_sub,
+        "record",
+        help=(
+            "Re-run domain inspect and stage a closed annotation plus derived heads "
+            "under .work/<batch-id>/domain/. Does not write the Vault."
+        ),
+        description=(
+            "Re-execute domain inspect on --input, read wiki/meta/domain from "
+            "--vault-root, and stage an annotation record plus derived heads under "
+            ".work/<batch-id>/domain/. Output is unpublished and pending semantic "
+            "review. This command does not write the Vault or publish a current head."
+        ),
+    )
+    domain_record.add_argument("--input", required=True)
+    domain_record.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_record.add_argument("--code-batch-id", dest="code_batch_id", required=True)
+    domain_record.add_argument("--batch-id", dest="batch_id", required=True)
+    domain_record.add_argument("--recorded-by", dest="recorded_by", required=True)
+    domain_record.add_argument("--recorded-at", dest="recorded_at", required=True)
+    domain_record.add_argument("--previous-annotation-id", dest="previous_annotation_id")
+    domain_record.set_defaults(handler=run_domain_record_command)
+    domain_review = _add_parser(
+        domain_sub,
+        "review",
+        help=(
+            "Validate a closed human review decision against the domain store and "
+            "stage the review plus derived heads under .work/<batch-id>/domain/. "
+            "Does not write the Vault."
+        ),
+        description=(
+            "Load a closed domain-review-decision.v1 from --decision, read "
+            "wiki/meta/domain from --vault-root, and stage a review record plus "
+            "derived heads under .work/<batch-id>/domain/. This command does not "
+            "write the Vault or produce a canonical official fact."
+        ),
+    )
+    domain_review.add_argument("--decision", required=True)
+    domain_review.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_review.add_argument("--batch-id", dest="batch_id", required=True)
+    domain_review.set_defaults(handler=run_domain_review_command)
+    domain_status = _add_parser(
+        domain_sub,
+        "status",
+        help=(
+            "Read-only domain store status, derived heads, and claim freshness. "
+            "JSON to stdout. Does not write the Vault."
+        ),
+        description=(
+            "Read and validate wiki/meta/domain under --vault-root. JSON report of "
+            "derived heads, lineage freshness, and typed-fact candidates. The "
+            "command is read-only: it does not write the Vault or .work staging. "
+            "canonical_official and current_supported_typed_fact remain false."
+        ),
+    )
+    domain_status.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_status.set_defaults(handler=run_domain_status_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
