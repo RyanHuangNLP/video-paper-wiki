@@ -183,6 +183,7 @@ def test_cli_help_six_leaves(capsys):
     assert set(leaves) == {
         "inspect",
         "record",
+        "relations",
         "review",
         "status",
         "compile",
