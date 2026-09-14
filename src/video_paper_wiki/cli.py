@@ -337,6 +337,10 @@ def build_parser() -> argparse.ArgumentParser:
     catalog_report=_add_parser(catalog_sub,"report");catalog_report.add_argument("--json",action="store_true",required=True);catalog_report.add_argument("--vault-root",required=True);catalog_report.add_argument("--upstream-root",required=True);catalog_report.add_argument("--config",required=True);catalog_report.add_argument("--kind",required=True,choices=("code-openness","paper-lifecycle","evidence-coverage"));catalog_report.add_argument("--paper-id");catalog_report.set_defaults(handler=domain_commands.catalog_report)
 
     from video_paper_wiki.domain_proposal_cli import run_domain_inspect_command
+    from video_paper_wiki.domain_publication_cli import (
+        run_domain_compile_command,
+        run_domain_publish_inspect_command,
+    )
     from video_paper_wiki.domain_store_cli import (
         run_domain_record_command,
         run_domain_review_command,
@@ -432,6 +436,43 @@ def build_parser() -> argparse.ArgumentParser:
     )
     domain_status.add_argument("--vault-root", dest="vault_root", required=True)
     domain_status.set_defaults(handler=run_domain_status_command)
+    domain_compile = _add_parser(
+        domain_sub,
+        "compile",
+        help=(
+            "Compile a staged domain batch into an unpublished publication request "
+            "under .work/<batch-id>/domain-publication/. Does not write the Vault."
+        ),
+        description=(
+            "Read wiki/meta/domain from --vault-root and .work/<batch-id>/domain/, "
+            "then stage a closed unpublished domain-publication-request.v1 plus "
+            "content under .work/<batch-id>/domain-publication/. The command does "
+            "not write the Vault, apply a transaction, or attach receipt, audit, "
+            "backup, or transaction authority. canonical_official and "
+            "current_supported_typed_fact remain false."
+        ),
+    )
+    domain_compile.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_compile.add_argument("--batch-id", dest="batch_id", required=True)
+    domain_compile.set_defaults(handler=run_domain_compile_command)
+    domain_publish_inspect = _add_parser(
+        domain_sub,
+        "publish-inspect",
+        help=(
+            "Read-only inspect of a staged domain publication request. JSON to "
+            "stdout. Does not write the Vault or .work staging."
+        ),
+        description=(
+            "Load a closed domain-publication-request.v1 from --prepared, recompute "
+            "the write set against --vault-root, and emit a closed unpublished "
+            "inspection. The command is read-only: it does not write the Vault or "
+            ".work staging. Apply requires a later slice. canonical_official and "
+            "current_supported_typed_fact remain false."
+        ),
+    )
+    domain_publish_inspect.add_argument("--prepared", required=True)
+    domain_publish_inspect.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_publish_inspect.set_defaults(handler=run_domain_publish_inspect_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
