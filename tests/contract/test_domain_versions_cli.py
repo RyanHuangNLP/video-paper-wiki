@@ -15,7 +15,7 @@ from tests.unit.test_domain_proposal import (
 from tests.unit.test_domain_store import BATCH, RECORDED_AT, RECORDED_BY
 from video_paper_wiki.cli import build_parser, main
 from video_paper_wiki.contracts import validate_document
-from video_paper_wiki.domain_structure import VIEW_SCHEMA
+from video_paper_wiki.domain_versions import VIEW_SCHEMA
 from video_paper_wiki.jcs import canonicalize
 
 UNKNOWN_PAPER = "sha256:" + "f" * 64
@@ -26,16 +26,17 @@ def world(tmp_path, monkeypatch):
     return make_world(tmp_path, monkeypatch)
 
 
-def test_structure_help_flags(world):
-    proc = run_module_cli(world["checkout"], ["domain", "structure", "--help"])
+def test_versions_help_flags(world):
+    proc = run_module_cli(world["checkout"], ["domain", "versions", "--help"])
     assert proc.returncode == 0
     assert "--vault-root" in proc.stdout
     assert "--paper-id" in proc.stdout
     assert "--batch-id" not in proc.stdout
+    assert "--association-id" not in proc.stdout
 
 
-def test_structure_requires_vault_root(world, capsys):
-    code = main(["domain", "structure"])
+def test_versions_requires_vault_root(world, capsys):
+    code = main(["domain", "versions"])
     out = capsys.readouterr().out
     envelope = json.loads(out.strip().splitlines()[-1])
     assert code == 2
@@ -43,7 +44,7 @@ def test_structure_requires_vault_root(world, capsys):
     assert envelope["error"]["code"] == "USAGE"
 
 
-def test_cli_record_compile_apply_structure_and_unknown_paper(world):
+def test_cli_record_compile_apply_versions_and_unknown_paper(world):
     proposal = valid_proposal(world)
     write_proposal(world["checkout"], proposal)
     vault_before = _snapshot(world["vault"])
@@ -76,32 +77,32 @@ def test_cli_record_compile_apply_structure_and_unknown_paper(world):
     _apply(world, BATCH)
     work_before = _snapshot(world["checkout"] / ".work")
     vault_applied = _snapshot(world["vault"])
-    struct_proc = run_module_cli(
+    versions_proc = run_module_cli(
         world["checkout"],
-        ["domain", "structure", "--vault-root", str(world["vault"])],
+        ["domain", "versions", "--vault-root", str(world["vault"])],
     )
-    payload = parse_envelope(struct_proc)
-    assert struct_proc.returncode == 0
+    payload = parse_envelope(versions_proc)
+    assert versions_proc.returncode == 0
     assert payload["ok"] is True
-    assert payload["command"] == "domain.structure"
+    assert payload["command"] == "domain.versions"
     validate_document(payload["data"], VIEW_SCHEMA)
     assert payload["data"]["write_kind"] == "read_only"
     assert payload["data"]["canonical_official"] is False
-    assert payload["data"]["evidence_recheck"] == "not_performed"
+    assert payload["data"]["source_recheck"] == "captured_markdown_digest"
     assert _snapshot(world["vault"]) == vault_applied
     assert _snapshot(world["checkout"] / ".work") == work_before
     again = run_module_cli(
         world["checkout"],
-        ["domain", "structure", "--vault-root", str(world["vault"])],
+        ["domain", "versions", "--vault-root", str(world["vault"])],
     )
     assert again.returncode == 0
-    assert again.stdout == struct_proc.stdout
-    assert canonicalize(payload) == struct_proc.stdout.encode("utf-8").strip()
+    assert again.stdout == versions_proc.stdout
+    assert canonicalize(payload) == versions_proc.stdout.encode("utf-8").strip()
     unknown = run_module_cli(
         world["checkout"],
         [
             "domain",
-            "structure",
+            "versions",
             "--vault-root",
             str(world["vault"]),
             "--paper-id",
@@ -110,7 +111,7 @@ def test_cli_record_compile_apply_structure_and_unknown_paper(world):
     )
     unknown_payload = parse_envelope(unknown)
     assert unknown.returncode == 2
-    assert unknown_payload["error"]["code"] == "DOMAIN_STRUCTURE_PAPER_UNKNOWN"
+    assert unknown_payload["error"]["code"] == "DOMAIN_VERSIONS_PAPER_UNKNOWN"
     assert unknown_payload["error"]["details"]["next_action"] == "check_paper_id"
 
 
@@ -127,7 +128,7 @@ def test_domain_apply_is_still_usage(world, capsys):
         if getattr(action, "choices", None):
             leaves.update(action.choices)
     assert "apply" not in leaves
-    assert "structure" in leaves
+    assert "versions" in leaves
     assert len(leaves) == 10
     code = main(["domain", "apply", "--help"])
     out = capsys.readouterr().out

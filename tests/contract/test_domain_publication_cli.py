@@ -190,6 +190,7 @@ def test_cli_help_six_leaves(capsys):
         "structure",
         "compile",
         "publish-inspect",
+        "versions",
     }
     compile_help = leaves["compile"].format_help()
     assert "--vault-root" in compile_help
