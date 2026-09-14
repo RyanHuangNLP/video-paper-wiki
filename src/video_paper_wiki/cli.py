@@ -341,6 +341,7 @@ def build_parser() -> argparse.ArgumentParser:
         run_domain_compile_command,
         run_domain_publish_inspect_command,
     )
+    from video_paper_wiki.domain_relations_cli import run_domain_relations_command
     from video_paper_wiki.domain_store_cli import (
         run_domain_record_command,
         run_domain_review_command,
@@ -473,6 +474,25 @@ def build_parser() -> argparse.ArgumentParser:
     domain_publish_inspect.add_argument("--prepared", required=True)
     domain_publish_inspect.add_argument("--vault-root", dest="vault_root", required=True)
     domain_publish_inspect.set_defaults(handler=run_domain_publish_inspect_command)
+    domain_relations = _add_parser(
+        domain_sub,
+        "relations",
+        help=(
+            "Read-only typed paper-repository relation view with Vault byte "
+            "recheck, conflict report, and relation history. JSON to stdout. "
+            "Does not write the Vault."
+        ),
+        description=(
+            "Read wiki/meta/domain under --vault-root and emit a closed "
+            "unpublished domain-relation-view.v1. Optional --paper-id filters "
+            "to one paper. The command is read-only: it does not write the "
+            "Vault or .work staging. canonical_official and "
+            "current_supported_typed_fact remain false."
+        ),
+    )
+    domain_relations.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_relations.add_argument("--paper-id", dest="paper_id")
+    domain_relations.set_defaults(handler=run_domain_relations_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
