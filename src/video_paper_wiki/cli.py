@@ -343,6 +343,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     from video_paper_wiki.domain_relations_cli import run_domain_relations_command
     from video_paper_wiki.domain_structure_cli import run_domain_structure_command
+    from video_paper_wiki.domain_claims_cli import run_domain_claims_command
     from video_paper_wiki.domain_store_cli import (
         run_domain_record_command,
         run_domain_review_command,
@@ -513,6 +514,25 @@ def build_parser() -> argparse.ArgumentParser:
     domain_structure.add_argument("--vault-root", dest="vault_root", required=True)
     domain_structure.add_argument("--paper-id", dest="paper_id")
     domain_structure.set_defaults(handler=run_domain_structure_command)
+    domain_claims = _add_parser(
+        domain_sub,
+        "claims",
+        help=(
+            "Read-only typed claim-kind coverage view with untyped search "
+            "scope, annotation-chain change detection, and divergence "
+            "findings. JSON to stdout. Does not write the Vault."
+        ),
+        description=(
+            "Read wiki/meta/domain under --vault-root and emit a closed "
+            "unpublished domain-claim-coverage-view.v1. Optional --paper-id "
+            "filters to one paper. The command is read-only: it does not write "
+            "the Vault or .work staging. canonical_official and "
+            "current_supported_typed_fact remain false."
+        ),
+    )
+    domain_claims.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_claims.add_argument("--paper-id", dest="paper_id")
+    domain_claims.set_defaults(handler=run_domain_claims_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
