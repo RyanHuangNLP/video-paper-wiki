@@ -186,6 +186,7 @@ def test_cli_help_six_leaves(capsys):
         "relations",
         "review",
         "status",
+        "structure",
         "compile",
         "publish-inspect",
     }

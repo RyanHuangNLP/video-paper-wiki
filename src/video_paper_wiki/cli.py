@@ -342,6 +342,7 @@ def build_parser() -> argparse.ArgumentParser:
         run_domain_publish_inspect_command,
     )
     from video_paper_wiki.domain_relations_cli import run_domain_relations_command
+    from video_paper_wiki.domain_structure_cli import run_domain_structure_command
     from video_paper_wiki.domain_store_cli import (
         run_domain_record_command,
         run_domain_review_command,
@@ -493,6 +494,25 @@ def build_parser() -> argparse.ArgumentParser:
     domain_relations.add_argument("--vault-root", dest="vault_root", required=True)
     domain_relations.add_argument("--paper-id", dest="paper_id")
     domain_relations.set_defaults(handler=run_domain_relations_command)
+    domain_structure = _add_parser(
+        domain_sub,
+        "structure",
+        help=(
+            "Read-only typed concept registry and capability matrix with "
+            "absence search scope, history change detection, and divergence "
+            "findings. JSON to stdout. Does not write the Vault."
+        ),
+        description=(
+            "Read wiki/meta/domain under --vault-root and emit a closed "
+            "unpublished domain-structure-view.v1. Optional --paper-id filters "
+            "to one paper. The command is read-only: it does not write the "
+            "Vault or .work staging. canonical_official and "
+            "current_supported_typed_fact remain false."
+        ),
+    )
+    domain_structure.add_argument("--vault-root", dest="vault_root", required=True)
+    domain_structure.add_argument("--paper-id", dest="paper_id")
+    domain_structure.set_defaults(handler=run_domain_structure_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")

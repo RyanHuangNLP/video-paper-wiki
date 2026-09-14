@@ -104,6 +104,7 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.domain-publication-inspection.v1",
     "video-paper-wiki.domain-publication-apply-result.v1",
     "video-paper-wiki.domain-relation-view.v1",
+    "video-paper-wiki.domain-structure-view.v1",
 }
 
 
