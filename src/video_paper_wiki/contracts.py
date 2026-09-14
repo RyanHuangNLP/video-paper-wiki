@@ -107,6 +107,10 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.domain-structure-view.v1",
     "video-paper-wiki.domain-claim-coverage-view.v1",
     "video-paper-wiki.domain-source-version-view.v1",
+    "video-paper-wiki.experiment-condition-record.v1",
+    "video-paper-wiki.experiment-heads.v1",
+    "video-paper-wiki.experiment-comparability.v1",
+    "video-paper-wiki.experiment-comparison-matrix.v1",
 }
 
 

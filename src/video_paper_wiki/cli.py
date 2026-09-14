@@ -350,6 +350,10 @@ def build_parser() -> argparse.ArgumentParser:
         run_domain_review_command,
         run_domain_status_command,
     )
+    from video_paper_wiki.experiment_store_cli import (
+        run_experiments_record_command,
+        run_experiments_status_command,
+    )
     domain = _add_parser(
         sub,
         "domain",
@@ -553,6 +557,61 @@ def build_parser() -> argparse.ArgumentParser:
     domain_versions.add_argument("--vault-root", dest="vault_root", required=True)
     domain_versions.add_argument("--paper-id", dest="paper_id")
     domain_versions.set_defaults(handler=run_domain_versions_command)
+
+    experiments = _add_parser(
+        sub,
+        "experiments",
+        help=(
+            "Record unpublished experiment conditions or read store status. "
+            "Does not write the Vault, write canonical official facts, or rank settings."
+        ),
+        description=(
+            "Record unpublished experiment-condition settings under .work staging, "
+            "or read wiki/meta/experiments status. These commands do not write the "
+            "Vault, write canonical official facts, or rank settings."
+        ),
+    )
+    experiments_sub = experiments.add_subparsers(dest="experiments_cmd", required=True)
+    experiments_record = _add_parser(
+        experiments_sub,
+        "record",
+        help=(
+            "Stage a closed experiment-condition record plus derived heads under "
+            ".work/<batch-id>/experiments/. Does not write the Vault, write "
+            "canonical official facts, or rank settings."
+        ),
+        description=(
+            "Load a closed experiment-condition input from --input, read "
+            "wiki/meta/experiments from --vault-root, and stage an unpublished "
+            "experiment-condition-record.v1 plus derived heads under "
+            ".work/<batch-id>/experiments/. The command does not write the Vault, "
+            "write canonical official facts, or rank settings."
+        ),
+    )
+    experiments_record.add_argument("--input", required=True)
+    experiments_record.add_argument("--vault-root", dest="vault_root", required=True)
+    experiments_record.add_argument("--batch-id", dest="batch_id", required=True)
+    experiments_record.add_argument("--recorded-by", dest="recorded_by", required=True)
+    experiments_record.add_argument("--recorded-at", dest="recorded_at", required=True)
+    experiments_record.add_argument("--previous-record-id", dest="previous_record_id")
+    experiments_record.set_defaults(handler=run_experiments_record_command)
+    experiments_status = _add_parser(
+        experiments_sub,
+        "status",
+        help=(
+            "Read-only experiment store status. Does not write the Vault, write "
+            "canonical official facts, or rank settings."
+        ),
+        description=(
+            "Read wiki/meta/experiments under --vault-root. JSON report of "
+            "condition chains, bindings, and freshness. The command is read-only: "
+            "it does not write the Vault or .work staging. It does not write "
+            "canonical official facts or rank settings."
+        ),
+    )
+    experiments_status.add_argument("--vault-root", dest="vault_root", required=True)
+    experiments_status.add_argument("--paper-id", dest="paper_id")
+    experiments_status.set_defaults(handler=run_experiments_status_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")

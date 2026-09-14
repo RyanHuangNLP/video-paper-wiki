@@ -1,0 +1,854 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.experiment-comparability.v1.schema.json",
+  "title": "video-paper-wiki.experiment-comparability.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "left",
+    "right",
+    "same_paper",
+    "rules",
+    "verdict",
+    "ranking",
+    "incomparable_reasons",
+    "condition_differences",
+    "shared_metrics",
+    "contradiction_candidates",
+    "scientific_conclusion_contradiction",
+    "canonical_official",
+    "current_supported_typed_fact",
+    "typed_fact_promotion"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.experiment-comparability.v1"
+    },
+    "left": {
+      "$ref": "#/$defs/side"
+    },
+    "right": {
+      "$ref": "#/$defs/side"
+    },
+    "same_paper": {
+      "type": "boolean"
+    },
+    "rules": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": false,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_benchmark_and_split"
+            },
+            "critical": {
+              "const": true,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_metric_definition"
+            },
+            "critical": {
+              "const": true,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_metric_unit"
+            },
+            "critical": {
+              "const": true,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_resolution"
+            },
+            "critical": {
+              "const": true,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_frame_count"
+            },
+            "critical": {
+              "const": true,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_evaluation_protocol"
+            },
+            "critical": {
+              "const": true,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "checkpoint_identified"
+            },
+            "critical": {
+              "const": false,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "parameter_basis_declared"
+            },
+            "critical": {
+              "const": false,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "inference_steps_declared"
+            },
+            "critical": {
+              "const": false,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "guidance_declared"
+            },
+            "critical": {
+              "const": false,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "rule",
+            "critical",
+            "outcome",
+            "left_pointer",
+            "right_pointer",
+            "detail"
+          ],
+          "properties": {
+            "rule": {
+              "const": "same_source_version_within_paper"
+            },
+            "critical": {
+              "const": false,
+              "type": "boolean"
+            },
+            "outcome": {
+              "enum": [
+                "satisfied",
+                "violated",
+                "unknown_left",
+                "unknown_right",
+                "unknown_both",
+                "not_applicable"
+              ]
+            },
+            "left_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "right_pointer": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "detail": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024
+            }
+          }
+        }
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "comparable",
+        "comparable_with_caveats",
+        "incomparable",
+        "insufficient_conditions"
+      ]
+    },
+    "ranking": {
+      "enum": [
+        "not_ranked",
+        "refused_incomparable",
+        "refused_insufficient_conditions"
+      ]
+    },
+    "incomparable_reasons": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 11,
+      "items": {
+        "$ref": "#/$defs/incomparable_reason"
+      }
+    },
+    "condition_differences": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 128,
+      "items": {
+        "$ref": "#/$defs/condition_difference"
+      }
+    },
+    "shared_metrics": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      }
+    },
+    "contradiction_candidates": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 32,
+      "items": {
+        "$ref": "#/$defs/contradiction_candidate"
+      }
+    },
+    "scientific_conclusion_contradiction": {
+      "const": false,
+      "type": "boolean"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    },
+    "typed_fact_promotion": {
+      "const": "none"
+    }
+  },
+  "$defs": {
+    "side": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "record_id",
+        "record_sha256",
+        "condition_id",
+        "paper_id",
+        "source_association_id",
+        "setting_key"
+      ],
+      "properties": {
+        "record_id": {
+          "type": "string",
+          "pattern": "^exr-[0-9a-f]{20}$(?![\\s\\S])"
+        },
+        "record_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "condition_id": {
+          "type": "string",
+          "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+        },
+        "paper_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        },
+        "source_association_id": {
+          "type": "string",
+          "minLength": 68,
+          "maxLength": 68,
+          "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "setting_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$(?![\\s\\S])"
+        }
+      }
+    },
+    "incomparable_reason": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "kind",
+        "field_pointer",
+        "left_summary",
+        "right_summary",
+        "evidence_needed"
+      ],
+      "properties": {
+        "rule": {
+          "enum": [
+            "same_benchmark_and_split",
+            "same_metric_definition",
+            "same_metric_unit",
+            "same_resolution",
+            "same_frame_count",
+            "same_evaluation_protocol",
+            "checkpoint_identified",
+            "parameter_basis_declared",
+            "inference_steps_declared",
+            "guidance_declared",
+            "same_source_version_within_paper"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "condition_differs",
+            "condition_unknown",
+            "unit_mismatch",
+            "metric_definition_differs",
+            "no_shared_metric"
+          ]
+        },
+        "field_pointer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "left_summary": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "right_summary": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "evidence_needed": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        }
+      }
+    },
+    "condition_difference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field_pointer",
+        "left_summary",
+        "right_summary"
+      ],
+      "properties": {
+        "field_pointer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "left_summary": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "right_summary": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "contradiction_candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metric_name",
+        "unit",
+        "left_value",
+        "right_value",
+        "higher_is_better",
+        "comparability_verdict",
+        "left_claim_ids",
+        "right_claim_ids",
+        "detail"
+      ],
+      "properties": {
+        "metric_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "unit": {
+          "enum": [
+            "score",
+            "percent",
+            "fvd",
+            "fid",
+            "kvd",
+            "is",
+            "clip_score",
+            "ms",
+            "seconds",
+            "fps",
+            "unitless",
+            "other"
+          ]
+        },
+        "left_value": {
+          "type": "number"
+        },
+        "right_value": {
+          "type": "number"
+        },
+        "higher_is_better": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "comparability_verdict": {
+          "const": "comparable"
+        },
+        "left_claim_ids": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+          }
+        },
+        "right_claim_ids": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 64,
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+          }
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    }
+  }
+}
