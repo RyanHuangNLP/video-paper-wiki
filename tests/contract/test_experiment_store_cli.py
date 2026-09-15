@@ -40,7 +40,7 @@ def _leaves():
 
 def test_cli_help_two_leaves(capsys):
     leaves = _leaves()
-    assert set(leaves) == {"record", "status"}
+    assert set(leaves) == {"record", "status", "compile", "publish-inspect", "matrix"}
     record_help = leaves["record"].format_help()
     for flag in ("--input", "--vault-root", "--batch-id", "--recorded-by", "--recorded-at", "--previous-record-id"):
         assert flag in record_help
@@ -159,7 +159,7 @@ def test_cli_forbidden_leaves_and_no_network(world, monkeypatch, capsys):
         raise AssertionError("egress")
 
     monkeypatch.setattr(socket, "socket", blocked)
-    for leaf in ("apply", "compile", "publish-inspect", "matrix", "compare"):
+    for leaf in ("apply", "compare"):
         code = main(["experiments", leaf, "--help"])
         out = capsys.readouterr().out
         envelope = json.loads(out.strip().splitlines()[-1])
