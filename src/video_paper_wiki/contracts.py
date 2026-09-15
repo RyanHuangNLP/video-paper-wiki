@@ -116,6 +116,10 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.experiment-publication-apply-result.v1",
     "video-paper-wiki.domain-graph-projection.v1",
     "video-paper-wiki.domain-graph-query.v1",
+    "video-paper-wiki.article-context.v1",
+    "video-paper-wiki.article-revision-record.v1",
+    "video-paper-wiki.article-heads.v1",
+    "video-paper-wiki.article-check.v1",
 }
 
 

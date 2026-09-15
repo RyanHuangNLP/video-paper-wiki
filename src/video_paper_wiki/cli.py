@@ -363,6 +363,14 @@ def build_parser() -> argparse.ArgumentParser:
         run_graph_project_command,
         run_graph_query_command,
     )
+    from video_paper_wiki.article_cli import (
+        run_articles_check_command,
+        run_articles_export_command,
+        run_articles_history_command,
+        run_articles_import_command,
+        run_articles_render_command,
+        run_articles_status_command,
+    )
     domain = _add_parser(
         sub,
         "domain",
@@ -764,6 +772,145 @@ def build_parser() -> argparse.ArgumentParser:
     graph_query.add_argument("--limit", dest="limit", type=int, default=8)
     graph_query.add_argument("--" + "bm" + "25-ranking", dest="ranking_path")
     graph_query.set_defaults(handler=run_graph_query_command)
+
+    articles = _add_parser(
+        sub,
+        "articles",
+        help=(
+            "文章上下文 / 修订 / 检查 / 渲染 / 谱系只读或只写 .work/<batch-id>/articles/："
+            "不写 Vault、不写 wiki/**/*.md、不写 canonical official、不排优劣、"
+            "publication 恒 unpublished；写出 Markdown 不是发布；进 Vault 只经后续 "
+            "vpwiki-admin articles apply（本刀未提供）。"
+        ),
+        description=(
+            "文章上下文 / 修订 / 检查 / 渲染 / 谱系只读或只写 .work/<batch-id>/articles/："
+            "不写 Vault、不写 wiki/**/*.md、不写 canonical official、不排优劣、"
+            "publication 恒 unpublished；写出 Markdown 不是发布；进 Vault 只经后续 "
+            "vpwiki-admin articles apply（本刀未提供）。"
+        ),
+    )
+    articles_sub = articles.add_subparsers(dest="articles_cmd", required=True)
+    articles_check = _add_parser(
+        articles_sub,
+        "check",
+        help=(
+            "Recheck one article revision against current formal records. "
+            "文章检查只读：不写 Vault、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished。"
+        ),
+        description=(
+            "Read wiki/meta/articles and optional .work/<batch-id>/articles/ and emit "
+            "a closed unpublished article-check.v1. 不写 Vault、不写 wiki/**/*.md、"
+            "不写 canonical official、不排优劣、publication 恒 unpublished。"
+        ),
+    )
+    articles_check.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_check.add_argument("--article-id", dest="article_id", required=True)
+    articles_check.add_argument("--revision-id", dest="revision_id", required=True)
+    articles_check.add_argument("--batch-id", dest="batch_id")
+    articles_check.set_defaults(handler=run_articles_check_command)
+    articles_export = _add_parser(
+        articles_sub,
+        "export",
+        help=(
+            "Export a closed article writing context. 文章上下文只读：不写 Vault、"
+            "不写 wiki/**/*.md、不写 canonical official、不排优劣、publication 恒 unpublished。"
+        ),
+        description=(
+            "Read D1/D2/D3 formal records under --vault-root and emit a closed "
+            "unpublished article-context.v1. 不写 Vault、不写 wiki/**/*.md、"
+            "不写 canonical official、不排优劣、publication 恒 unpublished。"
+        ),
+    )
+    articles_export.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_export.add_argument("--question", dest="question")
+    articles_export.add_argument("--paper-id", dest="paper_ids", action="append")
+    articles_export.add_argument("--article-id", dest="article_id")
+    articles_export.add_argument("--revision-id", dest="revision_id")
+    articles_export.add_argument("--batch-id", dest="batch_id")
+    articles_export.add_argument("--section-id", dest="section_id")
+    articles_export.add_argument("--instructions", dest="instructions", default="")
+    articles_export.set_defaults(handler=run_articles_export_command)
+    articles_history = _add_parser(
+        articles_sub,
+        "history",
+        help=(
+            "Read one article revision chain. 谱系只读：不写 Vault、不写 wiki/**/*.md、"
+            "不写 canonical official、不排优劣、publication 恒 unpublished。"
+        ),
+        description=(
+            "Read wiki/meta/articles and optional .work/<batch-id>/articles/ and list "
+            "the revision chain. 不写 Vault、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished。"
+        ),
+    )
+    articles_history.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_history.add_argument("--article-id", dest="article_id", required=True)
+    articles_history.add_argument("--batch-id", dest="batch_id")
+    articles_history.set_defaults(handler=run_articles_history_command)
+    articles_import = _add_parser(
+        articles_sub,
+        "import",
+        help=(
+            "Validate a model document and stage one article revision under "
+            ".work/<batch-id>/articles/. 只写 .work/<batch-id>/articles/：不写 Vault、"
+            "不写 wiki/**/*.md、不写 canonical official、不排优劣、publication 恒 unpublished。"
+            "进 Vault 只经后续 vpwiki-admin articles apply（本刀未提供）。"
+        ),
+        description=(
+            "Validate a video-paper-wiki.article-document.v1 against an exported context "
+            "and stage one revision JSON. 只写 .work/<batch-id>/articles/：不写 Vault、"
+            "不写 wiki/**/*.md、不写 canonical official、不排优劣、publication 恒 unpublished。"
+            "写出 Markdown 不是发布；进 Vault 只经后续 vpwiki-admin articles apply（本刀未提供）。"
+        ),
+    )
+    articles_import.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_import.add_argument("--batch-id", dest="batch_id", required=True)
+    articles_import.add_argument("--context", dest="context", required=True)
+    articles_import.add_argument("--document", dest="document", required=True)
+    articles_import.add_argument("--recorded-by", dest="recorded_by", required=True)
+    articles_import.add_argument("--recorded-at", dest="recorded_at", required=True)
+    articles_import.add_argument("--previous-revision-id", dest="previous_revision_id")
+    articles_import.add_argument("--target-section-id", dest="target_section_id")
+    articles_import.add_argument("--instructions", dest="instructions", default="")
+    articles_import.set_defaults(handler=run_articles_import_command)
+    articles_render = _add_parser(
+        articles_sub,
+        "render",
+        help=(
+            "Render one revision to .work/<batch-id>/articles/render/. "
+            "写出 Markdown 不是发布；不写 Vault、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished。"
+        ),
+        description=(
+            "Render a stored or staged revision to Markdown under "
+            ".work/<batch-id>/articles/render/. 只写 .work/<batch-id>/articles/："
+            "不写 Vault、不写 wiki/**/*.md、不写 canonical official、不排优劣、"
+            "publication 恒 unpublished。写出 Markdown 不是发布；进 Vault 只经后续 "
+            "vpwiki-admin articles apply（本刀未提供）。"
+        ),
+    )
+    articles_render.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_render.add_argument("--batch-id", dest="batch_id", required=True)
+    articles_render.add_argument("--article-id", dest="article_id", required=True)
+    articles_render.add_argument("--revision-id", dest="revision_id", required=True)
+    articles_render.set_defaults(handler=run_articles_render_command)
+    articles_status = _add_parser(
+        articles_sub,
+        "status",
+        help=(
+            "Read article lineage status. 谱系只读：不写 Vault、不写 wiki/**/*.md、"
+            "不写 canonical official、不排优劣、publication 恒 unpublished。"
+        ),
+        description=(
+            "Read wiki/meta/articles and optional .work/<batch-id>/articles/ and emit "
+            "lineage status. 不写 Vault、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished。"
+        ),
+    )
+    articles_status.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_status.add_argument("--batch-id", dest="batch_id")
+    articles_status.set_defaults(handler=run_articles_status_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
