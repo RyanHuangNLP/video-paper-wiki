@@ -375,6 +375,7 @@ def build_parser() -> argparse.ArgumentParser:
         run_articles_compile_command,
         run_articles_publish_inspect_command,
     )
+    from video_paper_wiki.reading.cli import run_reading_build_command
     domain = _add_parser(
         sub,
         "domain",
@@ -959,6 +960,41 @@ def build_parser() -> argparse.ArgumentParser:
     articles_publish_inspect.add_argument("--prepared", dest="prepared", required=True)
     articles_publish_inspect.add_argument("--vault-root", dest="vault_root", required=True)
     articles_publish_inspect.set_defaults(handler=run_articles_publish_inspect_command)
+
+    reading = _add_parser(
+        sub,
+        "reading",
+        help=(
+            "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
+            "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
+            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+        ),
+        description=(
+            "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
+            "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
+            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+        ),
+    )
+    reading_sub = reading.add_subparsers(dest="reading_cmd", required=True)
+    reading_build = _add_parser(
+        reading_sub,
+        "build",
+        help=(
+            "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
+            "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
+            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+        ),
+        description=(
+            "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
+            "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
+            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+        ),
+    )
+    reading_build.add_argument("--vault-root", dest="vault_root", required=True)
+    reading_build.add_argument("--batch-id", dest="batch_id", required=True)
+    reading_build.add_argument("--paper-id", dest="paper_id", required=False, default=None)
+    reading_build.add_argument("--articles-batch", dest="articles_batch", required=False, default=None)
+    reading_build.set_defaults(handler=run_reading_build_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")

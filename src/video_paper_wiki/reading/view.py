@@ -10,6 +10,7 @@ from video_paper_wiki.article_revision import (
     render_article_revision,
     status_article_store,
 )
+from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.domain_claims import build_domain_claim_coverage_view
 from video_paper_wiki.domain_relations import build_domain_relation_view
 from video_paper_wiki.domain_structure import build_domain_structure_view
@@ -60,6 +61,7 @@ MANIFEST_KEYS = (
     "current_supported_typed_fact",
     "next_action",
 )
+MANIFEST_SCHEMA = "video-paper-wiki.reading-manifest.v1"
 MESSAGES = {
     "READING_INVALID": "reading input is invalid",
     "READING_BASIS_CHANGED": "reading basis changed across read faces",
@@ -463,9 +465,11 @@ def _stage_pages(batch_id, page_map, manifest):
             "reduce_scope",
             {"limit": MAX_TOTAL_BYTES, "observed": total},
         )
+    pages = [{"path": path, "sha256": _sha_bytes(data), "size_bytes": len(data)} for path, data in items]
+    manifest["pages"] = pages
+    validate_document(manifest, MANIFEST_SCHEMA)
     new = 0
     already = 0
-    pages = []
     for path, data in items:
         relative = tuple(path.split("/"))
         result = stage_bytes(batch_id=batch_id, relative=("reading",) + relative, data=data)
@@ -473,8 +477,6 @@ def _stage_pages(batch_id, page_map, manifest):
             already += 1
         else:
             new += 1
-        pages.append({"path": path, "sha256": _sha_bytes(data), "size_bytes": len(data)})
-    manifest["pages"] = pages
     raw = canonicalize(manifest)
     result = stage_bytes(batch_id=batch_id, relative=("reading", "manifest.json"), data=raw)
     if result.already_staged:

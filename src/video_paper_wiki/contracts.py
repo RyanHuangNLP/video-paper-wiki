@@ -126,6 +126,7 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.article-publication-request.v1",
     "video-paper-wiki.article-publication-inspection.v1",
     "video-paper-wiki.article-publication-apply-result.v1",
+    "video-paper-wiki.reading-manifest.v1",
 }
 
 
