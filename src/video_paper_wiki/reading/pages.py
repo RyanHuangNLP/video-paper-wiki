@@ -168,11 +168,11 @@ def _concept_page(taxonomy_ref):
         axis = taxonomy_ref.get("axis")
         slug = taxonomy_ref.get("slug")
         if type(axis) is str and type(slug) is str and axis and slug:
-            return "[[../concepts/" + axis + "-" + slug + "]]"
+            return "[[../concepts/" + axis.replace("/", "-") + "-" + slug + "]]"
     if type(taxonomy_ref) is str and "/" in taxonomy_ref:
-        axis, slug = taxonomy_ref.split("/", 1)
+        axis, slug = taxonomy_ref.rsplit("/", 1)
         if axis and slug:
-            return "[[../concepts/" + axis + "-" + slug + "]]"
+            return "[[../concepts/" + axis.replace("/", "-") + "-" + slug + "]]"
     return "无"
 
 
@@ -946,7 +946,7 @@ def render_article(model, article):
     lines.append("## 正文（S1-R1 render 逐字节，sha256 " + _short(digest) + "）")
     lines.append("")
     prefix = _page(relative, model, lines)
-    merged = prefix.rstrip(b"\n") + b"\n" + body
+    merged = prefix.rstrip(b"\n") + b"\n\n" + body
     return _one_lf(merged.decode("utf-8")).encode("utf-8")
 
 

@@ -33,7 +33,7 @@ MD_LINK = re.compile(r"\]\(([^)]+)\)")
 EXISTING = (
     re.compile(r"^\.\./papers/[^#]+$"),
     re.compile(r"^\.\./code/[^#]+$"),
-    re.compile(r"^\.\./concepts/.+$"),
+    re.compile(r"^\.\./concepts/[^/#]+$"),
 )
 
 
@@ -211,6 +211,14 @@ def test_pages_frontmatter_tables_links_and_escape(world):
     for item in structure["concepts"]:
         key = item["term_key"]
         assert concepts.count("#### " + key) == 1
+        tax = item.get("taxonomy_ref")
+        if tax:
+            axis = tax["axis"]
+            slug = tax["slug"]
+            assert (
+                "[[../concepts/" + axis.replace("/", "-") + "-" + slug + "]]"
+                in concepts
+            )
     legend = pages["legend.md"].decode("utf-8")
     for key in (
         "domain_store_inventory_sha256",
@@ -322,7 +330,10 @@ def test_pages_frontmatter_tables_links_and_escape(world):
     art_pages = [row for row in again["pages"] if row["path"].startswith("articles/") and row["path"] != "articles/index.md"]
     assert art_pages
     art = (_root(world, "pg2") / art_pages[0]["path"]).read_text(encoding="utf-8")
-    assert "#### " not in art or True
+    heading_lines = [line for line in art.splitlines() if line.startswith("## 正文（")]
+    assert heading_lines
+    heading = heading_lines[0]
+    assert art[art.index(heading) + len(heading) :].startswith("\n\n")
     from video_paper_wiki.domain_relations import build_domain_relation_view
     from video_paper_wiki.identity import IdentityError
 
