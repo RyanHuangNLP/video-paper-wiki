@@ -1,0 +1,2931 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-graph-projection.v1.schema.json",
+  "title": "video-paper-wiki.domain-graph-projection.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "basis",
+    "graph_sha256",
+    "paper_filter",
+    "node_counts",
+    "edge_counts",
+    "stale_counts",
+    "known_paper_count",
+    "nodes",
+    "edges",
+    "fact_source",
+    "write_kind",
+    "publication",
+    "audit_coverage",
+    "code_freshness",
+    "code_source_verification",
+    "taxonomy_promotion",
+    "typed_fact_promotion",
+    "ranking",
+    "canonical_official",
+    "current_supported_typed_fact",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.domain-graph-projection.v1"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain_store_inventory_sha256",
+        "claim_ledger_sha256",
+        "assessment_heads_sha256",
+        "experiment_store_inventory_sha256"
+      ],
+      "properties": {
+        "domain_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "claim_ledger_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "assessment_heads_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "experiment_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "graph_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "paper_filter": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        }
+      ]
+    },
+    "node_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper",
+        "source_version",
+        "claim",
+        "concept",
+        "code_lineage",
+        "capability",
+        "code_ref",
+        "experiment_condition"
+      ],
+      "properties": {
+        "paper": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "source_version": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "claim": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "concept": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "code_lineage": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "capability": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "code_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "experiment_condition": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        }
+      }
+    },
+    "edge_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "has_source_version",
+        "claim_about",
+        "claim_evidence",
+        "mentions_concept",
+        "code_relation",
+        "declares_capability",
+        "handoff_ref",
+        "reports_condition",
+        "condition_code_binding",
+        "condition_claim",
+        "comparability"
+      ],
+      "properties": {
+        "has_source_version": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "claim_about": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "claim_evidence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "mentions_concept": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "code_relation": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "declares_capability": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "handoff_ref": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "reports_condition": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "condition_code_binding": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "condition_claim": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "comparability": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        }
+      }
+    },
+    "stale_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "edges": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        }
+      }
+    },
+    "known_paper_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65536
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 65536,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "kind": {
+                "const": "paper"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "current",
+                  "stale"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source_version_count",
+                  "lineage_count",
+                  "condition_count",
+                  "claim_count"
+                ],
+                "properties": {
+                  "source_version_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                  },
+                  "lineage_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                  },
+                  "condition_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                  },
+                  "claim_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string",
+                "minLength": 68,
+                "maxLength": 68,
+                "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "source_version"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "bound",
+                  "stale"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "source_id",
+                  "version",
+                  "association_status",
+                  "source_status",
+                  "raw_path",
+                  "raw_sha256"
+                ],
+                "properties": {
+                  "source_id": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+                      }
+                    ]
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-source-observation.v1.schema.json#/properties/version"
+                      }
+                    ]
+                  },
+                  "association_status": {
+                    "enum": [
+                      "bound",
+                      "missing",
+                      "changed",
+                      "identity_mismatch"
+                    ]
+                  },
+                  "source_status": {
+                    "enum": [
+                      "bound",
+                      "missing",
+                      "changed"
+                    ]
+                  },
+                  "raw_path": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512
+                      }
+                    ]
+                  },
+                  "raw_sha256": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+              },
+              "kind": {
+                "const": "claim"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "head_bound",
+                  "stale",
+                  "unannotated"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "claim_kind",
+                  "assessment",
+                  "text_sha256",
+                  "freshness",
+                  "stale_reason",
+                  "head_event_id",
+                  "evidence_count",
+                  "supports",
+                  "contradicts",
+                  "uncertain",
+                  "legacy_locators"
+                ],
+                "properties": {
+                  "claim_kind": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "architecture",
+                          "training",
+                          "empirical_result",
+                          "implementation",
+                          "ablation",
+                          "limitation",
+                          "reproducibility",
+                          "license",
+                          "resource_requirement"
+                        ]
+                      }
+                    ]
+                  },
+                  "assessment": {
+                    "enum": [
+                      "accepted",
+                      "provisional",
+                      "contested",
+                      "unsupported",
+                      "deprecated"
+                    ]
+                  },
+                  "text_sha256": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                  },
+                  "freshness": {
+                    "enum": [
+                      "head_bound",
+                      "stale",
+                      "unannotated"
+                    ]
+                  },
+                  "stale_reason": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    ]
+                  },
+                  "head_event_id": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    ]
+                  },
+                  "evidence_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 64
+                  },
+                  "supports": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 64
+                  },
+                  "contradicts": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 64
+                  },
+                  "uncertain": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 64
+                  },
+                  "legacy_locators": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 64
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^cpt-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "concept"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "taxonomy_v1",
+                  "proposal_only"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "concept_kind",
+                  "taxonomy_ref",
+                  "surface_forms",
+                  "proposed_slugs",
+                  "term_status",
+                  "paper_count"
+                ],
+                "properties": {
+                  "concept_kind": {
+                    "enum": [
+                      "Method",
+                      "Model",
+                      "ArchitectureComponent",
+                      "TrainingRecipe",
+                      "Dataset",
+                      "Benchmark",
+                      "InferenceRecipe",
+                      "EvaluationMetric"
+                    ]
+                  },
+                  "taxonomy_ref": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      }
+                    ]
+                  },
+                  "surface_forms": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 64,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    "uniqueItems": true
+                  },
+                  "proposed_slugs": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 64,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "uniqueItems": true
+                  },
+                  "term_status": {
+                    "enum": [
+                      "taxonomy_v1",
+                      "normalization_proposal"
+                    ]
+                  },
+                  "paper_count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 65536
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "code_lineage"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "proposal_only",
+                  "reviewed_accepted",
+                  "reviewed_contested",
+                  "reviewed_rejected",
+                  "stale"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "repository",
+                  "commit",
+                  "relation_kind",
+                  "officiality_candidate",
+                  "reviewed_officiality",
+                  "review_decision",
+                  "relation_status",
+                  "evidence_freshness",
+                  "role_basis",
+                  "head_annotation_id",
+                  "head_report_sha256",
+                  "gaps",
+                  "refused_shortcuts"
+                ],
+                "properties": {
+                  "repository": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+                  },
+                  "commit": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"
+                  },
+                  "relation_kind": {
+                    "enum": [
+                      "this_paper_implementation",
+                      "baseline",
+                      "dependency",
+                      "third_party_reproduction",
+                      "unknown"
+                    ]
+                  },
+                  "officiality_candidate": {
+                    "enum": [
+                      "pending_review",
+                      "unverified_candidate",
+                      "third_party"
+                    ]
+                  },
+                  "reviewed_officiality": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "official",
+                          "unofficial",
+                          "unverified_candidate"
+                        ]
+                      }
+                    ]
+                  },
+                  "review_decision": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    ]
+                  },
+                  "relation_status": {
+                    "enum": [
+                      "proposal_only",
+                      "reviewed_accepted",
+                      "reviewed_contested",
+                      "reviewed_rejected",
+                      "stale"
+                    ]
+                  },
+                  "evidence_freshness": {
+                    "enum": [
+                      "bound",
+                      "stale",
+                      "unchecked"
+                    ]
+                  },
+                  "role_basis": {
+                    "enum": [
+                      "reviewed",
+                      "proposal"
+                    ]
+                  },
+                  "head_annotation_id": {
+                    "type": "string",
+                    "minLength": 24,
+                    "maxLength": 24,
+                    "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+                  },
+                  "head_report_sha256": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                  },
+                  "gaps": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 16,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  },
+                  "refused_shortcuts": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 16,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^cap-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "capability"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "present",
+                  "partial",
+                  "absent",
+                  "unverified"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "status",
+                  "declaration_kind",
+                  "locator_count",
+                  "locator_paths",
+                  "absence_scope_present"
+                ],
+                "properties": {
+                  "name": {
+                    "enum": [
+                      "training",
+                      "inference",
+                      "data",
+                      "evaluation",
+                      "checkpoints"
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "present",
+                      "partial",
+                      "absent",
+                      "unverified"
+                    ]
+                  },
+                  "declaration_kind": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "code",
+                          "config",
+                          "readme_only"
+                        ]
+                      }
+                    ]
+                  },
+                  "locator_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 8
+                  },
+                  "locator_paths": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 8,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512
+                    }
+                  },
+                  "absence_scope_present": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string",
+                "minLength": 25,
+                "maxLength": 25,
+                "pattern": "^cref-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "code_ref"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "const": "recorded_only"
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "ref_id",
+                  "sha256",
+                  "verification"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512
+                  },
+                  "ref_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "sha256": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                  },
+                  "verification": {
+                    "const": "recorded_only"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "node_id",
+              "kind",
+              "label",
+              "paper_id",
+              "status",
+              "stale_reasons",
+              "sources",
+              "search_text",
+              "attributes"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "experiment_condition"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "paper_id": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+                  }
+                ]
+              },
+              "status": {
+                "enum": [
+                  "current",
+                  "stale"
+                ]
+              },
+              "stale_reasons": {
+                "type": "array",
+                "minItems": 0,
+                "maxItems": 16,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "uniqueItems": true
+              },
+              "sources": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "record_kind",
+                    "record_id",
+                    "json_pointer"
+                  ],
+                  "properties": {
+                    "record_kind": {
+                      "enum": [
+                        "annotation",
+                        "review",
+                        "experiment_record",
+                        "claim_ledger",
+                        "assessment_heads",
+                        "association_record"
+                      ]
+                    },
+                    "record_id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128
+                    },
+                    "json_pointer": {
+                      "type": "string",
+                      "minLength": 0,
+                      "maxLength": 512
+                    }
+                  }
+                }
+              },
+              "search_text": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1024
+                },
+                "uniqueItems": true
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "setting_key",
+                  "head_record_id",
+                  "head_record_sha256",
+                  "record_count",
+                  "record_status",
+                  "association_status",
+                  "source_status",
+                  "binding_status",
+                  "condition_status",
+                  "unknown_conditions",
+                  "critical_unknown",
+                  "claim_freshness"
+                ],
+                "properties": {
+                  "setting_key": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "head_record_id": {
+                    "type": "string",
+                    "minLength": 24,
+                    "maxLength": 24,
+                    "pattern": "^exr-[0-9a-f]{20}$(?![\\s\\S])"
+                  },
+                  "head_record_sha256": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                  },
+                  "record_count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 256
+                  },
+                  "record_status": {
+                    "enum": [
+                      "current",
+                      "stale"
+                    ]
+                  },
+                  "association_status": {
+                    "enum": [
+                      "bound",
+                      "missing",
+                      "changed",
+                      "identity_mismatch"
+                    ]
+                  },
+                  "source_status": {
+                    "enum": [
+                      "bound",
+                      "missing",
+                      "changed"
+                    ]
+                  },
+                  "binding_status": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    ]
+                  },
+                  "condition_status": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "model_checkpoint",
+                      "parameter_count",
+                      "dataset_split",
+                      "metrics",
+                      "resolution",
+                      "frames",
+                      "inference_steps",
+                      "sampling_guidance",
+                      "evaluation_setup"
+                    ],
+                    "properties": {
+                      "model_checkpoint": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "parameter_count": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "dataset_split": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "metrics": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "resolution": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "frames": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "inference_steps": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "sampling_guidance": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      },
+                      "evaluation_setup": {
+                        "enum": [
+                          "reported",
+                          "derived",
+                          "unknown",
+                          "not_applicable"
+                        ]
+                      }
+                    }
+                  },
+                  "unknown_conditions": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 9,
+                    "items": {
+                      "enum": [
+                        "model_checkpoint",
+                        "parameter_count",
+                        "dataset_split",
+                        "metrics",
+                        "resolution",
+                        "frames",
+                        "inference_steps",
+                        "sampling_guidance",
+                        "evaluation_setup"
+                      ]
+                    },
+                    "uniqueItems": true
+                  },
+                  "critical_unknown": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 9,
+                    "items": {
+                      "enum": [
+                        "model_checkpoint",
+                        "parameter_count",
+                        "dataset_split",
+                        "metrics",
+                        "resolution",
+                        "frames",
+                        "inference_steps",
+                        "sampling_guidance",
+                        "evaluation_setup"
+                      ]
+                    },
+                    "uniqueItems": true
+                  },
+                  "claim_freshness": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "head_bound",
+                      "stale"
+                    ],
+                    "properties": {
+                      "head_bound": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 64
+                      },
+                      "stale": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 64
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 262144,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "has_source_version"
+              },
+              "from_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 68,
+                "maxLength": 68,
+                "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "claim_about"
+              },
+              "from_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+              },
+              "to_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [],
+                "properties": {}
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "claim_evidence"
+              },
+              "from_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 68,
+                "maxLength": 68,
+                "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "relation",
+                  "charspan",
+                  "excerpt_sha256",
+                  "quote_status"
+                ],
+                "properties": {
+                  "relation": {
+                    "enum": [
+                      "supports",
+                      "contradicts",
+                      "uncertain"
+                    ]
+                  },
+                  "charspan": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "start",
+                      "end"
+                    ],
+                    "properties": {
+                      "start": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 8388608
+                      },
+                      "end": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 8388608
+                      }
+                    }
+                  },
+                  "excerpt_sha256": {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                  },
+                  "quote_status": {
+                    "enum": [
+                      "bound",
+                      "source_missing",
+                      "source_changed",
+                      "excerpt_changed"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "mentions_concept"
+              },
+              "from_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^cpt-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "surface_form",
+                  "term_status"
+                ],
+                "properties": {
+                  "surface_form": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  "term_status": {
+                    "enum": [
+                      "taxonomy_v1",
+                      "normalization_proposal"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "code_relation"
+              },
+              "from_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "relation_kind",
+                  "officiality_candidate",
+                  "reviewed_officiality",
+                  "relation_status"
+                ],
+                "properties": {
+                  "relation_kind": {
+                    "enum": [
+                      "this_paper_implementation",
+                      "baseline",
+                      "dependency",
+                      "third_party_reproduction",
+                      "unknown"
+                    ]
+                  },
+                  "officiality_candidate": {
+                    "enum": [
+                      "pending_review",
+                      "unverified_candidate",
+                      "third_party"
+                    ]
+                  },
+                  "reviewed_officiality": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "official",
+                          "unofficial",
+                          "unverified_candidate"
+                        ]
+                      }
+                    ]
+                  },
+                  "relation_status": {
+                    "enum": [
+                      "proposal_only",
+                      "reviewed_accepted",
+                      "reviewed_contested",
+                      "reviewed_rejected",
+                      "stale"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "declares_capability"
+              },
+              "from_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^cap-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "status",
+                  "declaration_kind"
+                ],
+                "properties": {
+                  "status": {
+                    "enum": [
+                      "present",
+                      "partial",
+                      "absent",
+                      "unverified"
+                    ]
+                  },
+                  "declaration_kind": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "enum": [
+                          "code",
+                          "config",
+                          "readme_only"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "handoff_ref"
+              },
+              "from_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 25,
+                "maxLength": 25,
+                "pattern": "^cref-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "verification"
+                ],
+                "properties": {
+                  "verification": {
+                    "const": "recorded_only"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "reports_condition"
+              },
+              "from_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_status"
+                ],
+                "properties": {
+                  "record_status": {
+                    "enum": [
+                      "current",
+                      "stale"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "condition_code_binding"
+              },
+              "from_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^dln-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "binding_status"
+                ],
+                "properties": {
+                  "binding_status": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "condition_claim"
+              },
+              "from_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "to_node": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "freshness",
+                  "stale_reason"
+                ],
+                "properties": {
+                  "freshness": {
+                    "enum": [
+                      "head_bound",
+                      "stale",
+                      "unannotated"
+                    ]
+                  },
+                  "stale_reason": {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "edge_id",
+              "kind",
+              "from_node",
+              "to_node",
+              "freshness",
+              "source",
+              "attributes"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^edg-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "kind": {
+                "const": "comparability"
+              },
+              "from_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "to_node": {
+                "type": "string",
+                "minLength": 24,
+                "maxLength": 24,
+                "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+              },
+              "freshness": {
+                "enum": [
+                  "bound",
+                  "stale",
+                  "unchecked",
+                  "recorded_only",
+                  "derived"
+                ]
+              },
+              "source": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "record_kind",
+                  "record_id",
+                  "json_pointer"
+                ],
+                "properties": {
+                  "record_kind": {
+                    "enum": [
+                      "annotation",
+                      "review",
+                      "experiment_record",
+                      "claim_ledger",
+                      "assessment_heads",
+                      "association_record"
+                    ]
+                  },
+                  "record_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "json_pointer": {
+                    "type": "string",
+                    "minLength": 0,
+                    "maxLength": 512
+                  }
+                }
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "verdict",
+                  "ranking",
+                  "contradiction_candidate_count",
+                  "same_paper"
+                ],
+                "properties": {
+                  "verdict": {
+                    "enum": [
+                      "comparable",
+                      "comparable_with_caveats",
+                      "incomparable",
+                      "insufficient_conditions"
+                    ]
+                  },
+                  "ranking": {
+                    "enum": [
+                      "not_ranked",
+                      "refused_incomparable",
+                      "refused_insufficient_conditions"
+                    ]
+                  },
+                  "contradiction_candidate_count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 256
+                  },
+                  "same_paper": {
+                    "const": true,
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "fact_source": {
+      "const": "formal_records"
+    },
+    "write_kind": {
+      "const": "read_only"
+    },
+    "publication": {
+      "const": "unpublished"
+    },
+    "audit_coverage": {
+      "const": "not_wired"
+    },
+    "code_freshness": {
+      "const": "not_checked"
+    },
+    "code_source_verification": {
+      "const": "not_checked"
+    },
+    "taxonomy_promotion": {
+      "const": "none"
+    },
+    "typed_fact_promotion": {
+      "const": "none"
+    },
+    "ranking": {
+      "const": "not_ranked"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    },
+    "next_action": {
+      "enum": [
+        "none",
+        "re_record_annotation",
+        "re_record_condition",
+        "resolve_conflicts",
+        "filter_paper_id"
+      ]
+    }
+  }
+}
