@@ -42,7 +42,7 @@ def test_cli_help_six_leaves(world):
     proc = run_module_cli(world["checkout"], ["articles", "--help"])
     assert proc.returncode == 0
     leaves = _parent_leaves("articles")
-    assert set(leaves) == {"check", "export", "history", "import", "render", "status"}
+    assert set(leaves) == {"check", "compile", "export", "history", "import", "publish-inspect", "render", "status"}
     export = run_module_cli(world["checkout"], ["articles", "export", "--help"])
     assert export.returncode == 0
     for flag in (
@@ -271,7 +271,7 @@ def test_cli_refusals_and_usage(world, capsys):
     envelope = json.loads(out.strip().splitlines()[-1])
     assert code == 2
     assert envelope["error"]["code"] == "USAGE"
-    code = main(["articles", "compile", "--help"])
+    code = main(["articles", "apply", "--help"])
     out = capsys.readouterr().out
     envelope = json.loads(out.strip().splitlines()[-1])
     assert code == 2

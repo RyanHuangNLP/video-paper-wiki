@@ -371,6 +371,10 @@ def build_parser() -> argparse.ArgumentParser:
         run_articles_render_command,
         run_articles_status_command,
     )
+    from video_paper_wiki.article_publication_cli import (
+        run_articles_compile_command,
+        run_articles_publish_inspect_command,
+    )
     domain = _add_parser(
         sub,
         "domain",
@@ -911,6 +915,50 @@ def build_parser() -> argparse.ArgumentParser:
     articles_status.add_argument("--vault-root", dest="vault_root", required=True)
     articles_status.add_argument("--batch-id", dest="batch_id")
     articles_status.set_defaults(handler=run_articles_status_command)
+    articles_compile = _add_parser(
+        articles_sub,
+        "compile",
+        help=(
+            "Compile staged article revisions into an unpublished publication request. "
+            "不写 Vault（compile 只写 .work/<batch-id>/article-publication/；"
+            "publish-inspect 零写入）、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished；compile 要求每个谱系头 "
+            "progress.unwritten == 0 且 check 为 current；apply 只经 vpwiki-admin。"
+        ),
+        description=(
+            "Read .work/<batch-id>/articles/records and emit a closed unpublished "
+            "article-publication-request.v1 under .work/<batch-id>/article-publication/. "
+            "不写 Vault（compile 只写 .work/<batch-id>/article-publication/；"
+            "publish-inspect 零写入）、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished。compile 要求每个谱系头 "
+            "progress.unwritten == 0 且 check 为 current；apply 只经 vpwiki-admin。"
+        ),
+    )
+    articles_compile.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_compile.add_argument("--batch-id", dest="batch_id", required=True)
+    articles_compile.set_defaults(handler=run_articles_compile_command)
+    articles_publish_inspect = _add_parser(
+        articles_sub,
+        "publish-inspect",
+        help=(
+            "Inspect a staged article publication request. "
+            "不写 Vault（compile 只写 .work/<batch-id>/article-publication/；"
+            "publish-inspect 零写入）、不写 wiki/**/*.md、不写 canonical official、"
+            "不排优劣、publication 恒 unpublished；compile 要求每个谱系头 "
+            "progress.unwritten == 0 且 check 为 current；apply 只经 vpwiki-admin。"
+        ),
+        description=(
+            "Read the fixed .work/<batch-id>/article-publication/request.json slot and "
+            "recheck it against the current Vault. 不写 Vault（compile 只写 "
+            ".work/<batch-id>/article-publication/；publish-inspect 零写入）、"
+            "不写 wiki/**/*.md、不写 canonical official、不排优劣、publication 恒 unpublished。"
+            "compile 要求每个谱系头 progress.unwritten == 0 且 check 为 current；"
+            "apply 只经 vpwiki-admin。"
+        ),
+    )
+    articles_publish_inspect.add_argument("--prepared", dest="prepared", required=True)
+    articles_publish_inspect.add_argument("--vault-root", dest="vault_root", required=True)
+    articles_publish_inspect.set_defaults(handler=run_articles_publish_inspect_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")

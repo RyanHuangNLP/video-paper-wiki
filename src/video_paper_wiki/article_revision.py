@@ -743,6 +743,238 @@ def _used_ids(record):
     return ids
 
 
+def _missing_bibliography_item(eid, current_by_id, default_kind):
+    current_ev = current_by_id.get(eid)
+    return (
+        "missing",
+        current_ev["binding"] if current_ev is not None else None,
+        current_ev["status"] if current_ev is not None else None,
+        ["bibliography_missing"],
+        current_ev["kind"] if current_ev is not None else default_kind,
+        None,
+    )
+
+
+def check_revision_view(snapshot, domain_store, authority, exp, heads, record, location):
+    current = None
+    paper_unknown = False
+    try:
+        current = build_article_context(
+            snapshot,
+            domain_store,
+            authority,
+            exp,
+            heads,
+            question=record["question"],
+            paper_ids=list(record["paper_ids"]),
+        )
+        current.pop("_sha256", None)
+    except ArticleContextError as exc:
+        if exc.code != "ARTICLE_CONTEXT_PAPER_UNKNOWN":
+            raise
+        paper_unknown = True
+    basis_recorded = dict(record["basis"])
+    if current is None:
+        basis_current = dict(_experiment_basis(snapshot, domain_store, authority, exp))
+        basis_current["graph_sha256"] = "0" * 64
+        basis_current["matrix_sha256"] = "0" * 64
+    else:
+        basis_current = dict(current["basis"])
+        basis_current["graph_sha256"] = current["graph_sha256"]
+        basis_current["matrix_sha256"] = current["matrix_sha256"]
+    basis_match = canonicalize(basis_recorded) == canonicalize(basis_current) and not paper_unknown
+    current_by_id = {}
+    if current is not None:
+        current_by_id = {item["evidence_id"]: item for item in current["evidence"]}
+    biblio = {item["evidence_id"]: item for item in record["bibliography"]}
+    items = []
+    section_rows = []
+    affected_sections = []
+    in_text_ok = True
+    for section in record["sections"]:
+        sid = section["section_id"]
+        marks = set(CITE_ANY.findall(section["markdown"])) if section["status"] == "provisional" else set()
+        listed = set(section["citations"])
+        if section["status"] == "provisional" and marks != listed:
+            in_text_ok = False
+        reasons = []
+        affected = False
+        for eid in section["citations"]:
+            if eid in biblio:
+                recorded_binding = biblio[eid]["binding"]
+                kind = biblio[eid]["kind"]
+                status, cur_b, cur_status, item_reasons = _binding_status(
+                    recorded_binding, current_by_id.get(eid)
+                )
+            else:
+                status, cur_b, cur_status, item_reasons, kind, recorded_binding = _missing_bibliography_item(
+                    eid, current_by_id, "claim"
+                )
+            if status != "bound":
+                affected = True
+                mapped = SECTION_REASON.get(status)
+                if mapped and mapped not in reasons:
+                    reasons.append(mapped)
+            items.append(
+                {
+                    "location": "section",
+                    "section_id": sid,
+                    "evidence_id": eid,
+                    "kind": kind,
+                    "status": status,
+                    "recorded_binding": recorded_binding,
+                    "current_binding": cur_b,
+                    "current_status": cur_status,
+                    "reasons": item_reasons,
+                }
+            )
+        if section["status"] == "provisional" and marks != listed:
+            if "citation_mismatch" not in reasons:
+                reasons.append("citation_mismatch")
+            affected = True
+        if affected:
+            affected_sections.append(sid)
+        section_rows.append(
+            {
+                "section_id": sid,
+                "role": section["role"],
+                "status": section["status"],
+                "citation_count": len(section["citations"]),
+                "affected": affected,
+                "reasons": reasons[:4],
+            }
+        )
+    table_affected = False
+    for row in record["comparison_table"]["rows"]:
+        for key in COLUMNS:
+            cell = row["cells"][key]
+            eid = cell["evidence_id"]
+            if eid in biblio:
+                recorded_binding = biblio[eid]["binding"]
+                kind = biblio[eid]["kind"]
+                status, cur_b, cur_status, item_reasons = _binding_status(
+                    recorded_binding, current_by_id.get(eid)
+                )
+            else:
+                status, cur_b, cur_status, item_reasons, kind, recorded_binding = _missing_bibliography_item(
+                    eid, current_by_id, "condition_value"
+                )
+            if status != "bound":
+                table_affected = True
+            items.append(
+                {
+                    "location": "table",
+                    "section_id": None,
+                    "evidence_id": eid,
+                    "kind": kind,
+                    "status": status,
+                    "recorded_binding": recorded_binding,
+                    "current_binding": cur_b,
+                    "current_status": cur_status,
+                    "reasons": item_reasons,
+                }
+            )
+    for cell in record["comparison_table"]["metric_cells"]:
+        eid = cell["evidence_id"]
+        if eid in biblio:
+            recorded_binding = biblio[eid]["binding"]
+            kind = biblio[eid]["kind"]
+            status, cur_b, cur_status, item_reasons = _binding_status(
+                recorded_binding, current_by_id.get(eid)
+            )
+        else:
+            status, cur_b, cur_status, item_reasons, kind, recorded_binding = _missing_bibliography_item(
+                eid, current_by_id, "metric_value"
+            )
+        if status != "bound":
+            table_affected = True
+        items.append(
+            {
+                "location": "metric",
+                "section_id": None,
+                "evidence_id": eid,
+                "kind": kind,
+                "status": status,
+                "recorded_binding": recorded_binding,
+                "current_binding": cur_b,
+                "current_status": cur_status,
+                "reasons": item_reasons,
+            }
+        )
+    used = _used_ids(record)
+    biblio_ids = set(biblio)
+    citation_consistency = {
+        "in_text_equals_list": in_text_ok,
+        "bibliography_complete": used <= biblio_ids,
+        "bibliography_minimal": biblio_ids <= used,
+    }
+    counts = {"bound": 0, "changed": 0, "stale": 0, "missing": 0, "items": len(items)}
+    for item in items:
+        counts[item["status"]] += 1
+    consistent = all(citation_consistency.values())
+    if not consistent:
+        check_status = "inconsistent"
+    elif any(item["status"] != "bound" for item in items) or not basis_match:
+        check_status = "affected"
+    else:
+        check_status = "current"
+    if not consistent or counts["missing"] > 0:
+        next_action = "repair_store"
+    elif counts["changed"] > 0:
+        next_action = "revise_affected_sections"
+    elif counts["stale"] > 0:
+        stale_item = next(item for item in items if item["status"] == "stale")
+        kind = stale_item["kind"]
+        if kind in {"claim", "claim_span", "code_lineage", "source_version"}:
+            next_action = "re_record_annotation"
+        else:
+            next_action = "re_record_condition"
+    elif not basis_match:
+        next_action = "re_export"
+    else:
+        next_action = "none"
+    view = {
+        "schema": CHECK_SCHEMA,
+        "article_id": record["article_id"],
+        "revision_id": record["revision_id"],
+        "revision_location": location,
+        "basis_recorded": basis_recorded,
+        "basis_current": basis_current,
+        "basis_match": basis_match,
+        "items": items,
+        "sections": section_rows,
+        "affected_sections": affected_sections,
+        "table_affected": table_affected,
+        "citation_consistency": citation_consistency,
+        "counts": counts,
+        "check_status": check_status,
+        "fact_source": "formal_records",
+        "write_kind": "read_only",
+        "publication": "unpublished",
+        "applied": False,
+        "audit_coverage": "not_wired",
+        "ranking": "not_ranked",
+        "typed_fact_promotion": "none",
+        "canonical_official": False,
+        "current_supported_typed_fact": False,
+        "scientific_conclusion_contradiction": False,
+        "next_action": next_action,
+    }
+    try:
+        raw = canonicalize(view)
+        sealed = json.loads(raw.decode("utf-8"))
+        validate_document(sealed, CHECK_SCHEMA)
+    except (CanonicalJsonError, ContractError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        details = dict(getattr(exc, "details", {}) or {})
+        raise ArticleRevisionError(
+            "ARTICLE_CHECK_INVALID",
+            MESSAGES["ARTICLE_CHECK_INVALID"],
+            {"reason": "schema", "instance_pointer": details.get("instance_pointer", ""), **details},
+            exit_code=getattr(exc, "exit_code", 2),
+        ) from exc
+    return sealed
+
+
 def check_article_revision(*, vault_root, article_id, revision_id, batch_id=None):
     if type(article_id) is not str or ARTICLE_RE.fullmatch(article_id) is None:
         _fail("ARTICLE_CHECK_INVALID", "/article_id", "repair_input")
@@ -758,208 +990,7 @@ def check_article_revision(*, vault_root, article_id, revision_id, batch_id=None
         record, location, _chain = _lookup_revision(merged, article_id, revision_id)
         exp = _load_experiment_store(snapshot)
         heads = derive_domain_heads(domain_store)
-        current = None
-        paper_unknown = False
-        try:
-            current = build_article_context(
-                snapshot,
-                domain_store,
-                authority,
-                exp,
-                heads,
-                question=record["question"],
-                paper_ids=list(record["paper_ids"]),
-            )
-            current.pop("_sha256", None)
-        except ArticleContextError as exc:
-            if exc.code != "ARTICLE_CONTEXT_PAPER_UNKNOWN":
-                raise
-            paper_unknown = True
-        basis_recorded = dict(record["basis"])
-        if current is None:
-            basis_current = dict(_experiment_basis(snapshot, domain_store, authority, exp))
-            basis_current["graph_sha256"] = "0" * 64
-            basis_current["matrix_sha256"] = "0" * 64
-        else:
-            basis_current = dict(current["basis"])
-            basis_current["graph_sha256"] = current["graph_sha256"]
-            basis_current["matrix_sha256"] = current["matrix_sha256"]
-        basis_match = canonicalize(basis_recorded) == canonicalize(basis_current) and not paper_unknown
-        current_by_id = {}
-        if current is not None:
-            current_by_id = {item["evidence_id"]: item for item in current["evidence"]}
-        biblio = {item["evidence_id"]: item for item in record["bibliography"]}
-        items = []
-        section_rows = []
-        affected_sections = []
-        in_text_ok = True
-        for section in record["sections"]:
-            sid = section["section_id"]
-            marks = set(CITE_ANY.findall(section["markdown"])) if section["status"] == "provisional" else set()
-            listed = set(section["citations"])
-            if section["status"] == "provisional" and marks != listed:
-                in_text_ok = False
-            reasons = []
-            affected = False
-            for eid in section["citations"]:
-                recorded_binding = biblio[eid]["binding"] if eid in biblio else {}
-                kind = biblio[eid]["kind"] if eid in biblio else "claim"
-                status, cur_b, cur_status, item_reasons = _binding_status(
-                    recorded_binding, current_by_id.get(eid)
-                )
-                if status != "bound":
-                    affected = True
-                    mapped = SECTION_REASON.get(status)
-                    if mapped and mapped not in reasons:
-                        reasons.append(mapped)
-                items.append(
-                    {
-                        "location": "section",
-                        "section_id": sid,
-                        "evidence_id": eid,
-                        "kind": kind,
-                        "status": status,
-                        "recorded_binding": recorded_binding,
-                        "current_binding": cur_b,
-                        "current_status": cur_status,
-                        "reasons": item_reasons,
-                    }
-                )
-            if section["status"] == "provisional" and marks != listed:
-                if "citation_mismatch" not in reasons:
-                    reasons.append("citation_mismatch")
-                affected = True
-            if affected:
-                affected_sections.append(sid)
-            section_rows.append(
-                {
-                    "section_id": sid,
-                    "role": section["role"],
-                    "status": section["status"],
-                    "citation_count": len(section["citations"]),
-                    "affected": affected,
-                    "reasons": reasons[:4],
-                }
-            )
-        table_affected = False
-        for row in record["comparison_table"]["rows"]:
-            for key in COLUMNS:
-                cell = row["cells"][key]
-                eid = cell["evidence_id"]
-                recorded_binding = biblio[eid]["binding"] if eid in biblio else {}
-                kind = biblio[eid]["kind"] if eid in biblio else "condition_value"
-                status, cur_b, cur_status, item_reasons = _binding_status(
-                    recorded_binding, current_by_id.get(eid)
-                )
-                if status != "bound":
-                    table_affected = True
-                items.append(
-                    {
-                        "location": "table",
-                        "section_id": None,
-                        "evidence_id": eid,
-                        "kind": kind,
-                        "status": status,
-                        "recorded_binding": recorded_binding,
-                        "current_binding": cur_b,
-                        "current_status": cur_status,
-                        "reasons": item_reasons,
-                    }
-                )
-        for cell in record["comparison_table"]["metric_cells"]:
-            eid = cell["evidence_id"]
-            recorded_binding = biblio[eid]["binding"] if eid in biblio else {}
-            kind = biblio[eid]["kind"] if eid in biblio else "metric_value"
-            status, cur_b, cur_status, item_reasons = _binding_status(
-                recorded_binding, current_by_id.get(eid)
-            )
-            if status != "bound":
-                table_affected = True
-            items.append(
-                {
-                    "location": "metric",
-                    "section_id": None,
-                    "evidence_id": eid,
-                    "kind": kind,
-                    "status": status,
-                    "recorded_binding": recorded_binding,
-                    "current_binding": cur_b,
-                    "current_status": cur_status,
-                    "reasons": item_reasons,
-                }
-            )
-        used = _used_ids(record)
-        biblio_ids = set(biblio)
-        citation_consistency = {
-            "in_text_equals_list": in_text_ok,
-            "bibliography_complete": used <= biblio_ids,
-            "bibliography_minimal": biblio_ids <= used,
-        }
-        counts = {"bound": 0, "changed": 0, "stale": 0, "missing": 0, "items": len(items)}
-        for item in items:
-            counts[item["status"]] += 1
-        consistent = all(citation_consistency.values())
-        if not consistent:
-            check_status = "inconsistent"
-        elif any(item["status"] != "bound" for item in items) or not basis_match:
-            check_status = "affected"
-        else:
-            check_status = "current"
-        if not consistent or counts["missing"] > 0:
-            next_action = "repair_store"
-        elif counts["changed"] > 0:
-            next_action = "revise_affected_sections"
-        elif counts["stale"] > 0:
-            stale_item = next(item for item in items if item["status"] == "stale")
-            kind = stale_item["kind"]
-            if kind in {"claim", "claim_span", "code_lineage", "source_version"}:
-                next_action = "re_record_annotation"
-            else:
-                next_action = "re_record_condition"
-        elif not basis_match:
-            next_action = "re_export"
-        else:
-            next_action = "none"
-        view = {
-            "schema": CHECK_SCHEMA,
-            "article_id": record["article_id"],
-            "revision_id": record["revision_id"],
-            "revision_location": location,
-            "basis_recorded": basis_recorded,
-            "basis_current": basis_current,
-            "basis_match": basis_match,
-            "items": items,
-            "sections": section_rows,
-            "affected_sections": affected_sections,
-            "table_affected": table_affected,
-            "citation_consistency": citation_consistency,
-            "counts": counts,
-            "check_status": check_status,
-            "fact_source": "formal_records",
-            "write_kind": "read_only",
-            "publication": "unpublished",
-            "applied": False,
-            "audit_coverage": "not_wired",
-            "ranking": "not_ranked",
-            "typed_fact_promotion": "none",
-            "canonical_official": False,
-            "current_supported_typed_fact": False,
-            "scientific_conclusion_contradiction": False,
-            "next_action": next_action,
-        }
-        try:
-            raw = canonicalize(view)
-            sealed = json.loads(raw.decode("utf-8"))
-            validate_document(sealed, CHECK_SCHEMA)
-        except (CanonicalJsonError, ContractError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-            details = dict(getattr(exc, "details", {}) or {})
-            raise ArticleRevisionError(
-                "ARTICLE_CHECK_INVALID",
-                MESSAGES["ARTICLE_CHECK_INVALID"],
-                {"reason": "schema", "instance_pointer": details.get("instance_pointer", ""), **details},
-                exit_code=getattr(exc, "exit_code", 2),
-            ) from exc
-        return sealed
+        return check_revision_view(snapshot, domain_store, authority, exp, heads, record, location)
 
     return _run_with_store(vault_root, apply, authority_required=True)
 
@@ -1041,15 +1072,46 @@ def _assign_numbers(record):
 
 def _render_markdown(record, location):
     biblio = {item["evidence_id"]: item for item in record["bibliography"]}
-    for section in record["sections"]:
-        for eid in section["citations"]:
-            if eid not in biblio:
-                _fail(
-                    "ARTICLE_RENDER_INVALID",
-                    "/document/sections",
-                    "repair_store",
-                    {"reason": "dangling_citation"},
-                )
+    for index, section in enumerate(record["sections"]):
+        marks = set(CITE_ANY.findall(section["markdown"])) if section["status"] == "provisional" else set()
+        listed = set(section["citations"])
+        for eid in marks | listed:
+            if eid in biblio:
+                continue
+            pointer = "/sections/" + str(index) + (
+                "/markdown" if eid in marks and eid not in listed else "/citations"
+            )
+            _fail(
+                "ARTICLE_RENDER_INVALID",
+                pointer,
+                "repair_store",
+                {
+                    "reason": "dangling_citation",
+                    "section_id": section["section_id"],
+                    "evidence_id": eid,
+                },
+            )
+    for row_index, row in enumerate(record["comparison_table"]["rows"]):
+        for key in COLUMNS:
+            eid = row["cells"][key]["evidence_id"]
+            if eid in biblio:
+                continue
+            _fail(
+                "ARTICLE_RENDER_INVALID",
+                "/comparison_table/rows/" + str(row_index) + "/cells/" + key,
+                "repair_store",
+                {"reason": "dangling_citation", "location": "table", "evidence_id": eid},
+            )
+    for cell_index, cell in enumerate(record["comparison_table"]["metric_cells"]):
+        eid = cell["evidence_id"]
+        if eid in biblio:
+            continue
+        _fail(
+            "ARTICLE_RENDER_INVALID",
+            "/comparison_table/metric_cells/" + str(cell_index),
+            "repair_store",
+            {"reason": "dangling_citation", "location": "metric", "evidence_id": eid},
+        )
     numbers, order = _assign_numbers(record)
     previous = record["previous_revision_id"] or "无"
     lines = [
