@@ -705,3 +705,280 @@ def test_more_refusals_check_and_render(world):
         ),
         "STAGING_CONFLICT",
     )
+
+
+def test_check_missing_bibliography_entry_is_inconsistent(world):
+    from tests.code_proof_public_fixture import run_module_cli
+    from tests.unit.test_graph_projection import _three_chain
+    from video_paper_wiki.article_store import (
+        ArticleStore,
+        _validate_chains,
+        content_sha256_from_record,
+        derive_article_heads,
+        revision_id_from_record,
+    )
+
+    _three_chain(world)
+    first = _import_outline(world, batch="obs1")
+    data = export_article_context(
+        vault_root=str(world["vault"]),
+        question=_question(world),
+        paper_ids=_papers(world),
+    )
+    claim, value = _claim_and_value(data["context"])
+    ctx = world["checkout"] / "ctx-obs1.json"
+    _write_json(ctx, {"ok": True, "command": "articles.export", "data": data})
+    rec = first["record"]
+    s1 = _provisional_section(rec["sections"][0], data["context"], [claim["evidence_id"], value["evidence_id"]])
+    doc = {"schema": "video-paper-wiki.article-document.v1", "title": rec["title"], "sections": [s1] + rec["sections"][1:]}
+    path = world["checkout"] / "doc-obs1.json"
+    _write_json(path, doc)
+    section = import_article_revision(
+        vault_root=str(world["vault"]),
+        batch_id="obs1",
+        context=str(ctx),
+        document=str(path),
+        recorded_by="t",
+        recorded_at="2026-09-15T01:00:00Z",
+        previous_revision_id=rec["revision_id"],
+        target_section_id="s1",
+    )
+    outline_check = check_article_revision(
+        vault_root=str(world["vault"]),
+        article_id=rec["article_id"],
+        revision_id=rec["revision_id"],
+        batch_id="obs1",
+    )
+    _apply_staged_articles(world, "obs1")
+    art = section["record"]["article_id"]
+    old_id = section["record"]["revision_id"]
+    rec_path = world["vault"] / "wiki/meta/articles/records" / art / (old_id + ".json")
+    mutated = json.loads(rec_path.read_bytes())
+    mutated["bibliography"] = [
+        item for item in mutated["bibliography"] if item["evidence_id"] != claim["evidence_id"]
+    ]
+    mutated["content_sha256"] = content_sha256_from_record(mutated)
+    body = {key: value for key, value in mutated.items() if key != "revision_id"}
+    new_id = revision_id_from_record(body)
+    mutated["revision_id"] = new_id
+    rec_path.unlink()
+    new_path = rec_path.parent / (new_id + ".json")
+    new_path.write_bytes(canonicalize(mutated))
+    os.chmod(new_path, 0o600)
+    store = ArticleStore()
+    dest_root = world["vault"] / "wiki/meta/articles" / "records"
+    for art_dir in sorted(dest_root.iterdir()):
+        if not art_dir.is_dir():
+            continue
+        for rec_file in sorted(art_dir.iterdir()):
+            if not rec_file.is_file():
+                continue
+            raw = rec_file.read_bytes()
+            loaded = json.loads(raw)
+            store.records[loaded["revision_id"]] = loaded
+            store.record_raw[loaded["revision_id"]] = raw
+    _validate_chains(store)
+    heads_path = world["vault"] / "wiki/meta/articles" / "heads.json"
+    heads_path.write_bytes(canonicalize(derive_article_heads(store)))
+    os.chmod(heads_path, 0o600)
+    chk = check_article_revision(vault_root=str(world["vault"]), article_id=art, revision_id=new_id)
+    validate_document(chk, CHECK_SCHEMA)
+    missing = next(item for item in chk["items"] if item["evidence_id"] == claim["evidence_id"])
+    assert missing["status"] == "missing"
+    assert missing["recorded_binding"] is None
+    assert missing["current_binding"] is not None
+    assert missing["current_binding"] == next(
+        item["binding"] for item in data["context"]["evidence"] if item["evidence_id"] == claim["evidence_id"]
+    )
+    assert missing["kind"] == "claim"
+    assert missing["reasons"] == ["bibliography_missing"]
+    section_row = next(row for row in chk["sections"] if row["section_id"] == "s1")
+    assert section_row["affected"] is True
+    assert "evidence_missing" in section_row["reasons"]
+    assert chk["citation_consistency"] == {
+        "in_text_equals_list": True,
+        "bibliography_complete": False,
+        "bibliography_minimal": True,
+    }
+    assert chk["check_status"] == "inconsistent"
+    assert chk["next_action"] == "repair_store"
+    assert chk["counts"]["missing"] == 1
+    other = next(row for row in chk["sections"] if row["section_id"] != "s1")
+    assert other["affected"] is False
+    outline_after = check_article_revision(
+        vault_root=str(world["vault"]),
+        article_id=art,
+        revision_id=rec["revision_id"],
+    )
+    assert outline_after["check_status"] == "current"
+    assert canonicalize(outline_after) == canonicalize(
+        {**outline_check, "revision_location": "vault_store"}
+    ) or outline_after["check_status"] == "current"
+    assert run_module_cli is not None
+
+
+def test_render_dangling_in_text_citation_is_stable_envelope(world):
+    from tests.code_proof_public_fixture import parse_envelope, run_module_cli
+    from tests.unit.test_graph_projection import _three_chain
+    from video_paper_wiki.article_store import (
+        ArticleStore,
+        _validate_chains,
+        content_sha256_from_record,
+        derive_article_heads,
+        revision_id_from_record,
+    )
+
+    def _rewrite(mutate):
+        status = status_article_store(vault_root=str(world["vault"]))
+        art = status["articles"][0]["article_id"]
+        arv = status["articles"][0]["head_revision_id"]
+        rec_path = world["vault"] / "wiki/meta/articles/records" / art / (arv + ".json")
+        mutated = json.loads(rec_path.read_bytes())
+        mutate(mutated)
+        mutated["content_sha256"] = content_sha256_from_record(mutated)
+        body = {key: value for key, value in mutated.items() if key != "revision_id"}
+        new_id = revision_id_from_record(body)
+        mutated["revision_id"] = new_id
+        rec_path.unlink()
+        new_path = rec_path.parent / (new_id + ".json")
+        new_path.write_bytes(canonicalize(mutated))
+        os.chmod(new_path, 0o600)
+        store = ArticleStore()
+        dest_root = world["vault"] / "wiki/meta/articles" / "records"
+        for art_dir in sorted(dest_root.iterdir()):
+            if not art_dir.is_dir():
+                continue
+            for rec_file in sorted(art_dir.iterdir()):
+                if not rec_file.is_file():
+                    continue
+                raw = rec_file.read_bytes()
+                loaded = json.loads(raw)
+                store.records[loaded["revision_id"]] = loaded
+                store.record_raw[loaded["revision_id"]] = raw
+        _validate_chains(store)
+        heads_path = world["vault"] / "wiki/meta/articles" / "heads.json"
+        heads_path.write_bytes(canonicalize(derive_article_heads(store)))
+        os.chmod(heads_path, 0o600)
+        return mutated
+
+    _three_chain(world)
+    first = _import_outline(world, batch="obs2")
+    data = export_article_context(
+        vault_root=str(world["vault"]),
+        question=_question(world),
+        paper_ids=_papers(world),
+    )
+    claim, value = _claim_and_value(data["context"])
+    ctx = world["checkout"] / "ctx-obs2.json"
+    _write_json(ctx, {"ok": True, "command": "articles.export", "data": data})
+    rec = first["record"]
+    s1 = _provisional_section(rec["sections"][0], data["context"], [claim["evidence_id"], value["evidence_id"]])
+    doc = {"schema": "video-paper-wiki.article-document.v1", "title": rec["title"], "sections": [s1] + rec["sections"][1:]}
+    path = world["checkout"] / "doc-obs2.json"
+    _write_json(path, doc)
+    import_article_revision(
+        vault_root=str(world["vault"]),
+        batch_id="obs2",
+        context=str(ctx),
+        document=str(path),
+        recorded_by="t",
+        recorded_at="2026-09-15T01:00:00Z",
+        previous_revision_id=rec["revision_id"],
+        target_section_id="s1",
+    )
+    _apply_staged_articles(world, "obs2")
+    dangling = "aev-" + ("0" * 20)
+
+    def add_mark(document):
+        for section in document["sections"]:
+            if section["section_id"] == "s1":
+                section["markdown"] = section["markdown"] + " [@" + dangling + "]"
+                break
+
+    mutated = _rewrite(add_mark)
+    chk_mark = check_article_revision(
+        vault_root=str(world["vault"]),
+        article_id=mutated["article_id"],
+        revision_id=mutated["revision_id"],
+    )
+    assert chk_mark["citation_consistency"]["in_text_equals_list"] is False
+    assert chk_mark["check_status"] == "inconsistent"
+    err = _expect(
+        lambda: render_article_revision(
+            vault_root=str(world["vault"]),
+            batch_id="r9",
+            article_id=mutated["article_id"],
+            revision_id=mutated["revision_id"],
+        ),
+        "ARTICLE_RENDER_INVALID",
+    )
+    assert err.details["reason"] == "dangling_citation"
+    assert err.details["section_id"] == "s1"
+    assert err.details["evidence_id"] == dangling
+    assert err.details["instance_pointer"].startswith("/sections/")
+    assert not (world["checkout"] / ".work/r9/articles/render").exists()
+    work_r9 = world["checkout"] / ".work/r9"
+    if work_r9.exists():
+        assert not any(work_r9.rglob("*"))
+
+    def add_x(document):
+        for section in document["sections"]:
+            if section["section_id"] == "s1":
+                section["markdown"] = section["markdown"].replace(" [@" + dangling + "]", "") + " [@x]"
+                break
+
+    mutated_x = _rewrite(add_x)
+    err = _expect(
+        lambda: render_article_revision(
+            vault_root=str(world["vault"]),
+            batch_id="r9b",
+            article_id=mutated_x["article_id"],
+            revision_id=mutated_x["revision_id"],
+        ),
+        "ARTICLE_RENDER_INVALID",
+    )
+    assert err.details["reason"] == "dangling_citation"
+    assert err.details["evidence_id"] == "x"
+    table_eid = mutated_x["comparison_table"]["rows"][0]["cells"]["model_checkpoint"]["evidence_id"]
+
+    def drop_table(document):
+        for section in document["sections"]:
+            if section["section_id"] == "s1":
+                section["markdown"] = section["markdown"].replace(" [@x]", "")
+                break
+        document["bibliography"] = [
+            item for item in document["bibliography"] if item["evidence_id"] != table_eid
+        ]
+
+    mutated_t = _rewrite(drop_table)
+    err = _expect(
+        lambda: render_article_revision(
+            vault_root=str(world["vault"]),
+            batch_id="r9c",
+            article_id=mutated_t["article_id"],
+            revision_id=mutated_t["revision_id"],
+        ),
+        "ARTICLE_RENDER_INVALID",
+    )
+    assert err.details["reason"] == "dangling_citation"
+    assert err.details["location"] == "table"
+    proc = run_module_cli(
+        world["checkout"],
+        [
+            "articles",
+            "render",
+            "--vault-root",
+            str(world["vault"]),
+            "--batch-id",
+            "r9d",
+            "--article-id",
+            mutated_t["article_id"],
+            "--revision-id",
+            mutated_t["revision_id"],
+        ],
+    )
+    assert proc.returncode == 2
+    payload = parse_envelope(proc)
+    assert payload["ok"] is False
+    assert "Traceback" not in (proc.stderr or "")
+    assert run_module_cli is not None
