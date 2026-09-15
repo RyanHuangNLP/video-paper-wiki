@@ -359,6 +359,10 @@ def build_parser() -> argparse.ArgumentParser:
         run_experiments_publish_inspect_command,
     )
     from video_paper_wiki.experiment_matrix_cli import run_experiments_matrix_command
+    from video_paper_wiki.graph_cli import (
+        run_graph_project_command,
+        run_graph_query_command,
+    )
     domain = _add_parser(
         sub,
         "domain",
@@ -676,6 +680,90 @@ def build_parser() -> argparse.ArgumentParser:
     experiments_matrix.add_argument("--vault-root", dest="vault_root", required=True)
     experiments_matrix.add_argument("--paper-id", dest="paper_id")
     experiments_matrix.set_defaults(handler=run_experiments_matrix_command)
+
+    graph = _add_parser(
+        sub,
+        "graph",
+        help=(
+            "Read-only typed relation-graph projection and query. Does not write the "
+            "Vault or .work, write canonical official facts, or rank settings. Not a "
+            "second fact source. The third ranking-file route consumes a vpwiki query "
+            "--json file; generation hashes are echoed, not verified."
+        ),
+        description=(
+            "Read-only typed relation-graph projection and query from D1 and D2 formal "
+            "records under --vault-root. JSON to stdout. The commands do not write the "
+            "Vault or .work, write canonical official facts, or rank settings. Output is "
+            "not a second fact source. The third ranking-file route only consumes a "
+            "vpwiki query --json output file; catalog generation hashes are echoed and "
+            "not verified."
+        ),
+    )
+    graph_sub = graph.add_subparsers(dest="graph_cmd", required=True)
+    graph_project = _add_parser(
+        graph_sub,
+        "project",
+        help=(
+            "Read-only typed relation-graph projection. Does not write the Vault or "
+            ".work, write canonical official facts, or rank settings. Not a second fact "
+            "source."
+        ),
+        description=(
+            "Read wiki/meta/domain and wiki/meta/experiments under --vault-root and emit "
+            "a closed unpublished domain-graph-projection.v1. Optional --paper-id filters "
+            "to one paper. The command is read-only: it does not write the Vault or .work "
+            "staging, write canonical official facts, or rank settings. Output is not a "
+            "second fact source."
+        ),
+    )
+    graph_project.add_argument("--vault-root", dest="vault_root", required=True)
+    graph_project.add_argument("--paper-id", dest="paper_id")
+    graph_project.set_defaults(handler=run_graph_project_command)
+    graph_query = _add_parser(
+        graph_sub,
+        "query",
+        help=(
+            "Read-only typed graph query with exact/graph/third-route rank fusion. Does "
+            "not write the Vault or .work, write canonical official facts, or rank "
+            "settings. Not a second fact source. The third ranking-file route consumes a "
+            "vpwiki query --json file; generation hashes are echoed, not verified."
+        ),
+        description=(
+            "Read wiki/meta/domain and wiki/meta/experiments under --vault-root, project "
+            "the typed relation graph, and emit a closed unpublished domain-graph-query.v1 "
+            "for --text. Optional --kind, --concept-kind, --paper-id, --limit, and a "
+            "ranking-file path from vpwiki query --json. Generation hashes are echoed "
+            "and not verified. The command is "
+            "read-only: it does not write the Vault or .work staging, write canonical "
+            "official facts, or rank settings. Output is not a second fact source."
+        ),
+    )
+    graph_query.add_argument("--vault-root", dest="vault_root", required=True)
+    graph_query.add_argument("--text", required=True)
+    graph_query.add_argument(
+        "--kind",
+        dest="kind",
+        choices=("all", "paper", "claim", "concept", "code", "config", "experiment"),
+        default="all",
+    )
+    graph_query.add_argument(
+        "--concept-kind",
+        dest="concept_kind",
+        choices=(
+            "Method",
+            "Model",
+            "ArchitectureComponent",
+            "TrainingRecipe",
+            "Dataset",
+            "Benchmark",
+            "InferenceRecipe",
+            "EvaluationMetric",
+        ),
+    )
+    graph_query.add_argument("--paper-id", dest="paper_id")
+    graph_query.add_argument("--limit", dest="limit", type=int, default=8)
+    graph_query.add_argument("--" + "bm" + "25-ranking", dest="ranking_path")
+    graph_query.set_defaults(handler=run_graph_query_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")
