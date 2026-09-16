@@ -984,6 +984,31 @@ def build_parser() -> argparse.ArgumentParser:
     gp=_add_parser(gate_sub,"prepare");gp.add_argument("--decision",required=True);gp.add_argument("--baseline-manifest",required=True);gp.add_argument("--batch-id",required=True);gp.set_defaults(handler=domain_commands.gate_prepare)
     gi=_add_parser(gate_sub,"inspect");gi.add_argument("--prepared",required=True);gi.add_argument("--operation-id",required=True);gi.add_argument("--upstream-root",required=True);gi.add_argument("--vault-root",required=True);gi.set_defaults(handler=domain_commands.gate_inspect)
 
+    from video_paper_wiki.flow.cli import run_flow_prepare_command, run_flow_select_command, run_flow_status_command
+    _flow_help=("只读正式记录与本会话 `.work/<batch-id>/flow/` 暂存，生成进度、缺失输入与下一步命令；" "不写 Vault、不 apply、不发布（publication 恒 unpublished）、不排优劣；" "进 Vault 仍需各功能自己的 `vpwiki-admin … apply`（本命令不提供）")
+    flow=_add_parser(sub,"flow",help=_flow_help,description=_flow_help)
+    flow_sub=flow.add_subparsers(dest="flow_cmd",required=True)
+    flow_status=_add_parser(flow_sub,"status",help=_flow_help,description=_flow_help)
+    flow_status.add_argument("--vault-root",dest="vault_root",required=True)
+    flow_status.add_argument("--batch-id",dest="batch_id")
+    flow_status.add_argument("--paper-id",dest="paper_id")
+    flow_status.set_defaults(handler=run_flow_status_command)
+    flow_select=_add_parser(flow_sub,"select",help=_flow_help,description=_flow_help)
+    flow_select.add_argument("--vault-root",dest="vault_root",required=True)
+    flow_select.add_argument("--batch-id",dest="batch_id",required=True)
+    flow_select.add_argument("--paper-id",dest="paper_ids",action="append",required=True)
+    flow_select.add_argument("--association-id",dest="association_id")
+    flow_select.add_argument("--question",dest="question")
+    flow_select.set_defaults(handler=run_flow_select_command)
+    flow_prepare=_add_parser(flow_sub,"prepare",help=_flow_help,description=_flow_help)
+    flow_prepare.add_argument("--vault-root",dest="vault_root",required=True)
+    flow_prepare.add_argument("--batch-id",dest="batch_id",required=True)
+    flow_prepare.add_argument("--kind",dest="kind",choices=("experiment","article"),required=True)
+    flow_prepare.add_argument("--setting-key",dest="setting_key")
+    flow_prepare.add_argument("--paper-id",dest="paper_ids",action="append")
+    flow_prepare.add_argument("--question",dest="question")
+    flow_prepare.set_defaults(handler=run_flow_prepare_command)
+
     return parser
 
 
