@@ -183,8 +183,8 @@ def test_vpwiki_reading_leaf_matches_module_entry(world):
     help_parent = run_module_cli(checkout, ["reading", "--help"])
     assert help_parent.returncode == 0
     assert "build" in help_parent.stdout
-    assert "{build}" in help_parent.stdout
-    assert "{build," not in help_parent.stdout
+    assert "{build,compile,publish-inspect}" in help_parent.stdout
+    assert "{build,compile,publish-inspect," not in help_parent.stdout
     missing = run_module_cli(checkout, ["reading"])
     assert missing.returncode == 2
     missing_payload = parse_envelope(missing)

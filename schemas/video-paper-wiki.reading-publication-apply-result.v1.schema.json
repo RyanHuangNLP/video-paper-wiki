@@ -1,0 +1,313 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.reading-publication-apply-result.v1.schema.json",
+  "title": "video-paper-wiki.reading-publication-apply-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "request_sha256",
+    "manifest_sha256",
+    "basis",
+    "graph_sha256",
+    "matrix_sha256",
+    "articles_batch",
+    "counts",
+    "install_path",
+    "reading_notes_root",
+    "applied_paths",
+    "kept_paths",
+    "deleted_paths",
+    "foreign_paths",
+    "created_dirs",
+    "removed_dirs",
+    "write_plan_counts",
+    "payload_count",
+    "write_kind",
+    "applied",
+    "vault_written",
+    "publication",
+    "receipt_backed",
+    "audit_coverage",
+    "backup_coverage",
+    "transaction_authority",
+    "reading_notes_written",
+    "canonical_official",
+    "current_supported_typed_fact",
+    "typed_fact_promotion",
+    "ranking",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.reading-publication-apply-result.v1"
+    },
+    "batch_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+    },
+    "request_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "manifest_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain_store_inventory_sha256",
+        "claim_ledger_sha256",
+        "assessment_heads_sha256",
+        "experiment_store_inventory_sha256",
+        "article_store_inventory_sha256"
+      ],
+      "properties": {
+        "domain_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "claim_ledger_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "assessment_heads_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "experiment_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "article_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "graph_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "matrix_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "articles_batch": {
+      "anyOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "papers",
+        "versions",
+        "concepts",
+        "claims",
+        "lineages",
+        "conditions",
+        "pairwise",
+        "articles",
+        "pages"
+      ],
+      "properties": {
+        "papers": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "versions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "concepts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "claims": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "lineages": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "conditions": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pairwise": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "articles": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pages": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "install_path": {
+      "const": "wiki/reading"
+    },
+    "reading_notes_root": {
+      "const": "wiki/reading-notes"
+    },
+    "applied_paths": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 17,
+        "maxLength": 1024,
+        "pattern": "^wiki/reading/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.md$(?![\\s\\S])"
+      }
+    },
+    "kept_paths": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 17,
+        "maxLength": 1024,
+        "pattern": "^wiki/reading/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.md$(?![\\s\\S])"
+      }
+    },
+    "deleted_paths": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 17,
+        "maxLength": 1024,
+        "pattern": "^wiki/reading/(?:[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*\\.md|manifest\\.json)$(?![\\s\\S])"
+      }
+    },
+    "foreign_paths": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 8192,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 14,
+        "maxLength": 1024,
+        "pattern": "^wiki/reading/[^\\x00/][^\\x00]*$(?![\\s\\S])"
+      }
+    },
+    "created_dirs": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^wiki/reading(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$(?![\\s\\S])"
+      }
+    },
+    "removed_dirs": {
+      "type": "array",
+      "minItems": 0,
+      "maxItems": 16384,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^wiki/reading/[A-Za-z0-9][A-Za-z0-9._-]*(?:/[A-Za-z0-9][A-Za-z0-9._-]*)*$(?![\\s\\S])"
+      }
+    },
+    "write_plan_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "create",
+        "replace",
+        "keep",
+        "delete",
+        "foreign"
+      ],
+      "properties": {
+        "create": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "replace": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "keep": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "delete": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "foreign": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "payload_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16384
+    },
+    "write_kind": {
+      "const": "direct_vault_write"
+    },
+    "applied": {
+      "const": true,
+      "type": "boolean"
+    },
+    "vault_written": {
+      "const": true,
+      "type": "boolean"
+    },
+    "publication": {
+      "const": "unpublished"
+    },
+    "receipt_backed": {
+      "const": false,
+      "type": "boolean"
+    },
+    "audit_coverage": {
+      "const": "not_wired"
+    },
+    "backup_coverage": {
+      "const": "not_wired"
+    },
+    "transaction_authority": {
+      "const": "not_wired"
+    },
+    "reading_notes_written": {
+      "const": false,
+      "type": "boolean"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    },
+    "typed_fact_promotion": {
+      "const": "none"
+    },
+    "ranking": {
+      "const": "not_ranked"
+    },
+    "next_action": {
+      "const": "open_in_obsidian"
+    }
+  }
+}
