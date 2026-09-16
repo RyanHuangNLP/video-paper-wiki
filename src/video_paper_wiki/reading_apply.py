@@ -738,6 +738,7 @@ def apply_reading_publication(*, prepared, vault_root, confirm, _fault=None):
                             _check_before(snapshot.root_fd, item["path"], item["before_sha256"])
                     committed = True
                     phase = "commit"
+                    committed_paths.extend(create_paths)
                     pending_renames.sort(key=lambda row: row["path"].encode("utf-8"))
                     for row in pending_renames:
                         dir_fd, fds = _open_dir_rel(snapshot.root_fd, row["dir_rel"])

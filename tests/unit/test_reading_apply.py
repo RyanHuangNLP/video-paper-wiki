@@ -549,3 +549,72 @@ def test_apply_post_commit_collision_keeps_committed_paths_and_repair_store(worl
     assert err.details.get("prior_code") == "READING_COMPILE_TARGET_INVALID"
     assert err.details.get("reason") == "portable_collision"
     assert not (install / "manifest.json").exists()
+
+
+def _committed_write_paths(request):
+    paths = [item["path"] for item in request["payloads"] if item["mode"] in {"create", "replace", "delete"}]
+    paths.sort(key=lambda item: item.encode("utf-8"))
+    return paths
+
+
+def test_apply_after_commit_oserror_records_create_paths(world):
+    _three_chain(world)
+    _build(world, "r1")
+    _compile(world, "r1")
+    request = json.loads(Path(_prepared(world, "r1")).read_bytes())
+    modes = {item["mode"] for item in request["payloads"]}
+    assert modes == {"create"}
+    expected = _committed_write_paths(request)
+    assert expected
+
+    def boom_after(phase):
+        if phase == "after-commit":
+            raise OSError(errno.EIO, "injected-after-create")
+
+    err = _expect(lambda: _apply_reading(world, "r1", _fault=boom_after), "READING_APPLY_VERIFY_FAILED")
+    assert err.details["phase"] == "after-commit"
+    assert err.details["next_action"] == "repair_store"
+    assert set(err.details["committed_paths"]) == set(expected)
+    for item in request["payloads"]:
+        dest = world["vault"] / item["path"]
+        staged = _reading_root(world, "r1") / item["path"][len("wiki/reading/") :]
+        raw = dest.read_bytes()
+        assert raw == staged.read_bytes()
+        assert sha(raw) == item["after_sha256"]
+
+
+def test_apply_after_commit_oserror_records_mixed_committed_paths(world):
+    _three_chain(world)
+    _build(world, "r1")
+    _compile(world, "r1")
+    _apply_reading(world, "r1")
+    _put(world["vault"] / "wiki/reading/stale/old.md", MARKER_PREFIX + b"old\n")
+    _import_full(world, "w1")
+    _apply_staged_articles(world, "w1")
+    _build(world, "r2")
+    _compile(world, "r2")
+    request = json.loads(Path(_prepared(world, "r2")).read_bytes())
+    modes = {item["mode"] for item in request["payloads"]}
+    assert "create" in modes
+    assert {"replace", "delete"} & modes
+    expected = _committed_write_paths(request)
+    keep_paths = {item["path"] for item in request["payloads"] if item["mode"] == "keep"}
+
+    def boom_after(phase):
+        if phase == "after-commit":
+            raise OSError(errno.EIO, "injected-after-mixed")
+
+    err = _expect(lambda: _apply_reading(world, "r2", _fault=boom_after), "READING_APPLY_VERIFY_FAILED")
+    assert err.details["phase"] == "after-commit"
+    assert err.details["next_action"] == "repair_store"
+    assert set(err.details["committed_paths"]) == set(expected)
+    assert keep_paths.isdisjoint(err.details["committed_paths"])
+    for item in request["payloads"]:
+        dest = world["vault"] / item["path"]
+        if item["mode"] in {"create", "replace"}:
+            staged = _reading_root(world, "r2") / item["path"][len("wiki/reading/") :]
+            raw = dest.read_bytes()
+            assert raw == staged.read_bytes()
+            assert sha(raw) == item["after_sha256"]
+        elif item["mode"] == "delete":
+            assert not dest.exists()
