@@ -73,7 +73,7 @@ def test_independent_negative_fixtures_use_stable_codes(name: str) -> None:
 @pytest.mark.parametrize("path", sorted(VALID.glob("*.json")))
 def test_valid_domain_fixtures_pass_production_validator(path: Path) -> None:
     document = load_json(path)
-    validate_document(document, expected_schema=document["schema"])
+    validate_document(document, expected_schema=document.get("schema", path.stem))
 
 
 def test_schema_error_details_include_pointer_and_keyword() -> None:

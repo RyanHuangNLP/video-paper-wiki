@@ -27,6 +27,7 @@ from video_paper_wiki.article_revision import (
 from video_paper_wiki.experiment_matrix import build_experiment_comparison_matrix
 from video_paper_wiki.experiment_store import ExperimentStoreError, status_experiment_store
 from video_paper_wiki.graph_projection import GraphProjectionError, build_domain_graph_projection
+from video_paper_wiki.contracts import ContractError
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.reading.view import (
     MANIFEST_KEYS,
@@ -312,3 +313,40 @@ def test_article_paths_render_and_mismatch(world, monkeypatch):
     raw = (_reading_root(world, "r1") / "manifest.json").read_bytes()
     assert raw == canonicalize(json.loads(raw.decode("utf-8")))
     assert not raw.endswith(b"\n\n")
+
+
+def test_validate_document_hook_before_first_stage_bytes(world, monkeypatch):
+    _three_chain(world)
+    import video_paper_wiki.reading.view as view_mod
+
+    calls = []
+    real = view_mod.validate_document
+    vault_before = _snapshot(world["vault"])
+
+    def wrapper(document, expected_schema=None):
+        calls.append((document, expected_schema))
+        assert expected_schema == "video-paper-wiki.reading-manifest.v1"
+        assert set(document) == set(MANIFEST_KEYS)
+        assert "staging" not in document
+        assert len(document["pages"]) == document["counts"]["pages"]
+        assert not _reading_root(world, "hook").exists()
+        return real(document, expected_schema)
+
+    monkeypatch.setattr(view_mod, "validate_document", wrapper)
+    data = _build(world, "hook")
+    assert len(calls) == 1
+    manifest = {key: value for key, value in data.items() if key != "staging"}
+    raw = (_reading_root(world, "hook") / "manifest.json").read_bytes()
+    assert canonicalize(manifest) == raw
+
+    def boom(document, expected_schema=None):
+        raise ContractError("SCHEMA_INVALID", "forced", {"instance_pointer": "/x"})
+
+    monkeypatch.setattr(view_mod, "validate_document", boom)
+    with pytest.raises(ContractError) as err:
+        _build(world, "hook-fail")
+    assert err.value.code == "SCHEMA_INVALID"
+    assert err.value.message == "forced"
+    assert err.value.details.get("instance_pointer") == "/x"
+    assert not _reading_root(world, "hook-fail").exists()
+    assert _snapshot(world["vault"]) == vault_before
