@@ -415,3 +415,32 @@ def test_inspect_positive_and_refusals(world):
     _apply_staged_articles(world, "w2")
     err = _expect(lambda: _inspect(world, "r1"), "READING_PUBLICATION_STALE")
     assert err.exit_code == 75
+
+
+def test_compile_rejects_parent_directory_case_collision(world):
+    _three_chain(world)
+    _build(world, "r1")
+    install = world["vault"] / "wiki/reading"
+    _put(install / "PAPERS/private.txt", b"private\n")
+    vault_before = _snapshot(world["vault"])
+    err = _expect(lambda: _compile(world, "r1"), "READING_COMPILE_TARGET_INVALID")
+    assert err.details["reason"] == "portable_collision"
+    assert not _prepared(world, "r1").exists()
+    assert _snapshot(world["vault"]) == vault_before
+
+
+def test_inspect_refuses_patched_basis_after_article_store_change(world):
+    _three_chain(world)
+    _build(world, "r1")
+    _compile(world, "r1")
+    raw = _prepared(world, "r1").read_bytes()
+    _import_full(world, "w3")
+    _apply_staged_articles(world, "w3")
+    err = _expect(lambda: _inspect(world, "r1"), "READING_PUBLICATION_STALE")
+    assert err.exit_code == 75
+    request = json.loads(raw)
+    request["basis"] = status_article_store(vault_root=str(world["vault"]))["basis"]
+    _put(_prepared(world, "r1"), canonicalize(request))
+    err = _expect(lambda: _inspect(world, "r1"), "READING_PUBLICATION_CONTENT_MISMATCH")
+    assert err.details["instance_pointer"] == "/basis"
+    assert err.details["next_action"] == "recompile"

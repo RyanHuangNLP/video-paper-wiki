@@ -378,11 +378,16 @@ def _plan_targets(root_fd, pages):
         pages_meta = (page_index, page_sha, page_size, page_set)
         folded_targets = {}
         for item in pages:
-            key = _fold(item["path"])
-            prior = folded_targets.get(key)
-            if prior is not None and prior != item["path"]:
-                _target_invalid("portable_collision", INSTALL_PREFIX + item["path"])
-            folded_targets[key] = item["path"]
+            parts = item["path"].split("/")
+            acc = []
+            for part in parts:
+                acc.append(part)
+                rel = "/".join(acc)
+                key = _fold(rel)
+                prior = folded_targets.get(key)
+                if prior is not None and prior != rel:
+                    _target_invalid("portable_collision", INSTALL_PREFIX + rel)
+                folded_targets[key] = rel
         rows = []
         foreign = []
         seen = set()
@@ -753,6 +758,31 @@ def _manifest_basis(manifest):
     }
 
 
+def _check_request_derived(request, manifest):
+    expected = {
+        "basis": _manifest_basis(manifest),
+        "graph_sha256": manifest["graph_sha256"],
+        "matrix_sha256": manifest["matrix_sha256"],
+        "articles_batch": manifest["articles_batch"],
+        "counts": dict(manifest["counts"]),
+    }
+    observed = {
+        "basis": request["basis"],
+        "graph_sha256": request["graph_sha256"],
+        "matrix_sha256": request["matrix_sha256"],
+        "articles_batch": request["articles_batch"],
+        "counts": request["counts"],
+    }
+    if expected == observed:
+        return
+    pointer = "/basis"
+    for key in ("basis", "graph_sha256", "matrix_sha256", "articles_batch", "counts"):
+        if expected[key] != observed[key]:
+            pointer = "/" + key
+            break
+    _fail("READING_PUBLICATION_CONTENT_MISMATCH", pointer, "recompile")
+
+
 def _register_plan(snapshot, plan):
     for row in plan["rows"]:
         path = INSTALL_PREFIX + row["rel"]
@@ -1002,6 +1032,7 @@ def _restage_against_request(batch, request):
         expected_manifest_sha=request["manifest_sha256"],
     )
     try:
+        _check_request_derived(request, loaded["manifest"])
         _check_request(request, compile_mode=False, manifest_pages=loaded["manifest"]["pages"])
         by_path = {item["path"]: item for item in request["payloads"] if item["mode"] != "delete"}
         expected = {INSTALL_PREFIX + rel for rel in loaded["pages"]}

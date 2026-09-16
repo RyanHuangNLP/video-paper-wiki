@@ -435,6 +435,7 @@ def test_apply_faults(world, monkeypatch):
     err = _expect(lambda: _apply_reading(world, "r2b", _fault=boom_after), "READING_APPLY_VERIFY_FAILED")
     assert err.details["phase"] == "after-commit"
     assert err.details["committed_paths"]
+    assert err.details["next_action"] == "repair_store"
     assert not list((world["vault"] / "wiki/reading").rglob(".*.tmp"))
     err = _expect(lambda: _apply_reading(world, "r2b"), "READING_APPLY_ALREADY_APPLIED")
     _drop_publication(world, "r3")
@@ -470,3 +471,81 @@ def test_apply_faults(world, monkeypatch):
 
     err = _expect(lambda: _apply_reading(world, "r3c", _fault=tamper_store), "READING_APPLY_VERIFY_FAILED")
     assert err.details.get("reason") in {"basis"} or str(err.details.get("prior_code", "")).startswith("DOMAIN_STORE")
+    assert err.details["next_action"] == "repair_store"
+    assert "committed_paths" in err.details
+
+
+def test_apply_refuses_patched_basis_after_article_store_change(world):
+    _three_chain(world)
+    _build(world, "r1")
+    _compile(world, "r1")
+    raw = Path(_prepared(world, "r1")).read_bytes()
+    _import_full(world, "w4")
+    _apply_staged_articles(world, "w4")
+    request = json.loads(raw)
+    request["basis"] = status_article_store(vault_root=str(world["vault"]))["basis"]
+    Path(_prepared(world, "r1")).write_bytes(canonicalize(request))
+    vault_before = _snapshot(world["vault"])
+    err = _expect(lambda: _apply_reading(world, "r1"), "READING_PUBLICATION_CONTENT_MISMATCH")
+    assert err.details["instance_pointer"] == "/basis"
+    assert err.details["next_action"] == "recompile"
+    assert _snapshot(world["vault"]) == vault_before
+
+
+def test_apply_rejects_parent_directory_case_collision_before_write(world):
+    _three_chain(world)
+    _build(world, "r1")
+    _compile(world, "r1")
+    _put(world["vault"] / "wiki/reading/PAPERS/private.txt", b"private\n")
+    vault_before = _snapshot(world["vault"])
+    err = _expect(lambda: _apply_reading(world, "r1"), "READING_COMPILE_TARGET_INVALID")
+    assert err.details["reason"] == "portable_collision"
+    assert _snapshot(world["vault"]) == vault_before
+    assert not (world["vault"] / "wiki/reading/papers").exists()
+
+
+def test_apply_keep_plus_delete_only_chain(world):
+    _three_chain(world)
+    _build(world, "r1")
+    install = world["vault"] / "wiki/reading"
+    shutil.copytree(_reading_root(world, "r1"), install)
+    compiled = _compile(world, "r1")
+    request = json.loads(Path(_prepared(world, "r1")).read_bytes())
+    modes = {item["mode"] for item in request["payloads"]}
+    assert modes == {"keep", "delete"}
+    assert compiled["write_plan_counts"]["create"] == 0
+    assert compiled["write_plan_counts"]["replace"] == 0
+    assert compiled["write_plan_counts"]["keep"] >= 1
+    assert compiled["write_plan_counts"]["delete"] == 1
+    inspection = inspect_reading_publication(prepared=_prepared(world, "r1"), vault_root=str(world["vault"]))
+    validate_document(inspection, "video-paper-wiki.reading-publication-inspection.v1")
+    result = _apply_reading(world, "r1")
+    validate_document(result, RESULT_SCHEMA)
+    assert result["applied_paths"] == []
+    assert result["deleted_paths"] == ["wiki/reading/manifest.json"]
+    assert result["kept_paths"]
+    assert not (install / "manifest.json").exists()
+    for path in result["kept_paths"]:
+        dest = install / path[len("wiki/reading/") :]
+        staged = _reading_root(world, "r1") / path[len("wiki/reading/") :]
+        assert dest.read_bytes() == staged.read_bytes()
+
+
+def test_apply_post_commit_collision_keeps_committed_paths_and_repair_store(world):
+    _three_chain(world)
+    _build(world, "r1")
+    install = world["vault"] / "wiki/reading"
+    shutil.copytree(_reading_root(world, "r1"), install)
+    _compile(world, "r1")
+
+    def collide(phase):
+        if phase == "after-commit":
+            _put(install / "PAPERS/private.txt", b"private\n")
+
+    err = _expect(lambda: _apply_reading(world, "r1", _fault=collide), "READING_APPLY_VERIFY_FAILED")
+    assert err.details["next_action"] == "repair_store"
+    assert "committed_paths" in err.details
+    assert "wiki/reading/manifest.json" in err.details["committed_paths"]
+    assert err.details.get("prior_code") == "READING_COMPILE_TARGET_INVALID"
+    assert err.details.get("reason") == "portable_collision"
+    assert not (install / "manifest.json").exists()

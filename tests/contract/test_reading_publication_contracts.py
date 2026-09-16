@@ -153,6 +153,9 @@ def test_apply_result_write_kind_and_coverage() -> None:
     publish = copy.deepcopy(document)
     publish["next_action"] = "publish"
     _reject(publish, RESULT)
+    empty_applied = copy.deepcopy(document)
+    empty_applied["applied_paths"] = []
+    validate_document(empty_applied, expected_schema=RESULT)
 
 
 def test_constant_alignment_with_manifest_and_pages(tmp_path, monkeypatch) -> None:

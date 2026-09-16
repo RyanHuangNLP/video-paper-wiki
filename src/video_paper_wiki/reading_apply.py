@@ -209,12 +209,11 @@ def _write_failed(exc, phase, rolled, complete):
 
 
 def _verify_failed(extra):
-    details = {
-        "phase": extra.get("phase", "after-commit"),
-        "next_action": "repair_store",
-        "instance_pointer": extra.get("instance_pointer", "/wiki/reading"),
-    }
-    details.update(extra)
+    details = dict(extra)
+    details.setdefault("phase", extra.get("phase", "after-commit"))
+    details.setdefault("instance_pointer", extra.get("instance_pointer", "/wiki/reading"))
+    details.setdefault("committed_paths", [])
+    details["next_action"] = "repair_store"
     raise ReadingApplyError(
         "READING_APPLY_VERIFY_FAILED",
         MESSAGES["READING_APPLY_VERIFY_FAILED"],
@@ -785,7 +784,7 @@ def apply_reading_publication(*, prepared, vault_root, confirm, _fault=None):
                     **dict(exc.details),
                 }
             )
-        except ReadingPublicationError:
+        except ReadingPublicationError as exc:
             if not committed:
                 rolled, complete = _rollback(snapshot.root_fd, created_files, created_dirs)
                 extra = {
@@ -794,7 +793,15 @@ def apply_reading_publication(*, prepared, vault_root, confirm, _fault=None):
                     "rollback_complete": complete,
                 }
                 _fail("READING_APPLY_WRITE_FAILED", "/wiki/reading", "retry_apply", extra)
-            raise
+            _verify_failed(
+                {
+                    "phase": phase,
+                    "prior_code": exc.code,
+                    "reason": exc.details.get("reason"),
+                    "committed_paths": list(committed_paths),
+                    **dict(exc.details),
+                }
+            )
         except OSError as exc:
             if not committed:
                 rolled, complete = _rollback(snapshot.root_fd, created_files, created_dirs)
@@ -825,19 +832,35 @@ def apply_reading_publication(*, prepared, vault_root, confirm, _fault=None):
                     "phase": phase,
                 }
             )
-        post = _post_verify(
-            vault,
-            request,
-            snapshot,
-            pages,
-            write_set,
-            created_dirs,
-            removed_dirs,
-            pre["notes"],
-            pre["foreign"],
-            staged,
-            pub,
-        )
+        try:
+            post = _post_verify(
+                vault,
+                request,
+                snapshot,
+                pages,
+                write_set,
+                created_dirs,
+                removed_dirs,
+                pre["notes"],
+                pre["foreign"],
+                staged,
+                pub,
+            )
+        except ReadingApplyError as exc:
+            if committed and exc.code == "READING_APPLY_VERIFY_FAILED":
+                exc.details["committed_paths"] = list(committed_paths)
+                exc.details["next_action"] = "repair_store"
+            raise
+        except ReadingPublicationError as exc:
+            _verify_failed(
+                {
+                    "phase": "after-commit",
+                    "prior_code": exc.code,
+                    "reason": exc.details.get("reason"),
+                    "committed_paths": list(committed_paths),
+                    **dict(exc.details),
+                }
+            )
         applied_paths = [item["path"] for item in request["payloads"] if item["mode"] in {"create", "replace"}]
         applied_paths.sort(key=lambda item: item.encode("utf-8"))
         kept_paths = [item["path"] for item in request["payloads"] if item["mode"] == "keep"]
