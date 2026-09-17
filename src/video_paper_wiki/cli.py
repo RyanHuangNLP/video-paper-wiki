@@ -376,6 +376,10 @@ def build_parser() -> argparse.ArgumentParser:
         run_articles_publish_inspect_command,
     )
     from video_paper_wiki.reading.cli import run_reading_build_command
+    from video_paper_wiki.reading_publication_cli import (
+        run_reading_compile_command,
+        run_reading_publish_inspect_command,
+    )
     domain = _add_parser(
         sub,
         "domain",
@@ -967,12 +971,12 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
             "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
-            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+            "进 Vault 走 `vpwiki reading compile` → `vpwiki reading publish-inspect` → `vpwiki-admin reading apply`（只覆盖带 `generated_by: video-paper-wiki.reading.v1` 标记的生成页，绝不触碰无标记文件与 `wiki/reading-notes/**`）。"
         ),
         description=(
             "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
             "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
-            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+            "进 Vault 走 `vpwiki reading compile` → `vpwiki reading publish-inspect` → `vpwiki-admin reading apply`（只覆盖带 `generated_by: video-paper-wiki.reading.v1` 标记的生成页，绝不触碰无标记文件与 `wiki/reading-notes/**`）。"
         ),
     )
     reading_sub = reading.add_subparsers(dest="reading_cmd", required=True)
@@ -982,12 +986,12 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
             "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
-            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+            "进 Vault 走 `vpwiki reading compile` → `vpwiki reading publish-inspect` → `vpwiki-admin reading apply`（只覆盖带 `generated_by: video-paper-wiki.reading.v1` 标记的生成页，绝不触碰无标记文件与 `wiki/reading-notes/**`）。"
         ),
         description=(
             "只读 D1 / D2 / D3 / S1 正式记录，把阅读页与 manifest 暂存到 `.work/<batch-id>/reading/`；"
             "不写 Vault、不写 `wiki/**`、不 apply、不发布（publication 恒 unpublished）、不排优劣；"
-            "进 Vault 需后续 `vpwiki-admin reading apply`（本刀未提供）。"
+            "进 Vault 走 `vpwiki reading compile` → `vpwiki reading publish-inspect` → `vpwiki-admin reading apply`（只覆盖带 `generated_by: video-paper-wiki.reading.v1` 标记的生成页，绝不触碰无标记文件与 `wiki/reading-notes/**`）。"
         ),
     )
     reading_build.add_argument("--vault-root", dest="vault_root", required=True)
@@ -995,6 +999,40 @@ def build_parser() -> argparse.ArgumentParser:
     reading_build.add_argument("--paper-id", dest="paper_id", required=False, default=None)
     reading_build.add_argument("--articles-batch", dest="articles_batch", required=False, default=None)
     reading_build.set_defaults(handler=run_reading_build_command)
+    reading_compile = _add_parser(
+        reading_sub,
+        "compile",
+        help=(
+            "compile 只读 `.work/<batch-id>/reading/**` 与 Vault，只写 `.work/<batch-id>/reading-publication/request.json`；"
+            "publish-inspect 零写入；不写 Vault、不写 `wiki/**`、不发布（publication 恒 unpublished）、不排优劣；"
+            "apply 只经 `vpwiki-admin reading apply`；只覆盖带标记生成页、不触碰 `wiki/reading-notes/**`。"
+        ),
+        description=(
+            "compile 只读 `.work/<batch-id>/reading/**` 与 Vault，只写 `.work/<batch-id>/reading-publication/request.json`；"
+            "publish-inspect 零写入；不写 Vault、不写 `wiki/**`、不发布（publication 恒 unpublished）、不排优劣；"
+            "apply 只经 `vpwiki-admin reading apply`；只覆盖带标记生成页、不触碰 `wiki/reading-notes/**`。"
+        ),
+    )
+    reading_compile.add_argument("--vault-root", dest="vault_root", required=True)
+    reading_compile.add_argument("--batch-id", dest="batch_id", required=True)
+    reading_compile.set_defaults(handler=run_reading_compile_command)
+    reading_publish_inspect = _add_parser(
+        reading_sub,
+        "publish-inspect",
+        help=(
+            "compile 只读 `.work/<batch-id>/reading/**` 与 Vault，只写 `.work/<batch-id>/reading-publication/request.json`；"
+            "publish-inspect 零写入；不写 Vault、不写 `wiki/**`、不发布（publication 恒 unpublished）、不排优劣；"
+            "apply 只经 `vpwiki-admin reading apply`；只覆盖带标记生成页、不触碰 `wiki/reading-notes/**`。"
+        ),
+        description=(
+            "compile 只读 `.work/<batch-id>/reading/**` 与 Vault，只写 `.work/<batch-id>/reading-publication/request.json`；"
+            "publish-inspect 零写入；不写 Vault、不写 `wiki/**`、不发布（publication 恒 unpublished）、不排优劣；"
+            "apply 只经 `vpwiki-admin reading apply`；只覆盖带标记生成页、不触碰 `wiki/reading-notes/**`。"
+        ),
+    )
+    reading_publish_inspect.add_argument("--prepared", dest="prepared", required=True)
+    reading_publish_inspect.add_argument("--vault-root", dest="vault_root", required=True)
+    reading_publish_inspect.set_defaults(handler=run_reading_publish_inspect_command)
 
     audit = _add_parser(sub, "audit")
     audit.add_argument("--vault-root", required=True); audit.add_argument("--upstream-root", required=True); audit.add_argument("--as-of")

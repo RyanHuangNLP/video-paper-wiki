@@ -341,7 +341,7 @@ def render_legend(model):
     lines = [
         "# 字段说明与边界",
         "",
-        "本目录由 `python -m video_paper_wiki.reading build` 生成，暂存于 `.work/<batch>/reading/`，未 apply、未发布、不排优劣、不改任何 Vault 文件；安装到 `wiki/reading/` 后跨页链接生效；用户笔记请写 `wiki/reading-notes/**`。",
+        "本目录由 `vpwiki reading build`（或 `python -m video_paper_wiki.reading build`）生成并暂存于 `.work/<batch>/reading/`；build 本身未 apply、未发布、不排优劣、不改任何 Vault 文件；经 `vpwiki reading compile` → `vpwiki reading publish-inspect` → `vpwiki-admin reading apply` 安装到 `wiki/reading/` 后跨页链接生效，apply 只覆盖带 `generated_by: video-paper-wiki.reading.v1` 标记的生成页、绝不触碰无标记文件与 `wiki/reading-notes/**`；用户笔记请写 `wiki/reading-notes/**`。",
         "",
         "## 枚举原样",
         "",
