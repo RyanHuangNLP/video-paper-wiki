@@ -174,6 +174,38 @@ def _batch_token(batch_id):
     return batch_id
 
 
+def eligible_experiment_paper_id(selection, papers):
+    if selection is None:
+        return None
+    paper_ids = selection.get("paper_ids")
+    if type(paper_ids) is not list or not paper_ids:
+        return None
+    by_id = {row["paper_id"]: row for row in papers}
+    chosen = selection.get("association_id")
+    for paper_id in unique_sorted(paper_ids):
+        row = by_id.get(paper_id)
+        if row is None:
+            continue
+        lineages = row.get("lineages") or []
+        if not lineages:
+            continue
+        if chosen is not None:
+            matched = [item for item in lineages if item.get("source_association_id") == chosen]
+            if not matched:
+                continue
+            if any(item.get("association_status") != "bound" for item in matched):
+                continue
+            return paper_id
+        assoc_ids = unique_sorted({item["source_association_id"] for item in lineages})
+        if len(assoc_ids) != 1:
+            continue
+        matched = [item for item in lineages if item.get("source_association_id") == assoc_ids[0]]
+        if any(item.get("association_status") != "bound" for item in matched):
+            continue
+        return paper_id
+    return None
+
+
 def assemble_next_actions(
     *,
     vault_root,
@@ -350,30 +382,55 @@ def assemble_next_actions(
                     )
                 )
     if selection and batch_id is not None:
-        for row in action_papers:
-            if any(item["association_status"] == "bound" for item in row["lineages"]):
-                items.append(
-                    make_action(
-                        "compare-prepare-experiment-" + row["paper_id"],
-                        "compare",
-                        "prepare experiment input for " + row["paper_id"],
-                        [
-                            "flow",
-                            "prepare",
-                            "--vault-root",
-                            vault_root,
-                            "--batch-id",
-                            batch_id,
-                            "--kind",
-                            "experiment",
-                            "--setting-key",
-                            "<setting_key>",
-                        ],
-                        "work_staging",
-                        "command_tree",
-                    )
+        primary = eligible_experiment_paper_id(selection, papers)
+        if primary is not None:
+            items.append(
+                make_action(
+                    "compare-prepare-experiment-" + primary,
+                    "compare",
+                    "prepare experiment input for " + primary,
+                    [
+                        "flow",
+                        "prepare",
+                        "--vault-root",
+                        vault_root,
+                        "--batch-id",
+                        batch_id,
+                        "--kind",
+                        "experiment",
+                        "--paper-id",
+                        primary,
+                        "--setting-key",
+                        "<setting_key>",
+                    ],
+                    "work_staging",
+                    "command_tree",
                 )
-                break
+            )
+        else:
+            items.append(
+                make_action(
+                    "session-select-new-batch",
+                    "session",
+                    (
+                        "no selected paper satisfies experiment source-association "
+                        "prerequisites; select an eligible paper in a new batch to "
+                        "avoid STAGING_CONFLICT"
+                    ),
+                    [
+                        "flow",
+                        "select",
+                        "--vault-root",
+                        vault_root,
+                        "--batch-id",
+                        "<batch_id>",
+                        "--paper-id",
+                        "<paper_id>",
+                    ],
+                    "work_staging",
+                    "command_tree",
+                )
+            )
     if prepare_paths and kind == "experiment":
         argv = [
             "experiments",

@@ -9,6 +9,7 @@ from tests.contract.paths import VALID, load_json
 from tests.unit.test_article_revision import _papers, _question
 from tests.unit.test_domain_proposal import make_world
 from tests.unit.test_graph_projection import _three_chain
+from video_paper_wiki.article_store import MAX_TITLE
 from video_paper_wiki.contracts import ContractError, schema_by_title, validate_document
 from video_paper_wiki.flow.actions import PREPARE_SCHEMA, SELECTION_SCHEMA, STATUS_SCHEMA
 from video_paper_wiki.flow.prepare import prepare_flow
@@ -153,3 +154,27 @@ def test_real_world_documents(world) -> None:
     validate_document(prepared, PREPARE_SCHEMA)
     live = build_flow_status(vault_root=vault, batch_id="sess1")
     validate_document(live, STATUS_SCHEMA)
+    long_q = _question(world) + " " + ("测" * (301 - len(_question(world)) - 1))
+    assert len(long_q) == 301
+    long_prepared = prepare_flow(
+        vault_root=vault,
+        batch_id="sess1",
+        kind="article",
+        paper_ids=[papers[0]],
+        question=long_q,
+    )
+    validate_document(long_prepared, PREPARE_SCHEMA)
+    body = json.loads(
+        (world["checkout"] / long_prepared["outputs"][1]["path"]).read_bytes().decode("utf-8")
+    )
+    assert len(body["title"]) == MAX_TITLE
+    assert body["title"] == long_q[:MAX_TITLE]
+    assert long_prepared["article_binding"]["question"] == long_q
+    multi = select_flow(vault_root=vault, batch_id="sess-multi", paper_ids=papers)
+    validate_document(multi["selection"], SELECTION_SCHEMA)
+    live_multi = build_flow_status(vault_root=vault, batch_id="sess-multi")
+    validate_document(live_multi, STATUS_SCHEMA)
+    action = next(
+        item for item in live_multi["next_actions"] if item["id"].startswith("compare-prepare-experiment-")
+    )
+    assert action["argv"].count("--paper-id") == 1

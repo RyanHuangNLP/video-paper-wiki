@@ -6,6 +6,7 @@ import hashlib
 import re
 
 from video_paper_wiki.article_context import export_article_context
+from video_paper_wiki.article_store import MAX_TITLE
 from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.domain_versions import build_domain_source_version_view
 from video_paper_wiki.experiment_store import CONDITION_KEYS, INPUT_KEYS
@@ -256,9 +257,44 @@ def _prepare_experiment(*, vault_root, batch_id, status, paper_ids, setting_key,
     return document
 
 
+def _reject_cite_mark_in_title(vault_root, batch_id, question, paper_ids):
+    if "[@" not in question:
+        return
+    argv = [
+        "flow",
+        "prepare",
+        "--vault-root",
+        vault_root,
+        "--batch-id",
+        batch_id,
+        "--kind",
+        "article",
+        "--question",
+        "<question>",
+    ]
+    for paper_id in paper_ids:
+        argv.extend(["--paper-id", paper_id])
+    fail(
+        "FLOW_INVALID",
+        "/question",
+        "repair_input",
+        {
+            "reason": "cite_mark_in_title",
+            "argv": argv,
+        },
+    )
+
+
+def _article_title(question):
+    if len(question) <= MAX_TITLE:
+        return question
+    return question[:MAX_TITLE]
+
+
 def _prepare_article(*, vault_root, batch_id, status, paper_ids, question, selection):
     if question is None:
         fail("FLOW_INVALID", "/question", "repair_input", {"reason": "question_required"})
+    _reject_cite_mark_in_title(vault_root, batch_id, question, paper_ids)
     data = export_article_context(vault_root=vault_root, question=question, paper_ids=paper_ids)
     envelope = canonicalize({"ok": True, "command": EXPORT_COMMAND, "data": data})
     article_id = data["article_id"]
@@ -280,7 +316,7 @@ def _prepare_article(*, vault_root, batch_id, status, paper_ids, question, selec
         )
     body = {
         "schema": "video-paper-wiki.article-document.v1",
-        "title": question,
+        "title": _article_title(question),
         "sections": sections,
     }
     document_bytes = canonicalize(body)
