@@ -236,6 +236,9 @@ def test_cli_title_cite_mark_and_experiment_primary(tmp_path, monkeypatch):
     assert refused_env["error"]["code"] == "FLOW_INVALID"
     assert refused_env["error"]["details"]["reason"] == "cite_mark_in_title"
     assert refused_env["error"]["details"]["instance_pointer"] == "/question"
+    refused_argv = refused_env["error"]["details"]["argv"]
+    assert refused_argv.count("--paper-id") == 1
+    assert refused_argv[refused_argv.index("--paper-id") + 1] == p1
     multi = run_module_cli(
         world["checkout"],
         [

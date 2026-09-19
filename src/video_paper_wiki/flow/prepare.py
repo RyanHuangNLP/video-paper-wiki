@@ -257,27 +257,30 @@ def _prepare_experiment(*, vault_root, batch_id, status, paper_ids, setting_key,
     return document
 
 
-def _reject_cite_mark_in_title(vault_root, batch_id, question):
+def _reject_cite_mark_in_title(vault_root, batch_id, question, paper_ids):
     if "[@" not in question:
         return
+    argv = [
+        "flow",
+        "prepare",
+        "--vault-root",
+        vault_root,
+        "--batch-id",
+        batch_id,
+        "--kind",
+        "article",
+        "--question",
+        "<question>",
+    ]
+    for paper_id in paper_ids:
+        argv.extend(["--paper-id", paper_id])
     fail(
         "FLOW_INVALID",
         "/question",
         "repair_input",
         {
             "reason": "cite_mark_in_title",
-            "argv": [
-                "flow",
-                "prepare",
-                "--vault-root",
-                vault_root,
-                "--batch-id",
-                batch_id,
-                "--kind",
-                "article",
-                "--question",
-                "<question>",
-            ],
+            "argv": argv,
         },
     )
 
@@ -291,7 +294,7 @@ def _article_title(question):
 def _prepare_article(*, vault_root, batch_id, status, paper_ids, question, selection):
     if question is None:
         fail("FLOW_INVALID", "/question", "repair_input", {"reason": "question_required"})
-    _reject_cite_mark_in_title(vault_root, batch_id, question)
+    _reject_cite_mark_in_title(vault_root, batch_id, question, paper_ids)
     data = export_article_context(vault_root=vault_root, question=question, paper_ids=paper_ids)
     envelope = canonicalize({"ok": True, "command": EXPORT_COMMAND, "data": data})
     article_id = data["article_id"]

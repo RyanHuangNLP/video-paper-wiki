@@ -87,6 +87,54 @@ def _run_filled(world, action, mapping):
     return proc
 
 
+def _cite_retry_paper_ids(argv):
+    ids = []
+    for index, token in enumerate(argv):
+        if token == "--paper-id":
+            ids.append(argv[index + 1])
+    return ids
+
+
+def _assert_cite_retry_argv(argv, *, vault, batch_id, paper_ids):
+    assert argv[:10] == [
+        "flow",
+        "prepare",
+        "--vault-root",
+        vault,
+        "--batch-id",
+        batch_id,
+        "--kind",
+        "article",
+        "--question",
+        "<question>",
+    ]
+    expected = [("--paper-id", paper_id) for paper_id in paper_ids]
+    assert list(zip(argv[10::2], argv[11::2], strict=True)) == expected
+    assert len(argv) == 10 + 2 * len(paper_ids)
+    assert _cite_retry_paper_ids(argv) == list(paper_ids)
+
+
+def _recover_cite_prepare(world, err, question):
+    proc = _run_filled(world, {"argv": err.details["argv"]}, {"<question>": question})
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    prepared = parse_envelope(proc)["data"]
+    _assert_kind_binding(prepared)
+    return prepared
+
+
+def _import_prepared_article(world, prepared):
+    proc = _run_filled(
+        world,
+        _action(prepared, "survey-import-article"),
+        {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"},
+    )
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    imported = parse_envelope(proc)
+    assert imported["ok"] is True
+    assert imported["data"]["record"]["article_id"] == prepared["article_binding"]["article_id"]
+    return imported
+
+
 def _action(document, action_id=None, *, prefix=None):
     if action_id is not None:
         return next(item for item in document["next_actions"] if item["id"] == action_id)
@@ -447,8 +495,7 @@ def test_article_cite_mark_rejected_then_recovered(world):
     err = _expect(lambda: prepare_flow(vault_root=vault, batch_id="cite1", kind="article"), "FLOW_INVALID")
     assert err.details["instance_pointer"] == "/question"
     assert err.details["reason"] == "cite_mark_in_title"
-    assert err.details["argv"][err.details["argv"].index("--kind") + 1] == "article"
-    assert "--question" in err.details["argv"]
+    _assert_cite_retry_argv(err.details["argv"], vault=vault, batch_id="cite1", paper_ids=papers)
     assert _snapshot(work) == before_work
     err = _expect(
         lambda: prepare_flow(vault_root=vault, batch_id="cite1", kind="article", question=beyond),
@@ -456,25 +503,95 @@ def test_article_cite_mark_rejected_then_recovered(world):
     )
     assert err.details["reason"] == "cite_mark_in_title"
     assert err.details["instance_pointer"] == "/question"
+    _assert_cite_retry_argv(err.details["argv"], vault=vault, batch_id="cite1", paper_ids=papers)
     assert _snapshot(work) == before_work
     assert not (work / "flow" / "articles").exists()
     fixed = beyond.replace("[@", "(")
     assert "[@" not in fixed
-    prepared = prepare_flow(vault_root=vault, batch_id="cite1", kind="article", question=fixed)
-    _assert_kind_binding(prepared)
-    import_action = _action(prepared, "survey-import-article")
-    proc = _run_filled(
-        world,
-        import_action,
-        {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"},
-    )
-    assert proc.returncode == 0, proc.stdout + proc.stderr
-    imported = parse_envelope(proc)
-    assert imported["ok"] is True
-    assert imported["data"]["record"]["article_id"] == prepared["article_binding"]["article_id"]
+    prepared = _recover_cite_prepare(world, err, fixed)
+    _import_prepared_article(world, prepared)
     body = json.loads((world["checkout"] / prepared["outputs"][1]["path"]).read_bytes().decode("utf-8"))
     assert body["title"] == fixed[:MAX_TITLE]
     assert prepared["article_binding"]["question"] == fixed
+    assert prepared["article_binding"]["paper_ids"] == papers
+    assert _snapshot(world["vault"]) == before_vault
+
+
+def test_article_cite_mark_recovery_argv_without_selection(world):
+    _three_chain(world)
+    ordered = _papers(world)[:2]
+    assert len(ordered) == 2
+    vault = _vault(world)
+    batch_id = "cite-no-sel"
+    bad = _question_len(world, 80, suffix="[@cite]")
+    work = world["checkout"] / ".work" / batch_id
+    before_vault = _snapshot(world["vault"])
+    assert not (work / "flow" / "selection.json").exists()
+    err = _expect(
+        lambda: prepare_flow(
+            vault_root=vault,
+            batch_id=batch_id,
+            kind="article",
+            paper_ids=list(reversed(ordered)),
+            question=bad,
+        ),
+        "FLOW_INVALID",
+    )
+    assert err.details["instance_pointer"] == "/question"
+    assert err.details["reason"] == "cite_mark_in_title"
+    _assert_cite_retry_argv(err.details["argv"], vault=vault, batch_id=batch_id, paper_ids=ordered)
+    assert not work.exists() or not (work / "flow" / "articles").exists()
+    assert not (work / "flow" / "selection.json").exists()
+    fixed = bad.replace("[@", "(")
+    assert "[@" not in fixed
+    prepared = _recover_cite_prepare(world, err, fixed)
+    assert prepared["paper_ids"] == ordered
+    assert prepared["article_binding"]["paper_ids"] == ordered
+    _import_prepared_article(world, prepared)
+    assert not (work / "flow" / "selection.json").exists()
+    assert _snapshot(world["vault"]) == before_vault
+
+
+def test_article_cite_mark_recovery_argv_keeps_explicit_single_paper(world):
+    _three_chain(world)
+    p1 = world["association"]["paper_id"]
+    p2 = next(item for item in _papers(world) if item != p1)
+    vault = _vault(world)
+    batch_id = "cite-multi"
+    selected = select_flow(vault_root=vault, batch_id=batch_id, paper_ids=[p1, p2])
+    saved_ids = selected["selection"]["paper_ids"]
+    assert set(saved_ids) == {p1, p2}
+    assert len(saved_ids) == 2
+    bad = _question_len(world, 80, suffix="[@cite]")
+    work = world["checkout"] / ".work" / batch_id
+    before_vault = _snapshot(world["vault"])
+    before_selection = (work / "flow" / "selection.json").read_bytes()
+    err = _expect(
+        lambda: prepare_flow(
+            vault_root=vault,
+            batch_id=batch_id,
+            kind="article",
+            paper_ids=[p2],
+            question=bad,
+        ),
+        "FLOW_INVALID",
+    )
+    assert err.details["instance_pointer"] == "/question"
+    assert err.details["reason"] == "cite_mark_in_title"
+    _assert_cite_retry_argv(err.details["argv"], vault=vault, batch_id=batch_id, paper_ids=[p2])
+    assert not (work / "flow" / "articles").exists()
+    assert (work / "flow" / "selection.json").read_bytes() == before_selection
+    fixed = bad.replace("[@", "(")
+    assert "[@" not in fixed
+    prepared = _recover_cite_prepare(world, err, fixed)
+    assert prepared["paper_ids"] == [p2]
+    assert prepared["article_binding"]["paper_ids"] == [p2]
+    assert p1 not in prepared["paper_ids"]
+    live_selection = json.loads((work / "flow" / "selection.json").read_bytes().decode("utf-8"))
+    assert live_selection["paper_ids"] == saved_ids
+    _import_prepared_article(world, prepared)
+    body = json.loads((world["checkout"] / prepared["outputs"][1]["path"]).read_bytes().decode("utf-8"))
+    assert "comparison" not in [section["role"] for section in body["sections"]]
     assert _snapshot(world["vault"]) == before_vault
 
 
