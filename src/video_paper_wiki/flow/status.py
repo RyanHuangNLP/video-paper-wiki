@@ -21,6 +21,7 @@ from video_paper_wiki.flow.actions import (
     STATUS_SCHEMA,
     assemble_next_actions,
     byte_sort,
+    eligible_experiment_paper_id,
     fail,
     invariants,
     missing_item,
@@ -249,6 +250,19 @@ def _missing_inputs(selection, universe_ids, papers, batch_id, claims_by_paper):
                         assoc,
                     )
                 )
+    if selection is not None and eligible_experiment_paper_id(selection, papers) is None:
+        items.append(
+            missing_item(
+                "experiment-paper-id",
+                "compare",
+                "paper_id",
+                (
+                    "no selected paper satisfies source-association prerequisites "
+                    "for experiment prepare; retry flow select in a new batch"
+                ),
+                list(selection["paper_ids"]),
+            )
+        )
     selected = set(selection["paper_ids"]) if selection else set()
     for row in papers:
         if selection is not None and row["paper_id"] not in selected:

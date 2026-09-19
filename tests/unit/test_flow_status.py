@@ -15,7 +15,13 @@ from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.domain_store import status_domain_store
 from video_paper_wiki.domain_versions import build_domain_source_version_view
 from video_paper_wiki.experiment_matrix import build_experiment_comparison_matrix
-from video_paper_wiki.flow.actions import FORBIDDEN_TOKENS, STATUS_SCHEMA, make_action
+from video_paper_wiki.flow.actions import (
+    FORBIDDEN_TOKENS,
+    STATUS_SCHEMA,
+    assemble_next_actions,
+    eligible_experiment_paper_id,
+    make_action,
+)
 from video_paper_wiki.flow import status as status_mod
 from video_paper_wiki.flow.actions import FlowError
 from video_paper_wiki.flow.selection import select_flow
@@ -229,3 +235,76 @@ def test_forbidden_token_and_invalid_paper_before_io(world):
         "FLOW_INVALID",
     )
     assert missing.details["instance_pointer"] == "/paper_id"
+
+
+def test_multiselect_experiment_primary_and_incompatible_association(world):
+    _three_chain(world)
+    p1 = world["association"]["paper_id"]
+    p2 = next(row["paper_id"] for row in build_flow_status(vault_root=_vault(world))["papers"] if row["paper_id"] != p1)
+    selected = select_flow(vault_root=_vault(world), batch_id="st-multi", paper_ids=[p2, p1])
+    document = build_flow_status(vault_root=_vault(world), batch_id="st-multi")
+    _assert_actions(document)
+    action = next(item for item in document["next_actions"] if item["id"].startswith("compare-prepare-experiment-"))
+    assert action["argv"].count("--paper-id") == 1
+    primary = action["argv"][action["argv"].index("--paper-id") + 1]
+    assert primary == p1
+    assert action["id"] == "compare-prepare-experiment-" + p1
+    assert p1 in action["reason"]
+    assert document["selection"]["paper_ids"] == selected["selection"]["paper_ids"]
+    assert all(item["id"] != "experiment-paper-id" for item in document["missing_inputs"])
+    assoc1 = "sva-" + "1" * 64
+    assoc2 = "sva-" + "2" * 64
+    left = "sha256:" + "c" * 64
+    right = "sha256:" + "d" * 64
+    papers = [
+        {
+            "paper_id": left,
+            "lineages": [
+                {
+                    "lineage_id": "dln-" + "1" * 20,
+                    "typed_fact_status": "reviewed_accepted",
+                    "source_association_id": assoc1,
+                    "association_status": "changed",
+                    "head_annotation_id": "dan-" + "1" * 20,
+                    "current_review_id": None,
+                }
+            ],
+            "conditions": [],
+            "articles": [],
+        },
+        {
+            "paper_id": right,
+            "lineages": [
+                {
+                    "lineage_id": "dln-" + "2" * 20,
+                    "typed_fact_status": "reviewed_accepted",
+                    "source_association_id": assoc2,
+                    "association_status": "bound",
+                    "head_annotation_id": "dan-" + "2" * 20,
+                    "current_review_id": None,
+                }
+            ],
+            "conditions": [],
+            "articles": [],
+        },
+    ]
+    selection = {"paper_ids": [right, left], "association_id": assoc1, "question": None}
+    assert eligible_experiment_paper_id(selection, papers) is None
+    assert eligible_experiment_paper_id({"paper_ids": [right, left], "association_id": None}, papers) == right
+    actions = assemble_next_actions(
+        vault_root=_vault(world),
+        batch_id="st-incompat",
+        selection=selection,
+        papers=papers,
+        universe_ids=[left, right],
+        condition_count=0,
+        experiment_next=None,
+        articles=[],
+    )
+    ids = [item["id"] for item in actions]
+    assert not any(item.startswith("compare-prepare-experiment-") for item in ids)
+    reselect = next(item for item in actions if item["id"] == "session-select-new-batch")
+    assert reselect["argv"][reselect["argv"].index("--batch-id") + 1] == "<batch_id>"
+    assert reselect["argv"][reselect["argv"].index("--batch-id") + 1] != "st-incompat"
+    assert "<batch_id>" in reselect["placeholders"]
+    assert "<paper_id>" in reselect["placeholders"]

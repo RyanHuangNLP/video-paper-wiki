@@ -7,12 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from tests.code_proof_public_fixture import run_module_cli
+from tests.code_proof_public_fixture import parse_envelope, run_module_cli
 from tests.unit.test_article_revision import _papers, _question
 from tests.unit.test_domain_proposal import _snapshot, make_world
 from tests.unit.test_experiment_store import valid_condition_input
 from tests.unit.test_graph_projection import _three_chain
 from video_paper_wiki.article_revision import import_article_revision
+from video_paper_wiki.article_store import MAX_TITLE, article_id_from_question
 from video_paper_wiki.contracts import validate_document
 from video_paper_wiki.domain_versions import build_domain_source_version_view
 from video_paper_wiki.experiment_store import INPUT_KEYS, record_experiment_condition
@@ -56,6 +57,40 @@ def _assert_kind_binding(document):
         assert document["kind"] == "article"
         assert document["article_binding"] is not None
         assert document["experiment_binding"] is None
+
+
+def _question_len(world, length, *, fill="x", suffix=""):
+    base = _question(world) + " "
+    need = length - len(base) - len(suffix)
+    assert need >= 0
+    if len(fill) == 1 and fill.isascii():
+        extra, leftover = divmod(need, 2)
+        mid = ("a " * extra) + ("a" * leftover)
+    else:
+        mid = fill * need
+    text = base + mid + suffix
+    assert len(text) == length
+    return text
+
+
+def _fill_placeholders(argv, mapping):
+    filled = []
+    for token in argv:
+        filled.append(mapping[token] if token in mapping else token)
+    for token in filled:
+        assert not str(token).startswith("<")
+    return filled
+
+
+def _run_filled(world, action, mapping):
+    proc = run_module_cli(world["checkout"], _fill_placeholders(action["argv"], mapping))
+    return proc
+
+
+def _action(document, action_id=None, *, prefix=None):
+    if action_id is not None:
+        return next(item for item in document["next_actions"] if item["id"] == action_id)
+    return next(item for item in document["next_actions"] if item["id"].startswith(prefix))
 
 
 def test_select_refusals_derived_and_conflict(world):
@@ -335,3 +370,163 @@ def test_article_prepare_end_to_end(world):
     again = prepare_flow(vault_root=_vault(world), batch_id="sess1", kind="article")
     assert all(item["staging"] == "already_staged" for item in again["outputs"])
     assert (world["checkout"] / again["outputs"][0]["path"]).read_bytes() == ctx.read_bytes()
+
+
+def test_article_title_bounds_prepare_import(world):
+    _three_chain(world)
+    papers = [_papers(world)[0]]
+    vault = _vault(world)
+    select_flow(vault_root=vault, batch_id="title1", paper_ids=papers, question=_question(world))
+    before_vault = _snapshot(world["vault"])
+    cases = ((300, "x"), (301, "😀"), (512, "测"))
+    last_prepared = None
+    for length, fill in cases:
+        question = _question_len(world, length, fill=fill)
+        prepared = prepare_flow(
+            vault_root=vault,
+            batch_id="title1",
+            kind="article",
+            paper_ids=papers,
+            question=question,
+        )
+        _assert_kind_binding(prepared)
+        ctx = world["checkout"] / prepared["outputs"][0]["path"]
+        doc = world["checkout"] / prepared["outputs"][1]["path"]
+        body = json.loads(doc.read_bytes().decode("utf-8"))
+        envelope = json.loads(ctx.read_bytes().decode("utf-8"))
+        expected_title = question if length <= MAX_TITLE else question[:MAX_TITLE]
+        assert len(expected_title) == min(length, MAX_TITLE)
+        assert body["title"] == expected_title
+        assert not body["title"].endswith("...")
+        if fill != "x":
+            assert len(expected_title.encode("utf-8")) > len(expected_title)
+        assert envelope["data"]["context"]["question"] == question
+        assert envelope["data"]["article_id"] == article_id_from_question(question, papers)
+        assert prepared["article_binding"]["question"] == question
+        assert prepared["article_binding"]["article_id"] == envelope["data"]["article_id"]
+        import_action = _action(prepared, "survey-import-article")
+        assert set(import_action["placeholders"]) == {"<recorded_by>", "<recorded_at>"}
+        assert import_action["argv"][import_action["argv"].index("--context") + 1] == prepared["outputs"][0]["path"]
+        assert import_action["argv"][import_action["argv"].index("--document") + 1] == prepared["outputs"][1]["path"]
+        proc = _run_filled(
+            world,
+            import_action,
+            {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"},
+        )
+        assert proc.returncode == 0, proc.stdout + proc.stderr
+        imported = parse_envelope(proc)
+        assert imported["ok"] is True
+        assert imported["data"]["record"]["article_id"] == prepared["article_binding"]["article_id"]
+        last_prepared = prepared
+    again = prepare_flow(
+        vault_root=vault,
+        batch_id="title1",
+        kind="article",
+        paper_ids=papers,
+        question=_question_len(world, 512, fill="测"),
+    )
+    assert all(item["staging"] == "already_staged" for item in again["outputs"])
+    assert again["outputs"][0]["sha256"] == last_prepared["outputs"][0]["sha256"]
+    assert again["outputs"][1]["sha256"] == last_prepared["outputs"][1]["sha256"]
+    assert _snapshot(world["vault"]) == before_vault
+
+
+def test_article_cite_mark_rejected_then_recovered(world):
+    _three_chain(world)
+    papers = [_papers(world)[0]]
+    vault = _vault(world)
+    inside = _question_len(world, 80, suffix="[@cite]")
+    beyond = _question_len(world, 308, suffix="[@z]")
+    assert "[@" in inside[:MAX_TITLE]
+    assert "[@" not in beyond[:MAX_TITLE]
+    assert "[@" in beyond
+    select_flow(vault_root=vault, batch_id="cite1", paper_ids=papers, question=inside)
+    work = world["checkout"] / ".work" / "cite1"
+    before_vault = _snapshot(world["vault"])
+    before_work = _snapshot(work)
+    err = _expect(lambda: prepare_flow(vault_root=vault, batch_id="cite1", kind="article"), "FLOW_INVALID")
+    assert err.details["instance_pointer"] == "/question"
+    assert err.details["reason"] == "cite_mark_in_title"
+    assert err.details["argv"][err.details["argv"].index("--kind") + 1] == "article"
+    assert "--question" in err.details["argv"]
+    assert _snapshot(work) == before_work
+    err = _expect(
+        lambda: prepare_flow(vault_root=vault, batch_id="cite1", kind="article", question=beyond),
+        "FLOW_INVALID",
+    )
+    assert err.details["reason"] == "cite_mark_in_title"
+    assert err.details["instance_pointer"] == "/question"
+    assert _snapshot(work) == before_work
+    assert not (work / "flow" / "articles").exists()
+    fixed = beyond.replace("[@", "(")
+    assert "[@" not in fixed
+    prepared = prepare_flow(vault_root=vault, batch_id="cite1", kind="article", question=fixed)
+    _assert_kind_binding(prepared)
+    import_action = _action(prepared, "survey-import-article")
+    proc = _run_filled(
+        world,
+        import_action,
+        {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"},
+    )
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    imported = parse_envelope(proc)
+    assert imported["ok"] is True
+    assert imported["data"]["record"]["article_id"] == prepared["article_binding"]["article_id"]
+    body = json.loads((world["checkout"] / prepared["outputs"][1]["path"]).read_bytes().decode("utf-8"))
+    assert body["title"] == fixed[:MAX_TITLE]
+    assert prepared["article_binding"]["question"] == fixed
+    assert _snapshot(world["vault"]) == before_vault
+
+
+def test_experiment_multiselect_primary_prepare(world):
+    _three_chain(world)
+    p1 = world["association"]["paper_id"]
+    p2 = next(item for item in _papers(world) if item != p1)
+    vault = _vault(world)
+    before_vault = _snapshot(world["vault"])
+    selected = select_flow(vault_root=vault, batch_id="exp-multi", paper_ids=[p2, p1])
+    assert selected["selection"]["paper_ids"] == sorted([p1, p2], key=lambda item: item.encode("utf-8"))
+    action = _action(selected, prefix="compare-prepare-experiment-")
+    assert action["argv"].count("--paper-id") == 1
+    primary = action["argv"][action["argv"].index("--paper-id") + 1]
+    assert primary == p1
+    assert action["id"] == "compare-prepare-experiment-" + primary
+    assert primary in action["reason"]
+    assert set(action["placeholders"]) == {"<setting_key>"}
+    err = _expect(
+        lambda: prepare_flow(
+            vault_root=vault,
+            batch_id="exp-multi",
+            kind="experiment",
+            setting_key="table9-row1-flow",
+        ),
+        "FLOW_INVALID",
+    )
+    assert err.details["reason"] == "single_paper_required"
+    proc = _run_filled(world, action, {"<setting_key>": "table9-row1-flow"})
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    prepared = parse_envelope(proc)["data"]
+    _assert_kind_binding(prepared)
+    assert prepared["paper_ids"] == [primary]
+    assert prepared["experiment_binding"]["paper_id"] == primary
+    draft = json.loads((world["checkout"] / prepared["outputs"][0]["path"]).read_bytes().decode("utf-8"))
+    assert draft["paper_id"] == primary
+    live_selection = json.loads(
+        (world["checkout"] / ".work" / "exp-multi" / "flow" / "selection.json").read_bytes().decode("utf-8")
+    )
+    assert live_selection["paper_ids"] == selected["selection"]["paper_ids"]
+    assert p2 in live_selection["paper_ids"]
+    reversed_sel = select_flow(vault_root=vault, batch_id="exp-order", paper_ids=[p1, p2])
+    reversed_action = _action(reversed_sel, prefix="compare-prepare-experiment-")
+    assert reversed_action["argv"][reversed_action["argv"].index("--paper-id") + 1] == primary
+    assert reversed_action["id"] == action["id"]
+    only_unbound = select_flow(vault_root=vault, batch_id="exp-none", paper_ids=[p2])
+    ids = [item["id"] for item in only_unbound["next_actions"]]
+    assert not any(item.startswith("compare-prepare-experiment-") for item in ids)
+    reselect = _action(only_unbound, "session-select-new-batch")
+    assert reselect["argv"][reselect["argv"].index("--batch-id") + 1] == "<batch_id>"
+    assert "<batch_id>" in reselect["placeholders"]
+    missing = next(item for item in only_unbound["missing_inputs"] if item["id"] == "experiment-paper-id")
+    assert missing["field"] == "paper_id"
+    assert p2 in missing["candidates"]
+    assert _snapshot(world["vault"]) == before_vault
