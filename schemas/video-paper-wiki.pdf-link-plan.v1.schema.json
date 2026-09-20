@@ -108,12 +108,14 @@
         "location_path": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 1024
+          "maxLength": 1024,
+          "pattern": "^(wiki/meta/pdf-locations|catalog/pdf-locations|\\.pdf-locations)/[A-Za-z0-9][A-Za-z0-9._-]*\\.json$"
         },
         "page_path": {
           "type": ["string", "null"],
           "minLength": 1,
-          "maxLength": 1024
+          "maxLength": 1024,
+          "pattern": "^(wiki/papers|papers)/[A-Za-z0-9][A-Za-z0-9._-]*\\.md$"
         },
         "before_location_sha256": {
           "type": ["string", "null"],
@@ -132,6 +134,9 @@
         },
         "location": {
           "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.pdf-locations.v1.schema.json"
+        },
+        "input_preconditions": {
+          "$ref": "#/$defs/input_preconditions"
         }
       }
     },
@@ -157,6 +162,73 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 1024
+        }
+      }
+    },
+    "input_preconditions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bindings", "local_copies"],
+      "properties": {
+        "bindings": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["root_id", "paper_id", "record_path", "scanned_sha256"],
+            "properties": {
+              "root_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "paper_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              },
+              "record_path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "scanned_sha256": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+              }
+            }
+          }
+        },
+        "local_copies": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["root_id", "relative_path", "pdf_sha256", "size_bytes"],
+            "properties": {
+              "root_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+              },
+              "relative_path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024
+              },
+              "pdf_sha256": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 67108864
+              }
+            }
+          }
         }
       }
     }

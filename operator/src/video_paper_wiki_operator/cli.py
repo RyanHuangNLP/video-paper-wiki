@@ -535,7 +535,7 @@ def _main(argv:list[str]|None=None)->int:
             details=dict(getattr(exc,'details',{}) or {})
             sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
     if words[:2]==['pdf','migrate-rollback']:
-        command=_Parser(prog='vpwiki-admin pdf migrate-rollback');command.add_argument('--journal',required=True);command.add_argument('--roots',required=True);args=command.parse_args(words[2:])
+        command=_Parser(prog='vpwiki-admin pdf migrate-rollback');command.add_argument('--journal',required=True);command.add_argument('--roots',required=True);command.add_argument('--upstream-root');args=command.parse_args(words[2:])
         from video_paper_wiki.contracts import ContractError
         from video_paper_wiki.jcs import canonicalize
         from video_paper_wiki.pdf_locations import PdfLocationError
@@ -545,7 +545,7 @@ def _main(argv:list[str]|None=None)->int:
         def _pdf_rollback_confirm(summary):
             sys.stderr.buffer.write(canonicalize(summary)+b'\n');sys.stderr.buffer.flush();return _confirm(words)
         try:
-            result=rollback_pdf(journal_path=Path(args.journal),roots_path=Path(args.roots),confirm=_pdf_rollback_confirm)
+            result=rollback_pdf(journal_path=Path(args.journal),roots_path=Path(args.roots),confirm=_pdf_rollback_confirm,upstream_root=args.upstream_root or ns.upstream_root)
             sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
         except (PdfMigrationError,PdfLocationError,ContractError,SecureIOError) as exc:
             details=dict(getattr(exc,'details',{}) or {})

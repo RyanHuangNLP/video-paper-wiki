@@ -10,3 +10,8 @@ Replace `drive_file_id`, `parent_chain`, and `remote_pdf_sha256` with values fro
 
 Drive A root folder id: `1eN75WhQ-t_yf_Pud80Toi-1j6C9_aVcW`
 Path convention: `pdfs/{category}/{paper_dir}/original.pdf`
+
+When joining a real Drive A reused row, keep the manifest path. Example:
+`pdfs/Evaluation Benchmarks and Metrics/arxiv-1812.01717/original.pdf`
+
+A draft uploaded-manifest with `inventory_sha256: null` is fail-closed until agy binds the inventory digest.

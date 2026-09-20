@@ -43,28 +43,38 @@ FILE_ID_PATH_RE = re.compile(r"/file/d/([A-Za-z0-9_-]{10,128})(?:/|$)")
 FOLDER_PATH_RE = re.compile(r"/folders/|/drive/u/\d+/folders/")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
 SEED_ARXIV_RE = re.compile(r"^arxiv-([0-9]{4}\.[0-9]{4,5})$")
-ENGINE_MVP_SEED_IDS = frozenset(
-    {
-        "arxiv-2204.03458",
-        "arxiv-2311.15127",
-        "arxiv-2311.17982",
-        "arxiv-2209.14792",
-        "arxiv-2310.12190",
-        "arxiv-2401.03048",
-        "arxiv-2210.02399",
-        "arxiv-2212.05199",
-        "arxiv-2312.14125",
-        "arxiv-2401.12945",
-        "arxiv-2408.06072",
-        "arxiv-2412.03603",
-        "arxiv-2410.05954",
-        "arxiv-2307.06942",
-        "arxiv-2402.19479",
-        "arxiv-2405.18750",
-        "arxiv-2306.02018",
-        "arxiv-2312.03641",
-        "arxiv-1812.01717",
-    }
+# Awesome-Video-Diffusion / Drive A section titles. Spaces are significant.
+# Inventory may propose a path; prepare reuses the manifest path when result=reused.
+DRIVE_A_CATEGORY_BY_SEED = {
+    "arxiv-1812.01717": "Evaluation Benchmarks and Metrics",
+    "arxiv-2204.03458": "Video Generation",
+    "arxiv-2209.14792": "Video Generation",
+    "arxiv-2210.02399": "Video Generation",
+    "arxiv-2212.05199": "Video Generation",
+    "arxiv-2306.02018": "Video Generation",
+    "arxiv-2307.06942": "Video Generation",
+    "arxiv-2310.12190": "Video Generation",
+    "arxiv-2311.15127": "Video Generation",
+    "arxiv-2311.17982": "Evaluation Benchmarks and Metrics",
+    "arxiv-2312.03641": "Controllable Video Generation",
+    "arxiv-2312.14125": "Video Generation",
+    "arxiv-2401.03048": "Video Generation",
+    "arxiv-2401.12945": "Video Generation",
+    "arxiv-2402.19479": "Evaluation Benchmarks and Metrics",
+    "arxiv-2405.18750": "Video Generation",
+    "arxiv-2408.06072": "Video Generation",
+    "arxiv-2410.05954": "Open-source Toolboxes and Foundation Models",
+    "arxiv-2412.03603": "Open-source Toolboxes and Foundation Models",
+}
+ENGINE_MVP_SEED_IDS = frozenset(DRIVE_A_CATEGORY_BY_SEED)
+CATEGORY_TOKEN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 ._/-]{0,127}$")
+PAPER_DIR_TOKEN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$")
+LOCATION_RELATIVE_RE = re.compile(
+    r"^(wiki/meta/pdf-locations|catalog/pdf-locations|\.pdf-locations)/"
+    r"[A-Za-z0-9][A-Za-z0-9._-]*\.json$"
+)
+PAGE_RELATIVE_RE = re.compile(
+    r"^(wiki/papers|papers)/[A-Za-z0-9][A-Za-z0-9._-]*\.md$"
 )
 
 PDF_LOCATION_INVALID = "PDF_LOCATION_INVALID"
@@ -164,30 +174,106 @@ def is_engine_mvp(paper_id: str) -> bool:
     return seed_alias(canonical) in ENGINE_MVP_SEED_IDS
 
 
+def _category_token(value: str) -> bool:
+    text = value.strip()
+    return bool(text) and CATEGORY_TOKEN.fullmatch(text) is not None and ".." not in text.split("/")
+
+
+def drive_a_category(paper_id: str) -> str | None:
+    canonical = canonical_paper_id(paper_id)
+    return DRIVE_A_CATEGORY_BY_SEED.get(seed_alias(canonical))
+
+
 def category_for_paper(paper_id: str, existing: str | None = None) -> str:
+    if isinstance(existing, str) and _category_token(existing):
+        return existing.strip()
+    known = drive_a_category(paper_id)
+    if known is not None:
+        return known
     if is_engine_mvp(paper_id):
         return "engine-mvp"
-    if isinstance(existing, str) and existing.strip():
-        text = existing.strip()
-        if re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", text):
-            return text
     return "uncategorized"
 
 
 def paper_dir_for(paper_id: str, *, existing: str | None = None) -> str:
     canonical = canonical_paper_id(paper_id)
-    if existing and is_engine_mvp(canonical):
-        return existing
+    if isinstance(existing, str) and existing.strip() and PAPER_DIR_TOKEN.fullmatch(existing.strip()):
+        return existing.strip()
     if is_engine_mvp(canonical):
         return seed_alias(canonical)
     return paper_page_slug(canonical)
 
 
-def drive_relative_path(paper_id: str, *, category: str | None = None, paper_dir: str | None = None) -> str:
+def is_portable_relative_path(value: str) -> bool:
+    rel = value.replace("\\", "/").strip()
+    if not rel or rel.startswith("/") or rel.endswith("/"):
+        return False
+    parts = rel.split("/")
+    return all(part not in {"", ".", ".."} for part in parts)
+
+
+def is_portable_drive_relative_path(value: str) -> bool:
+    if not is_portable_relative_path(value):
+        return False
+    parts = value.replace("\\", "/").split("/")
+    if len(parts) != 4 or parts[0] != "pdfs" or parts[3] != "original.pdf":
+        return False
+    return _category_token(parts[1]) and PAPER_DIR_TOKEN.fullmatch(parts[2]) is not None
+
+
+def drive_relative_path(
+    paper_id: str,
+    *,
+    category: str | None = None,
+    paper_dir: str | None = None,
+    existing_drive_relative_path: str | None = None,
+) -> str:
+    if isinstance(existing_drive_relative_path, str) and is_portable_drive_relative_path(existing_drive_relative_path):
+        return existing_drive_relative_path.replace("\\", "/")
     canonical = canonical_paper_id(paper_id)
     chosen_category = category_for_paper(canonical, category)
     chosen_dir = paper_dir_for(canonical, existing=paper_dir)
     return f"pdfs/{chosen_category}/{chosen_dir}/original.pdf"
+
+
+def resolve_inside_root(root: Path, relative: str) -> Path:
+    if not is_portable_relative_path(relative):
+        _fail(PDF_LOCATION_INVALID, "relative path is not portable", {"relative_path": relative})
+    base = Path(root).resolve()
+    target = (base / relative).resolve()
+    try:
+        target.relative_to(base)
+    except ValueError:
+        _fail(PDF_LOCATION_INVALID, "path escapes the target root", {"relative_path": relative})
+    return target
+
+
+def derived_location_path(kind: str, paper_id: str) -> str:
+    path = location_relative_path(kind, paper_id)
+    if LOCATION_RELATIVE_RE.fullmatch(path) is None:
+        _fail(PDF_LOCATION_INVALID, "derived location path is not portable", {"path": path})
+    return path
+
+
+def derived_page_path(kind: str, paper_id: str) -> str | None:
+    path = page_relative_path(kind, paper_id)
+    if path is None:
+        return None
+    if PAGE_RELATIVE_RE.fullmatch(path) is None:
+        _fail(PDF_LOCATION_INVALID, "derived page path is not portable", {"path": path})
+    return path
+
+
+def same_drive_link(left: Mapping[str, Any], right: Mapping[str, Any]) -> bool:
+    left_drive = left.get("drive") if type(left.get("drive")) is dict else {}
+    right_drive = right.get("drive") if type(right.get("drive")) is dict else {}
+    left_id = left_drive.get("file_id")
+    right_id = right_drive.get("file_id")
+    left_url = left_drive.get("url")
+    right_url = right_drive.get("url")
+    if type(left_id) is str and type(right_id) is str and left_id and left_id == right_id:
+        return True
+    return type(left_url) is str and type(right_url) is str and bool(left_url) and left_url == right_url
 
 
 def location_relative_path(kind: str, paper_id: str) -> str:

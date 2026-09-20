@@ -4,7 +4,20 @@ Shepherd implements inventory, plan, apply, report, and rollback. agy owns real 
 
 Drive A root: `1eN75WhQ-t_yf_Pud80Toi-1j6C9_aVcW`
 
-Convention: `pdfs/{category}/{paper_dir}/original.pdf`
+Frozen relative path: `pdfs/{category}/{paper_dir}/original.pdf`
+
+Drive A already uses Awesome-Video-Diffusion section titles as `{category}`, including spaces. Prepare treats the uploaded-manifest `drive_relative_path` (and `parent_chain`) as authoritative when `result=reused` and the remote SHA-256 matches. Inventory may still propose a path; it must not overwrite A's existing directory.
+
+Examples:
+
+| paper_id | drive_relative_path |
+|---|---|
+| arxiv-1812.01717 | `pdfs/Evaluation Benchmarks and Metrics/arxiv-1812.01717/original.pdf` |
+| arxiv-2204.03458 | `pdfs/Video Generation/arxiv-2204.03458/original.pdf` |
+| arxiv-2312.03641 | `pdfs/Controllable Video Generation/arxiv-2312.03641/original.pdf` |
+| arxiv-2410.05954 | `pdfs/Open-source Toolboxes and Foundation Models/arxiv-2410.05954/original.pdf` |
+
+agy draft manifests (`pdf-upload-manifest.v1-draft`, `root_folder_id`/`items`, `parent_chain.id/title`) are accepted only after field adaptation. `inventory_sha256` must be a 64-hex digest; a null/empty draft digest is refused (`INVENTORY_SHA256_REQUIRED`).
 
 ## Sequence
 

@@ -79,7 +79,12 @@ def test_migrate_prepare_binds_digests(tmp_path, monkeypatch) -> None:
     paper.parent.mkdir(parents=True)
     paper.write_text("---\npaper_id: arxiv-2204.03458\n---\nbody\n", encoding="utf-8")
     digest, size = _write_pdf(vault / ".raw" / "captured" / ("blob" + "x" * 60))
-    # name is not hex; still a PDF scanned as sha256 identity if unbound
+    record = vault / "wiki" / "meta" / "records" / "papers" / "arxiv-2204.03458.json"
+    record.parent.mkdir(parents=True)
+    record.write_text(
+        json.dumps({"paper_id": "arxiv:2204.03458", "pdf_sha256": digest}),
+        encoding="utf-8",
+    )
     roots = _roots(vault)
     inventory = build_inventory(roots_path=roots, batch_id="prep1")
     included = [item for item in inventory["items"] if item["status"] == "included"]

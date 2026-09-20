@@ -29,8 +29,13 @@ OTHER_ID = "1ZyxWvUtSrQpOnMlKjIhGfEdCbA0987654"
 def test_seed_id_maps_to_canonical_arxiv() -> None:
     assert canonical_paper_id("arxiv-2204.03458") == "arxiv:2204.03458"
     assert canonical_paper_id("arxiv:2204.03458") == "arxiv:2204.03458"
-    assert category_for_paper("arxiv-2204.03458") == "engine-mvp"
-    assert drive_relative_path("arxiv-2204.03458") == "pdfs/engine-mvp/arxiv-2204.03458/original.pdf"
+    assert category_for_paper("arxiv-2204.03458") == "Video Generation"
+    assert drive_relative_path("arxiv-2204.03458") == "pdfs/Video Generation/arxiv-2204.03458/original.pdf"
+    assert category_for_paper("arxiv-1812.01717") == "Evaluation Benchmarks and Metrics"
+    assert drive_relative_path(
+        "arxiv-1812.01717",
+        existing_drive_relative_path="pdfs/Evaluation Benchmarks and Metrics/arxiv-1812.01717/original.pdf",
+    ) == "pdfs/Evaluation Benchmarks and Metrics/arxiv-1812.01717/original.pdf"
 
 
 def test_normalize_file_id_and_url_agree() -> None:
