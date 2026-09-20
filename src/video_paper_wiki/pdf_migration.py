@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import ctypes
 import json
 import os
 import stat
+import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -1546,11 +1548,77 @@ def _assert_live_install_before_replace(dst: Path | str) -> None:
         )
 
 
+def _existing_regular_file(path: Path) -> bool:
+    try:
+        return path.exists() and (not path.is_symlink()) and path.is_file()
+    except OSError:
+        return False
+
+
+def _try_rename_exchange(src: Path, dest: Path) -> bool:
+    """Swap src and dest inodes. Dest's previous inode remains at src on success."""
+
+    src_b = os.fsencode(src)
+    dest_b = os.fsencode(dest)
+    try:
+        if sys.platform == "darwin":
+            libc = ctypes.CDLL("/usr/lib/libSystem.B.dylib", use_errno=True)
+            rc = libc.renamex_np(src_b, dest_b, ctypes.c_uint(0x00000002))
+        elif sys.platform.startswith("linux"):
+            libc = ctypes.CDLL("libc.so.6", use_errno=True)
+            renameat2 = libc.renameat2
+            renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+            rc = renameat2(-100, src_b, -100, dest_b, 2)
+        else:
+            return False
+    except (AttributeError, OSError):
+        return False
+    return rc == 0
+
+
+def _install_via_hardlink_witness(src: Path, dest: Path) -> None:
+    """Preserve dest's current inode, then replace dest, leaving the displaced file at src."""
+
+    witness = dest.with_name(dest.name + ".displaced-tmp")
+    if witness.exists() or witness.is_symlink():
+        witness.unlink()
+    os.link(dest, witness)
+    try:
+        _OS_REPLACE(src, dest)
+    except Exception:
+        if witness.exists() or witness.is_symlink():
+            witness.unlink()
+        raise
+    _OS_REPLACE(witness, src)
+
+
+def _install_preserving_displaced(src, dest: Path) -> None:
+    """Install src over dest without dropping the dest inode a plain rename would unlink.
+
+    CPython's os.replace audits `os.rename` then unlinks dest. Native probes inject a
+    writer in that audit window; a temp+replace writer hangs a new inode on dest, and
+    a following unlink-rename would destroy it. Emit the same audit, then exchange
+    (or hardlink the live dest) so the displaced inode stays readable at src.
+    """
+
+    src_p = Path(src)
+    sys.audit("os.rename", os.fspath(src), os.fspath(dest), -1, -1)
+    if _try_rename_exchange(src_p, dest):
+        return
+    if not _existing_regular_file(dest):
+        _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(dest))
+    _install_via_hardlink_witness(src_p, dest)
+
+
 def _guarded_os_replace(src, dst, *args, **kwargs):
     # Probes capture `raw_replace = os.replace` after importing this module, then
     # write the page and delegate. The live before-check must run on that primitive
     # so the concurrent append is seen before the real replace.
     _assert_live_install_before_replace(dst)
+    dest = Path(dst)
+    if _matching_install_guard(dest) is not None and _existing_regular_file(dest):
+        _install_preserving_displaced(src, dest)
+        return
     return _OS_REPLACE(src, dst, *args, **kwargs)
 
 
@@ -1686,15 +1754,31 @@ def _atomic_write(path: Path, data: bytes) -> None:
         # before the replace call. A later os.replace hook may still append;
         # _guarded_os_replace sees that write when the hook delegates.
         _assert_live_install_before_replace(path)
-        # Hold the dest inode across the real rename. A Python os.replace wrap
-        # cannot see an independent writer that lands after the last precheck
-        # and before the native syscall; the old fd still can.
+        # Hold the dest inode across the real rename (same-inode in-place write).
+        # A Python os.replace wrap cannot see an independent writer that lands
+        # after the last precheck and before the native syscall; the old fd
+        # still can. A temp+rename writer hangs a new inode on dest — that
+        # version is preserved by the exchange install, not by this fd.
         dest_fd = _open_existing_file_fd(path)
         approved_before: bytes | None = None
         if dest_fd is not None:
             approved_before = _read_fd_bytes(dest_fd)
             _assert_held_dest_matches_guard(path, approved_before)
         os.replace(tmp, path)
+        # Exchange/hardlink install leaves the displaced dest at tmp. A temp+rename
+        # writer is invisible to dest_fd (that fd still holds the approved before).
+        if _existing_regular_file(tmp):
+            displaced = tmp.read_bytes()
+            if approved_before is None or displaced != approved_before:
+                _install_raw_bytes(path, displaced)
+                _fail(
+                    PDF_APPLY_CHANGED,
+                    "writeset changed during apply",
+                    _install_conflict_details(path),
+                )
+            tmp.unlink()
+        elif tmp.exists() or tmp.is_symlink():
+            tmp.unlink()
         if dest_fd is not None:
             held = _read_fd_bytes(dest_fd)
             if held != approved_before:
