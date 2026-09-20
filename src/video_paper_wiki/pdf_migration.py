@@ -69,6 +69,7 @@ PLAN_SCHEMA = "video-paper-wiki.pdf-link-plan.v1"
 REPORT_SCHEMA = "video-paper-wiki.pdf-migration-report.v1"
 PDF_MIGRATION_INVALID = "PDF_MIGRATION_INVALID"
 PDF_APPLY_CHANGED = "PDF_APPLY_CHANGED"
+PDF_APPLY_EXCHANGE_UNAVAILABLE = "PDF_APPLY_EXCHANGE_UNAVAILABLE"
 PDF_ROLLBACK_CONFLICT = "PDF_ROLLBACK_CONFLICT"
 PLAN_HASH_MISMATCH = "PLAN_HASH_MISMATCH"
 HUMAN_APPROVAL_REQUIRED = "HUMAN_APPROVAL_REQUIRED"
@@ -1581,88 +1582,37 @@ def _unlink_if_present(path: Path) -> None:
         path.unlink()
 
 
-def _dest_matches_approved_before(dest: Path) -> bool:
-    guard = _matching_install_guard(dest)
-    if guard is None:
-        return True
-    if not _existing_regular_file(dest):
-        return False
-    live = dest.read_bytes()
-    before = guard.get("before_raw")
-    if before is not None and live != before:
-        return False
-    return sha256_bytes(live) == guard["before_sha256"]
-
-
 def _install_via_hardlink_witness(src: Path, dest: Path) -> None:
-    """Preserve dest across a plain replace when exchange is unavailable.
+    """Refuse hardlink plus plain replace when dest exchange is unavailable.
 
-    The first hardlink only pins dest at link time. A later temp+replace writer
-    can hang a new inode on dest after that link and before the builtin
-    `_OS_REPLACE` syscall; witness and dest_fd then still show the approved
-    before. Register a last audit hook on that real `os.rename` so dest is
-    hardlinked again after other hooks (the independent writer) and before the
-    unlink. Leave that live inode at src. If dest no longer matches the
-    approved before when the builtin audits, abort the replace so the writer
-    keeps the page.
+    Another dest read or hardlink cannot close the gap after the last check
+    returns and before a builtin replace: an independent process can still
+    hang a new inode on dest, while witness links and held fds stay on the
+    old inode. Do not install after bytes. Apply rolls back this ticket's
+    unfinished location. Emit the same os.rename audit a builtin replace
+    would, then refuse without performing that replace.
     """
 
     witness = dest.with_name(dest.name + ".displaced-tmp")
     captured = dest.with_name(dest.name + ".live-displaced-tmp")
     _unlink_if_present(witness)
     _unlink_if_present(captured)
-    os.link(dest, witness)
-    token = {"armed": True}
-
-    def _capture_live_dest(event: str, args: tuple[object, ...]) -> None:
-        if not token["armed"] or event != "os.rename" or len(args) < 2:
-            return
-        try:
-            src_arg = Path(os.fsdecode(args[0]))
-            dest_arg = Path(os.fsdecode(args[1]))
-        except (OSError, TypeError, ValueError, UnicodeError):
-            return
-        if not _same_install_path(src_arg, src) or not _same_install_path(dest_arg, dest):
-            return
-        try:
-            if not _existing_regular_file(dest):
-                return
-            _unlink_if_present(captured)
-            os.link(dest, captured)
-            if not _dest_matches_approved_before(dest):
-                _fail(
-                    PDF_APPLY_CHANGED,
-                    "writeset changed during apply",
-                    _install_conflict_details(dest),
-                )
-        except PdfMigrationError:
-            raise
-        except OSError:
-            return
-
-    sys.addaudithook(_capture_live_dest)
     try:
-        _OS_REPLACE(src, dest)
-    except Exception:
-        token["armed"] = False
+        if not _existing_regular_file(dest):
+            _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(dest))
+        os.link(dest, witness)
+        sys.audit("os.rename", os.fspath(src), os.fspath(dest), -1, -1)
+        _fail(
+            PDF_APPLY_CHANGED,
+            "atomic dest exchange unavailable; refusing unsafe replace",
+            {
+                **_install_conflict_details(dest),
+                "reason": PDF_APPLY_EXCHANGE_UNAVAILABLE,
+            },
+        )
+    finally:
         _unlink_if_present(witness)
         _unlink_if_present(captured)
-        raise
-    token["armed"] = False
-    live = captured if _existing_regular_file(captured) else witness
-    try:
-        _OS_REPLACE(live, src)
-    except Exception:
-        _unlink_if_present(witness)
-        _unlink_if_present(captured)
-        raise
-    for extra in (witness, captured):
-        if extra.exists() or extra.is_symlink():
-            try:
-                if not _same_install_path(extra, src):
-                    extra.unlink()
-            except OSError:
-                _unlink_if_present(extra)
 
 
 def _install_preserving_displaced(src, dest: Path) -> None:
@@ -1672,8 +1622,8 @@ def _install_preserving_displaced(src, dest: Path) -> None:
     writer in that audit window; a temp+replace writer hangs a new inode on dest, and
     a following unlink-rename would destroy it. Emit the same audit, then exchange
     so the dest inode present at install time is swapped to src. If exchange is
-    unavailable, hardlink dest and capture dest again on the real builtin replace
-    so a writer after the first hardlink is still left at src.
+    unavailable, refuse hardlink plus plain replace before covering dest; apply
+    rolls back this ticket's unfinished location and does not install after bytes.
     """
 
     src_p = Path(src)
@@ -1840,8 +1790,9 @@ def _atomic_write(path: Path, data: bytes) -> None:
             approved_before = _read_fd_bytes(dest_fd)
             _assert_held_dest_matches_guard(path, approved_before)
         os.replace(tmp, path)
-        # Exchange/hardlink install leaves the displaced dest at tmp. A temp+rename
+        # Exchange install leaves the displaced dest at tmp. A temp+rename
         # writer is invisible to dest_fd (that fd still holds the approved before).
+        # If exchange is unavailable, the fallback refuses before a plain replace.
         if _existing_regular_file(tmp):
             displaced = tmp.read_bytes()
             if approved_before is None or displaced != approved_before:
