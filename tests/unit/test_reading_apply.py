@@ -9,6 +9,11 @@ from pathlib import Path
 
 import pytest
 
+from tests.apply_fs_helpers import (
+    directory_entry_names,
+    directory_tree_names,
+    rename_directory_spelling,
+)
 from tests.unit.test_article_revision import _apply_staged_articles
 from tests.unit.test_domain_proposal import _snapshot, _write, make_world
 from tests.unit.test_graph_projection import _three_chain
@@ -498,10 +503,21 @@ def test_apply_rejects_parent_directory_case_collision_before_write(world):
     _compile(world, "r1")
     _put(world["vault"] / "wiki/reading/PAPERS/private.txt", b"private\n")
     vault_before = _snapshot(world["vault"])
+    reading = world["vault"] / "wiki/reading"
+    papers = reading / "PAPERS"
+    reading_names_before = directory_entry_names(reading)
+    papers_names_before = directory_entry_names(papers)
+    reading_tree_before = directory_tree_names(reading)
+    assert "PAPERS" in reading_names_before
+    assert "papers" not in reading_names_before
+    assert "private.txt" in papers_names_before
     err = _expect(lambda: _apply_reading(world, "r1"), "READING_COMPILE_TARGET_INVALID")
     assert err.details["reason"] == "portable_collision"
     assert _snapshot(world["vault"]) == vault_before
-    assert not (world["vault"] / "wiki/reading/papers").exists()
+    assert directory_entry_names(reading) == reading_names_before
+    assert directory_entry_names(papers) == papers_names_before
+    assert directory_tree_names(reading) == reading_tree_before
+    assert (papers / "private.txt").read_bytes() == b"private\n"
 
 
 def test_apply_keep_plus_delete_only_chain(world):
@@ -538,16 +554,27 @@ def test_apply_post_commit_collision_keeps_committed_paths_and_repair_store(worl
     shutil.copytree(_reading_root(world, "r1"), install)
     _compile(world, "r1")
 
+    collide_state = {"hit": False, "names": ()}
+
     def collide(phase):
-        if phase == "after-commit":
-            _put(install / "PAPERS/private.txt", b"private\n")
+        if phase != "after-commit":
+            return
+        collide_state["hit"] = True
+        collide_state["names"] = rename_directory_spelling(install, "papers", "PAPERS")
 
     err = _expect(lambda: _apply_reading(world, "r1", _fault=collide), "READING_APPLY_VERIFY_FAILED")
+    assert collide_state["hit"] is True
+    final_names = directory_entry_names(install)
+    assert "PAPERS" in final_names
+    assert "papers" not in final_names
+    assert not any(name.startswith(".vpkb-fs-rename-") for name in final_names)
+    assert collide_state["names"] == final_names
     assert err.details["next_action"] == "repair_store"
     assert "committed_paths" in err.details
     assert "wiki/reading/manifest.json" in err.details["committed_paths"]
     assert err.details.get("prior_code") == "READING_COMPILE_TARGET_INVALID"
     assert err.details.get("reason") == "portable_collision"
+    assert err.details.get("reason") != "inventory"
     assert not (install / "manifest.json").exists()
 
 
