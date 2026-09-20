@@ -1557,6 +1557,94 @@ def _guarded_os_replace(src, dst, *args, **kwargs):
 os.replace = _guarded_os_replace
 
 
+def _install_conflict_details(path: Path) -> dict[str, Any]:
+    guard = _matching_install_guard(path)
+    if guard is None:
+        return {"path": str(path)}
+    return {"path": guard["path"], "item_id": guard["item_id"]}
+
+
+def _read_fd_bytes(fd: int) -> bytes:
+    os.lseek(fd, 0, os.SEEK_SET)
+    chunks: list[bytes] = []
+    while True:
+        piece = os.read(fd, 1024 * 1024)
+        if not piece:
+            break
+        chunks.append(piece)
+    return b"".join(chunks)
+
+
+def _open_existing_file_fd(path: Path) -> int | None:
+    if (not path.exists()) or path.is_symlink() or (not path.is_file()):
+        return None
+    flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        return os.open(str(path), flags)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        if _matching_install_guard(path) is not None:
+            _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(path))
+        return None
+
+
+def _write_fd_bytes(fd: int, data: bytes) -> None:
+    view = memoryview(data)
+    while view:
+        view = view[os.write(fd, view) :]
+    os.fsync(fd)
+
+
+def _install_raw_bytes(path: Path, data: bytes) -> None:
+    """Install bytes with the captured replace primitive so recovery can rewrite a guarded dest."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".restore-tmp")
+    if tmp.exists() or tmp.is_symlink():
+        tmp.unlink()
+    fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    try:
+        _write_fd_bytes(fd, data)
+    finally:
+        os.close(fd)
+    try:
+        _OS_REPLACE(tmp, path)
+    except Exception:
+        if tmp.exists() or tmp.is_symlink():
+            tmp.unlink()
+        raise
+
+
+def _assert_held_dest_matches_guard(path: Path, held: bytes) -> None:
+    guard = _matching_install_guard(path)
+    if guard is None:
+        return
+    expected = guard.get("before_raw")
+    if expected is not None and held != expected:
+        _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(path))
+    if sha256_bytes(held) != guard["before_sha256"]:
+        _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(path))
+
+
+def _assert_live_install_after_replace(path: Path, after_raw: bytes, approved_before: bytes | None) -> None:
+    """Refuse if the installed path is neither this ticket's after nor the approved before."""
+
+    guard = _matching_install_guard(path)
+    if guard is None:
+        return
+    if (not path.exists()) or path.is_symlink() or (not path.is_file()):
+        _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(path))
+    live = path.read_bytes()
+    if live == after_raw:
+        return
+    # Keep live bytes: either the dest is still the approved before (install
+    # vanished) or a later writer landed on the new inode.
+    if approved_before is not None and live == approved_before:
+        _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(path))
+    _fail(PDF_APPLY_CHANGED, "writeset changed during apply", _install_conflict_details(path))
+
+
 def _push_install_guard(
     write: Mapping[str, Any],
     *,
@@ -1570,6 +1658,7 @@ def _push_install_guard(
             "item_id": write["item_id"],
             "before_sha256": write["before_sha256"],
             "before_raw": write.get("before_raw"),
+            "after_raw": write.get("data"),
             "root": root,
             "bound_identity": bound_identity,
         }
@@ -1588,22 +1677,44 @@ def _atomic_write(path: Path, data: bytes) -> None:
         tmp.unlink()
     fd = os.open(str(tmp), os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
     try:
-        view = memoryview(data)
-        while view:
-            view = view[os.write(fd, view) :]
-        os.fsync(fd)
+        _write_fd_bytes(fd, data)
     finally:
         os.close(fd)
+    dest_fd: int | None = None
     try:
         # Recheck the live target after the temp is complete and immediately
         # before the replace call. A later os.replace hook may still append;
         # _guarded_os_replace sees that write when the hook delegates.
         _assert_live_install_before_replace(path)
+        # Hold the dest inode across the real rename. A Python os.replace wrap
+        # cannot see an independent writer that lands after the last precheck
+        # and before the native syscall; the old fd still can.
+        dest_fd = _open_existing_file_fd(path)
+        approved_before: bytes | None = None
+        if dest_fd is not None:
+            approved_before = _read_fd_bytes(dest_fd)
+            _assert_held_dest_matches_guard(path, approved_before)
         os.replace(tmp, path)
+        if dest_fd is not None:
+            held = _read_fd_bytes(dest_fd)
+            if held != approved_before:
+                _install_raw_bytes(path, held)
+                _fail(
+                    PDF_APPLY_CHANGED,
+                    "writeset changed during apply",
+                    _install_conflict_details(path),
+                )
+        _assert_live_install_after_replace(path, data, approved_before)
     except Exception:
         if tmp.exists() or tmp.is_symlink():
             tmp.unlink()
         raise
+    finally:
+        if dest_fd is not None:
+            try:
+                os.close(dest_fd)
+            except OSError:
+                pass
 
 
 def _journal_path(root_path: Path, plan_sha256: str) -> Path:

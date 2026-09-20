@@ -43,7 +43,7 @@ vpwiki-admin pdf migrate-rollback --journal JOURNAL.json --roots ROOTS.json
 
 Sample handshake fixtures: `tests/fixtures/pdf-migration/sample-inventory.json` and `sample-uploaded-manifest.json`.
 
-Only `uploaded`/`reused` rows whose remote sha256 equals the inventory sha256 may be linked. Apply re-checks the approved before digest, live page/location bytes, and root directory identity at the actual install, immediately before replace. Parallel edits refuse with `PDF_APPLY_CHANGED` and keep the user's page. Same paper, different sha256 is `PDF_CONTENT_CONFLICT` and is not completion.
+Only `uploaded`/`reused` rows whose remote sha256 equals the inventory sha256 may be linked. Apply re-checks the approved before digest, live page/location bytes, and root directory identity at the actual install, immediately before replace, and keeps the dest inode open across the native replace. If that inode or the installed path is rewritten during replace, apply restores the concurrent dest, rolls back this ticket's unfinished unit, and refuses with `PDF_APPLY_CHANGED`. Same paper, different sha256 is `PDF_CONTENT_CONFLICT` and is not completion.
 
 Link-only registration:
 
