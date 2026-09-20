@@ -2,6 +2,9 @@
 from __future__ import annotations
 import argparse, hashlib, json, os, stat, subprocess, sys
 from pathlib import Path
+_OPERATOR_SRC=str(Path(__file__).resolve().parents[1])
+if _OPERATOR_SRC not in sys.path:
+    sys.path.insert(0, _OPERATOR_SRC)
 
 READ_ONLY={('doctor',),('lint',),('contracts',),('transaction','inspect')}
 PIN='9f8c1199047eac2c3828496279fbb7ba9540b90b'
@@ -499,6 +502,53 @@ def _main(argv:list[str]|None=None)->int:
         except (ReadingApplyError,ReadingPublicationError,ArticleStoreError,ExperimentStoreError,DomainPublicationError,DomainStoreError,DomainProposalError,StagingError,ContractError,SecureIOError) as exc:
             details=dict(getattr(exc,'details',{}) or {})
             if 'next_action' not in details:details['next_action']='repair_input'
+            sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
+    if words[:2]==['pdf','migrate-apply']:
+        command=_Parser(prog='vpwiki-admin pdf migrate-apply');command.add_argument('--plan',required=True);command.add_argument('--roots',required=True);command.add_argument('--root-id',required=True);command.add_argument('--approved-plan-sha256',required=True);command.add_argument('--upstream-root');args=command.parse_args(words[2:])
+        from video_paper_wiki.contracts import ContractError
+        from video_paper_wiki.jcs import canonicalize
+        from video_paper_wiki.pdf_locations import PdfLocationError
+        from video_paper_wiki.pdf_migration import PdfMigrationError
+        from video_paper_wiki.secure_io import SecureIOError
+        from video_paper_wiki.staging import StagingError
+        from video_paper_wiki_operator.pdf_migration import apply_pdf_migration
+        def _pdf_apply_confirm(summary):
+            sys.stderr.buffer.write(canonicalize(summary)+b'\n');sys.stderr.buffer.flush();return _confirm(words)
+        try:
+            result=apply_pdf_migration(plan_path=Path(args.plan),roots_path=Path(args.roots),root_id=args.root_id,approved_plan_sha256=args.approved_plan_sha256,upstream_root=args.upstream_root or ns.upstream_root,confirm=_pdf_apply_confirm)
+            sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
+        except (PdfMigrationError,PdfLocationError,StagingError,ContractError,SecureIOError) as exc:
+            details=dict(getattr(exc,'details',{}) or {})
+            if 'next_action' not in details:details['next_action']='repair_input'
+            sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
+    if words[:2]==['pdf','open']:
+        command=_Parser(prog='vpwiki-admin pdf open');command.add_argument('--roots',required=True);command.add_argument('--root-id',required=True);command.add_argument('--paper-id',required=True);command.add_argument('--prefer',choices=('auto','local','drive'),default='auto');command.add_argument('--offline',action='store_true');command.add_argument('--pdf-sha256');args=command.parse_args(words[2:])
+        from video_paper_wiki.contracts import ContractError
+        from video_paper_wiki.pdf_locations import PdfLocationError
+        from video_paper_wiki.pdf_migration import PdfMigrationError
+        from video_paper_wiki.secure_io import SecureIOError
+        from video_paper_wiki_operator.pdf_migration import open_pdf
+        try:
+            result=open_pdf(roots_path=Path(args.roots),root_id=args.root_id,paper_id=args.paper_id,prefer=args.prefer,offline=bool(args.offline),pdf_sha256=args.pdf_sha256)
+            sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
+        except (PdfMigrationError,PdfLocationError,ContractError,SecureIOError) as exc:
+            details=dict(getattr(exc,'details',{}) or {})
+            sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
+    if words[:2]==['pdf','migrate-rollback']:
+        command=_Parser(prog='vpwiki-admin pdf migrate-rollback');command.add_argument('--journal',required=True);command.add_argument('--roots',required=True);args=command.parse_args(words[2:])
+        from video_paper_wiki.contracts import ContractError
+        from video_paper_wiki.jcs import canonicalize
+        from video_paper_wiki.pdf_locations import PdfLocationError
+        from video_paper_wiki.pdf_migration import PdfMigrationError
+        from video_paper_wiki.secure_io import SecureIOError
+        from video_paper_wiki_operator.pdf_migration import rollback_pdf
+        def _pdf_rollback_confirm(summary):
+            sys.stderr.buffer.write(canonicalize(summary)+b'\n');sys.stderr.buffer.flush();return _confirm(words)
+        try:
+            result=rollback_pdf(journal_path=Path(args.journal),roots_path=Path(args.roots),confirm=_pdf_rollback_confirm)
+            sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
+        except (PdfMigrationError,PdfLocationError,ContractError,SecureIOError) as exc:
+            details=dict(getattr(exc,'details',{}) or {})
             sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
     if ns.upstream_root is None:parser.error('--upstream-root is required for upstream passthrough')
     root=_verified_root(ns.upstream_root)

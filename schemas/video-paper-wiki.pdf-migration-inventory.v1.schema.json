@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.pdf-migration-inventory.v1.schema.json",
+  "title": "video-paper-wiki.pdf-migration-inventory.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "roots_sha256",
+    "inventory_sha256",
+    "drive_root_folder_id",
+    "cache_policy",
+    "items",
+    "excluded",
+    "counts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.pdf-migration-inventory.v1"
+    },
+    "batch_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+    },
+    "roots_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "inventory_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "drive_root_folder_id": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "cache_policy": {
+      "const": "keep-local"
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 65534,
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    },
+    "excluded": {
+      "type": "array",
+      "maxItems": 65534,
+      "items": {
+        "$ref": "#/$defs/excluded_row"
+      }
+    },
+    "counts": {
+      "$ref": "#/$defs/counts"
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "item_id",
+        "paper_id",
+        "aliases",
+        "pdf_sha256",
+        "size_bytes",
+        "media_type",
+        "category",
+        "paper_dir",
+        "drive_relative_path",
+        "local_copies",
+        "bindings",
+        "status",
+        "blockers"
+      ],
+      "properties": {
+        "item_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "paper_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        },
+        "aliases": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/alias"
+          }
+        },
+        "pdf_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        },
+        "media_type": {
+          "const": "application/pdf"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "paper_dir": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "drive_relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^pdfs/[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9][A-Za-z0-9._-]*/original\\.pdf$"
+        },
+        "local_copies": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/local_copy"
+          }
+        },
+        "bindings": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "$ref": "#/$defs/binding"
+          }
+        },
+        "status": {
+          "enum": ["included", "blocked", "intake-only"]
+        },
+        "blockers": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        }
+      }
+    },
+    "alias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "basis"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "local_copy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "relative_path", "pdf_sha256", "size_bytes"],
+      "properties": {
+        "root_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "relative_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "pdf_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_id", "paper_id", "record_path", "scanned_sha256"],
+      "properties": {
+        "root_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+        },
+        "paper_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "record_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "scanned_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "excluded_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "reason"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scanned", "included", "blocked", "intake_only", "excluded"],
+      "properties": {
+        "scanned": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "included": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "intake_only": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

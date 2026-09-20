@@ -171,7 +171,11 @@ def _paper(group, material):
               ("updated", record["updated_at"][:10]), ("tags", taxonomy or ["video-paper"]))
     frontmatter = "\n".join(["---", *[f"{key}: {json.dumps(value, ensure_ascii=False, separators=(',', ':'))}"
                                     for key, value in fields], "---"])
-    lines = [frontmatter, "", "# " + _escape(record["title_zh"] or record["title"]), "", "## 来源版本", ""]
+    lines = [frontmatter, "", "# " + _escape(record["title_zh"] or record["title"]), ""]
+    from video_paper_wiki.pdf_locations import render_pdf_section_lines
+
+    lines += render_pdf_section_lines(group.get("pdf_location"))
+    lines += ["## 来源版本", ""]
     if selected is None:
         lines.append("- 展示版本：未选择。")
     else:
@@ -234,7 +238,12 @@ def compile_pages(material, *, raw_sources, extraction_artifacts, head_bytes, re
             _bad("compiled output paths collide")
         output[path] = raw
 
+    locations = {row["paper_id"]: row for row in doc.get("pdf_locations") or []}
     for group in doc["papers"]:
+        paper_id = group["record"]["paper_id"]
+        if paper_id in locations:
+            group = dict(group)
+            group["pdf_location"] = locations[paper_id]
         if group["record"]["schema"] == PAPER:
             add(*_paper(group, validated[group["record"]["paper_id"]]))
         else:

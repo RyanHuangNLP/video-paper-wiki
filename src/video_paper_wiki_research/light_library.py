@@ -141,10 +141,26 @@ def _current_tags(meta: Mapping[str, Any]) -> list[str]:
     return list(tags)
 
 
-def _paper_summary(loaded: Mapping[str, Any]) -> dict[str, Any]:
+def _paper_summary(loaded: Mapping[str, Any], workspace: Path | None = None) -> dict[str, Any]:
     meta = loaded["metadata"]
     warnings = meta.get("warnings")
     warning_rows = [item for item in warnings if type(item) is str] if type(warnings) is list else []
+    locations = None
+    source = meta.get("source") if type(meta.get("source")) is dict else {}
+    source_path = source.get("path") if type(source.get("path")) is str else None
+    root = workspace
+    if root is None:
+        meta_path = loaded.get("metadata_path")
+        if isinstance(meta_path, Path):
+            root = meta_path.parent.parent.parent
+    if root is not None:
+        try:
+            from video_paper_wiki.pdf_locations import load_locations_file, location_relative_path
+
+            loc_rel = location_relative_path("research-workspace", loaded["paper_id"])
+            locations = load_locations_file(root / loc_rel)
+        except Exception:
+            locations = None
     return {
         "paper_id": loaded["paper_id"],
         "title": loaded["title"],
@@ -155,6 +171,8 @@ def _paper_summary(loaded: Mapping[str, Any]) -> dict[str, Any]:
         "source_json_sha256": loaded["source_json_sha256"],
         "metadata_stale": bool(loaded["metadata_stale"]),
         "warnings": warning_rows,
+        "pdf_locations": locations,
+        "source_path": source_path,
     }
 
 
@@ -500,7 +518,7 @@ def list_papers(workspace_root: Path) -> dict[str, Any]:
     for directory in _paper_dirs(workspace):
         classified = classify_paper_dir(directory, directory.name)
         if classified["kind"] == "complete":
-            papers.append(_paper_summary(classified["loaded"]))
+            papers.append(_paper_summary(classified["loaded"], workspace=workspace))
     papers.sort(key=lambda item: item["paper_id"])
     archives = _iter_archives(workspace)
     pending = pending_operation_ids(workspace)

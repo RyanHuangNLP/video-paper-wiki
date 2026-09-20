@@ -130,6 +130,11 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.reading-publication-request.v1",
     "video-paper-wiki.reading-publication-inspection.v1",
     "video-paper-wiki.reading-publication-apply-result.v1",
+    "video-paper-wiki.pdf-locations.v1",
+    "video-paper-wiki.pdf-migration-inventory.v1",
+    "video-paper-wiki.pdf-upload-manifest.v1",
+    "video-paper-wiki.pdf-link-plan.v1",
+    "video-paper-wiki.pdf-migration-report.v1",
 }
 
 

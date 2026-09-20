@@ -76,7 +76,8 @@ def _check_request(document: Mapping[str, Any]) -> None:
                     or path.startswith(".vault-meta/") or path == HEAD_PATH
                     or path.startswith("wiki/meta/operations/")
                     or not (path.startswith(("wiki/meta/ledgers/", "wiki/meta/records/", "wiki/meta/reviews/",
-                                             "wiki/meta/gates/", "wiki/papers/", "wiki/code/", "wiki/concepts/",
+                                             "wiki/meta/gates/", "wiki/meta/pdf-locations/", "wiki/papers/",
+                                             "wiki/code/", "wiki/concepts/",
                                              ".raw/captured/", ".raw/derived/"))
                             or path == "wiki/meta/registries/gate-heads.json")):
                 _fail("PUBLICATION_REQUEST_INVALID", "read path is outside publication authority", f"/{key}/{index}")
@@ -286,9 +287,22 @@ def _prospective(request: Mapping[str,Any],decoded: Mapping[str,Any],payload_byt
     if paper_or_concept and paper_ids!=set(prospective_records):
         _fail("PUBLICATION_REQUEST_INVALID","Paper compiler triples do not cover the complete prospective Paper set")
     concepts=concept_items_for_papers([item["record"] for item in paper_items]) if paper_or_concept else []
+    locations=[]
+    for path,payload in decoded.items():
+        if type(path) is str and path.startswith("wiki/meta/pdf-locations/") and path.endswith(".json") and type(payload) is dict:
+            locations.append(payload)
+    for path in sorted(x for x in (snapshot.inventory or ()) if x.startswith("wiki/meta/pdf-locations/") and x.endswith(".json")):
+        if path in decoded:
+            continue
+        try:
+            raw=snapshot.read(path)
+            locations.append(parse_strict_json(raw,invalid_code="SCHEMA_INVALID"))
+        except Exception:
+            continue
     compiled=compile_pages({"schema":"video-paper-wiki.compile-input.v1","operation_id":request["operation_id"],
                             "papers":sorted(paper_items,key=lambda x:x["record"]["paper_id"]),
-                            "code":sorted(code_items,key=lambda x:x["repo_record"]["repo_id"]),"concepts":concepts})
+                            "code":sorted(code_items,key=lambda x:x["repo_record"]["repo_id"]),"concepts":concepts,
+                            "pdf_locations":locations})
     if actual!=compiled:_fail("PUBLICATION_REQUEST_INVALID","projection payload complete set differs from canonical compiler output")
 
 

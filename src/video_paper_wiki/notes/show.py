@@ -82,6 +82,8 @@ def load_paper(root: Path, paper_id: str) -> dict[str, Any] | None:
     related = _related_ids(text) if yaml_related is None else yaml_related
     yaml_backlinks = _yaml_id_list(text, "backlinks")
     backlinks = [] if yaml_backlinks is None else yaml_backlinks
+    pdf_heading = "## PDF"
+    has_pdf = pdf_heading in text
     return {
         "paper_id": fields["paper_id"],
         "title": fields["title"],
@@ -90,4 +92,5 @@ def load_paper(root: Path, paper_id: str) -> dict[str, Any] | None:
         "topics": fields["topics"],
         "related": related,
         "backlinks": backlinks,
+        "pdf_links": has_pdf,
     }

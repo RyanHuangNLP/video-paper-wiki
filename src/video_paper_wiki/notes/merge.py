@@ -16,7 +16,7 @@ OWNED_YAML_KEYS = (
 )
 _OWNED = frozenset(OWNED_YAML_KEYS)
 _FROZEN_HEADINGS = tuple(heading for _section_id, heading in SECTION_SPECS)
-_SYSTEM_HEADINGS = ("主题", "相关论文")
+_SYSTEM_HEADINGS = ("主题", "相关论文", "PDF")
 _MERGED_HEADINGS = _FROZEN_HEADINGS + _SYSTEM_HEADINGS
 _MERGED = frozenset(_MERGED_HEADINGS)
 
