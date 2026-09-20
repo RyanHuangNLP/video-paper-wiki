@@ -43,7 +43,7 @@ vpwiki-admin pdf migrate-rollback --journal JOURNAL.json --roots ROOTS.json
 
 Sample handshake fixtures: `tests/fixtures/pdf-migration/sample-inventory.json` and `sample-uploaded-manifest.json`.
 
-Only `uploaded`/`reused` rows whose remote sha256 equals the inventory sha256 may be linked. Apply re-checks before write. Parallel edits refuse with `PDF_APPLY_CHANGED`. Same paper, different sha256 is `PDF_CONTENT_CONFLICT` and is not completion.
+Only `uploaded`/`reused` rows whose remote sha256 equals the inventory sha256 may be linked. Apply re-checks the approved before digest, live page/location bytes, and root directory identity at the actual install, immediately before replace. Parallel edits refuse with `PDF_APPLY_CHANGED` and keep the user's page. Same paper, different sha256 is `PDF_CONTENT_CONFLICT` and is not completion.
 
 Link-only registration:
 

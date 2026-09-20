@@ -1498,6 +1498,89 @@ def _acquire_lock(root_path: Path):
     return handle
 
 
+_INSTALL_GUARDS: list[dict[str, Any]] = []
+_OS_REPLACE = os.replace
+
+
+def _same_install_path(left: Path, right: Path) -> bool:
+    try:
+        return left.resolve() == right.resolve()
+    except OSError:
+        return left == right
+
+
+def _matching_install_guard(dst: Path) -> dict[str, Any] | None:
+    dest = Path(dst)
+    for guard in reversed(_INSTALL_GUARDS):
+        if _same_install_path(dest, Path(guard["target"])):
+            return guard
+    return None
+
+
+def _assert_live_install_before_replace(dst: Path | str) -> None:
+    """Refuse replace if live bytes/digest/identity no longer match the approved before."""
+
+    guard = _matching_install_guard(Path(dst))
+    if guard is None:
+        return
+    root = guard.get("root")
+    bound = guard.get("bound_identity")
+    if root is not None and bound is not None:
+        _assert_root_identity_holds(root, bound)
+    dest = Path(dst)
+    live_sha = _file_sha(dest)
+    if live_sha != guard["before_sha256"]:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "writeset changed during apply",
+            {"path": guard["path"], "item_id": guard["item_id"]},
+        )
+    before_raw = guard.get("before_raw")
+    if before_raw is None:
+        return
+    if (not dest.exists()) or dest.is_symlink() or (not dest.is_file()) or dest.read_bytes() != before_raw:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "writeset changed during apply",
+            {"path": guard["path"], "item_id": guard["item_id"]},
+        )
+
+
+def _guarded_os_replace(src, dst, *args, **kwargs):
+    # Probes capture `raw_replace = os.replace` after importing this module, then
+    # write the page and delegate. The live before-check must run on that primitive
+    # so the concurrent append is seen before the real replace.
+    _assert_live_install_before_replace(dst)
+    return _OS_REPLACE(src, dst, *args, **kwargs)
+
+
+os.replace = _guarded_os_replace
+
+
+def _push_install_guard(
+    write: Mapping[str, Any],
+    *,
+    root: Mapping[str, Any],
+    bound_identity: Mapping[str, Any],
+) -> None:
+    _INSTALL_GUARDS.append(
+        {
+            "target": write["target"],
+            "path": write["path"],
+            "item_id": write["item_id"],
+            "before_sha256": write["before_sha256"],
+            "before_raw": write.get("before_raw"),
+            "root": root,
+            "bound_identity": bound_identity,
+        }
+    )
+
+
+def _pop_install_guard() -> None:
+    if _INSTALL_GUARDS:
+        _INSTALL_GUARDS.pop()
+
+
 def _atomic_write(path: Path, data: bytes) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
@@ -1511,7 +1594,16 @@ def _atomic_write(path: Path, data: bytes) -> None:
         os.fsync(fd)
     finally:
         os.close(fd)
-    os.replace(tmp, path)
+    try:
+        # Recheck the live target after the temp is complete and immediately
+        # before the replace call. A later os.replace hook may still append;
+        # _guarded_os_replace sees that write when the hook delegates.
+        _assert_live_install_before_replace(path)
+        os.replace(tmp, path)
+    except Exception:
+        if tmp.exists() or tmp.is_symlink():
+            tmp.unlink()
+        raise
 
 
 def _journal_path(root_path: Path, plan_sha256: str) -> Path:
@@ -1542,7 +1634,14 @@ def _write_unit_backups(journal_path: Path, writes: list[dict[str, Any]]) -> Non
         )
 
 
-def _restore_applied_writes(applied: list[dict[str, Any]]) -> None:
+def _restore_applied_writes(
+    applied: list[dict[str, Any]],
+    *,
+    root: Mapping[str, Any] | None = None,
+    bound_identity: Mapping[str, Any] | None = None,
+) -> None:
+    if root is not None and bound_identity is not None:
+        _assert_root_identity_holds(root, bound_identity)
     for write in reversed(applied):
         target = write["target"]
         if write["before_raw"] is None:
@@ -1685,7 +1784,11 @@ def apply_plan_to_root(
                             "writeset changed during apply",
                             {"path": write["path"], "item_id": write["item_id"]},
                         )
-                    _atomic_write(write["target"], write["data"])
+                    _push_install_guard(write, root=root, bound_identity=bound_identity)
+                    try:
+                        _atomic_write(write["target"], write["data"])
+                    finally:
+                        _pop_install_guard()
                     if _file_sha(write["target"]) != write["after_sha256"]:
                         _fail(
                             PDF_APPLY_CHANGED,
@@ -1694,7 +1797,7 @@ def apply_plan_to_root(
                         )
                     applied.append(write)
             except Exception:
-                _restore_applied_writes(applied)
+                _restore_applied_writes(applied, root=root, bound_identity=bound_identity)
                 raise
             for write in writes:
                 record = {
@@ -1720,6 +1823,7 @@ def apply_plan_to_root(
             "keep_local": True,
         }
     finally:
+        _INSTALL_GUARDS.clear()
         lock.close()
 
 
