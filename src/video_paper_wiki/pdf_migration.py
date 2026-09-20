@@ -48,6 +48,7 @@ from video_paper_wiki.pdf_locations import (
     render_pdf_section,
     render_pdf_section_lines,
     resolve_inside_root,
+    root_directory_identity,
     roots_digest,
     roots_map,
     same_drive_link,
@@ -56,6 +57,7 @@ from video_paper_wiki.pdf_locations import (
     sha256_json,
     validate_locations,
 )
+from video_paper_wiki.receipt_audit import HEAD as OPERATION_HEAD_PATH
 from video_paper_wiki.secure_io import parse_strict_json
 from video_paper_wiki.staging import stage_bytes, validate_batch_id
 
@@ -84,6 +86,9 @@ EXCLUDED_MARKERS = (
 WORK_BLOBS = ".work/blobs"
 LOCK_NAME = ".pdf-migration.lock"
 JOURNAL_SCHEMA = "video-paper-wiki.pdf-migration-journal.internal.v1"
+RECEIPT_SCHEMA = "video-paper-wiki.operation-receipt.v1"
+HEAD_SCHEMA = "video-paper-wiki.operation-head.v1"
+TRUSTED_REGISTRATION_PREFIXES = ("wiki/meta/records/", "wiki/meta/ledgers/")
 
 
 class PdfMigrationError(Exception):
@@ -135,6 +140,99 @@ def verify_approved_plan(plan: Mapping[str, Any], approved_plan_sha256: str) -> 
             },
         )
     return validate_document(plan, PLAN_SCHEMA)
+
+
+def resolve_apply_root(
+    *,
+    plan: Mapping[str, Any],
+    roots: list[Mapping[str, Any]],
+    root_id: str,
+) -> dict[str, Any]:
+    """Shared target identity, role, and roots-binding checks for both apply paths."""
+
+    root = next((row for row in roots if row["root_id"] == root_id), None)
+    if root is None:
+        _fail(PDF_MIGRATION_INVALID, "root_id is not in roots.json", {"root_id": root_id})
+    if root["role"] != "target":
+        _fail(PDF_MIGRATION_INVALID, "apply requires a target root")
+    if roots_digest(roots) != plan["roots_sha256"]:
+        _fail(PDF_APPLY_CHANGED, "roots.json identity changed after prepare")
+    return dict(root)
+
+
+def item_writeset_after(item: Mapping[str, Any]) -> dict[str, str]:
+    after: dict[str, str] = {}
+    location_path = item.get("location_path")
+    after_location = item.get("after_location_sha256")
+    if type(location_path) is str and type(after_location) is str:
+        after[location_path] = after_location
+    page_path = item.get("page_path")
+    after_page = item.get("after_page_sha256")
+    if type(page_path) is str and type(after_page) is str:
+        after[page_path] = after_page
+    return after
+
+
+def assert_item_identity_paths(root: Mapping[str, Any], item: Mapping[str, Any]) -> None:
+    loc_rel = derived_location_path(root["kind"], item["paper_id"])
+    if item["location_path"] != loc_rel:
+        _fail(
+            PDF_LOCATION_INVALID,
+            "plan location_path does not match the derived identity path",
+            {"planned": item["location_path"], "derived": loc_rel, "item_id": item["item_id"]},
+        )
+    planned_page = item.get("page_path")
+    if planned_page:
+        expected_page = derived_page_path(root["kind"], item["paper_id"])
+        if planned_page != expected_page:
+            _fail(
+                PDF_LOCATION_INVALID,
+                "plan page_path does not match the derived identity path",
+                {"planned": planned_page, "derived": expected_page, "item_id": item["item_id"]},
+            )
+
+
+def inspect_item_apply_state(root: Mapping[str, Any], item: Mapping[str, Any]) -> str:
+    """Return 'done' or 'pending'. Refuse if live bytes are not the approved before/after."""
+
+    assert_item_identity_paths(root, item)
+    base = Path(root["path"])
+    loc_rel = item["location_path"]
+    loc_path = resolve_inside_root(base, loc_rel)
+    current_loc = _file_sha(loc_path)
+    page_rel = item["page_path"]
+    page_needed = bool(page_rel and item["after_page_sha256"])
+    page_path = resolve_inside_root(base, page_rel) if page_rel else None
+    current_page = _file_sha(page_path) if page_path is not None else None
+    loc_done = current_loc == item["after_location_sha256"]
+    page_done = (not page_needed) or current_page == item["after_page_sha256"]
+    if loc_done and page_done:
+        return "done"
+    if current_loc not in {item["before_location_sha256"], None, item["after_location_sha256"]}:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "location file changed after prepare",
+            {"path": loc_rel, "item_id": item["item_id"]},
+        )
+    if item["before_location_sha256"] is not None and current_loc is None:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "location file disappeared after prepare",
+            {"path": loc_rel, "item_id": item["item_id"]},
+        )
+    if page_needed and current_page not in {item["before_page_sha256"], None, item["after_page_sha256"]}:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "page file changed after prepare",
+            {"path": page_rel, "item_id": item["item_id"]},
+        )
+    if page_needed and item["before_page_sha256"] is not None and current_page is None:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "page file disappeared after prepare",
+            {"path": page_rel, "item_id": item["item_id"]},
+        )
+    return "pending"
 
 
 def verify_pinned_upstream_root(raw: Path | str | None) -> Path:
@@ -230,14 +328,24 @@ def _json_paper_digest_pairs(document: object) -> list[tuple[str, str]]:
     return pairs
 
 
+def _is_trusted_registration_rel(rel: str) -> bool:
+    posix = rel.replace("\\", "/")
+    if posix.startswith(".work/") or "/.work/" in posix:
+        return False
+    if posix.startswith(TRUSTED_REGISTRATION_PREFIXES):
+        return True
+    if posix.startswith("papers/") and posix.endswith(".json"):
+        return True
+    return False
+
+
 def _collect_registration_digests(base: Path, root_id: str) -> dict[str, list[dict[str, str]]]:
-    """Map pdf_sha256 -> registration bindings found in source/capture/intake records."""
+    """Map pdf_sha256 -> trusted registration bindings. Intake/staging under .work is not proof."""
 
     mapped: dict[str, list[dict[str, str]]] = {}
     search_roots = [
         base / "wiki" / "meta" / "records",
         base / "wiki" / "meta" / "ledgers",
-        base / ".work",
         base / "papers",
     ]
     for search in search_roots:
@@ -253,7 +361,7 @@ def _collect_registration_digests(base: Path, root_id: str) -> dict[str, list[di
             except (OSError, ContractError, UnicodeError, PdfMigrationError):
                 continue
             rel = _portable_rel(base, path)
-            if rel is None:
+            if rel is None or not _is_trusted_registration_rel(rel):
                 continue
             digest_of_record = sha256_bytes(path.read_bytes())
             for paper_id, digest in _json_paper_digest_pairs(document):
@@ -317,6 +425,22 @@ def adapt_uploaded_manifest(raw: object) -> tuple[dict[str, Any], list[dict[str,
                 if type(folder_id) is str and type(name) is str:
                     parents.append({"folder_id": folder_id, "name": name})
             row["parent_chain"] = parents
+        original_item_id = row.get("item_id")
+        seed, seed_digest = _parse_draft_item_key(original_item_id)
+        if seed and seed_digest:
+            paper = extras[-1].get("paper_id") or seed
+            digest = extras[-1].get("local_pdf_sha256")
+            if type(digest) is not str or HEX64.fullmatch(digest) is None:
+                digest = row.get("remote_pdf_sha256")
+            if type(digest) is not str or HEX64.fullmatch(digest) is None:
+                digest = seed_digest
+            rel = row.get("drive_relative_path")
+            if type(rel) is not str:
+                rel = ""
+            try:
+                row["item_id"] = item_id_for(paper_id=str(paper), pdf_sha256=digest, drive_relative_path=rel)
+            except PdfLocationError:
+                row["item_id"] = seed_digest
         normalized_entries.append({key: row[key] for key in allowed if key in row})
     document["entries"] = normalized_entries
     document["schema"] = MANIFEST_SCHEMA
@@ -373,6 +497,8 @@ def _match_inventory_item(
         except PdfLocationError:
             pass
     seed, seed_digest = _parse_draft_item_key(entry.get("item_id"))
+    if not (seed and seed_digest) and extra:
+        seed, seed_digest = _parse_draft_item_key(extra.get("item_id"))
     if seed and seed_digest:
         return by_paper_digest.get((seed, seed_digest))
     return None
@@ -402,9 +528,20 @@ def _empty_preconditions() -> dict[str, list[Any]]:
     return {"bindings": [], "local_copies": []}
 
 
-def _preconditions_for_item(inventory_item: Mapping[str, Any], root_id: str) -> dict[str, list[Any]]:
-    bindings = [dict(row) for row in inventory_item.get("bindings") or [] if row.get("root_id") == root_id]
-    copies = [dict(row) for row in inventory_item.get("local_copies") or [] if row.get("root_id") == root_id]
+def _preconditions_for_item(
+    inventory_item: Mapping[str, Any],
+    root_id: str,
+    *,
+    writeset_paths: set[str] | None = None,
+) -> dict[str, list[Any]]:
+    skip = writeset_paths or set()
+    bindings = [
+        dict(row)
+        for row in inventory_item.get("bindings") or []
+        if row.get("root_id") == root_id and row.get("record_path") not in skip
+    ]
+    # Keep every local copy that supplied the planned bytes, including source-only roots.
+    copies = [dict(row) for row in inventory_item.get("local_copies") or []]
     return {"bindings": bindings, "local_copies": copies}
 
 
@@ -412,17 +549,22 @@ def _recheck_input_preconditions(
     *,
     roots: list[Mapping[str, Any]],
     preconditions: Mapping[str, Any] | None,
+    writeset_after: Mapping[str, str] | None = None,
 ) -> None:
     if not preconditions:
         return
     by_id = {row["root_id"]: row for row in roots}
+    after = dict(writeset_after or {})
     for binding in preconditions.get("bindings") or []:
         root = by_id.get(binding["root_id"])
         if root is None:
             _fail(PDF_APPLY_CHANGED, "binding root is no longer in roots.json", {"root_id": binding["root_id"]})
         path = resolve_inside_root(Path(root["path"]), binding["record_path"])
         current = _file_sha(path)
-        if current != binding["scanned_sha256"]:
+        allowed = {binding["scanned_sha256"]}
+        if binding["record_path"] in after:
+            allowed.add(after[binding["record_path"]])
+        if current not in allowed:
             _fail(
                 PDF_APPLY_CHANGED,
                 "registration record changed after prepare",
@@ -1203,7 +1345,11 @@ def prepare_migration(*, inventory_path: Path, manifest_path: Path, roots_path: 
                     "before_page_sha256": before_page if page_bytes is not None else None,
                     "after_page_sha256": after_page,
                     "location": location,
-                    "input_preconditions": _preconditions_for_item(inventory_item, root["root_id"]),
+                    "input_preconditions": _preconditions_for_item(
+                        inventory_item,
+                        root["root_id"],
+                        writeset_paths={path for path in (loc_rel, page_rel if page_bytes is not None else None) if path},
+                    ),
                 }
             )
     for item in inventory["items"]:
@@ -1396,6 +1542,22 @@ def _write_unit_backups(journal_path: Path, writes: list[dict[str, Any]]) -> Non
         )
 
 
+def _restore_applied_writes(applied: list[dict[str, Any]]) -> None:
+    for write in reversed(applied):
+        target = write["target"]
+        if write["before_raw"] is None:
+            if target.exists() and target.is_file() and not target.is_symlink():
+                target.unlink()
+        else:
+            _atomic_write(target, write["before_raw"])
+
+
+def _assert_root_identity_holds(root: Mapping[str, Any], bound: Mapping[str, Any]) -> None:
+    live = root_directory_identity(root["path"])
+    if live != bound:
+        _fail(PDF_APPLY_CHANGED, "target root directory identity changed during apply")
+
+
 def apply_plan_to_root(
     *,
     plan: Mapping[str, Any],
@@ -1407,40 +1569,23 @@ def apply_plan_to_root(
     if not confirm:
         _fail(HUMAN_APPROVAL_REQUIRED, "interactive confirmation is required", {"next_action": "confirm_interactively"})
     validated = verify_approved_plan(plan, approved_plan_sha256)
-    if roots_digest(roots) != validated["roots_sha256"]:
-        _fail(PDF_APPLY_CHANGED, "roots.json identity changed after prepare")
-    root = next((row for row in roots if row["root_id"] == root_id), None)
-    if root is None:
-        _fail(PDF_MIGRATION_INVALID, "root_id is not in roots.json", {"root_id": root_id})
-    if root["role"] != "target":
-        _fail(PDF_MIGRATION_INVALID, "apply requires a target root")
+    root = resolve_apply_root(plan=validated, roots=roots, root_id=root_id)
     if root["kind"] == KIND_FORMAL:
         _fail(
             PDF_FORMAL_TRANSACTION_REQUIRED,
             "formal-vault apply must use the operator transaction path with a valid upstream_root",
         )
     base = Path(root["path"]).resolve()
+    bound_identity = root_directory_identity(root["path"])
     lock = _acquire_lock(base)
     try:
         journal_path = _journal_path(base, validated["plan_sha256"])
         scoped = [item for item in validated["items"] if item["root_id"] == root_id]
         intent = []
         for item in scoped:
-            loc_rel = derived_location_path(root["kind"], item["paper_id"])
-            if item["location_path"] != loc_rel:
-                _fail(
-                    PDF_LOCATION_INVALID,
-                    "plan location_path does not match the derived identity path",
-                    {"planned": item["location_path"], "derived": loc_rel, "item_id": item["item_id"]},
-                )
-            page_rel = derived_page_path(root["kind"], item["paper_id"])
+            assert_item_identity_paths(root, item)
+            loc_rel = item["location_path"]
             planned_page = item["page_path"]
-            if planned_page and planned_page != page_rel:
-                _fail(
-                    PDF_LOCATION_INVALID,
-                    "plan page_path does not match the derived identity path",
-                    {"planned": planned_page, "derived": page_rel, "item_id": item["item_id"]},
-                )
             resolve_inside_root(base, loc_rel)
             if planned_page:
                 resolve_inside_root(base, planned_page)
@@ -1475,8 +1620,13 @@ def apply_plan_to_root(
             if item["verification"] != VERIFIED and validated["kind"] == "migration":
                 results.append({"item_id": item["item_id"], "state": "unverified", "code": "not_migration_success"})
                 continue
-            _recheck_input_preconditions(roots=roots, preconditions=item.get("input_preconditions"))
-            loc_rel = derived_location_path(root["kind"], item["paper_id"])
+            _recheck_input_preconditions(
+                roots=roots,
+                preconditions=item.get("input_preconditions"),
+                writeset_after=item_writeset_after(item),
+            )
+            apply_state = inspect_item_apply_state(root, item)
+            loc_rel = item["location_path"]
             loc_path = resolve_inside_root(base, loc_rel)
             current_loc = _file_sha(loc_path)
             page_rel = item["page_path"]
@@ -1485,22 +1635,10 @@ def apply_plan_to_root(
             loc_done = current_loc == item["after_location_sha256"]
             page_needed = bool(page_rel and item["after_page_sha256"])
             page_done = (not page_needed) or current_page == item["after_page_sha256"]
-            if loc_done and page_done:
+            if apply_state == "done" or (loc_done and page_done):
                 state = "unverified" if item["verification"] == UNVERIFIED else "linked"
                 results.append({"item_id": item["item_id"], "state": state, "code": None})
                 continue
-            if current_loc not in {item["before_location_sha256"], None, item["after_location_sha256"]}:
-                _fail(
-                    PDF_APPLY_CHANGED,
-                    "location file changed after prepare",
-                    {"path": loc_rel, "item_id": item["item_id"]},
-                )
-            if page_needed and current_page not in {item["before_page_sha256"], None, item["after_page_sha256"]}:
-                _fail(
-                    PDF_APPLY_CHANGED,
-                    "page file changed after prepare",
-                    {"path": page_rel, "item_id": item["item_id"]},
-                )
             writes: list[dict[str, Any]] = []
             if not loc_done:
                 loc_bytes = locations_bytes(item["location"])
@@ -1539,15 +1677,24 @@ def apply_plan_to_root(
             applied: list[dict[str, Any]] = []
             try:
                 for write in writes:
+                    _assert_root_identity_holds(root, bound_identity)
+                    live_sha = _file_sha(write["target"])
+                    if live_sha != write["before_sha256"]:
+                        _fail(
+                            PDF_APPLY_CHANGED,
+                            "writeset changed during apply",
+                            {"path": write["path"], "item_id": write["item_id"]},
+                        )
                     _atomic_write(write["target"], write["data"])
+                    if _file_sha(write["target"]) != write["after_sha256"]:
+                        _fail(
+                            PDF_APPLY_CHANGED,
+                            "write did not produce the planned after digest",
+                            {"path": write["path"], "item_id": write["item_id"]},
+                        )
                     applied.append(write)
             except Exception:
-                for write in reversed(applied):
-                    if write["before_raw"] is None:
-                        if write["target"].exists() and write["target"].is_file():
-                            write["target"].unlink()
-                    else:
-                        _atomic_write(write["target"], write["before_raw"])
+                _restore_applied_writes(applied)
                 raise
             for write in writes:
                 record = {
@@ -1646,6 +1793,92 @@ def _load_root_journal(root: Mapping[str, Any], plan_sha256: str) -> tuple[Path,
         return path, None
 
 
+def _load_validated_json(path: Path, schema: str) -> dict[str, Any] | None:
+    if not path.is_file() or path.is_symlink():
+        return None
+    try:
+        raw = path.read_bytes()
+        document = parse_strict_json(raw, invalid_code=PDF_MIGRATION_INVALID)
+        return validate_document(document, schema)
+    except (OSError, ContractError, UnicodeError, PdfMigrationError):
+        return None
+
+
+def _receipt_in_head_chain(*, vault: Path, head: Mapping[str, Any], receipt_rel: str, receipt_sha256: str) -> bool:
+    path = head.get("receipt_path")
+    digest = head.get("receipt_sha256")
+    seen: set[str] = set()
+    while type(path) is str and type(digest) is str:
+        if path in seen:
+            return False
+        seen.add(path)
+        raw_path = vault / path
+        if not raw_path.is_file() or raw_path.is_symlink():
+            return False
+        raw = raw_path.read_bytes()
+        if sha256_bytes(raw) != digest:
+            return False
+        if path == receipt_rel:
+            return digest == receipt_sha256
+        receipt = _load_validated_json(raw_path, RECEIPT_SCHEMA)
+        if receipt is None:
+            return False
+        previous = receipt.get("previous")
+        if type(previous) is not dict:
+            return False
+        path = previous.get("path")
+        digest = previous.get("sha256")
+    return False
+
+
+def _formal_receipt_proves_item(
+    *,
+    root: Mapping[str, Any],
+    journal: Mapping[str, Any] | None,
+    item: Mapping[str, Any],
+) -> bool:
+    if journal is None:
+        return False
+    receipt_rel = journal.get("receipt_path")
+    if type(receipt_rel) is not str or not receipt_rel:
+        return False
+    vault = Path(root["path"])
+    receipt_path = vault / receipt_rel
+    receipt = _load_validated_json(receipt_path, RECEIPT_SCHEMA)
+    if receipt is None:
+        return False
+    try:
+        raw = receipt_path.read_bytes()
+    except OSError:
+        return False
+    file_sha = sha256_bytes(raw)
+    journal_sha = journal.get("receipt_sha256")
+    if journal_sha != file_sha:
+        return False
+    writes = {
+        row.get("path"): row
+        for row in receipt.get("writes") or []
+        if type(row) is dict and type(row.get("path")) is str
+    }
+    loc_write = writes.get(item["location_path"])
+    if loc_write is None or loc_write.get("after_sha256") != item["after_location_sha256"]:
+        return False
+    if item["page_path"] and item["after_page_sha256"]:
+        page_write = writes.get(item["page_path"])
+        if page_write is None or page_write.get("after_sha256") != item["after_page_sha256"]:
+            return False
+    journal_entries = {(row.get("item_id"), row.get("path"), row.get("after_sha256")) for row in journal.get("entries") or []}
+    if (item["item_id"], item["location_path"], item["after_location_sha256"]) not in journal_entries:
+        return False
+    if item["page_path"] and item["after_page_sha256"]:
+        if (item["item_id"], item["page_path"], item["after_page_sha256"]) not in journal_entries:
+            return False
+    head = _load_validated_json(vault / OPERATION_HEAD_PATH, HEAD_SCHEMA)
+    if head is None:
+        return False
+    return _receipt_in_head_chain(vault=vault, head=head, receipt_rel=receipt_rel, receipt_sha256=file_sha)
+
+
 def build_report(*, plan_path: Path, roots_path: Path) -> dict[str, Any]:
     plan = validate_document(_load_json(plan_path), PLAN_SCHEMA)
     roots = parse_roots(_load_json(roots_path))
@@ -1690,10 +1923,7 @@ def build_report(*, plan_path: Path, roots_path: Path) -> dict[str, Any]:
             covered = _journal_covers_item(journal, item)
             receipt_ok = True
             if root["kind"] == KIND_FORMAL:
-                receipt_ok = bool(journal and journal.get("receipt_path"))
-                if receipt_ok:
-                    receipt_file = Path(root["path"]) / journal["receipt_path"]
-                    receipt_ok = receipt_file.is_file()
+                receipt_ok = _formal_receipt_proves_item(root=root, journal=journal, item=item)
             if loc_ok and page_ok and covered and receipt_ok:
                 state = "linked" if item["verification"] == VERIFIED else "unverified"
                 message = "writeset, journal, and planned after digests match"

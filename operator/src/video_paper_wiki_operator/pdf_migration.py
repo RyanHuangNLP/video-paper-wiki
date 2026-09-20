@@ -15,8 +15,9 @@ from typing import Any, Mapping
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.identity import receipt_intent_sha256
 from video_paper_wiki.jcs import canonicalize
-from video_paper_wiki.pdf_locations import KIND_FORMAL, locations_bytes, sha256_bytes
+from video_paper_wiki.pdf_locations import KIND_FORMAL, locations_bytes, root_directory_identity, sha256_bytes
 from video_paper_wiki.pdf_migration import (
+    PDF_APPLY_CHANGED,
     PDF_FORMAL_TRANSACTION_REQUIRED,
     PDF_MIGRATION_INVALID,
     PDF_UPSTREAM_INVALID,
@@ -25,7 +26,10 @@ from video_paper_wiki.pdf_migration import (
     apply_plan_to_root,
     derived_location_path,
     derived_page_path,
+    inspect_item_apply_state,
+    item_writeset_after,
     parse_roots,
+    resolve_apply_root,
     resolve_from_root,
     rollback_journal,
     verify_approved_plan,
@@ -70,9 +74,7 @@ def apply_pdf_migration(
 ) -> dict[str, Any]:
     plan = verify_approved_plan(_load_json(plan_path), approved_plan_sha256)
     roots = parse_roots(_load_json(roots_path))
-    root = next((row for row in roots if row["root_id"] == root_id), None)
-    if root is None:
-        raise PdfMigrationError("PDF_MIGRATION_INVALID", "root_id is not in roots.json", {"root_id": root_id})
+    root = resolve_apply_root(plan=plan, roots=roots, root_id=root_id)
     accepted = bool(confirm({"plan_sha256": plan["plan_sha256"], "root_id": root_id, "kind": root["kind"]}))
     if root["kind"] == KIND_FORMAL:
         pinned = verify_pinned_upstream_root(upstream_root)
@@ -104,26 +106,61 @@ def apply_pdf_migration(
     )
 
 
-def _payload_bytes_for_root(plan: Mapping[str, Any], root: Mapping[str, Any]) -> dict[str, bytes]:
+def _payload_bytes_for_root(
+    plan: Mapping[str, Any],
+    root: Mapping[str, Any],
+    *,
+    roots: list[Mapping[str, Any]],
+) -> tuple[dict[str, bytes], dict[str, str | None], list[dict[str, Any]]]:
     payload: dict[str, bytes] = {}
+    planned_before: dict[str, str | None] = {}
+    results: list[dict[str, Any]] = []
     for item in plan["items"]:
         if item["root_id"] != root["root_id"]:
+            continue
+        _recheck_input_preconditions(
+            roots=roots,
+            preconditions=item.get("input_preconditions"),
+            writeset_after=item_writeset_after(item),
+        )
+        state = inspect_item_apply_state(root, item)
+        if state == "done":
+            results.append(
+                {
+                    "item_id": item["item_id"],
+                    "state": "unverified" if item["verification"] == "unverified" else "linked",
+                    "code": None,
+                }
+            )
             continue
         loc_rel = derived_location_path(root["kind"], item["paper_id"])
         loc_bytes = locations_bytes(item["location"])
         if sha256_bytes(loc_bytes) != item["after_location_sha256"]:
             raise PdfMigrationError(PDF_MIGRATION_INVALID, "planned location bytes do not match after digest")
-        payload[loc_rel] = loc_bytes
+        current_loc = _file_sha(Path(root["path"]) / loc_rel)
+        if current_loc != item["after_location_sha256"]:
+            payload[loc_rel] = loc_bytes
+            planned_before[loc_rel] = item["before_location_sha256"]
         if item["page_path"] and item["after_page_sha256"]:
             page_rel, page_bytes = _next_page_bytes(root, item["paper_id"], item["location"])
             if page_rel is None or page_bytes is None or sha256_bytes(page_bytes) != item["after_page_sha256"]:
                 raise PdfMigrationError(
-                    "PDF_APPLY_CHANGED",
+                    PDF_APPLY_CHANGED,
                     "page bytes changed and cannot be rewritten safely",
                     {"item_id": item["item_id"]},
                 )
-            payload[page_rel] = page_bytes
-    return payload
+            current_page = _file_sha(Path(root["path"]) / page_rel)
+            if current_page != item["after_page_sha256"]:
+                payload[page_rel] = page_bytes
+                planned_before[page_rel] = item["before_page_sha256"]
+        results.append(
+            {
+                "item_id": item["item_id"],
+                "state": "unverified" if item["verification"] == "unverified" else "linked",
+                "code": None,
+            }
+        )
+    return payload, planned_before, results
 
 
 def _assemble_and_inspect(
@@ -133,6 +170,7 @@ def _assemble_and_inspect(
     payload_bytes: dict[str, bytes],
     upstream_root: Path,
     operation_id: str,
+    planned_before: dict[str, str | None] | None = None,
 ) -> dict[str, Any]:
     vault = Path(root["path"])
     checkout = resolve_checkout_root()
@@ -163,6 +201,7 @@ def _assemble_and_inspect(
                 upstream_root=upstream_root,
                 checkout=checkout,
                 vault=vault,
+                planned_before=planned_before,
             )
     finally:
         if hasattr(snapshot, "close"):
@@ -189,6 +228,7 @@ def _assemble_generic_transaction(
     upstream_root,
     checkout,
     vault,
+    planned_before=None,
 ) -> dict[str, Any]:
     sequence = 1 if audit["head"] is None else audit["head"]["sequence"] + 1
     old_head_bytes = None if sequence == 1 else snapshot.read(HEAD_PATH, max_bytes=1024 * 1024)
@@ -197,23 +237,36 @@ def _assemble_generic_transaction(
     original: dict[str, bytes | None] = {}
     expected: dict[str, str | None] = {}
     mutable_payload = dict(payload_bytes)
+    approved_before = dict(planned_before or {})
     for path, data in sorted(mutable_payload.items()):
         try:
             old = snapshot.read_optional(path)
             if old is None:
                 raise FileNotFoundError
             old_st = snapshot.files[path][0]
-            mode = "replace"
-            before = hashlib.sha256(old).hexdigest()
+            current_sha = hashlib.sha256(old).hexdigest()
             original[path] = old
             original_mode = stat.S_IMODE(old_st.st_mode)
             original_size = len(old)
         except FileNotFoundError:
-            mode = "create"
-            before = None
+            current_sha = None
             original[path] = None
             original_mode = None
             original_size = 0
+            old_st = None
+        if path in approved_before:
+            planned = approved_before[path]
+            if current_sha != planned:
+                raise PdfMigrationError(
+                    PDF_APPLY_CHANGED,
+                    "approved plan before digest does not match live bytes",
+                    {"path": path},
+                )
+            mode = "create" if planned is None else "replace"
+            before = planned
+        else:
+            mode = "replace" if current_sha is not None else "create"
+            before = current_sha
         digest = hashlib.sha256(data).hexdigest()
         expected[path] = before
         business.append(
@@ -379,33 +432,31 @@ def apply_formal_vault_plan(
     approved_plan_sha256: str,
     upstream_root: Path,
 ) -> dict[str, Any]:
-    verify_approved_plan(plan, approved_plan_sha256)
-    for item in plan["items"]:
-        if item["root_id"] != root["root_id"]:
-            continue
-        _recheck_input_preconditions(roots=roots, preconditions=item.get("input_preconditions"))
-        loc_rel = derived_location_path(root["kind"], item["paper_id"])
-        if item["location_path"] != loc_rel:
-            raise PdfMigrationError(
-                "PDF_LOCATION_INVALID",
-                "plan location_path does not match the derived identity path",
-                {"planned": item["location_path"], "derived": loc_rel},
-            )
-        if item["page_path"]:
-            expected_page = derived_page_path(root["kind"], item["paper_id"])
-            if item["page_path"] != expected_page:
-                raise PdfMigrationError(
-                    "PDF_LOCATION_INVALID",
-                    "plan page_path does not match the derived identity path",
-                    {"planned": item["page_path"], "derived": expected_page},
-                )
-    payload = _payload_bytes_for_root(plan, root)
+    validated = verify_approved_plan(plan, approved_plan_sha256)
+    root = resolve_apply_root(plan=validated, roots=roots, root_id=root["root_id"])
+    bound_identity = root_directory_identity(root["path"])
+    payload, planned_before, results = _payload_bytes_for_root(validated, root, roots=roots)
+    journal_path = _journal_path(Path(root["path"]), validated["plan_sha256"])
     if not payload:
-        raise PdfMigrationError(PDF_MIGRATION_INVALID, "formal-vault plan has no writes for this root")
-    journal_path = _journal_path(Path(root["path"]), plan["plan_sha256"])
+        if not results:
+            raise PdfMigrationError(PDF_MIGRATION_INVALID, "formal-vault plan has no writes for this root")
+        return {
+            "root_id": root["root_id"],
+            "kind": KIND_FORMAL,
+            "plan_sha256": validated["plan_sha256"],
+            "journal_path": str(journal_path) if journal_path.is_file() else None,
+            "journal_sha256": sha256_bytes(journal_path.read_bytes()) if journal_path.is_file() else None,
+            "receipt_path": None,
+            "upstream_apply": None,
+            "results": results,
+            "keep_local": True,
+        }
+    live_identity = root_directory_identity(root["path"])
+    if live_identity != bound_identity:
+        raise PdfMigrationError(PDF_APPLY_CHANGED, "target root directory identity changed during apply")
     backup_dir = journal_path.parent / "backups"
     intent_entries = []
-    for item in plan["items"]:
+    for item in validated["items"]:
         if item["root_id"] != root["root_id"]:
             continue
         intent_entries.append(
@@ -431,7 +482,7 @@ def apply_formal_vault_plan(
                 _atomic_write(backup_dir / sha256_json_safe(rel, before), live.read_bytes())
     intent_journal = {
         "schema": "video-paper-wiki.pdf-migration-journal.internal.v1",
-        "plan_sha256": plan["plan_sha256"],
+        "plan_sha256": validated["plan_sha256"],
         "root_id": root["root_id"],
         "kind": KIND_FORMAL,
         "receipt_path": None,
@@ -440,13 +491,14 @@ def apply_formal_vault_plan(
     }
     journal_path.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write(journal_path, canonicalize(intent_journal) + b"\n")
-    operation_id = "pdf-mig-" + plan["plan_sha256"][:12]
+    operation_id = "pdf-mig-" + validated["plan_sha256"][:12]
     assembled = _assemble_and_inspect(
-        plan=plan,
+        plan=validated,
         root=root,
         payload_bytes=payload,
         upstream_root=upstream_root,
         operation_id=operation_id,
+        planned_before=planned_before,
     )
     content_files = assembled["transaction_staging"]["content_files"]
     page_paths = [path for path in payload if path.startswith("wiki/papers/")]
@@ -463,15 +515,19 @@ def apply_formal_vault_plan(
         approval_sha256=approval,
     )
     receipt_path = assembled["receipt_path"]
-    if not (Path(root["path"]) / receipt_path).is_file():
+    receipt_file = Path(root["path"]) / receipt_path
+    if not receipt_file.is_file():
         raise PdfMigrationError(PDF_FORMAL_TRANSACTION_REQUIRED, "formal apply did not produce a receipt")
+    receipt_raw = receipt_file.read_bytes()
+    receipt_file_sha = sha256_bytes(receipt_raw)
     journal = {
         "schema": "video-paper-wiki.pdf-migration-journal.internal.v1",
-        "plan_sha256": plan["plan_sha256"],
+        "plan_sha256": validated["plan_sha256"],
         "root_id": root["root_id"],
         "kind": KIND_FORMAL,
         "receipt_path": receipt_path,
-        "receipt_sha256": assembled["receipt"]["intent_sha256"],
+        "receipt_sha256": receipt_file_sha,
+        "receipt_intent_sha256": assembled["receipt"]["intent_sha256"],
         "intent": [
             {
                 "item_id": item["item_id"],
@@ -482,7 +538,7 @@ def apply_formal_vault_plan(
                 "before_page_sha256": item["before_page_sha256"],
                 "after_page_sha256": item["after_page_sha256"],
             }
-            for item in plan["items"]
+            for item in validated["items"]
             if item["root_id"] == root["root_id"]
         ],
         "entries": [
@@ -492,23 +548,17 @@ def apply_formal_vault_plan(
                 "before_sha256": item["before_location_sha256"] if path == item["location_path"] else item["before_page_sha256"],
                 "after_sha256": item["after_location_sha256"] if path == item["location_path"] else item["after_page_sha256"],
             }
-            for item in plan["items"]
+            for item in validated["items"]
             if item["root_id"] == root["root_id"]
             for path in ((item["location_path"],) + ((item["page_path"],) if item["page_path"] else ()))
         ],
     }
     journal_path.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write(journal_path, canonicalize(journal) + b"\n")
-    results = []
-    for item in plan["items"]:
-        if item["root_id"] != root["root_id"]:
-            continue
-        state = "unverified" if item["verification"] == "unverified" else "linked"
-        results.append({"item_id": item["item_id"], "state": state, "code": None})
     return {
         "root_id": root["root_id"],
         "kind": KIND_FORMAL,
-        "plan_sha256": plan["plan_sha256"],
+        "plan_sha256": validated["plan_sha256"],
         "journal_path": str(journal_path),
         "journal_sha256": sha256_bytes(journal_path.read_bytes()),
         "receipt_path": receipt_path,

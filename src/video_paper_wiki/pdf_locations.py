@@ -733,6 +733,44 @@ def roots_map(roots: list[Mapping[str, Any]]) -> dict[str, Path]:
     return {row["root_id"]: Path(row["path"]) for row in roots}
 
 
+def root_directory_identity(path: str | Path) -> dict[str, Any]:
+    """Bind the configured path string plus live directory identity (dev/ino)."""
+
+    raw = str(path).strip()
+    try:
+        resolved = Path(raw).resolve()
+        info = resolved.stat()
+    except OSError:
+        return {
+            "path": raw,
+            "resolved_path": None,
+            "st_dev": None,
+            "st_ino": None,
+            "directory": False,
+        }
+    return {
+        "path": raw,
+        "resolved_path": str(resolved),
+        "st_dev": info.st_dev,
+        "st_ino": info.st_ino,
+        "directory": bool(stat.S_ISDIR(info.st_mode) and not stat.S_ISLNK(info.st_mode)),
+    }
+
+
 def roots_digest(roots: list[Mapping[str, Any]]) -> str:
-    material = [{"root_id": row["root_id"], "kind": row["kind"], "role": row["role"]} for row in roots]
+    material = []
+    for row in roots:
+        identity = root_directory_identity(row["path"])
+        material.append(
+            {
+                "root_id": row["root_id"],
+                "kind": row["kind"],
+                "role": row["role"],
+                "path": identity["path"],
+                "resolved_path": identity["resolved_path"],
+                "st_dev": identity["st_dev"],
+                "st_ino": identity["st_ino"],
+                "directory": identity["directory"],
+            }
+        )
     return sha256_json(material)

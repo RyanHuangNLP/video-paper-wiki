@@ -17,7 +17,9 @@ Examples:
 | arxiv-2312.03641 | `pdfs/Controllable Video Generation/arxiv-2312.03641/original.pdf` |
 | arxiv-2410.05954 | `pdfs/Open-source Toolboxes and Foundation Models/arxiv-2410.05954/original.pdf` |
 
-agy draft manifests (`pdf-upload-manifest.v1-draft`, `root_folder_id`/`items`, `parent_chain.id/title`) are accepted only after field adaptation. `inventory_sha256` must be a 64-hex digest; a null/empty draft digest is refused (`INVENTORY_SHA256_REQUIRED`).
+agy draft manifests (`pdf-upload-manifest.v1-draft`, `root_folder_id`/`items`, `parent_chain.id/title`, `item_id` `seed:sha256`) are accepted only after field adaptation, including normalizing draft item ids to schema sha256 before validation. `inventory_sha256` must be a 64-hex digest; a null/empty draft digest is refused (`INVENTORY_SHA256_REQUIRED`). agy may still emit a final v1 manifest.
+
+Apply binds `roots.json` path and live directory identity into `roots_sha256`. Formal and notes apply share the same target-role, roots-binding, and approved-plan before-digest checks. `migrate-report` treats a formal item as linked only when the receipt content, writeset, journal, and operation-head chain agree.
 
 ## Sequence
 
