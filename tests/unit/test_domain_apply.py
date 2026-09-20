@@ -8,6 +8,7 @@ import stat
 
 import pytest
 
+from tests.apply_fs_helpers import install_portable_enospc
 from tests.unit.test_domain_proposal import (
     _snapshot,
     _write,
@@ -362,23 +363,21 @@ def test_apply_write_phase_oserror_unlinks_orphan(world, monkeypatch):
     orphan = world["vault"] / relative
     assert (world["vault"] / "wiki/meta/domain/annotations" / lid).is_dir()
     vault_before = _snapshot(world["vault"])
-    real_write = domain_apply.os.write
-
-    def write_fail(fd, data):
-        try:
-            path = os.readlink("/proc/self/fd/" + str(int(fd)))
-        except OSError:
-            path = ""
-        if "wiki/meta/domain/annotations/" in path.replace("\\", "/"):
-            raise OSError(errno.ENOSPC, "No space left on device")
-        return real_write(fd, data)
-
-    monkeypatch.setattr(domain_apply.os, "write", write_fail)
+    injector = install_portable_enospc(
+        monkeypatch,
+        domain_apply,
+        world["vault"],
+        _prepared(world, "s1"),
+        "wiki/meta/domain/annotations/",
+        partial_bytes=1,
+    )
     err = _expect(lambda: _apply(world, "s1"), "DOMAIN_APPLY_WRITE_FAILED")
     assert err.details["phase"] == "write"
     assert err.details.get("errno") == errno.ENOSPC
     assert relative in err.details["rolled_back"]
     assert err.details["rollback_complete"] is True
+    injector.assert_hit(require_partial=True)
+    injector.restore(monkeypatch)
     assert not orphan.exists()
     assert _snapshot(world["vault"]) == vault_before
 

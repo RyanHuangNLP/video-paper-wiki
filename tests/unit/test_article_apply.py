@@ -8,6 +8,7 @@ import stat
 
 import pytest
 
+from tests.apply_fs_helpers import install_portable_enospc
 from tests.unit.test_article_publication import (
     _compile,
     _export_ctx,
@@ -478,22 +479,20 @@ def test_apply_replace_heads_mismatch_and_faults(world, monkeypatch):
     err = _expect(lambda: _apply_art(world, "f2"), "ARTICLE_STORE_HEADS_MISMATCH")
     _write(heads_path, original_heads)
     vault_pre_write = _snapshot(world["vault"])
-    real_write = article_apply_mod.os.write
-
-    def write_fail(fd, data):
-        try:
-            path = os.readlink("/proc/self/fd/" + str(int(fd)))
-        except OSError:
-            path = ""
-        if "wiki/meta/articles/records/" in path.replace("\\", "/"):
-            raise OSError(errno.ENOSPC, "No space left on device")
-        return real_write(fd, data)
-
-    monkeypatch.setattr(article_apply_mod.os, "write", write_fail)
+    injector = install_portable_enospc(
+        monkeypatch,
+        article_apply_mod,
+        world["vault"],
+        _prepared(world, "f2"),
+        "wiki/meta/articles/records/",
+        partial_bytes=1,
+    )
     err = _expect(lambda: _apply_art(world, "f2"), "ARTICLE_APPLY_WRITE_FAILED")
     assert err.details["phase"] == "write"
+    assert err.details["errno"] == errno.ENOSPC
     assert err.details["rollback_complete"] is True
-    monkeypatch.setattr(article_apply_mod.os, "write", real_write)
+    injector.assert_hit(require_partial=True)
+    injector.restore(monkeypatch)
     assert _snapshot(world["vault"]) == vault_pre_write
 
     def before_commit(phase):
@@ -572,21 +571,19 @@ def test_apply_genesis_write_rollback_removes_articles_dir(world, monkeypatch):
     _stage_complete(world, batch="r1")
     _compile(world, "r1")
     vault_before = _snapshot(world["vault"])
-    real_write = article_apply_mod.os.write
-
-    def write_fail(fd, data):
-        try:
-            path = os.readlink("/proc/self/fd/" + str(int(fd)))
-        except OSError:
-            path = ""
-        if "wiki/meta/articles/records/" in path.replace("\\", "/"):
-            raise OSError(errno.ENOSPC, "No space left on device")
-        return real_write(fd, data)
-
-    monkeypatch.setattr(article_apply_mod.os, "write", write_fail)
+    injector = install_portable_enospc(
+        monkeypatch,
+        article_apply_mod,
+        world["vault"],
+        _prepared(world, "r1"),
+        "wiki/meta/articles/records/",
+    )
     err = _expect(lambda: _apply_art(world, "r1"), "ARTICLE_APPLY_WRITE_FAILED")
     assert err.details["phase"] == "write"
+    assert err.details["errno"] == errno.ENOSPC
     assert err.details["rollback_complete"] is True
+    injector.assert_hit()
+    injector.restore(monkeypatch)
     assert not (world["vault"] / "wiki/meta/articles").exists()
     assert _snapshot(world["vault"]) == vault_before
 
