@@ -22,7 +22,7 @@ LOCK = ".vault-meta/mutation.lock"
 RECEIPT_RE = re.compile(r"wiki/meta/operations/[0-9]{12}-[A-Za-z0-9][A-Za-z0-9._-]{0,127}\.json")
 CURRENT_PREFIXES = (".raw/derived/", "wiki/papers/", "wiki/code/", "wiki/concepts/",
                     "wiki/meta/ledgers/", "wiki/meta/records/", "wiki/meta/reviews/",
-                    "wiki/meta/gates/")
+                    "wiki/meta/gates/", "wiki/meta/pdf-locations/")
 CURRENT_EXACT = {"wiki/meta/registries/gate-heads.json"}
 MAX_RECEIPTS = 100_000
 MAX_ENTRIES = 1_000_000

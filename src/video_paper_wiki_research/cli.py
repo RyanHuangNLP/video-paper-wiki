@@ -217,6 +217,12 @@ def build_parser() -> argparse.ArgumentParser:
     library_list = library_sub.add_parser("list", allow_abbrev=False)
     library_list.add_argument("--workspace", required=True)
     library_list.set_defaults(handler=_cmd_library_list)
+    library_show = library_sub.add_parser("show", allow_abbrev=False)
+    library_show.add_argument("--workspace", required=True)
+    library_show.add_argument("--paper-id", dest="paper_id", required=True)
+    library_show.add_argument("--prefer", choices=("auto", "local", "drive"), default="auto")
+    library_show.add_argument("--offline", action="store_true")
+    library_show.set_defaults(handler=_cmd_library_show)
     library_edit = library_sub.add_parser("edit", allow_abbrev=False)
     library_edit.add_argument("--workspace", required=True)
     library_edit.add_argument("--paper-id", dest="paper_id", required=True)
@@ -1366,6 +1372,33 @@ def _cmd_library_list(args: argparse.Namespace) -> int:
     return _dump_handoff(list_papers(workspace))
 
 
+def _cmd_library_show(args: argparse.Namespace) -> int:
+    workspace = _workspace_root(args.workspace, create=False, allow_missing=True)
+    list_papers = _try_light_attr("light_library", "list_papers")
+    listed = list_papers(workspace)
+    papers = listed.get("papers") if type(listed) is dict else None
+    if type(papers) is not list:
+        raise UsageError("library list did not return papers")
+    wanted = args.paper_id
+    match = next((row for row in papers if type(row) is dict and row.get("paper_id") == wanted), None)
+    if match is None:
+        from video_paper_wiki.pdf_locations import PdfLocationError
+
+        raise PdfLocationError("PDF_NOT_FOUND", "paper is not in the light library", {"paper_id": wanted})
+    payload = dict(match)
+    locations = match.get("pdf_locations")
+    if locations:
+        from video_paper_wiki.pdf_locations import resolve_open_target
+
+        payload["resolve"] = resolve_open_target(
+            locations,
+            roots={"workspace": workspace},
+            prefer=args.prefer,
+            offline=bool(args.offline),
+        )
+    return _dump_handoff(payload)
+
+
 def _cmd_library_edit(args: argparse.Namespace) -> int:
     workspace = _workspace_root(args.workspace, create=False)
     tags = _edit_tags(args)
@@ -1641,3 +1674,9 @@ def main(argv: list[str] | None = None) -> int:
         return handler(ns)
     except (ResearchError, StagingError, SecureIOError, IdentityError, CanonicalJsonError, UsageError) as exc:
         return _emit(_command_from_argv(args), exc)
+    except Exception as exc:
+        from video_paper_wiki.pdf_locations import PdfLocationError
+
+        if isinstance(exc, PdfLocationError):
+            return _emit(_command_from_argv(args), exc)
+        raise

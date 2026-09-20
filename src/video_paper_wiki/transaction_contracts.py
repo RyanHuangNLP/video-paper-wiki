@@ -23,7 +23,7 @@ _COMPONENT = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 _DEVICE = re.compile(r"(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])", re.I)
 _EXCLUDED = frozenset({"phase", "declaration_sha256", "inspection", "runtime_result"})
 _MATERIAL = frozenset({"schema", "operation_id", "operation_type", "writes", "expected_hashes", "read_preconditions", "claimed_inputs", "address_requests", "source_manifest_updates", "engine_expanded_paths", "receipt", "head", "input_bundle_sha256"})
-_PREFIXES = ("wiki/papers/", "wiki/code/", "wiki/concepts/", "wiki/meta/ledgers/", "wiki/meta/records/", "wiki/meta/reviews/", "wiki/meta/gates/")
+_PREFIXES = ("wiki/papers/", "wiki/code/", "wiki/concepts/", "wiki/meta/ledgers/", "wiki/meta/records/", "wiki/meta/reviews/", "wiki/meta/gates/", "wiki/meta/pdf-locations/")
 
 
 def _fail(code: str, pointer: str, message: str) -> None:

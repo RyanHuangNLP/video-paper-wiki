@@ -26,6 +26,7 @@ PAPER_B=sha256:fedcba9876543210fedcba9876543210fedcba9876543210fedcba9876543210
 
 ```bash
 "${CLI[@]}" library list --workspace "$WS"
+"${CLI[@]}" library show --workspace "$WS" --paper-id "$PAPER_A"
 "${CLI[@]}" library edit --workspace "$WS" --paper-id "$PAPER_A" --title "显示标题" --tag video --tag diffusion
 "${CLI[@]}" library edit --workspace "$WS" --paper-id "$PAPER_A" --clear-tags
 "${CLI[@]}" library remove --workspace "$WS" --paper-id "$PAPER_A"

@@ -1058,6 +1058,55 @@ def build_parser() -> argparse.ArgumentParser:
     gp=_add_parser(gate_sub,"prepare");gp.add_argument("--decision",required=True);gp.add_argument("--baseline-manifest",required=True);gp.add_argument("--batch-id",required=True);gp.set_defaults(handler=domain_commands.gate_prepare)
     gi=_add_parser(gate_sub,"inspect");gi.add_argument("--prepared",required=True);gi.add_argument("--operation-id",required=True);gi.add_argument("--upstream-root",required=True);gi.add_argument("--vault-root",required=True);gi.set_defaults(handler=domain_commands.gate_inspect)
 
+    from video_paper_wiki.pdf_cli import (
+        run_pdf_inventory_command,
+        run_pdf_link_prepare_command,
+        run_pdf_migrate_prepare_command,
+        run_pdf_migrate_report_command,
+        run_pdf_resolve_command,
+    )
+    pdf = _add_parser(
+        sub,
+        "pdf",
+        help="PDF location inventory, link prepare, resolve, and migration report. No upload.",
+        description=(
+            "Read-only inventory and resolve, plus staging of link plans under "
+            ".work/<batch-id>/pdf-migration/. Commands do not upload to Drive, start a "
+            "browser, or mutate a Vault. Apply, open, and rollback are vpwiki-admin only."
+        ),
+    )
+    pdf_sub = pdf.add_subparsers(dest="pdf_cmd", required=True)
+    pdf_inventory = _add_parser(pdf_sub, "inventory")
+    pdf_inventory.add_argument("--roots", required=True)
+    pdf_inventory.add_argument("--batch-id", dest="batch_id", required=True)
+    pdf_inventory.set_defaults(handler=run_pdf_inventory_command)
+    pdf_prepare = _add_parser(pdf_sub, "migrate-prepare")
+    pdf_prepare.add_argument("--inventory", required=True)
+    pdf_prepare.add_argument("--uploaded-manifest", dest="uploaded_manifest", required=True)
+    pdf_prepare.add_argument("--roots", required=True)
+    pdf_prepare.add_argument("--batch-id", dest="batch_id", required=True)
+    pdf_prepare.set_defaults(handler=run_pdf_migrate_prepare_command)
+    pdf_link = _add_parser(pdf_sub, "link-prepare")
+    pdf_link.add_argument("--roots", required=True)
+    pdf_link.add_argument("--root-id", dest="root_id", required=True)
+    pdf_link.add_argument("--paper-id", dest="paper_id", required=True)
+    pdf_link.add_argument("--drive-file-id", dest="drive_file_id")
+    pdf_link.add_argument("--drive-url", dest="drive_url")
+    pdf_link.add_argument("--batch-id", dest="batch_id", required=True)
+    pdf_link.set_defaults(handler=run_pdf_link_prepare_command)
+    pdf_resolve = _add_parser(pdf_sub, "resolve")
+    pdf_resolve.add_argument("--roots", required=True)
+    pdf_resolve.add_argument("--root-id", dest="root_id", required=True)
+    pdf_resolve.add_argument("--paper-id", dest="paper_id", required=True)
+    pdf_resolve.add_argument("--prefer", choices=("auto", "local", "drive"), default="auto")
+    pdf_resolve.add_argument("--offline", action="store_true")
+    pdf_resolve.add_argument("--pdf-sha256", dest="pdf_sha256")
+    pdf_resolve.set_defaults(handler=run_pdf_resolve_command)
+    pdf_report = _add_parser(pdf_sub, "migrate-report")
+    pdf_report.add_argument("--plan", required=True)
+    pdf_report.add_argument("--roots", required=True)
+    pdf_report.set_defaults(handler=run_pdf_migrate_report_command)
+
     from video_paper_wiki.flow.cli import run_flow_prepare_command, run_flow_select_command, run_flow_status_command
     _flow_help=("只读正式记录与本会话 `.work/<batch-id>/flow/` 暂存，生成进度、缺失输入与下一步命令；" "不写 Vault、不 apply、不发布（publication 恒 unpublished）、不排优劣；" "进 Vault 仍需各功能自己的 `vpwiki-admin … apply`（本命令不提供）")
     flow=_add_parser(sub,"flow",help=_flow_help,description=_flow_help)

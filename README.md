@@ -68,6 +68,11 @@ python vendor/claude-obsidian/scripts/claude-obsidian.py transaction apply \
   .work/seed-preview-1/transaction-inspect/bundle.json --vault /path/to/vault \
   --approved-plan-sha256 <sha256>
 
+# Drive PDF locations / migration (no upload; keep-local)
+# See docs/pdf-locations.md and docs/pdf-migration.md
+vpwiki pdf inventory --roots roots.json --batch-id drive-b-r1
+vpwiki pdf resolve --roots roots.json --root-id vault-main --paper-id arxiv:2204.03458
+
 # PDF staging / capture inspect
 vpwiki ingest plan --request request.json
 vpwiki ingest prepare --plan .work/<batch>/plan/ingest-plan.v1.json --approval-ref approval-ref.json

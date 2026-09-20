@@ -53,6 +53,19 @@ def _paper_row(loaded: dict[str, Any]) -> dict[str, Any]:
         warning_rows: list[str] = []
     else:
         warning_rows = [item for item in warnings if type(item) is str]
+    source = loaded["metadata"].get("source") if type(loaded["metadata"].get("source")) is dict else {}
+    source_path = source.get("path") if type(source.get("path")) is str else None
+    locations = None
+    meta_path = loaded.get("metadata_path")
+    if isinstance(meta_path, Path):
+        try:
+            from video_paper_wiki.pdf_locations import load_locations_file, location_relative_path
+
+            workspace = meta_path.parent.parent.parent
+            loc_rel = location_relative_path("research-workspace", loaded["paper_id"])
+            locations = load_locations_file(workspace / loc_rel)
+        except Exception:
+            locations = None
     return {
         "paper_id": loaded["paper_id"],
         "title": loaded["title"],
@@ -61,6 +74,8 @@ def _paper_row(loaded: dict[str, Any]) -> dict[str, Any]:
         "markdown_sha256": loaded["markdown_sha256"],
         "metadata_stale": bool(loaded["metadata_stale"]),
         "warnings": warning_rows,
+        "pdf_locations": locations,
+        "source_path": source_path,
     }
 
 

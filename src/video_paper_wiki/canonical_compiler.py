@@ -101,6 +101,9 @@ def _paper(value: Mapping[str, Any]) -> tuple[str, bytes]:
         ("created",record["created_at"][:10]),("updated",record["updated_at"][:10]),("tags",taxonomy or ["video-paper"]))
     fm="\n".join(["---"]+[f"{key}: {json.dumps(value,ensure_ascii=False,separators=(',',':'))}" for key,value in fields]+["---"])
     lines = [fm, "", "# " + _markdown(title), ""]
+    from video_paper_wiki.pdf_locations import render_pdf_section_lines
+
+    lines += render_pdf_section_lines(value.get("pdf_location"))
     for section, heading in _SECTIONS:
         lines += ["## " + heading, ""]
         rows = [(claim, ref) for claim, ref in claims.values() if ref["lifecycle"]=="active" and ref["section"] == section]
@@ -160,7 +163,13 @@ def compile_pages(material: object) -> dict[str, bytes]:
         if any(existing.casefold() == folded or existing.startswith(normalized + "/") or normalized.startswith(existing + "/") for existing in output):
             _fail("output path collides")
         output[normalized] = data
-    for item in doc["papers"]: add(*_paper(item))
+    locations = {row["paper_id"]: row for row in doc.get("pdf_locations") or []}
+    for item in doc["papers"]:
+        paper_id = item["record"]["paper_id"] if isinstance(item.get("record"), dict) else None
+        if paper_id in locations:
+            item = dict(item)
+            item["pdf_location"] = locations[paper_id]
+        add(*_paper(item))
     for item in doc["code"]: add(*_code(item))
     for item in doc["concepts"]:
         text = compile_concept_page(**item); add(f"wiki/concepts/{item['axis'].replace('/','-')}-{item['slug']}.md", text.encode())

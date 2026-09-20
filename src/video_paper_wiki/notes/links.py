@@ -91,3 +91,12 @@ def paper_note_link_suffix(paper_id: str) -> str:
     if not text.endswith("\n"):
         text += "\n"
     return text
+
+
+def paper_note_pdf_suffix(paper_id: str, locations: object | None = None) -> str:
+    """Managed ## PDF block, or empty when no location document is supplied."""
+    if locations is None:
+        return ""
+    from video_paper_wiki.pdf_locations import render_pdf_section
+
+    return render_pdf_section(locations)
