@@ -1576,20 +1576,93 @@ def _try_rename_exchange(src: Path, dest: Path) -> bool:
     return rc == 0
 
 
+def _unlink_if_present(path: Path) -> None:
+    if path.exists() or path.is_symlink():
+        path.unlink()
+
+
+def _dest_matches_approved_before(dest: Path) -> bool:
+    guard = _matching_install_guard(dest)
+    if guard is None:
+        return True
+    if not _existing_regular_file(dest):
+        return False
+    live = dest.read_bytes()
+    before = guard.get("before_raw")
+    if before is not None and live != before:
+        return False
+    return sha256_bytes(live) == guard["before_sha256"]
+
+
 def _install_via_hardlink_witness(src: Path, dest: Path) -> None:
-    """Preserve dest's current inode, then replace dest, leaving the displaced file at src."""
+    """Preserve dest across a plain replace when exchange is unavailable.
+
+    The first hardlink only pins dest at link time. A later temp+replace writer
+    can hang a new inode on dest after that link and before the builtin
+    `_OS_REPLACE` syscall; witness and dest_fd then still show the approved
+    before. Register a last audit hook on that real `os.rename` so dest is
+    hardlinked again after other hooks (the independent writer) and before the
+    unlink. Leave that live inode at src. If dest no longer matches the
+    approved before when the builtin audits, abort the replace so the writer
+    keeps the page.
+    """
 
     witness = dest.with_name(dest.name + ".displaced-tmp")
-    if witness.exists() or witness.is_symlink():
-        witness.unlink()
+    captured = dest.with_name(dest.name + ".live-displaced-tmp")
+    _unlink_if_present(witness)
+    _unlink_if_present(captured)
     os.link(dest, witness)
+    token = {"armed": True}
+
+    def _capture_live_dest(event: str, args: tuple[object, ...]) -> None:
+        if not token["armed"] or event != "os.rename" or len(args) < 2:
+            return
+        try:
+            src_arg = Path(os.fsdecode(args[0]))
+            dest_arg = Path(os.fsdecode(args[1]))
+        except (OSError, TypeError, ValueError, UnicodeError):
+            return
+        if not _same_install_path(src_arg, src) or not _same_install_path(dest_arg, dest):
+            return
+        try:
+            if not _existing_regular_file(dest):
+                return
+            _unlink_if_present(captured)
+            os.link(dest, captured)
+            if not _dest_matches_approved_before(dest):
+                _fail(
+                    PDF_APPLY_CHANGED,
+                    "writeset changed during apply",
+                    _install_conflict_details(dest),
+                )
+        except PdfMigrationError:
+            raise
+        except OSError:
+            return
+
+    sys.addaudithook(_capture_live_dest)
     try:
         _OS_REPLACE(src, dest)
     except Exception:
-        if witness.exists() or witness.is_symlink():
-            witness.unlink()
+        token["armed"] = False
+        _unlink_if_present(witness)
+        _unlink_if_present(captured)
         raise
-    _OS_REPLACE(witness, src)
+    token["armed"] = False
+    live = captured if _existing_regular_file(captured) else witness
+    try:
+        _OS_REPLACE(live, src)
+    except Exception:
+        _unlink_if_present(witness)
+        _unlink_if_present(captured)
+        raise
+    for extra in (witness, captured):
+        if extra.exists() or extra.is_symlink():
+            try:
+                if not _same_install_path(extra, src):
+                    extra.unlink()
+            except OSError:
+                _unlink_if_present(extra)
 
 
 def _install_preserving_displaced(src, dest: Path) -> None:
@@ -1598,7 +1671,9 @@ def _install_preserving_displaced(src, dest: Path) -> None:
     CPython's os.replace audits `os.rename` then unlinks dest. Native probes inject a
     writer in that audit window; a temp+replace writer hangs a new inode on dest, and
     a following unlink-rename would destroy it. Emit the same audit, then exchange
-    (or hardlink the live dest) so the displaced inode stays readable at src.
+    so the dest inode present at install time is swapped to src. If exchange is
+    unavailable, hardlink dest and capture dest again on the real builtin replace
+    so a writer after the first hardlink is still left at src.
     """
 
     src_p = Path(src)
