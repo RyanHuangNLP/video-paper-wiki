@@ -142,6 +142,18 @@ vpwiki-admin backup restore --archive backup.zip --source-root /path/to/vault \
   --upstream-root vendor/claude-obsidian --config retrieval-config.json
 vpwiki backup verify --source-root /path/to/vault --restore-root /path/to/private-restore \
   --manifest backup-manifest.json --upstream-root vendor/claude-obsidian --config retrieval-config.json
+
+# research-r1 只备份白名单内的研究产物，默认 profile 仍是上面的 vault-v1。
+# manifest 信封的 .data 才是交给 operator 的文档；v2 恢复必须单独保存 manifest 自哈希。
+# 详见 docs/p3-backup-restore-r1.md。这不是全项目保险。
+vpwiki backup manifest --profile research-r1 --vault-root /path/to/vault --checkout-root /path/to/checkout
+vpwiki-admin backup create --profile research-r1 --vault-root /path/to/vault --checkout-root /path/to/checkout \
+  --manifest backup-manifest.json --destination backup.zip
+vpwiki-admin backup restore --profile research-r1 --archive backup.zip --manifest backup-manifest.json \
+  --expected-manifest-sha256 "$H" --restore-root /path/to/private-restore \
+  --upstream-root vendor/claude-obsidian --config retrieval-config.json
+vpwiki backup verify --profile research-r1 --manifest backup-manifest.json --expected-manifest-sha256 "$H" \
+  --restore-root /path/to/private-restore --upstream-root vendor/claude-obsidian --config retrieval-config.json
 ```
 
 `vpwiki` 只在 `.work/**` 生成 staging，不 apply、不 recover、不构建索引。写操作直接使用固定上游公开 CLI；可选 `operator/` 包只是透明转发器，对每次副作用命令要求交互式逐次确认且没有 `--yes`。
