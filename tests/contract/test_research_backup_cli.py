@@ -135,6 +135,46 @@ def test_research_cli_rejects_a_checkout_file_past_the_shared_budget(tmp_path: P
     assert json.loads(capsys.readouterr().out)["error"]["code"] in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID"}
 
 
+def test_research_cli_rejects_before_reading_past_the_shared_entry_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    import os
+
+    import video_paper_wiki.backup_manifest as manifest_module
+    from video_paper_wiki.backup_manifest import build_backup_manifest
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    vault_entries = len(build_backup_manifest(vault)["directories"]) + len(build_backup_manifest(vault)["files"])
+    evidence = checkout / ".work" / "b1" / "code-evidence-v1"
+    body = evidence / "objects" / f"{0:040x}.body"
+    body.parent.mkdir(parents=True)
+    body.write_bytes(b"x")
+    request = evidence / "request.json"
+    request.write_bytes(b"q" * 65536)
+    for path in checkout.rglob("*"):
+        path.chmod(0o700 if path.is_dir() else 0o600)
+    monkeypatch.setattr(manifest_module, "MAX_ENTRIES", vault_entries + 5)
+    read_bytes = 0
+    real_read = os.read
+
+    def counting(file_fd: int, size: int) -> bytes:
+        nonlocal read_bytes
+        chunk = real_read(file_fd, size)
+        try:
+            link = os.readlink(f"/proc/self/fd/{file_fd}")
+        except OSError:
+            link = ""
+        if link.endswith("request.json"):
+            read_bytes += len(chunk)
+        return chunk
+
+    monkeypatch.setattr(os, "read", counting)
+    assert main(["backup", "manifest", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID"}
+    assert read_bytes == 0
+
+
 def test_research_cli_rejects_a_fifo_in_a_whitelist_directory(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
     import os
 

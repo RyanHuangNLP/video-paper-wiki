@@ -191,23 +191,31 @@ def _vault_path(path:str)->bool:
     return path==".raw" or path.startswith(".raw/") or path=="wiki" or path.startswith("wiki/")
 
 def _observe_vault_tree(root_fd:int)->set[str]:
+    """Re-read the vault complete set, stopping at the entry limit before a directory is fully collected."""
     found:set[str]=set()
     def walk(dir_fd:int,rel:str)->None:
         found.add(rel)
-        try:entries=list(os.scandir(dir_fd))
+        if len(found)>MAX_ENTRIES:_fail("manifest entry limit exceeded")
+        seen=0
+        try:iterator=os.scandir(dir_fd)
         except OSError:_fail("research source complete set changed")
-        for entry in entries:
-            child=rel+"/"+entry.name
-            if child in EXCLUDED or any(child==item or child.startswith(item+"/") for item in EXCLUDED):continue
-            try:st=entry.stat(follow_symlinks=False)
-            except OSError:_fail("research source complete set changed")
-            if stat.S_ISLNK(st.st_mode) or not (stat.S_ISDIR(st.st_mode) or stat.S_ISREG(st.st_mode)):_fail("research source complete set changed")
-            if stat.S_ISDIR(st.st_mode):
-                try:child_fd=os.open(entry.name,dir_open_flags(),dir_fd=dir_fd)
+        try:
+            for entry in iterator:
+                seen+=1
+                if seen>MAX_ENTRIES or len(found)>=MAX_ENTRIES:_fail("manifest entry limit exceeded")
+                child=rel+"/"+entry.name
+                if child in EXCLUDED or any(child==item or child.startswith(item+"/") for item in EXCLUDED):continue
+                try:st=entry.stat(follow_symlinks=False)
                 except OSError:_fail("research source complete set changed")
-                try:walk(child_fd,child)
-                finally:close_fd(child_fd)
-            else:found.add(child)
+                if stat.S_ISLNK(st.st_mode) or not (stat.S_ISDIR(st.st_mode) or stat.S_ISREG(st.st_mode)):_fail("research source complete set changed")
+                if stat.S_ISDIR(st.st_mode):
+                    try:child_fd=os.open(entry.name,dir_open_flags(),dir_fd=dir_fd)
+                    except OSError:_fail("research source complete set changed")
+                    try:walk(child_fd,child)
+                    finally:close_fd(child_fd)
+                else:found.add(child)
+                if len(found)>MAX_ENTRIES:_fail("manifest entry limit exceeded")
+        finally:iterator.close()
     for name in ROOTS:
         try:fd=os.open(name,dir_open_flags(),dir_fd=root_fd)
         except OSError:_fail("research source complete set changed")

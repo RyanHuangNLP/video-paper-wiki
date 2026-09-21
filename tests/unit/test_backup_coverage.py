@@ -278,6 +278,66 @@ def test_recheck_stops_before_sorting_names_past_the_retained_set(tmp_path: Path
         snap.close()
 
 
+def test_entry_budget_is_checked_before_reading_request(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Vault-sized entry_base plus a consumed subtree must not slurp the next file."""
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    monkeypatch.setattr(manifest_module, "MAX_ENTRIES", 18)
+    batch = _batch(tmp_path)
+    evidence = batch / "code-evidence-v1"
+    objects = evidence / "objects"
+    objects.mkdir(parents=True)
+    body = objects / f"{0:040x}.body"
+    body.write_bytes(b"x")
+    body.chmod(0o600)
+    request = evidence / "request.json"
+    payload = b"q" * 65536
+    request.write_bytes(payload)
+    request.chmod(0o600)
+    _chmod(tmp_path)
+    read_bytes = 0
+    real_read = os.read
+
+    def counting(file_fd: int, size: int) -> bytes:
+        nonlocal read_bytes
+        chunk = real_read(file_fd, size)
+        try:
+            link = os.readlink(f"/proc/self/fd/{file_fd}")
+        except OSError:
+            link = ""
+        if link.endswith("request.json"):
+            read_bytes += len(chunk)
+        return chunk
+
+    monkeypatch.setattr(os, "read", counting)
+    with pytest.raises(ContractError) as caught:
+        scan_research_coverage(tmp_path, entry_base=13)
+    assert caught.value.code == "BACKUP_COVERAGE_INVALID"
+    assert read_bytes == 0
+    assert read_bytes < len(payload)
+
+
+def test_code_evidence_request_fits_when_the_shared_budget_has_room(tmp_path: Path) -> None:
+    batch = _batch(tmp_path)
+    evidence = batch / "code-evidence-v1"
+    objects = evidence / "objects"
+    objects.mkdir(parents=True)
+    body = objects / f"{0:040x}.body"
+    body.write_bytes(b"x")
+    body.chmod(0o600)
+    request = evidence / "request.json"
+    request.write_bytes(b"request")
+    request.chmod(0o600)
+    _chmod(tmp_path)
+    snap = scan_research_coverage(tmp_path, entry_base=13)
+    try:
+        paths = [row["path"] for row in snap.report["files"]]
+        assert ".work/b1/code-evidence-v1/request.json" in paths
+        assert any(path.endswith(".body") for path in paths)
+    finally:
+        snap.close()
+
+
 def test_nested_roots_are_rejected_and_same_inode_is_allowed(tmp_path: Path) -> None:
     vault = tmp_path / "vault"
     checkout = tmp_path / "checkout"

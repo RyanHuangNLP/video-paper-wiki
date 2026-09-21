@@ -131,12 +131,24 @@ def _cli_data(capsys: pytest.CaptureFixture[str], args: list[str]) -> dict:
     return payload["data"]
 
 
+def test_historical_fixture_keeps_the_reading_lint_failure(tmp_path: Path, monkeypatch) -> None:
+    """The rich fixture still fails strict lint. That evidence is not a success-path requirement."""
+    prepared = prepare_research_sources(tmp_path, monkeypatch)
+    counts = prepared["lint_counts"]
+    assert counts["missing_frontmatter"]
+    assert counts["missing_frontmatter"] == 9
+    assert counts["dead_links"] == 18
+    assert counts["duplicate_basenames"] == 1
+    assert counts["empty_sections"] == 1
+    assert counts["stale_index_entries"] == 3
+    assert all(path.startswith("wiki/reading/") for path in prepared["lint_issue_paths"])
+    assert prepared["lint_exit_code"] != 0
+
+
 def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypatch, capsys: pytest.CaptureFixture[str]) -> None:
     prepared = prepare_research_sources(tmp_path, monkeypatch)
     assert prepared["lint_counts"]["provenance_errors"] == 0
     assert prepared["lint_counts"]["orphans"] == 0
-    assert prepared["lint_counts"]["missing_frontmatter"]
-    assert all(path.startswith("wiki/reading/") for path in prepared["lint_issue_paths"])
     assert len(prepared["revision_ids"]) >= 2
     vault = prepared["vault"]
     checkout = prepared["checkout"]
@@ -409,14 +421,14 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
     assert verify_payload["data"]["valid"] is True
 
 
-def test_installed_wheel_replays_research_restore(tmp_path: Path) -> None:
-    """Install the built wheel and restore a v2 archive without importing the source tree."""
+def _install_isolated(tmp_path: Path) -> Path:
+    """Install the product and operator wheels into a fresh venv. Returns its Python."""
 
     import shutil
     import zipfile
 
     wheel_dir = tmp_path / "wheel"
-    wheel_dir.mkdir()
+    wheel_dir.mkdir(parents=True)
     built = subprocess.run(
         ["uv", "build", "--wheel", "--offline", "--out-dir", str(wheel_dir)],
         cwd=ROOT,
@@ -440,15 +452,40 @@ def test_installed_wheel_replays_research_restore(tmp_path: Path) -> None:
     )
     assert created.returncode == 0, created.stderr
     python = venv / "bin" / "python"
+    install_env = os.environ.copy()
+    install_env["UV_LINK_MODE"] = "copy"
     installed = subprocess.run(
         ["uv", "pip", "install", "--offline", "--no-deps", "--python", str(python), str(wheel)],
         cwd=tmp_path,
+        env=install_env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
         check=False,
     )
     assert installed.returncode == 0, installed.stderr
+    operator_dir = tmp_path / "operator-wheel"
+    operator_dir.mkdir()
+    operator_built = subprocess.run(
+        ["uv", "build", "--wheel", "--offline", "--out-dir", str(operator_dir), str(ROOT / "operator")],
+        cwd=ROOT,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert operator_built.returncode == 0, operator_built.stderr
+    operator_wheel = next(operator_dir.glob("*.whl"))
+    operator_installed = subprocess.run(
+        ["uv", "pip", "install", "--offline", "--no-deps", "--python", str(python), str(operator_wheel)],
+        cwd=tmp_path,
+        env=install_env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert operator_installed.returncode == 0, operator_installed.stderr
     source_site = Path(subprocess.check_output([str(ROOT / ".venv" / "bin" / "python"), "-c", "import site; print(site.getsitepackages()[0])"], text=True).strip())
     target_site = next((venv / "lib").glob("python*/site-packages"))
     for child in source_site.iterdir():
@@ -461,6 +498,13 @@ def test_installed_wheel_replays_research_restore(tmp_path: Path) -> None:
             shutil.copytree(child, destination)
         else:
             shutil.copy2(child, destination)
+    return python
+
+
+def test_installed_wheel_replays_research_restore(tmp_path: Path) -> None:
+    """Install the built wheels and restore a v2 archive without importing the source tree."""
+
+    python = _install_isolated(tmp_path)
     script = tmp_path / "replay.py"
     script.write_text(
         """
@@ -509,12 +553,13 @@ assert listed.returncode == 0, listed.stderr
 assert json.loads(listed.stdout)["data"]["manifest_sha256"] == manifest["manifest_sha256"]
 manifest_path = root / "manifest.json"
 manifest_path.write_bytes(canonicalize(manifest))
-operator_src = sys.argv[2]
-code = "import sys\\nsys.path.insert(0, sys.argv[1])\\nfrom video_paper_wiki_operator.cli import main\\nraise SystemExit(main(sys.argv[2:]))\\n"
+admin = Path(sys.executable).with_name("vpwiki-admin")
+assert admin.is_file()
+assert "operator/src" not in admin.read_text(encoding="utf-8", errors="ignore")
 cli_archive = root / "cli-backup.zip"
 import pty
 master, slave = pty.openpty()
-proc = subprocess.Popen([sys.executable, "-c", code, operator_src, "backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest_path), "--destination", str(cli_archive)], stdin=slave, stdout=subprocess.PIPE, stderr=slave)
+proc = subprocess.Popen([str(admin), "backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest_path), "--destination", str(cli_archive)], stdin=slave, stdout=subprocess.PIPE, stderr=slave)
 os.close(slave)
 os.write(master, b"backup create\\n")
 stdout, _stderr = proc.communicate(timeout=120)
@@ -542,7 +587,7 @@ print("wheel-replay-ok")
         encoding="utf-8",
     )
     replay = subprocess.run(
-        [str(python), "-I", "-B", str(script), str(tmp_path / "data"), str(ROOT / "operator" / "src")],
+        [str(python), "-I", "-B", str(script), str(tmp_path / "data")],
         cwd=tmp_path,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -551,3 +596,184 @@ print("wheel-replay-ok")
     )
     assert replay.returncode == 0, replay.stderr
     assert "wheel-replay-ok" in replay.stdout
+
+
+def _installed_pty(argv: list[str], confirm: bytes, cwd: Path) -> tuple[int, bytes]:
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["PYTHONSAFEPATH"] = "1"
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(argv, cwd=cwd, env=env, stdin=slave, stdout=subprocess.PIPE, stderr=slave)
+    os.close(slave)
+    os.write(master, confirm)
+    try:
+        stdout, _stderr = proc.communicate(timeout=240)
+    finally:
+        os.close(master)
+    return proc.returncode or 0, stdout
+
+
+def _installed_cli(argv: list[str], cwd: Path) -> tuple[int, str, str]:
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["PYTHONSAFEPATH"] = "1"
+    result = subprocess.run(argv, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=False)
+    return result.returncode, result.stdout, result.stderr
+
+
+def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypatch) -> None:
+    """Replay the rich drill through the installed product CLI and operator."""
+
+    prepared = prepare_research_sources(tmp_path / "src", monkeypatch)
+    python = _install_isolated(tmp_path / "install")
+    vpwiki = python.with_name("vpwiki")
+    admin = python.with_name("vpwiki-admin")
+    assert vpwiki.is_file() and admin.is_file()
+    vault = prepared["vault"]
+    checkout = prepared["checkout"]
+    outside = tmp_path / "outside"
+    outside.mkdir(mode=0o700)
+    code, stdout, manifest_err = _installed_cli(
+        [str(vpwiki), "backup", "manifest", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout)],
+        outside,
+    )
+    assert code == 0, stdout + manifest_err
+    assert code == 0, stdout
+    envelope = json.loads(stdout)
+    manifest = envelope["data"]
+    manifest_path = outside / "manifest.json"
+    manifest_path.write_bytes(canonicalize(manifest))
+    manifest_path.chmod(0o600)
+    archive = outside / "backup.zip"
+    create_code, create_stdout = _installed_pty(
+        [
+            str(admin),
+            "backup",
+            "create",
+            "--profile",
+            "research-r1",
+            "--vault-root",
+            str(vault),
+            "--checkout-root",
+            str(checkout),
+            "--manifest",
+            str(manifest_path),
+            "--destination",
+            str(archive),
+        ],
+        b"backup create\n",
+        outside,
+    )
+    assert create_code == 0, create_stdout
+    created = json.loads(create_stdout)
+    digest = manifest["manifest_sha256"]
+    vault.rename(tmp_path / "gone-vault")
+    checkout.rename(tmp_path / "gone-checkout")
+    prepared["bundle"].rename(tmp_path / "gone-bundle")
+    restore = tmp_path / "restore"
+    restore.mkdir(mode=0o700)
+    restore_code, restore_stdout = _installed_pty(
+        [
+            str(admin),
+            "backup",
+            "restore",
+            "--profile",
+            "research-r1",
+            "--archive",
+            str(archive),
+            "--manifest",
+            str(manifest_path),
+            "--expected-manifest-sha256",
+            digest,
+            "--restore-root",
+            str(restore),
+            "--upstream-root",
+            str(UPSTREAM),
+            "--config",
+            str(POLICY),
+        ],
+        b"backup restore\n",
+        outside,
+    )
+    restored_payload = json.loads(restore_stdout)
+    env = os.environ.copy()
+    env["GIT_CONFIG_NOSYSTEM"] = "1"
+    env["GIT_CONFIG_GLOBAL"] = "/dev/null"
+    _git(restore, "init", "-q", env=env)
+    _git(restore, "fetch", "-q", str(ROOT), "HEAD", env=env)
+    revision = _git(restore, "rev-parse", "FETCH_HEAD", env=env).strip()
+    tracked = _git(restore, "ls-tree", "-r", "--name-only", revision, env=env)
+    blocked = [line for line in tracked.splitlines() if line in {".raw", "wiki", ".work"} or line.startswith((".raw/", "wiki/", ".work/"))]
+    assert blocked == []
+    _git(restore, "checkout", "-q", "--detach", revision, env=env)
+    consumers: dict[str, object] = {}
+    for name, args in (
+        ("code", ["code-evidence", "status", "--batch-id", "d1"]),
+        ("flow", ["flow", "status", "--vault-root", str(restore), "--batch-id", "d1"]),
+        ("domain", ["domain", "status", "--vault-root", str(restore)]),
+        ("experiments", ["experiments", "status", "--vault-root", str(restore)]),
+        ("articles", ["articles", "status", "--vault-root", str(restore)]),
+    ):
+        status, body, err = _installed_cli([str(vpwiki), *args], restore)
+        consumers[name] = {"code": status, "ok": status == 0}
+        if status == 0:
+            payload = json.loads(body)
+            assert payload["ok"] is True
+            if name == "code":
+                assert payload["data"] == prepared["code_status"]
+            if name == "flow":
+                assert payload["data"]["selection"]["question"] == prepared["question"]
+        else:
+            consumers[name]["stdout"] = body[-800:]
+            consumers[name]["stderr"] = err[-800:]
+    before_verify = _covered(restore, manifest)
+    verify_code, verify_stdout, _verify_err = _installed_cli(
+        [
+            str(vpwiki),
+            "backup",
+            "verify",
+            "--profile",
+            "research-r1",
+            "--manifest",
+            str(manifest_path),
+            "--expected-manifest-sha256",
+            digest,
+            "--restore-root",
+            str(restore),
+            "--upstream-root",
+            str(UPSTREAM),
+            "--config",
+            str(POLICY),
+        ],
+        outside,
+    )
+    verify_payload = json.loads(verify_stdout) if verify_stdout else {}
+    assert _covered(restore, manifest) == before_verify
+    valid = bool(verify_payload.get("ok") and verify_payload.get("data", {}).get("valid") is True)
+    log = tmp_path / "installed-drill.json"
+    log.write_text(
+        json.dumps(
+            {
+                "create_code": create_code,
+                "restore_code": restore_code,
+                "restore_error": restored_payload.get("error"),
+                "verify_code": verify_code,
+                "verify_error": verify_payload.get("error"),
+                "consumers": consumers,
+                "candidate_revision": revision,
+                "valid": valid,
+                "manifest_sha256": digest,
+                "archive_sha256": created.get("archive_sha256"),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    assert restore_code == 0, log.read_text(encoding="utf-8")
+    assert restored_payload["research_validation"] == "pending"
+    assert restored_payload["verification"]["valid"] is False
+    assert verify_code == 0, verify_payload
+    assert verify_payload["ok"] is True
+    assert verify_payload["data"]["valid"] is True

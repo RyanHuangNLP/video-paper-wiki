@@ -6,6 +6,8 @@ import os
 import re
 import stat
 import unicodedata
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -347,6 +349,9 @@ class _Scan:
         self.total_bytes = 0
         self.entry_base = 0
         self.byte_base = 0
+        # Unconsumed names from ancestor listings. A directory name reserves one
+        # entry; files inside that directory are extra subtree consumption.
+        self._pending: list[int] = []
         self.names = _producer_names()
         self.max_entries, self.max_file_bytes, self.max_total_bytes = _limits()
 
@@ -414,12 +419,13 @@ class _Scan:
 
     def list_names(self, fd: int, relative: str, *, count_candidates: bool) -> tuple[str, ...]:
         names: list[str] = []
+        ancestor_pending = sum(self._pending)
         try:
             for entry in os.scandir(fd):
                 if count_candidates:
                     self.candidate()
                 else:
-                    self._require_entry_room(len(names) + 1)
+                    self._require_entry_room(ancestor_pending + len(names) + 1)
                 if unicodedata.normalize("NFC", entry.name) != entry.name or "/" in entry.name or "\\" in entry.name or entry.name in {"", ".", ".."}:
                     _fail("coverage path is not portable", relative + "/" + entry.name)
                 names.append(entry.name)
@@ -429,7 +435,31 @@ class _Scan:
         self.remember_children(relative, observed)
         return observed
 
-    def open_dir(self, parent_fd: int, name: str, relative: str) -> int:
+    @contextmanager
+    def names_of(self, fd: int, relative: str, *, count_candidates: bool) -> Iterator[tuple[str, ...]]:
+        """Yield a listing. Inner names stay pending until each one is remembered."""
+        names = self.list_names(fd, relative, count_candidates=count_candidates)
+        if not count_candidates:
+            self._pending.append(len(names))
+        try:
+            yield names
+        finally:
+            if not count_candidates:
+                self._pending.pop()
+
+    def _reserve_for_file(self) -> None:
+        """Fail before reading when this file plus parent pending names cannot fit."""
+        pending = sum(self._pending)
+        self._require_entry_room(pending if pending > 0 else 1)
+
+    def _consume_listed(self) -> None:
+        if not self._pending or self._pending[-1] <= 0:
+            _fail("coverage accounting differs")
+        self._pending[-1] -= 1
+
+    def open_dir(self, parent_fd: int, name: str, relative: str, *, listed: bool = False) -> int:
+        if listed:
+            self._reserve_for_file()
         try:
             found = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
         except OSError:
@@ -445,12 +475,15 @@ class _Scan:
             if stamp(opened) != stamp(found):
                 _fail("coverage directory changed", relative)
             self.remember_dir(relative, opened)
+            if listed:
+                self._consume_listed()
             return fd
         except BaseException:
             close_fd(fd)
             raise
 
     def read_file(self, parent_fd: int, name: str, relative: str) -> None:
+        self._reserve_for_file()
         try:
             found = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
         except OSError:
@@ -475,6 +508,7 @@ class _Scan:
             if stamp(os.fstat(fd)) != stamp(opened):
                 _fail("coverage file changed", relative)
             self.remember_file(relative, opened, raw)
+            self._consume_listed()
         finally:
             close_fd(fd)
 
@@ -506,46 +540,47 @@ def _finish_dir(parent_fd: int, name: str, relative: str, first: os.stat_result)
         _fail("coverage directory changed", relative)
 
 
-def _scan_single_file_dir(scan: _Scan, parent_fd: int, relative: str, filename: str, *, required: bool) -> None:
-    fd = scan.open_dir(parent_fd, relative.rsplit("/", 1)[-1], relative)
+def _scan_single_file_dir(scan: _Scan, parent_fd: int, relative: str, filename: str, *, required: bool, listed: bool = False) -> None:
+    fd = scan.open_dir(parent_fd, relative.rsplit("/", 1)[-1], relative, listed=listed)
     try:
         first = os.fstat(fd)
-        names = scan.list_names(fd, relative, count_candidates=False)
-        if required and filename not in names:
-            _fail("coverage layout is not allowed", relative)
-        for name in names:
-            child = relative + "/" + name
-            if name != filename or scan.child_kind(fd, name, child) != "file":
-                _fail("coverage layout is not allowed", child)
-            scan.read_file(fd, name, child)
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            if required and filename not in names:
+                _fail("coverage layout is not allowed", relative)
+            for name in names:
+                child = relative + "/" + name
+                if name != filename or scan.child_kind(fd, name, child) != "file":
+                    _fail("coverage layout is not allowed", child)
+                scan.read_file(fd, name, child)
         _finish_dir(parent_fd, relative.rsplit("/", 1)[-1], relative, first)
     finally:
         close_fd(fd)
 
 
 def _scan_id_tree(scan: _Scan, parent_fd: int, relative: str, dir_re: re.Pattern[str], file_re: re.Pattern[str], suffix: str) -> None:
-    fd = scan.open_dir(parent_fd, relative.rsplit("/", 1)[-1], relative)
+    fd = scan.open_dir(parent_fd, relative.rsplit("/", 1)[-1], relative, listed=True)
     try:
         first = os.fstat(fd)
-        for name in scan.list_names(fd, relative, count_candidates=False):
-            child = relative + "/" + name
-            if dir_re.fullmatch(name) is None or scan.child_kind(fd, name, child) != "dir":
-                _fail("coverage layout is not allowed", child)
-            nested = scan.open_dir(fd, name, child)
-            try:
-                nested_first = os.fstat(nested)
-                leaves = scan.list_names(nested, child, count_candidates=False)
-                if not leaves:
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            for name in names:
+                child = relative + "/" + name
+                if dir_re.fullmatch(name) is None or scan.child_kind(fd, name, child) != "dir":
                     _fail("coverage layout is not allowed", child)
-                for leaf in leaves:
-                    leaf_rel = child + "/" + leaf
-                    stem = leaf[: -len(suffix)] if leaf.endswith(suffix) else leaf
-                    if not leaf.endswith(suffix) or file_re.fullmatch(stem) is None or scan.child_kind(nested, leaf, leaf_rel) != "file":
-                        _fail("coverage layout is not allowed", leaf_rel)
-                    scan.read_file(nested, leaf, leaf_rel)
-                _finish_dir(fd, name, child, nested_first)
-            finally:
-                close_fd(nested)
+                nested = scan.open_dir(fd, name, child, listed=True)
+                try:
+                    nested_first = os.fstat(nested)
+                    with scan.names_of(nested, child, count_candidates=False) as leaves:
+                        if not leaves:
+                            _fail("coverage layout is not allowed", child)
+                        for leaf in leaves:
+                            leaf_rel = child + "/" + leaf
+                            stem = leaf[: -len(suffix)] if leaf.endswith(suffix) else leaf
+                            if not leaf.endswith(suffix) or file_re.fullmatch(stem) is None or scan.child_kind(nested, leaf, leaf_rel) != "file":
+                                _fail("coverage layout is not allowed", leaf_rel)
+                            scan.read_file(nested, leaf, leaf_rel)
+                    _finish_dir(fd, name, child, nested_first)
+                finally:
+                    close_fd(nested)
         _finish_dir(parent_fd, relative.rsplit("/", 1)[-1], relative, first)
     finally:
         close_fd(fd)
@@ -557,30 +592,32 @@ def _scan_code(scan: _Scan, parent_fd: int, relative: str) -> None:
     try:
         first = os.fstat(fd)
         allowed = set(nameset["slots"]) | set(nameset["families"])
-        for name in scan.list_names(fd, relative, count_candidates=False):
-            child = relative + "/" + name
-            if name not in allowed:
-                _fail("coverage layout is not allowed", child)
-            kind = scan.child_kind(fd, name, child)
-            if name in nameset["slots"]:
-                if kind != "file":
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            for name in names:
+                child = relative + "/" + name
+                if name not in allowed:
+                    _fail("coverage layout is not allowed", child)
+                kind = scan.child_kind(fd, name, child)
+                if name in nameset["slots"]:
+                    if kind != "file":
+                        _fail("coverage entry is unsafe", child)
+                    scan.read_file(fd, name, child)
+                    continue
+                if kind != "dir":
                     _fail("coverage entry is unsafe", child)
-                scan.read_file(fd, name, child)
-                continue
-            if kind != "dir":
-                _fail("coverage entry is unsafe", child)
-            family = scan.open_dir(fd, name, child)
-            try:
-                family_first = os.fstat(family)
-                pattern = nameset["object_re"] if name == "objects" else nameset["hex_json_re"]
-                for leaf in scan.list_names(family, child, count_candidates=False):
-                    leaf_rel = child + "/" + leaf
-                    if pattern.fullmatch(leaf) is None or scan.child_kind(family, leaf, leaf_rel) != "file":
-                        _fail("coverage layout is not allowed", leaf_rel)
-                    scan.read_file(family, leaf, leaf_rel)
-                _finish_dir(fd, name, child, family_first)
-            finally:
-                close_fd(family)
+                family = scan.open_dir(fd, name, child, listed=True)
+                try:
+                    family_first = os.fstat(family)
+                    pattern = nameset["object_re"] if name == "objects" else nameset["hex_json_re"]
+                    with scan.names_of(family, child, count_candidates=False) as leaves:
+                        for leaf in leaves:
+                            leaf_rel = child + "/" + leaf
+                            if pattern.fullmatch(leaf) is None or scan.child_kind(family, leaf, leaf_rel) != "file":
+                                _fail("coverage layout is not allowed", leaf_rel)
+                            scan.read_file(family, leaf, leaf_rel)
+                    _finish_dir(fd, name, child, family_first)
+                finally:
+                    close_fd(family)
         _finish_dir(parent_fd, "code-evidence-v1", relative, first)
     finally:
         close_fd(fd)
@@ -591,47 +628,49 @@ def _scan_flow(scan: _Scan, parent_fd: int, relative: str) -> None:
     try:
         first = os.fstat(fd)
         allowed = {"selection.json", "experiments", "articles"}
-        for name in scan.list_names(fd, relative, count_candidates=False):
-            child = relative + "/" + name
-            if name not in allowed:
-                _fail("coverage layout is not allowed", child)
-            kind = scan.child_kind(fd, name, child)
-            if name == "selection.json":
-                if kind != "file":
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            for name in names:
+                child = relative + "/" + name
+                if name not in allowed:
+                    _fail("coverage layout is not allowed", child)
+                kind = scan.child_kind(fd, name, child)
+                if name == "selection.json":
+                    if kind != "file":
+                        _fail("coverage entry is unsafe", child)
+                    scan.read_file(fd, name, child)
+                    continue
+                if kind != "dir":
                     _fail("coverage entry is unsafe", child)
-                scan.read_file(fd, name, child)
-                continue
-            if kind != "dir":
-                _fail("coverage entry is unsafe", child)
-            group = scan.open_dir(fd, name, child)
-            try:
-                group_first = os.fstat(group)
-                for item in scan.list_names(group, child, count_candidates=False):
-                    item_rel = child + "/" + item
-                    if name == "experiments":
-                        if _SETTING_KEY_RE.fullmatch(item) is None or len(item) > 128 or scan.child_kind(group, item, item_rel) != "dir":
-                            _fail("coverage layout is not allowed", item_rel)
-                        _scan_single_file_dir(scan, group, item_rel, "input.json", required=True)
-                    else:
-                        if scan.names["article_re"].fullmatch(item) is None or scan.child_kind(group, item, item_rel) != "dir":
-                            _fail("coverage layout is not allowed", item_rel)
-                        article = scan.open_dir(group, item, item_rel)
-                        try:
-                            article_first = os.fstat(article)
-                            leaves = scan.list_names(article, item_rel, count_candidates=False)
-                            if not leaves:
-                                _fail("coverage layout is not allowed", item_rel)
-                            for leaf in leaves:
-                                leaf_rel = item_rel + "/" + leaf
-                                if leaf not in {"context.json", "document.json"} or scan.child_kind(article, leaf, leaf_rel) != "file":
-                                    _fail("coverage layout is not allowed", leaf_rel)
-                                scan.read_file(article, leaf, leaf_rel)
-                            _finish_dir(group, item, item_rel, article_first)
-                        finally:
-                            close_fd(article)
-                _finish_dir(fd, name, child, group_first)
-            finally:
-                close_fd(group)
+                group = scan.open_dir(fd, name, child, listed=True)
+                try:
+                    group_first = os.fstat(group)
+                    with scan.names_of(group, child, count_candidates=False) as items:
+                        for item in items:
+                            item_rel = child + "/" + item
+                            if name == "experiments":
+                                if _SETTING_KEY_RE.fullmatch(item) is None or len(item) > 128 or scan.child_kind(group, item, item_rel) != "dir":
+                                    _fail("coverage layout is not allowed", item_rel)
+                                _scan_single_file_dir(scan, group, item_rel, "input.json", required=True, listed=True)
+                            else:
+                                if scan.names["article_re"].fullmatch(item) is None or scan.child_kind(group, item, item_rel) != "dir":
+                                    _fail("coverage layout is not allowed", item_rel)
+                                article = scan.open_dir(group, item, item_rel, listed=True)
+                                try:
+                                    article_first = os.fstat(article)
+                                    with scan.names_of(article, item_rel, count_candidates=False) as leaves:
+                                        if not leaves:
+                                            _fail("coverage layout is not allowed", item_rel)
+                                        for leaf in leaves:
+                                            leaf_rel = item_rel + "/" + leaf
+                                            if leaf not in {"context.json", "document.json"} or scan.child_kind(article, leaf, leaf_rel) != "file":
+                                                _fail("coverage layout is not allowed", leaf_rel)
+                                            scan.read_file(article, leaf, leaf_rel)
+                                    _finish_dir(group, item, item_rel, article_first)
+                                finally:
+                                    close_fd(article)
+                    _finish_dir(fd, name, child, group_first)
+                finally:
+                    close_fd(group)
         _finish_dir(parent_fd, "flow", relative, first)
     finally:
         close_fd(fd)
@@ -642,20 +681,21 @@ def _scan_domain(scan: _Scan, parent_fd: int, relative: str) -> None:
     try:
         first = os.fstat(fd)
         allowed = {"heads.json", "annotations", "reviews"}
-        for name in scan.list_names(fd, relative, count_candidates=False):
-            child = relative + "/" + name
-            if name not in allowed:
-                _fail("coverage layout is not allowed", child)
-            kind = scan.child_kind(fd, name, child)
-            if name == "heads.json":
-                if kind != "file":
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            for name in names:
+                child = relative + "/" + name
+                if name not in allowed:
+                    _fail("coverage layout is not allowed", child)
+                kind = scan.child_kind(fd, name, child)
+                if name == "heads.json":
+                    if kind != "file":
+                        _fail("coverage entry is unsafe", child)
+                    scan.read_file(fd, name, child)
+                    continue
+                if kind != "dir":
                     _fail("coverage entry is unsafe", child)
-                scan.read_file(fd, name, child)
-                continue
-            if kind != "dir":
-                _fail("coverage entry is unsafe", child)
-            pattern = scan.names["annotation_re"] if name == "annotations" else scan.names["review_re"]
-            _scan_id_tree(scan, fd, child, scan.names["lineage_re"], pattern, ".json")
+                pattern = scan.names["annotation_re"] if name == "annotations" else scan.names["review_re"]
+                _scan_id_tree(scan, fd, child, scan.names["lineage_re"], pattern, ".json")
         _finish_dir(parent_fd, "domain", relative, first)
     finally:
         close_fd(fd)
@@ -665,16 +705,17 @@ def _scan_experiments(scan: _Scan, parent_fd: int, relative: str) -> None:
     fd = scan.open_dir(parent_fd, "experiments", relative)
     try:
         first = os.fstat(fd)
-        for name in scan.list_names(fd, relative, count_candidates=False):
-            child = relative + "/" + name
-            kind = scan.child_kind(fd, name, child)
-            if name == "heads.json" and kind == "file":
-                scan.read_file(fd, name, child)
-                continue
-            if name == "records" and kind == "dir":
-                _scan_id_tree(scan, fd, child, scan.names["condition_re"], scan.names["record_re"], ".json")
-                continue
-            _fail("coverage layout is not allowed", child)
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            for name in names:
+                child = relative + "/" + name
+                kind = scan.child_kind(fd, name, child)
+                if name == "heads.json" and kind == "file":
+                    scan.read_file(fd, name, child)
+                    continue
+                if name == "records" and kind == "dir":
+                    _scan_id_tree(scan, fd, child, scan.names["condition_re"], scan.names["record_re"], ".json")
+                    continue
+                _fail("coverage layout is not allowed", child)
         _finish_dir(parent_fd, "experiments", relative, first)
     finally:
         close_fd(fd)
@@ -685,12 +726,13 @@ def _scan_articles(scan: _Scan, parent_fd: int, relative: str) -> None:
     try:
         first = os.fstat(fd)
         allowed = {"records", "render"}
-        for name in scan.list_names(fd, relative, count_candidates=False):
-            child = relative + "/" + name
-            if name not in allowed or scan.child_kind(fd, name, child) != "dir":
-                _fail("coverage layout is not allowed", child)
-            suffix = ".json" if name == "records" else ".md"
-            _scan_id_tree(scan, fd, child, scan.names["article_re"], scan.names["revision_re"], suffix)
+        with scan.names_of(fd, relative, count_candidates=False) as names:
+            for name in names:
+                child = relative + "/" + name
+                if name not in allowed or scan.child_kind(fd, name, child) != "dir":
+                    _fail("coverage layout is not allowed", child)
+                suffix = ".json" if name == "records" else ".md"
+                _scan_id_tree(scan, fd, child, scan.names["article_re"], scan.names["revision_re"], suffix)
         _finish_dir(parent_fd, "articles", relative, first)
     finally:
         close_fd(fd)

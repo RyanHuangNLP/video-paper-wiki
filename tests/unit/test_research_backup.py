@@ -494,6 +494,197 @@ def test_v2_forged_members_and_zip_metadata_are_rejected(tmp_path: Path) -> None
     _reject_archive(tmp_path / "zip-metadata", buffer.getvalue(), manifest)
 
 
+def _request_bytes(monkeypatch: pytest.MonkeyPatch) -> dict[str, int]:
+    seen = {"request": 0}
+    real_read = os.read
+
+    def counting(file_fd: int, size: int) -> bytes:
+        chunk = real_read(file_fd, size)
+        try:
+            link = os.readlink(f"/proc/self/fd/{file_fd}")
+        except OSError:
+            link = ""
+        if link.endswith("request.json"):
+            seen["request"] += len(chunk)
+        return chunk
+
+    monkeypatch.setattr(os, "read", counting)
+    return seen
+
+
+def test_shared_entry_budget_stops_before_request_is_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    vault_entries = len(build_backup_manifest(vault)["directories"]) + len(build_backup_manifest(vault)["files"])
+    assert vault_entries == 13
+    evidence = checkout / ".work" / "b1" / "code-evidence-v1"
+    body = evidence / "objects" / f"{0:040x}.body"
+    body.parent.mkdir(parents=True)
+    body.write_bytes(b"x")
+    request = evidence / "request.json"
+    request.write_bytes(b"q" * 65536)
+    _seal(checkout)
+    monkeypatch.setattr(manifest_module, "MAX_ENTRIES", vault_entries + 5)
+    seen = _request_bytes(monkeypatch)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID"}
+    assert seen["request"] == 0
+
+
+def test_final_vault_enumeration_stops_before_collecting_the_directory(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    retained = build_research_backup_manifest(vault, checkout)
+    retained_entries = len(retained["directories"]) + len(retained["files"])
+    assert retained_entries == 17
+    monkeypatch.setattr(manifest_module, "MAX_ENTRIES", 21)
+    peaks: list[int] = []
+    real_observe = manifest_module._observe_vault_tree
+    real_scandir = os.scandir
+
+    def observe(root_fd: int) -> set[str]:
+        notes = vault / "wiki" / "reading-notes"
+        for index in range(31):
+            extra = notes / f"extra-{index:04d}.md"
+            extra.write_bytes(b"x")
+            extra.chmod(0o600)
+
+        class _Proxy:
+            def __init__(self, iterator: object) -> None:
+                self._iterator = iterator
+                self.n = 0
+
+            def __iter__(self) -> "_Proxy":
+                return self
+
+            def __next__(self) -> object:
+                item = next(self._iterator)
+                self.n += 1
+                return item
+
+            def __enter__(self) -> "_Proxy":
+                return self
+
+            def __exit__(self, *_args: object) -> None:
+                peaks.append(self.n)
+                close = getattr(self._iterator, "close", None)
+                if close is not None:
+                    close()
+
+            def close(self) -> None:
+                self.__exit__()
+
+        def counting(path: object) -> _Proxy:
+            return _Proxy(real_scandir(path))
+
+        monkeypatch.setattr(os, "scandir", counting)
+        try:
+            return real_observe(root_fd)
+        finally:
+            monkeypatch.setattr(os, "scandir", real_scandir)
+
+    monkeypatch.setattr(manifest_module, "_observe_vault_tree", observe)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID"}
+    assert peaks
+    assert max(peaks) <= 21
+    assert 32 not in peaks
+
+
+def _replace_directory(path: Path) -> None:
+    moved = path.with_name(path.name + "-replaced")
+    path.rename(moved)
+    path.mkdir(mode=0o700)
+
+
+def test_replaced_source_roots_and_parents_are_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    cases = ("vault", "checkout", "vault-parent", "checkout-parent")
+    for label in cases:
+        vault_home = tmp_path / label / "vhome"
+        checkout_home = tmp_path / label / "chome"
+        vault_home.mkdir(parents=True)
+        checkout_home.mkdir()
+        vault = vault_home / "vault"
+        checkout = checkout_home / "checkout"
+        _vault(vault)
+        _checkout(checkout)
+        real = coverage.scan_research_coverage
+
+        def change(root, *, snapshot=None, entry_base=0, byte_base=0, _label=label, _real=real):
+            if _label == "vault":
+                _replace_directory(vault)
+            elif _label == "checkout":
+                _replace_directory(checkout)
+            elif _label == "vault-parent":
+                _replace_directory(vault_home)
+            else:
+                _replace_directory(checkout_home)
+            return _real(root, snapshot=snapshot, entry_base=entry_base, byte_base=byte_base)
+
+        monkeypatch.setattr(coverage, "scan_research_coverage", change)
+        with pytest.raises(ContractError) as caught:
+            build_research_backup_manifest(vault, checkout)
+        assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID", "BACKUP_COVERAGE_INVALID"}
+        monkeypatch.undo()
+
+
+def test_absent_checkout_member_appearing_before_recheck_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    real_verify = coverage.CoverageSnapshot.verify
+
+    def appear(self: coverage.CoverageSnapshot) -> None:
+        plan = checkout / ".work" / "b1" / "plan"
+        plan.mkdir(mode=0o700)
+        target = plan / "ingest-plan.v1.json"
+        target.write_bytes(b"{}")
+        target.chmod(0o600)
+        monkeypatch.setattr(coverage.CoverageSnapshot, "verify", real_verify)
+        return real_verify(self)
+
+    monkeypatch.setattr(coverage.CoverageSnapshot, "verify", appear)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID", "AUDIT_RACE"}
+
+
+def test_deleted_checkout_member_before_recheck_is_rejected(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+    real_verify = coverage.CoverageSnapshot.verify
+
+    def remove(self: coverage.CoverageSnapshot) -> None:
+        draft.unlink()
+        monkeypatch.setattr(coverage.CoverageSnapshot, "verify", real_verify)
+        return real_verify(self)
+
+    monkeypatch.setattr(coverage.CoverageSnapshot, "verify", remove)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID", "AUDIT_RACE"}
+
+
 def test_vault_profile_still_rejects_a_missing_source_root(tmp_path: Path) -> None:
     vault = tmp_path / "vault"
     _vault(vault)

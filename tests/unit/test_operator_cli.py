@@ -430,6 +430,77 @@ def test_research_create_rejects_destination_parent_replaced_during_confirmation
     assert not dest.exists()
 
 
+def test_research_create_rejects_source_root_races_during_confirmation(monkeypatch, tmp_path, capsys):
+    from tests.unit.test_research_backup import _checkout, _vault
+    from video_paper_wiki.backup_manifest import build_research_backup_manifest
+    from video_paper_wiki.jcs import canonicalize
+
+    def replace_tree(path: Path) -> None:
+        moved = path.with_name(path.name + "-replaced")
+        path.rename(moved)
+        path.mkdir(mode=0o700)
+
+    for kind in ("vault", "checkout", "vault-parent", "checkout-parent", "appear", "delete"):
+        module = _module()
+        home = tmp_path / kind
+        vault_home = home / "vhome"
+        checkout_home = home / "chome"
+        vault_home.mkdir(parents=True)
+        checkout_home.mkdir()
+        vault = vault_home / "vault"
+        checkout = checkout_home / "checkout"
+        _vault(vault)
+        _checkout(checkout)
+        manifest = build_research_backup_manifest(vault, checkout)
+        manifest_path = home / "manifest.json"
+        manifest_path.write_bytes(canonicalize(manifest))
+        manifest_path.chmod(0o600)
+        dest = home / "out" / "backup.zip"
+        dest.parent.mkdir()
+
+        def mutate(_words, _kind=kind):
+            if _kind == "vault":
+                replace_tree(vault)
+            elif _kind == "checkout":
+                replace_tree(checkout)
+            elif _kind == "vault-parent":
+                replace_tree(vault_home)
+            elif _kind == "checkout-parent":
+                replace_tree(checkout_home)
+            elif _kind == "appear":
+                plan = checkout / ".work" / "b1" / "plan"
+                plan.mkdir(mode=0o700)
+                target = plan / "ingest-plan.v1.json"
+                target.write_bytes(b"{}")
+                target.chmod(0o600)
+            else:
+                draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+                draft.unlink()
+            return True
+
+        monkeypatch.setattr(module, "_confirm", mutate)
+        code = module.main(
+            [
+                "backup",
+                "create",
+                "--profile",
+                "research-r1",
+                "--vault-root",
+                str(vault),
+                "--checkout-root",
+                str(checkout),
+                "--manifest",
+                str(manifest_path),
+                "--destination",
+                str(dest),
+            ]
+        )
+        payload = json.loads(capsys.readouterr().out)
+        assert code == 2, kind
+        assert payload["error"]["code"] in {"BACKUP_RACE", "BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID", "AUDIT_RACE"}, kind
+        assert not dest.exists()
+
+
 def test_research_restore_rejects_root_parent_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
     module = _module()
     ready = _research_restore_ready(tmp_path)
