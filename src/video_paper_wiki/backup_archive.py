@@ -245,7 +245,9 @@ def _restore_backup_archive_core(*,archive:Path|str,source_root:Path|str,restore
             try:
                 os.mkdir(name,row['mode'],dir_fd=pfd)
                 dfd=os.open(name,dir_open_flags(),dir_fd=pfd)
-                try:os.fchmod(dfd,row['mode']);os.fsync(dfd);created.append(('dir',row['path'],os.fstat(dfd)))
+                try:
+                    os.fchmod(dfd,row['mode']);os.fsync(dfd)
+                    created.append(('dir',row['path'],os.fstat(dfd),os.fstat(pfd)))
                 finally:close_fd(dfd)
                 os.fsync(pfd)
             finally:close_fd(pfd)
@@ -261,16 +263,10 @@ def _restore_backup_archive_core(*,archive:Path|str,source_root:Path|str,restore
                 os.fsync(fd)
                 if hashlib.sha256(data).hexdigest()!=row['sha256']:_fail('BACKUP_ARCHIVE_INVALID','archive member digest differs')
                 os.fsync(fd)
-                created.append(('file',row['path'],os.fstat(fd)))
+                created.append(('file',row['path'],os.fstat(fd),os.fstat(pfd)))
             finally:os.close(fd);os.fsync(pfd);close_fd(pfd)
     except BaseException as exc:
-        for kind,relative,_first in reversed(created):
-            pfd,name=parent(relative)
-            try:
-                if kind=='file':os.unlink(name,dir_fd=pfd)
-                else:os.rmdir(name,dir_fd=pfd)
-            except OSError:pass
-            finally:close_fd(pfd)
+        _rollback_created(root_fd,created)
         if isinstance(exc,ContractError):raise
         _fail('RESTORE_VERIFICATION_FAILED','archive extraction failed')
     finally:
@@ -288,7 +284,7 @@ def _restore_backup_archive_core(*,archive:Path|str,source_root:Path|str,restore
     # this extraction installed.  Reopen every installed named edge and bind it
     # to the inode captured at creation, after the verifier has returned.
     try:
-        for kind,relative,first in created:
+        for kind,relative,first,_parent_first in created:
             pfd,name=parent(relative)
             try:current=os.stat(name,dir_fd=pfd,follow_symlinks=False)
             finally:close_fd(pfd)
@@ -373,6 +369,48 @@ def _encode_research_archive(doc:dict[str,Any],*,vault_root:Path,_snapshot=None,
         if len(raw)!=row['size_bytes'] or hashlib.sha256(raw).hexdigest()!=row['sha256']:_fail('BACKUP_RACE','archive source differs from manifest')
         entries.append((path,raw,row['mode'],False))
     return _classic_zip(entries)
+
+def _entry_identity(value):
+    return (value.st_dev,value.st_ino)
+
+def _open_parent(root_fd:int,relative:str):
+    from video_paper_wiki.secure_io import close_fd,dir_open_flags
+    items=relative.split('/');held=os.dup(root_fd)
+    try:
+        for item in items[:-1]:
+            nxt=os.open(item,dir_open_flags(),dir_fd=held);close_fd(held);held=nxt
+        return held,items[-1]
+    except BaseException:
+        close_fd(held);raise
+
+def _entry_owned(root_fd:int,kind:str,relative:str,first,parent_first)->bool:
+    from video_paper_wiki.secure_io import close_fd
+    try:pfd,name=_open_parent(root_fd,relative)
+    except OSError:return False
+    try:
+        try:parent_now=os.fstat(pfd);current=os.stat(name,dir_fd=pfd,follow_symlinks=False)
+        except OSError:return False
+        if _entry_identity(parent_now)!=_entry_identity(parent_first) or not stat.S_ISDIR(parent_now.st_mode):return False
+        if stat.S_ISLNK(current.st_mode) or _entry_identity(current)!=_entry_identity(first):return False
+        if kind=='file':return stat.S_ISREG(current.st_mode) and current.st_nlink==1
+        return stat.S_ISDIR(current.st_mode)
+    finally:close_fd(pfd)
+
+def _rollback_created(root_fd:int,created)->None:
+    """Delete only entries whose file and parent directory are still the ones this restore created."""
+    from video_paper_wiki.secure_io import close_fd
+    for kind,relative,first,parent_first in created:
+        if not _entry_owned(root_fd,kind,relative,first,parent_first):_fail('RESTORE_VERIFICATION_FAILED','restore cleanup cannot prove ownership')
+    for kind,relative,first,parent_first in reversed(created):
+        if not _entry_owned(root_fd,kind,relative,first,parent_first):_fail('RESTORE_VERIFICATION_FAILED','restore cleanup cannot prove ownership')
+        pfd,name=_open_parent(root_fd,relative)
+        try:
+            parent_now=os.fstat(pfd);current=os.stat(name,dir_fd=pfd,follow_symlinks=False)
+            if _entry_identity(parent_now)!=_entry_identity(parent_first) or _entry_identity(current)!=_entry_identity(first):
+                _fail('RESTORE_VERIFICATION_FAILED','restore cleanup cannot prove ownership')
+            if kind=='file':os.unlink(name,dir_fd=pfd)
+            else:os.rmdir(name,dir_fd=pfd)
+        finally:close_fd(pfd)
 
 def _paths_overlap(left:str,right:str)->bool:
     lp=Path(os.path.abspath(left)).parts;rp=Path(os.path.abspath(right)).parts
@@ -510,7 +548,9 @@ def _restore_research_archive(*,archive:Path|str,restore_root:Path|str,manifest:
                 try:
                     os.mkdir(name,row['mode'],dir_fd=pfd)
                     dfd=os.open(name,dir_open_flags(),dir_fd=pfd)
-                    try:os.fchmod(dfd,row['mode']);os.fsync(dfd);created.append(('dir',row['path'],os.fstat(dfd)))
+                    try:
+                        os.fchmod(dfd,row['mode']);os.fsync(dfd)
+                        created.append(('dir',row['path'],os.fstat(dfd),os.fstat(pfd)))
                     finally:close_fd(dfd)
                     os.fsync(pfd)
                 finally:close_fd(pfd)
@@ -523,20 +563,14 @@ def _restore_research_archive(*,archive:Path|str,restore_root:Path|str,manifest:
                     while view:view=view[os.write(file_fd,view):]
                     if stat.S_IMODE(os.fstat(file_fd).st_mode)!=row['mode']:_fail('RESTORE_VERIFICATION_FAILED','restored file mode differs')
                     os.fsync(file_fd)
-                    created.append(('file',row['path'],os.fstat(file_fd)))
+                    created.append(('file',row['path'],os.fstat(file_fd),os.fstat(pfd)))
                 finally:os.close(file_fd);os.fsync(pfd);close_fd(pfd)
         except BaseException as exc:
-            for kind,relative,_first in reversed(created):
-                pfd,name=parent(relative)
-                try:
-                    if kind=='file':os.unlink(name,dir_fd=pfd)
-                    else:os.rmdir(name,dir_fd=pfd)
-                except OSError:pass
-                finally:close_fd(pfd)
+            _rollback_created(root_fd,created)
             if isinstance(exc,ContractError):raise
             _fail('RESTORE_VERIFICATION_FAILED','archive extraction failed')
         verified=verify_restored_research_tree(root,doc,expected_manifest_sha256=expected_manifest_sha256)
-        for kind,relative,first in created:
+        for kind,relative,first,_parent_first in created:
             pfd,name=parent(relative)
             try:current=os.stat(name,dir_fd=pfd,follow_symlinks=False)
             finally:close_fd(pfd)

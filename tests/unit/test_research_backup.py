@@ -1,7 +1,11 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import os
+import struct
+import unicodedata
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -207,6 +211,184 @@ def test_damaged_archive_and_unsafe_restore_root_do_not_succeed(tmp_path: Path) 
     assert caught.value.code == "RESTORE_ROOT_UNSAFE"
     occupied = restore / "occupied"
     assert occupied.read_bytes() == b"x"
+
+
+def test_vault_change_during_checkout_scan_is_not_a_stale_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    real = coverage.scan_research_coverage
+
+    def change_vault(root, *, snapshot=None):
+        note = vault / "wiki" / "reading-notes" / "note.md"
+        note.write_bytes(b"changed-during-checkout-scan")
+        return real(root, snapshot=snapshot)
+
+    monkeypatch.setattr(coverage, "scan_research_coverage", change_vault)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID"}
+
+
+def test_vault_change_on_checkout_failure_is_rechecked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+
+    def fail_after_change(root, *, snapshot=None):
+        note = vault / "wiki" / "reading-notes" / "note.md"
+        note.write_bytes(b"changed-before-checkout-failure")
+        raise ContractError("BACKUP_COVERAGE_INVALID", "injected checkout failure", {})
+
+    monkeypatch.setattr(coverage, "scan_research_coverage", fail_after_change)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID"}
+    assert caught.value.code != "BACKUP_COVERAGE_INVALID"
+
+
+def test_replaced_restored_file_survives_later_fsync_failure(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    manifest = build_research_backup_manifest(vault, checkout)
+    archive = tmp_path / "owned.zip"
+    create_backup_archive(
+        vault_root=vault, checkout_root=checkout, manifest=manifest, destination=archive, profile="research-r1"
+    )
+    restore = tmp_path / "restore"
+    restore.mkdir(mode=0o700)
+    real_fsync = os.fsync
+    state: dict[str, object] = {"replaced": False, "failed": False, "path": None}
+
+    def fail_after_replace(fd: int) -> None:
+        files = [path for path in restore.rglob("*") if path.is_file()]
+        if files and not state["replaced"]:
+            target = files[0]
+            replacement = target.with_name(target.name + ".foreign")
+            replacement.write_bytes(b"foreign-bytes")
+            os.replace(replacement, target)
+            state["replaced"] = True
+            state["path"] = target
+            return real_fsync(fd)
+        if state["replaced"] and not state["failed"]:
+            state["failed"] = True
+            raise OSError(5, "injected fsync failure")
+        return real_fsync(fd)
+
+    monkeypatch.setattr(os, "fsync", fail_after_replace)
+    with pytest.raises(ContractError) as caught:
+        restore_backup_archive(
+            archive=archive,
+            restore_root=restore,
+            manifest=manifest,
+            profile="research-r1",
+            expected_manifest_sha256=manifest["manifest_sha256"],
+        )
+    assert caught.value.code == "RESTORE_VERIFICATION_FAILED"
+    kept = state["path"]
+    assert isinstance(kept, Path)
+    assert kept.read_bytes() == b"foreign-bytes"
+
+
+def _classic_zip(entries: list[tuple[str, bytes, int, bool]]) -> bytes:
+    from video_paper_wiki.backup_archive import _row
+
+    locals_data: list[bytes] = []
+    centrals: list[bytes] = []
+    offset = 0
+    for name, data, mode, is_dir in entries:
+        local, central = _row(name, data, mode, is_dir)
+        central = central[:42] + struct.pack("<I", offset) + central[46:]
+        locals_data.append(local)
+        centrals.append(central)
+        offset += len(local)
+    body = b"".join(locals_data)
+    directory = b"".join(centrals)
+    eocd = struct.pack("<IHHHHIIH", 0x06054B50, 0, 0, len(entries), len(entries), len(directory), len(body), 0)
+    return body + directory + eocd
+
+
+def _reject_archive(tmp_path: Path, raw: bytes, manifest: dict) -> None:
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    archive = tmp_path / "forged.zip"
+    archive.write_bytes(raw)
+    restore = tmp_path / "restore"
+    restore.mkdir(mode=0o700)
+    with pytest.raises(ContractError) as caught:
+        restore_backup_archive(
+            archive=archive,
+            restore_root=restore,
+            manifest=manifest,
+            profile="research-r1",
+            expected_manifest_sha256=manifest["manifest_sha256"],
+        )
+    assert caught.value.code == "BACKUP_ARCHIVE_INVALID"
+    assert list(restore.iterdir()) == []
+
+
+def test_v2_forged_members_and_zip_metadata_are_rejected(tmp_path: Path) -> None:
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    manifest = build_research_backup_manifest(vault, checkout)
+    archive = tmp_path / "good.zip"
+    create_backup_archive(
+        vault_root=vault, checkout_root=checkout, manifest=manifest, destination=archive, profile="research-r1"
+    )
+    original = archive.read_bytes()
+    note = b"wiki/reading-notes/note.md"
+    assert original.count(note) >= 2
+    _reject_archive(tmp_path / "traversal", original.replace(note, b"../i/reading-notes/note.md"), manifest)
+    _reject_archive(tmp_path / "absolute", original.replace(note, b"/iki/reading-notes/note.md"), manifest)
+    decomposed = "cafe\u0301.txt"
+    assert unicodedata.normalize("NFC", decomposed) != decomposed
+    _reject_archive(
+        tmp_path / "nfc",
+        _classic_zip([("VPWIKI-BACKUP-MANIFEST.json", b"{}", 0o600, False), (decomposed, b"x", 0o600, False)]),
+        manifest,
+    )
+    _reject_archive(
+        tmp_path / "casefold",
+        _classic_zip(
+            [
+                ("VPWIKI-BACKUP-MANIFEST.json", b"{}", 0o600, False),
+                ("wiki/a", b"a", 0o600, False),
+                ("Wiki/a", b"b", 0o600, False),
+            ]
+        ),
+        manifest,
+    )
+    _reject_archive(
+        tmp_path / "duplicate",
+        _classic_zip(
+            [
+                ("VPWIKI-BACKUP-MANIFEST.json", b"{}", 0o600, False),
+                ("wiki/a", b"a", 0o600, False),
+                ("wiki/a", b"b", 0o600, False),
+            ]
+        ),
+        manifest,
+    )
+    _reject_archive(
+        tmp_path / "missing-meta",
+        _classic_zip([("wiki/a", b"a", 0o600, False)]),
+        manifest,
+    )
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as package:
+        package.writestr("../evil", b"x")
+        package.writestr("/tmp/abs", b"y")
+        package.writestr("extra.txt", b"z")
+    _reject_archive(tmp_path / "zip-metadata", buffer.getvalue(), manifest)
 
 
 def test_vault_profile_still_rejects_a_missing_source_root(tmp_path: Path) -> None:

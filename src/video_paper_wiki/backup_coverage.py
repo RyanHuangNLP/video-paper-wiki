@@ -162,7 +162,7 @@ class CoverageSnapshot:
         try:
             if stamp(opened) != stamp(prior[0]):
                 _fail("coverage file changed", relative)
-            raw = _read_fd(fd)
+            raw = _read_fd(fd, max_bytes=len(prior[1]))
         finally:
             close_fd(fd)
         if raw != prior[1] or hashlib.sha256(raw).hexdigest() != hashlib.sha256(prior[1]).hexdigest():
@@ -183,7 +183,7 @@ class CoverageSnapshot:
             for relative, (first, raw) in self.files.items():
                 fd, opened = _walk_open(self.root_fd, relative, directory=False)
                 try:
-                    if stamp(opened) != stamp(first) or _read_fd(fd) != raw:
+                    if stamp(opened) != stamp(first) or _read_fd(fd, max_bytes=len(raw)) != raw:
                         raise OSError
                 finally:
                     close_fd(fd)
@@ -208,12 +208,28 @@ class CoverageSnapshot:
         self.root_fd = None
 
 
-def _read_fd(fd: int) -> bytes:
+def _sort_names(names: list[str]) -> tuple[str, ...]:
+    """Sort only after the caller has already applied the enumeration budget."""
+    names.sort(key=lambda item: item.encode())
+    return tuple(names)
+
+
+def _read_fd(fd: int, *, max_bytes: int | None = None) -> bytes:
+    """Read at most ``max_bytes``. One extra byte detects overflow without consuming the rest."""
     chunks: list[bytes] = []
+    size = 0
     while True:
-        chunk = os.read(fd, 1024 * 1024)
+        if max_bytes is not None and size >= max_bytes:
+            if os.read(fd, 1):
+                _fail("manifest resource limit exceeded")
+            break
+        room = 1024 * 1024 if max_bytes is None else min(1024 * 1024, max_bytes - size)
+        chunk = os.read(fd, room)
         if not chunk:
             break
+        size += len(chunk)
+        if max_bytes is not None and size > max_bytes:
+            _fail("manifest resource limit exceeded")
         chunks.append(chunk)
     return b"".join(chunks)
 
@@ -372,18 +388,17 @@ class _Scan:
             self.snap.absent.add(relative)
 
     def list_names(self, fd: int, relative: str, *, count_candidates: bool) -> tuple[str, ...]:
+        names: list[str] = []
         try:
-            entries = sorted(os.scandir(fd), key=lambda item: item.name.encode())
+            for entry in os.scandir(fd):
+                if count_candidates:
+                    self.candidate()
+                if unicodedata.normalize("NFC", entry.name) != entry.name or "/" in entry.name or "\\" in entry.name or entry.name in {"", ".", ".."}:
+                    _fail("coverage path is not portable", relative + "/" + entry.name)
+                names.append(entry.name)
         except OSError:
             _fail("coverage directory is unsafe", relative)
-        names = []
-        for entry in entries:
-            if count_candidates:
-                self.candidate()
-            if unicodedata.normalize("NFC", entry.name) != entry.name or "/" in entry.name or "\\" in entry.name or entry.name in {"", ".", ".."}:
-                _fail("coverage path is not portable", relative + "/" + entry.name)
-            names.append(entry.name)
-        observed = tuple(names)
+        observed = _sort_names(names)
         self.remember_children(relative, observed)
         return observed
 
@@ -423,11 +438,12 @@ class _Scan:
             opened = os.fstat(fd)
             if stamp(opened) != stamp(found) or not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1:
                 _fail("coverage file changed", relative)
-            raw = _read_fd(fd)
-            if len(raw) > self.max_file_bytes:
+            remaining = self.max_total_bytes - self.total_bytes
+            if remaining < 0:
                 _fail("manifest resource limit exceeded", relative)
+            raw = _read_fd(fd, max_bytes=min(self.max_file_bytes, remaining))
             self.total_bytes += len(raw)
-            if self.total_bytes > self.max_total_bytes:
+            if len(raw) > self.max_file_bytes or self.total_bytes > self.max_total_bytes:
                 _fail("manifest resource limit exceeded", relative)
             if stamp(os.fstat(fd)) != stamp(opened):
                 _fail("coverage file changed", relative)

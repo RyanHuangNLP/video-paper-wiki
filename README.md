@@ -156,6 +156,8 @@ vpwiki backup verify --profile research-r1 --manifest backup-manifest.json --exp
   --restore-root /path/to/private-restore --upstream-root vendor/claude-obsidian --config retrieval-config.json
 ```
 
+含有 `assessment-heads` 和 source-version association 的研究树，恢复后的 catalog 会返回 `SOURCE_PROFILE_REQUIRED`。已安装的 `wiki/reading/**` 生成页目前也过不了 strict lint。这两种情况下 `backup verify` 都不会给出 `valid=true`。字节恢复和上述研究读取仍然可以核对。详见 [P3 备份与恢复](docs/p3-backup-restore-r1.md)。
+
 `vpwiki` 只在 `.work/**` 生成 staging，不 apply、不 recover、不构建索引。写操作直接使用固定上游公开 CLI；可选 `operator/` 包只是透明转发器，对每次副作用命令要求交互式逐次确认且没有 `--yes`。
 
 ## 人工 PDF 暂存解析（未入库）

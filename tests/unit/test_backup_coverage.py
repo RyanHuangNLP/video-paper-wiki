@@ -140,6 +140,84 @@ def test_batch_and_candidate_limits_fail_closed(tmp_path: Path) -> None:
     assert caught.value.code == "BACKUP_COVERAGE_INVALID"
 
 
+def test_oversize_file_is_rejected_before_the_whole_file_is_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from video_paper_wiki.backup_manifest import MAX_FILE_BYTES
+
+    batch = _batch(tmp_path)
+    draft = batch / "draft"
+    draft.mkdir()
+    target = draft / "paper-analysis-draft.v1.json"
+    total = 70 * 1024 * 1024
+    fd = os.open(target, os.O_CREAT | os.O_WRONLY, 0o600)
+    os.ftruncate(fd, total)
+    os.close(fd)
+    _chmod(tmp_path)
+    read_bytes = 0
+    real_read = os.read
+
+    def counting(file_fd: int, size: int) -> bytes:
+        nonlocal read_bytes
+        chunk = real_read(file_fd, size)
+        read_bytes += len(chunk)
+        return chunk
+
+    monkeypatch.setattr(os, "read", counting)
+    with pytest.raises(ContractError) as caught:
+        scan_research_coverage(tmp_path)
+    assert caught.value.code == "BACKUP_COVERAGE_INVALID"
+    assert read_bytes <= MAX_FILE_BYTES + 1
+    assert read_bytes < total
+
+
+def test_cumulative_budget_stops_during_the_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    monkeypatch.setattr(manifest_module, "MAX_TOTAL_BYTES", 4)
+    for batch_name, payload in (("b1", b"0123456789abcdef"), ("b2", b"0123456789abcdef")):
+        batch = _batch(tmp_path, batch_name)
+        draft = batch / "draft"
+        draft.mkdir()
+        (draft / "paper-analysis-draft.v1.json").write_bytes(payload)
+    _chmod(tmp_path)
+    read_bytes = 0
+    real_read = os.read
+
+    def counting(file_fd: int, size: int) -> bytes:
+        nonlocal read_bytes
+        chunk = real_read(file_fd, size)
+        read_bytes += len(chunk)
+        return chunk
+
+    monkeypatch.setattr(os, "read", counting)
+    with pytest.raises(ContractError) as caught:
+        scan_research_coverage(tmp_path)
+    assert caught.value.code == "BACKUP_COVERAGE_INVALID"
+    assert read_bytes <= 5
+    assert read_bytes < 32
+
+
+def test_directory_budget_is_applied_before_sorting(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    work = tmp_path / ".work"
+    work.mkdir()
+    for index in range(MAX_CANDIDATES + 8):
+        (work / f"extra-{index:04d}").mkdir()
+    tmp_path.chmod(0o700)
+    seen: list[int] = []
+    real_sort = coverage._sort_names
+
+    def spy(names: list[str]) -> tuple[str, ...]:
+        seen.append(len(names))
+        return real_sort(names)
+
+    monkeypatch.setattr(coverage, "_sort_names", spy)
+    with pytest.raises(ContractError) as caught:
+        scan_research_coverage(tmp_path)
+    assert caught.value.code == "BACKUP_COVERAGE_INVALID"
+    assert seen == [] or max(seen) <= MAX_CANDIDATES
+
+
 def test_nested_roots_are_rejected_and_same_inode_is_allowed(tmp_path: Path) -> None:
     vault = tmp_path / "vault"
     checkout = tmp_path / "checkout"

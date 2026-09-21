@@ -299,3 +299,100 @@ def test_research_create_rejects_manifest_replaced_during_confirmation(monkeypat
     assert module.main(['backup', 'create', '--profile', 'research-r1', '--vault-root', str(vault), '--checkout-root', str(checkout), '--manifest', str(manifest), '--destination', str(dest)]) == 2
     assert json.loads(capsys.readouterr().out)['error']['code'] == 'BACKUP_RACE'
     assert not dest.exists()
+
+
+def _research_restore_ready(tmp_path):
+    from tests.unit.test_research_backup import _checkout, _vault
+    from video_paper_wiki.backup_archive import create_backup_archive
+    from video_paper_wiki.backup_manifest import build_research_backup_manifest
+    from video_paper_wiki.jcs import canonicalize
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    manifest = build_research_backup_manifest(vault, checkout)
+    path = tmp_path / "manifest.json"
+    path.write_bytes(canonicalize(manifest))
+    path.chmod(0o600)
+    archive = tmp_path / "backup.zip"
+    create_backup_archive(
+        vault_root=vault, checkout_root=checkout, manifest=manifest, destination=archive, profile="research-r1"
+    )
+    restore = tmp_path / "restore"
+    restore.mkdir(mode=0o700)
+    root = Path(__file__).resolve().parents[2]
+    return {
+        "manifest": path,
+        "archive": archive,
+        "restore": restore,
+        "digest": manifest["manifest_sha256"],
+        "upstream": root / "vendor" / "claude-obsidian",
+        "config": root / "tests/fixtures/contracts/valid/video-paper-wiki.retrieval-policy.v1.json",
+    }
+
+
+def _restore_argv(ready):
+    return [
+        "backup",
+        "restore",
+        "--profile",
+        "research-r1",
+        "--archive",
+        str(ready["archive"]),
+        "--manifest",
+        str(ready["manifest"]),
+        "--expected-manifest-sha256",
+        ready["digest"],
+        "--restore-root",
+        str(ready["restore"]),
+        "--upstream-root",
+        str(ready["upstream"]),
+        "--config",
+        str(ready["config"]),
+    ]
+
+
+def test_research_restore_non_tty_leaves_the_root_empty(tmp_path):
+    ready = _research_restore_ready(tmp_path)
+    root = Path(__file__).resolve().parents[2]
+    code = "import sys\nsys.path.insert(0, 'operator/src')\nfrom video_paper_wiki_operator.cli import main\nraise SystemExit(main(sys.argv[1:]))\n"
+    argv = [sys.executable, "-c", code, *_restore_argv(ready)]
+    result = subprocess.run(argv, cwd=root, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
+    assert result.returncode == 2, result.stderr
+    assert json.loads(result.stdout)["error"]["code"] == "HUMAN_APPROVAL_REQUIRED"
+    assert list(ready["restore"].iterdir()) == []
+
+
+def test_research_restore_rejects_archive_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    ready = _research_restore_ready(tmp_path)
+
+    def replace(_words):
+        archive = ready["archive"]
+        replacement = archive.with_suffix(".new")
+        replacement.write_bytes(archive.read_bytes())
+        os.replace(replacement, archive)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(_restore_argv(ready)) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "RESTORE_VERIFICATION_FAILED"
+    assert list(ready["restore"].iterdir()) == []
+
+
+def test_research_restore_rejects_manifest_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    ready = _research_restore_ready(tmp_path)
+
+    def replace(_words):
+        manifest = ready["manifest"]
+        replacement = manifest.with_suffix(".new")
+        replacement.write_bytes(manifest.read_bytes())
+        os.replace(replacement, manifest)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(_restore_argv(ready)) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "RESTORE_VERIFICATION_FAILED"
+    assert list(ready["restore"].iterdir()) == []

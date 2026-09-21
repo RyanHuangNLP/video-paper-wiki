@@ -1,25 +1,32 @@
 """Receipt-backed research sources for the P3 rootless restore drill.
 
-Code evidence uses the production request, observe, config, and handoff
-commands. Draft, review, and plan bytes go through ``stage_bytes`` at the
-same relative paths those export commands write. The export commands also
-require a blob store and a seed-catalog paper, which this drill does not
-invent.
+Code evidence, flow, domain, experiments, articles, draft, review, and plan
+are created through their production entry points. The fixture does not call
+the backup scanner.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
 import os
+import stat
 from pathlib import Path
 
+from video_paper_wiki.article_revision import article_history, status_article_store
+from video_paper_wiki.cli import main
 from video_paper_wiki.code_proof_public import config_code_proof, status_code_proof
-from video_paper_wiki.commands.draft import DRAFT_FILENAME
-from video_paper_wiki.commands.plan import PLAN_FILENAME
+from video_paper_wiki.domain_store import status_domain_store
+from video_paper_wiki.experiment_store import status_experiment_store
+from video_paper_wiki.flow.prepare import prepare_flow
+from video_paper_wiki.flow.selection import select_flow
 from video_paper_wiki.identity import receipt_intent_sha256
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.receipt_audit import CURRENT_EXACT, CURRENT_PREFIXES, audit_integrity
-from video_paper_wiki.staging import stage_bytes
+from video_paper_wiki.upstream_runtime import lint_vault
+
+ROOT = Path(__file__).resolve().parents[2]
+SEED = "arxiv:2209.14792"
 
 
 def _private(root: Path) -> None:
@@ -91,38 +98,256 @@ def _sha_tree(root: Path) -> dict[str, str]:
     return found
 
 
+def _file_inventory(root: Path) -> dict[str, dict[str, object]]:
+    found = {}
+    for path in sorted(item for item in root.rglob("*") if item.is_file() and not item.is_symlink()):
+        info = path.stat()
+        found[path.relative_to(root).as_posix()] = {
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "mode": stat.S_IMODE(info.st_mode),
+        }
+    return found
+
+
+def _write_private(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    os.chmod(path, 0o600)
+    os.chmod(path.parent, 0o700)
+
+
+def _frontmatter(title: str, kind: str) -> str:
+    return (
+        "---\n"
+        f"title: {title}\n"
+        f"type: {kind}\n"
+        "status: active\n"
+        "created: 2026-09-08\n"
+        "updated: 2026-09-08\n"
+        "tags: [research]\n"
+        "---\n\n"
+    )
+
+
+def _claim_page_and_notes(vault: Path) -> None:
+    """Give the existing claim ledger a real page, and keep notes linked."""
+
+    ledger = json.loads((vault / "wiki/meta/ledgers/claim-ledger.json").read_text(encoding="utf-8"))
+    blocks = ["# Paper", ""]
+    for claim_id, row in sorted(ledger["claims"].items()):
+        blocks.append(str(row.get("text") or claim_id))
+        blocks.append("")
+        anchor = (row.get("location") or {}).get("anchor")
+        if isinstance(anchor, str) and anchor.startswith("^"):
+            blocks.append(anchor)
+            blocks.append("")
+    _write_private(
+        vault / "wiki" / "papers" / "paper.md",
+        _frontmatter("Paper", "paper") + "\n".join(blocks) + "\nSee [[reading-notes/note]].\n",
+    )
+    _write_private(
+        vault / "wiki" / "reading-notes" / "note.md",
+        _frontmatter("Recoverable note", "note") + "# Recoverable note\n\nSee [[papers/paper]].\n",
+    )
+
+
+def _source_ledger(vault: Path) -> None:
+    """Add the source ledger strict provenance requires, without rewriting claims."""
+
+    claim = json.loads((vault / "wiki/meta/ledgers/claim-ledger.json").read_text(encoding="utf-8"))
+    source_ids = []
+    for row in claim["claims"].values():
+        for item in row["evidence"]:
+            source_ids.append(item["source_id"])
+    unique = sorted(set(source_ids))
+    if len(unique) != 1:
+        raise RuntimeError("claim evidence does not share one source")
+    source_id = unique[0]
+    associations = list((vault / "wiki/meta/records/source-versions").glob("*.json"))
+    matched = None
+    for path in associations:
+        document = json.loads(path.read_text(encoding="utf-8"))
+        if document.get("source_id") == source_id:
+            matched = document
+            break
+    if matched is None:
+        raise RuntimeError("claim source is not an association")
+    raw = matched["raw"]
+    record = {
+        "origin": {"kind": "file", "locator": raw["path"]},
+        "content_kind": "document",
+        "title": "Fixture source",
+        "authority": "primary",
+        "review_status": "unreviewed",
+        "pages": [],
+        "content_sha256": raw["sha256"],
+        "ingested_at": "2026-09-08",
+        "retrieved_at": None,
+        "refresh_due": None,
+        "independence_key": None,
+        "supersedes": None,
+    }
+    document = {
+        "schema": "claude-obsidian.source-ledger.v1",
+        "generated_at": claim["generated_at"],
+        "sources": {source_id: record},
+    }
+    _write_private(
+        vault / "wiki/meta/ledgers/source-ledger.json",
+        json.dumps(document, ensure_ascii=False, indent=2) + "\n",
+    )
+
+
+def _operator_samples(checkout: Path) -> None:
+    """Stage draft, review, and plan through the production CLI."""
+
+    from tests.pdf_samples import sample_pdf_bytes
+    from tests.support import paper_source_request, plant_blob
+
+    blob_root = checkout / ".work" / "blobs"
+    digest = plant_blob(blob_root, sample_pdf_bytes("tiny"))
+    for batch in ("d1", "b2"):
+        code = main(["draft", "export", "--sha256", digest, "--batch-id", batch])
+        if code != 0:
+            raise RuntimeError(f"draft export {batch} failed")
+    draft = json.loads((ROOT / "tests/fixtures/drafts/minimal.json").read_text(encoding="utf-8"))
+    draft["paper_id"] = SEED
+    draft["title"] = "Make-A-Video"
+    draft_path = checkout / "review-draft.json"
+    draft_path.write_text(json.dumps(draft, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    if main(["review", "export", "--draft", str(draft_path), "--batch-id", "d1"]) != 0:
+        raise RuntimeError("review export failed")
+    request = checkout / "plan-request.json"
+    request.write_text(
+        json.dumps(paper_source_request(batch_id="d1", local_sha256=digest)),
+        encoding="utf-8",
+    )
+    if main(["ingest", "plan", "--request", str(request)]) != 0:
+        raise RuntimeError("plan export failed")
+
+
+def _consumers(vault: Path) -> dict:
+    installed = status_article_store(vault_root=str(vault))
+    staged_articles = status_article_store(vault_root=str(vault), batch_id="ua")
+    histories = [
+        article_history(vault_root=str(vault), article_id=row["article_id"])
+        for row in installed["articles"]
+    ]
+    histories.extend(
+        article_history(vault_root=str(vault), article_id=row["article_id"], batch_id="ua")
+        for row in staged_articles["articles"]
+        if row.get("head_location") == "staged"
+    )
+    from video_paper_wiki.flow.status import build_flow_status
+
+    return {
+        "code": status_code_proof(batch_id="d1"),
+        "flow": build_flow_status(vault_root=str(vault), batch_id="d1"),
+        "articles": installed,
+        "staged_articles": staged_articles,
+        "histories": histories,
+        "domain": status_domain_store(vault_root=str(vault)),
+        "experiments": status_experiment_store(vault_root=str(vault)),
+    }
+
+
 def prepare_research_sources(tmp_path: Path, monkeypatch) -> dict:
     """Build separated receipt-backed vault and checkout. Capture bundle is moved aside."""
+
+    from tests.unit.test_article_apply import _apply_art
+    from tests.unit.test_article_publication import _compile as compile_articles
+    from tests.unit.test_article_publication import _stage_complete
+    from tests.unit.test_article_revision import _papers, _question
     from tests.unit.test_domain_proposal import make_world
+    from tests.unit.test_graph_projection import _three_chain
+    from tests.unit.test_reading_apply import _apply_reading
+    from tests.unit.test_reading_apply import _compile as compile_reading
+    from tests.unit.test_reading_view import _build
 
     world = make_world(tmp_path, monkeypatch)
     checkout = world["checkout"]
     vault = tmp_path / "vault"
     world["vault"].rename(vault)
+    world["vault"] = vault
     bundle = checkout / ".work" / "raw"
     held_bundle = tmp_path / "capture-bundle"
     if bundle.exists():
         bundle.rename(held_bundle)
     monkeypatch.chdir(checkout)
     config_code_proof(path="config.json", config_format="json", batch_id="d1")
-    stage_bytes(batch_id="d1", relative=("draft", DRAFT_FILENAME), data=b'{"draft":"p3-r1"}\n')
-    stage_bytes(batch_id="d1", relative=("review", "paper.md"), data=b"p3 review\n")
-    stage_bytes(batch_id="d1", relative=("plan", PLAN_FILENAME), data=b'{"plan":"p3-r1"}\n')
-    stage_bytes(batch_id="b2", relative=("draft", DRAFT_FILENAME), data=b'{"draft":"second"}\n')
-    note = vault / "wiki" / "reading-notes" / "note.md"
-    note.parent.mkdir(parents=True, exist_ok=True)
-    note.write_bytes(
-        b"---\ntitle: Reading note\ntype: note\nstatus: draft\ncreated: 2026-09-02\nupdated: 2026-09-02\ntags: []\n---\n\nRecovered note.\n"
+    _three_chain(world)
+    staged = _stage_complete(world, batch="p1")
+    compile_articles(world, "p1")
+    _apply_art(world, "p1")
+    uninstalled = _stage_complete(world, batch="ua", question="alternate recoverable question", hour=30)
+    _build(world, "rd1")
+    compile_reading(world, "rd1")
+    _apply_reading(world, "rd1")
+    paper_ids = _papers(world)
+    question = _question(world)
+    select_flow(vault_root=str(vault), batch_id="d1", paper_ids=paper_ids[:1], question=question)
+    prepare_flow(
+        vault_root=str(vault),
+        batch_id="d1",
+        kind="experiment",
+        setting_key="table2-row3-vbench-512",
     )
-    note.chmod(0o600)
+    prepare_flow(
+        vault_root=str(vault),
+        batch_id="d1",
+        kind="article",
+        paper_ids=paper_ids[:1],
+        question=question,
+    )
+    _operator_samples(checkout)
+    _claim_page_and_notes(vault)
+    _source_ledger(vault)
+    report = lint_vault(vault_root=vault, upstream_root=ROOT / "vendor" / "claude-obsidian")
+    lint_paths = []
+    for key, rows in report["data"].items():
+        if not isinstance(rows, list):
+            continue
+        for row in rows:
+            if isinstance(row, dict):
+                lint_paths.extend(row.get("paths") or [])
+                if "path" in row:
+                    lint_paths.append(row["path"])
+                if "source" in row:
+                    lint_paths.append(row["source"])
+    for relative in (
+        "wiki/meta/domain",
+        "wiki/meta/experiments",
+        "wiki/meta/articles",
+        "wiki/reading",
+    ):
+        if not (vault / relative).is_dir():
+            raise RuntimeError(f"missing apply product {relative}")
+    revisions = [
+        uninstalled["outline"]["record"]["revision_id"],
+        uninstalled["section"]["record"]["revision_id"],
+        uninstalled["full"]["record"]["revision_id"],
+    ]
+    if len(set(revisions)) < 2:
+        raise RuntimeError("article revisions collapsed")
     receipt_sha = seal_receipt_vault(vault)
-    before = status_code_proof(batch_id="d1")
+    consumers = _consumers(vault)
     return {
         "vault": vault,
         "checkout": checkout,
         "bundle": held_bundle,
         "receipt_sha256": receipt_sha,
-        "code_status": before,
+        "code_status": consumers["code"],
+        "consumers": consumers,
+        "article_id": uninstalled["full"]["record"]["article_id"],
+        "installed_article_id": staged["full"]["record"]["article_id"],
+        "revision_ids": revisions,
+        "question": question,
+        "paper_ids": paper_ids[:1],
+        "lint_exit_code": report["exit_code"],
+        "lint_counts": report["data"].get("summary", {}).get("category_counts", {}),
+        "lint_issue_paths": sorted(set(lint_paths)),
         "vault_files": _sha_tree(vault),
         "checkout_files": _sha_tree(checkout),
+        "vault_inventory": _file_inventory(vault),
+        "checkout_inventory": _file_inventory(checkout),
     }

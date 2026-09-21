@@ -114,3 +114,7 @@ operator restore 在研究读取之前返回。此时 `research_validation=pendi
 - 合法的未完成研究状态会原样恢复，不会被补成完成，也不会自动发布。
 
 当前产品边界：`status_experiment_store`、`status_article_store` 和 `build_flow_status` 需要 Vault 里的 `wiki/meta/records/assessment-heads.json`（以及 source association 等材料）。`build_current_catalog` 对这个路径以及 source-version association 会以 `SOURCE_PROFILE_REQUIRED` 拒绝，因为现有 catalog 只接受 legacy profile。因此同一棵树不能同时通过 catalog 重建和这些研究读取。字节恢复、receipt 审计和代码证据读取可以在原根移走后完成；`valid=true` 不能在 catalog 拒绝时被标成通过。四类 apply-result 的 `publication=unpublished`、`receipt_backed=false`、`audit_coverage=not_wired`、`backup_coverage=not_wired` 不因本次备份而改变。
+
+已安装的 `wiki/reading/**` 生成页还会让 strict lint 失败。这些页的 frontmatter 没有 `title`、`type`、`status`、`created`、`updated`、`tags`，并且含有指向尚未存在页面的链接、重复的 `index` 基名和空节。手写的 claim/source ledger 与 `wiki/reading-notes` 可以单独通过出处和孤立页检查；这不能把生成阅读页算成 lint 通过。`backup verify` 先停在 strict lint，到不了 catalog。两条失败要分开记录。
+
+本轮 closure 演练用生产入口准备了代码证据、flow、未安装文章的三次修订、四类 apply 产物，以及真实的 draft、review、plan。manifest 来自 CLI 的 `.data`。create 和 restore 走 operator 的 PTY 确认。原 Vault、checkout 和采集 bundle 移走之后，恢复出的覆盖文件字节和模式与 manifest 一致，receipt 审计为 `receipt_backed`，代码、flow、文章修订、领域和实验状态与备份前一致。operator restore 返回 `SOURCE_PROFILE_REQUIRED`。最终 `backup verify` 退出码为 2，代码 `RESTORE_VERIFICATION_FAILED`，消息是 `strict lint rejected restored Vault`。验证前后覆盖文件没有变化。`valid` 不是 `true`。演练日志写在测试临时目录的 `p3-r1-drill.json`，不覆盖固定的 `/tmp` 路径。
