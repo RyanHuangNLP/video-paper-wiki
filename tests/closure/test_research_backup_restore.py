@@ -20,7 +20,8 @@ from video_paper_wiki.experiment_store import status_experiment_store
 from video_paper_wiki.flow.status import build_flow_status
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.receipt_audit import audit_integrity
-from video_paper_wiki.staging import resolve_checkout_root
+from video_paper_wiki.restore_verification import _research_reads
+from video_paper_wiki.staging import StagingError, resolve_checkout_root, validate_batch_id
 from video_paper_wiki.upstream_runtime import lint_vault
 
 from tests.closure._p3_recovery_fixture import prepare_research_sources
@@ -65,6 +66,48 @@ def _admin(cwd: Path, *args: str) -> list[str]:
         "raise SystemExit(main(sys.argv[1:]))\n"
     )
     return [os.environ.get("PYTHON", "") or __import__("sys").executable, "-c", code, *args]
+
+
+_RULE_DIRS = {
+    "code-evidence-v1",
+    "flow",
+    "domain",
+    "experiments",
+    "articles",
+    "draft",
+    "review",
+    "plan",
+}
+
+
+def _whitelist(relative: str) -> bool:
+    if relative in {".raw", "wiki", ".work"} or relative.startswith((".raw/", "wiki/")):
+        return True
+    parts = relative.split("/")
+    if not parts or parts[0] != ".work" or len(parts) < 2:
+        return False
+    if parts[1] in {"blobs", "pdf-migration", "research"}:
+        return False
+    try:
+        validate_batch_id(parts[1])
+    except StagingError:
+        return False
+    return len(parts) == 2 or parts[2] in _RULE_DIRS
+
+
+def _observe(root: Path) -> dict[str, dict[str, object]]:
+    found: dict[str, dict[str, object]] = {}
+    for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            continue
+        relative = path.relative_to(root).as_posix()
+        info = path.lstat()
+        found[relative] = {
+            "kind": "dir" if stat.S_ISDIR(info.st_mode) else "file",
+            "mode": stat.S_IMODE(info.st_mode),
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest() if stat.S_ISREG(info.st_mode) else "",
+        }
+    return found
 
 
 def _covered(root: Path, manifest: dict) -> dict[str, tuple[str, int]]:
@@ -160,6 +203,17 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
         assert relative in archived
     assert any(path.startswith("wiki/reading/") and path.endswith(".md") for path in archived)
     digest = manifest["manifest_sha256"]
+    source_obs = _observe(vault)
+    for relative, meta in _observe(checkout).items():
+        if relative in source_obs and source_obs[relative] != meta:
+            raise AssertionError(relative)
+        source_obs[relative] = meta
+    expected = {relative: meta for relative, meta in source_obs.items() if _whitelist(relative)}
+    uninstalled = prepared["uninstalled"]
+    vault_ids = {path.stem for path in vault.rglob("*") if path.is_file()}
+    for record_id in (uninstalled["annotation_id"], uninstalled["review_id"], uninstalled["experiment_record_id"]):
+        assert record_id not in vault_ids
+        assert any(record_id in relative for relative in expected)
     original_vault = vault
     original_checkout = checkout
     original_bundle = prepared["bundle"]
@@ -194,15 +248,20 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
         b"backup restore\n",
         ROOT,
     )
-    restored_error = json.loads(stdout)
-    assert code == 2, stdout
-    assert restored_error["error"]["code"] == "SOURCE_PROFILE_REQUIRED"
+    restored_payload = json.loads(stdout)
+    restored_obs = {relative: meta for relative, meta in _observe(restore).items() if _whitelist(relative)}
+    assert restored_obs == expected
+    assert {row["path"] for row in manifest["files"]} == {relative for relative, meta in expected.items() if meta["kind"] == "file"}
+    assert {row["path"] for row in manifest["directories"]} == {relative for relative, meta in expected.items() if meta["kind"] == "dir"}
     for row in manifest["files"]:
-        target = restore / row["path"]
-        assert hashlib.sha256(target.read_bytes()).hexdigest() == row["sha256"]
-        assert stat.S_IMODE(target.stat().st_mode) == row["mode"]
+        assert expected[row["path"]]["sha256"] == row["sha256"]
+        assert expected[row["path"]]["mode"] == row["mode"]
     for row in manifest["directories"]:
-        assert stat.S_IMODE((restore / row["path"]).stat().st_mode) == row["mode"]
+        assert expected[row["path"]]["mode"] == row["mode"]
+    assert (restore / ".work" / "p1" / "articles").is_dir()
+    assert (restore / ".work" / uninstalled["domain_batch"] / "domain").is_dir()
+    assert (restore / ".work" / uninstalled["review_batch"] / "domain" / "reviews").is_dir()
+    assert (restore / ".work" / uninstalled["experiment_batch"] / "experiments" / "records").is_dir()
     assert audit_integrity(restore)["classification"] == "receipt_backed"
     assert not (restore / ".work" / "raw").exists()
     assert not (restore / ".work" / "blobs").exists()
@@ -248,15 +307,36 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
     assert domain_cli == domain_after
     experiment_cli = _cli_data(capsys, ["experiments", "status", "--vault-root", str(restore)])
     assert experiment_cli == experiment_after
+    articles_cli = _cli_data(capsys, ["articles", "status", "--vault-root", str(restore)])
+    assert [row["article_id"] for row in articles_cli["articles"]] == [row["article_id"] for row in articles_after["articles"]]
+    staged_cli = _cli_data(capsys, ["articles", "status", "--vault-root", str(restore), "--batch-id", "ua"])
+    assert prepared["article_id"] in [row["article_id"] for row in staged_cli["articles"]]
+    history_cli = _cli_data(
+        capsys,
+        ["articles", "history", "--vault-root", str(restore), "--article-id", prepared["article_id"], "--batch-id", "ua"],
+    )
+    history_ids = [row["revision_id"] for row in history_cli["revisions"]]
+    assert prepared["revision_ids"][0] in history_ids
+    assert prepared["revision_ids"][-1] in history_ids
+    assert len(history_ids) >= 3
+    reads = _research_reads(restore, manifest)
+    flow_read = next(item["flow"] for item in reads["batches"] if item["batch_id"] == "d1")
+    assert flow_read["selection"]["question"] == prepared["question"]
+    retained = next(item["articles_read"] for item in reads["batches"] if item["batch_id"] == "p1")
+    assert retained["mode"] == "retained_installed_staging"
+    assert retained["retained_staging"]["records"]
+    assert (restore / ".work" / "p1" / "articles").is_dir()
+    merged = next(item["articles_read"] for item in reads["batches"] if item["batch_id"] == "ua")
+    assert merged["mode"] == "merged"
+    assert prepared["article_id"] in [row["article_id"] for row in merged["articles"]["articles"]]
     before_verify = _covered(restore, manifest)
     lint_after = lint_vault(vault_root=restore, upstream_root=UPSTREAM)
-    assert lint_after["exit_code"] != 0
-    assert lint_after["data"]["summary"]["category_counts"]["provenance_errors"] == 0
-    with pytest.raises(ContractError) as caught:
+    catalog_code = None
+    try:
         build_current_catalog(vault_root=restore, upstream_root=UPSTREAM, retrieval_config=POLICY)
-    assert caught.value.code == "SOURCE_PROFILE_REQUIRED"
-    assert "assessment-heads" in caught.value.details["instance_pointer"]
-    assert main(
+    except ContractError as exc:
+        catalog_code = exc.code
+    verify_code = main(
         [
             "backup",
             "verify",
@@ -273,12 +353,10 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
             "--config",
             str(POLICY),
         ]
-    ) == 2
-    verify_error = json.loads(capsys.readouterr().out)
-    assert verify_error["ok"] is False
-    assert verify_error["error"]["code"] == "RESTORE_VERIFICATION_FAILED"
-    assert verify_error["error"]["message"] == "strict lint rejected restored Vault"
+    )
+    verify_payload = json.loads(capsys.readouterr().out)
     assert _covered(restore, manifest) == before_verify
+    valid = bool(verify_payload.get("ok") and verify_payload.get("data", {}).get("valid") is True)
     log = tmp_path / "p3-r1-drill.json"
     log.write_text(
         json.dumps(
@@ -296,11 +374,11 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
                 "candidate_revision": revision,
                 "lint_exit_code": lint_after["exit_code"],
                 "lint_counts": lint_after["data"]["summary"]["category_counts"],
-                "catalog_code": "SOURCE_PROFILE_REQUIRED",
-                "verify_code": verify_error["error"]["code"],
-                "verify_message": verify_error["error"]["message"],
-                "operator_restore_code": restored_error["error"]["code"],
-                "valid": False,
+                "catalog_code": catalog_code,
+                "verify_code": verify_code,
+                "verify_payload_ok": verify_payload.get("ok"),
+                "operator_restore_code": code,
+                "valid": valid,
                 "original_roots_exist": False,
             },
             ensure_ascii=False,
@@ -311,6 +389,24 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
     )
     assert log.parent == tmp_path
     assert log.name == "p3-r1-drill.json"
+    assert code == 0, json.dumps(
+        {
+            "stdout": stdout.decode(),
+            "lint_exit_code": lint_after["exit_code"],
+            "lint_counts": lint_after["data"]["summary"]["category_counts"],
+            "catalog_code": catalog_code,
+            "verify_code": verify_code,
+            "verify_ok": verify_payload.get("ok"),
+            "verify_error": verify_payload.get("error"),
+            "valid": valid,
+        },
+        ensure_ascii=False,
+    )
+    assert restored_payload["research_validation"] == "pending"
+    assert restored_payload["verification"]["valid"] is False
+    assert verify_code == 0, verify_payload
+    assert verify_payload["ok"] is True
+    assert verify_payload["data"]["valid"] is True
 
 
 def test_installed_wheel_replays_research_restore(tmp_path: Path) -> None:
@@ -406,6 +502,25 @@ for tree in (vault, checkout):
         path.chmod(0o700 if path.is_dir() else 0o600)
     tree.chmod(0o700)
 manifest = build_research_backup_manifest(vault, checkout)
+import json, subprocess
+vpwiki = Path(sys.executable).with_name("vpwiki")
+listed = subprocess.run([str(vpwiki), "backup", "manifest", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+assert listed.returncode == 0, listed.stderr
+assert json.loads(listed.stdout)["data"]["manifest_sha256"] == manifest["manifest_sha256"]
+manifest_path = root / "manifest.json"
+manifest_path.write_bytes(canonicalize(manifest))
+operator_src = sys.argv[2]
+code = "import sys\\nsys.path.insert(0, sys.argv[1])\\nfrom video_paper_wiki_operator.cli import main\\nraise SystemExit(main(sys.argv[2:]))\\n"
+cli_archive = root / "cli-backup.zip"
+import pty
+master, slave = pty.openpty()
+proc = subprocess.Popen([sys.executable, "-c", code, operator_src, "backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest_path), "--destination", str(cli_archive)], stdin=slave, stdout=subprocess.PIPE, stderr=slave)
+os.close(slave)
+os.write(master, b"backup create\\n")
+stdout, _stderr = proc.communicate(timeout=120)
+os.close(master)
+assert proc.returncode == 0, stdout
+assert json.loads(stdout)["research_validation"] == "pending"
 archive = root / "backup.zip"
 create_backup_archive(vault_root=vault, checkout_root=checkout, manifest=manifest, destination=archive, profile="research-r1")
 import shutil
@@ -427,7 +542,7 @@ print("wheel-replay-ok")
         encoding="utf-8",
     )
     replay = subprocess.run(
-        [str(python), "-I", "-B", str(script), str(tmp_path / "data")],
+        [str(python), "-I", "-B", str(script), str(tmp_path / "data"), str(ROOT / "operator" / "src")],
         cwd=tmp_path,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

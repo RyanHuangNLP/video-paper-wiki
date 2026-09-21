@@ -396,3 +396,59 @@ def test_research_restore_rejects_manifest_replaced_during_confirmation(monkeypa
     assert module.main(_restore_argv(ready)) == 2
     assert json.loads(capsys.readouterr().out)["error"]["code"] == "RESTORE_VERIFICATION_FAILED"
     assert list(ready["restore"].iterdir()) == []
+
+
+def test_research_create_rejects_checkout_changed_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+
+    def replace(_words):
+        draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+        draft.write_bytes(b'{"draft":2}')
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(["backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest), "--destination", str(dest)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] in {"BACKUP_RACE", "BACKUP_COVERAGE_INVALID"}
+    assert not dest.exists()
+
+
+def test_research_create_rejects_destination_parent_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+
+    def replace(_words):
+        parent = dest.parent
+        moved = parent.with_name(parent.name + "-old")
+        parent.rename(moved)
+        parent.mkdir(mode=0o700)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(["backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest), "--destination", str(dest)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "BACKUP_RACE"
+    assert not dest.exists()
+
+
+def test_research_restore_rejects_root_parent_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    ready = _research_restore_ready(tmp_path)
+    nested = tmp_path / "nest"
+    nested.mkdir(mode=0o700)
+    target = nested / "restore"
+    ready["restore"].rename(target)
+    ready["restore"] = target
+
+    def replace(_words):
+        parent = ready["restore"].parent
+        moved = tmp_path / "nest-old"
+        parent.rename(moved)
+        parent.mkdir(mode=0o700)
+        (parent / "restore").mkdir(mode=0o700)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(_restore_argv(ready)) == 2
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["error"]["code"] in {"RESTORE_ROOT_UNSAFE", "RESTORE_VERIFICATION_FAILED"}
+    assert list(ready["restore"].iterdir()) == []

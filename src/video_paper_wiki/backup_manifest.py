@@ -215,8 +215,8 @@ def _observe_vault_tree(root_fd:int)->set[str]:
         finally:close_fd(fd)
     return found
 
-def _recheck_research_sources(vault_snap,checkout_snap)->None:
-    """Recheck both retained roots, file bytes, and the complete path set."""
+def _recheck_vault_snapshot(vault_snap)->None:
+    """Re-read retained Vault bytes and the complete vault path set."""
     from video_paper_wiki.receipt_audit import _inventory_names
     from video_paper_wiki.secure_io import SecureIOError
     if vault_snap is None or getattr(vault_snap,"root_fd",None) is None:_fail("research source changed")
@@ -230,8 +230,13 @@ def _recheck_research_sources(vault_snap,checkout_snap)->None:
     if vault_snap.inventory is not None and _inventory_names(vault_snap)!=vault_snap.inventory:_fail("research source complete set changed")
     captured={path for path in vault_snap.directories if _vault_path(path)}|{path for path in vault_snap.files if _vault_path(path)}
     if _observe_vault_tree(vault_snap.root_fd)!=captured:_fail("research source complete set changed")
+
+def _recheck_research_sources(vault_snap,checkout_snap)->None:
+    """Recheck both retained roots. Vault is checked again after checkout content."""
+    _recheck_vault_snapshot(vault_snap)
     if checkout_snap is None or getattr(checkout_snap,"root_fd",None) is None:_fail("checkout coverage changed")
     checkout_snap.verify()
+    _recheck_vault_snapshot(vault_snap)
 
 def _reraise_after_recheck(vault_snap,checkout_snap,original:BaseException)->None:
     try:_recheck_research_sources(vault_snap,checkout_snap)
@@ -252,7 +257,9 @@ def build_research_backup_manifest(vault_root:Path|str,checkout_root:Path|str,*,
         if checkout_snap is None:checkout_snap=CoverageSnapshot(checkout_root)
         try:
             vault_doc=build_backup_manifest(vault_root,operation_head=operation_head,expected_claimed_raw=expected_claimed_raw,_snapshot=vault_snap)
-            checkout_snap=scan_research_coverage(checkout_root,snapshot=checkout_snap)
+            entry_base=len(vault_doc["directories"])+len(vault_doc["files"])
+            byte_base=sum(row["size_bytes"] for row in vault_doc["files"])
+            checkout_snap=scan_research_coverage(checkout_root,snapshot=checkout_snap,entry_base=entry_base,byte_base=byte_base)
             report=checkout_snap.report
             if report is None:_fail("checkout coverage is missing")
             directories=list(vault_doc["directories"])+list(report["directories"])

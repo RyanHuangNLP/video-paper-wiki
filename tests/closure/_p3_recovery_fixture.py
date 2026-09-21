@@ -226,6 +226,51 @@ def _operator_samples(checkout: Path) -> None:
         raise RuntimeError("plan export failed")
 
 
+def _stage_uninstalled(world: dict) -> dict:
+    """Stage domain, review, and experiment records that are never applied."""
+
+    from tests.unit.test_domain_proposal import valid_proposal
+    from tests.unit.test_domain_store import _decision_for, _record, _review
+    from tests.unit.test_experiment_store import _record_exp, valid_condition_input
+    from video_paper_wiki.domain_store import load_domain_store
+
+    store, heads, _authority = load_domain_store(str(world["vault"]))
+    lineage_id, head = sorted(heads["heads"].items())[0]
+    proposal = valid_proposal(world)
+    proposal["relation"]["reason"] = proposal["relation"]["reason"] + " Kept only in staging."
+    annotation = _record(
+        world,
+        proposal,
+        name="uninstalled-proposal.json",
+        previous=head["annotation_id"],
+        recorded_at="2026-09-14T05:00:00Z",
+        batch="du",
+    )
+    installed = store.annotations[head["annotation_id"]]
+    decision = _decision_for(world, {"record": installed})
+    decision["expected_previous_review_id"] = head["review_id"]
+    decision["decided_at"] = "2026-09-14T06:00:00Z"
+    decision["reason"] = "Uninstalled follow-up review."
+    review = _review(world, decision, name="uninstalled-review.json", batch="dr")
+    experiment = _record_exp(
+        world,
+        valid_condition_input(world, setting_key="uninstalled-only"),
+        name="uninstalled-condition.json",
+        batch="eu",
+        recorded_at="2026-09-14T07:00:00Z",
+    )
+    return {
+        "domain_batch": "du",
+        "review_batch": "dr",
+        "experiment_batch": "eu",
+        "lineage_id": lineage_id,
+        "annotation_id": annotation["record"]["annotation_id"],
+        "review_id": review["record"]["review_id"],
+        "experiment_record_id": experiment["record"]["record_id"],
+        "experiment_condition_id": experiment["record"]["condition_id"],
+    }
+
+
 def _consumers(vault: Path) -> dict:
     installed = status_article_store(vault_root=str(vault))
     staged_articles = status_article_store(vault_root=str(vault), batch_id="ua")
@@ -300,6 +345,7 @@ def prepare_research_sources(tmp_path: Path, monkeypatch) -> dict:
         question=question,
     )
     _operator_samples(checkout)
+    uninstalled_records = _stage_uninstalled(world)
     _claim_page_and_notes(vault)
     _source_ledger(vault)
     report = lint_vault(vault_root=vault, upstream_root=ROOT / "vendor" / "claude-obsidian")
@@ -343,6 +389,7 @@ def prepare_research_sources(tmp_path: Path, monkeypatch) -> dict:
         "revision_ids": revisions,
         "question": question,
         "paper_ids": paper_ids[:1],
+        "uninstalled": uninstalled_records,
         "lint_exit_code": report["exit_code"],
         "lint_counts": report["data"].get("summary", {}).get("category_counts", {}),
         "lint_issue_paths": sorted(set(lint_paths)),

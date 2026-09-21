@@ -142,6 +142,8 @@ class CoverageSnapshot:
         self.children: dict[str, tuple[str, ...]] = {}
         self.report: dict[str, Any] | None = None
         self.sealed = False
+        self.entry_base = 0
+        self.byte_base = 0
         try:
             self.root_stat = self.root.lstat()
         except OSError:
@@ -193,10 +195,10 @@ class CoverageSnapshot:
             for relative, names in self.children.items():
                 fd, _opened = _walk_open(self.root_fd, relative, directory=True)
                 try:
-                    observed = tuple(sorted((entry.name for entry in os.scandir(fd)), key=lambda item: item.encode()))
+                    found = _names_within_limit(fd, relative, len(names))
                 finally:
                     close_fd(fd)
-                if observed != names:
+                if _sort_names(found) != names:
                     raise OSError
         except ContractError:
             raise
@@ -212,6 +214,21 @@ def _sort_names(names: list[str]) -> tuple[str, ...]:
     """Sort only after the caller has already applied the enumeration budget."""
     names.sort(key=lambda item: item.encode())
     return tuple(names)
+
+
+def _names_within_limit(fd: int, relative: str, limit: int) -> list[str]:
+    """Collect at most ``limit`` names. One extra name fails before the list is sorted."""
+    names: list[str] = []
+    try:
+        for entry in os.scandir(fd):
+            if len(names) >= limit:
+                _fail("coverage tree changed", relative)
+            if unicodedata.normalize("NFC", entry.name) != entry.name or "/" in entry.name or "\\" in entry.name or entry.name in {"", ".", ".."}:
+                _fail("coverage path is not portable", relative + "/" + entry.name)
+            names.append(entry.name)
+    except OSError:
+        _fail("coverage directory is unsafe", relative)
+    return names
 
 
 def _read_fd(fd: int, *, max_bytes: int | None = None) -> bytes:
@@ -328,6 +345,8 @@ class _Scan:
         self.discovered: list[dict[str, str]] = []
         self.candidates = 0
         self.total_bytes = 0
+        self.entry_base = 0
+        self.byte_base = 0
         self.names = _producer_names()
         self.max_entries, self.max_file_bytes, self.max_total_bytes = _limits()
 
@@ -349,7 +368,7 @@ class _Scan:
         else:
             self.snap.directories[relative] = found
         self.directories.append({"path": relative, "mode": stat.S_IMODE(found.st_mode)})
-        if len(self.directories) + len(self.files) > self.max_entries:
+        if self.entry_base + len(self.directories) + len(self.files) > self.max_entries:
             _fail("manifest entry limit exceeded")
 
     def remember_file(self, relative: str, found: os.stat_result, raw: bytes) -> None:
@@ -370,7 +389,7 @@ class _Scan:
             "size_bytes": len(raw),
             "mode": stat.S_IMODE(found.st_mode),
         })
-        if len(self.directories) + len(self.files) > self.max_entries:
+        if self.entry_base + len(self.directories) + len(self.files) > self.max_entries:
             _fail("manifest entry limit exceeded")
 
     def remember_children(self, relative: str, names: tuple[str, ...]) -> None:
@@ -387,12 +406,20 @@ class _Scan:
         else:
             self.snap.absent.add(relative)
 
+    def _require_entry_room(self, pending: int) -> None:
+        """Refuse another inner name before it is collected or sorted."""
+        used = self.entry_base + len(self.directories) + len(self.files) + pending
+        if used > self.max_entries:
+            _fail("manifest entry limit exceeded")
+
     def list_names(self, fd: int, relative: str, *, count_candidates: bool) -> tuple[str, ...]:
         names: list[str] = []
         try:
             for entry in os.scandir(fd):
                 if count_candidates:
                     self.candidate()
+                else:
+                    self._require_entry_room(len(names) + 1)
                 if unicodedata.normalize("NFC", entry.name) != entry.name or "/" in entry.name or "\\" in entry.name or entry.name in {"", ".", ".."}:
                     _fail("coverage path is not portable", relative + "/" + entry.name)
                 names.append(entry.name)
@@ -438,7 +465,7 @@ class _Scan:
             opened = os.fstat(fd)
             if stamp(opened) != stamp(found) or not stat.S_ISREG(opened.st_mode) or opened.st_nlink != 1:
                 _fail("coverage file changed", relative)
-            remaining = self.max_total_bytes - self.total_bytes
+            remaining = self.max_total_bytes - self.byte_base - self.total_bytes
             if remaining < 0:
                 _fail("manifest resource limit exceeded", relative)
             raw = _read_fd(fd, max_bytes=min(self.max_file_bytes, remaining))
@@ -729,14 +756,32 @@ def _scan_batch(scan: _Scan, work_fd: int, batch: str) -> None:
         close_fd(fd)
 
 
-def scan_research_coverage(root: Path | str, *, snapshot: CoverageSnapshot | None = None) -> CoverageSnapshot:
-    """Enumerate compliant batches and the eight whitelist rules under ``checkout/.work``."""
+def scan_research_coverage(
+    root: Path | str,
+    *,
+    snapshot: CoverageSnapshot | None = None,
+    entry_base: int = 0,
+    byte_base: int = 0,
+) -> CoverageSnapshot:
+    """Enumerate compliant batches and the eight whitelist rules under ``checkout/.work``.
+
+    ``entry_base`` and ``byte_base`` are bytes and manifest entries already consumed by the
+    paired Vault root. Both roots share one remaining budget.
+    """
     owns = snapshot is None
     snap = snapshot or CoverageSnapshot(root)
     if snap.root_fd is None:
         _fail("checkout root is unavailable")
     compare = snap.sealed
+    if compare:
+        entry_base = int(getattr(snap, "entry_base", 0))
+        byte_base = int(getattr(snap, "byte_base", 0))
+    else:
+        snap.entry_base = entry_base
+        snap.byte_base = byte_base
     scan = _Scan(snap, compare)
+    scan.entry_base = entry_base
+    scan.byte_base = byte_base
     try:
         if stamp(os.fstat(snap.root_fd)) != stamp(snap.root_stat) or stamp(snap.root.lstat()) != stamp(snap.root_stat):
             _fail("checkout root changed")

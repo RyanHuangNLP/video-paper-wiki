@@ -22,7 +22,9 @@
 
 同一份 staging 即使已经安装进 Vault，也仍然单独保存，不去重、不裁历史。
 
-上限与 v1 相同：单文件 64 MiB，目录加文件合计 65,534 项，以及 classic ZIP 的总字节上限。另外最多 128 个批次，发现阶段最多检查 4,096 个候选目录项。超限整次失败，不产生部分归档。
+上限与 v1 相同：单文件 64 MiB，目录加文件合计 65,534 项，以及 classic ZIP 的总字节上限。Vault 和 checkout 共用这一份剩余预算。checkout 扫描、内层枚举和复核都先按剩余限额停住，再收集和排序；不会把超限文件读完之后才拒绝。另外最多 128 个批次，发现阶段最多检查 4,096 个候选目录项。超限整次失败，不产生部分归档。
+
+成功出口和异常出口都会在 checkout 内容复核之后再核对 Vault。最终复核期间 Vault 发生变化时，返回的是失败，不是复核开始前的旧 manifest。
 
 ## 明确不在这份归档里
 
@@ -101,7 +103,11 @@ git checkout --detach FETCH_HEAD
 
 先确认这个提交的受控路径不覆盖 `.raw`、`wiki`、`.work`，再 checkout。然后在 `R` 里运行研究读取。
 
-`backup verify` 会核对 manifest 自哈希、source anchor、v1 `vault_manifest_sha256`、规则计数和逐项字节，并调用现有的 `status_code_proof`、`build_flow_status`、`status_article_store`、`article_history`、`status_domain_store`、`status_experiment_store`（只对清单里 `included` 的规则）。`valid=true` 只在这些适用检查和既有 Vault 验证都通过时出现。`external_backup_observation` 保持 `false`。
+`backup verify` 会核对 manifest 自哈希、source anchor、v1 `vault_manifest_sha256`、规则计数和逐项字节，并调用现有的 `status_code_proof`、`build_flow_status`、`status_article_store`、`article_history`、`status_domain_store`、`status_experiment_store`（只对清单里 `included` 的规则）。传给 flow 的 `vault_root` 是字符串，这样生成的 argv 才能通过字符串 schema。
+
+已安装且仍保留 staging 的文章用兼容读取：先按现有合并读取；若合并因 `staged_previous` 失败，则单独校验 staging 链，并要求每个 staging 修订都已在 Vault 历史中且记录字节相同。渲染快照一并核对。staging 不会被删除。未安装文章仍走原来的合并读取。
+
+`valid=true` 只在这些适用检查和既有 Vault 验证都通过时出现。`external_backup_observation` 保持 `false`。
 
 operator restore 在研究读取之前返回。此时 `research_validation=pending`，不能把 `verification.valid` 当成演练已经通过。
 
@@ -115,6 +121,8 @@ operator restore 在研究读取之前返回。此时 `research_validation=pendi
 
 当前产品边界：`status_experiment_store`、`status_article_store` 和 `build_flow_status` 需要 Vault 里的 `wiki/meta/records/assessment-heads.json`（以及 source association 等材料）。`build_current_catalog` 对这个路径以及 source-version association 会以 `SOURCE_PROFILE_REQUIRED` 拒绝，因为现有 catalog 只接受 legacy profile。因此同一棵树不能同时通过 catalog 重建和这些研究读取。字节恢复、receipt 审计和代码证据读取可以在原根移走后完成；`valid=true` 不能在 catalog 拒绝时被标成通过。四类 apply-result 的 `publication=unpublished`、`receipt_backed=false`、`audit_coverage=not_wired`、`backup_coverage=not_wired` 不因本次备份而改变。
 
+FOLLOW2 新确认的阻塞仍是这两项，本轮没有改 `catalog_store.py`、`catalog_collector.py`、`source_state.py` 或 `reading/pages.py`，也没有删除 assessment-heads、过滤恢复数据或跳过检查。最小前置方案见交付记录：catalog 需要能在不丢弃 assessment-heads 和 source-version association 的前提下重建；阅读页生成需要满足 strict lint 的 frontmatter、链接、基名和节约束。这两项落地之前，带四类 apply 产物的完整演练不能诚实标成 `valid=true`。
+
 已安装的 `wiki/reading/**` 生成页还会让 strict lint 失败。这些页的 frontmatter 没有 `title`、`type`、`status`、`created`、`updated`、`tags`，并且含有指向尚未存在页面的链接、重复的 `index` 基名和空节。手写的 claim/source ledger 与 `wiki/reading-notes` 可以单独通过出处和孤立页检查；这不能把生成阅读页算成 lint 通过。`backup verify` 先停在 strict lint，到不了 catalog。两条失败要分开记录。
 
-本轮 closure 演练用生产入口准备了代码证据、flow、未安装文章的三次修订、四类 apply 产物，以及真实的 draft、review、plan。manifest 来自 CLI 的 `.data`。create 和 restore 走 operator 的 PTY 确认。原 Vault、checkout 和采集 bundle 移走之后，恢复出的覆盖文件字节和模式与 manifest 一致，receipt 审计为 `receipt_backed`，代码、flow、文章修订、领域和实验状态与备份前一致。operator restore 返回 `SOURCE_PROFILE_REQUIRED`。最终 `backup verify` 退出码为 2，代码 `RESTORE_VERIFICATION_FAILED`，消息是 `strict lint rejected restored Vault`。验证前后覆盖文件没有变化。`valid` 不是 `true`。演练日志写在测试临时目录的 `p3-r1-drill.json`，不覆盖固定的 `/tmp` 路径。
+本轮 closure 演练用生产入口准备了代码证据、flow、未安装文章的三次修订、真正未安装的领域标注、审阅和实验记录、四类 apply 产物，以及真实的 draft、review、plan。覆盖集合、字节和模式的期望来自文件系统观察，不调用待测 scanner。manifest 来自 CLI 的 `.data`。create 和 restore 走 operator 的 PTY 确认。原 Vault、checkout 和采集 bundle 移走之后，恢复出的覆盖文件集合、字节和模式与这份独立期望以及 manifest 一致；receipt 审计为 `receipt_backed`；代码、flow、文章 status/history、领域和实验状态与备份前一致；已安装仍保留的文章 staging 按 `retained_installed_staging` 读出，未安装文章按 `merged` 读出。这些核对都在 operator 返回之前完成。operator restore 退出码为 2，`SOURCE_PROFILE_REQUIRED`。独立 catalog 调用是同一个代码。最终 `backup verify` 退出码为 2，代码 `RESTORE_VERIFICATION_FAILED`，消息是 `strict lint rejected restored Vault`。本次 lint 计数：`dead_links` 18、`duplicate_basenames` 1、`empty_sections` 1、`missing_frontmatter` 9、`stale_index_entries` 3，其余类别为 0。验证前后覆盖文件没有变化。`valid` 不是 `true`。演练日志写在测试临时目录的 `p3-r1-drill.json`。

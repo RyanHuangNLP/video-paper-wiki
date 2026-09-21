@@ -118,6 +118,36 @@ def test_research_manifest_envelope_data_is_the_operator_document(tmp_path: Path
     validate_document(document, expected_schema=document["schema"])
 
 
+def test_research_cli_rejects_a_checkout_file_past_the_shared_budget(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    import video_paper_wiki.backup_manifest as manifest_module
+    from video_paper_wiki.backup_manifest import build_backup_manifest
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    vault_bytes = sum(row["size_bytes"] for row in build_backup_manifest(vault)["files"])
+    draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+    draft.write_bytes(b"0123456789abcdef")
+    draft.chmod(0o600)
+    monkeypatch.setattr(manifest_module, "MAX_TOTAL_BYTES", vault_bytes + 8)
+    assert main(["backup", "manifest", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID"}
+
+
+def test_research_cli_rejects_a_fifo_in_a_whitelist_directory(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    import os
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    fifo = checkout / ".work" / "b1" / "draft" / "extra.fifo"
+    os.mkfifo(fifo)
+    assert main(["backup", "manifest", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "BACKUP_COVERAGE_INVALID"
+
+
 def test_research_verify_requires_independent_hash_and_rejects_source_root(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["backup", "verify", "--profile", "research-r1", "--restore-root", "/r", "--manifest", "/m", "--upstream-root", "/u", "--config", "/c"]) == 2
     assert json.loads(capsys.readouterr().out)["error"]["code"] == "USAGE"

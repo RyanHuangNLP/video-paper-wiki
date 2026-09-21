@@ -222,15 +222,118 @@ def test_vault_change_during_checkout_scan_is_not_a_stale_manifest(tmp_path: Pat
     _checkout(checkout)
     real = coverage.scan_research_coverage
 
-    def change_vault(root, *, snapshot=None):
+    def change_vault(root, *, snapshot=None, entry_base=0, byte_base=0):
         note = vault / "wiki" / "reading-notes" / "note.md"
         note.write_bytes(b"changed-during-checkout-scan")
-        return real(root, snapshot=snapshot)
+        return real(root, snapshot=snapshot, entry_base=entry_base, byte_base=byte_base)
 
     monkeypatch.setattr(coverage, "scan_research_coverage", change_vault)
     with pytest.raises(ContractError) as caught:
         build_research_backup_manifest(vault, checkout)
     assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID"}
+
+
+def test_vault_change_during_final_checkout_recheck_is_not_a_stale_manifest(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    real = coverage.CoverageSnapshot.verify
+
+    def change_during_recheck(self):
+        (vault / "wiki" / "reading-notes" / "note.md").write_bytes(b"changed-during-final-checkout-recheck")
+        return real(self)
+
+    monkeypatch.setattr(coverage.CoverageSnapshot, "verify", change_during_recheck)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID"}
+
+
+def test_vault_change_on_failing_checkout_recheck_is_reported(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+
+    def fail_during_recheck(self):
+        (vault / "wiki" / "reading-notes" / "note.md").write_bytes(b"changed-during-failing-checkout-recheck")
+        raise ContractError("BACKUP_COVERAGE_INVALID", "injected checkout recheck failure", {})
+
+    monkeypatch.setattr(coverage.CoverageSnapshot, "verify", fail_during_recheck)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"AUDIT_RACE", "BACKUP_MANIFEST_INVALID"}
+    assert caught.value.code != "BACKUP_COVERAGE_INVALID"
+
+
+def test_shared_byte_budget_stops_before_the_checkout_file_is_consumed(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    vault_bytes = sum(row["size_bytes"] for row in build_backup_manifest(vault)["files"])
+    draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+    draft.write_bytes(b"0123456789abcdef")
+    draft.chmod(0o600)
+    monkeypatch.setattr(manifest_module, "MAX_TOTAL_BYTES", vault_bytes + 8)
+    read_bytes = 0
+    real_read = os.read
+
+    def counting(file_fd: int, size: int) -> bytes:
+        nonlocal read_bytes
+        chunk = real_read(file_fd, size)
+        try:
+            link = os.readlink(f"/proc/self/fd/{file_fd}")
+        except OSError:
+            link = ""
+        if link.endswith("paper-analysis-draft.v1.json"):
+            read_bytes += len(chunk)
+        return chunk
+
+    monkeypatch.setattr(os, "read", counting)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID"}
+    assert read_bytes <= 9
+    assert read_bytes < 16
+
+
+def test_shared_entry_budget_stops_before_sorting_checkout_names(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    vault_entries = len(build_backup_manifest(vault)["directories"]) + len(build_backup_manifest(vault)["files"])
+    monkeypatch.setattr(manifest_module, "MAX_ENTRIES", vault_entries + 4)
+    objects = checkout / ".work" / "b1" / "code-evidence-v1" / "objects"
+    objects.mkdir(parents=True)
+    for index in range(40):
+        target = objects / f"{index:040x}.body"
+        target.write_bytes(b"x")
+        target.chmod(0o600)
+    seen: list[int] = []
+    real_sort = coverage._sort_names
+
+    def spy(names: list[str]) -> tuple[str, ...]:
+        seen.append(len(names))
+        return real_sort(names)
+
+    monkeypatch.setattr(coverage, "_sort_names", spy)
+    with pytest.raises(ContractError) as caught:
+        build_research_backup_manifest(vault, checkout)
+    assert caught.value.code in {"BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID"}
+    assert 40 not in seen
+    assert all(size <= 4 for size in seen)
 
 
 def test_vault_change_on_checkout_failure_is_rechecked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -241,7 +344,7 @@ def test_vault_change_on_checkout_failure_is_rechecked(tmp_path: Path, monkeypat
     _vault(vault)
     _checkout(checkout)
 
-    def fail_after_change(root, *, snapshot=None):
+    def fail_after_change(root, *, snapshot=None, entry_base=0, byte_base=0):
         note = vault / "wiki" / "reading-notes" / "note.md"
         note.write_bytes(b"changed-before-checkout-failure")
         raise ContractError("BACKUP_COVERAGE_INVALID", "injected checkout failure", {})

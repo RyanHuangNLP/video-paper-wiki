@@ -218,6 +218,66 @@ def test_directory_budget_is_applied_before_sorting(tmp_path: Path, monkeypatch:
     assert seen == [] or max(seen) <= MAX_CANDIDATES
 
 
+def test_inner_entry_budget_is_applied_before_sorting(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+    import video_paper_wiki.backup_manifest as manifest_module
+
+    monkeypatch.setattr(manifest_module, "MAX_ENTRIES", 16)
+    batch = _batch(tmp_path)
+    objects = batch / "code-evidence-v1" / "objects"
+    objects.mkdir(parents=True)
+    for index in range(40):
+        target = objects / f"{index:040x}.body"
+        target.write_bytes(b"x")
+        target.chmod(0o600)
+    _chmod(tmp_path)
+    seen: list[int] = []
+    real_sort = coverage._sort_names
+
+    def spy(names: list[str]) -> tuple[str, ...]:
+        seen.append(len(names))
+        return real_sort(names)
+
+    monkeypatch.setattr(coverage, "_sort_names", spy)
+    with pytest.raises(ContractError) as caught:
+        scan_research_coverage(tmp_path)
+    assert caught.value.code == "BACKUP_COVERAGE_INVALID"
+    assert 40 not in seen
+    assert all(size <= 16 for size in seen)
+
+
+def test_recheck_stops_before_sorting_names_past_the_retained_set(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import video_paper_wiki.backup_coverage as coverage
+
+    batch = _batch(tmp_path)
+    objects = batch / "code-evidence-v1" / "objects"
+    objects.mkdir(parents=True)
+    first = objects / f"{0:040x}.body"
+    first.write_bytes(b"x")
+    first.chmod(0o600)
+    _chmod(tmp_path)
+    snap = scan_research_coverage(tmp_path)
+    try:
+        for index in range(1, 40):
+            target = objects / f"{index:040x}.body"
+            target.write_bytes(b"y")
+            target.chmod(0o600)
+        seen: list[int] = []
+        real_sort = coverage._sort_names
+
+        def spy(names: list[str]) -> tuple[str, ...]:
+            seen.append(len(names))
+            return real_sort(names)
+
+        monkeypatch.setattr(coverage, "_sort_names", spy)
+        with pytest.raises(ContractError) as caught:
+            snap.verify()
+        assert caught.value.code == "BACKUP_COVERAGE_INVALID"
+        assert all(size <= 1 for size in seen)
+    finally:
+        snap.close()
+
+
 def test_nested_roots_are_rejected_and_same_inode_is_allowed(tmp_path: Path) -> None:
     vault = tmp_path / "vault"
     checkout = tmp_path / "checkout"
