@@ -11,7 +11,7 @@ from video_paper_wiki.assessment_history_v2 import derive_assessment_heads, vali
 from video_paper_wiki.canonical_compiler_v2 import compile_pages, concept_items_for_papers
 from video_paper_wiki.code_evidence_contracts import validate_code_evidence_manifest, validate_code_locator
 from video_paper_wiki.contracts import ContractError, validate_document
-from video_paper_wiki.identity import claim_id, paper_page_slug, repo_id, repo_page_slug
+from video_paper_wiki.identity import IdentityError, claim_id, paper_page_slug, repo_id, repo_page_slug
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.markdown_locator import decode_evidence
 from video_paper_wiki.markdown_source import validate_payload
@@ -26,7 +26,7 @@ from video_paper_wiki.source_publication_contracts import (
 from video_paper_wiki.source_registration import historical_source_ledger, receipt_chain
 from video_paper_wiki.source_semantics_contracts import (
     ASSOCIATION, COMPILE, DECISION, EVENT, HEADS as DISPLAY_SCHEMA, PAPER,
-    calendar, fail, preflight, sha,
+    association_reference, calendar, fail, preflight, sha,
 )
 from video_paper_wiki.source_versions import derive_display_heads
 from video_paper_wiki.transaction_contracts import _collisions
@@ -171,11 +171,33 @@ def authorize_catalog_profile(bytes_map):
         if subject not in seen_subjects:
             seen_subjects.add(subject)
             subjects.append(subject)
+    owned_pages = {}
+    for kind, records, refs_key in (("paper", docs["paper"], "section_claim_refs"), ("repo", docs["repo"], "capability_claim_refs")):
+        for record in records.values():
+            try:
+                page = ("wiki/papers/" + paper_page_slug(record["paper_id"]) + ".md" if kind == "paper"
+                        else "wiki/code/" + repo_page_slug(record["repo_id"]) + ".md")
+            except IdentityError:
+                invalid("claim location differs from its canonical owner page", "/" + kind + "s")
+            for ref in record.get(refs_key) or []:
+                cid = ref.get("claim_id") if type(ref) is dict else None
+                if type(cid) is not str or cid in owned_pages or cid not in ledger["claims"]:
+                    invalid("claim has duplicate ownership or a missing ledger row", "/" + kind + "s")
+                owned_pages[cid] = (page, record["schema"])
     claims = []
     for cid, row in sorted(ledger["claims"].items()):
         matches = [subject for subject in subjects if claim_id(subject, row["text"]) == cid]
         if len(matches) != 1:
             invalid("claim subject is missing or ambiguous", CLAIM_LEDGER + "/claims/" + cid)
+        owned = owned_pages.get(cid)
+        if owned is not None:
+            page, schema = owned
+            location = row.get("location")
+            path = location.get("path") if type(location) is dict else None
+            if path != page or page not in bytes_map:
+                invalid("claim location differs from its canonical owner page", CLAIM_LEDGER + "/claims/" + cid)
+            if schema == PAPER and location != {"path": page, "anchor": "^" + cid}:
+                invalid("v2 paper claim requires its exact block anchor", CLAIM_LEDGER + "/claims/" + cid)
         claims.append({"claim_id": cid, "stable_subject_id": matches[0], "canonical_claim_text": row["text"],
                        "evidence": [decode_evidence(item) for item in row["evidence"]],
                        "assessment": row["assessment"], "reviewed_at": row.get("reviewed_at")})
@@ -207,11 +229,13 @@ def authorize_catalog_profile(bytes_map):
         identifiers = {record["paper_id"] for record in v2_papers}
         if any(record["paper_id"] not in identifiers for record in associations):
             invalid("association has no owning v2 paper record", "/associations")
-        known = {record["association_id"] for record in associations}
-        for record in v2_papers:
-            for ref in record.get("source_associations") or []:
-                if type(ref) is not dict or ref.get("association_id") not in known:
-                    invalid("v2 paper names a missing association", "/papers")
+        grouped = {}
+        for record in associations:
+            grouped.setdefault(record["paper_id"], []).append(record)
+        for paper in v2_papers:
+            ordered = sorted(grouped.get(paper["paper_id"], []), key=lambda item: item["association_id"])
+            if paper.get("source_associations") != [association_reference(item) for item in ordered]:
+                invalid("record association references differ from the complete group", "/papers")
     skip = {path for path, record in docs["paper"].items() if record["schema"] == PAPER}
     skip.update(path for path, record in docs["event"].items() if record["schema"] == EVENT)
     bind = set(skip)

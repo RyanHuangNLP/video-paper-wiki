@@ -21,7 +21,7 @@ from video_paper_wiki.evidence_join import (
 )
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.markdown_locator import PREFIX as _MARKDOWN_PREFIX
-from video_paper_wiki.identity import paper_page_slug, repo_id as canonical_repo_id
+from video_paper_wiki.identity import IdentityError, paper_page_slug, repo_id as canonical_repo_id
 from video_paper_wiki.ledger_locator import decode_ledger_evidence, encode_ledger_locator
 from video_paper_wiki.projection_input import _BRANCHES, validate_projection_bytes
 from video_paper_wiki.projection_runtime import parse_projection_json, runtime_projection_sha256, validate_runtime_record
@@ -71,7 +71,22 @@ def _taxonomy(rows:dict[str,list[dict[str,Any]]], raw:bytes)->None:
             for oi,alias in enumerate(term.get("aliases",[])):_add(rows,"taxonomy_term_aliases",axis=axis["slug"],slug=term["slug"],ordinal=oi,alias=alias)
 
 
-def _ledgers(rows:dict[str,list[dict[str,Any]]], sources:dict, claims:dict, claim_ids:set[str]|None=None)->None:
+def _v2_paper_pages(snap:_Snapshot, skip:frozenset[str])->frozenset[str]:
+    """Pages owned by skipped v2 papers. They are not v1 managed catalog pages."""
+    pages=set()
+    for path in skip:
+        if not path.startswith("wiki/meta/records/papers/") or path not in snap.files:continue
+        doc=parse_strict_json(snap.files[path][1], invalid_code="CATALOG_INPUT_INVALID")
+        if type(doc) is not dict or doc.get("schema")!="video-paper-wiki.paper-record.v2":continue
+        paper_id=doc.get("paper_id")
+        if type(paper_id) is not str:_fail("skipped paper identity is invalid")
+        try:slug=paper_page_slug(paper_id)
+        except IdentityError:_fail("skipped paper identity is invalid")
+        pages.add("wiki/papers/"+slug+".md")
+    return frozenset(pages)
+
+
+def _ledgers(rows:dict[str,list[dict[str,Any]]], sources:dict, claims:dict, claim_ids:set[str]|None=None, *, omitted_pages:frozenset[str]=frozenset())->None:
     _add(rows,"ledger_meta",ledger_kind="source",input_path="wiki/meta/ledgers/source-ledger.json",schema=sources["schema"],generated_at=sources["generated_at"])
     _add(rows,"ledger_meta",ledger_kind="claim",input_path="wiki/meta/ledgers/claim-ledger.json",schema=claims["schema"],generated_at=claims["generated_at"])
     for sid,item in sorted(sources["sources"].items()):
@@ -79,7 +94,8 @@ def _ledgers(rows:dict[str,list[dict[str,Any]]], sources:dict, claims:dict, clai
         opt=lambda name:(int(item.get(name) is not None),item.get(name))
         cp,cv=opt("content_sha256");ip,iv=opt("ingested_at");rp,rv=opt("retrieved_at");fp,fv=opt("refresh_due");kp,kv=opt("independence_key");sp,sv=opt("supersedes")
         _add(rows,"sources",source_id=sid,ledger_kind="source",origin_kind=origin["kind"],origin_locator=origin["locator"],content_kind=item["content_kind"],title=item["title"],authority=item["authority"],review_status=item["review_status"],content_sha256_present=cp,content_sha256=cv,ingested_at_present=ip,ingested_at=iv,retrieved_at_present=rp,retrieved_at=rv,refresh_due_present=fp,refresh_due=fv,independence_key_present=kp,independence_key=kv,supersedes_present=sp,supersedes=sv)
-        for ordinal,page in enumerate(item.get("pages",[])):_add(rows,"source_pages",source_id=sid,ordinal=ordinal,page_path=page)
+        visible=[page for page in item.get("pages",[]) if page not in omitted_pages]
+        for ordinal,page in enumerate(visible):_add(rows,"source_pages",source_id=sid,ordinal=ordinal,page_path=page)
         if origin["kind"]=="file":_add(rows,"source_artifacts",source_id=sid,artifact_path=origin["locator"])
     for cid,item in sorted(claims["claims"].items()):
         if claim_ids is not None and cid not in claim_ids:continue
@@ -284,7 +300,7 @@ def collect_current_catalog_material(*,vault_root:Path|str,upstream_root:Path|st
                 evidence=row.get("evidence") if type(row) is dict else None
                 markdown=type(evidence) is list and any(type(item) is dict and type(item.get("locator")) is str and item["locator"].startswith(_MARKDOWN_PREFIX) for item in evidence)
                 if row is None or type(evidence) is not list or markdown:_fail("v1 claim is missing or is not a legacy locator")
-            _ledgers(rows,source,claim,claim_ids=owned);project_claims=owned
+            _ledgers(rows,source,claim,claim_ids=owned,omitted_pages=_v2_paper_pages(snap, profile_auth["skip"]));project_claims=owned
         for p in entries:
             _add(rows,"canonical_inputs",path=p["path"],kind=p["kind"],file_sha256=p["sha256"],size_bytes=p["size_bytes"])
         claims=[]

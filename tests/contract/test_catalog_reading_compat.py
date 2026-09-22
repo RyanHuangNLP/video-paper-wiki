@@ -207,3 +207,100 @@ def test_research_catalog_rebuilds_without_dropping_source_bytes(tmp_path, monke
     assert err.value.code == "SOURCE_PUBLICATION_INVALID"
     assert (vault / ASSESSMENT_HEADS).is_file()
     assert stat.S_ISREG((vault / ASSESSMENT_HEADS).stat().st_mode)
+
+
+def _vault_source_bytes(vault: Path) -> dict[str, bytes]:
+    found = {}
+    for path in vault.rglob("*"):
+        if not path.is_file() or path.is_symlink():
+            continue
+        relative = path.relative_to(vault).as_posix()
+        if relative.startswith(".vault-meta/"):
+            continue
+        found[relative] = path.read_bytes()
+    return found
+
+
+def _reseal_replace(vault: Path, relative: str, before_sha256: str) -> None:
+    head_path = vault / "wiki/meta/registries/operation-head.json"
+    head = json.loads(head_path.read_bytes())
+    sequence = head["sequence"] + 1
+    operation_id = f"s6-reseal-{sequence}"
+    after_sha256 = hashlib.sha256((vault / relative).read_bytes()).hexdigest()
+    receipt = {
+        "schema": "video-paper-wiki.operation-receipt.v1",
+        "sequence": sequence,
+        "previous": {"path": head["receipt_path"], "sha256": head["receipt_sha256"]},
+        "operation_id": operation_id,
+        "operation_type": "generic",
+        "intent_sha256": "0" * 64,
+        "writes": [{"path": relative, "mode": "replace", "before_sha256": before_sha256, "after_sha256": after_sha256}],
+        "claimed_inputs": [],
+    }
+    receipt["intent_sha256"] = receipt_intent_sha256(receipt)
+    raw = canonicalize(receipt)
+    target = vault / "wiki/meta/operations" / f"{sequence:012d}-{operation_id}.json"
+    target.write_bytes(raw)
+    os.chmod(target, 0o600)
+    head_path.write_bytes(canonicalize({
+        "schema": "video-paper-wiki.operation-head.v1",
+        "sequence": sequence,
+        "receipt_path": target.relative_to(vault).as_posix(),
+        "receipt_sha256": hashlib.sha256(raw).hexdigest(),
+    }))
+    os.chmod(head_path, 0o600)
+
+
+def _refuse_current(vault: Path, config: Path) -> None:
+    with pytest.raises(ContractError) as built:
+        build_current_catalog(vault_root=vault, upstream_root=UPSTREAM, retrieval_config=POLICY)
+    assert built.value.code == "SOURCE_PUBLICATION_INVALID"
+    with pytest.raises(ContractError) as status:
+        catalog_status(vault, UPSTREAM, config)
+    assert status.value.code == "SOURCE_PUBLICATION_INVALID"
+
+
+def test_published_source_v1_catalog_is_current_and_rejects_unbound_references(checkout):
+    from tests.source_publication_fixture import knowledge_proposal, registered_source
+    from tests.upstream.test_source_publication import publish
+
+    vault, capture, _, _ = registered_source(checkout)
+    payloads, _, _ = knowledge_proposal(vault, capture)
+    publish(checkout, vault, payloads, "knowledge")
+    meta = vault / ".vault-meta"
+    meta.mkdir(mode=0o700, exist_ok=True)
+    os.chmod(meta, 0o700)
+    before = _vault_source_bytes(vault)
+    built = build_current_catalog(vault_root=vault, upstream_root=UPSTREAM, retrieval_config=POLICY)
+    assert _vault_source_bytes(vault) == before
+    config = checkout / "retrieval-config.json"
+    config.write_bytes(canonicalize(built["retrieval_config"]))
+    os.chmod(config, 0o600)
+    status = catalog_status(vault, UPSTREAM, config)
+    assert status["state"] == "current"
+    query = query_catalog(vault, UPSTREAM, config, "attention")
+    assert query["catalog_generation_sha256"] == status["catalog_generation_sha256"]
+    report = catalog_report(vault_root=vault, upstream_root=UPSTREAM, retrieval_config=config, report_kind="evidence-coverage")
+    assert report["catalog_state"] == "current"
+    paper = next((vault / "wiki/meta/records/papers").glob("*.json"))
+    relative = paper.relative_to(vault).as_posix()
+    original = paper.read_bytes()
+    before_sha = hashlib.sha256(original).hexdigest()
+    document = json.loads(original)
+    document["source_associations"][0]["sha256"] = "f" * 64
+    paper.write_bytes(canonicalize(document))
+    os.chmod(paper, 0o600)
+    _reseal_replace(vault, relative, before_sha)
+    _refuse_current(vault, config)
+    paper.write_bytes(original)
+    os.chmod(paper, 0o600)
+    _reseal_replace(vault, relative, hashlib.sha256(canonicalize(document)).hexdigest())
+    ledger_path = vault / "wiki/meta/ledgers/claim-ledger.json"
+    ledger_relative = ledger_path.relative_to(vault).as_posix()
+    original_ledger = ledger_path.read_bytes()
+    ledger = json.loads(original_ledger)
+    ledger["claims"][next(iter(ledger["claims"]))]["location"]["path"] = "wiki/papers/missing.md"
+    ledger_path.write_bytes(canonicalize(ledger))
+    os.chmod(ledger_path, 0o600)
+    _reseal_replace(vault, ledger_relative, hashlib.sha256(original_ledger).hexdigest())
+    _refuse_current(vault, config)

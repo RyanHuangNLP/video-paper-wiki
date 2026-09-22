@@ -30,6 +30,21 @@ from video_paper_wiki.upstream_runtime import bm25_query, verify_upstream
 DB_RELATIVE = ".vault-meta/catalog.sqlite"
 LOCK_RELATIVE = ".vault-meta/locks/catalog-build.lock"
 PROFILE = "search-catalog-v1"
+
+
+def _retained_sha256(fd: int, size: int) -> bytes:
+    """Hash retained bytes without moving the caller's file offset."""
+    digest = hashlib.sha256()
+    offset = 0
+    while offset < size:
+        chunk = os.pread(fd, min(1024 * 1024, size - offset), offset)
+        if not chunk:
+            raise OSError
+        digest.update(chunk)
+        offset += len(chunk)
+    return digest.digest()
+
+
 DDL_SHA256 = "4dfa131fd9ffc1faec7b44d1257e355d48033ebcbc4f52b2e0bb9d00b942839c"
 MAX_SOURCE = 64 * 1024 * 1024
 _HEX = frozenset("0123456789abcdef")
@@ -60,6 +75,9 @@ class _RetainedFile:
                 if not stat.S_ISREG(self.file_stat.st_mode) or self.file_stat.st_nlink!=1:raise OSError
                 named=os.stat(self.name,dir_fd=fd,follow_symlinks=False)
                 if stamp(named)!=stamp(self.file_stat):raise OSError
+                self.content_sha256=_retained_sha256(self.fd, self.file_stat.st_size)
+            else:
+                self.content_sha256=None
         except BaseException:
             if self.fd is not None:
                 try:os.close(self.fd)
@@ -83,7 +101,12 @@ class _RetainedFile:
                 if self.fd is None:return
                 raise
             if self.fd is None or stamp(named)!=stamp(self.file_stat) or stamp(os.fstat(self.fd))!=stamp(self.file_stat):raise OSError
+            self._same_bytes()
         except OSError:_fail(code,"retained catalog authority changed")
+
+    def _same_bytes(self)->None:
+        if self.fd is None:return
+        if _retained_sha256(self.fd, self.file_stat.st_size)!=self.content_sha256:raise OSError
 
     def verify_edge(self,code:str="CATALOG_STALE")->None:
         """Writer variant: allow expected directory metadata changes, retain identity and final edge."""
@@ -100,6 +123,7 @@ class _RetainedFile:
                 if self.fd is None:return
                 raise
             if self.fd is None or stamp(named)!=stamp(self.file_stat) or stamp(os.fstat(self.fd))!=stamp(self.file_stat):raise OSError
+            self._same_bytes()
         except OSError:_fail(code,"retained catalog authority changed")
 
     def close(self)->None:

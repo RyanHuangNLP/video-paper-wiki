@@ -234,3 +234,68 @@ def test_catalog_authorization_checks_source_bytes_and_keeps_the_publication_gua
     text = publication.read_text(encoding="utf-8")
     assert "require_legacy_profile" in text
     assert "authorize_catalog_profile" not in text
+
+
+def _owner_catalog_bytes():
+    from video_paper_wiki.identity import paper_page_slug
+    from video_paper_wiki.source_publication_contracts import HEADS
+    from video_paper_wiki.source_semantics_contracts import association_reference
+
+    material, arguments = compile_fixture()
+    group = material["papers"][0]
+    record, association, claim, event = group["record"], group["associations"][0], group["claims"][0], group["events"][0]
+    assert record["source_associations"] == [association_reference(association)]
+    raw = arguments["raw_sources"][association["raw"]["path"]]
+    slug = paper_page_slug(record["paper_id"])
+    page = "wiki/papers/" + slug + ".md"
+    paper_path = "wiki/meta/records/papers/" + slug + ".json"
+    ledger = {"schema": "claude-obsidian.claim-ledger.v1", "generated_at": STAMP, "claims": {claim["claim_id"]: {
+        "text": claim["canonical_claim_text"], "risk": "normal", "confidence": "unknown", "assessment": claim["assessment"],
+        "reviewed_at": claim["reviewed_at"], "location": {"path": page, "anchor": "^" + claim["claim_id"]},
+        "evidence": [encode_evidence(item) for item in claim["evidence"]], "notes": None, "supersedes": None}}}
+    source = {"schema": "claude-obsidian.source-ledger.v1", "generated_at": STAMP, "sources": {association["source_id"]: {
+        "origin": {"kind": "file", "locator": association["raw"]["path"]}, "content_kind": "document", "title": "Fixture source",
+        "authority": "primary", "review_status": "unreviewed", "pages": [page], "content_sha256": association["raw"]["sha256"],
+        "ingested_at": "2026-09-08", "retrieved_at": None, "refresh_due": None, "independence_key": None, "supersedes": None}}}
+    event_raw = canonicalize(event)
+    heads = {"schema": HEADS, "heads": {claim["claim_id"]: {
+        "event_id": event["event_id"], "event_sha256": sha(event_raw), "evidence_profile": event["evidence_profile"]}}}
+    data = {
+        paper_path: canonicalize(record),
+        "wiki/meta/records/source-versions/" + association["association_id"] + ".json": canonicalize(association),
+        association["raw"]["path"]: raw,
+        CLAIM_LEDGER: canonicalize(ledger),
+        SOURCE_LEDGER: canonicalize(source),
+        ASSESSMENT_HEADS: canonicalize(heads),
+        "wiki/meta/reviews/" + claim["claim_id"] + "/" + event["event_id"] + ".json": event_raw,
+        page: ("# Paper\n\n" + claim["canonical_claim_text"] + "\n\n^" + claim["claim_id"] + "\n").encode(),
+    }
+    return data, record, claim, paper_path, page
+
+
+def test_catalog_authorization_rejects_bad_association_reference_and_missing_claim_page():
+    data, record, claim, paper_path, page = _owner_catalog_bytes()
+    auth = authorize_catalog_profile(data)
+    assert auth["profile"] == "source-v1"
+    referenced = dict(data)
+    bad = copy.deepcopy(record)
+    bad["source_associations"][0]["sha256"] = "f" * 64
+    referenced[paper_path] = canonicalize(bad)
+    with pytest.raises(ContractError) as err:
+        authorize_catalog_profile(referenced)
+    assert err.value.code == "SOURCE_PUBLICATION_INVALID"
+    assert "association" in err.value.message
+    moved = dict(data)
+    ledger = json.loads(data[CLAIM_LEDGER])
+    ledger["claims"][claim["claim_id"]]["location"]["path"] = "wiki/papers/missing.md"
+    moved[CLAIM_LEDGER] = canonicalize(ledger)
+    with pytest.raises(ContractError) as err:
+        authorize_catalog_profile(moved)
+    assert err.value.code == "SOURCE_PUBLICATION_INVALID"
+    assert "claim location" in err.value.message
+    removed = dict(data)
+    del removed[page]
+    with pytest.raises(ContractError) as err:
+        authorize_catalog_profile(removed)
+    assert err.value.code == "SOURCE_PUBLICATION_INVALID"
+    assert "claim location" in err.value.message
