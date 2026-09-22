@@ -11,10 +11,8 @@ from pathlib import Path
 import pytest
 
 from video_paper_wiki.article_revision import article_history, status_article_store
-from video_paper_wiki.catalog_store import build_current_catalog
 from video_paper_wiki.cli import main
 from video_paper_wiki.code_proof_public import status_code_proof
-from video_paper_wiki.contracts import ContractError
 from video_paper_wiki.domain_store import status_domain_store
 from video_paper_wiki.experiment_store import status_experiment_store
 from video_paper_wiki.flow.status import build_flow_status
@@ -131,22 +129,65 @@ def _cli_data(capsys: pytest.CaptureFixture[str], args: list[str]) -> dict:
     return payload["data"]
 
 
-def test_historical_fixture_keeps_the_reading_lint_failure(tmp_path: Path, monkeypatch) -> None:
-    """The rich fixture still fails strict lint. That evidence is not a success-path requirement."""
-    prepared = prepare_research_sources(tmp_path, monkeypatch)
-    counts = prepared["lint_counts"]
-    assert counts["missing_frontmatter"]
-    assert counts["missing_frontmatter"] == 9
-    assert counts["dead_links"] == 18
-    assert counts["duplicate_basenames"] == 1
-    assert counts["empty_sections"] == 1
-    assert counts["stale_index_entries"] == 3
-    assert all(path.startswith("wiki/reading/") for path in prepared["lint_issue_paths"])
-    assert prepared["lint_exit_code"] != 0
+def _sample_frontmatter(title: str, kind: str) -> str:
+    return (
+        "---\n"
+        f"title: {title}\n"
+        f"type: {kind}\n"
+        "status: active\n"
+        "created: 2026-09-08\n"
+        "updated: 2026-09-08\n"
+        "tags: [sample]\n"
+        "---\n\n"
+    )
+
+
+def _sample_page(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+    os.chmod(path, 0o600)
+
+
+def _write_restored_config(payload: dict, path: Path) -> Path:
+    """Persist the config restore derived. Final verify must not reuse the bootstrap policy."""
+    raw = canonicalize(payload["retrieval_config"])
+    assert hashlib.sha256(raw).hexdigest() == payload["retrieval_config_sha256"]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
+    path.chmod(0o600)
+    assert path.resolve() != POLICY.resolve()
+    return path
+
+
+def test_historical_fixture_keeps_the_reading_lint_failure(tmp_path: Path) -> None:
+    """An independent bad page sample still fails strict lint. The live generator is not that sample."""
+    from tests.closure._p3_recovery_fixture import seal_receipt_vault
+
+    vault = tmp_path / "vault"
+    vault.mkdir()
+    os.chmod(vault, 0o700)
+    _sample_page(vault / "wiki/papers/kept.md", _sample_frontmatter("Kept", "paper") + "# Kept\n\n保留的正式页。\n")
+    seal_receipt_vault(vault)
+    assert audit_integrity(vault)["classification"] == "receipt_backed"
+    _sample_page(vault / "wiki/reading/bare.md", "# Bare\n\n没有前言。\n")
+    _sample_page(vault / "wiki/reading/dead.md", _sample_frontmatter("Dead", "note") + "# Dead\n\n[缺失](does-not-exist.md)\n")
+    _sample_page(vault / "wiki/reading/index.md", _sample_frontmatter("Index", "index") + "# Index\n\n[过期](also-missing.md)\n")
+    _sample_page(vault / "wiki/reading/nested/index.md", _sample_frontmatter("Nested", "index") + "# Nested\n\n另一份 index。\n")
+    _sample_page(vault / "wiki/reading/empty.md", _sample_frontmatter("Empty", "note") + "# Empty\n\n## 空节\n\n# 下一节\n\n还有正文。\n")
+    assert audit_integrity(vault)["classification"] == "receipt_backed"
+    report = lint_vault(vault_root=vault, upstream_root=UPSTREAM, as_of="2026-09-09")
+    counts = report["data"]["summary"]["category_counts"]
+    assert report["exit_code"] != 0
+    assert counts["missing_frontmatter"] >= 1
+    assert counts["dead_links"] >= 1
+    assert counts["duplicate_basenames"] >= 1
+    assert counts["empty_sections"] >= 1
+    assert counts["stale_index_entries"] >= 1
 
 
 def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypatch, capsys: pytest.CaptureFixture[str]) -> None:
     prepared = prepare_research_sources(tmp_path, monkeypatch)
+    assert prepared["lint_exit_code"] == 0, prepared["lint_counts"]
     assert prepared["lint_counts"]["provenance_errors"] == 0
     assert prepared["lint_counts"]["orphans"] == 0
     assert len(prepared["revision_ids"]) >= 2
@@ -343,11 +384,7 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
     assert prepared["article_id"] in [row["article_id"] for row in merged["articles"]["articles"]]
     before_verify = _covered(restore, manifest)
     lint_after = lint_vault(vault_root=restore, upstream_root=UPSTREAM)
-    catalog_code = None
-    try:
-        build_current_catalog(vault_root=restore, upstream_root=UPSTREAM, retrieval_config=POLICY)
-    except ContractError as exc:
-        catalog_code = exc.code
+    restored_config = _write_restored_config(restored_payload, outside / "retrieval-config.json")
     verify_code = main(
         [
             "backup",
@@ -363,7 +400,7 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
             "--upstream-root",
             str(UPSTREAM),
             "--config",
-            str(POLICY),
+            str(restored_config),
         ]
     )
     verify_payload = json.loads(capsys.readouterr().out)
@@ -386,7 +423,8 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
                 "candidate_revision": revision,
                 "lint_exit_code": lint_after["exit_code"],
                 "lint_counts": lint_after["data"]["summary"]["category_counts"],
-                "catalog_code": catalog_code,
+                "retrieval_config_sha256": restored_payload["retrieval_config_sha256"],
+                "verify_config": str(restored_config),
                 "verify_code": verify_code,
                 "verify_payload_ok": verify_payload.get("ok"),
                 "operator_restore_code": code,
@@ -406,7 +444,8 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
             "stdout": stdout.decode(),
             "lint_exit_code": lint_after["exit_code"],
             "lint_counts": lint_after["data"]["summary"]["category_counts"],
-            "catalog_code": catalog_code,
+            "retrieval_config_sha256": restored_payload["retrieval_config_sha256"],
+            "verify_config": str(restored_config),
             "verify_code": verify_code,
             "verify_ok": verify_payload.get("ok"),
             "verify_error": verify_payload.get("error"),
@@ -727,6 +766,7 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
             consumers[name]["stdout"] = body[-800:]
             consumers[name]["stderr"] = err[-800:]
     before_verify = _covered(restore, manifest)
+    restored_config = _write_restored_config(restored_payload, outside / "retrieval-config.json")
     verify_code, verify_stdout, verify_err = _installed_cli(
         [
             str(vpwiki),
@@ -743,7 +783,7 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
             "--upstream-root",
             str(UPSTREAM),
             "--config",
-            str(POLICY),
+            str(restored_config),
         ],
         restore,
     )
@@ -768,6 +808,8 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
                 "valid": valid,
                 "manifest_sha256": digest,
                 "archive_sha256": created.get("archive_sha256"),
+                "retrieval_config_sha256": restored_payload.get("retrieval_config_sha256"),
+                "verify_config": str(restored_config),
             },
             ensure_ascii=False,
             indent=2,
