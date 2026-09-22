@@ -27,9 +27,12 @@ from tests.closure._p3_recovery_fixture import prepare_research_sources
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = ROOT / "tests/fixtures/contracts/valid/video-paper-wiki.retrieval-policy.v1.json"
 UPSTREAM = ROOT / "vendor/claude-obsidian"
-# Git 2.55 can exit 0 for `git fetch <path> +HEAD:<ref>` without writing
-# that ref, including a renamed remote-tracking name. Pack the source
-# commit into a bundle and fetch the bundle into an explicit ref.
+# Shallow CI keeps the tip commit and tree but not its parents. Packing
+# HEAD into a bundle then fails fetch: the parent is a prerequisite and
+# "did not send all necessary objects". Point the restore repo at this
+# checkout's object store and pin the tip. For a normal checkout that
+# store is ROOT/.git/objects; a linked worktree (.git is a gitfile)
+# resolves to the shared object store.
 _DRILL_SRC_REF = "refs/drill/src"
 
 
@@ -54,6 +57,25 @@ def _git(restore: Path, *args: str, env: dict[str, str]) -> str:
     return result.stdout
 
 
+def _source_objects(env: dict[str, str]) -> Path:
+    direct = (ROOT / ".git" / "objects").resolve()
+    if direct.is_dir():
+        return direct
+    located = _run_git(ROOT, ("rev-parse", "--git-path", "objects"), env)
+    raw = located.stdout.strip()
+    if located.returncode or not raw:
+        raise AssertionError(
+            "source objects path failed\n"
+            f"exit: {located.returncode}\n"
+            f"stdout:\n{located.stdout}\n"
+            f"stderr:\n{located.stderr}"
+        )
+    objects = Path(raw)
+    if not objects.is_absolute():
+        objects = ROOT / objects
+    return objects.resolve()
+
+
 def _fetch_drill_source(restore: Path, env: dict[str, str]) -> str:
     source = _run_git(ROOT, ("rev-parse", "HEAD"), env)
     sha = source.stdout.strip()
@@ -64,25 +86,20 @@ def _fetch_drill_source(restore: Path, env: dict[str, str]) -> str:
             f"stdout:\n{source.stdout}\n"
             f"stderr:\n{source.stderr}"
         )
-    bundle = restore.parent / "drill-src.bundle"
-    created = _run_git(ROOT, ("bundle", "create", str(bundle), "HEAD"), env)
-    if created.returncode:
-        raise AssertionError(
-            "bundle create failed\n"
-            f"exit: {created.returncode}\n"
-            f"stdout:\n{created.stdout}\n"
-            f"stderr:\n{created.stderr}"
-        )
-    fetched = _run_git(restore, ("fetch", str(bundle), f"+{sha}:{_DRILL_SRC_REF}"), env)
+    objects = _source_objects(env)
+    alternates = restore / ".git" / "objects" / "info" / "alternates"
+    alternates.parent.mkdir(parents=True, exist_ok=True)
+    alternates.write_text(f"{objects}\n", encoding="utf-8")
+    updated = _run_git(restore, ("update-ref", _DRILL_SRC_REF, sha), env)
     parsed = _run_git(restore, ("rev-parse", _DRILL_SRC_REF), env)
     got = parsed.stdout.strip()
-    if fetched.returncode or parsed.returncode or got != sha:
+    if updated.returncode or parsed.returncode or got != sha:
         raise AssertionError(
             "drill source ref was not stored\n"
             f"expected: {sha}\n"
-            f"fetch exit: {fetched.returncode}\n"
-            f"fetch stdout:\n{fetched.stdout}\n"
-            f"fetch stderr:\n{fetched.stderr}\n"
+            f"update-ref exit: {updated.returncode}\n"
+            f"update-ref stdout:\n{updated.stdout}\n"
+            f"update-ref stderr:\n{updated.stderr}\n"
             f"rev-parse exit: {parsed.returncode}\n"
             f"rev-parse stdout:\n{parsed.stdout}\n"
             f"rev-parse stderr:\n{parsed.stderr}"
