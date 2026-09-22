@@ -97,13 +97,21 @@ def test_retained_reader_rejects_named_parent_replacement(tmp_path):
     finally:held.close()
 
 def test_retained_reader_allows_unrelated_ancestor_metadata_but_rejects_target_change(tmp_path):
+    import os
     from video_paper_wiki.catalog_store import _RetainedFile
+    from video_paper_wiki.secure_io import stamp
     parent=tmp_path/'parent';parent.mkdir();target=parent/'catalog.sqlite';target.write_bytes(b'catalog')
     held=_RetainedFile(target)
     try:
         sibling=tmp_path/'readonly-scratch';sibling.mkdir();sibling.rmdir()
         held.verify()
         target.write_bytes(b'changed')
+        # Equal-length replacement can keep dev, inode, mode, size, and timestamps
+        # identical. Pin the retained stamp to that post-write inode so the refusal
+        # has to come from the bytes, not from a timestamp that happened to move.
+        held.file_stat=os.fstat(held.fd)
+        assert target.read_bytes()!=b'catalog'
+        assert stamp(os.stat(target, follow_symlinks=False))==stamp(held.file_stat)==stamp(os.fstat(held.fd))
         with pytest.raises(ContractError) as exc:held.verify()
         assert exc.value.code=='CATALOG_STALE'
     finally:held.close()

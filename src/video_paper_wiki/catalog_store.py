@@ -30,6 +30,21 @@ from video_paper_wiki.upstream_runtime import bm25_query, verify_upstream
 DB_RELATIVE = ".vault-meta/catalog.sqlite"
 LOCK_RELATIVE = ".vault-meta/locks/catalog-build.lock"
 PROFILE = "search-catalog-v1"
+
+
+def _retained_sha256(fd: int, size: int) -> bytes:
+    """Hash retained bytes without moving the caller's file offset."""
+    digest = hashlib.sha256()
+    offset = 0
+    while offset < size:
+        chunk = os.pread(fd, min(1024 * 1024, size - offset), offset)
+        if not chunk:
+            raise OSError
+        digest.update(chunk)
+        offset += len(chunk)
+    return digest.digest()
+
+
 DDL_SHA256 = "4dfa131fd9ffc1faec7b44d1257e355d48033ebcbc4f52b2e0bb9d00b942839c"
 MAX_SOURCE = 64 * 1024 * 1024
 _HEX = frozenset("0123456789abcdef")
@@ -60,6 +75,9 @@ class _RetainedFile:
                 if not stat.S_ISREG(self.file_stat.st_mode) or self.file_stat.st_nlink!=1:raise OSError
                 named=os.stat(self.name,dir_fd=fd,follow_symlinks=False)
                 if stamp(named)!=stamp(self.file_stat):raise OSError
+                self.content_sha256=_retained_sha256(self.fd, self.file_stat.st_size)
+            else:
+                self.content_sha256=None
         except BaseException:
             if self.fd is not None:
                 try:os.close(self.fd)
@@ -83,7 +101,12 @@ class _RetainedFile:
                 if self.fd is None:return
                 raise
             if self.fd is None or stamp(named)!=stamp(self.file_stat) or stamp(os.fstat(self.fd))!=stamp(self.file_stat):raise OSError
+            self._same_bytes()
         except OSError:_fail(code,"retained catalog authority changed")
+
+    def _same_bytes(self)->None:
+        if self.fd is None:return
+        if _retained_sha256(self.fd, self.file_stat.st_size)!=self.content_sha256:raise OSError
 
     def verify_edge(self,code:str="CATALOG_STALE")->None:
         """Writer variant: allow expected directory metadata changes, retain identity and final edge."""
@@ -100,6 +123,7 @@ class _RetainedFile:
                 if self.fd is None:return
                 raise
             if self.fd is None or stamp(named)!=stamp(self.file_stat) or stamp(os.fstat(self.fd))!=stamp(self.file_stat):raise OSError
+            self._same_bytes()
         except OSError:_fail(code,"retained catalog authority changed")
 
     def close(self)->None:
@@ -281,8 +305,13 @@ def prepare_catalog_material(value: object) -> dict[str, Any]:
     cfg_raw=retrieval_config_bytes(config)
     input_rows.append({"input_kind":"retrieval-config","path":"retrieval-config.json","raw_sha256":_sha(cfg_raw),"size_bytes":len(cfg_raw),"runtime_sha256":None})
 
-    from video_paper_wiki.evidence_join import join_evidence
-    rebuilt=join_evidence(inventory=mapping["inventory"],
+    builders=material["builder_files"]
+    source_aware=type(builders) is list and any(type(item) is dict and type(item.get("path")) is str and not item["path"].startswith("video_paper_wiki/") for item in builders)
+    if source_aware:
+        from video_paper_wiki.catalog_collector import join_catalog_source_pages as rebuild_join
+    else:
+        from video_paper_wiki.evidence_join import join_evidence as rebuild_join
+    rebuilt=rebuild_join(inventory=mapping["inventory"],
         pages={item["path"]:item["bytes"] for item in pages},chunks=chunk_records,bm25=bmrecord)
     if rebuilt!=mapping:
         _fail("RETRIEVAL_GENERATION_MISMATCH","mapping is not the exact derivation from current page/runtime bytes")
@@ -598,7 +627,7 @@ def catalog_status(vault_root:Path|str,upstream_root:Path|str,retrieval_config:o
         try:
             collected=_collector(vault_root=Path(vault_root),upstream_root=upstream,retrieval_config=cfg,**({"_retain":True} if default_collector else {}))
         except ContractError as exc:
-            if exc.code == "SOURCE_PROFILE_REQUIRED":
+            if exc.code in {"SOURCE_PROFILE_REQUIRED","SOURCE_PUBLICATION_INVALID","SOURCE_REGISTRATION_INVALID","SOURCE_SEMANTICS_INVALID","SOURCE_HISTORY_CONFLICT","ASSESSMENT_CHAIN_INVALID","CROSS_OBJECT_IDENTITY_MISMATCH","EVIDENCE_FINGERPRINT_MISMATCH","MARKDOWN_LOCATOR_INVALID","SOURCE_DISPLAY_INVALID","CLAIM_ID_MISMATCH","CLAIM_ID_COLLISION"}:
                 raise
             raise ContractError("CATALOG_STALE","live catalog authority is invalid",{}) from exc
         if default_collector and type(collected) is tuple and len(collected)==2:

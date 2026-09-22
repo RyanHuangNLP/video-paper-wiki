@@ -174,7 +174,7 @@ def test_manifest_basis_counts_and_determinism(world, monkeypatch):
     assert data["counts"]["claims"] == len(coverage["claims"])
     assert data["counts"]["articles"] == 0
     assert data["articles"] == []
-    index = (_reading_root(world, "r1") / "articles" / "index.md").read_text(encoding="utf-8")
+    index = (_reading_root(world, "r1") / "articles" / "list.md").read_text(encoding="utf-8")
     assert "暂无" in index
     assert not (FORBIDDEN & set(_walk_keys(data)))
     assert sockets == []
@@ -243,7 +243,7 @@ def test_basis_changed_missing_key_limit_conflict_filter_reviews(world, monkeypa
     assert not _reading_root(world, "tiny").exists()
     monkeypatch.setattr(view_mod, "MAX_PAGE_BYTES", MAX_PAGE_BYTES)
 
-    conflict = world["checkout"] / ".work" / "c1" / "reading" / "articles" / "index.md"
+    conflict = world["checkout"] / ".work" / "c1" / "reading" / "articles" / "list.md"
     conflict.parent.mkdir(parents=True, exist_ok=True)
     conflict.write_bytes(b"not-the-reading-page\n")
     os.chmod(conflict, 0o600)
@@ -287,7 +287,7 @@ def test_article_paths_render_and_mismatch(world, monkeypatch):
     checkout = world["checkout"]
     render_path = checkout / data["articles"][0]["render_path"]
     assert render_path.read_bytes() in page
-    index = (_reading_root(world, "r1") / "articles" / "index.md").read_text(encoding="utf-8")
+    index = (_reading_root(world, "r1") / "articles" / "list.md").read_text(encoding="utf-8")
     assert "staged" in index
     import video_paper_wiki.reading.view as view_mod
 
@@ -305,7 +305,7 @@ def test_article_paths_render_and_mismatch(world, monkeypatch):
     vaulted = _build(world, "r2")
     assert vaulted["articles"][0]["head_location"] == "vault_store"
     assert vaulted["articles"][0]["render_path"].startswith(".work/r2/articles/render/")
-    vault_index = (_reading_root(world, "r2") / "articles" / "index.md").read_text(encoding="utf-8")
+    vault_index = (_reading_root(world, "r2") / "articles" / "list.md").read_text(encoding="utf-8")
     assert "../../meta/articles/records/" in vault_index
     assert full["record"]["article_id"] == data["articles"][0]["article_id"]
     assert outline["record"]["kind"] == "outline"

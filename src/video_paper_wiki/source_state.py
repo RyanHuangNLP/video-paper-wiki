@@ -11,7 +11,7 @@ from video_paper_wiki.assessment_history_v2 import derive_assessment_heads, vali
 from video_paper_wiki.canonical_compiler_v2 import compile_pages, concept_items_for_papers
 from video_paper_wiki.code_evidence_contracts import validate_code_evidence_manifest, validate_code_locator
 from video_paper_wiki.contracts import ContractError, validate_document
-from video_paper_wiki.identity import claim_id, paper_page_slug, repo_id, repo_page_slug
+from video_paper_wiki.identity import IdentityError, claim_id, paper_page_slug, repo_id, repo_page_slug
 from video_paper_wiki.jcs import canonicalize
 from video_paper_wiki.markdown_locator import decode_evidence
 from video_paper_wiki.markdown_source import validate_payload
@@ -26,7 +26,7 @@ from video_paper_wiki.source_publication_contracts import (
 from video_paper_wiki.source_registration import historical_source_ledger, receipt_chain
 from video_paper_wiki.source_semantics_contracts import (
     ASSOCIATION, COMPILE, DECISION, EVENT, HEADS as DISPLAY_SCHEMA, PAPER,
-    calendar, fail, preflight, sha,
+    association_reference, calendar, fail, preflight, sha,
 )
 from video_paper_wiki.source_versions import derive_display_heads
 from video_paper_wiki.transaction_contracts import _collisions
@@ -34,6 +34,8 @@ from video_paper_wiki.transaction_contracts import _collisions
 LEGACY_PAPER = "video-paper-wiki.paper-record.v1"
 LEGACY_EVENT = "video-paper-wiki.assessment-event.v1"
 REPO = "video-paper-wiki.repo-record.v1"
+# Same block-anchor rule as evidence join: a claim id at end of line, after whitespace.
+_BLOCK_ANCHOR = re.compile(r"(?m)(?<!\S)\^(clm-[0-9a-f]{20})[ \t]*$")
 _PREFIXES = {
     "paper": "wiki/meta/records/papers/", "repo": "wiki/meta/records/repos/",
     "association": "wiki/meta/records/source-versions/",
@@ -99,6 +101,165 @@ def require_legacy_profile(bytes_map):
                 continue  # Opaque historical namespaces are validated by their existing consumer.
             if type(doc) is dict and doc.get("schema") in {PAPER, EVENT}:
                 fail("SOURCE_PROFILE_REQUIRED", "source-aware publication/catalog is required", path, exit_code=75)
+
+
+def _profile_marker(path, raw):
+    if (path in {ASSESSMENT_HEADS, DISPLAY_HEADS}
+            or any(path.startswith(_PREFIXES[k]) for k in ("association", "decision", "snapshot", "observation"))):
+        return True
+    if path.startswith(("wiki/meta/records/", "wiki/meta/reviews/")) and path.endswith(".json"):
+        try:
+            doc = parse_json(raw, pointer=path, maximum=MAX_FILE)
+        except ContractError:
+            return False
+        if type(doc) is dict and doc.get("schema") in {PAPER, EVENT}:
+            return True
+    return False
+
+
+def authorize_catalog_profile(bytes_map):
+    """Validate source-aware bytes for catalog admission.
+
+    Publication keeps calling ``require_legacy_profile``. This entry is catalog-only:
+    a legacy snapshot still goes through that guard, and a source-aware snapshot is
+    checked as authority instead of being dropped or relabeled as v1.
+    """
+    if type(bytes_map) is not dict or any(type(path) is not str or type(raw) is not bytes for path, raw in bytes_map.items()):
+        invalid("catalog profile requires a path byte map", "/inventory")
+    if not any(_profile_marker(path, raw) for path, raw in bytes_map.items()):
+        require_legacy_profile(bytes_map)
+        return {"profile": "legacy-v1", "skip": frozenset(), "bindings": ()}
+    roles = {path: _role(path) for path in sorted(bytes_map)}
+    docs = {role: {} for role in _SCHEMAS}
+    for path, raw in sorted(bytes_map.items()):
+        role = roles[path]
+        if role in docs:
+            docs[role][path] = _document(path, raw, role)
+        elif role == "snapshot":
+            historical_source_ledger(raw)
+            if PATTERNS["snapshot"].fullmatch(path)[1] != sha(raw):
+                invalid("ledger snapshot filename differs", path)
+        elif role is None and path.startswith(("wiki/meta/records/", "wiki/meta/reviews/")) and path.endswith(".json"):
+            try:
+                stray = parse_json(raw, pointer=path, maximum=MAX_FILE)
+            except ContractError:
+                stray = None
+            if type(stray) is dict and stray.get("schema") in {PAPER, EVENT}:
+                invalid("v2 object is outside its semantic path", path)
+    if SOURCE_LEDGER not in bytes_map or CLAIM_LEDGER not in bytes_map:
+        invalid("both actual ledgers are required", "/inventory")
+    source = historical_source_ledger(bytes_map[SOURCE_LEDGER])
+    ledger = _claim_ledger(bytes_map[CLAIM_LEDGER], structural=False)
+    for sid, row in source["sources"].items():
+        if row["origin"]["kind"] != "file":
+            continue
+        locator = row["origin"]["locator"]
+        if locator not in bytes_map or (row.get("content_sha256") is not None and sha(bytes_map[locator]) != row["content_sha256"]):
+            invalid("source file binding differs from current bytes", SOURCE_LEDGER + "/sources/" + sid)
+    subjects = []
+    seen_subjects = set()
+    for record in docs["paper"].values():
+        subject = "paper:" + record["paper_id"]
+        if subject not in seen_subjects:
+            seen_subjects.add(subject)
+            subjects.append(subject)
+    for record in docs["repo"].values():
+        subject = "repo:" + record["repo_id"]
+        if subject not in seen_subjects:
+            seen_subjects.add(subject)
+            subjects.append(subject)
+    for record in docs["association"].values():
+        subject = "paper:" + record["paper_id"]
+        if subject not in seen_subjects:
+            seen_subjects.add(subject)
+            subjects.append(subject)
+    owned_pages = {}
+    subject_pages = {}
+    for kind, records, refs_key in (("paper", docs["paper"], "section_claim_refs"), ("repo", docs["repo"], "capability_claim_refs")):
+        for record in records.values():
+            try:
+                page = ("wiki/papers/" + paper_page_slug(record["paper_id"]) + ".md" if kind == "paper"
+                        else "wiki/code/" + repo_page_slug(record["repo_id"]) + ".md")
+            except IdentityError:
+                invalid("claim location differs from its canonical owner page", "/" + kind + "s")
+            subject = "paper:" + record["paper_id"] if kind == "paper" else "repo:" + record["repo_id"]
+            subject_pages[subject] = (page, record["schema"])
+            for ref in record.get(refs_key) or []:
+                cid = ref.get("claim_id") if type(ref) is dict else None
+                if type(cid) is not str or cid in owned_pages or cid not in ledger["claims"]:
+                    invalid("claim has duplicate ownership or a missing ledger row", "/" + kind + "s")
+                owned_pages[cid] = (page, record["schema"])
+    claims = []
+    for cid, row in sorted(ledger["claims"].items()):
+        matches = [subject for subject in subjects if claim_id(subject, row["text"]) == cid]
+        if len(matches) != 1:
+            invalid("claim subject is missing or ambiguous", CLAIM_LEDGER + "/claims/" + cid)
+        # A missing section/capability ref is not an absent owner. The claim
+        # still belongs to the record whose identity produced its id.
+        owned = owned_pages.get(cid)
+        if owned is None:
+            owned = subject_pages.get(matches[0])
+        if owned is not None:
+            page, schema = owned
+            location = row.get("location")
+            path = location.get("path") if type(location) is dict else None
+            if path != page or page not in bytes_map:
+                invalid("claim location differs from its canonical owner page", CLAIM_LEDGER + "/claims/" + cid)
+            if schema == PAPER and location != {"path": page, "anchor": "^" + cid}:
+                invalid("v2 paper claim requires its exact block anchor", CLAIM_LEDGER + "/claims/" + cid)
+            if schema == PAPER and _BLOCK_ANCHOR.findall(_page_text(bytes_map[page])).count(cid) != 1:
+                invalid("v2 paper claim requires its exact block anchor", CLAIM_LEDGER + "/claims/" + cid)
+        claims.append({"claim_id": cid, "stable_subject_id": matches[0], "canonical_claim_text": row["text"],
+                       "evidence": [decode_evidence(item) for item in row["evidence"]],
+                       "assessment": row["assessment"], "reviewed_at": row.get("reviewed_at")})
+    events = list(docs["event"].values())
+    head_ids = derive_assessment_heads(claims=claims, events=events)
+    event_paths = {event["event_id"]: path for path, event in docs["event"].items()}
+    assessment_heads = {"schema": HEADS, "heads": {cid: {
+        "event_id": eid, "event_sha256": sha(bytes_map[event_paths[eid]]),
+        "evidence_profile": "legacy-v1" if docs["event"][event_paths[eid]]["schema"] == LEGACY_EVENT else docs["event"][event_paths[eid]]["evidence_profile"]}
+        for cid, eid in sorted(head_ids.items())}}
+    validate_document(assessment_heads, HEADS)
+    if events or ASSESSMENT_HEADS in bytes_map:
+        if docs["assessment_heads"].get(ASSESSMENT_HEADS) != assessment_heads:
+            invalid("complete derived head registries differ", "/heads")
+    associations, decisions = list(docs["association"].values()), list(docs["decision"].values())
+    display_heads = derive_display_heads(associations, decisions)
+    if decisions or DISPLAY_HEADS in bytes_map:
+        if docs["display_heads"].get(DISPLAY_HEADS) != display_heads:
+            invalid("complete derived display heads differ", "/heads")
+    for record in associations:
+        raw_path = record["raw"]["path"]
+        if raw_path not in bytes_map or sha(bytes_map[raw_path]) != record["raw"]["sha256"]:
+            invalid("association raw bytes differ", "/associations/" + record["association_id"])
+        extraction = record.get("extraction")
+        if type(extraction) is dict and extraction.get("path") in bytes_map and sha(bytes_map[extraction["path"]]) != extraction.get("sha256"):
+            invalid("association extraction bytes differ", "/associations/" + record["association_id"])
+    v2_papers = [record for record in docs["paper"].values() if record["schema"] == PAPER]
+    if v2_papers:
+        identifiers = {record["paper_id"] for record in v2_papers}
+        if any(record["paper_id"] not in identifiers for record in associations):
+            invalid("association has no owning v2 paper record", "/associations")
+        grouped = {}
+        for record in associations:
+            grouped.setdefault(record["paper_id"], []).append(record)
+        for paper in v2_papers:
+            ordered = sorted(grouped.get(paper["paper_id"], []), key=lambda item: item["association_id"])
+            if paper.get("source_associations") != [association_reference(item) for item in ordered]:
+                invalid("record association references differ from the complete group", "/papers")
+    skip = {path for path, record in docs["paper"].items() if record["schema"] == PAPER}
+    skip.update(path for path, record in docs["event"].items() if record["schema"] == EVENT)
+    bind = set(skip)
+    bind.update(path for path, role in roles.items() if role in {"association", "decision", "snapshot", "observation", "assessment_heads", "display_heads"})
+    bindings = tuple({"path": path, "sha256": sha(bytes_map[path])} for path in sorted(bind, key=lambda item: item.encode()))
+    return {"profile": "source-v1", "skip": frozenset(skip), "bindings": bindings}
+
+
+def _page_text(raw):
+    try:
+        return raw.decode("utf-8")
+    except UnicodeError:
+        invalid("compiled page is not UTF-8", "/compiled_pages")
 
 
 def _document(path, raw, role, *, fresh=False):

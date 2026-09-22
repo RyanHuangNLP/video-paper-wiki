@@ -5,6 +5,7 @@ import hashlib
 import importlib.metadata
 import json
 import platform
+import re
 import sys
 import unicodedata
 from pathlib import Path
@@ -14,11 +15,16 @@ from video_paper_wiki.assessment_history import derive_assessment_heads
 from video_paper_wiki.canonical_compiler import compile_pages, concept_items_for_papers
 from video_paper_wiki.code_evidence_contracts import validate_code_evidence_manifest
 from video_paper_wiki.contracts import ContractError, validate_document
-from video_paper_wiki.evidence_join import build_evidence_inventory, join_evidence
-from video_paper_wiki.identity import paper_page_slug, repo_id as canonical_repo_id
+from video_paper_wiki.evidence_join import (
+    _inventory_digest, build_evidence_inventory, evidence_mapping_sha256, join_evidence,
+    validate_evidence_inventory, validate_evidence_mapping_authority,
+)
+from video_paper_wiki.jcs import canonicalize
+from video_paper_wiki.markdown_locator import PREFIX as _MARKDOWN_PREFIX
+from video_paper_wiki.identity import IdentityError, paper_page_slug, repo_id as canonical_repo_id
 from video_paper_wiki.ledger_locator import decode_ledger_evidence, encode_ledger_locator
 from video_paper_wiki.projection_input import _BRANCHES, validate_projection_bytes
-from video_paper_wiki.projection_runtime import parse_projection_json, validate_runtime_record
+from video_paper_wiki.projection_runtime import parse_projection_json, runtime_projection_sha256, validate_runtime_record
 from video_paper_wiki.receipt_audit import _Snapshot, _walk_inventory, audit_integrity
 from video_paper_wiki.resources import read_projection_resource_bytes
 from video_paper_wiki.secure_io import parse_strict_json
@@ -65,7 +71,22 @@ def _taxonomy(rows:dict[str,list[dict[str,Any]]], raw:bytes)->None:
             for oi,alias in enumerate(term.get("aliases",[])):_add(rows,"taxonomy_term_aliases",axis=axis["slug"],slug=term["slug"],ordinal=oi,alias=alias)
 
 
-def _ledgers(rows:dict[str,list[dict[str,Any]]], sources:dict, claims:dict)->None:
+def _v2_paper_pages(snap:_Snapshot, skip:frozenset[str])->frozenset[str]:
+    """Pages owned by skipped v2 papers. They are not v1 managed catalog pages."""
+    pages=set()
+    for path in skip:
+        if not path.startswith("wiki/meta/records/papers/") or path not in snap.files:continue
+        doc=parse_strict_json(snap.files[path][1], invalid_code="CATALOG_INPUT_INVALID")
+        if type(doc) is not dict or doc.get("schema")!="video-paper-wiki.paper-record.v2":continue
+        paper_id=doc.get("paper_id")
+        if type(paper_id) is not str:_fail("skipped paper identity is invalid")
+        try:slug=paper_page_slug(paper_id)
+        except IdentityError:_fail("skipped paper identity is invalid")
+        pages.add("wiki/papers/"+slug+".md")
+    return frozenset(pages)
+
+
+def _ledgers(rows:dict[str,list[dict[str,Any]]], sources:dict, claims:dict, claim_ids:set[str]|None=None, *, omitted_pages:frozenset[str]=frozenset())->None:
     _add(rows,"ledger_meta",ledger_kind="source",input_path="wiki/meta/ledgers/source-ledger.json",schema=sources["schema"],generated_at=sources["generated_at"])
     _add(rows,"ledger_meta",ledger_kind="claim",input_path="wiki/meta/ledgers/claim-ledger.json",schema=claims["schema"],generated_at=claims["generated_at"])
     for sid,item in sorted(sources["sources"].items()):
@@ -73,9 +94,11 @@ def _ledgers(rows:dict[str,list[dict[str,Any]]], sources:dict, claims:dict)->Non
         opt=lambda name:(int(item.get(name) is not None),item.get(name))
         cp,cv=opt("content_sha256");ip,iv=opt("ingested_at");rp,rv=opt("retrieved_at");fp,fv=opt("refresh_due");kp,kv=opt("independence_key");sp,sv=opt("supersedes")
         _add(rows,"sources",source_id=sid,ledger_kind="source",origin_kind=origin["kind"],origin_locator=origin["locator"],content_kind=item["content_kind"],title=item["title"],authority=item["authority"],review_status=item["review_status"],content_sha256_present=cp,content_sha256=cv,ingested_at_present=ip,ingested_at=iv,retrieved_at_present=rp,retrieved_at=rv,refresh_due_present=fp,refresh_due=fv,independence_key_present=kp,independence_key=kv,supersedes_present=sp,supersedes=sv)
-        for ordinal,page in enumerate(item.get("pages",[])):_add(rows,"source_pages",source_id=sid,ordinal=ordinal,page_path=page)
+        visible=[page for page in item.get("pages",[]) if page not in omitted_pages]
+        for ordinal,page in enumerate(visible):_add(rows,"source_pages",source_id=sid,ordinal=ordinal,page_path=page)
         if origin["kind"]=="file":_add(rows,"source_artifacts",source_id=sid,artifact_path=origin["locator"])
     for cid,item in sorted(claims["claims"].items()):
+        if claim_ids is not None and cid not in claim_ids:continue
         location=item["location"];notes=item.get("notes");sup=item.get("supersedes")
         _add(rows,"claims",claim_id=cid,ledger_kind="claim",text=item["text"],risk=item["risk"],assessment=item["assessment"],confidence=item["confidence"],location_path=location["path"],location_anchor_present=int(location.get("anchor") is not None),location_anchor=location.get("anchor"),reviewed_at=item.get("reviewed_at"),notes_present=int(notes is not None),notes=notes,supersedes_present=int(sup is not None),supersedes=sup)
         for ordinal,evidence in enumerate(item["evidence"]):
@@ -157,6 +180,80 @@ def _generation(inventory:dict,upstream:Path)->dict:
         "runtime":{"python_implementation":platform.python_implementation(),"python_version":platform.python_version(),"unicode_version":unicodedata.unidata_version,"prefix_mode":"synthetic","chunk_profile":"claude-obsidian.chunk.v1","bm25_profile":"claude-obsidian.bm25.v2"}}
 
 
+def join_catalog_source_pages(*, inventory: object, pages: dict, chunks: dict, bm25: object) -> dict[str, Any]:
+    """Join chunks while enforcing claim anchors only on canonical v1 paper pages.
+
+    Research pages may carry ``^clm-`` anchors that are not v1 evidence units.
+    Those pages stay in the mapping with ``paper_id`` null. Legacy catalogs keep
+    calling ``join_evidence`` unchanged.
+    """
+    inv = validate_evidence_inventory(inventory)
+    if type(pages) is not dict or type(chunks) is not dict:
+        raise ContractError("EVIDENCE_JOIN_INVALID", "byte maps are required")
+    index = validate_runtime_record("bm25", bm25)
+    docs = index.get("docs")
+    if type(docs) is not dict or set(docs) != set(chunks):
+        raise ContractError("EVIDENCE_JOIN_INVALID", "BM25 and chunk sets differ")
+    units_by_page: dict[str, list[dict]] = {}
+    for unit in inv["units"]:
+        units_by_page.setdefault("wiki/papers/" + paper_page_slug(unit["paper_id"]) + ".md", []).append(unit)
+    joined = []
+    mapped = set()
+    page_seen = set()
+    expected_index: dict[str, int] = {}
+    seen_paths = set()
+    seen_pairs = set()
+    for chunk_id in sorted(chunks):
+        chunk = validate_runtime_record("chunk", chunks[chunk_id])
+        page = chunk["page_path"]
+        if chunk_id != f"{chunk['page_address']}:{chunk['chunk_index']}":
+            raise ContractError("EVIDENCE_JOIN_INVALID", "chunk identity differs")
+        pair = (chunk["page_address"], chunk["chunk_index"])
+        if pair in seen_pairs or chunk["chunk_index"] != expected_index.get(page, 0):
+            raise ContractError("EVIDENCE_JOIN_INVALID", "chunk indices are not contiguous or unique")
+        seen_pairs.add(pair)
+        expected_index[page] = chunk["chunk_index"] + 1
+        if page not in pages:
+            raise ContractError("EVIDENCE_JOIN_INVALID", "chunk page bytes are absent")
+        page_bytes = pages[page]
+        if page not in page_seen:
+            if page in units_by_page:
+                text = page_bytes.decode("utf-8")
+                anchors = re.findall(r"(?m)(?<!\S)\^(clm-[0-9a-f]{20})[ \t]*$", text)
+                expected = {unit["claim_id"] for unit in units_by_page.get(page, [])}
+                if set(anchors) != expected or any(anchors.count(cid) != 1 for cid in set(anchors)):
+                    raise ContractError("EVIDENCE_JOIN_INVALID", "claim anchor set is missing, duplicated, unknown, or cross-owner")
+            page_seen.add(page)
+        body_hash = "sha256:" + hashlib.sha256(chunk["raw_text"].encode()).hexdigest()
+        page_hash = "sha256:" + hashlib.sha256(page_bytes).hexdigest()
+        entry = docs[chunk_id]
+        expected_path = f".vault-meta/chunks/{chunk['page_address']}/chunk-{chunk['chunk_index']:03d}.json"
+        if expected_path in seen_paths:
+            raise ContractError("EVIDENCE_JOIN_INVALID", "chunk path is duplicated")
+        seen_paths.add(expected_path)
+        if (chunk["body_hash"] != body_hash or chunk["page_body_hash"] != page_hash or entry["body_hash"] != body_hash
+                or entry["page_body_hash"] != page_hash or entry["path"] != expected_path):
+            raise ContractError("EVIDENCE_JOIN_INVALID", "chunk/index byte binding differs")
+        selected = []
+        for unit in units_by_page.get(page, []):
+            if re.search(r"(?m)(?<!\S)\^" + re.escape(unit["claim_id"]) + r"[ \t]*$", chunk["raw_text"]):
+                selected.append(unit["evidence_unit_id"])
+                mapped.add(unit["evidence_unit_id"])
+        page_units = units_by_page.get(page, [])
+        joined.append({"chunk_id": chunk_id, "path": expected_path, "body_hash": body_hash, "page_body_hash": page_hash,
+                       "paper_id": page_units[0]["paper_id"] if page_units else None, "evidence_unit_ids": sorted(set(selected)),
+                       "default_evidence_unit_ids": sorted({u["evidence_unit_id"] for u in page_units if u["default_eligible"] and u["evidence_unit_id"] in selected})})
+    if mapped != {x["evidence_unit_id"] for x in inv["units"]}:
+        raise ContractError("EVIDENCE_JOIN_INVALID", "evidence unit is not represented in chunks")
+    material = {"inventory_sha256": _inventory_digest(inv), "pages": {p: hashlib.sha256(b).hexdigest() for p, b in sorted(pages.items())},
+                "chunks": {cid: runtime_projection_sha256("chunk", chunks[cid]) for cid in sorted(chunks)},
+                "bm25_sha256": runtime_projection_sha256("bm25", bm25), "profile": "claude-obsidian.chunk-v1+bm25-v2"}
+    result = {"schema": "video-paper-wiki.evidence-mapping-authority.v1", "inventory": inv, "chunks": joined,
+              "profile": "claude-obsidian.chunk-v1+bm25-v2", "generation_sha256": hashlib.sha256(canonicalize(material)).hexdigest(), "mapping_sha256": "0" * 64}
+    result["mapping_sha256"] = evidence_mapping_sha256(result)
+    return validate_evidence_mapping_authority(result)
+
+
 def collect_current_catalog_material(*,vault_root:Path|str,upstream_root:Path|str,retrieval_config:object,
                                      _retain:bool=False)->dict[str,Any]|tuple[dict[str,Any],_Snapshot]:
     """Collect all catalog authority from retained current bytes, never caller rows."""
@@ -167,17 +264,17 @@ def collect_current_catalog_material(*,vault_root:Path|str,upstream_root:Path|st
         # chunk and row collected below.
         audit_integrity(vault,_snapshot=snap)
         actual=_walk_inventory(snap,read_bytes=True)
-        from video_paper_wiki.source_state import require_legacy_profile
-        require_legacy_profile({p: snap.files[p][1] for p in actual})
+        from video_paper_wiki.source_state import authorize_catalog_profile
+        profile_auth=authorize_catalog_profile({p: snap.files[p][1] for p in actual})
         tax=read_projection_resource_bytes("taxonomy","v1.json")
         if tax is None:_fail("taxonomy resource is unavailable")
-        byte_map={p:snap.files[p][1] for p in sorted(actual) if _kind(p) is not None}
+        byte_map={p:snap.files[p][1] for p in sorted(actual) if _kind(p) is not None and p not in profile_auth["skip"]}
         byte_map["taxonomy/v1.json"]=tax
         entries=[{"path":p,"kind":_kind(p) or "taxonomy","sha256":_sha(raw),"size_bytes":len(raw)} for p,raw in sorted(byte_map.items())]
         inventory={"schema":"video-paper-wiki.projection-input.v1","entries":entries};validate_projection_bytes(inventory,bytes_map=byte_map)
         rows=_row_tables();_taxonomy(rows,tax)
         source=_document(byte_map["wiki/meta/ledgers/source-ledger.json"],"claude-obsidian.source-ledger.v1") if False else parse_strict_json(byte_map["wiki/meta/ledgers/source-ledger.json"],invalid_code="CATALOG_INPUT_INVALID")
-        claim=parse_strict_json(byte_map["wiki/meta/ledgers/claim-ledger.json"],invalid_code="CATALOG_INPUT_INVALID");_ledgers(rows,source,claim)
+        claim=parse_strict_json(byte_map["wiki/meta/ledgers/claim-ledger.json"],invalid_code="CATALOG_INPUT_INVALID")
         papers=[];events=[];codes=[];repos={};alignments=[]
         for entry in entries:
             p,k=entry["path"],entry["kind"]
@@ -192,11 +289,24 @@ def collect_current_catalog_material(*,vault_root:Path|str,upstream_root:Path|st
                 else:_run(rows,p,doc)
             if k in {"captured-artifact","docling-document","parser-config","model-manifest"}:
                 _add(rows,"artifacts",artifact_path=p,artifact_kind=k,file_sha256=entry["sha256"],size_bytes=entry["size_bytes"])
+        if profile_auth["profile"]=="legacy-v1":
+            _ledgers(rows,source,claim);project_claims=None
+        else:
+            owned=set()
+            for paper in papers:owned.update(item["claim_id"] for item in paper["section_claim_refs"])
+            for repo in repos.values():owned.update(item["claim_id"] for item in repo["capability_claim_refs"])
+            for cid in sorted(owned):
+                row=claim["claims"].get(cid)
+                evidence=row.get("evidence") if type(row) is dict else None
+                markdown=type(evidence) is list and any(type(item) is dict and type(item.get("locator")) is str and item["locator"].startswith(_MARKDOWN_PREFIX) for item in evidence)
+                if row is None or type(evidence) is not list or markdown:_fail("v1 claim is missing or is not a legacy locator")
+            _ledgers(rows,source,claim,claim_ids=owned,omitted_pages=_v2_paper_pages(snap, profile_auth["skip"]));project_claims=owned
         for p in entries:
             _add(rows,"canonical_inputs",path=p["path"],kind=p["kind"],file_sha256=p["sha256"],size_bytes=p["size_bytes"])
         claims=[]
         refs={r["claim_id"]:r for r in rows["claim_refs"]}
-        for cid,item in sorted(claim["claims"].items()):claims.append({"claim_id":cid,"stable_subject_id":refs[cid]["subject_id"],"canonical_claim_text":item["text"],"evidence":[decode_ledger_evidence(x) for x in item["evidence"]],"assessment":item["assessment"],"reviewed_at":item.get("reviewed_at")})
+        chosen=claim["claims"].items() if project_claims is None else ((cid,claim["claims"][cid]) for cid in sorted(project_claims))
+        for cid,item in sorted(chosen):claims.append({"claim_id":cid,"stable_subject_id":refs[cid]["subject_id"],"canonical_claim_text":item["text"],"evidence":[decode_ledger_evidence(x) for x in item["evidence"]],"assessment":item["assessment"],"reviewed_at":item.get("reviewed_at")})
         heads=derive_assessment_heads(claims=claims,events=events)
         for cid,eid in sorted(heads.items()):_add(rows,"assessment_heads",claim_id=cid,head_event_id=eid)
         compile_papers=[]
@@ -216,21 +326,30 @@ def collect_current_catalog_material(*,vault_root:Path|str,upstream_root:Path|st
             chunks.append({"path":cp,"bytes":raw,"record":rec});chunk_records[cid]=rec
             pages_raw.setdefault(rec["page_path"],snap.read(rec["page_path"]))
         inventory_authority=build_evidence_inventory(compile_papers)
-        mapping=join_evidence(inventory=inventory_authority,pages=pages_raw,chunks=chunk_records,bm25=bm)
+        source_aware=profile_auth["profile"]!="legacy-v1"
+        mapping=(join_catalog_source_pages if source_aware else join_evidence)(inventory=inventory_authority,pages=pages_raw,chunks=chunk_records,bm25=bm)
         indexed=[]
         paper_by_path={p:paper["paper_id"] for p,paper in (("wiki/papers/"+paper_page_slug(x["paper_id"])+".md",x) for x in papers)}
         for p,raw in sorted(pages_raw.items()):
-            role="paper" if p.startswith("wiki/papers/") else "code" if p.startswith("wiki/code/") else "concept" if p.startswith("wiki/concepts/") else "other"
+            compiled_match=compiled.get(p)==raw
+            if source_aware and not compiled_match:role,pid="other",None
+            else:
+                role="paper" if p.startswith("wiki/papers/") else "code" if p.startswith("wiki/code/") else "concept" if p.startswith("wiki/concepts/") else "other"
+                pid=paper_by_path.get(p)
             rec=next(x for x in chunk_records.values() if x["page_path"]==p)
-            indexed.append({"path":p,"role":role,"bytes":raw,"paper_id":paper_by_path.get(p),"page_address":rec["page_address"]})
+            indexed.append({"path":p,"role":role,"bytes":raw,"paper_id":pid,"page_address":rec["page_address"]})
         tables=[]
         manifest=json.loads(read_projection_resource_bytes("catalog","base-catalog-v1.columns.json"))
         for definition in manifest["tables"]:
             cols=[x["name"] for x in definition["columns"]];tables.append({"name":definition["name"],"columns":cols,"rows":[[row.get(c) for c in cols] for row in rows[definition["name"]]]})
         generation=_generation(inventory,upstream)
         builders=[{"path":"video_paper_wiki/catalog_collector.py","sha256":_sha(Path(__file__).read_bytes())},{"path":"video_paper_wiki/catalog_reporting.py","sha256":_sha(Path(__file__).with_name('catalog_reporting.py').read_bytes())},{"path":"video_paper_wiki/catalog_store.py","sha256":_sha(Path(__file__).with_name('catalog_store.py').read_bytes())}]
+        builders.extend(profile_auth["bindings"]);builders.sort(key=lambda item:item["path"].encode())
+        if source_aware:compiled_pages=[{"path":p,"compiler_role":"paper" if p.startswith('wiki/papers/') else "code" if p.startswith('wiki/code/') else "concept","bytes":raw} for p,raw in compiled.items() if pages_raw.get(p)==raw]
+        else:compiled_pages=[{"path":p,"compiler_role":"paper" if p.startswith('wiki/papers/') else "code" if p.startswith('wiki/code/') else "concept","bytes":raw} for p,raw in compiled.items()]
+        compiled_pages.sort(key=lambda item:item["path"].encode())
         snap.verify()
-        result={"base_generation_material":generation,"base_tables":tables,"mapping":mapping,"config":retrieval_config,"indexed_pages":indexed,"compiled_pages":[{"path":p,"compiler_role":"paper" if p.startswith('wiki/papers/') else "code" if p.startswith('wiki/code/') else "concept","bytes":raw} for p,raw in compiled.items()],"chunks":chunks,"bm25":{"path":bm_path,"bytes":bm_raw,"record":bm},"builder_files":builders}
+        result={"base_generation_material":generation,"base_tables":tables,"mapping":mapping,"config":retrieval_config,"indexed_pages":indexed,"compiled_pages":compiled_pages,"chunks":chunks,"bm25":{"path":bm_path,"bytes":bm_raw,"record":bm},"builder_files":builders}
         success=True
         return (result,snap) if _retain else result
     finally:

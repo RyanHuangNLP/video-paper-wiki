@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import hashlib
+import os
+from pathlib import Path
 
 from video_paper_wiki.article_revision import (
     article_history,
@@ -486,6 +488,29 @@ def _stage_pages(batch_id, page_map, manifest):
     return new, already, pages
 
 
+def _vault_files(vault_root):
+    """Regular files a reading page may link, without following symlinks."""
+    root = Path(vault_root)
+    found = set()
+    for base in ("wiki/papers", "wiki/code", "wiki/concepts", "wiki/meta", ".work"):
+        start = root / base
+        if not start.exists() or start.is_symlink() or not start.is_dir():
+            continue
+        for dirpath, dirnames, filenames in os.walk(start, followlinks=False):
+            kept = []
+            for name in dirnames:
+                child = Path(dirpath) / name
+                if not child.is_symlink():
+                    kept.append(name)
+            dirnames[:] = kept
+            for name in filenames:
+                path = Path(dirpath) / name
+                if path.is_symlink() or not path.is_file():
+                    continue
+                found.add(path.relative_to(root).as_posix())
+    return frozenset(found)
+
+
 def build_reading_views(*, vault_root, batch_id, paper_id=None, articles_batch=None):
     batch = validate_batch_id(batch_id)
     if articles_batch is not None:
@@ -548,6 +573,7 @@ def build_reading_views(*, vault_root, batch_id, paper_id=None, articles_batch=N
         "annotation_lineage": annotation_lineage,
         "review_lineage": review_lineage,
         "record_condition": record_condition,
+        "vault_files": _vault_files(vault_root),
     }
     page_map = render_all(model)
     manifest = {
