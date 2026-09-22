@@ -34,6 +34,8 @@ from video_paper_wiki.transaction_contracts import _collisions
 LEGACY_PAPER = "video-paper-wiki.paper-record.v1"
 LEGACY_EVENT = "video-paper-wiki.assessment-event.v1"
 REPO = "video-paper-wiki.repo-record.v1"
+# Same block-anchor rule as evidence join: a claim id at end of line, after whitespace.
+_BLOCK_ANCHOR = re.compile(r"(?m)(?<!\S)\^(clm-[0-9a-f]{20})[ \t]*$")
 _PREFIXES = {
     "paper": "wiki/meta/records/papers/", "repo": "wiki/meta/records/repos/",
     "association": "wiki/meta/records/source-versions/",
@@ -172,6 +174,7 @@ def authorize_catalog_profile(bytes_map):
             seen_subjects.add(subject)
             subjects.append(subject)
     owned_pages = {}
+    subject_pages = {}
     for kind, records, refs_key in (("paper", docs["paper"], "section_claim_refs"), ("repo", docs["repo"], "capability_claim_refs")):
         for record in records.values():
             try:
@@ -179,6 +182,8 @@ def authorize_catalog_profile(bytes_map):
                         else "wiki/code/" + repo_page_slug(record["repo_id"]) + ".md")
             except IdentityError:
                 invalid("claim location differs from its canonical owner page", "/" + kind + "s")
+            subject = "paper:" + record["paper_id"] if kind == "paper" else "repo:" + record["repo_id"]
+            subject_pages[subject] = (page, record["schema"])
             for ref in record.get(refs_key) or []:
                 cid = ref.get("claim_id") if type(ref) is dict else None
                 if type(cid) is not str or cid in owned_pages or cid not in ledger["claims"]:
@@ -189,7 +194,11 @@ def authorize_catalog_profile(bytes_map):
         matches = [subject for subject in subjects if claim_id(subject, row["text"]) == cid]
         if len(matches) != 1:
             invalid("claim subject is missing or ambiguous", CLAIM_LEDGER + "/claims/" + cid)
+        # A missing section/capability ref is not an absent owner. The claim
+        # still belongs to the record whose identity produced its id.
         owned = owned_pages.get(cid)
+        if owned is None:
+            owned = subject_pages.get(matches[0])
         if owned is not None:
             page, schema = owned
             location = row.get("location")
@@ -197,6 +206,8 @@ def authorize_catalog_profile(bytes_map):
             if path != page or page not in bytes_map:
                 invalid("claim location differs from its canonical owner page", CLAIM_LEDGER + "/claims/" + cid)
             if schema == PAPER and location != {"path": page, "anchor": "^" + cid}:
+                invalid("v2 paper claim requires its exact block anchor", CLAIM_LEDGER + "/claims/" + cid)
+            if schema == PAPER and _BLOCK_ANCHOR.findall(_page_text(bytes_map[page])).count(cid) != 1:
                 invalid("v2 paper claim requires its exact block anchor", CLAIM_LEDGER + "/claims/" + cid)
         claims.append({"claim_id": cid, "stable_subject_id": matches[0], "canonical_claim_text": row["text"],
                        "evidence": [decode_evidence(item) for item in row["evidence"]],
@@ -242,6 +253,13 @@ def authorize_catalog_profile(bytes_map):
     bind.update(path for path, role in roles.items() if role in {"association", "decision", "snapshot", "observation", "assessment_heads", "display_heads"})
     bindings = tuple({"path": path, "sha256": sha(bytes_map[path])} for path in sorted(bind, key=lambda item: item.encode()))
     return {"profile": "source-v1", "skip": frozenset(skip), "bindings": bindings}
+
+
+def _page_text(raw):
+    try:
+        return raw.decode("utf-8")
+    except UnicodeError:
+        invalid("compiled page is not UTF-8", "/compiled_pages")
 
 
 def _document(path, raw, role, *, fresh=False):

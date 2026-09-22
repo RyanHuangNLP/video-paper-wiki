@@ -9,7 +9,8 @@
 - 快照里没有 assessment heads、display heads、association／decision／snapshot／observation，也没有 `paper-record.v2`／`assessment-event.v2` 时，仍走 legacy guard，投影与 `join_evidence` 保持原路径。
 - 存在上述标记时，按现有 source 校验读取真实字节：heads、association、claim 主体和证据必须闭合。失败直接抛出原错误，不捕获后当成成功。
 - v2 paper／event 不写入 v1 表。跳过 v2 paper 之后，source ledger 里属于该论文的页面也不再写入 v1 `source_pages`。它们和 heads、association 等路径以 `{path, sha256}` 进入 `builder_files`。字节变化会改变 `catalog_generation`（status 变为 `stale`），或在重新密封后仍无法通过校验时被明确拒绝。
-- v2 paper 的 `source_associations` 必须与实际 association 的标识、内容哈希和论文归属一致，只存在引用 ID 不够。有记录归属的 claim，其页面必须是该记录的规范所有者页面，并且该页字节在同一快照里。
+- v2 paper 的 `source_associations` 必须与实际 association 的标识、内容哈希和论文归属一致，只存在引用 ID 不够。有记录归属的 claim，其页面必须是该记录的规范所有者页面，并且该页字节在同一快照里。正式 v2 paper 的 claim 即使 `section_claim_refs` 被清空，仍按论文身份做同一页面检查；引用表里找不到 owner 不得跳过。把 ledger 页面改成不存在的路径时，catalog build/status 拒绝，不得保持 `current`。
+- v2 paper 的 location 元数据写成规范页和 `^claim` 还不够。页面正文必须实际含有该块锚点，规则与证据连接的行尾 `^clm-` 锚点相同。只替换页面中的锚点、不改 location 时，重建后的 status 不得为 `current`。
 - 研究页上的 `^clm-` 锚点只在 v1 论文页上参与证据连接。其它页面保留在检索映射里，`paper_id` 为空。
 - 重建只写既有运行产物（`.vault-meta` 下的索引和 catalog）。不改写 `.raw`、`wiki` 或被备份的 `.work`。
 

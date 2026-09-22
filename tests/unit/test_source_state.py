@@ -299,3 +299,21 @@ def test_catalog_authorization_rejects_bad_association_reference_and_missing_cla
         authorize_catalog_profile(removed)
     assert err.value.code == "SOURCE_PUBLICATION_INVALID"
     assert "claim location" in err.value.message
+    omitted = dict(data)
+    paper = copy.deepcopy(record)
+    paper["section_claim_refs"] = []
+    omitted[paper_path] = canonicalize(paper)
+    ledger = json.loads(data[CLAIM_LEDGER])
+    ledger["claims"][claim["claim_id"]]["location"]["path"] = "wiki/papers/missing.md"
+    omitted[CLAIM_LEDGER] = canonicalize(ledger)
+    with pytest.raises(ContractError) as err:
+        authorize_catalog_profile(omitted)
+    assert err.value.code == "SOURCE_PUBLICATION_INVALID"
+    assert "claim location" in err.value.message
+    replaced = dict(data)
+    replaced[page] = data[page].replace(("^" + claim["claim_id"]).encode(), b"^clm-" + b"0" * 20)
+    assert replaced[page] != data[page]
+    with pytest.raises(ContractError) as err:
+        authorize_catalog_profile(replaced)
+    assert err.value.code == "SOURCE_PUBLICATION_INVALID"
+    assert "block anchor" in err.value.message

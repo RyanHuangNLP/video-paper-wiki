@@ -304,3 +304,38 @@ def test_published_source_v1_catalog_is_current_and_rejects_unbound_references(c
     os.chmod(ledger_path, 0o600)
     _reseal_replace(vault, ledger_relative, hashlib.sha256(original_ledger).hexdigest())
     _refuse_current(vault, config)
+    bad_ledger = ledger_path.read_bytes()
+    ledger_path.write_bytes(original_ledger)
+    os.chmod(ledger_path, 0o600)
+    _reseal_replace(vault, ledger_relative, hashlib.sha256(bad_ledger).hexdigest())
+    paper_doc = json.loads(original)
+    paper_doc["section_claim_refs"] = []
+    paper.write_bytes(canonicalize(paper_doc))
+    os.chmod(paper, 0o600)
+    _reseal_replace(vault, relative, hashlib.sha256(original).hexdigest())
+    omitted = json.loads(original_ledger)
+    omitted["claims"][next(iter(omitted["claims"]))]["location"]["path"] = "wiki/papers/missing.md"
+    ledger_path.write_bytes(canonicalize(omitted))
+    os.chmod(ledger_path, 0o600)
+    _reseal_replace(vault, ledger_relative, hashlib.sha256(original_ledger).hexdigest())
+    assert audit_integrity(vault)["classification"] == "receipt_backed"
+    _refuse_current(vault, config)
+    ledger_path.write_bytes(original_ledger)
+    os.chmod(ledger_path, 0o600)
+    _reseal_replace(vault, ledger_relative, hashlib.sha256(canonicalize(omitted)).hexdigest())
+    empty_paper = paper.read_bytes()
+    paper.write_bytes(original)
+    os.chmod(paper, 0o600)
+    _reseal_replace(vault, relative, hashlib.sha256(empty_paper).hexdigest())
+    restored = json.loads(original_ledger)
+    claim_id = next(iter(restored["claims"]))
+    page_relative = restored["claims"][claim_id]["location"]["path"]
+    page_path = vault / page_relative
+    original_page = page_path.read_bytes()
+    replaced = original_page.replace(("^" + claim_id).encode(), b"^clm-" + b"0" * 20)
+    assert replaced != original_page
+    page_path.write_bytes(replaced)
+    os.chmod(page_path, 0o600)
+    _reseal_replace(vault, page_relative, hashlib.sha256(original_page).hexdigest())
+    assert audit_integrity(vault)["classification"] == "receipt_backed"
+    _refuse_current(vault, config)
