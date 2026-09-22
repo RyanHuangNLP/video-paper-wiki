@@ -27,6 +27,9 @@ from tests.closure._p3_recovery_fixture import prepare_research_sources
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = ROOT / "tests/fixtures/contracts/valid/video-paper-wiki.retrieval-policy.v1.json"
 UPSTREAM = ROOT / "vendor/claude-obsidian"
+# Named ref instead of FETCH_HEAD: Git 2.55 on CI can exit 0 from
+# `git fetch <url> HEAD` without creating FETCH_HEAD.
+_DRILL_SRC_REF = "refs/remotes/drill/src"
 
 
 def _git(restore: Path, *args: str, env: dict[str, str]) -> str:
@@ -42,6 +45,11 @@ def _git(restore: Path, *args: str, env: dict[str, str]) -> str:
     if result.returncode:
         raise AssertionError(result.stderr)
     return result.stdout
+
+
+def _fetch_drill_source(restore: Path, env: dict[str, str]) -> str:
+    _git(restore, "fetch", "-q", str(ROOT), f"+HEAD:{_DRILL_SRC_REF}", env=env)
+    return _git(restore, "rev-parse", _DRILL_SRC_REF, env=env).strip()
 
 
 def _operator(argv: list[str], confirm: bytes, cwd: Path) -> tuple[int, bytes]:
@@ -322,8 +330,7 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
     env["GIT_CONFIG_NOSYSTEM"] = "1"
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     _git(restore, "init", "-q", env=env)
-    _git(restore, "fetch", "-q", str(ROOT), "HEAD", env=env)
-    revision = _git(restore, "rev-parse", "FETCH_HEAD", env=env).strip()
+    revision = _fetch_drill_source(restore, env)
     tracked = _git(restore, "ls-tree", "-r", "--name-only", revision, env=env)
     blocked = [
         line
@@ -754,8 +761,7 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
     env["GIT_CONFIG_NOSYSTEM"] = "1"
     env["GIT_CONFIG_GLOBAL"] = "/dev/null"
     _git(restore, "init", "-q", env=env)
-    _git(restore, "fetch", "-q", str(ROOT), "HEAD", env=env)
-    revision = _git(restore, "rev-parse", "FETCH_HEAD", env=env).strip()
+    revision = _fetch_drill_source(restore, env)
     tracked = _git(restore, "ls-tree", "-r", "--name-only", revision, env=env)
     blocked = [line for line in tracked.splitlines() if line in {".raw", "wiki", ".work"} or line.startswith((".raw/", "wiki/", ".work/"))]
     assert blocked == []
