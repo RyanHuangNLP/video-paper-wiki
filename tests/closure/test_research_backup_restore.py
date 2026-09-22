@@ -27,29 +27,67 @@ from tests.closure._p3_recovery_fixture import prepare_research_sources
 ROOT = Path(__file__).resolve().parents[2]
 POLICY = ROOT / "tests/fixtures/contracts/valid/video-paper-wiki.retrieval-policy.v1.json"
 UPSTREAM = ROOT / "vendor/claude-obsidian"
-# Named ref instead of FETCH_HEAD: Git 2.55 on CI can exit 0 from
-# `git fetch <url> HEAD` without creating FETCH_HEAD.
-_DRILL_SRC_REF = "refs/remotes/drill/src"
+# Git 2.55 can exit 0 for `git fetch <path> +HEAD:<ref>` without writing
+# that ref, including a renamed remote-tracking name. Pack the source
+# commit into a bundle and fetch the bundle into an explicit ref.
+_DRILL_SRC_REF = "refs/drill/src"
 
 
-def _git(restore: Path, *args: str, env: dict[str, str]) -> str:
-    result = subprocess.run(
+def _run_git(
+    cwd: Path, args: tuple[str, ...], env: dict[str, str]
+) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
         ["git", "-c", "core.fsmonitor=false", "-c", "safe.directory=*", *args],
-        cwd=restore,
+        cwd=cwd,
         env=env,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
         check=False,
     )
+
+
+def _git(restore: Path, *args: str, env: dict[str, str]) -> str:
+    result = _run_git(restore, args, env)
     if result.returncode:
         raise AssertionError(result.stderr)
     return result.stdout
 
 
 def _fetch_drill_source(restore: Path, env: dict[str, str]) -> str:
-    _git(restore, "fetch", "-q", str(ROOT), f"+HEAD:{_DRILL_SRC_REF}", env=env)
-    return _git(restore, "rev-parse", _DRILL_SRC_REF, env=env).strip()
+    source = _run_git(ROOT, ("rev-parse", "HEAD"), env)
+    sha = source.stdout.strip()
+    if source.returncode or not sha:
+        raise AssertionError(
+            "source rev-parse failed\n"
+            f"exit: {source.returncode}\n"
+            f"stdout:\n{source.stdout}\n"
+            f"stderr:\n{source.stderr}"
+        )
+    bundle = restore.parent / "drill-src.bundle"
+    created = _run_git(ROOT, ("bundle", "create", str(bundle), "HEAD"), env)
+    if created.returncode:
+        raise AssertionError(
+            "bundle create failed\n"
+            f"exit: {created.returncode}\n"
+            f"stdout:\n{created.stdout}\n"
+            f"stderr:\n{created.stderr}"
+        )
+    fetched = _run_git(restore, ("fetch", str(bundle), f"+{sha}:{_DRILL_SRC_REF}"), env)
+    parsed = _run_git(restore, ("rev-parse", _DRILL_SRC_REF), env)
+    got = parsed.stdout.strip()
+    if fetched.returncode or parsed.returncode or got != sha:
+        raise AssertionError(
+            "drill source ref was not stored\n"
+            f"expected: {sha}\n"
+            f"fetch exit: {fetched.returncode}\n"
+            f"fetch stdout:\n{fetched.stdout}\n"
+            f"fetch stderr:\n{fetched.stderr}\n"
+            f"rev-parse exit: {parsed.returncode}\n"
+            f"rev-parse stdout:\n{parsed.stdout}\n"
+            f"rev-parse stderr:\n{parsed.stderr}"
+        )
+    return got
 
 
 def _operator(argv: list[str], confirm: bytes, cwd: Path) -> tuple[int, bytes]:
