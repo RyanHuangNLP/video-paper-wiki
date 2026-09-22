@@ -528,7 +528,7 @@ def _install_isolated(tmp_path: Path) -> Path:
     source_site = Path(subprocess.check_output([str(ROOT / ".venv" / "bin" / "python"), "-c", "import site; print(site.getsitepackages()[0])"], text=True).strip())
     target_site = next((venv / "lib").glob("python*/site-packages"))
     for child in source_site.iterdir():
-        if child.name.startswith("video_paper_wiki"):
+        if child.name.startswith("video_paper_wiki") or child.suffix == ".pth":
             continue
         destination = target_site / child.name
         if destination.exists():
@@ -668,6 +668,21 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
     vpwiki = python.with_name("vpwiki")
     admin = python.with_name("vpwiki-admin")
     assert vpwiki.is_file() and admin.is_file()
+    located = subprocess.run(
+        [str(python), "-I", "-B", "-c", "import sys, video_paper_wiki, video_paper_wiki_operator\nprint(video_paper_wiki.__file__)\nprint(video_paper_wiki_operator.__file__)\nprint('\\n'.join(sys.path))"],
+        cwd=tmp_path,
+        env={**os.environ, "PYTHONSAFEPATH": "1", "PYTHONPATH": ""},
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert located.returncode == 0, located.stderr
+    product_file, operator_file, *path_lines = located.stdout.splitlines()
+    install_site = python.parent.parent / "lib"
+    assert product_file.startswith(str(install_site))
+    assert operator_file.startswith(str(install_site))
+    assert all(not line.startswith(str(ROOT / "src")) for line in path_lines)
     vault = prepared["vault"]
     checkout = prepared["checkout"]
     outside = tmp_path / "outside"
