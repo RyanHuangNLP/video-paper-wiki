@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import posixpath
+import re
+
 from video_paper_wiki.experiment_matrix import COLUMNS
 from video_paper_wiki.identity import IdentityError, paper_page_slug, repo_page_slug
 
@@ -54,11 +57,29 @@ def _one_lf(text):
     return text.rstrip("\n") + "\n"
 
 
-def _frontmatter(relative, basis_sha256, graph_sha256):
+READING_PAGE_DATE = "2026-09-08"
+_SAFE_ANCHOR = re.compile(r"[A-Za-z0-9][A-Za-z0-9._:-]*")
+
+
+def _yaml_quote(value):
+    text = value if type(value) is str else "" if value is None else str(value)
+    plain = text != "" and text.strip() == text and text.lower() not in {"null", "true", "false", "yes", "no"}
+    if plain and not any(ch in text for ch in ':{}[]&*!|>%@`"\'#'):
+        return text
+    return '"' + text.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _frontmatter(relative, basis_sha256, graph_sha256, title, page_type):
     note = "wiki/reading-notes/" + relative
     lines = [
         "---",
         "generated_by: video-paper-wiki.reading.v1",
+        "title: " + _yaml_quote(title),
+        "type: " + page_type,
+        "status: generated",
+        "created: " + READING_PAGE_DATE,
+        "updated: " + READING_PAGE_DATE,
+        "tags: [reading, generated]",
         "generated: true",
         "companion_note: " + note,
         "install_path: wiki/reading",
@@ -72,8 +93,8 @@ def _frontmatter(relative, basis_sha256, graph_sha256):
     return "\n".join(lines) + "\n"
 
 
-def _page(relative, model, body_lines):
-    text = _frontmatter(relative, model["basis_sha256"], model["graph_sha256"])
+def _page(relative, model, body_lines, *, title, page_type):
+    text = _frontmatter(relative, model["basis_sha256"], model["graph_sha256"], title, page_type)
     if body_lines:
         text += "\n".join(body_lines)
     return _one_lf(text).encode("utf-8")
@@ -137,43 +158,98 @@ def _version_cell(version):
     return _escape_md(" / ".join(parts))
 
 
-def _paper_link(paper_id):
+def _vault_files(model):
+    files = model.get("vault_files")
+    if type(files) in (set, frozenset):
+        return files
+    return frozenset()
+
+
+def _href_from(relative, target):
+    source_dir = posixpath.dirname("wiki/reading/" + relative)
+    return posixpath.relpath(target, source_dir)
+
+
+def _file_link(relative, model, target, label):
+    if target not in _vault_files(model):
+        return None
+    return "[" + _escape_md(label) + "](" + _href_from(relative, target) + ")"
+
+
+def _reading_paper_href(relative, slug):
+    return _href_from(relative, "wiki/reading/papers/" + slug + "-reading.md")
+
+
+def _paper_identity(relative, model, paper_id):
     try:
         slug = paper_page_slug(paper_id)
     except IdentityError:
         return _escape_md(paper_id)
-    return "[[../papers/" + slug + "|" + _escape_md(paper_id) + "]]"
+    target = "wiki/papers/" + slug + ".md"
+    linked = _file_link(relative, model, target, paper_id)
+    if linked is not None:
+        return linked
+    return _escape_md(paper_id) + "（正式论文页尚未安装）"
 
 
-def _paper_detail(paper_id, slug):
-    return (
-        _paper_link(paper_id)
-        + " "
-        + "[详情](papers/"
-        + slug
-        + ".md)"
-    )
+def _paper_detail(relative, model, paper_id, slug):
+    return _paper_identity(relative, model, paper_id) + " [详情](" + _reading_paper_href(relative, slug) + ")"
 
 
-def _repo_link(repository):
+def _repo_link(relative, model, repository):
     try:
         slug = repo_page_slug(repository)
     except IdentityError:
         return _escape_md(repository)
-    return "[[../code/" + slug + "]]"
+    target = "wiki/code/" + slug + ".md"
+    linked = _file_link(relative, model, target, repository)
+    if linked is not None:
+        return linked
+    return _escape_md(repository) + "（正式代码页尚未安装）"
 
 
-def _concept_page(taxonomy_ref):
+def _concept_target(taxonomy_ref):
+    axis = slug = None
     if type(taxonomy_ref) is dict:
         axis = taxonomy_ref.get("axis")
         slug = taxonomy_ref.get("slug")
-        if type(axis) is str and type(slug) is str and axis and slug:
-            return "[[../concepts/" + axis.replace("/", "-") + "-" + slug + "]]"
-    if type(taxonomy_ref) is str and "/" in taxonomy_ref:
+    elif type(taxonomy_ref) is str and "/" in taxonomy_ref:
         axis, slug = taxonomy_ref.rsplit("/", 1)
-        if axis and slug:
-            return "[[../concepts/" + axis.replace("/", "-") + "-" + slug + "]]"
-    return "无"
+    if type(axis) is str and type(slug) is str and axis and slug:
+        return "wiki/concepts/" + axis.replace("/", "-") + "-" + slug + ".md"
+    return None
+
+
+def _concept_page(relative, model, taxonomy_ref):
+    target = _concept_target(taxonomy_ref)
+    if target is None:
+        return _escape_md("无")
+    label = posixpath.basename(target)[:-3]
+    linked = _file_link(relative, model, target, label)
+    if linked is not None:
+        return linked
+    return _escape_md("正式概念页尚未安装：" + label)
+
+
+def _anchor_link(key):
+    if type(key) is str and _SAFE_ANCHOR.fullmatch(key):
+        return "[" + _escape_md(key) + "](#" + key + ")"
+    return _escape_md(key)
+
+
+def _concept_index_link(relative, key):
+    if type(key) is not str or not _SAFE_ANCHOR.fullmatch(key):
+        return _escape_md(key)
+    href = _href_from(relative, "wiki/reading/concepts.md") + "#" + key
+    return "[" + _escape_md(key) + "](" + href + ")"
+
+
+def _article_href(relative, article_id):
+    return _href_from(relative, "wiki/reading/articles/" + article_id + ".md")
+
+
+def _article_link(relative, article_id, title):
+    return "[" + _escape_md(title or article_id) + "](" + _article_href(relative, article_id) + ")"
 
 
 def _progress(progress):
@@ -210,33 +286,42 @@ def _metric_mark(cell):
     return ""
 
 
-def _assoc_href(assoc):
-    return "../../meta/records/source-versions/" + assoc + ".json"
-
-
-def _source_href(kind, rid, model):
+def _record_target(kind, rid, model):
     if kind == "claim_ledger":
-        return "../../meta/ledgers/claim-ledger.json"
+        return "wiki/meta/ledgers/claim-ledger.json"
     if kind == "assessment_heads":
-        return "../../meta/records/assessment-heads.json"
+        return "wiki/meta/records/assessment-heads.json"
     if kind == "association_record":
-        return "../../meta/records/source-versions/" + rid + ".json"
+        return "wiki/meta/records/source-versions/" + rid + ".json"
     if kind == "experiment_record":
         cid = model["record_condition"].get(rid)
         if type(cid) is str:
-            return "../../meta/experiments/records/" + cid + "/" + rid + ".json"
+            return "wiki/meta/experiments/records/" + cid + "/" + rid + ".json"
         return None
     if kind == "annotation":
         lid = model["annotation_lineage"].get(rid)
         if type(lid) is str:
-            return "../../meta/domain/annotations/" + lid + "/" + rid + ".json"
+            return "wiki/meta/domain/annotations/" + lid + "/" + rid + ".json"
         return None
     if kind == "review":
         lid = model["review_lineage"].get(rid)
         if type(lid) is str:
-            return "../../meta/domain/reviews/" + lid + "/" + rid + ".json"
+            return "wiki/meta/domain/reviews/" + lid + "/" + rid + ".json"
         return None
     return None
+
+
+def _article_record_target(model, item):
+    aid = item.get("article_id")
+    revision = item.get("head_revision_id")
+    if type(aid) is not str or type(revision) is not str or not aid or not revision:
+        return None
+    if item.get("head_location") == "staged":
+        batch = model.get("articles_batch")
+        if type(batch) is not str:
+            return None
+        return ".work/" + batch + "/articles/records/" + aid + "/" + revision + ".json"
+    return "wiki/meta/articles/records/" + aid + "/" + revision + ".json"
 
 
 def _freshness(paper):
@@ -311,7 +396,7 @@ def render_index(model):
         current = _join(labels) if labels else "未知"
         rows.append(
             [
-                _paper_detail(paper["paper_id"], paper["slug"]),
+                _paper_detail("index.md", model, paper["paper_id"], paper["slug"]),
                 _escape_md(str(paper["declared_version_count"]) + " / " + str(paper["unlabeled_count"])),
                 _escape_md(current),
                 _escape_md(str(paper["concept_total"])),
@@ -331,9 +416,9 @@ def render_index(model):
     lines.append("- [概念索引](concepts.md)")
     lines.append("- [比较矩阵](compare/matrix.md)")
     lines.append("- [逐对可比性](compare/pairs.md)")
-    lines.append("- [综述文章](articles/index.md)")
+    lines.append("- [综述文章](articles/list.md)")
     lines.append("- [字段说明](legend.md)")
-    return _page("index.md", model, lines)
+    return _page("index.md", model, lines, title="论文阅读索引", page_type="reading-index")
 
 
 def render_legend(model):
@@ -364,7 +449,7 @@ def render_legend(model):
         "- experiment_store_inventory_sha256: " + basis["experiment_store_inventory_sha256"],
         "- graph_sha256: " + model["graph_sha256"],
     ]
-    return _page("legend.md", model, lines)
+    return _page("legend.md", model, lines, title="字段说明与边界", page_type="reading-legend")
 
 
 def render_concepts(model):
@@ -374,7 +459,7 @@ def render_concepts(model):
     if not concepts:
         lines.append("")
         lines.append(_empty("概念"))
-        return _page("concepts.md", model, lines)
+        return _page("concepts.md", model, lines, title="概念索引", page_type="reading-concepts")
     lines.append("")
     lines.append("## 术语锚点")
     for item in concepts:
@@ -422,16 +507,16 @@ def render_concepts(model):
             elif type(tax) is str:
                 tax_text = tax
             surfaces = list(item.get("surface_forms") or [])[:3]
-            papers = [_paper_link(pid) for pid in (item.get("paper_ids") or [])]
+            papers = [_paper_identity("concepts.md", model, pid) for pid in (item.get("paper_ids") or [])]
             rows.append(
                 [
-                    "[[concepts#" + key + "|" + _escape_md(key) + "]]",
+                    _anchor_link(key),
                     _escape_md(str(item.get("term_status") or "")),
                     _escape_md(tax_text),
                     _escape_md(_join(surfaces)),
                     "<br>".join(papers) if papers else _escape_md("无"),
                     _escape_md(str(item.get("mention_count") or 0)),
-                    _concept_page(tax),
+                    _concept_page("concepts.md", model, tax),
                 ]
             )
         if rows:
@@ -439,15 +524,16 @@ def render_concepts(model):
         else:
             lines.append(_empty("概念"))
         lines.append("")
-    return _page("concepts.md", model, lines)
+    return _page("concepts.md", model, lines, title="概念索引", page_type="reading-concepts")
 
 
 def render_paper(model, paper):
     pid = paper["paper_id"]
     slug = paper["slug"]
-    relative = "papers/" + slug + ".md"
+    relative = "papers/" + slug + "-reading.md"
     lines = ["# " + pid, "", "## 既有页面"]
-    lines.append("- [[../papers/" + slug + "]]")
+    formal = _file_link(relative, model, "wiki/papers/" + slug + ".md", pid)
+    lines.append("- " + (formal if formal is not None else _escape_md(pid) + "（正式论文页尚未安装）"))
     repos = []
     seen = set()
     for row in paper.get("lineages") or []:
@@ -457,7 +543,7 @@ def render_paper(model, paper):
             repos.append(repo)
     if repos:
         for repo in repos:
-            lines.append("- " + _repo_link(repo))
+            lines.append("- " + _repo_link(relative, model, repo))
     else:
         lines.append(_empty("代码页"))
     lines.append("")
@@ -469,8 +555,9 @@ def render_paper(model, paper):
             assoc = item.get("source_association_id") or ""
             digests = item.get("source_digest_sha256s") or []
             digest_text = _join([_short(d) for d in digests if type(d) is str])
-            href = _assoc_href(assoc) if assoc else None
-            record = "[记录](" + href + ")" if href else _escape_md("无")
+            target = "wiki/meta/records/source-versions/" + assoc + ".json" if assoc else None
+            linked = _file_link(relative, model, target, "记录") if target else None
+            record = linked if linked is not None else _escape_md("无" if not assoc else "记录文件缺失")
             rows.append(
                 [
                     _escape_md(assoc),
@@ -541,7 +628,7 @@ def render_paper(model, paper):
                 tax_text = tax
             crows.append(
                 [
-                    "[[concepts#" + key + "|" + _escape_md(key) + "]]",
+                    _concept_index_link(relative, key),
                     _escape_md(_join([str(k) for k in kinds])),
                     _escape_md(str(item.get("term_status") or "")),
                     _escape_md(tax_text),
@@ -575,7 +662,7 @@ def render_paper(model, paper):
                     _escape_md(str(item.get("ledger_status") or "")),
                     _escape_md(str(item.get("head_bound") or 0)),
                     _escape_md(str(item.get("stale") or 0)),
-                    "[台账](../../meta/ledgers/claim-ledger.json)",
+                    _file_link(relative, model, "wiki/meta/ledgers/claim-ledger.json", "台账") or _escape_md("台账缺失"),
                 ]
             )
         lines.extend(
@@ -664,7 +751,8 @@ def render_paper(model, paper):
             found = by_row.get(row.get("row_index"), {})
             rec = row.get("record_id") or ""
             cid = row.get("condition_id") or ""
-            href = "../../meta/experiments/records/" + cid + "/" + rec + ".json" if cid and rec else None
+            target = "wiki/meta/experiments/records/" + cid + "/" + rec + ".json" if cid and rec else None
+            href = _file_link(relative, model, target, "记录") if target else None
             values = [
                 _escape_md(str(row.get("setting_key") or "")),
                 _escape_md(_version_label(row.get("version"))),
@@ -673,7 +761,7 @@ def render_paper(model, paper):
             ]
             for col in COLUMNS:
                 values.append(_cell_text(found.get(col) or {"status": "unknown"}))
-            values.append("[记录](" + href + ")" if href else _escape_md("无"))
+            values.append(href if href else _escape_md("无" if not target else "记录文件缺失"))
             erows.append(values)
         lines.extend(_table(headers, erows))
     else:
@@ -687,7 +775,7 @@ def render_paper(model, paper):
             aid = item["article_id"]
             arows.append(
                 [
-                    "[[articles/" + aid + "|" + _escape_md(item.get("title") or aid) + "]]",
+                    _article_link(relative, aid, item.get("title") or aid),
                     _escape_md(item.get("head_revision_id") or ""),
                     _escape_md(_bool(item.get("complete"))),
                     _escape_md(str(item.get("check_status") or "")),
@@ -703,15 +791,12 @@ def render_paper(model, paper):
         for source in sources:
             kind = source["record_kind"]
             rid = source["record_id"]
-            href = _source_href(kind, rid, model)
-            label = _escape_md(kind + " / " + rid)
-            if href:
-                lines.append("- [" + label + "](" + href + ")")
-            else:
-                lines.append("- " + label)
+            target = _record_target(kind, rid, model)
+            linked = _file_link(relative, model, target, kind + " / " + rid) if target else None
+            lines.append("- " + (linked if linked is not None else _escape_md(kind + " / " + rid + "（记录文件缺失）")))
     else:
         lines.append(_empty("证据链接"))
-    return _page(relative, model, lines)
+    return _page(relative, model, lines, title=pid, page_type="reading-paper")
 
 
 def render_matrix(model):
@@ -769,7 +854,7 @@ def render_matrix(model):
         lines.extend(_table(mheaders, mrows))
     else:
         lines.append(_empty("指标"))
-    return _page("compare/matrix.md", model, lines)
+    return _page("compare/matrix.md", model, lines, title="实验条件比较矩阵", page_type="reading-matrix")
 
 
 def render_pairs(model):
@@ -781,7 +866,7 @@ def render_pairs(model):
     pairs = list((model.get("matrix") or {}).get("pairwise") or [])
     if not pairs:
         lines.append(_empty("逐对"))
-        return _page("compare/pairs.md", model, lines)
+        return _page("compare/pairs.md", model, lines, title="逐对可比性", page_type="reading-pairs")
     headers = (
         "左 (论文 / 设置)",
         "右 (论文 / 设置)",
@@ -823,7 +908,7 @@ def render_pairs(model):
             ]
         )
     lines.extend(_table(headers, rows))
-    return _page("compare/pairs.md", model, lines)
+    return _page("compare/pairs.md", model, lines, title="逐对可比性", page_type="reading-pairs")
 
 
 def render_articles_index(model):
@@ -837,7 +922,7 @@ def render_articles_index(model):
     articles = model.get("articles") or []
     if not articles:
         lines.append(_empty("文章"))
-        return _page("articles/index.md", model, lines)
+        return _page("articles/list.md", model, lines, title="综述文章", page_type="reading-articles")
     headers = (
         "文章",
         "问题",
@@ -854,16 +939,13 @@ def render_articles_index(model):
     rows = []
     for item in articles:
         aid = item["article_id"]
-        papers = [_paper_link(pid) for pid in (item.get("paper_ids") or [])]
-        if item.get("head_location") == "staged":
-            record = _escape_md(
-                ".work/" + str(model.get("articles_batch") or "") + "/articles/records/" + aid + "/"
-            )
-        else:
-            record = "[记录](../../meta/articles/records/" + aid + "/)"
+        papers = [_paper_identity("articles/list.md", model, pid) for pid in (item.get("paper_ids") or [])]
+        target = _article_record_target(model, item)
+        linked = _file_link("articles/list.md", model, target, "记录") if target else None
+        record = linked if linked is not None else _escape_md("记录尚未进入 Vault" if item.get("head_location") == "staged" else "记录文件缺失")
         rows.append(
             [
-                "[[articles/" + aid + "|" + _escape_md(item.get("title") or aid) + "]]",
+                _article_link("articles/list.md", aid, item.get("title") or aid),
                 _escape_md(item.get("question") or ""),
                 "<br>".join(papers) if papers else _escape_md("无"),
                 _escape_md(item.get("head_revision_id") or ""),
@@ -881,16 +963,19 @@ def render_articles_index(model):
             ]
         )
     lines.extend(_table(headers, rows))
-    return _page("articles/index.md", model, lines)
+    return _page("articles/list.md", model, lines, title="综述文章", page_type="reading-articles")
 
 
 def render_article(model, article):
     aid = article["article_id"]
     relative = "articles/" + aid + ".md"
-    papers = [_paper_link(pid) for pid in (article.get("paper_ids") or [])]
+    papers = [_paper_identity(relative, model, pid) for pid in (article.get("paper_ids") or [])]
     body = article.get("render_bytes") or b""
     digest = article.get("render_sha256") or ""
+    title = article.get("title") or aid
     lines = [
+        "# " + _escape_md(title),
+        "",
         "## 阅读导航",
         "",
         "- 问题：" + _escape_md(article.get("question") or ""),
@@ -942,11 +1027,12 @@ def render_article(model, article):
     else:
         lines.append(_empty("修订"))
     lines.append("")
-    lines.append("---")
-    lines.append("## 正文（S1-R1 render 逐字节，sha256 " + _short(digest) + "）")
-    lines.append("")
-    prefix = _page(relative, model, lines)
-    merged = prefix.rstrip(b"\n") + b"\n\n" + body
+    lines.append("正文（S1-R1 render 逐字节，sha256 " + _short(digest) + "）。")
+    prefix = _page(relative, model, lines, title=title, page_type="reading-article")
+    if body:
+        merged = prefix.rstrip(b"\n") + b"\n\n" + body
+    else:
+        merged = prefix.rstrip(b"\n") + "\n\n暂无正文记录。\n".encode("utf-8")
     return _one_lf(merged.decode("utf-8")).encode("utf-8")
 
 
@@ -957,10 +1043,10 @@ def render_all(model):
         "concepts.md": render_concepts(model),
         "compare/matrix.md": render_matrix(model),
         "compare/pairs.md": render_pairs(model),
-        "articles/index.md": render_articles_index(model),
+        "articles/list.md": render_articles_index(model),
     }
     for paper in model.get("papers") or []:
-        pages["papers/" + paper["slug"] + ".md"] = render_paper(model, paper)
+        pages["papers/" + paper["slug"] + "-reading.md"] = render_paper(model, paper)
     for article in model.get("articles") or []:
         pages["articles/" + article["article_id"] + ".md"] = render_article(model, article)
     return pages

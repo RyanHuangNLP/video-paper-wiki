@@ -281,8 +281,13 @@ def prepare_catalog_material(value: object) -> dict[str, Any]:
     cfg_raw=retrieval_config_bytes(config)
     input_rows.append({"input_kind":"retrieval-config","path":"retrieval-config.json","raw_sha256":_sha(cfg_raw),"size_bytes":len(cfg_raw),"runtime_sha256":None})
 
-    from video_paper_wiki.evidence_join import join_evidence
-    rebuilt=join_evidence(inventory=mapping["inventory"],
+    builders=material["builder_files"]
+    source_aware=type(builders) is list and any(type(item) is dict and type(item.get("path")) is str and not item["path"].startswith("video_paper_wiki/") for item in builders)
+    if source_aware:
+        from video_paper_wiki.catalog_collector import join_catalog_source_pages as rebuild_join
+    else:
+        from video_paper_wiki.evidence_join import join_evidence as rebuild_join
+    rebuilt=rebuild_join(inventory=mapping["inventory"],
         pages={item["path"]:item["bytes"] for item in pages},chunks=chunk_records,bm25=bmrecord)
     if rebuilt!=mapping:
         _fail("RETRIEVAL_GENERATION_MISMATCH","mapping is not the exact derivation from current page/runtime bytes")
@@ -598,7 +603,7 @@ def catalog_status(vault_root:Path|str,upstream_root:Path|str,retrieval_config:o
         try:
             collected=_collector(vault_root=Path(vault_root),upstream_root=upstream,retrieval_config=cfg,**({"_retain":True} if default_collector else {}))
         except ContractError as exc:
-            if exc.code == "SOURCE_PROFILE_REQUIRED":
+            if exc.code in {"SOURCE_PROFILE_REQUIRED","SOURCE_PUBLICATION_INVALID","SOURCE_REGISTRATION_INVALID","SOURCE_SEMANTICS_INVALID","SOURCE_HISTORY_CONFLICT","ASSESSMENT_CHAIN_INVALID","CROSS_OBJECT_IDENTITY_MISMATCH","EVIDENCE_FINGERPRINT_MISMATCH","MARKDOWN_LOCATOR_INVALID","SOURCE_DISPLAY_INVALID","CLAIM_ID_MISMATCH","CLAIM_ID_COLLISION"}:
                 raise
             raise ContractError("CATALOG_STALE","live catalog authority is invalid",{}) from exc
         if default_collector and type(collected) is tuple and len(collected)==2:

@@ -101,6 +101,125 @@ def require_legacy_profile(bytes_map):
                 fail("SOURCE_PROFILE_REQUIRED", "source-aware publication/catalog is required", path, exit_code=75)
 
 
+def _profile_marker(path, raw):
+    if (path in {ASSESSMENT_HEADS, DISPLAY_HEADS}
+            or any(path.startswith(_PREFIXES[k]) for k in ("association", "decision", "snapshot", "observation"))):
+        return True
+    if path.startswith(("wiki/meta/records/", "wiki/meta/reviews/")) and path.endswith(".json"):
+        try:
+            doc = parse_json(raw, pointer=path, maximum=MAX_FILE)
+        except ContractError:
+            return False
+        if type(doc) is dict and doc.get("schema") in {PAPER, EVENT}:
+            return True
+    return False
+
+
+def authorize_catalog_profile(bytes_map):
+    """Validate source-aware bytes for catalog admission.
+
+    Publication keeps calling ``require_legacy_profile``. This entry is catalog-only:
+    a legacy snapshot still goes through that guard, and a source-aware snapshot is
+    checked as authority instead of being dropped or relabeled as v1.
+    """
+    if type(bytes_map) is not dict or any(type(path) is not str or type(raw) is not bytes for path, raw in bytes_map.items()):
+        invalid("catalog profile requires a path byte map", "/inventory")
+    if not any(_profile_marker(path, raw) for path, raw in bytes_map.items()):
+        require_legacy_profile(bytes_map)
+        return {"profile": "legacy-v1", "skip": frozenset(), "bindings": ()}
+    roles = {path: _role(path) for path in sorted(bytes_map)}
+    docs = {role: {} for role in _SCHEMAS}
+    for path, raw in sorted(bytes_map.items()):
+        role = roles[path]
+        if role in docs:
+            docs[role][path] = _document(path, raw, role)
+        elif role == "snapshot":
+            historical_source_ledger(raw)
+            if PATTERNS["snapshot"].fullmatch(path)[1] != sha(raw):
+                invalid("ledger snapshot filename differs", path)
+        elif role is None and path.startswith(("wiki/meta/records/", "wiki/meta/reviews/")) and path.endswith(".json"):
+            try:
+                stray = parse_json(raw, pointer=path, maximum=MAX_FILE)
+            except ContractError:
+                stray = None
+            if type(stray) is dict and stray.get("schema") in {PAPER, EVENT}:
+                invalid("v2 object is outside its semantic path", path)
+    if SOURCE_LEDGER not in bytes_map or CLAIM_LEDGER not in bytes_map:
+        invalid("both actual ledgers are required", "/inventory")
+    source = historical_source_ledger(bytes_map[SOURCE_LEDGER])
+    ledger = _claim_ledger(bytes_map[CLAIM_LEDGER], structural=False)
+    for sid, row in source["sources"].items():
+        if row["origin"]["kind"] != "file":
+            continue
+        locator = row["origin"]["locator"]
+        if locator not in bytes_map or (row.get("content_sha256") is not None and sha(bytes_map[locator]) != row["content_sha256"]):
+            invalid("source file binding differs from current bytes", SOURCE_LEDGER + "/sources/" + sid)
+    subjects = []
+    seen_subjects = set()
+    for record in docs["paper"].values():
+        subject = "paper:" + record["paper_id"]
+        if subject not in seen_subjects:
+            seen_subjects.add(subject)
+            subjects.append(subject)
+    for record in docs["repo"].values():
+        subject = "repo:" + record["repo_id"]
+        if subject not in seen_subjects:
+            seen_subjects.add(subject)
+            subjects.append(subject)
+    for record in docs["association"].values():
+        subject = "paper:" + record["paper_id"]
+        if subject not in seen_subjects:
+            seen_subjects.add(subject)
+            subjects.append(subject)
+    claims = []
+    for cid, row in sorted(ledger["claims"].items()):
+        matches = [subject for subject in subjects if claim_id(subject, row["text"]) == cid]
+        if len(matches) != 1:
+            invalid("claim subject is missing or ambiguous", CLAIM_LEDGER + "/claims/" + cid)
+        claims.append({"claim_id": cid, "stable_subject_id": matches[0], "canonical_claim_text": row["text"],
+                       "evidence": [decode_evidence(item) for item in row["evidence"]],
+                       "assessment": row["assessment"], "reviewed_at": row.get("reviewed_at")})
+    events = list(docs["event"].values())
+    head_ids = derive_assessment_heads(claims=claims, events=events)
+    event_paths = {event["event_id"]: path for path, event in docs["event"].items()}
+    assessment_heads = {"schema": HEADS, "heads": {cid: {
+        "event_id": eid, "event_sha256": sha(bytes_map[event_paths[eid]]),
+        "evidence_profile": "legacy-v1" if docs["event"][event_paths[eid]]["schema"] == LEGACY_EVENT else docs["event"][event_paths[eid]]["evidence_profile"]}
+        for cid, eid in sorted(head_ids.items())}}
+    validate_document(assessment_heads, HEADS)
+    if events or ASSESSMENT_HEADS in bytes_map:
+        if docs["assessment_heads"].get(ASSESSMENT_HEADS) != assessment_heads:
+            invalid("complete derived head registries differ", "/heads")
+    associations, decisions = list(docs["association"].values()), list(docs["decision"].values())
+    display_heads = derive_display_heads(associations, decisions)
+    if decisions or DISPLAY_HEADS in bytes_map:
+        if docs["display_heads"].get(DISPLAY_HEADS) != display_heads:
+            invalid("complete derived display heads differ", "/heads")
+    for record in associations:
+        raw_path = record["raw"]["path"]
+        if raw_path not in bytes_map or sha(bytes_map[raw_path]) != record["raw"]["sha256"]:
+            invalid("association raw bytes differ", "/associations/" + record["association_id"])
+        extraction = record.get("extraction")
+        if type(extraction) is dict and extraction.get("path") in bytes_map and sha(bytes_map[extraction["path"]]) != extraction.get("sha256"):
+            invalid("association extraction bytes differ", "/associations/" + record["association_id"])
+    v2_papers = [record for record in docs["paper"].values() if record["schema"] == PAPER]
+    if v2_papers:
+        identifiers = {record["paper_id"] for record in v2_papers}
+        if any(record["paper_id"] not in identifiers for record in associations):
+            invalid("association has no owning v2 paper record", "/associations")
+        known = {record["association_id"] for record in associations}
+        for record in v2_papers:
+            for ref in record.get("source_associations") or []:
+                if type(ref) is not dict or ref.get("association_id") not in known:
+                    invalid("v2 paper names a missing association", "/papers")
+    skip = {path for path, record in docs["paper"].items() if record["schema"] == PAPER}
+    skip.update(path for path, record in docs["event"].items() if record["schema"] == EVENT)
+    bind = set(skip)
+    bind.update(path for path, role in roles.items() if role in {"association", "decision", "snapshot", "observation", "assessment_heads", "display_heads"})
+    bindings = tuple({"path": path, "sha256": sha(bytes_map[path])} for path in sorted(bind, key=lambda item: item.encode()))
+    return {"profile": "source-v1", "skip": frozenset(skip), "bindings": bindings}
+
+
 def _document(path, raw, role, *, fresh=False):
     if role == "alignment-manifest":
         # Legacy PDF bbox floats are admitted only in the old officiality slots.

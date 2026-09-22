@@ -13,7 +13,10 @@ from video_paper_wiki.markdown_locator import encode_evidence
 from video_paper_wiki.receipt_audit import _Snapshot, audit_integrity
 from video_paper_wiki.source_publication_contracts import ASSESSMENT_HEADS, CLAIM_LEDGER, DISPLAY_HEADS, SOURCE_LEDGER
 from video_paper_wiki.source_semantics_contracts import sha
-from video_paper_wiki.source_state import _claim_ledger, _role, _snapshots, collect_source_state, inventory_digest, require_legacy_profile
+from video_paper_wiki.source_state import (
+    _claim_ledger, _role, _snapshots, authorize_catalog_profile, collect_source_state,
+    inventory_digest, require_legacy_profile,
+)
 
 
 def claim_ledger():
@@ -171,3 +174,63 @@ def test_published_dates_still_require_real_calendar_and_utc_precision(schema, p
     doc["published_at"] = published
     with pytest.raises(ContractError):
         validate_payload_documents({"wiki/meta/records/papers/fixture.json": canonicalize(doc)})
+
+
+def _source_catalog_bytes():
+    from tests.source_semantics_fixture import claim_for, event_for, locator_for, source_fixture
+    from video_paper_wiki.source_publication_contracts import HEADS
+
+    association, raw, _authority = source_fixture()
+    evidence = [{**locator_for(association, raw), "relation": "supports"}]
+    claim = claim_for(evidence)
+    event = event_for(claim)
+    ledger = {"schema": "claude-obsidian.claim-ledger.v1", "generated_at": STAMP, "claims": {claim["claim_id"]: {
+        "text": claim["canonical_claim_text"], "risk": "normal", "confidence": "unknown", "assessment": "provisional",
+        "reviewed_at": None, "location": {"path": "wiki/papers/paper.md", "anchor": "^" + claim["claim_id"]},
+        "evidence": [encode_evidence(item) for item in claim["evidence"]], "notes": None, "supersedes": None}}}
+    source = {"schema": "claude-obsidian.source-ledger.v1", "generated_at": STAMP, "sources": {association["source_id"]: {
+        "origin": {"kind": "file", "locator": association["raw"]["path"]}, "content_kind": "document", "title": "Fixture source",
+        "authority": "primary", "review_status": "unreviewed", "pages": [], "content_sha256": association["raw"]["sha256"],
+        "ingested_at": "2026-09-08", "retrieved_at": None, "refresh_due": None, "independence_key": None, "supersedes": None}}}
+    heads = {"schema": HEADS, "heads": {claim["claim_id"]: {
+        "event_id": event["event_id"], "event_sha256": sha(canonicalize(event)), "evidence_profile": event["evidence_profile"]}}}
+    return {
+        "wiki/meta/records/source-versions/" + association["association_id"] + ".json": canonicalize(association),
+        association["raw"]["path"]: raw,
+        CLAIM_LEDGER: canonicalize(ledger),
+        SOURCE_LEDGER: canonicalize(source),
+        ASSESSMENT_HEADS: canonicalize(heads),
+        "wiki/meta/reviews/" + claim["claim_id"] + "/" + event["event_id"] + ".json": canonicalize(event),
+    }, association
+
+
+def test_catalog_authorization_checks_source_bytes_and_keeps_the_publication_guard():
+    from pathlib import Path
+
+    data, _association = _source_catalog_bytes()
+    with pytest.raises(ContractError) as guard:
+        require_legacy_profile(data)
+    assert guard.value.code == "SOURCE_PROFILE_REQUIRED"
+    auth = authorize_catalog_profile(data)
+    assert auth["profile"] == "source-v1"
+    assert any(item["path"] == ASSESSMENT_HEADS and item["sha256"] == sha(data[ASSESSMENT_HEADS]) for item in auth["bindings"])
+    assert all(not item["path"].startswith("video_paper_wiki/") for item in auth["bindings"])
+    legacy = authorize_catalog_profile({CLAIM_LEDGER: b"{}"})
+    assert legacy == {"profile": "legacy-v1", "skip": frozenset(), "bindings": ()}
+    broken = dict(data)
+    broken[ASSESSMENT_HEADS] = b"{"
+    with pytest.raises(ContractError) as heads:
+        authorize_catalog_profile(broken)
+    assert heads.value.code != "SOURCE_PROFILE_REQUIRED"
+    unknown = dict(data)
+    unknown["wiki/meta/records/source-versions/nope.json"] = b"{}"
+    with pytest.raises(ContractError):
+        authorize_catalog_profile(unknown)
+    stray = {"wiki/meta/records/old-name.json": canonicalize(fixture("video-paper-wiki.paper-record.v2"))}
+    with pytest.raises(ContractError) as outside:
+        authorize_catalog_profile(stray)
+    assert outside.value.code != "SOURCE_PROFILE_REQUIRED"
+    publication = Path(__file__).resolve().parents[2] / "src/video_paper_wiki/publication.py"
+    text = publication.read_text(encoding="utf-8")
+    assert "require_legacy_profile" in text
+    assert "authorize_catalog_profile" not in text

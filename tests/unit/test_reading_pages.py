@@ -76,6 +76,12 @@ def _frontmatter_ok(raw):
         keys.append(line.split(":", 1)[0])
     assert keys == [
         "generated_by",
+        "title",
+        "type",
+        "status",
+        "created",
+        "updated",
+        "tags",
         "generated",
         "companion_note",
         "install_path",
@@ -84,6 +90,9 @@ def _frontmatter_ok(raw):
         "basis_sha256",
         "graph_sha256",
     ]
+    assert "created: 2026-09-08\n" in text
+    assert "updated: 2026-09-08\n" in text
+    assert "status: generated\n" in text
 
 
 def _is_existing(target):
@@ -110,22 +119,26 @@ def test_pages_frontmatter_tables_links_and_escape(world):
     assert "concepts.md" in pages
     assert "compare/matrix.md" in pages
     assert "compare/pairs.md" in pages
-    assert "articles/index.md" in pages
+    assert "articles/list.md" in pages
+    assert "articles/index.md" not in pages
+    stems = [Path(path).stem for path in pages]
+    assert len(stems) == len(set(stems))
     paper_pages = sorted(path for path in pages if path.startswith("papers/"))
     assert len(paper_pages) == data["counts"]["papers"] == 2
     for raw in pages.values():
         _frontmatter_ok(raw)
     index = pages["index.md"].decode("utf-8")
     assert index.count("|") >= data["counts"]["papers"]
-    rows = [line for line in index.splitlines() if line.startswith("| sha256:") or "[[../papers/" in line]
+    rows = [line for line in index.splitlines() if "[详情](papers/" in line]
     assert len(rows) == data["counts"]["papers"]
     for paper in data["pages"]:
         if not paper["path"].startswith("papers/"):
             continue
-        slug = paper["path"][len("papers/") : -3]
-        assert "[[../papers/" + slug + "|sha256:" in index
-        assert "[详情](papers/" + slug + ".md)" in index
-    first_slug = paper_pages[0][len("papers/") : -3]
+        slug = paper["path"][len("papers/") : -len("-reading.md")]
+        assert "正式论文页尚未安装" in index
+        assert "[详情](papers/" + slug + "-reading.md)" in index
+        assert "[[../papers/" not in index
+    first_slug = paper_pages[0][len("papers/") : -len("-reading.md")]
     paper = pages[paper_pages[0]].decode("utf-8")
     headings = [line[3:] for line in paper.splitlines() if line.startswith("## ")]
     assert headings[:8] == list(SECTION_HEADINGS)
@@ -173,7 +186,7 @@ def test_pages_frontmatter_tables_links_and_escape(world):
             continue
         if capture and line.startswith("## "):
             break
-        if capture and line.startswith("| ") and "---" not in line and "](../../meta/experiments/records/" in line:
+        if capture and line.startswith("| ") and "---" not in line and "meta/experiments/records/" in line:
             exp_lines.append(line)
     expected_rows = [row for row in matrix_doc["rows"] if row["paper_id"] == pid]
     assert len(exp_lines) == len(expected_rows)
@@ -215,10 +228,7 @@ def test_pages_frontmatter_tables_links_and_escape(world):
         if tax:
             axis = tax["axis"]
             slug = tax["slug"]
-            assert (
-                "[[../concepts/" + axis.replace("/", "-") + "-" + slug + "]]"
-                in concepts
-            )
+            assert "正式概念页尚未安装：" + axis.replace("/", "-") + "-" + slug in concepts
     legend = pages["legend.md"].decode("utf-8")
     for key in (
         "domain_store_inventory_sha256",
@@ -313,27 +323,24 @@ def test_pages_frontmatter_tables_links_and_escape(world):
                     if "concepts" in raw_target.split("|", 1)[0] or rel == "concepts.md":
                         assert ("#### " + anchor) in pages["concepts.md"].decode("utf-8")
         for match in MD_LINK.finditer(text):
-            href = match.group(1)
-            if href.startswith("wiki/reading-notes/"):
+            href = match.group(1).split("#", 1)[0]
+            if not href or href.startswith("wiki/reading-notes/"):
                 skipped += 1
                 continue
             total += 1
+            assert not href.endswith("/"), (rel, href)
             path = _resolve(world["vault"], rel, href)
-            if href.startswith("../papers/") or href.startswith("../code/") or href.startswith("../concepts/"):
-                skipped += 1
-                continue
-            assert path.exists() or Path(str(path) + ".md").exists() or path.is_dir(), (rel, href, path)
+            assert path.is_file(), (rel, href, path)
     assert total > 0
     assert skipped >= 0
     _import_full(world, "w-pages")
     again = _build(world, "pg2", articles_batch="w-pages")
-    art_pages = [row for row in again["pages"] if row["path"].startswith("articles/") and row["path"] != "articles/index.md"]
+    art_pages = [row for row in again["pages"] if row["path"].startswith("articles/") and row["path"] != "articles/list.md"]
     assert art_pages
     art = (_root(world, "pg2") / art_pages[0]["path"]).read_text(encoding="utf-8")
-    heading_lines = [line for line in art.splitlines() if line.startswith("## 正文（")]
-    assert heading_lines
-    heading = heading_lines[0]
-    assert art[art.index(heading) + len(heading) :].startswith("\n\n")
+    assert "## 正文" not in art
+    assert "正文（S1-R1 render 逐字节，sha256 " in art
+    assert "\n\n# " in art or "暂无正文记录。" in art
     from video_paper_wiki.domain_relations import build_domain_relation_view
     from video_paper_wiki.identity import IdentityError
 
@@ -346,4 +353,25 @@ def test_pages_frontmatter_tables_links_and_escape(world):
         except IdentityError:
             assert repo in combined
         else:
-            assert "../code/" + slug in combined
+            assert "正式代码页尚未安装" in combined
+
+
+def test_formal_paper_page_coexists_with_reading_detail(world):
+    _three_chain(world)
+    pid = world["association"]["paper_id"]
+    slug = paper_page_slug(pid)
+    formal = world["vault"] / "wiki" / "papers" / (slug + ".md")
+    formal.parent.mkdir(parents=True, exist_ok=True)
+    formal.write_text(
+        "---\ntitle: Formal\ntype: paper\nstatus: active\ncreated: 2026-09-08\nupdated: 2026-09-08\ntags: [paper]\n---\n\n# Formal\n\n共存正文。\n",
+        encoding="utf-8",
+    )
+    formal.chmod(0o600)
+    _build(world, "coexist")
+    pages = _pages(world, "coexist")
+    reading = "papers/" + slug + "-reading.md"
+    assert reading in pages
+    text = pages[reading].decode("utf-8")
+    assert "../../papers/" + slug + ".md" in text
+    assert "正式论文页尚未安装" not in text
+    assert Path(reading).stem != formal.stem
