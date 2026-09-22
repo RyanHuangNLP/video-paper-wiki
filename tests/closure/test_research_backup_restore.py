@@ -727,7 +727,7 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
             consumers[name]["stdout"] = body[-800:]
             consumers[name]["stderr"] = err[-800:]
     before_verify = _covered(restore, manifest)
-    verify_code, verify_stdout, _verify_err = _installed_cli(
+    verify_code, verify_stdout, verify_err = _installed_cli(
         [
             str(vpwiki),
             "backup",
@@ -745,11 +745,12 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
             "--config",
             str(POLICY),
         ],
-        outside,
+        restore,
     )
     verify_payload = json.loads(verify_stdout) if verify_stdout else {}
     assert _covered(restore, manifest) == before_verify
     valid = bool(verify_payload.get("ok") and verify_payload.get("data", {}).get("valid") is True)
+    failed_consumers = {name: row for name, row in consumers.items() if row.get("ok") is not True}
     log = tmp_path / "installed-drill.json"
     log.write_text(
         json.dumps(
@@ -758,8 +759,11 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
                 "restore_code": restore_code,
                 "restore_error": restored_payload.get("error"),
                 "verify_code": verify_code,
+                "verify_cwd": str(restore),
                 "verify_error": verify_payload.get("error"),
+                "verify_stderr": verify_err[-800:],
                 "consumers": consumers,
+                "failed_consumers": sorted(failed_consumers),
                 "candidate_revision": revision,
                 "valid": valid,
                 "manifest_sha256": digest,
@@ -771,6 +775,7 @@ def test_installed_cli_replays_the_full_research_drill(tmp_path: Path, monkeypat
         + "\n",
         encoding="utf-8",
     )
+    assert failed_consumers == {}, log.read_text(encoding="utf-8")
     assert restore_code == 0, log.read_text(encoding="utf-8")
     assert restored_payload["research_validation"] == "pending"
     assert restored_payload["verification"]["valid"] is False

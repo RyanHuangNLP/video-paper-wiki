@@ -101,7 +101,7 @@ git fetch /path/to/candidate HEAD
 git checkout --detach FETCH_HEAD
 ```
 
-先确认这个提交的受控路径不覆盖 `.raw`、`wiki`、`.work`，再 checkout。然后在 `R` 里运行研究读取。
+先确认这个提交的受控路径不覆盖 `.raw`、`wiki`、`.work`，再 checkout。研究读取和最终 `backup verify` 的进程当前目录都是这份恢复根 `R`。在 `R` 之外执行时，研究读取以 `RESTORE_VERIFICATION_FAILED` 拒绝，消息是 `research verify requires the restored checkout`。
 
 `backup verify` 会核对 manifest 自哈希、source anchor、v1 `vault_manifest_sha256`、规则计数和逐项字节，并调用现有的 `status_code_proof`、`build_flow_status`、`status_article_store`、`article_history`、`status_domain_store`、`status_experiment_store`（只对清单里 `included` 的规则）。传给 flow 的 `vault_root` 是字符串，这样生成的 argv 才能通过字符串 schema。
 
@@ -125,4 +125,35 @@ FOLLOW2 新确认的阻塞仍是这两项。FOLLOW3 补上的是另一组资源�
 
 已安装的 `wiki/reading/**` 生成页还会让 strict lint 失败。这些页的 frontmatter 没有 `title`、`type`、`status`、`created`、`updated`、`tags`，并且含有指向尚未存在页面的链接、重复的 `index` 基名和空节。手写的 claim/source ledger 与 `wiki/reading-notes` 可以单独通过出处和孤立页检查；这不能把生成阅读页算成 lint 通过。`backup verify` 先停在 strict lint，到不了 catalog。两条失败要分开记录。
 
-本轮 closure 演练用生产入口准备了代码证据、flow、未安装文章的三次修订、真正未安装的领域标注、审阅和实验记录、四类 apply 产物，以及真实的 draft、review、plan。覆盖集合、字节和模式的期望来自文件系统观察，不调用待测 scanner。manifest 来自 CLI 的 `.data`。create 和 restore 走 operator 的 PTY 确认。原 Vault、checkout 和采集 bundle 移走之后，恢复出的覆盖文件集合、字节和模式与这份独立期望以及 manifest 一致；receipt 审计为 `receipt_backed`；代码、flow、文章 status/history、领域和实验状态与备份前一致；已安装仍保留的文章 staging 按 `retained_installed_staging` 读出，未安装文章按 `merged` 读出。这些消费者核对发生在 operator 返回之后、最终成功断言之前。operator restore 退出码为 2，`SOURCE_PROFILE_REQUIRED`。独立 catalog 调用是同一个代码。最终 `backup verify` 退出码为 2，代码 `RESTORE_VERIFICATION_FAILED`，消息是 `strict lint rejected restored Vault`。本次 lint 计数：`dead_links` 18、`duplicate_basenames` 1、`empty_sections` 1、`missing_frontmatter` 9、`stale_index_entries` 3，其余类别为 0。验证前后覆盖文件没有变化。`valid` 不是 `true`。`missing_frontmatter` 非零是这条历史失败的记录，单独放在失败场景里，不再当作成功演练的前置条件。演练日志写在测试临时目录的 `p3-r1-drill.json`。隔离安装的 `vpwiki` 与 `vpwiki-admin` 重放同一棵富树时，create 退出 0，消费者 CLI 在 operator 返回之后可读，restore 与 verify 仍是上面的两个退出码，`valid` 仍不是 `true`。
+本轮 closure 演练用生产入口准备了代码证据、flow、未安装文章的三次修订、真正未安装的领域标注、审阅和实验记录、四类 apply 产物，以及真实的 draft、review、plan。覆盖集合、字节和模式的期望来自文件系统观察，不调用待测 scanner。manifest 来自 CLI 的 `.data`。create 和 restore 走 operator 的 PTY 确认。原 Vault、checkout 和采集 bundle 移走之后，恢复出的覆盖文件集合、字节和模式与这份独立期望以及 manifest 一致；receipt 审计为 `receipt_backed`；代码、flow、文章 status/history、领域和实验状态与备份前一致；已安装仍保留的文章 staging 按 `retained_installed_staging` 读出，未安装文章按 `merged` 读出。这些消费者核对发生在 operator 返回之后、最终成功断言之前。operator restore 退出码为 2，`SOURCE_PROFILE_REQUIRED`。独立 catalog 调用是同一个代码。最终 `backup verify` 退出码为 2，代码 `RESTORE_VERIFICATION_FAILED`，消息是 `strict lint rejected restored Vault`。本次 lint 计数：`dead_links` 18、`duplicate_basenames` 1、`empty_sections` 1、`missing_frontmatter` 9、`stale_index_entries` 3，其余类别为 0。验证前后覆盖文件没有变化。`valid` 不是 `true`。`missing_frontmatter` 非零是这条历史失败的记录，单独放在失败场景里，不再当作成功演练的前置条件。演练日志写在测试临时目录的 `p3-r1-drill.json`。
+
+FOLLOW4 把两件失败分开记录。
+
+本票的工作目录缺陷：隔离安装富演练的最终 `vpwiki backup verify` 曾经把当前目录设成归档所在的 `outside`。冻票要求最终 verify 从已准备好对应代码版本的恢复 checkout 根执行。当前目录是 `outside` 时，研究读取报 `research verify requires the restored checkout`。Vault 语义检查先跑 strict lint，所以这条工作目录失败会被 lint 挡住；lint 通过之后，演练仍会停在错误的当前目录上。修正后的安装演练把最终 verify 的当前目录改成恢复根。消费者 CLI 退出非 0 时，演练失败，并把该次输出写入 `installed-drill.json`。
+
+§6 的 catalog／reading 前置仍在。本轮没有改 `catalog_store.py`、`catalog_collector.py`、`source_state.py` 或 `reading/pages.py`，也没有删除 assessment-heads、过滤恢复数据或跳过 lint。修正工作目录之后，隔离安装富演练的实测命令和结果如下（候选 `b38817fd1b84b0882d9f2bc1e5c12e0b0f5ae87f`，日志 `/tmp/p3-follow4/closure/test_installed_cli_replays_the0/installed-drill.json`）：
+
+```text
+# 当前目录是归档所在目录，不是恢复根
+vpwiki-admin backup create --profile research-r1 ...
+# 退出 0
+vpwiki-admin backup restore --profile research-r1 ... --restore-root "$R" ...
+# 退出 2，SOURCE_PROFILE_REQUIRED，source-aware publication/catalog is required
+
+# 在 "$R" 上 checkout 候选版本之后，当前目录改为 "$R"
+vpwiki code-evidence status --batch-id d1
+vpwiki flow status --vault-root "$R" --batch-id d1
+vpwiki domain status --vault-root "$R"
+vpwiki experiments status --vault-root "$R"
+vpwiki articles status --vault-root "$R"
+# 五条退出码都是 0
+
+vpwiki backup verify --profile research-r1 \
+  --manifest "$M" --expected-manifest-sha256 "$H" \
+  --restore-root "$R" --upstream-root "$U" --config "$P"
+# 当前目录是 "$R"
+# 退出 2，RESTORE_VERIFICATION_FAILED，strict lint rejected restored Vault
+# valid 不是 true
+```
+
+这次安装演练的 manifest SHA-256 是 `5388bc0098da32d1541e6b8f1862d01145214568a97678c6ea9077b7cd1b2362`，archive SHA-256 是 `8ae05fc748ec1f0031dafd49099a9c786f15e7368996d2610cee88675658c1db`。restore 退出 0、verify 退出 0、最终 `valid=true` 的硬断言因此失败。失败停在 catalog 拒绝和 strict lint：verify 的代码是 `RESTORE_VERIFICATION_FAILED`，消息是 `strict lint rejected restored Vault`。
