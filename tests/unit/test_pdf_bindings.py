@@ -5,6 +5,8 @@ from __future__ import annotations
 import errno
 import json
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -915,6 +917,108 @@ def test_rollback_restores_unit_when_post_unlink_read_fails(tmp_path, monkeypatc
     assert binding.read_bytes() == binding_bytes
     assert page.is_file()
     assert page.read_bytes() == page_bytes
+
+
+def test_rollback_keeps_external_atomic_save_after_guard_snapshot(tmp_path, monkeypatch) -> None:
+    """Independent process saves after the guard snapshot is returned, before unlink."""
+
+    from video_paper_wiki import pdf_bindings as bindings
+
+    editor = (
+        "import json, sys\n"
+        "from pathlib import Path\n"
+        "path = Path(sys.argv[1])\n"
+        "before = path.stat().st_ino\n"
+        "edited = path.read_bytes() + b'\\nCONCURRENT USER EDIT\\n'\n"
+        "replacement = path.with_name(path.name + '.user-save')\n"
+        "replacement.write_bytes(edited)\n"
+        "replacement.replace(path)\n"
+        "print(json.dumps({'old_inode': before, 'saved_inode': path.stat().st_ino}))\n"
+    )
+
+    def run(name: str, *, inject_eio: bool) -> None:
+        world = _world(tmp_path / name, monkeypatch)
+        pdf = _plant(world["cache"], "source.pdf", _pdf(name, "2204.03458"))
+        plan = _prepare(world, _write_request(tmp_path / name, [_request_item(pdf, PAPER, session=name)]), name)
+        applied = _apply(world, plan, name, tmp_path / name)
+        page = world["notes"] / plan["items"][0]["page_path"]
+        binding = world["notes"] / plan["items"][0]["binding_path"]
+        page_bytes = page.read_bytes()
+        binding_before = binding.read_bytes()
+        original = bindings._read_linked_regular
+        events: list[dict[str, int]] = []
+
+        def read_then_external_save(path: Path):
+            observed = original(path)
+            if path == binding and not events:
+                proc = subprocess.run(
+                    [sys.executable, "-B", "-c", editor, str(path)],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
+                saved = json.loads(proc.stdout)
+                events.append(saved)
+                assert observed[1] == binding_before
+                assert observed[0] is not None
+                assert path.read_bytes() == binding_before + b"\nCONCURRENT USER EDIT\n"
+                assert observed[0] != bindings._file_identity(path)
+                assert saved["old_inode"] != saved["saved_inode"]
+            return observed
+
+        monkeypatch.setattr(bindings, "_read_linked_regular", read_then_external_save)
+        if inject_eio:
+            binding_id = bindings._file_identity(binding)
+            read_fd = bindings._read_fd_bytes
+
+            def read_fails_after_unlink(fd: int) -> bytes:
+                if bindings._fd_identity(fd) == binding_id and not binding.exists():
+                    raise OSError(errno.EIO, "injected post-unlink read failure")
+                return read_fd(fd)
+
+            monkeypatch.setattr(bindings, "_read_fd_bytes", read_fails_after_unlink)
+        with pytest.raises(PdfBindingError) as raced:
+            rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+        assert raced.value.code == "PDF_ROLLBACK_CONFLICT"
+        assert raced.value.details["reason"] == "parallel_edit"
+        assert events and events[0]["saved_inode"] == binding.stat().st_ino
+        assert binding.is_file()
+        assert b"\nCONCURRENT USER EDIT\n" in binding.read_bytes()
+        assert binding.read_bytes() != binding_before
+        assert page.is_file()
+        assert page.read_bytes() == page_bytes
+        assert list(world["notes"].rglob("*.rollback-hold")) == []
+        assert list(world["notes"].rglob("*.user-save")) == []
+
+    run("after-guard", inject_eio=False)
+    run("after-guard-eio", inject_eio=True)
+
+
+def test_rollback_refuses_when_directory_exchange_is_unavailable(tmp_path, monkeypatch) -> None:
+    from video_paper_wiki import pdf_bindings as bindings
+
+    world = _world(tmp_path, monkeypatch)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("no-exchange", "2204.03458"))
+    plan = _prepare(
+        world, _write_request(tmp_path, [_request_item(pdf, PAPER, session="no-exchange")]), "no-exchange"
+    )
+    applied = _apply(world, plan, "no-exchange", tmp_path)
+    page = world["notes"] / plan["items"][0]["page_path"]
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    page_bytes = page.read_bytes()
+    binding_bytes = binding.read_bytes()
+
+    def exchange_unavailable(src, dest) -> bool:
+        return False
+
+    monkeypatch.setattr(bindings, "_rename_exchange", exchange_unavailable)
+    with pytest.raises(PdfBindingError) as raced:
+        rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert raced.value.code == "PDF_ROLLBACK_CONFLICT"
+    assert raced.value.details["reason"] == "exchange_unavailable"
+    assert binding.read_bytes() == binding_bytes
+    assert page.read_bytes() == page_bytes
+    assert list(world["notes"].rglob("*.rollback-hold")) == []
 
 
 def test_existing_note_trailing_blank_line_stays_included_after_migration(tmp_path, monkeypatch) -> None:

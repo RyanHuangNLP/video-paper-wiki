@@ -1685,7 +1685,12 @@ def _open_nofollow(path: Path) -> int:
 
 
 def _read_linked_regular(path: Path) -> tuple[tuple[int, int] | None, bytes | None]:
-    """Identity and bytes of the regular file the path names right now."""
+    """Identity and bytes of the regular file the path names right now.
+
+    The snapshot is stale as soon as this returns. A later path unlink can
+    remove a different inode. Callers that delete must exchange the live
+    directory entry aside and judge that captured object.
+    """
 
     try:
         live = _open_nofollow(path)
@@ -1701,6 +1706,22 @@ def _read_linked_regular(path: Path) -> tuple[tuple[int, int] | None, bytes | No
         os.close(live)
 
 
+def _rename_exchange(src: Path, dest: Path) -> bool:
+    """Swap two directory entries. False when the platform primitive is unavailable."""
+
+    from video_paper_wiki.pdf_migration import _try_rename_exchange
+
+    return _try_rename_exchange(src, dest)
+
+
+def _refuse_unsafe_unlink(relative: str) -> None:
+    _fail(
+        PDF_ROLLBACK_CONFLICT,
+        "atomic exchange unavailable; refusing unsafe unlink",
+        {"path": relative, "reason": "exchange_unavailable"},
+    )
+
+
 def _is_unlink_target(file: object, target: Path) -> bool:
     try:
         raw = os.fspath(file)
@@ -1714,6 +1735,224 @@ def _is_unlink_target(file: object, target: Path) -> bool:
     return Path(raw) == target
 
 
+def _hold_path(target: Path) -> Path:
+    return target.with_name(target.name + ".rollback-hold")
+
+
+def _displace_live_entry(target: Path, relative: str, real_unlink) -> tuple[Path, tuple[int, int]]:
+    """Exchange `target` with a private placeholder.
+
+    On success the private path is the object that occupied `target`, and
+    `target` is the placeholder. A failed exchange leaves `target` in place.
+    Plain replace and path unlink are not used when exchange is unavailable.
+    """
+
+    hold = _hold_path(target)
+    if hold.exists() or hold.is_symlink():
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not capture the live directory entry",
+            {"path": relative, "reason": "partial"},
+        )
+    flags = os.O_RDWR | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        raw = os.open(hold, flags, 0o600)
+    except OSError as exc:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not capture the live directory entry",
+            {"path": relative, "reason": "partial", "error": type(exc).__name__},
+        )
+    try:
+        placeholder_id = _fd_identity(raw)
+    finally:
+        os.close(raw)
+    if placeholder_id is None or not _rename_exchange(hold, target):
+        if placeholder_id is not None and _file_identity(hold) == placeholder_id:
+            real_unlink(hold)
+        _refuse_unsafe_unlink(relative)
+    if _file_identity(target) != placeholder_id:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind target changed during removal",
+            {"path": relative, "reason": "parallel_edit"},
+        )
+    return hold, placeholder_id
+
+
+def _restore_displaced_entry(
+    target: Path,
+    hold: Path,
+    placeholder_id: tuple[int, int],
+    captured: bytes | None,
+    captured_id: tuple[int, int] | None,
+    relative: str,
+    real_unlink,
+) -> None:
+    """Put the displaced object back with another exchange. Never plain-replace it."""
+
+    if _file_identity(target) != placeholder_id:
+        return
+    if not hold.exists() and not hold.is_symlink():
+        return
+    if not _rename_exchange(hold, target):
+        _refuse_unsafe_unlink(relative)
+    if _file_identity(hold) == placeholder_id:
+        real_unlink(hold)
+    if captured_id is not None and _file_identity(target) != captured_id:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not preserve bytes edited during removal",
+            {"path": relative, "reason": "partial"},
+        )
+    if captured is not None and (not _regular_file(target) or target.read_bytes() != captured):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not preserve bytes edited during removal",
+            {"path": relative, "reason": "partial"},
+        )
+
+
+def _drop_placeholder(target: Path, placeholder_id: tuple[int, int], relative: str, real_unlink) -> None:
+    """Remove the placeholder only while `target` still names that inode."""
+
+    try:
+        raw = _open_nofollow(target)
+    except OSError as exc:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not remove a created file",
+            {"path": relative, "reason": "partial", "error": type(exc).__name__},
+        )
+    try:
+        current = _fd_identity(raw)
+        if current != placeholder_id:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+        try:
+            real_unlink(target)
+        except OSError as exc:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind rollback could not remove a created file",
+                {"path": relative, "reason": "partial", "error": type(exc).__name__},
+            )
+        info = os.fstat(raw)
+        if (info.st_dev, info.st_ino) != placeholder_id or info.st_nlink != 0:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+    finally:
+        os.close(raw)
+
+
+def _remove_exchanged_entry(
+    target: Path,
+    *,
+    identity: tuple[int, int],
+    payload: bytes,
+    expected_sha: str,
+    relative: str,
+    removed: list[dict[str, Any]],
+    record: dict[str, Any],
+    real_unlink,
+) -> None:
+    """Delete the object exchange captured, or put a different object back.
+
+    The snapshot read before this call is not the object removed. Exchange
+    takes whatever directory entry is live, including an atomic save that
+    landed after that snapshot was returned. Only the captured inode is
+    deleted, and only when its identity and bytes are the verified object.
+    """
+
+    hold, placeholder_id = _displace_live_entry(target, relative, real_unlink)
+    state = "displaced"
+    raw: int | None = None
+    try:
+        try:
+            raw = _open_nofollow(hold)
+        except OSError as exc:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit", "error": type(exc).__name__},
+            )
+        captured_id = _fd_identity(raw)
+        try:
+            captured = _read_fd_bytes(raw)
+        except OSError:
+            captured_id = None
+            captured = None
+        if raw is not None and _fd_identity(raw) != captured_id:
+            captured_id = None
+            captured = None
+        matches = (
+            captured_id == identity
+            and captured == payload
+            and captured is not None
+            and sha256_bytes(captured) == expected_sha
+            and _file_identity(hold) == captured_id
+        )
+        if not matches:
+            if raw is not None:
+                os.close(raw)
+                raw = None
+            _restore_displaced_entry(
+                target, hold, placeholder_id, captured, captured_id, relative, real_unlink
+            )
+            state = "restored"
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+        if _file_identity(target) != placeholder_id:
+            if raw is not None:
+                os.close(raw)
+                raw = None
+            state = "kept"
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+        try:
+            real_unlink(hold)
+        except OSError as exc:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind rollback could not remove a created file",
+                {"path": relative, "reason": "partial", "error": type(exc).__name__},
+            )
+        info = os.fstat(raw)
+        if (info.st_dev, info.st_ino) != captured_id or info.st_nlink != 0:
+            state = "unlinked"
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+        state = "deleted"
+        removed.append(record)
+        _drop_placeholder(target, placeholder_id, relative, real_unlink)
+    finally:
+        if raw is not None:
+            os.close(raw)
+        if state == "displaced":
+            _restore_displaced_entry(
+                target, hold, placeholder_id, None, None, relative, real_unlink
+            )
+
+
 def _unlink_verified_target(
     target: Path,
     *,
@@ -1724,13 +1963,14 @@ def _unlink_verified_target(
     removed: list[dict[str, Any]],
     record: dict[str, Any],
 ) -> None:
-    """Unlink only while the path still names the verified inode and bytes.
+    """Remove a created file only when the captured directory entry is that file.
 
-    `Path.unlink` can replace that path before the real removal. The inode
-    opened beforehand still has the approved bytes, so it cannot see the new
-    object. The `os.unlink` boundary reads the directory entry that is about
-    to disappear and leaves a different object in place. A removed object is
-    recorded immediately, before the post-unlink read.
+    `Path.unlink` can replace the path before the guard reads it. The guard
+    snapshot can itself be stale before `os.unlink`: an external process can
+    atomically save after the snapshot is returned. Exchange then captures the
+    object that would have been removed. A different object is exchanged back
+    and the attempt is refused. The verified object is recorded as soon as it
+    is actually unlinked, before the post-removal read of the original fd.
     """
 
     try:
@@ -1753,26 +1993,34 @@ def _unlink_verified_target(
         real_unlink = os.unlink
 
         def guarded_unlink(file: object, *args: object, **kwargs: object):
-            if _is_unlink_target(file, target):
-                try:
-                    live_id, live = _read_linked_regular(target)
-                except OSError:
-                    live_id, live = None, None
-                if (
-                    live_id != identity
-                    or live != payload
-                    or live is None
-                    or sha256_bytes(live) != expected_sha
-                ):
-                    _fail(
-                        PDF_ROLLBACK_CONFLICT,
-                        "bind target changed during removal",
-                        {"path": relative, "reason": "parallel_edit"},
-                    )
-                result = real_unlink(file, *args, **kwargs)
-                removed.append(record)
-                return result
-            return real_unlink(file, *args, **kwargs)
+            if not _is_unlink_target(file, target):
+                return real_unlink(file, *args, **kwargs)
+            try:
+                live_id, live = _read_linked_regular(target)
+            except OSError:
+                live_id, live = None, None
+            if (
+                live_id != identity
+                or live != payload
+                or live is None
+                or sha256_bytes(live) != expected_sha
+            ):
+                _fail(
+                    PDF_ROLLBACK_CONFLICT,
+                    "bind target changed during removal",
+                    {"path": relative, "reason": "parallel_edit"},
+                )
+            _remove_exchanged_entry(
+                target,
+                identity=identity,
+                payload=payload,
+                expected_sha=expected_sha,
+                relative=relative,
+                removed=removed,
+                record=record,
+                real_unlink=real_unlink,
+            )
+            return None
 
         os.unlink = guarded_unlink
         try:
