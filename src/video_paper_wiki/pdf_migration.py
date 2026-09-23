@@ -660,6 +660,8 @@ def _scan_formal_or_notes(root: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
     notes_dir = base / "papers"
     captured_dir = base / ".raw" / "captured"
     blobs_dir = base / WORK_BLOBS
+    # Explicit wiki/meta/pdf-bindings are not digest-joined here. Inventory
+    # attaches only the binding's own cross-root local_ref.
     digest_bindings = _collect_registration_digests(base, root["root_id"])
 
     if records_dir.is_dir():
@@ -1081,6 +1083,11 @@ def build_inventory(*, roots_path: Path, batch_id: str) -> dict[str, Any]:
             rows, extra = [], []
         collected.extend(rows)
         excluded.extend(extra)
+    from video_paper_wiki.pdf_bindings import explicit_binding_scan
+
+    bound_rows, bound_excluded = explicit_binding_scan(roots)
+    collected.extend(bound_rows)
+    excluded.extend(bound_excluded)
     items = _merge_items(collected)
     excluded.sort(key=lambda row: row["path"])
     counts = {

@@ -52,6 +52,29 @@ vpwiki pdf link-prepare --roots ROOTS.json --root-id vault-main \
   --paper-id arxiv:2204.03458 --drive-file-id FILE_ID --batch-id drive-b-link-1
 ```
 
-That plan is `unverified` and is not migration success.
+That plan is `unverified` and is not migration success. A notes-vault PDF binding does not turn a link-only plan into `verified`.
 
-Rollback restores this ticket's metadata/pages when the live file still matches the write-after digest. It does not delete Drive files or local PDFs.
+## Notes-vault PDF bindings
+
+A binding is a PDF-location source registration at `wiki/meta/pdf-bindings/{paper_page_slug}.json`. It is not a canonical capture, a paper-record, or a receipt (`capture_authorized` and `receipt_backed` stay false). It does not upload, edit Drive, move the original PDF, or write a verified locator. Verified Drive locators still come only from `migrate-prepare` / `migrate-apply`.
+
+The frozen scope is the 19 engine-mvp arXiv papers that already sit in the 67-paper seed catalog. Identity comes from that seed row (or an existing note whose paper id matches it), not from an intake document's `paper_id`. Prepare re-checks the intake seal, the intake blob, the source-only `local_ref` bytes, and the basis file digest.
+
+```bash
+vpwiki pdf bind-prepare \
+  --roots ROOTS.json --root-id notes-vault \
+  --request BIND_REQUEST.json --batch-id BIND_BATCH
+vpwiki-admin pdf bind-apply \
+  --plan .work/BIND_BATCH/pdf-bind/plan.json \
+  --roots ROOTS.json --root-id notes-vault \
+  --approved-plan-sha256 PLAN_SHA256
+```
+
+`bind-prepare` only writes `.work/<batch>/pdf-bind/plan.json` and `diff.json`. Apply writes the binding and, when `papers/{seed_alias}.md` is missing, a source page that states the identity, title, source URL, and `PDF 已登记，尚未生成研究内容。` Existing notes are left byte-for-byte. The same paper with two digests, or one digest bound to two papers, is refused. Inventory then reads that binding's `local_ref` across roots and can mark the canonical paper `included` without copying bytes into `.raw/captured`. Cache files that merely share a digest or filename stay `intake-only`.
+
+Roll migration back before the binding. `bind-rollback` deletes only files this bind plan created, and only while they still match the write-after digest. A later page edit, including a migration PDF section, conflicts until that later write is rolled back. Existing notes are not rewritten on the way back. Local PDFs and Drive files stay in place.
+
+```bash
+vpwiki-admin pdf migrate-rollback --journal MIGRATE_JOURNAL.json --roots ROOTS.json
+vpwiki-admin pdf bind-rollback --journal BIND_JOURNAL.json --roots ROOTS.json
+```

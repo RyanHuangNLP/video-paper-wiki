@@ -12,6 +12,14 @@ DRIVE-B-R1 stores Drive/local PDF coordinates in independent location files. The
 
 `cache_policy` is always `keep-local`. Local originals are never deleted, moved, or renamed by these commands.
 
+Notes-vault bindings live beside locations, not inside them:
+
+| Environment | Binding file |
+| --- | --- |
+| notes vault only | `wiki/meta/pdf-bindings/{paper_page_slug}.json` |
+
+That file records which source-only `local_ref` supplies the PDF bytes. It is a location-source registration, not capture or publication. `wiki/meta/pdf-locations/` remains the Drive/local locator written by migrate or link plans. A binding does not set `verification` to `verified`.
+
 ## Resolve
 
 ```bash
