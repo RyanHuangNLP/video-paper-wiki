@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from tests.pdf_samples import sample_pdf_bytes
 from tests.support import make_checkout
 from video_paper_wiki.cli import main
 from video_paper_wiki.contracts import ContractError
@@ -38,23 +37,36 @@ OTHER = "arxiv:2209.14792"
 OUTSIDE = "arxiv:2303.12346"
 
 
-def _identity(paper_id: str) -> dict[str, str]:
-    payload = json.loads(SEED.read_text(encoding="utf-8"))
-    alias = "arxiv-" + paper_id.split(":", 1)[1]
-    row = next(item for item in payload["papers"] if item["paper_id"] == alias)
+def _pdf(tag: str, *arxiv_ids: str) -> bytes:
+    from tests.pdf_samples import _document, _stream
+
+    labels = [f"arXiv:{arxiv_id}" for arxiv_id in arxiv_ids]
+    text = " ".join([*labels, tag])
+    literal = text.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
+    marker = (tag.encode("ascii", "replace") + b"BIND")[:4]
+    return _document(
+        [
+            b"<< /Type /Catalog /Pages 2 0 R >>",
+            b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>",
+            _stream(["BT", "/F1 12 Tf", "72 120 Td", f"({literal}) Tj", "ET"]),
+            b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        ],
+        marker=marker,
+    )
+
+
+def _credential(paper_id: str, pdf_bytes: bytes, excerpt: str | None = None) -> dict[str, str | int]:
+    arxiv_id = paper_id.split(":", 1)[1]
+    chosen = f"arXiv:{arxiv_id}" if excerpt is None else excerpt
     return {
-        "method": "seed-catalog",
-        "seed_paper_id": alias,
-        "arxiv_id": row["arxiv_id"],
-        "title": row["title"],
+        "method": "pdf-internal-arxiv-id",
+        "paper_id": paper_id,
+        "pdf_sha256": sha256_bytes(pdf_bytes),
+        "page": 1,
+        "excerpt": chosen,
+        "excerpt_sha256": sha256_bytes(chosen.encode("utf-8")),
     }
-
-
-def _pdf(name: str) -> bytes:
-    base = sample_pdf_bytes("tiny")
-    if name == "a":
-        return base
-    return base + f"\n%bind-{name}\n".encode("ascii")
 
 
 def _world(tmp_path: Path, monkeypatch) -> dict[str, Path]:
@@ -89,7 +101,7 @@ def _intake(pdf: Path, paper_id: str, session: str) -> str:
 
 def _request_item(pdf_path: Path, paper_id: str, *, session: str, basis: str = "seed", note_sha: str | None = None) -> dict:
     data = pdf_path.read_bytes()
-    identity = _identity(paper_id)
+    identity = _credential(paper_id, data)
     if basis == "seed":
         basis_doc = {
             "kind": "seed",
@@ -139,7 +151,7 @@ def _plant(cache: Path, name: str, data: bytes) -> Path:
 
 def test_chain(tmp_path, monkeypatch, capsys) -> None:
     world = _world(tmp_path, monkeypatch)
-    data = _pdf("a")
+    data = _pdf("a", "2209.14792")
     pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", data)
     _plant(world["cache"], "same-bytes-other-name.pdf", data)
     before = {path.relative_to(world["notes"]).as_posix() for path in world["notes"].rglob("*") if path.is_file()}
@@ -186,6 +198,11 @@ def test_chain(tmp_path, monkeypatch, capsys) -> None:
         "capture_authorized": False,
         "receipt_backed": False,
     }
+    assert document["identity_credential"]["method"] == "pdf-internal-arxiv-id"
+    assert document["identity_credential"]["paper_id"] == OTHER
+    assert document["identity_credential"]["pdf_sha256"] == sha256_bytes(data)
+    assert document["identity_credential"]["excerpt"] == "arXiv:2209.14792"
+    assert [row["role"] for row in document["rollback_unit"]["entries"]] == ["binding", "page"]
     created = page.read_bytes()
     again = apply_bind_plan(
         plan_path=staged,
@@ -286,7 +303,7 @@ def test_existing_note_is_preserved_and_basis_can_be_the_note(tmp_path, monkeypa
     note.parent.mkdir()
     body = "---\npaper_id: arxiv-2204.03458\ntitle: Video Diffusion Models\n---\n\nUSER BODY STAYS\n"
     note.write_text(body, encoding="utf-8")
-    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("note"))
+    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("note", "2204.03458"))
     request = _write_request(
         tmp_path,
         [_request_item(pdf, PAPER, session="bind-note", basis="existing-note", note_sha=sha256_bytes(note.read_bytes()))],
@@ -307,8 +324,8 @@ def test_existing_note_is_preserved_and_basis_can_be_the_note(tmp_path, monkeypa
 
 def test_refuses_scope_intake_only_digest_cross_paper_symlink_and_escape(tmp_path, monkeypatch) -> None:
     world = _world(tmp_path, monkeypatch)
-    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("a"))
-    other_pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", _pdf("b"))
+    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("a", "2204.03458"))
+    other_pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", _pdf("b", "2209.14792"))
     outside = _write_request(
         tmp_path,
         [
@@ -326,7 +343,7 @@ def test_refuses_scope_intake_only_digest_cross_paper_symlink_and_escape(tmp_pat
                 "local_ref": {"root_id": CACHE_ID, "relative_path": pdf.name},
                 "pdf_sha256": sha256_bytes(pdf.read_bytes()),
                 "size_bytes": pdf.stat().st_size,
-                "identity_credential": _identity(OUTSIDE),
+                "identity_credential": _credential(OUTSIDE, pdf.read_bytes()),
             }
         ],
         "outside.json",
@@ -336,11 +353,11 @@ def test_refuses_scope_intake_only_digest_cross_paper_symlink_and_escape(tmp_pat
     assert scope.value.code == PDF_BIND_INVALID and scope.value.details["reason"] == "out_of_scope"
 
     item = _request_item(pdf, PAPER, session="bind-title")
-    item["identity_credential"]["title"] = "Not The Seed Title"
+    item["identity_credential"] = _credential(PAPER, pdf.read_bytes(), excerpt="Video Diffusion Models")
     titled = _write_request(tmp_path, [item], "title.json")
-    with pytest.raises(PdfBindingError) as intake_only:
+    with pytest.raises(PdfBindingError) as title_only:
         _prepare(world, titled, "bind-title")
-    assert intake_only.value.details["reason"] == "intake_only"
+    assert title_only.value.details["reason"] == "pdf_identity"
 
     wrong = _request_item(pdf, PAPER, session="bind-digest")
     wrong["pdf_sha256"] = "d" * 64
@@ -382,7 +399,7 @@ def test_parallel_edit_stale_seed_root_swap_and_partial_preflight(tmp_path, monk
     note = world["notes"] / "papers" / "arxiv-2204.03458.md"
     note.parent.mkdir()
     note.write_text("---\npaper_id: arxiv-2204.03458\n---\nkeep\n", encoding="utf-8")
-    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("edit"))
+    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("edit", "2204.03458"))
     request = _write_request(
         tmp_path,
         [_request_item(pdf, PAPER, session="bind-edit", basis="existing-note", note_sha=sha256_bytes(note.read_bytes()))],
@@ -401,7 +418,7 @@ def test_parallel_edit_stale_seed_root_swap_and_partial_preflight(tmp_path, monk
     assert not (world["notes"] / "wiki" / "meta" / "pdf-bindings" / "arxiv-2204.03458.json").exists()
 
     fresh = _world(tmp_path / "stale", monkeypatch)
-    source = _plant(fresh["cache"], "arxiv-2209.14792.pdf", _pdf("stale"))
+    source = _plant(fresh["cache"], "arxiv-2209.14792.pdf", _pdf("stale", "2209.14792"))
     stale_request = _write_request(tmp_path / "stale", [_request_item(source, OTHER, session="bind-stale")])
     stale_plan = _prepare(fresh, stale_request, "bind-stale")
     seed_path = fresh["repo"] / "docs" / "seed" / "engine-mvp.json"
@@ -417,7 +434,7 @@ def test_parallel_edit_stale_seed_root_swap_and_partial_preflight(tmp_path, monk
     assert stale.value.details["reason"] in {"stale_seed", "stale_basis"}
 
     swapped = _world(tmp_path / "swap", monkeypatch)
-    swapped_pdf = _plant(swapped["cache"], "arxiv-2209.14792.pdf", _pdf("swap"))
+    swapped_pdf = _plant(swapped["cache"], "arxiv-2209.14792.pdf", _pdf("swap", "2209.14792"))
     swap_request = _write_request(tmp_path / "swap", [_request_item(swapped_pdf, OTHER, session="bind-swap")])
     swap_plan = _prepare(swapped, swap_request, "bind-swap")
     swapped["notes"].rename(tmp_path / "swap" / "notes-old")
@@ -433,8 +450,8 @@ def test_parallel_edit_stale_seed_root_swap_and_partial_preflight(tmp_path, monk
     assert replaced.value.details["reason"] == "stale_root"
 
     both = _world(tmp_path / "both", monkeypatch)
-    first = _plant(both["cache"], "arxiv-2204.03458.pdf", _pdf("p1"))
-    second = _plant(both["cache"], "arxiv-2209.14792.pdf", _pdf("p2"))
+    first = _plant(both["cache"], "arxiv-2204.03458.pdf", _pdf("p1", "2204.03458"))
+    second = _plant(both["cache"], "arxiv-2209.14792.pdf", _pdf("p2", "2209.14792"))
     both_request = _write_request(
         tmp_path / "both",
         [
@@ -465,7 +482,7 @@ def test_same_bytes_are_not_guessed_without_a_binding(tmp_path, monkeypatch) -> 
 
 def test_confirm_and_wrong_root_kind(tmp_path, monkeypatch) -> None:
     world = _world(tmp_path, monkeypatch)
-    pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", _pdf("kind"))
+    pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", _pdf("kind", "2209.14792"))
     plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, OTHER, session="bind-kind")]), "bind-kind")
     with pytest.raises(PdfBindingError) as denied:
         apply_bind_plan(
@@ -500,12 +517,12 @@ def test_page_identity_conflict_and_duplicate_digest(tmp_path, monkeypatch) -> N
     note = world["notes"] / "papers" / "arxiv-2204.03458.md"
     note.parent.mkdir()
     note.write_text("---\npaper_id: arxiv-2209.14792\n---\nnope\n", encoding="utf-8")
-    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("id"))
+    pdf = _plant(world["cache"], "arxiv-2204.03458.pdf", _pdf("id", "2204.03458"))
     request = _write_request(tmp_path, [_request_item(pdf, PAPER, session="bind-id")])
     with pytest.raises(PdfBindingError) as conflict:
         _prepare(world, request, "bind-id")
     assert conflict.value.details["reason"] == "page_identity_conflict"
-    shared = _pdf("shared")
+    shared = _pdf("shared", "2204.03458", "2209.14792")
     left = _plant(world["cache"], "left.pdf", shared)
     right = _plant(world["cache"], "right.pdf", shared)
     first = _request_item(left, PAPER, session="bind-left")
@@ -514,3 +531,273 @@ def test_page_identity_conflict_and_duplicate_digest(tmp_path, monkeypatch) -> N
     with pytest.raises(PdfBindingError) as same:
         _prepare(world, _write_request(tmp_path, [first, second], "same.json"), "bind-same")
     assert same.value.code == PDF_CONTENT_CONFLICT
+
+
+def _apply(world: dict[str, Path], plan: dict, batch: str, base: Path) -> dict:
+    return apply_bind_plan(
+        plan_path=base / ".work" / batch / "pdf-bind" / "plan.json",
+        roots_path=world["roots"],
+        root_id=NOTES_ID,
+        approved_plan_sha256=plan["plan_sha256"],
+        confirm=True,
+    )
+
+
+def _reused_manifest(row: dict) -> dict:
+    folder = "1eN75WhQ-t_yf_Pud80Toi-1j6C9_aVcW"
+    return {
+        "schema": "video-paper-wiki.pdf-upload-manifest.v1",
+        "inventory_sha256": None,
+        "drive_root_folder_id": folder,
+        "entries": [
+            {
+                "item_id": row["item_id"],
+                "result": "reused",
+                "drive_file_id": FILE_ID,
+                "drive_url": f"https://drive.google.com/file/d/{FILE_ID}/view",
+                "root_folder_id": folder,
+                "parent_chain": [{"folder_id": folder, "name": "pdfs"}],
+                "drive_relative_path": row["drive_relative_path"],
+                "remote_size_bytes": row["size_bytes"],
+                "remote_pdf_sha256": row["pdf_sha256"],
+                "verified_at": "2026-09-20T00:00:00Z",
+                "error": None,
+            }
+        ],
+    }
+
+
+def test_existing_note_migration_keeps_identity_and_rollback_order(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    note = world["notes"] / "papers" / "arxiv-2204.03458.md"
+    note.parent.mkdir()
+    body = "---\npaper_id: arxiv-2204.03458\n---\nUSER BODY\n"
+    note.write_text(body, encoding="utf-8")
+    pdf = _plant(world["cache"], "source.pdf", _pdf("existing", "2204.03458"))
+    plan = _prepare(
+        world,
+        _write_request(
+            tmp_path,
+            [_request_item(pdf, PAPER, session="bind-existing", basis="existing-note", note_sha=sha256_bytes(note.read_bytes()))],
+        ),
+        "bind-existing",
+    )
+    assert plan["items"][0]["page_action"] == "preserve"
+    applied = _apply(world, plan, "bind-existing", tmp_path)
+    assert note.read_text(encoding="utf-8") == body
+    inventory = build_inventory(roots_path=world["roots"], batch_id="inventory-existing")
+    row = next(item for item in inventory["items"] if item["paper_id"] == PAPER and item["status"] == "included")
+    manifest = _reused_manifest(row)
+    manifest["inventory_sha256"] = inventory["inventory_sha256"]
+    manifest_path = tmp_path / "manifest-existing.json"
+    manifest_path.write_bytes(canonicalize(manifest))
+    migrated = prepare_migration(
+        inventory_path=tmp_path / ".work" / "inventory-existing" / "pdf-migration" / "inventory.json",
+        manifest_path=manifest_path,
+        roots_path=world["roots"],
+        batch_id="migrate-existing",
+    )
+    from video_paper_wiki.pdf_locations import parse_roots
+    from video_paper_wiki.pdf_migration import apply_plan_to_root, rollback_journal
+
+    migrate_result = apply_plan_to_root(
+        plan=migrated,
+        roots=parse_roots(json.loads(world["roots"].read_text(encoding="utf-8"))),
+        root_id=NOTES_ID,
+        approved_plan_sha256=migrated["plan_sha256"],
+        confirm=True,
+    )
+    report = build_report(
+        plan_path=tmp_path / ".work" / "migrate-existing" / "pdf-migration" / "plan.json",
+        roots_path=world["roots"],
+    )
+    assert report["items"][0]["state"] == "linked"
+    again = build_inventory(roots_path=world["roots"], batch_id="after-migrate-existing")
+    rows = [item for item in again["items"] if item["paper_id"] == PAPER]
+    assert rows[0]["status"] == "included"
+    assert rows[0]["blockers"] == []
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    locator = world["notes"] / migrated["items"][0]["location_path"]
+    with pytest.raises(PdfBindingError) as early:
+        rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert early.value.code == "PDF_ROLLBACK_CONFLICT"
+    assert early.value.details["reason"] == "migration_present"
+    assert binding.is_file()
+    assert locator.is_file()
+    assert "USER BODY" in note.read_text(encoding="utf-8")
+    rollback_journal(journal_path=Path(migrate_result["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert not locator.exists()
+    assert note.read_text(encoding="utf-8") == body
+    rolled = rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert not binding.exists()
+    assert note.read_text(encoding="utf-8") == body
+    assert plan["items"][0]["binding_path"] in rolled["restored"]
+    assert plan["items"][0]["page_path"] not in rolled["restored"]
+
+
+def test_rollback_rejects_unrelated_paths_and_repairs_partial_failure(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("rollback", "2204.03458"))
+    plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, PAPER, session="bind-rollback")]), "bind-rollback")
+    applied = _apply(world, plan, "bind-rollback", tmp_path)
+    page = world["notes"] / plan["items"][0]["page_path"]
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    other = world["notes"] / "private-user-note.md"
+    other.write_text("PREEXISTING UNRELATED USER NOTE\n", encoding="utf-8")
+    journal_path = Path(applied["journal_path"])
+    journal = json.loads(journal_path.read_bytes())
+    journal["entries"].append(
+        {
+            "paper_id": PAPER,
+            "role": "page",
+            "path": other.name,
+            "before_sha256": None,
+            "after_sha256": sha256_bytes(other.read_bytes()),
+        }
+    )
+    journal["derived_write_set"] = [dict(row) for row in journal["entries"]]
+    journal_path.write_bytes(canonicalize(journal))
+    with pytest.raises(PdfBindingError) as scope:
+        rollback_bind_journal(journal_path=journal_path, roots_path=world["roots"], confirm=True)
+    assert scope.value.code == "PDF_ROLLBACK_CONFLICT"
+    assert scope.value.details["reason"] == "write_set"
+    assert other.is_file()
+    assert binding.is_file()
+    assert page.is_file()
+
+    fresh = _world(tmp_path / "edit", monkeypatch)
+    edited_pdf = _plant(fresh["cache"], "source.pdf", _pdf("rollback-edit", "2204.03458"))
+    edited_plan = _prepare(
+        fresh,
+        _write_request(tmp_path / "edit", [_request_item(edited_pdf, PAPER, session="bind-rollback-edit")]),
+        "bind-rollback-edit",
+    )
+    edited = _apply(fresh, edited_plan, "bind-rollback-edit", tmp_path / "edit")
+    edited_page = fresh["notes"] / edited_plan["items"][0]["page_path"]
+    edited_binding = fresh["notes"] / edited_plan["items"][0]["binding_path"]
+    page_bytes = edited_page.read_bytes()
+    original_unlink = Path.unlink
+
+    def unlink_edits_binding(path, *args, **kwargs):
+        if path == edited_page:
+            edited_binding.write_bytes(edited_binding.read_bytes() + b"\nCONCURRENT USER EDIT\n")
+        return original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", unlink_edits_binding)
+    with pytest.raises(PdfBindingError) as raced:
+        rollback_bind_journal(journal_path=Path(edited["journal_path"]), roots_path=fresh["roots"], confirm=True)
+    assert raced.value.details["reason"] == "parallel_edit"
+    assert edited_page.read_bytes() == page_bytes
+    assert b"CONCURRENT USER EDIT" in edited_binding.read_bytes()
+
+    partial = _world(tmp_path / "partial", monkeypatch)
+    partial_pdf = _plant(partial["cache"], "source.pdf", _pdf("rollback-partial", "2204.03458"))
+    partial_plan = _prepare(
+        partial,
+        _write_request(tmp_path / "partial", [_request_item(partial_pdf, PAPER, session="bind-rollback-partial")]),
+        "bind-rollback-partial",
+    )
+    partial_applied = _apply(partial, partial_plan, "bind-rollback-partial", tmp_path / "partial")
+    partial_page = partial["notes"] / partial_plan["items"][0]["page_path"]
+    partial_binding = partial["notes"] / partial_plan["items"][0]["binding_path"]
+    page_before = partial_page.read_bytes()
+
+    def unlink_fails_on_binding(path, *args, **kwargs):
+        if path == partial_binding:
+            raise OSError("injected unlink failure")
+        return original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", unlink_fails_on_binding)
+    with pytest.raises(PdfBindingError) as broken:
+        rollback_bind_journal(journal_path=Path(partial_applied["journal_path"]), roots_path=partial["roots"], confirm=True)
+    assert broken.value.details["reason"] == "partial"
+    assert partial_page.read_bytes() == page_before
+    assert partial_binding.is_file()
+
+
+def test_apply_rolls_back_when_preserve_page_changes_during_write(tmp_path, monkeypatch) -> None:
+    from video_paper_wiki import pdf_migration as migration
+
+    world = _world(tmp_path, monkeypatch)
+    note = world["notes"] / "papers" / "arxiv-2204.03458.md"
+    note.parent.mkdir()
+    note.write_text("---\npaper_id: arxiv-2204.03458\n---\nUSER BODY\n", encoding="utf-8")
+    pdf = _plant(world["cache"], "source.pdf", _pdf("during", "2204.03458"))
+    plan = _prepare(
+        world,
+        _write_request(
+            tmp_path,
+            [_request_item(pdf, PAPER, session="bind-during", basis="existing-note", note_sha=sha256_bytes(note.read_bytes()))],
+        ),
+        "bind-during",
+    )
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    original = migration._atomic_write
+
+    def write(path, data):
+        original(path, data)
+        if path == binding:
+            note.write_bytes(note.read_bytes() + b"\nCONCURRENT USER EDIT\n")
+
+    monkeypatch.setattr(migration, "_atomic_write", write)
+    with pytest.raises(PdfBindingError) as raced:
+        _apply(world, plan, "bind-during", tmp_path)
+    assert raced.value.code == "PDF_APPLY_CHANGED"
+    assert raced.value.details["reason"] == "parallel_edit"
+    assert not binding.exists()
+    assert b"CONCURRENT USER EDIT" in note.read_bytes()
+    assert not (world["notes"] / ".work" / "pdf-bind").exists()
+
+
+def test_cross_request_and_interleaved_prepare_keep_the_first_registration(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    shared = _pdf("cross", "2204.03458", "2209.14792")
+    pdf = _plant(world["cache"], "shared.pdf", shared)
+    first_request = _write_request(tmp_path, [_request_item(pdf, PAPER, session="bind-first")], "first.json")
+    first = _prepare(world, first_request, "bind-first")
+    second_request = _write_request(tmp_path, [_request_item(pdf, OTHER, session="bind-second")], "second.json")
+    second = _prepare(world, second_request, "bind-second")
+    _apply(world, first, "bind-first", tmp_path)
+    with pytest.raises(PdfBindingError) as interleaved:
+        _apply(world, second, "bind-second", tmp_path)
+    assert interleaved.value.code == PDF_CONTENT_CONFLICT
+    assert interleaved.value.details["reason"] == "cross_paper"
+    binding = world["notes"] / first["items"][0]["binding_path"]
+    other_binding = world["notes"] / "wiki" / "meta" / "pdf-bindings" / "arxiv-2209.14792.json"
+    assert binding.is_file()
+    assert not other_binding.exists()
+    with pytest.raises(PdfBindingError) as prepared_late:
+        _prepare(world, second_request, "bind-second-late")
+    assert prepared_late.value.code == PDF_CONTENT_CONFLICT
+    copy = _plant(world["cache"], "other-name.pdf", shared)
+    copied = _request_item(copy, OTHER, session="bind-copy")
+    with pytest.raises(PdfBindingError) as digest:
+        _prepare(world, _write_request(tmp_path, [copied], "copy.json"), "bind-copy")
+    assert digest.value.details["reason"] == "cross_paper"
+    assert binding.is_file()
+    before = binding.read_bytes()
+    again = _apply(world, first, "bind-first", tmp_path)
+    assert again["results"][0]["state"] == "bound"
+    assert binding.read_bytes() == before
+    assert not other_binding.exists()
+
+
+def test_pdf_excerpt_is_required_and_blocked_paper_is_not_hardcoded(tmp_path, monkeypatch) -> None:
+    source = (REPO / "src" / "video_paper_wiki" / "pdf_bindings.py").read_text(encoding="utf-8")
+    assert "2212.05199" not in source
+    world = _world(tmp_path, monkeypatch)
+    pdf = _plant(world["cache"], "magvit.pdf", _pdf("MAGVIT: Masked Generative Video Transformer"))
+    blocked = "arxiv:2212.05199"
+    with pytest.raises(PdfBindingError) as missing:
+        _prepare(world, _write_request(tmp_path, [_request_item(pdf, blocked, session="bind-blocked")]), "bind-blocked")
+    assert missing.value.details["reason"] == "pdf_identity"
+    assert not (world["notes"] / "wiki" / "meta" / "pdf-bindings").exists()
+    seeded = _request_item(_plant(world["cache"], "seed-only.pdf", _pdf("seed-only", "2204.03458")), PAPER, session="bind-seed-method")
+    seeded["identity_credential"] = {
+        "method": "seed-catalog",
+        "seed_paper_id": "arxiv-2204.03458",
+        "arxiv_id": "2204.03458",
+        "title": "Video Diffusion Models",
+    }
+    with pytest.raises(ContractError):
+        _prepare(world, _write_request(tmp_path, [seeded], "seed-method.json"), "bind-seed-method")

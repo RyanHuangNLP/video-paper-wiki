@@ -22,7 +22,7 @@ def _module():
 
 def test_bind_apply_requires_confirmation_then_rolls_back(tmp_path, monkeypatch, capsys) -> None:
     world = _world(tmp_path, monkeypatch)
-    pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", _pdf("operator"))
+    pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", _pdf("operator", "2209.14792"))
     plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, OTHER, session="bind-op")]), "bind-op")
     plan_path = tmp_path / ".work" / "bind-op" / "pdf-bind" / "plan.json"
     module = _module()
@@ -87,4 +87,4 @@ def test_bind_apply_requires_confirmation_then_rolls_back(tmp_path, monkeypatch,
     assert rolled == 0 and body["ok"] is True
     assert not page.exists()
     assert not binding.exists()
-    assert pdf.read_bytes() == _pdf("operator")
+    assert pdf.read_bytes() == _pdf("operator", "2209.14792")

@@ -18,7 +18,7 @@ Notes-vault bindings live beside locations, not inside them:
 | --- | --- |
 | notes vault only | `wiki/meta/pdf-bindings/{paper_page_slug}.json` |
 
-That file records which source-only `local_ref` supplies the PDF bytes. It is a location-source registration, not capture or publication. `wiki/meta/pdf-locations/` remains the Drive/local locator written by migrate or link plans. A binding does not set `verification` to `verified`.
+That file records which source-only `local_ref` supplies the PDF bytes, plus the page-1 `pdf-internal-arxiv-id` excerpt tied to the paper id and PDF digest. It is a location-source registration, not capture or publication. `wiki/meta/pdf-locations/` remains the Drive/local locator written by migrate or link plans. A binding does not set `verification` to `verified`.
 
 ## Resolve
 

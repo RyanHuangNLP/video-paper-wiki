@@ -214,7 +214,7 @@ def test_notes_inventory_uses_explicit_binding_local_ref_only(tmp_path, monkeypa
     from tests.unit.test_pdf_bindings import OTHER, _pdf, _plant, _prepare, _request_item, _world, _write_request
 
     world = _world(tmp_path, monkeypatch)
-    data = _pdf("migrate-ref")
+    data = _pdf("migrate-ref", "2209.14792")
     pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", data)
     _plant(world["cache"], "also-this-digest.pdf", data)
     plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, OTHER, session="bind-migrate")]), "bind-migrate")
