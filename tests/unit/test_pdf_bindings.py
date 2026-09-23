@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import errno
 import json
 import shutil
 from pathlib import Path
@@ -859,6 +860,63 @@ def test_rollback_keeps_bytes_edited_on_the_current_unlink_target(tmp_path, monk
     assert page.read_bytes() == page_bytes
 
 
+def test_rollback_keeps_atomic_save_of_the_current_unlink_target(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("atomic-save", "2204.03458"))
+    plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, PAPER, session="atomic-save")]), "atomic-save")
+    applied = _apply(world, plan, "atomic-save", tmp_path)
+    page = world["notes"] / plan["items"][0]["page_path"]
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    page_bytes = page.read_bytes()
+    original_unlink = Path.unlink
+
+    def unlink_replaces_current_binding(path, *args, **kwargs):
+        if path == binding:
+            edited = path.read_bytes() + b"\nCONCURRENT USER EDIT\n"
+            replacement = path.with_name(path.name + ".user-save")
+            replacement.write_bytes(edited)
+            replacement.replace(path)
+        return original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", unlink_replaces_current_binding)
+    with pytest.raises(PdfBindingError) as raced:
+        rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert raced.value.code == "PDF_ROLLBACK_CONFLICT"
+    assert raced.value.details["reason"] == "parallel_edit"
+    assert binding.is_file()
+    assert b"\nCONCURRENT USER EDIT\n" in binding.read_bytes()
+    assert page.read_bytes() == page_bytes
+
+
+def test_rollback_restores_unit_when_post_unlink_read_fails(tmp_path, monkeypatch) -> None:
+    from video_paper_wiki import pdf_bindings as bindings
+
+    world = _world(tmp_path, monkeypatch)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("post-unlink-eio", "2204.03458"))
+    plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, PAPER, session="post-unlink-eio")]), "post-unlink-eio")
+    applied = _apply(world, plan, "post-unlink-eio", tmp_path)
+    page = world["notes"] / plan["items"][0]["page_path"]
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    page_bytes = page.read_bytes()
+    binding_bytes = binding.read_bytes()
+    binding_id = bindings._file_identity(binding)
+    original_read = bindings._read_fd_bytes
+
+    def read_fails_after_current_binding_unlink(fd):
+        if bindings._fd_identity(fd) == binding_id and not binding.exists():
+            raise OSError(errno.EIO, "injected post-unlink read failure")
+        return original_read(fd)
+
+    monkeypatch.setattr(bindings, "_read_fd_bytes", read_fails_after_current_binding_unlink)
+    with pytest.raises(OSError) as raced:
+        rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert raced.value.errno == errno.EIO
+    assert binding.is_file()
+    assert binding.read_bytes() == binding_bytes
+    assert page.is_file()
+    assert page.read_bytes() == page_bytes
+
+
 def test_existing_note_trailing_blank_line_stays_included_after_migration(tmp_path, monkeypatch) -> None:
     world = _world(tmp_path, monkeypatch)
     note = world["notes"] / "papers" / "arxiv-2204.03458.md"
@@ -911,6 +969,70 @@ def test_existing_note_trailing_blank_line_stays_included_after_migration(tmp_pa
     migrated_bytes = note.read_bytes()
     note.write_bytes(migrated_bytes.replace(b"USER BODY", b"EDITED BODY"))
     edited = build_inventory(roots_path=world["roots"], batch_id="blank-edited")
+    edited_rows = [item for item in edited["items"] if item["paper_id"] == PAPER]
+    assert edited_rows[0]["status"] == "blocked"
+    assert edited_rows[0]["blockers"][0]["code"] == "PDF_APPLY_CHANGED"
+    note.write_bytes(migrated_bytes)
+    rollback_journal(journal_path=Path(migrate_result["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert note.read_bytes() == original
+    rolled = rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert note.read_bytes() == original
+    assert plan["items"][0]["page_path"] not in rolled["restored"]
+
+
+def test_existing_crlf_note_stays_included_after_migration(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    note = world["notes"] / "papers" / "arxiv-2204.03458.md"
+    note.parent.mkdir()
+    original = b"---\r\npaper_id: arxiv-2204.03458\r\n---\r\nUSER BODY\r\n\r\n"
+    note.write_bytes(original)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("crlf-note", "2204.03458"))
+    plan = _prepare(
+        world,
+        _write_request(
+            tmp_path,
+            [_request_item(pdf, PAPER, session="crlf-note", basis="existing-note", note_sha=sha256_bytes(original))],
+        ),
+        "crlf-note",
+    )
+    basis = plan["items"][0]["binding"]["identity_basis"]
+    assert basis["scanned_text"].encode("utf-8") == original
+    assert basis["scanned_sha256"] == sha256_bytes(original)
+    applied = _apply(world, plan, "crlf-note", tmp_path)
+    before = build_inventory(roots_path=world["roots"], batch_id="crlf-before")
+    row = next(item for item in before["items"] if item["paper_id"] == PAPER and item["status"] == "included")
+    manifest = _reused_manifest(row)
+    manifest["inventory_sha256"] = before["inventory_sha256"]
+    manifest_path = tmp_path / "manifest-crlf.json"
+    manifest_path.write_bytes(canonicalize(manifest))
+    migrated = prepare_migration(
+        inventory_path=tmp_path / ".work" / "crlf-before" / "pdf-migration" / "inventory.json",
+        manifest_path=manifest_path,
+        roots_path=world["roots"],
+        batch_id="crlf-migrate",
+    )
+    from video_paper_wiki.pdf_locations import parse_roots
+    from video_paper_wiki.pdf_migration import apply_plan_to_root, rollback_journal
+
+    migrate_result = apply_plan_to_root(
+        plan=migrated,
+        roots=parse_roots(json.loads(world["roots"].read_text(encoding="utf-8"))),
+        root_id=NOTES_ID,
+        approved_plan_sha256=migrated["plan_sha256"],
+        confirm=True,
+    )
+    report = build_report(
+        plan_path=tmp_path / ".work" / "crlf-migrate" / "pdf-migration" / "plan.json",
+        roots_path=world["roots"],
+    )
+    assert [item["state"] for item in report["items"]] == ["linked"]
+    after = build_inventory(roots_path=world["roots"], batch_id="crlf-after")
+    rows = [item for item in after["items"] if item["paper_id"] == PAPER]
+    assert rows[0]["status"] == "included"
+    assert rows[0]["blockers"] == []
+    migrated_bytes = note.read_bytes()
+    note.write_bytes(migrated_bytes.replace(b"USER BODY", b"EDITED BODY"))
+    edited = build_inventory(roots_path=world["roots"], batch_id="crlf-edited")
     edited_rows = [item for item in edited["items"] if item["paper_id"] == PAPER]
     assert edited_rows[0]["status"] == "blocked"
     assert edited_rows[0]["blockers"][0]["code"] == "PDF_APPLY_CHANGED"

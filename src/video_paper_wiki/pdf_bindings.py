@@ -419,9 +419,11 @@ def _note_is_sealed_basis_or_legal_migration(
 ) -> bool:
     """Accept the sealed note bytes, or exactly the migration transform of those bytes.
 
-    Migration strips trailing whitespace before appending the PDF section. The
-    sealed text is the preimage; guessing `head` and `head[:-1]` drops a legal
-    trailing blank line and cannot prove any other edit.
+    Migration reads with `Path.read_text` universal newlines, then strips
+    trailing whitespace before appending the PDF section. The sealed text keeps
+    the original characters, including CRLF; `render_migrated_note` applies that
+    read. Guessing `head` and `head[:-1]` drops a legal trailing blank line and
+    cannot prove any other edit.
     """
 
     try:
@@ -1673,6 +1675,45 @@ def _restore_mutated_rollback_target(target: Path, data: bytes, atomic_write) ->
         )
 
 
+def _open_nofollow(path: Path) -> int:
+    flags = os.O_RDONLY
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    return os.open(path, flags)
+
+
+def _read_linked_regular(path: Path) -> tuple[tuple[int, int] | None, bytes | None]:
+    """Identity and bytes of the regular file the path names right now."""
+
+    try:
+        live = _open_nofollow(path)
+    except OSError:
+        return None, None
+    try:
+        ident = _fd_identity(live)
+        data = _read_fd_bytes(live)
+        if _fd_identity(live) != ident:
+            return None, None
+        return ident, data
+    finally:
+        os.close(live)
+
+
+def _is_unlink_target(file: object, target: Path) -> bool:
+    try:
+        raw = os.fspath(file)
+    except TypeError:
+        return False
+    if isinstance(raw, bytes):
+        try:
+            raw = os.fsdecode(raw)
+        except ValueError:
+            return False
+    return Path(raw) == target
+
+
 def _unlink_verified_target(
     target: Path,
     *,
@@ -1680,20 +1721,20 @@ def _unlink_verified_target(
     expected_sha: str,
     relative: str,
     atomic_write,
+    removed: list[dict[str, Any]],
+    record: dict[str, Any],
 ) -> None:
-    """Unlink only while the verified inode still has the approved bytes.
+    """Unlink only while the path still names the verified inode and bytes.
 
-    A caller can edit the path inside `Path.unlink` before the real removal.
-    Holding the inode across that call keeps the edited bytes when the digest changes.
+    `Path.unlink` can replace that path before the real removal. The inode
+    opened beforehand still has the approved bytes, so it cannot see the new
+    object. The `os.unlink` boundary reads the directory entry that is about
+    to disappear and leaves a different object in place. A removed object is
+    recorded immediately, before the post-unlink read.
     """
 
-    flags = os.O_RDONLY
-    if hasattr(os, "O_CLOEXEC"):
-        flags |= os.O_CLOEXEC
-    if hasattr(os, "O_NOFOLLOW"):
-        flags |= os.O_NOFOLLOW
     try:
-        fd = os.open(target, flags)
+        fd = _open_nofollow(target)
     except OSError:
         _fail(
             PDF_ROLLBACK_CONFLICT,
@@ -1709,18 +1750,48 @@ def _unlink_verified_target(
                 "bind target no longer matches the write-after digest",
                 {"path": relative, "reason": "parallel_edit"},
             )
+        real_unlink = os.unlink
+
+        def guarded_unlink(file: object, *args: object, **kwargs: object):
+            if _is_unlink_target(file, target):
+                try:
+                    live_id, live = _read_linked_regular(target)
+                except OSError:
+                    live_id, live = None, None
+                if (
+                    live_id != identity
+                    or live != payload
+                    or live is None
+                    or sha256_bytes(live) != expected_sha
+                ):
+                    _fail(
+                        PDF_ROLLBACK_CONFLICT,
+                        "bind target changed during removal",
+                        {"path": relative, "reason": "parallel_edit"},
+                    )
+                result = real_unlink(file, *args, **kwargs)
+                removed.append(record)
+                return result
+            return real_unlink(file, *args, **kwargs)
+
+        os.unlink = guarded_unlink
         try:
-            target.unlink()
-        except OSError as exc:
-            _fail(
-                PDF_ROLLBACK_CONFLICT,
-                "bind rollback could not remove a created file",
-                {"path": relative, "reason": "partial", "error": type(exc).__name__},
-            )
+            try:
+                target.unlink()
+            except OSError as exc:
+                _fail(
+                    PDF_ROLLBACK_CONFLICT,
+                    "bind rollback could not remove a created file",
+                    {"path": relative, "reason": "partial", "error": type(exc).__name__},
+                )
+        finally:
+            os.unlink = real_unlink
         after_id = _fd_identity(fd)
         after = _read_fd_bytes(fd)
         if after_id != identity or after != payload or sha256_bytes(after) != expected_sha:
             _restore_mutated_rollback_target(target, after, atomic_write)
+            if removed and removed[-1] is record and _regular_file(target) and target.read_bytes() == after:
+                removed.pop()
             _fail(
                 PDF_ROLLBACK_CONFLICT,
                 "bind target changed during removal",
@@ -1788,8 +1859,9 @@ def rollback_bind_journal(*, journal_path: Path, roots_path: Path, confirm: bool
                     expected_sha=str(item["sha256"]),
                     relative=str(item["relative"]),
                     atomic_write=_atomic_write,
+                    removed=removed,
+                    record=item,
                 )
-                removed.append(item)
         except Exception as original:
             try:
                 _restore_rollback_files(removed, _atomic_write)

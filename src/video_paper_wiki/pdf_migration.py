@@ -1124,14 +1124,27 @@ def _current_location_and_page(root: Mapping[str, Any], paper_id: str) -> tuple[
     return loc, loc_sha, page_sha
 
 
+def _note_text_as_migration_reads(text: str) -> str:
+    """Newline translation of `Path.read_text(encoding="utf-8")`.
+
+    Universal newlines turn CRLF and bare CR into LF before `rstrip` and the
+    PDF section. The sealed basis keeps the original characters; this is the
+    legal read, not a rewrite the user must perform first.
+    """
+
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
 def render_migrated_note(text: str, location: Mapping[str, Any]) -> str:
     """Note text `_next_page_bytes` writes for this page and location.
 
-    Trailing whitespace is removed with `str.rstrip` before the PDF section is
-    appended. Callers that keep an original basis must compare against this
-    string, not against a one-character trim of the migrated prefix.
+    The page is read with universal newlines, then trailing whitespace is
+    removed with `str.rstrip` before the PDF section is appended. Callers that
+    keep an original basis must compare against this string, not against a
+    one-character trim of the migrated prefix.
     """
 
+    text = _note_text_as_migration_reads(text)
     compiler_lines = render_pdf_section_lines(location)
     section = "\n".join(compiler_lines) if compiler_lines else render_pdf_section(location)
     from video_paper_wiki.notes.merge import join_frontmatter, merge_paper_copy, split_frontmatter
