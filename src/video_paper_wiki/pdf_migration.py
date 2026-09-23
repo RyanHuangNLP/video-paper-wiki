@@ -1124,40 +1124,45 @@ def _current_location_and_page(root: Mapping[str, Any], paper_id: str) -> tuple[
     return loc, loc_sha, page_sha
 
 
+def render_migrated_note(text: str, location: Mapping[str, Any]) -> str:
+    """Note text `_next_page_bytes` writes for this page and location.
+
+    Trailing whitespace is removed with `str.rstrip` before the PDF section is
+    appended. Callers that keep an original basis must compare against this
+    string, not against a one-character trim of the migrated prefix.
+    """
+
+    compiler_lines = render_pdf_section_lines(location)
+    section = "\n".join(compiler_lines) if compiler_lines else render_pdf_section(location)
+    from video_paper_wiki.notes.merge import join_frontmatter, merge_paper_copy, split_frontmatter
+
+    if f"## {PDF_HEADING}" not in text:
+        rendered = text.rstrip() + "\n" + section
+        if not rendered.endswith("\n"):
+            rendered += "\n"
+        return rendered
+    yaml, body = split_frontmatter(text)
+    if yaml is not None:
+        prefix = join_frontmatter(yaml, "")
+        rendered_body = (body.split(f"## {PDF_HEADING}")[0] if f"## {PDF_HEADING}" in body else body).rstrip()
+        rendered = prefix.rstrip() + "\n" + rendered_body + "\n" + section
+    else:
+        rendered = text.split(f"## {PDF_HEADING}")[0].rstrip() + "\n" + section
+    if not rendered.endswith("\n"):
+        rendered += "\n"
+    return merge_paper_copy(text, rendered)
+
+
 def _next_page_bytes(root: Mapping[str, Any], paper_id: str, location: Mapping[str, Any]) -> tuple[str | None, bytes | None]:
     page_rel = derived_page_path(root["kind"], paper_id)
     if page_rel is None:
         return None, None
     path = resolve_inside_root(Path(root["path"]), page_rel)
-    compiler_lines = render_pdf_section_lines(location)
-    section = "\n".join(compiler_lines) if compiler_lines else render_pdf_section(location)
     if not path.exists():
         # Do not invent a full paper page; only patch existing notes/compiler pages.
         return page_rel, None
     text = path.read_text(encoding="utf-8")
-    from video_paper_wiki.notes.merge import merge_paper_copy
-
-    rendered = text
-    if f"## {PDF_HEADING}" not in text:
-        rendered = text.rstrip() + "\n" + section
-        if not rendered.endswith("\n"):
-            rendered += "\n"
-    else:
-        # Rebuild a synthetic rendered document that only owns the PDF heading.
-        from video_paper_wiki.notes.merge import join_frontmatter, split_frontmatter
-
-        yaml, body = split_frontmatter(text)
-        prefix = ""
-        if yaml is not None:
-            prefix = join_frontmatter(yaml, "")
-            rendered_body = (body.split(f"## {PDF_HEADING}")[0] if f"## {PDF_HEADING}" in body else body).rstrip()
-            rendered = prefix.rstrip() + "\n" + rendered_body + "\n" + section
-        else:
-            rendered = text.split(f"## {PDF_HEADING}")[0].rstrip() + "\n" + section
-        if not rendered.endswith("\n"):
-            rendered += "\n"
-        rendered = merge_paper_copy(text, rendered)
-    return page_rel, rendered.encode("utf-8")
+    return page_rel, render_migrated_note(text, location).encode("utf-8")
 
 
 def _location_for_manifest_entry(

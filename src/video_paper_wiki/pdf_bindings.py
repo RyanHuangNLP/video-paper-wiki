@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+import os
 import re
 import stat
 from pathlib import Path
@@ -9,11 +11,10 @@ from typing import Any, Mapping
 
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.identity import paper_page_slug
-from video_paper_wiki.jcs import canonicalize
+from video_paper_wiki.jcs import CanonicalJsonError, canonicalize
 from video_paper_wiki.pdf_locations import (
     KIND_NOTES,
     PDF_CONTENT_CONFLICT,
-    PDF_HEADING,
     PDF_LOCATION_INVALID,
     PdfLocationError,
     canonical_paper_id,
@@ -27,8 +28,6 @@ from video_paper_wiki.pdf_locations import (
     item_id_for,
     load_locations_file,
     paper_dir_for,
-    render_pdf_section,
-    render_pdf_section_lines,
     root_directory_identity,
     roots_digest,
     seed_alias,
@@ -410,37 +409,30 @@ def _verify_identity_credential(
     }
 
 
-def _append_pdf_section(original: str, location: Mapping[str, Any]) -> str | None:
-    """Match the notes migration append in `_next_page_bytes` when the page has no PDF heading."""
-
-    if f"## {PDF_HEADING}" in original:
-        return None
-    compiler_lines = render_pdf_section_lines(location)
-    section = "\n".join(compiler_lines) if compiler_lines else render_pdf_section(location)
-    rendered = original.rstrip() + "\n" + section
-    if not rendered.endswith("\n"):
-        rendered += "\n"
-    return rendered
-
-
-def _note_matches_basis_or_legal_migration(
+def _note_is_sealed_basis_or_legal_migration(
     notes: Mapping[str, Any],
     *,
     paper_id: str,
-    scanned_sha256: str,
+    sealed_text: str,
     raw: bytes,
     pdf_sha256: str,
 ) -> bool:
-    """Exact basis bytes, or those bytes plus the migration PDF section for this digest."""
+    """Accept the sealed note bytes, or exactly the migration transform of those bytes.
 
-    if sha256_bytes(raw) == scanned_sha256:
+    Migration strips trailing whitespace before appending the PDF section. The
+    sealed text is the preimage; guessing `head` and `head[:-1]` drops a legal
+    trailing blank line and cannot prove any other edit.
+    """
+
+    try:
+        sealed_bytes = sealed_text.encode("utf-8")
+    except UnicodeError:
+        return False
+    if raw == sealed_bytes:
         return True
     try:
         text = raw.decode("utf-8")
     except UnicodeError:
-        return False
-    marker = f"## {PDF_HEADING}"
-    if text.count(marker) != 1:
         return False
     try:
         loc_path = _walk(Path(notes["path"]), derived_location_path(KIND_NOTES, paper_id))
@@ -459,16 +451,9 @@ def _note_matches_basis_or_legal_migration(
         type(row) is dict and row.get("pdf_sha256") == pdf_sha256 for row in pdfs
     ):
         return False
-    head, _tail = text.split(marker, 1)
-    candidates = [head]
-    if head.endswith("\n"):
-        candidates.append(head[:-1])
-    for original in candidates:
-        if sha256_bytes(original.encode("utf-8")) != scanned_sha256:
-            continue
-        if _append_pdf_section(original, location) == text:
-            return True
-    return False
+    from video_paper_wiki.pdf_migration import render_migrated_note
+
+    return text == render_migrated_note(sealed_text, location)
 
 
 def _read_intake(relative_path: str, *, paper_id: str, pdf_sha256: str, size_bytes: int) -> dict[str, Any]:
@@ -559,6 +544,58 @@ def _read_local_pdf(roots: list[Mapping[str, Any]], local_ref: Mapping[str, Any]
     return path
 
 
+def _sealed_existing_note(
+    basis: Mapping[str, Any],
+    basis_raw: bytes,
+    scanned: str,
+    notes: Mapping[str, Any],
+    paper_id: str,
+    pdf_sha256: str,
+) -> str:
+    """Return the note text sealed at scan time, after checking the live page.
+
+    The first observation copies the file itself and requires that exact digest.
+    Later reads reuse `scanned_text` from the binding and accept only that text
+    or `render_migrated_note` of it. A body edit matches neither.
+    """
+
+    supplied = basis.get("scanned_text")
+    if type(supplied) is str:
+        try:
+            sealed_bytes = supplied.encode("utf-8")
+        except UnicodeError:
+            _fail(PDF_BIND_INVALID, "sealed note basis is not UTF-8", {"reason": "stale_basis"})
+        if sha256_bytes(sealed_bytes) != scanned:
+            _fail(
+                PDF_BIND_INVALID,
+                "sealed note basis does not match its digest",
+                {"relative_path": basis.get("relative_path"), "reason": "stale_basis"},
+            )
+        if not _note_is_sealed_basis_or_legal_migration(
+            notes,
+            paper_id=paper_id,
+            sealed_text=supplied,
+            raw=basis_raw,
+            pdf_sha256=pdf_sha256,
+        ):
+            _fail(
+                PDF_APPLY_CHANGED,
+                "identity basis changed after it was scanned",
+                {"relative_path": basis.get("relative_path"), "reason": "stale_basis"},
+            )
+        return supplied
+    if sha256_bytes(basis_raw) != scanned:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "identity basis changed after it was scanned",
+            {"relative_path": basis.get("relative_path"), "reason": "stale_basis"},
+        )
+    try:
+        return basis_raw.decode("utf-8")
+    except UnicodeError:
+        _fail(PDF_BIND_INVALID, "existing note is not UTF-8", {"reason": "page_identity_conflict"})
+
+
 def _binding_from_live(
     item: Mapping[str, Any],
     roots: list[Mapping[str, Any]],
@@ -643,18 +680,9 @@ def _binding_from_live(
     if type(local_ref) is not dict:
         _fail(PDF_BIND_INVALID, "local_ref is required", {"reason": "digest_mismatch"})
     pdf_path = _read_local_pdf(roots, local_ref, pdf_sha256=pdf_sha, size_bytes=size)
-    if kind == "existing-note" and not _note_matches_basis_or_legal_migration(
-        notes,
-        paper_id=paper_id,
-        scanned_sha256=scanned,
-        raw=basis_raw,
-        pdf_sha256=pdf_sha,
-    ):
-        _fail(
-            PDF_APPLY_CHANGED,
-            "identity basis changed after it was scanned",
-            {"relative_path": basis.get("relative_path"), "reason": "stale_basis"},
-        )
+    sealed_note: str | None = None
+    if kind == "existing-note":
+        sealed_note = _sealed_existing_note(basis, basis_raw, scanned, notes, paper_id, pdf_sha)
     credential = _verify_identity_credential(
         item.get("identity_credential"),
         paper_id=paper_id,
@@ -682,6 +710,7 @@ def _binding_from_live(
             "root_id": basis["root_id"],
             "relative_path": basis["relative_path"],
             "scanned_sha256": scanned,
+            **({"scanned_text": sealed_note} if sealed_note is not None else {}),
         },
         "intake": {
             "relative_path": intake_ref["relative_path"],
@@ -1236,6 +1265,8 @@ def apply_bind_plan(
                     }
                 )
         journal_path = _journal_file(base, plan["plan_sha256"])
+        journal_touched = False
+        prior_journal: bytes | None = None
         try:
             for write in writes:
                 if root_directory_identity(notes["path"]) != bound_identity:
@@ -1265,23 +1296,68 @@ def apply_bind_plan(
             _remember_created(journal, plan, base)
             if journal_path.parent.is_symlink():
                 _fail(PDF_LOCATION_INVALID, "bind journal parent is a symlink", {"reason": "symlink"})
-            _atomic_write(journal_path, canonicalize(journal) + b"\n")
+            journal_payload = canonicalize(journal) + b"\n"
+            prior_journal = journal_path.read_bytes() if _regular_file(journal_path) else None
+            journal_touched = True
+            _atomic_write(journal_path, journal_payload)
+            _assert_commit_boundary(snapshot, journal_path, journal_payload)
+            result = {
+                "root_id": root_id,
+                "kind": notes["kind"],
+                "plan_sha256": plan["plan_sha256"],
+                "journal_path": str(journal_path),
+                "journal_sha256": sha256_bytes(journal_path.read_bytes()),
+                "results": [{"paper_id": item["paper_id"], "state": "bound"} for item in plan["items"]],
+                "keep_local": True,
+            }
+            _assert_commit_boundary(snapshot, journal_path, journal_payload)
+            return result
         except Exception:
             _restore_applied_writes(applied, root=notes, bound_identity=bound_identity)
             applied.clear()
+            if journal_touched:
+                _revert_journal_install(journal_path, prior_journal, _atomic_write)
             raise
-        return {
-            "root_id": root_id,
-            "kind": notes["kind"],
-            "plan_sha256": plan["plan_sha256"],
-            "journal_path": str(journal_path),
-            "journal_sha256": sha256_bytes(journal_path.read_bytes()),
-            "results": [{"paper_id": item["paper_id"], "state": "bound"} for item in plan["items"]],
-            "keep_local": True,
-        }
     finally:
         _INSTALL_GUARDS.clear()
         lock.close()
+
+
+def _json_copy(value: Mapping[str, Any]) -> dict[str, Any]:
+    return json.loads(canonicalize(value))
+
+
+def _plan_content_sha(plan: Mapping[str, Any]) -> str:
+    return sha256_json({key: value for key, value in plan.items() if key != "plan_sha256"})
+
+
+def _creation_entries(plan: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Files this approved plan created. Derived from the plan, not from a journal list."""
+
+    entries: list[dict[str, Any]] = []
+    for item in plan["items"]:
+        paper_id = str(item["paper_id"])
+        if item["before_binding_sha256"] is None:
+            entries.append(
+                {
+                    "paper_id": paper_id,
+                    "role": "binding",
+                    "path": str(item["binding_path"]),
+                    "before_sha256": None,
+                    "after_sha256": str(item["after_binding_sha256"]),
+                }
+            )
+        if item["page_action"] == "create" and item["before_page_sha256"] is None:
+            entries.append(
+                {
+                    "paper_id": paper_id,
+                    "role": "page",
+                    "path": str(item["page_path"]),
+                    "before_sha256": None,
+                    "after_sha256": str(item["after_page_sha256"]),
+                }
+            )
+    return entries
 
 
 def _load_journal(
@@ -1291,13 +1367,8 @@ def _load_journal(
     notes: Mapping[str, Any],
     identity: Mapping[str, Any],
 ) -> dict[str, Any]:
-    existing_entries: list[dict[str, Any]] = []
-    if _regular_file(journal_path):
-        loaded = parse_strict_json(journal_path.read_bytes(), invalid_code=PDF_BIND_INVALID)
-        if type(loaded) is dict and loaded.get("plan_sha256") == plan["plan_sha256"]:
-            rows = loaded.get("entries")
-            if type(rows) is list:
-                existing_entries = [row for row in rows if type(row) is dict]
+    if journal_path.name != f"journal-{plan['plan_sha256'][:16]}.json":
+        _fail(PDF_BIND_INVALID, "bind journal path is not the approved plan journal", {"reason": "write_set"})
     return {
         "schema": JOURNAL_SCHEMA,
         "plan_sha256": plan["plan_sha256"],
@@ -1306,50 +1377,59 @@ def _load_journal(
         "request_sha256": plan["request_sha256"],
         "roots_sha256": plan["roots_sha256"],
         "root_identity": dict(identity),
-        "entries": existing_entries,
+        "approved_plan": _json_copy(plan),
+        "entries": [],
     }
 
 
 def _remember_created(journal: dict[str, Any], plan: Mapping[str, Any], base: Path) -> None:
-    seen = {(entry.get("role"), entry.get("path"), entry.get("after_sha256")) for entry in journal["entries"]}
-    for item in plan["items"]:
+    expected = _creation_entries(plan)
+    items = {str(item["paper_id"]): item for item in plan["items"]}
+    for entry in expected:
+        item = items[str(entry["paper_id"])]
         paper_id = str(item["paper_id"])
         unit = _checked_rollback_unit(item["binding"]["rollback_unit"], paper_id)
         if unit["entries"][0]["path"] != item["binding_path"]:
             _fail(PDF_BIND_INVALID, "binding path is not the derived bind path", {"reason": "write_set"})
-        for row in unit["entries"]:
-            if row["role"] == "binding":
-                if item["before_binding_sha256"] is not None:
-                    continue
-                after = item["after_binding_sha256"]
-                relative = item["binding_path"]
-            else:
-                if item["page_action"] != "create" or item["before_page_sha256"] is not None:
-                    continue
-                if row["path"] != item["page_path"] or row["after_sha256"] != item["after_page_sha256"]:
-                    _fail(PDF_BIND_INVALID, "created page is not in the derived bind write set", {"reason": "write_set"})
-                after = item["after_page_sha256"]
-                relative = item["page_path"]
-            entry = {
-                "paper_id": paper_id,
-                "role": row["role"],
-                "path": relative,
-                "before_sha256": None,
-                "after_sha256": after,
-            }
-            target = _walk(base, str(relative))
-            if _file_identity(target) is None or _file_sha(target) != after:
-                _fail(
-                    PDF_APPLY_CHANGED,
-                    "created bind file is not at the planned digest",
-                    {"path": relative, "reason": "parallel_edit"},
-                )
-            key = (entry["role"], entry["path"], entry["after_sha256"])
-            if key in seen:
-                continue
-            journal["entries"].append(entry)
-            seen.add(key)
-    journal["derived_write_set"] = [dict(row) for row in journal["entries"]]
+        if entry["role"] == "page":
+            page_rows = [row for row in unit["entries"] if row["role"] == "page"]
+            if (
+                len(page_rows) != 1
+                or page_rows[0]["path"] != item["page_path"]
+                or page_rows[0].get("after_sha256") != item["after_page_sha256"]
+            ):
+                _fail(PDF_BIND_INVALID, "created page is not in the derived bind write set", {"reason": "write_set"})
+        target = _walk(base, str(entry["path"]))
+        if _file_identity(target) is None or _file_sha(target) != entry["after_sha256"]:
+            _fail(
+                PDF_APPLY_CHANGED,
+                "created bind file is not at the planned digest",
+                {"path": entry["path"], "reason": "parallel_edit"},
+            )
+    journal["entries"] = [dict(row) for row in expected]
+    journal["derived_write_set"] = [dict(row) for row in expected]
+
+
+def _assert_commit_boundary(snapshot: Mapping[str, Any], journal_path: Path, payload: bytes) -> None:
+    """Read-only preconditions must still hold after the journal success record is installed."""
+
+    _assert_readonly_snapshot(snapshot)
+    if not _regular_file(journal_path) or journal_path.read_bytes() != payload:
+        _fail(
+            PDF_APPLY_CHANGED,
+            "bind journal commit did not keep the approved success record",
+            {"reason": "parallel_edit"},
+        )
+
+
+def _revert_journal_install(path: Path, prior: bytes | None, atomic_write) -> None:
+    if prior is None:
+        if path.exists() or path.is_symlink():
+            path.unlink()
+        return
+    if _regular_file(path) and path.read_bytes() == prior:
+        return
+    atomic_write(path, prior)
 
 
 def _journal_entry_ok(entry: object) -> dict[str, Any]:
@@ -1496,6 +1576,160 @@ def _restore_rollback_files(removed: list[dict[str, Any]], atomic_write) -> None
             )
 
 
+def _approved_plan_from_journal(journal: Mapping[str, Any], journal_path: Path) -> dict[str, Any]:
+    """Recompute the approved plan digest and refuse a journal that is not that plan."""
+
+    approved = journal.get("approved_plan")
+    plan_sha = journal.get("plan_sha256")
+    request_sha = journal.get("request_sha256")
+    if type(approved) is not dict or type(plan_sha) is not str or type(request_sha) is not str:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind journal is not tied to its approved plan",
+            {"reason": "write_set"},
+        )
+    try:
+        sealed = validate_document(_json_copy(approved), PLAN_SCHEMA)
+    except (ContractError, CanonicalJsonError, TypeError, ValueError, UnicodeError):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind journal is not tied to its approved plan",
+            {"reason": "write_set"},
+        )
+    recomputed = _plan_content_sha(sealed)
+    if (
+        recomputed != plan_sha
+        or sealed.get("plan_sha256") != recomputed
+        or sealed.get("request_sha256") != request_sha
+        or journal.get("roots_sha256") != sealed.get("roots_sha256")
+        or journal.get("root_id") != sealed.get("root_id")
+        or journal_path.name != f"journal-{recomputed[:16]}.json"
+    ):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind journal is not tied to its approved plan",
+            {"reason": "write_set"},
+        )
+    return sealed
+
+
+def _assert_installed_bindings_match_plan(base: Path, plan: Mapping[str, Any]) -> None:
+    for item in plan["items"]:
+        if item["before_binding_sha256"] is not None:
+            continue
+        relative = str(item["binding_path"])
+        target = _walk(base, relative)
+        if not _regular_file(target):
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target is not the approved plan binding",
+                {"path": relative, "reason": "write_set"},
+            )
+        raw = target.read_bytes()
+        if raw != binding_bytes(item["binding"]) or sha256_bytes(raw) != item["after_binding_sha256"]:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target is not the approved plan binding",
+                {"path": relative, "reason": "write_set"},
+            )
+
+
+def _read_fd_bytes(fd: int) -> bytes:
+    os.lseek(fd, 0, os.SEEK_SET)
+    chunks: list[bytes] = []
+    while True:
+        block = os.read(fd, 1024 * 1024)
+        if not block:
+            break
+        chunks.append(block)
+    return b"".join(chunks)
+
+
+def _fd_identity(fd: int) -> tuple[int, int] | None:
+    try:
+        info = os.fstat(fd)
+    except OSError:
+        return None
+    if not stat.S_ISREG(info.st_mode):
+        return None
+    return (info.st_dev, info.st_ino)
+
+
+def _restore_mutated_rollback_target(target: Path, data: bytes, atomic_write) -> None:
+    if target.exists() or target.is_symlink():
+        if _regular_file(target) and target.read_bytes() == data:
+            return
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind target changed during removal",
+            {"path": target.as_posix(), "reason": "parallel_edit"},
+        )
+    atomic_write(target, data)
+    if not _regular_file(target) or target.read_bytes() != data:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not preserve bytes edited during removal",
+            {"path": target.as_posix(), "reason": "partial"},
+        )
+
+
+def _unlink_verified_target(
+    target: Path,
+    *,
+    identity: tuple[int, int],
+    expected_sha: str,
+    relative: str,
+    atomic_write,
+) -> None:
+    """Unlink only while the verified inode still has the approved bytes.
+
+    A caller can edit the path inside `Path.unlink` before the real removal.
+    Holding the inode across that call keeps the edited bytes when the digest changes.
+    """
+
+    flags = os.O_RDONLY
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        fd = os.open(target, flags)
+    except OSError:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind target identity changed during rollback",
+            {"path": relative, "reason": "parallel_edit"},
+        )
+    try:
+        current = _fd_identity(fd)
+        payload = _read_fd_bytes(fd)
+        if current != identity or sha256_bytes(payload) != expected_sha or _fd_identity(fd) != identity:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target no longer matches the write-after digest",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+        try:
+            target.unlink()
+        except OSError as exc:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind rollback could not remove a created file",
+                {"path": relative, "reason": "partial", "error": type(exc).__name__},
+            )
+        after_id = _fd_identity(fd)
+        after = _read_fd_bytes(fd)
+        if after_id != identity or after != payload or sha256_bytes(after) != expected_sha:
+            _restore_mutated_rollback_target(target, after, atomic_write)
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind target changed during removal",
+                {"path": relative, "reason": "parallel_edit"},
+            )
+    finally:
+        os.close(fd)
+
+
 def rollback_bind_journal(*, journal_path: Path, roots_path: Path, confirm: bool) -> dict[str, Any]:
     from video_paper_wiki.pdf_locations import parse_roots
     from video_paper_wiki.pdf_migration import _acquire_lock, _atomic_write
@@ -1506,35 +1740,35 @@ def rollback_bind_journal(*, journal_path: Path, roots_path: Path, confirm: bool
     journal = parse_strict_json(path.read_bytes(), invalid_code=PDF_BIND_INVALID) if _regular_file(path) else None
     if type(journal) is not dict or journal.get("schema") != JOURNAL_SCHEMA:
         _fail(PDF_BIND_INVALID, "bind journal is not a bind-rollback journal")
-    plan_sha = journal.get("plan_sha256")
-    request_sha = journal.get("request_sha256")
-    if (
-        type(plan_sha) is not str
-        or len(plan_sha) != 64
-        or type(request_sha) is not str
-        or len(request_sha) != 64
-        or path.name != f"journal-{plan_sha[:16]}.json"
-    ):
-        _fail(
-            PDF_ROLLBACK_CONFLICT,
-            "bind journal is not tied to its plan",
-            {"reason": "write_set"},
-        )
+    sealed = _approved_plan_from_journal(journal, path)
     roots = parse_roots(_load_json(Path(roots_path)))
-    if roots_digest(roots) != journal.get("roots_sha256"):
+    if roots_digest(roots) != sealed["roots_sha256"]:
         _fail(PDF_ROLLBACK_CONFLICT, "roots.json no longer matches the bind journal", {"reason": "stale_root"})
-    notes = _notes_target(roots, str(journal.get("root_id")))
+    notes = _notes_target(roots, str(sealed["root_id"]))
     if root_directory_identity(notes["path"]) != journal.get("root_identity"):
         _fail(PDF_ROLLBACK_CONFLICT, "target root identity changed since bind apply", {"reason": "stale_root"})
     entries = journal.get("entries")
     if type(entries) is not list or journal.get("derived_write_set") != entries:
         _fail(PDF_ROLLBACK_CONFLICT, "bind journal is not tied to its derived write set", {"reason": "write_set"})
+    normalized = [_journal_entry_ok(entry) for entry in entries]
+    if normalized != _creation_entries(sealed):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind journal write set is not the approved plan creation set",
+            {"reason": "write_set"},
+        )
     base = Path(notes["path"])
     lock = _acquire_lock(base)
     try:
         if root_directory_identity(notes["path"]) != journal.get("root_identity"):
             _fail(PDF_ROLLBACK_CONFLICT, "target root identity changed since bind apply", {"reason": "stale_root"})
-        normalized = [_journal_entry_ok(entry) for entry in entries]
+        if [_journal_entry_ok(entry) for entry in entries] != _creation_entries(sealed):
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind journal write set is not the approved plan creation set",
+                {"reason": "write_set"},
+            )
+        _assert_installed_bindings_match_plan(base, sealed)
         authorized = _entries_match_bindings(base, normalized)
         papers = list(dict.fromkeys(entry["paper_id"] for entry in authorized))
         for paper_id in papers:
@@ -1548,28 +1782,13 @@ def rollback_bind_journal(*, journal_path: Path, roots_path: Path, confirm: bool
                 for paper_id in papers:
                     _assert_migration_absent(base, paper_id)
                 target = _walk(base, str(item["relative"]))
-                identity = _file_identity(target)
-                if identity != item["identity"]:
-                    _fail(
-                        PDF_ROLLBACK_CONFLICT,
-                        "bind target identity changed during rollback",
-                        {"path": item["relative"], "reason": "parallel_edit"},
-                    )
-                data = target.read_bytes()
-                if sha256_bytes(data) != item["sha256"] or _file_identity(target) != identity:
-                    _fail(
-                        PDF_ROLLBACK_CONFLICT,
-                        "bind target no longer matches the write-after digest",
-                        {"path": item["relative"], "reason": "parallel_edit"},
-                    )
-                try:
-                    target.unlink()
-                except OSError as exc:
-                    _fail(
-                        PDF_ROLLBACK_CONFLICT,
-                        "bind rollback could not remove a created file",
-                        {"path": item["relative"], "reason": "partial", "error": type(exc).__name__},
-                    )
+                _unlink_verified_target(
+                    target,
+                    identity=item["identity"],
+                    expected_sha=str(item["sha256"]),
+                    relative=str(item["relative"]),
+                    atomic_write=_atomic_write,
+                )
                 removed.append(item)
         except Exception as original:
             try:

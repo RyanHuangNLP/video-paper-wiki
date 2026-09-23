@@ -801,3 +801,166 @@ def test_pdf_excerpt_is_required_and_blocked_paper_is_not_hardcoded(tmp_path, mo
     }
     with pytest.raises(ContractError):
         _prepare(world, _write_request(tmp_path, [seeded], "seed-method.json"), "bind-seed-method")
+
+
+def test_rollback_rejects_entries_grafted_from_another_plan(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    first_pdf = _plant(world["cache"], "first.pdf", _pdf("graft-a", "2204.03458"))
+    second_pdf = _plant(world["cache"], "second.pdf", _pdf("graft-b", "2209.14792"))
+    first = _prepare(world, _write_request(tmp_path, [_request_item(first_pdf, PAPER, session="graft-a")], "a.json"), "graft-a")
+    second = _prepare(
+        world, _write_request(tmp_path, [_request_item(second_pdf, OTHER, session="graft-b")], "b.json"), "graft-b"
+    )
+    applied_a = _apply(world, first, "graft-a", tmp_path)
+    applied_b = _apply(world, second, "graft-b", tmp_path)
+    journal_path = Path(applied_a["journal_path"])
+    journal = json.loads(journal_path.read_bytes())
+    other = json.loads(Path(applied_b["journal_path"]).read_bytes())
+    assert journal["plan_sha256"] == first["plan_sha256"]
+    assert journal["request_sha256"] == first["request_sha256"]
+    journal["entries"] += other["entries"]
+    journal["derived_write_set"] = journal["entries"]
+    journal_path.write_bytes(canonicalize(journal))
+    second_binding = world["notes"] / second["items"][0]["binding_path"]
+    second_page = world["notes"] / second["items"][0]["page_path"]
+    second_binding_bytes = second_binding.read_bytes()
+    second_page_bytes = second_page.read_bytes()
+    with pytest.raises(PdfBindingError) as grafted:
+        rollback_bind_journal(journal_path=journal_path, roots_path=world["roots"], confirm=True)
+    assert grafted.value.code == "PDF_ROLLBACK_CONFLICT"
+    assert grafted.value.details["reason"] == "write_set"
+    assert second_binding.read_bytes() == second_binding_bytes
+    assert second_page.read_bytes() == second_page_bytes
+    assert (world["notes"] / first["items"][0]["binding_path"]).is_file()
+    assert (world["notes"] / first["items"][0]["page_path"]).is_file()
+
+
+def test_rollback_keeps_bytes_edited_on_the_current_unlink_target(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("current-unlink", "2204.03458"))
+    plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, PAPER, session="current-unlink")]), "current-unlink")
+    applied = _apply(world, plan, "current-unlink", tmp_path)
+    page = world["notes"] / plan["items"][0]["page_path"]
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    page_bytes = page.read_bytes()
+    original_unlink = Path.unlink
+
+    def unlink_edits_current_binding(path, *args, **kwargs):
+        if path == binding:
+            path.write_bytes(path.read_bytes() + b"\nCONCURRENT USER EDIT\n")
+        return original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", unlink_edits_current_binding)
+    with pytest.raises(PdfBindingError) as raced:
+        rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert raced.value.code == "PDF_ROLLBACK_CONFLICT"
+    assert raced.value.details["reason"] == "parallel_edit"
+    assert b"\nCONCURRENT USER EDIT\n" in binding.read_bytes()
+    assert page.read_bytes() == page_bytes
+
+
+def test_existing_note_trailing_blank_line_stays_included_after_migration(tmp_path, monkeypatch) -> None:
+    world = _world(tmp_path, monkeypatch)
+    note = world["notes"] / "papers" / "arxiv-2204.03458.md"
+    note.parent.mkdir()
+    original = b"---\npaper_id: arxiv-2204.03458\n---\nUSER BODY\n\n"
+    note.write_bytes(original)
+    pdf = _plant(world["cache"], "source.pdf", _pdf("blank-line", "2204.03458"))
+    plan = _prepare(
+        world,
+        _write_request(
+            tmp_path,
+            [_request_item(pdf, PAPER, session="blank-line", basis="existing-note", note_sha=sha256_bytes(original))],
+        ),
+        "blank-line",
+    )
+    sealed = plan["items"][0]["binding"]["identity_basis"]["scanned_text"]
+    assert sealed.encode("utf-8") == original
+    applied = _apply(world, plan, "blank-line", tmp_path)
+    before = build_inventory(roots_path=world["roots"], batch_id="blank-before")
+    row = next(item for item in before["items"] if item["paper_id"] == PAPER and item["status"] == "included")
+    manifest = _reused_manifest(row)
+    manifest["inventory_sha256"] = before["inventory_sha256"]
+    manifest_path = tmp_path / "manifest-blank.json"
+    manifest_path.write_bytes(canonicalize(manifest))
+    migrated = prepare_migration(
+        inventory_path=tmp_path / ".work" / "blank-before" / "pdf-migration" / "inventory.json",
+        manifest_path=manifest_path,
+        roots_path=world["roots"],
+        batch_id="blank-migrate",
+    )
+    from video_paper_wiki.pdf_locations import parse_roots
+    from video_paper_wiki.pdf_migration import apply_plan_to_root, rollback_journal
+
+    migrate_result = apply_plan_to_root(
+        plan=migrated,
+        roots=parse_roots(json.loads(world["roots"].read_text(encoding="utf-8"))),
+        root_id=NOTES_ID,
+        approved_plan_sha256=migrated["plan_sha256"],
+        confirm=True,
+    )
+    report = build_report(
+        plan_path=tmp_path / ".work" / "blank-migrate" / "pdf-migration" / "plan.json",
+        roots_path=world["roots"],
+    )
+    assert [item["state"] for item in report["items"]] == ["linked"]
+    after = build_inventory(roots_path=world["roots"], batch_id="blank-after")
+    rows = [item for item in after["items"] if item["paper_id"] == PAPER]
+    assert rows[0]["status"] == "included"
+    assert rows[0]["blockers"] == []
+    migrated_bytes = note.read_bytes()
+    note.write_bytes(migrated_bytes.replace(b"USER BODY", b"EDITED BODY"))
+    edited = build_inventory(roots_path=world["roots"], batch_id="blank-edited")
+    edited_rows = [item for item in edited["items"] if item["paper_id"] == PAPER]
+    assert edited_rows[0]["status"] == "blocked"
+    assert edited_rows[0]["blockers"][0]["code"] == "PDF_APPLY_CHANGED"
+    note.write_bytes(migrated_bytes)
+    rollback_journal(journal_path=Path(migrate_result["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert note.read_bytes() == original
+    rolled = rollback_bind_journal(journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True)
+    assert note.read_bytes() == original
+    assert plan["items"][0]["page_path"] not in rolled["restored"]
+
+
+def test_apply_rejects_preserve_edit_during_journal_install(tmp_path, monkeypatch) -> None:
+    from video_paper_wiki import pdf_migration as migration
+
+    world = _world(tmp_path, monkeypatch)
+    note = world["notes"] / "papers" / "arxiv-2204.03458.md"
+    note.parent.mkdir()
+    note.write_bytes(b"---\npaper_id: arxiv-2204.03458\n---\nUSER BODY\n")
+    pdf = _plant(world["cache"], "source.pdf", _pdf("journal-window", "2204.03458"))
+    plan = _prepare(
+        world,
+        _write_request(
+            tmp_path,
+            [
+                _request_item(
+                    pdf,
+                    PAPER,
+                    session="journal-window",
+                    basis="existing-note",
+                    note_sha=sha256_bytes(note.read_bytes()),
+                )
+            ],
+        ),
+        "journal-window",
+    )
+    binding = world["notes"] / plan["items"][0]["binding_path"]
+    journal_path = world["notes"] / ".work" / "pdf-bind" / f"journal-{plan['plan_sha256'][:16]}.json"
+    original = migration._atomic_write
+
+    def write(path, data):
+        if path.name.startswith("journal-") and path.parent.name == "pdf-bind":
+            note.write_bytes(note.read_bytes() + b"CONCURRENT USER EDIT\n")
+        return original(path, data)
+
+    monkeypatch.setattr(migration, "_atomic_write", write)
+    with pytest.raises(PdfBindingError) as raced:
+        _apply(world, plan, "journal-window", tmp_path)
+    assert raced.value.code == "PDF_APPLY_CHANGED"
+    assert raced.value.details["reason"] == "parallel_edit"
+    assert not binding.exists()
+    assert not journal_path.exists()
+    assert b"CONCURRENT USER EDIT" in note.read_bytes()
+    assert sha256_bytes(note.read_bytes()) != plan["items"][0]["after_page_sha256"]
