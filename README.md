@@ -142,7 +142,26 @@ vpwiki-admin backup restore --archive backup.zip --source-root /path/to/vault \
   --upstream-root vendor/claude-obsidian --config retrieval-config.json
 vpwiki backup verify --source-root /path/to/vault --restore-root /path/to/private-restore \
   --manifest backup-manifest.json --upstream-root vendor/claude-obsidian --config retrieval-config.json
+
+# research-r1 只备份白名单内的研究产物，默认 profile 仍是上面的 vault-v1。
+# manifest 信封的 .data 才是交给 operator 的文档；v2 恢复必须单独保存 manifest 自哈希。
+# 详见 docs/p3-backup-restore-r1.md。这不是全项目保险。
+vpwiki backup manifest --profile research-r1 --vault-root /path/to/vault --checkout-root /path/to/checkout
+vpwiki-admin backup create --profile research-r1 --vault-root /path/to/vault --checkout-root /path/to/checkout \
+  --manifest backup-manifest.json --destination backup.zip
+vpwiki-admin backup restore --profile research-r1 --archive backup.zip --manifest backup-manifest.json \
+  --expected-manifest-sha256 "$H" --restore-root /path/to/private-restore \
+  --upstream-root vendor/claude-obsidian --config retrieval-config.json
+# 最终 backup verify 的当前目录必须是已检出对应代码的恢复根。
+vpwiki backup verify --profile research-r1 --manifest backup-manifest.json --expected-manifest-sha256 "$H" \
+  --restore-root /path/to/private-restore --upstream-root vendor/claude-obsidian --config retrieval-config.json
 ```
+
+两个来源根共用同一份剩余字节和条目预算。内层目录在收集、排序之前就会碰到限额。读下一个文件之前也会看剩余条目：父层还没处理的名字，以及子树已经占用的条目，都算进这笔账；额度不够就不再把文件读完。Vault 最终完整集合枚举先按条目限额停，不会把一个目录里的名字一次性收齐。最终 checkout 内容复核结束之后还会再核对一次 Vault，复核期间 Vault 变了就不能返回旧 manifest。
+
+`backup verify` 把 Vault 路径以字符串传给 flow。已经安装、但 checkout 里仍留着 staging 的文章不会把 staging 再接成第二条链：staging 记录按自身链校验，并与 Vault 里同一修订的字节对照，staging 文件保持不动。
+
+最终 `backup verify` 要在已检出对应代码的恢复根里执行。当前目录不是这份 checkout 时，研究读取会拒绝，消息是 `research verify requires the restored checkout`。含有 `assessment-heads` 和 source-version association 的研究树，恢复后的 catalog 会返回 `SOURCE_PROFILE_REQUIRED`。已安装的 `wiki/reading/**` 生成页目前也过不了 strict lint。工作目录不对，以及 catalog 拒绝或 strict lint 失败，都会让 `valid` 保持不是 `true`。字节恢复和上述研究读取仍然可以核对。本轮不改 catalog 或阅读页生成。详见 [P3 备份与恢复](docs/p3-backup-restore-r1.md)。
 
 `vpwiki` 只在 `.work/**` 生成 staging，不 apply、不 recover、不构建索引。写操作直接使用固定上游公开 CLI；可选 `operator/` 包只是透明转发器，对每次副作用命令要求交互式逐次确认且没有 `--yes`。
 

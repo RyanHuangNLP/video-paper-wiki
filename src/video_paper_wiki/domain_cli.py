@@ -86,11 +86,27 @@ def retrieval_evaluate(args):
     except Exception as e:return _error('retrieval.evaluate',e)
 def backup_build(args):
     try:
+        profile=getattr(args,'profile','vault-v1')
+        head=_json(args.expected_operation_head) if args.expected_operation_head else None
+        claimed=_json(args.expected_claimed_raw) if args.expected_claimed_raw else None
+        if profile=='research-r1':
+            if not getattr(args,'checkout_root',None):return emit_error('backup.manifest','USAGE','the following arguments are required: --checkout-root')
+            from video_paper_wiki.backup_manifest import build_research_backup_manifest
+            return emit_success('backup.manifest',build_research_backup_manifest(args.vault_root,args.checkout_root,operation_head=head,expected_claimed_raw=claimed))
+        if getattr(args,'checkout_root',None):return emit_error('backup.manifest','USAGE','vault-v1 manifest does not accept --checkout-root')
         from video_paper_wiki.backup_manifest import build_backup_manifest
-        return emit_success('backup.manifest',build_backup_manifest(args.vault_root,operation_head=_json(args.expected_operation_head) if args.expected_operation_head else None,expected_claimed_raw=_json(args.expected_claimed_raw) if args.expected_claimed_raw else None))
+        return emit_success('backup.manifest',build_backup_manifest(args.vault_root,operation_head=head,expected_claimed_raw=claimed))
     except Exception as e:return _error('backup.manifest',e)
 def backup_verify(args):
     try:
+        profile=getattr(args,'profile','vault-v1')
+        if profile=='research-r1':
+            if getattr(args,'source_root',None):return emit_error('backup.verify','USAGE','research-r1 verify does not accept --source-root')
+            if not getattr(args,'expected_manifest_sha256',None):return emit_error('backup.verify','USAGE','the following arguments are required: --expected-manifest-sha256')
+            from video_paper_wiki.restore_verification import verify_restored_research
+            return emit_success('backup.verify',verify_restored_research(restore_root=args.restore_root,manifest=_json(args.manifest),expected_manifest_sha256=args.expected_manifest_sha256,upstream_root=args.upstream_root,config=args.config,research_reads=True))
+        if not getattr(args,'source_root',None):return emit_error('backup.verify','USAGE','the following arguments are required: --source-root')
+        if getattr(args,'expected_manifest_sha256',None):return emit_error('backup.verify','USAGE','vault-v1 verify does not accept --expected-manifest-sha256')
         from video_paper_wiki.restore_verification import verify_restored_vault
         return emit_success('backup.verify',verify_restored_vault(restore_root=args.restore_root,source_root=args.source_root,manifest=_json(args.manifest),upstream_root=args.upstream_root,config=args.config))
     except Exception as e:return _error('backup.verify',e)

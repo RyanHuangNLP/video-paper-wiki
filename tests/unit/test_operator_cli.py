@@ -230,3 +230,296 @@ def test_gate_success_transition_allows_exact_writes_but_rejects_unrelated_inode
         with pytest.raises(Exception) as caught:module._verify_gate_vault_transition(snap,{'wiki/meta/registries/gate-heads.json'})
         assert caught.value.code=='GATE_STATE_INVALID'
     finally:snap.close()
+
+
+def test_research_backup_usage_errors_stay_stable(capsys):
+    module=_module()
+    assert module.main(['backup','create','--profile','research-r1','--vault-root','/v','--manifest','/m','--destination','/a'])==2
+    assert json.loads(capsys.readouterr().out)['error']['code']=='USAGE_INVALID'
+    assert module.main(['backup','create','--checkout-root','/c','--vault-root','/v','--manifest','/m','--destination','/a'])==2
+    assert json.loads(capsys.readouterr().out)['error']['code']=='USAGE_INVALID'
+    assert module.main(['backup','restore','--profile','research-r1','--archive','/a','--restore-root','/r','--manifest','/m','--upstream-root','/u','--config','/c'])==2
+    assert json.loads(capsys.readouterr().out)['error']['code']=='USAGE_INVALID'
+    assert module.main(['backup','restore','--profile','research-r1','--source-root','/v','--expected-manifest-sha256','ab'*32,'--archive','/a','--restore-root','/r','--manifest','/m','--upstream-root','/u','--config','/c'])==2
+    assert json.loads(capsys.readouterr().out)['error']['code']=='USAGE_INVALID'
+    assert module.main(['backup','restore','--source-root','/v','--expected-manifest-sha256','ab'*32,'--archive','/a','--restore-root','/r','--manifest','/m','--upstream-root','/u','--config','/c'])==2
+    assert json.loads(capsys.readouterr().out)['error']['code']=='USAGE_INVALID'
+
+
+def _research_operator_paths(tmp_path):
+    from tests.unit.test_research_backup import _checkout, _vault
+    from video_paper_wiki.backup_manifest import build_research_backup_manifest
+    from video_paper_wiki.jcs import canonicalize
+    vault=tmp_path/'vault'; checkout=tmp_path/'checkout'
+    _vault(vault); _checkout(checkout)
+    manifest=build_research_backup_manifest(vault, checkout)
+    path=tmp_path/'manifest.json'
+    path.write_bytes(canonicalize(manifest)); path.chmod(0o600)
+    dest=tmp_path/'out'/'backup.zip'; dest.parent.mkdir()
+    return vault, checkout, path, dest
+
+
+def test_research_create_non_tty_writes_nothing(tmp_path):
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+    root = Path(__file__).resolve().parents[2]
+    code = "import sys\nsys.path.insert(0, 'operator/src')\nfrom video_paper_wiki_operator.cli import main\nraise SystemExit(main(sys.argv[1:]))\n"
+    argv = [sys.executable, '-c', code, 'backup', 'create', '--profile', 'research-r1', '--vault-root', str(vault), '--checkout-root', str(checkout), '--manifest', str(manifest), '--destination', str(dest)]
+    result = subprocess.run(argv, cwd=root, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
+    assert result.returncode == 2, result.stderr
+    assert json.loads(result.stdout)['error']['code'] == 'HUMAN_APPROVAL_REQUIRED'
+    assert not dest.exists()
+
+
+def test_research_create_accepts_real_pty_confirmation(tmp_path):
+    import pty
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+    root = Path(__file__).resolve().parents[2]
+    code = "import sys\nsys.path.insert(0, 'operator/src')\nfrom video_paper_wiki_operator.cli import main\nraise SystemExit(main(sys.argv[1:]))\n"
+    argv = [sys.executable, '-c', code, 'backup', 'create', '--profile', 'research-r1', '--vault-root', str(vault), '--checkout-root', str(checkout), '--manifest', str(manifest), '--destination', str(dest)]
+    master, slave = pty.openpty()
+    proc = subprocess.Popen(argv, cwd=root, stdin=slave, stdout=subprocess.PIPE, stderr=slave)
+    os.close(slave)
+    os.write(master, b'backup create\n')
+    stdout, _ = proc.communicate(timeout=60)
+    os.close(master)
+    assert proc.returncode == 0, stdout
+    assert json.loads(stdout)['research_validation'] == 'pending'
+    assert dest.is_file()
+
+
+def test_research_create_rejects_manifest_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+    def replace(_words):
+        replacement = manifest.with_suffix('.new')
+        replacement.write_bytes(manifest.read_bytes())
+        os.replace(replacement, manifest)
+        return True
+    monkeypatch.setattr(module, '_confirm', replace)
+    assert module.main(['backup', 'create', '--profile', 'research-r1', '--vault-root', str(vault), '--checkout-root', str(checkout), '--manifest', str(manifest), '--destination', str(dest)]) == 2
+    assert json.loads(capsys.readouterr().out)['error']['code'] == 'BACKUP_RACE'
+    assert not dest.exists()
+
+
+def _research_restore_ready(tmp_path):
+    from tests.unit.test_research_backup import _checkout, _vault
+    from video_paper_wiki.backup_archive import create_backup_archive
+    from video_paper_wiki.backup_manifest import build_research_backup_manifest
+    from video_paper_wiki.jcs import canonicalize
+
+    vault = tmp_path / "vault"
+    checkout = tmp_path / "checkout"
+    _vault(vault)
+    _checkout(checkout)
+    manifest = build_research_backup_manifest(vault, checkout)
+    path = tmp_path / "manifest.json"
+    path.write_bytes(canonicalize(manifest))
+    path.chmod(0o600)
+    archive = tmp_path / "backup.zip"
+    create_backup_archive(
+        vault_root=vault, checkout_root=checkout, manifest=manifest, destination=archive, profile="research-r1"
+    )
+    restore = tmp_path / "restore"
+    restore.mkdir(mode=0o700)
+    root = Path(__file__).resolve().parents[2]
+    return {
+        "manifest": path,
+        "archive": archive,
+        "restore": restore,
+        "digest": manifest["manifest_sha256"],
+        "upstream": root / "vendor" / "claude-obsidian",
+        "config": root / "tests/fixtures/contracts/valid/video-paper-wiki.retrieval-policy.v1.json",
+    }
+
+
+def _restore_argv(ready):
+    return [
+        "backup",
+        "restore",
+        "--profile",
+        "research-r1",
+        "--archive",
+        str(ready["archive"]),
+        "--manifest",
+        str(ready["manifest"]),
+        "--expected-manifest-sha256",
+        ready["digest"],
+        "--restore-root",
+        str(ready["restore"]),
+        "--upstream-root",
+        str(ready["upstream"]),
+        "--config",
+        str(ready["config"]),
+    ]
+
+
+def test_research_restore_non_tty_leaves_the_root_empty(tmp_path):
+    ready = _research_restore_ready(tmp_path)
+    root = Path(__file__).resolve().parents[2]
+    code = "import sys\nsys.path.insert(0, 'operator/src')\nfrom video_paper_wiki_operator.cli import main\nraise SystemExit(main(sys.argv[1:]))\n"
+    argv = [sys.executable, "-c", code, *_restore_argv(ready)]
+    result = subprocess.run(argv, cwd=root, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, timeout=60)
+    assert result.returncode == 2, result.stderr
+    assert json.loads(result.stdout)["error"]["code"] == "HUMAN_APPROVAL_REQUIRED"
+    assert list(ready["restore"].iterdir()) == []
+
+
+def test_research_restore_rejects_archive_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    ready = _research_restore_ready(tmp_path)
+
+    def replace(_words):
+        archive = ready["archive"]
+        replacement = archive.with_suffix(".new")
+        replacement.write_bytes(archive.read_bytes())
+        os.replace(replacement, archive)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(_restore_argv(ready)) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "RESTORE_VERIFICATION_FAILED"
+    assert list(ready["restore"].iterdir()) == []
+
+
+def test_research_restore_rejects_manifest_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    ready = _research_restore_ready(tmp_path)
+
+    def replace(_words):
+        manifest = ready["manifest"]
+        replacement = manifest.with_suffix(".new")
+        replacement.write_bytes(manifest.read_bytes())
+        os.replace(replacement, manifest)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(_restore_argv(ready)) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "RESTORE_VERIFICATION_FAILED"
+    assert list(ready["restore"].iterdir()) == []
+
+
+def test_research_create_rejects_checkout_changed_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+
+    def replace(_words):
+        draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+        draft.write_bytes(b'{"draft":2}')
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(["backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest), "--destination", str(dest)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] in {"BACKUP_RACE", "BACKUP_COVERAGE_INVALID"}
+    assert not dest.exists()
+
+
+def test_research_create_rejects_destination_parent_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    vault, checkout, manifest, dest = _research_operator_paths(tmp_path)
+
+    def replace(_words):
+        parent = dest.parent
+        moved = parent.with_name(parent.name + "-old")
+        parent.rename(moved)
+        parent.mkdir(mode=0o700)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(["backup", "create", "--profile", "research-r1", "--vault-root", str(vault), "--checkout-root", str(checkout), "--manifest", str(manifest), "--destination", str(dest)]) == 2
+    assert json.loads(capsys.readouterr().out)["error"]["code"] == "BACKUP_RACE"
+    assert not dest.exists()
+
+
+def test_research_create_rejects_source_root_races_during_confirmation(monkeypatch, tmp_path, capsys):
+    from tests.unit.test_research_backup import _checkout, _vault
+    from video_paper_wiki.backup_manifest import build_research_backup_manifest
+    from video_paper_wiki.jcs import canonicalize
+
+    def replace_tree(path: Path) -> None:
+        moved = path.with_name(path.name + "-replaced")
+        path.rename(moved)
+        path.mkdir(mode=0o700)
+
+    for kind in ("vault", "checkout", "vault-parent", "checkout-parent", "appear", "delete"):
+        module = _module()
+        home = tmp_path / kind
+        vault_home = home / "vhome"
+        checkout_home = home / "chome"
+        vault_home.mkdir(parents=True)
+        checkout_home.mkdir()
+        vault = vault_home / "vault"
+        checkout = checkout_home / "checkout"
+        _vault(vault)
+        _checkout(checkout)
+        manifest = build_research_backup_manifest(vault, checkout)
+        manifest_path = home / "manifest.json"
+        manifest_path.write_bytes(canonicalize(manifest))
+        manifest_path.chmod(0o600)
+        dest = home / "out" / "backup.zip"
+        dest.parent.mkdir()
+
+        def mutate(_words, _kind=kind):
+            if _kind == "vault":
+                replace_tree(vault)
+            elif _kind == "checkout":
+                replace_tree(checkout)
+            elif _kind == "vault-parent":
+                replace_tree(vault_home)
+            elif _kind == "checkout-parent":
+                replace_tree(checkout_home)
+            elif _kind == "appear":
+                plan = checkout / ".work" / "b1" / "plan"
+                plan.mkdir(mode=0o700)
+                target = plan / "ingest-plan.v1.json"
+                target.write_bytes(b"{}")
+                target.chmod(0o600)
+            else:
+                draft = checkout / ".work" / "b1" / "draft" / "paper-analysis-draft.v1.json"
+                draft.unlink()
+            return True
+
+        monkeypatch.setattr(module, "_confirm", mutate)
+        code = module.main(
+            [
+                "backup",
+                "create",
+                "--profile",
+                "research-r1",
+                "--vault-root",
+                str(vault),
+                "--checkout-root",
+                str(checkout),
+                "--manifest",
+                str(manifest_path),
+                "--destination",
+                str(dest),
+            ]
+        )
+        payload = json.loads(capsys.readouterr().out)
+        assert code == 2, kind
+        assert payload["error"]["code"] in {"BACKUP_RACE", "BACKUP_COVERAGE_INVALID", "BACKUP_MANIFEST_INVALID", "AUDIT_RACE"}, kind
+        assert not dest.exists()
+
+
+def test_research_restore_rejects_root_parent_replaced_during_confirmation(monkeypatch, tmp_path, capsys):
+    module = _module()
+    ready = _research_restore_ready(tmp_path)
+    nested = tmp_path / "nest"
+    nested.mkdir(mode=0o700)
+    target = nested / "restore"
+    ready["restore"].rename(target)
+    ready["restore"] = target
+
+    def replace(_words):
+        parent = ready["restore"].parent
+        moved = tmp_path / "nest-old"
+        parent.rename(moved)
+        parent.mkdir(mode=0o700)
+        (parent / "restore").mkdir(mode=0o700)
+        return True
+
+    monkeypatch.setattr(module, "_confirm", replace)
+    assert module.main(_restore_argv(ready)) == 2
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["error"]["code"] in {"RESTORE_ROOT_UNSAFE", "RESTORE_VERIFICATION_FAILED"}
+    assert list(ready["restore"].iterdir()) == []

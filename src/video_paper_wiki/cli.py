@@ -1051,8 +1051,8 @@ def build_parser() -> argparse.ArgumentParser:
     for flag in ("gold","inventory","config","mapping","results"):reval.add_argument("--"+flag,required=True)
     reval.set_defaults(handler=domain_commands.retrieval_evaluate)
     backup=_add_parser(sub,"backup");backup_sub=backup.add_subparsers(dest="backup_cmd",required=True)
-    bm=_add_parser(backup_sub,"manifest");bm.add_argument("--vault-root",required=True);bm.add_argument("--expected-operation-head");bm.add_argument("--expected-claimed-raw");bm.set_defaults(handler=domain_commands.backup_build)
-    bv=_add_parser(backup_sub,"verify");bv.add_argument("--restore-root",required=True);bv.add_argument("--source-root",required=True);bv.add_argument("--manifest",required=True);bv.add_argument("--upstream-root",required=True);bv.add_argument("--config",required=True);bv.set_defaults(handler=domain_commands.backup_verify)
+    bm=_add_parser(backup_sub,"manifest");bm.add_argument("--profile",choices=("vault-v1","research-r1"),default="vault-v1");bm.add_argument("--vault-root",required=True);bm.add_argument("--checkout-root");bm.add_argument("--expected-operation-head");bm.add_argument("--expected-claimed-raw");bm.set_defaults(handler=domain_commands.backup_build)
+    bv=_add_parser(backup_sub,"verify");bv.add_argument("--profile",choices=("vault-v1","research-r1"),default="vault-v1");bv.add_argument("--restore-root",required=True);bv.add_argument("--source-root");bv.add_argument("--expected-manifest-sha256");bv.add_argument("--manifest",required=True);bv.add_argument("--upstream-root",required=True);bv.add_argument("--config",required=True);bv.set_defaults(handler=domain_commands.backup_verify)
 
     gate=_add_parser(sub,"gate");gate_sub=gate.add_subparsers(dest="gate_cmd",required=True)
     gp=_add_parser(gate_sub,"prepare");gp.add_argument("--decision",required=True);gp.add_argument("--baseline-manifest",required=True);gp.add_argument("--batch-id",required=True);gp.set_defaults(handler=domain_commands.gate_prepare)

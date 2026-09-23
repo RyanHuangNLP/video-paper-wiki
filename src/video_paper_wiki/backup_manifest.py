@@ -183,3 +183,154 @@ def verify_restored_tree(root:Path|str,manifest:object,*,operation_head:object|N
         if exc.code in {"RESTORE_ROOT_UNSAFE","RESTORE_VERIFICATION_FAILED"}:raise
         raise ContractError("RESTORE_VERIFICATION_FAILED","restore verification failed",{}) from exc
     finally:source_snap.close();target_snap.close()
+
+def _work_path(path:str)->bool:
+    return path==".work" or path.startswith(".work/")
+
+def _vault_path(path:str)->bool:
+    return path==".raw" or path.startswith(".raw/") or path=="wiki" or path.startswith("wiki/")
+
+def _observe_vault_tree(root_fd:int)->set[str]:
+    """Re-read the vault complete set, stopping at the entry limit before a directory is fully collected."""
+    found:set[str]=set()
+    def walk(dir_fd:int,rel:str)->None:
+        found.add(rel)
+        if len(found)>MAX_ENTRIES:_fail("manifest entry limit exceeded")
+        seen=0
+        try:iterator=os.scandir(dir_fd)
+        except OSError:_fail("research source complete set changed")
+        try:
+            for entry in iterator:
+                seen+=1
+                if seen>MAX_ENTRIES or len(found)>=MAX_ENTRIES:_fail("manifest entry limit exceeded")
+                child=rel+"/"+entry.name
+                if child in EXCLUDED or any(child==item or child.startswith(item+"/") for item in EXCLUDED):continue
+                try:st=entry.stat(follow_symlinks=False)
+                except OSError:_fail("research source complete set changed")
+                if stat.S_ISLNK(st.st_mode) or not (stat.S_ISDIR(st.st_mode) or stat.S_ISREG(st.st_mode)):_fail("research source complete set changed")
+                if stat.S_ISDIR(st.st_mode):
+                    try:child_fd=os.open(entry.name,dir_open_flags(),dir_fd=dir_fd)
+                    except OSError:_fail("research source complete set changed")
+                    try:walk(child_fd,child)
+                    finally:close_fd(child_fd)
+                else:found.add(child)
+                if len(found)>MAX_ENTRIES:_fail("manifest entry limit exceeded")
+        finally:iterator.close()
+    for name in ROOTS:
+        try:fd=os.open(name,dir_open_flags(),dir_fd=root_fd)
+        except OSError:_fail("research source complete set changed")
+        try:walk(fd,name)
+        finally:close_fd(fd)
+    return found
+
+def _recheck_vault_snapshot(vault_snap)->None:
+    """Re-read retained Vault bytes and the complete vault path set."""
+    from video_paper_wiki.receipt_audit import _inventory_names
+    from video_paper_wiki.secure_io import SecureIOError
+    if vault_snap is None or getattr(vault_snap,"root_fd",None) is None:_fail("research source changed")
+    vault_snap.verify()
+    for relative,(first,raw) in list(vault_snap.files.items()):
+        try:current=vault_snap.read(relative,max_bytes=max(len(raw),1))
+        except (ContractError,SecureIOError,OSError) as exc:
+            if isinstance(exc,ContractError) and exc.code=="AUDIT_RACE":raise
+            _fail("research source content changed")
+        if current!=raw or stamp(vault_snap.files[relative][0])!=stamp(first):_fail("research source content changed")
+    if vault_snap.inventory is not None and _inventory_names(vault_snap)!=vault_snap.inventory:_fail("research source complete set changed")
+    captured={path for path in vault_snap.directories if _vault_path(path)}|{path for path in vault_snap.files if _vault_path(path)}
+    if _observe_vault_tree(vault_snap.root_fd)!=captured:_fail("research source complete set changed")
+
+def _recheck_research_sources(vault_snap,checkout_snap)->None:
+    """Recheck both retained roots. Vault is checked again after checkout content."""
+    _recheck_vault_snapshot(vault_snap)
+    if checkout_snap is None or getattr(checkout_snap,"root_fd",None) is None:_fail("checkout coverage changed")
+    checkout_snap.verify()
+    _recheck_vault_snapshot(vault_snap)
+
+def _reraise_after_recheck(vault_snap,checkout_snap,original:BaseException)->None:
+    try:_recheck_research_sources(vault_snap,checkout_snap)
+    except ContractError as drift:
+        if drift.code=="AUDIT_RACE":raise
+        raise ContractError("BACKUP_MANIFEST_INVALID","research sources changed",{}) from drift
+    raise original
+
+def build_research_backup_manifest(vault_root:Path|str,checkout_root:Path|str,*,operation_head:object|None=None,expected_claimed_raw:object|None=None,_snapshot=None,_checkout_snapshot=None)->dict[str,Any]:
+    """Bind one receipt-backed Vault manifest to the p3-r1 checkout whitelist."""
+    from video_paper_wiki.backup_coverage import COVERAGE_VERSION,POLICY_V2,RESEARCH_ROOTS,SCHEMA_V2,CoverageSnapshot,assert_distinct_or_same,scan_research_coverage
+    from video_paper_wiki.receipt_audit import _Snapshot
+    vault_abs,checkout_abs=assert_distinct_or_same(vault_root,checkout_root)
+    owns_vault=_snapshot is None;owns_checkout=_checkout_snapshot is None
+    vault_snap=_snapshot if _snapshot is not None else _Snapshot(Path(vault_root))
+    checkout_snap=_checkout_snapshot
+    try:
+        if checkout_snap is None:checkout_snap=CoverageSnapshot(checkout_root)
+        try:
+            vault_doc=build_backup_manifest(vault_root,operation_head=operation_head,expected_claimed_raw=expected_claimed_raw,_snapshot=vault_snap)
+            entry_base=len(vault_doc["directories"])+len(vault_doc["files"])
+            byte_base=sum(row["size_bytes"] for row in vault_doc["files"])
+            checkout_snap=scan_research_coverage(checkout_root,snapshot=checkout_snap,entry_base=entry_base,byte_base=byte_base)
+            report=checkout_snap.report
+            if report is None:_fail("checkout coverage is missing")
+            directories=list(vault_doc["directories"])+list(report["directories"])
+            files=list(vault_doc["files"])+list(report["files"])
+            if len(directories)+len(files)>MAX_ENTRIES or sum(row["size_bytes"] for row in files)>MAX_TOTAL_BYTES:_fail("manifest resource limit exceeded")
+            directories=sorted(directories,key=lambda row:row["path"].encode());files=sorted(files,key=lambda row:row["path"].encode())
+            paths=[row["path"] for row in directories]+[row["path"] for row in files]
+            if len(paths)!=len(set(paths)):_fail("manifest paths differ")
+            value={"schema":SCHEMA_V2,"policy":POLICY_V2,"source_roots":{"vault":vault_abs,"checkout":checkout_abs},"source_anchor":vault_doc["source_anchor"],"vault_manifest_sha256":vault_doc["manifest_sha256"],"roots":list(RESEARCH_ROOTS),"raw_included":True,"scope":{"coverage_version":COVERAGE_VERSION,"batch_ids":list(report["batches"]),"complete_project":False},"coverage":report["coverage"],"excluded":report["excluded"],"directories":directories,"files":files,"manifest_sha256":"0"*64}
+            value["manifest_sha256"]=hashlib.sha256(canonicalize({key:item for key,item in value.items() if key!="manifest_sha256"})).hexdigest()
+            result=validate_document(value,SCHEMA_V2)
+            _recheck_research_sources(vault_snap,checkout_snap)
+            return result
+        except BaseException as original:_reraise_after_recheck(vault_snap,checkout_snap,original)
+    finally:
+        if owns_checkout and checkout_snap is not None:checkout_snap.close()
+        if owns_vault:vault_snap.close()
+
+def verify_restored_research_tree(root:Path|str,manifest:object,*,expected_manifest_sha256:str)->dict[str,Any]:
+    """Check a restored tree without opening the original vault or checkout."""
+    from video_paper_wiki.backup_coverage import SCHEMA_V2,scan_research_coverage
+    expected=validate_document(manifest,SCHEMA_V2)
+    digest=hashlib.sha256(canonicalize({key:item for key,item in expected.items() if key!="manifest_sha256"})).hexdigest()
+    if type(expected_manifest_sha256) is not str or digest!=expected["manifest_sha256"] or digest!=expected_manifest_sha256:_fail("manifest self hash differs")
+    target=Path(root)
+    try:
+        mode=target.lstat()
+        if not stat.S_ISDIR(mode.st_mode) or stat.S_ISLNK(mode.st_mode) or stat.S_IMODE(mode.st_mode)!=0o700:raise ContractError("RESTORE_ROOT_UNSAFE","restored root must be an exact private directory",{})
+    except ContractError:raise
+    except OSError:raise ContractError("RESTORE_ROOT_UNSAFE","restored root is unsafe",{})
+    for label in ("vault","checkout"):
+        source=Path(expected["source_roots"][label])
+        try:
+            if source.exists() and (os.path.samefile(target,source) or _paths_nest(target,source)):
+                raise ContractError("RESTORE_ROOT_UNSAFE","restore root overlaps a recorded source",{})
+        except ContractError:raise
+        except OSError:raise ContractError("RESTORE_ROOT_UNSAFE","recorded source root is unsafe",{})
+    checkout_snap=None
+    try:
+        vault_doc=build_backup_manifest(target)
+        if vault_doc["manifest_sha256"]!=expected["vault_manifest_sha256"] or vault_doc["source_anchor"]!=expected["source_anchor"]:
+            raise ContractError("RESTORE_VERIFICATION_FAILED","restored vault manifest differs",{})
+        checkout_snap=scan_research_coverage(target)
+        report=checkout_snap.report or {}
+        if report.get("batches")!=expected["scope"]["batch_ids"] or report.get("coverage")!=expected["coverage"]:
+            raise ContractError("RESTORE_VERIFICATION_FAILED","restored research coverage differs",{})
+        if report.get("directories")!=[row for row in expected["directories"] if _work_path(row["path"])] or report.get("files")!=[row for row in expected["files"] if row["path"].startswith(".work/")]:
+            raise ContractError("RESTORE_VERIFICATION_FAILED","restored research files differ",{})
+        if vault_doc["directories"]!=[row for row in expected["directories"] if not _work_path(row["path"])] or vault_doc["files"]!=[row for row in expected["files"] if not row["path"].startswith(".work/")]:
+            raise ContractError("RESTORE_VERIFICATION_FAILED","restored vault files differ",{})
+        checkout_snap.verify()
+        included=sum(1 for row in expected["coverage"] if row["state"]=="included")
+        absent=sum(1 for row in expected["coverage"] if row["state"]=="absent")
+        return {"valid":True,"raw_included":True,"file_count":len(expected["files"]),"manifest_sha256":digest,"source_anchor":expected["source_anchor"],"vault_manifest_sha256":expected["vault_manifest_sha256"],"batch_count":len(expected["scope"]["batch_ids"]),"included_rules":included,"absent_rules":absent,"external_backup_observation":False}
+    except ContractError as exc:
+        if checkout_snap is not None:
+            try:checkout_snap.verify()
+            except ContractError:raise ContractError("RESTORE_VERIFICATION_FAILED","restored research tree changed",{})
+        if exc.code in {"RESTORE_ROOT_UNSAFE","RESTORE_VERIFICATION_FAILED","BACKUP_MANIFEST_INVALID"}:raise
+        raise ContractError("RESTORE_VERIFICATION_FAILED","restore verification failed",{}) from exc
+    finally:
+        if checkout_snap is not None:checkout_snap.close()
+
+def _paths_nest(left:Path,right:Path)->bool:
+    lp=left.absolute().parts;rp=right.absolute().parts
+    return lp!=rp and (lp[:len(rp)]==rp or rp[:len(lp)]==lp)

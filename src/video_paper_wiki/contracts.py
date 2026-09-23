@@ -77,6 +77,7 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.retrieval-policy.v1",
     "video-paper-wiki.retrieval-gold.v1",
     "video-paper-wiki.backup-manifest.v1",
+    "video-paper-wiki.backup-manifest.v2",
     "video-paper-wiki.evidence-join-request.v1",
     "video-paper-wiki.evidence-mapping-authority.v1",
     "video-paper-wiki.integrity-audit-authority.v1",
@@ -869,6 +870,11 @@ def _check_alignment_object(document: Mapping[str, Any]) -> None:
 
 
 def _post_schema_checks(document: Mapping[str, Any], schema_name: str) -> None:
+    if schema_name == "video-paper-wiki.backup-manifest.v2":
+        from video_paper_wiki.backup_coverage import check_research_manifest_document
+
+        check_research_manifest_document(document)
+        return
     if schema_name in {
         "video-paper-wiki.source-publication-request.v1", "video-paper-wiki.source-publication-authority.v1",
         "video-paper-wiki.source-publication-proposal.v1", "video-paper-wiki.assessment-heads.v2",

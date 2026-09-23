@@ -130,6 +130,138 @@ def _verify_gate_post_inventory(before,after,authority)->None:
     if set(after.directories)!=expected_dirs:
         raise ContractError('GATE_STATE_INVALID','gate apply changed an unauthorized Vault directory')
 
+def _research_backup_create(words:list[str],args)->int:
+    from video_paper_wiki.backup_archive import create_backup_archive
+    from video_paper_wiki.backup_coverage import SCHEMA_V2,CoverageSnapshot
+    from video_paper_wiki.backup_manifest import build_research_backup_manifest
+    from video_paper_wiki.catalog_store import _RetainedFile
+    from video_paper_wiki.contracts import ContractError
+    from video_paper_wiki.receipt_audit import _Snapshot
+    from video_paper_wiki.secure_io import load_strict_json
+    manifest_held=None;source_snap=None;checkout_snap=None;destination_held=None;parent_fd=None
+    try:
+        try:manifest_held=_RetainedFile(Path(args.manifest))
+        except ContractError as exc:raise ContractError('BACKUP_MANIFEST_INVALID','backup manifest is unsafe') from exc
+        try:source_snap=_Snapshot(Path(args.vault_root))
+        except ContractError as exc:raise ContractError('BACKUP_RACE','backup source is unsafe') from exc
+        try:checkout_snap=CoverageSnapshot(args.checkout_root)
+        except ContractError as exc:raise ContractError('BACKUP_RACE','backup checkout is unsafe') from exc
+        manifest=load_strict_json(args.manifest,missing_code='BACKUP_MANIFEST_INVALID',unsafe_code='BACKUP_MANIFEST_INVALID',invalid_code='BACKUP_MANIFEST_INVALID',changed_code='BACKUP_MANIFEST_INVALID')
+        if not isinstance(manifest,dict) or manifest.get('schema')!=SCHEMA_V2:raise ContractError('BACKUP_MANIFEST_INVALID','backup profile does not match manifest')
+        first=build_research_backup_manifest(args.vault_root,args.checkout_root,_snapshot=source_snap,_checkout_snapshot=checkout_snap)
+        if first!=manifest:return _emit_error('BACKUP_RACE','manifest differs from current research sources')
+        destination=Path(args.destination)
+        try:destination_held=_RetainedFile(destination,required=False)
+        except ContractError as exc:raise ContractError('BACKUP_ARCHIVE_CONFLICT','archive destination is unsafe') from exc
+        parent_fd=destination_held.parent_fd
+        try:os.stat(destination.name,dir_fd=parent_fd,follow_symlinks=False)
+        except FileNotFoundError:pass
+        else:return _emit_error('BACKUP_ARCHIVE_CONFLICT','archive destination exists')
+        if not _confirm(words):
+            manifest_held.verify_edge('BACKUP_RACE');source_snap.verify();checkout_snap.verify();_verify_parent_authority(destination_held,'BACKUP_RACE')
+            return _emit_error('HUMAN_APPROVAL_REQUIRED','interactive confirmation is required')
+        manifest_held.verify_edge('BACKUP_RACE');source_snap.verify();checkout_snap.verify();_verify_parent_authority(destination_held,'BACKUP_RACE')
+        try:os.stat(destination.name,dir_fd=parent_fd,follow_symlinks=False)
+        except FileNotFoundError:pass
+        else:return _emit_error('BACKUP_ARCHIVE_CONFLICT','archive destination changed after confirmation')
+        if build_research_backup_manifest(args.vault_root,args.checkout_root,_snapshot=source_snap,_checkout_snapshot=checkout_snap)!=first:return _emit_error('BACKUP_RACE','backup source changed after confirmation')
+        result=create_backup_archive(vault_root=args.vault_root,checkout_root=args.checkout_root,manifest=manifest,destination=args.destination,profile='research-r1',_source_snapshot=source_snap,_checkout_snapshot=checkout_snap,_destination_parent_fd=parent_fd)
+        manifest_held.verify_edge('BACKUP_RACE');source_snap.verify();checkout_snap.verify();_verify_parent_authority(destination_held,'BACKUP_RACE')
+        result['research_validation']='pending'
+        sys.stdout.write(json.dumps(result,sort_keys=True,separators=(',',':'))+'\n');return 0
+    except Exception as exc:
+        try:
+            if manifest_held is not None:manifest_held.verify_edge('BACKUP_RACE')
+            if source_snap is not None:source_snap.verify()
+            if checkout_snap is not None:checkout_snap.verify()
+            if destination_held is not None:_verify_parent_authority(destination_held,'BACKUP_RACE')
+        except Exception as drift:exc=drift
+        return _emit_error(getattr(exc,'code','BACKUP_ARCHIVE_INVALID'),getattr(exc,'message','backup create failed'))
+    finally:
+        if source_snap is not None:source_snap.close()
+        if checkout_snap is not None:checkout_snap.close()
+        if destination_held is not None:destination_held.close()
+        if manifest_held is not None:manifest_held.close()
+
+def _research_backup_restore(words:list[str],args)->int:
+    from video_paper_wiki.backup_archive import restore_backup_archive,validate_backup_manifest
+    from video_paper_wiki.backup_coverage import SCHEMA_V2
+    from video_paper_wiki.catalog_store import _RetainedFile,_config
+    from video_paper_wiki.contracts import ContractError
+    from video_paper_wiki.secure_io import close_fd,load_strict_json,parse_strict_json,read_regular_file
+    root=_verified_root(args.upstream_root)
+    manifest_held=None;archive_held=None;restore_authority=None;config_held=None;restore_fd=None;restore_first=None
+    try:
+        if type(args.expected_manifest_sha256) is not str:raise _UsageError('the following arguments are required: --expected-manifest-sha256')
+        try:manifest_held=_RetainedFile(Path(args.manifest))
+        except ContractError as exc:raise ContractError('BACKUP_MANIFEST_INVALID','backup manifest is unsafe') from exc
+        try:archive_held=_RetainedFile(Path(args.archive))
+        except ContractError as exc:raise ContractError('BACKUP_ARCHIVE_INVALID','backup archive is unsafe') from exc
+        try:config_held=_RetainedFile(Path(args.config))
+        except ContractError as exc:raise ContractError('RESTORE_VERIFICATION_FAILED','retrieval policy or config is unsafe') from exc
+        os.lseek(config_held.fd,0,os.SEEK_SET);config_raw=os.read(config_held.fd,1_048_577)
+        if len(config_raw)>1_048_576:raise ContractError('RESTORE_VERIFICATION_FAILED','retrieval policy or config exceeds limit')
+        try:config_obj,_config_raw=_config(parse_strict_json(config_raw,invalid_code='CATALOG_STALE'),allow_policy=True)
+        except ContractError as exc:raise ContractError('RESTORE_VERIFICATION_FAILED','retrieval policy or config is invalid') from exc
+        try:restore_authority=_RetainedFile(Path(args.restore_root)/'.vpwiki-root-authority',required=False)
+        except ContractError as exc:raise ContractError('RESTORE_ROOT_UNSAFE','restore root is unsafe') from exc
+        restore_fd=restore_authority.parent_fd;restore_first=os.fstat(restore_fd)
+        manifest=load_strict_json(args.manifest,missing_code='BACKUP_MANIFEST_INVALID',unsafe_code='BACKUP_MANIFEST_INVALID',invalid_code='BACKUP_MANIFEST_INVALID',changed_code='BACKUP_MANIFEST_INVALID')
+        if not isinstance(manifest,dict) or manifest.get('schema')!=SCHEMA_V2:raise ContractError('BACKUP_MANIFEST_INVALID','backup profile does not match manifest')
+        checked=validate_backup_manifest(manifest,expected_schema=SCHEMA_V2)
+        if args.expected_manifest_sha256!=checked['manifest_sha256']:raise ContractError('BACKUP_MANIFEST_INVALID','expected manifest hash differs')
+        archive_first=read_regular_file(Path(args.archive),missing_code='BACKUP_ARCHIVE_INVALID',unsafe_code='BACKUP_ARCHIVE_INVALID',changed_code='BACKUP_ARCHIVE_INVALID',max_bytes=0xffffffff-1,limit_code='BACKUP_ARCHIVE_INVALID')
+        fresh=os.open('.',os.O_RDONLY|getattr(os,'O_DIRECTORY',0),dir_fd=restore_fd)
+        try:empty=not any(os.scandir(fresh))
+        finally:close_fd(fresh)
+        if not stat.S_ISDIR(restore_first.st_mode) or stat.S_IMODE(restore_first.st_mode)!=0o700 or not empty:return _emit_error('RESTORE_ROOT_UNSAFE','restore root is invalid')
+        if not _confirm(words):
+            manifest_held.verify_edge('RESTORE_VERIFICATION_FAILED');archive_held.verify_edge('RESTORE_VERIFICATION_FAILED');config_held.verify_edge('RESTORE_VERIFICATION_FAILED');_verify_parent_authority(restore_authority,'RESTORE_ROOT_UNSAFE')
+            return _emit_error('HUMAN_APPROVAL_REQUIRED','interactive confirmation is required')
+        manifest_held.verify_edge('RESTORE_VERIFICATION_FAILED');archive_held.verify_edge('RESTORE_VERIFICATION_FAILED');config_held.verify_edge('RESTORE_VERIFICATION_FAILED');_verify_parent_authority(restore_authority,'RESTORE_ROOT_UNSAFE')
+        named=Path(args.restore_root).lstat()
+        if ((named.st_dev,named.st_ino,stat.S_IMODE(named.st_mode))!=(restore_first.st_dev,restore_first.st_ino,stat.S_IMODE(restore_first.st_mode))
+                or read_regular_file(Path(args.archive),missing_code='BACKUP_ARCHIVE_INVALID',unsafe_code='BACKUP_ARCHIVE_INVALID',changed_code='BACKUP_ARCHIVE_INVALID',max_bytes=0xffffffff-1,limit_code='BACKUP_ARCHIVE_INVALID')!=archive_first
+                or load_strict_json(args.manifest,missing_code='BACKUP_MANIFEST_INVALID',unsafe_code='BACKUP_MANIFEST_INVALID',invalid_code='BACKUP_MANIFEST_INVALID',changed_code='BACKUP_MANIFEST_INVALID')!=manifest):
+            return _emit_error('RESTORE_VERIFICATION_FAILED','restore inputs changed after confirmation')
+        result=restore_backup_archive(archive=args.archive,restore_root=args.restore_root,manifest=manifest,profile='research-r1',expected_manifest_sha256=args.expected_manifest_sha256,_archive_authority=archive_held,_restore_fd=restore_fd)
+        try:os.mkdir('.vault-meta',0o700,dir_fd=restore_fd)
+        except FileExistsError:pass
+        try:
+            meta_st=os.stat('.vault-meta',dir_fd=restore_fd,follow_symlinks=False)
+            if not stat.S_ISDIR(meta_st.st_mode) or stat.S_IMODE(meta_st.st_mode)!=0o700:raise ContractError('RESTORE_ROOT_UNSAFE','runtime projection directory is unsafe')
+        except OSError as exc:raise ContractError('RESTORE_ROOT_UNSAFE','runtime projection directory is unsafe') from exc
+        from video_paper_wiki.catalog_store import build_current_catalog
+        catalog_result=build_current_catalog(vault_root=args.restore_root,upstream_root=root,retrieval_config=config_obj)
+        from video_paper_wiki.restore_verification import verify_restored_research
+        result['retrieval_config']=catalog_result['retrieval_config']
+        result['retrieval_config_sha256']=catalog_result['retrieval_config_sha256']
+        result['verification']=verify_restored_research(restore_root=args.restore_root,manifest=manifest,expected_manifest_sha256=args.expected_manifest_sha256,upstream_root=root,config=catalog_result['retrieval_config'],research_reads=False)
+        result['research_validation']='pending'
+        if result['verification'].get('valid') is True:raise ContractError('RESTORE_VERIFICATION_FAILED','research restore marked the drill complete before research reads')
+        manifest_held.verify_edge('RESTORE_VERIFICATION_FAILED');archive_held.verify_edge('RESTORE_VERIFICATION_FAILED');config_held.verify_edge('RESTORE_VERIFICATION_FAILED')
+        _verify_parent_authority(restore_authority,'RESTORE_ROOT_UNSAFE')
+        named=Path(args.restore_root).lstat()
+        if (named.st_dev,named.st_ino,stat.S_IMODE(named.st_mode))!=(restore_first.st_dev,restore_first.st_ino,stat.S_IMODE(restore_first.st_mode)):raise RuntimeError('restore root changed')
+        sys.stdout.write(json.dumps(result,sort_keys=True,separators=(',',':'))+'\n');return 0
+    except _UsageError:raise
+    except Exception as exc:
+        try:
+            if manifest_held is not None:manifest_held.verify_edge('RESTORE_VERIFICATION_FAILED')
+            if archive_held is not None:archive_held.verify_edge('RESTORE_VERIFICATION_FAILED')
+            if config_held is not None:config_held.verify_edge('RESTORE_VERIFICATION_FAILED')
+            if restore_authority is not None:_verify_parent_authority(restore_authority,'RESTORE_ROOT_UNSAFE')
+            if restore_fd is not None and restore_first is not None:
+                named=Path(args.restore_root).lstat()
+                if (named.st_dev,named.st_ino,stat.S_IMODE(named.st_mode))!=(restore_first.st_dev,restore_first.st_ino,stat.S_IMODE(restore_first.st_mode)):raise RuntimeError('restore root changed')
+        except Exception as drift:exc=drift
+        return _emit_error(getattr(exc,'code','RESTORE_VERIFICATION_FAILED'),getattr(exc,'message','backup restore failed'))
+    finally:
+        if restore_authority is not None:restore_authority.close()
+        if config_held is not None:config_held.close()
+        if archive_held is not None:archive_held.close()
+        if manifest_held is not None:manifest_held.close()
+
 def _gate_apply_barrier(phase:str,**_observed:object)->None:
     """Private deterministic race seam; it cannot bypass any validation."""
     return None
@@ -245,7 +377,11 @@ def _main(argv:list[str]|None=None)->int:
             if gate_vault is not None:gate_vault.close()
             if gate_prepared is not None:gate_prepared.close()
     if words[:2]==['backup','create']:
-        command=_Parser(prog='vpwiki-admin backup create');command.add_argument('--vault-root',required=True);command.add_argument('--manifest',required=True);command.add_argument('--destination',required=True);args=command.parse_args(words[2:])
+        command=_Parser(prog='vpwiki-admin backup create');command.add_argument('--profile',choices=('vault-v1','research-r1'),default='vault-v1');command.add_argument('--vault-root',required=True);command.add_argument('--checkout-root');command.add_argument('--manifest',required=True);command.add_argument('--destination',required=True);args=command.parse_args(words[2:])
+        if args.profile=='research-r1':
+            if not args.checkout_root:raise _UsageError('the following arguments are required: --checkout-root')
+            return _research_backup_create(words,args)
+        if args.checkout_root:raise _UsageError('vault-v1 backup does not accept --checkout-root')
         from video_paper_wiki.backup_archive import create_backup_archive
         from video_paper_wiki.backup_manifest import build_backup_manifest
         from video_paper_wiki.secure_io import load_strict_json,open_dir_nofollow,close_fd
@@ -291,7 +427,14 @@ def _main(argv:list[str]|None=None)->int:
             if destination_held is not None:destination_held.close()
             if manifest_held is not None:manifest_held.close()
     if words[:2]==['backup','restore']:
-        command=_Parser(prog='vpwiki-admin backup restore');command.add_argument('--archive',required=True);command.add_argument('--source-root',required=True);command.add_argument('--restore-root',required=True);command.add_argument('--manifest',required=True);command.add_argument('--upstream-root',required=True);command.add_argument('--config',required=True);args=command.parse_args(words[2:])
+        command=_Parser(prog='vpwiki-admin backup restore');command.add_argument('--profile',choices=('vault-v1','research-r1'),default='vault-v1');command.add_argument('--archive',required=True);command.add_argument('--source-root');command.add_argument('--expected-manifest-sha256');command.add_argument('--restore-root',required=True);command.add_argument('--manifest',required=True);command.add_argument('--upstream-root',required=True);command.add_argument('--config',required=True);args=command.parse_args(words[2:])
+        if args.profile=='vault-v1':
+            if not args.source_root:raise _UsageError('the following arguments are required: --source-root')
+            if args.expected_manifest_sha256:raise _UsageError('vault-v1 restore does not accept --expected-manifest-sha256')
+        else:
+            if args.source_root:raise _UsageError('research-r1 restore does not accept --source-root')
+            if not args.expected_manifest_sha256:raise _UsageError('the following arguments are required: --expected-manifest-sha256')
+            return _research_backup_restore(words,args)
         root=_verified_root(args.upstream_root)
         from video_paper_wiki.backup_archive import restore_backup_archive
         from video_paper_wiki.secure_io import load_strict_json,open_dir_nofollow,close_fd
