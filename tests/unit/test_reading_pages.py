@@ -11,8 +11,8 @@ from tests.unit.test_domain_proposal import make_world
 from tests.unit.test_graph_projection import _three_chain
 from tests.unit.test_reading_view import _import_full
 from video_paper_wiki.article_revision import render_article_revision
-from video_paper_wiki.identity import paper_page_slug, repo_page_slug
-from video_paper_wiki.reading.pages import _escape_md
+from video_paper_wiki.identity import paper_page_slug, repo_id, repo_page_slug
+from video_paper_wiki.reading.pages import _escape_md, _repo_link
 from video_paper_wiki.reading.view import build_reading_views
 from video_paper_wiki.secure_io import read_regular_file
 from video_paper_wiki.staging import resolve_checkout_root
@@ -342,18 +342,14 @@ def test_pages_frontmatter_tables_links_and_escape(world):
     assert "正文（S1-R1 render 逐字节，sha256 " in art
     assert "\n\n# " in art or "暂无正文记录。" in art
     from video_paper_wiki.domain_relations import build_domain_relation_view
-    from video_paper_wiki.identity import IdentityError
 
     relations = build_domain_relation_view(vault_root=str(world["vault"]))
     if relations["lineages"]:
         repo = relations["lineages"][0]["repository"]
         combined = pages[paper_pages[0]].decode("utf-8") + pages[paper_pages[1]].decode("utf-8")
-        try:
-            slug = repo_page_slug(repo)
-        except IdentityError:
-            assert repo in combined
-        else:
-            assert "正式代码页尚未安装" in combined
+        repo_page_slug(repo_id(repo))
+        assert "正式代码页尚未安装" in combined
+        assert "](../../code/" not in combined
 
 
 def test_formal_paper_page_coexists_with_reading_detail(world):
@@ -375,3 +371,61 @@ def test_formal_paper_page_coexists_with_reading_detail(world):
     assert "../../papers/" + slug + ".md" in text
     assert "正式论文页尚未安装" not in text
     assert Path(reading).stem != formal.stem
+
+
+def test_repo_link_resolves_existing_code_page_and_rejects_invalid(world):
+    from video_paper_wiki.domain_relations import build_domain_relation_view
+
+    _three_chain(world)
+    relations = build_domain_relation_view(vault_root=str(world["vault"]))
+    repo = relations["lineages"][0]["repository"]
+    slug = repo_page_slug(repo_id(repo))
+    target = "wiki/code/" + slug + ".md"
+    formal = world["vault"] / target
+    formal.parent.mkdir(parents=True, exist_ok=True)
+    formal.write_text(
+        "---\ntitle: Code\ntype: code\nstatus: active\ncreated: 2026-09-08\nupdated: 2026-09-08\ntags: [code]\n---\n\n# Code\n",
+        encoding="utf-8",
+    )
+    formal.chmod(0o600)
+    data = _build(world, "code-nav")
+    assert data["counts"]["papers"] == 2
+    pages = _pages(world, "code-nav")
+    dest = world["vault"] / "wiki" / "reading"
+    if dest.exists():
+        shutil.rmtree(dest)
+    shutil.copytree(_root(world, "code-nav"), dest)
+    href = "../../code/" + slug + ".md"
+    paper_pages = sorted(path for path in pages if path.startswith("papers/"))
+    found = False
+    for rel in paper_pages:
+        text = pages[rel].decode("utf-8")
+        if href in text:
+            found = True
+            assert "[" + _escape_md(repo) + "](" + href + ")" in text
+            assert "正式代码页尚未安装" not in text
+            path = _resolve(world["vault"], rel, href)
+            assert path.is_file()
+            assert path.resolve() == formal.resolve()
+    assert found
+    relative = "papers/x-reading.md"
+    model_hit = {"vault_files": frozenset({target})}
+    linked = _repo_link(relative, model_hit, repo)
+    folded = _repo_link(relative, model_hit, "owner/NAME")
+    assert "../../code/" + slug + ".md" in linked
+    assert "../../code/" + slug + ".md" in folded
+    missing = _repo_link(relative, {"vault_files": frozenset()}, repo)
+    assert missing.endswith("（正式代码页尚未安装）")
+    assert "](" not in missing
+    for bad in (
+        "../etc/passwd",
+        "https://example.invalid/x",
+        "not a repo",
+        "a/b/c",
+        "github.com/Owner/Name",
+        "",
+    ):
+        out = _repo_link(relative, model_hit, bad)
+        assert "](" not in out
+        assert "wiki/code/" not in out
+        assert out == _escape_md(bad)

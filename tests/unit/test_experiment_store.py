@@ -303,6 +303,42 @@ def test_record_positive_example(world):
     assert canonicalize(again["record"]) == canonicalize(record)
 
 
+def test_search_scope_raw_captured_derived_and_rejected_paths(world):
+    captured = world["association"]["raw"]["path"]
+    derived, _digest = _document(world)
+    for path, key, batch in (
+        (captured, "raw-captured", "rawcap"),
+        (derived, "raw-derived", "rawder"),
+        ("wiki/papers/paper.md", "raw-portable", "rawport"),
+    ):
+        payload = valid_condition_input(world, setting_key=key, claim_refs=[])
+        payload["conditions"]["resolution"] = _unknown()
+        payload["conditions"]["resolution"]["search_scope"] = {
+            "artifact_paths": [path],
+            "search_terms": ["resolution"],
+        }
+        data = _record_exp(world, payload, name=key + ".json", batch=batch)
+        assert data["record"]["conditions"]["resolution"]["search_scope"]["artifact_paths"] == [path]
+        assert data["record"]["record_id"] == record_id_from_record(data["record"])
+    payload = valid_condition_input(world, setting_key="raw-bad", claim_refs=[])
+    payload["conditions"]["resolution"] = _unknown()
+    payload["conditions"]["resolution"]["search_scope"] = {
+        "artifact_paths": ["/tmp/x.md"],
+        "search_terms": ["resolution"],
+    }
+    err = _expect(lambda: _record_exp(world, payload, name="raw-bad.json", batch="rawbad"), "EXPERIMENT_RECORD_INVALID")
+    assert "artifact_paths" in err.details.get("instance_pointer", "")
+    for path in (".work/x.json", ".git/config", "wiki/papers/../code/x.md", "https://example.invalid/x"):
+        bad = valid_condition_input(world, setting_key="raw-rej", claim_refs=[])
+        bad["conditions"]["resolution"] = _unknown()
+        bad["conditions"]["resolution"]["search_scope"] = {
+            "artifact_paths": [path],
+            "search_terms": ["resolution"],
+        }
+        err = _expect(lambda: _record_exp(world, bad, name="raw-rej.json", batch="rawrej"), "EXPERIMENT_RECORD_INVALID")
+        assert "artifact_paths" in err.details.get("instance_pointer", "")
+
+
 def test_successor_and_new_lineages(world):
     first = _record_exp(world, batch="s1")
     _apply_staged_experiments(world, "s1")

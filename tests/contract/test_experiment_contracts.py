@@ -111,6 +111,36 @@ def test_unknown_and_reported_shapes_rejected() -> None:
     _reject(bad, title)
 
 
+def test_search_scope_artifact_path_branches() -> None:
+    title = "video-paper-wiki.experiment-condition-record.v1"
+    record = _fixture(title)
+    captured = ".raw/captured/" + "a" * 64 + ".md"
+    derived = ".raw/derived/" + "a" * 64 + "/document.json"
+    portable = "wiki/papers/paper.md"
+    for path in (captured, derived, portable):
+        good = copy.deepcopy(record)
+        good["conditions"]["resolution"]["search_scope"]["artifact_paths"] = [path]
+        validate_document(good, title)
+    rejected = (
+        "/tmp/x.md",
+        "wiki/papers/../code/x.md",
+        "wiki\\papers\\paper.md",
+        "wiki/papers/paper.md\x01",
+        "https://example.invalid/x",
+        ".work/batch/x.json",
+        ".git/config",
+        ".raw/tmp/x.md",
+        ".raw/captured/" + "a" * 64 + ".md\n",
+        ".raw/derived/" + "a" * 64 + "/document.json\n",
+        ".raw/captured",
+        ".raw/**/x.md",
+    )
+    for path in rejected:
+        bad = copy.deepcopy(record)
+        bad["conditions"]["resolution"]["search_scope"]["artifact_paths"] = [path]
+        _reject(bad, title)
+
+
 def test_comparability_rule_order_and_consts() -> None:
     title = "video-paper-wiki.experiment-comparability.v1"
     document = _fixture(title)
