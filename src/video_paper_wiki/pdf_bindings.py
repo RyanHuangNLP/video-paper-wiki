@@ -1560,26 +1560,121 @@ def _capture_rollback_file(base: Path, entry: Mapping[str, Any]) -> dict[str, An
     return {"path": target, "relative": entry["path"], "identity": identity, "sha256": entry["after_sha256"], "data": data}
 
 
-def _restore_rollback_files(removed: list[dict[str, Any]], atomic_write) -> None:
-    """Restore removed members. Bytes that no longer match the snapshot stay.
+def _is_empty_regular(path: Path) -> bool:
+    if not _regular_file(path):
+        return False
+    try:
+        return path.lstat().st_size == 0
+    except OSError:
+        return False
 
-    A conflict on one path must not skip the rest of the write unit, and it
-    must not overwrite the newer bytes with the snapshot.
+
+def _write_exclusive(path: Path, data: bytes) -> None:
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_CLOEXEC"):
+        flags |= os.O_CLOEXEC
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    fd = os.open(path, flags, 0o644)
+    try:
+        view = memoryview(data)
+        while view:
+            view = view[os.write(fd, view) :]
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _restore_placeholder_bytes(path: Path, data: bytes) -> bool:
+    """Put captured bytes back over the 0-byte placeholder this attempt left.
+
+    Exchange keeps a different inode on the public path. A missing primitive
+    refuses. Plain rename is not used. Return True when `data` is the public
+    bytes.
     """
 
+    expected = sha256_bytes(data)
+    if _file_sha(path) == expected:
+        return True
+    if not _is_empty_regular(path):
+        return False
+    tmp = path.with_name(path.name + ".rollback-restore")
+    if _directory_entry_occupied(tmp):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not restore the write unit",
+            {"path": path.as_posix(), "reason": "partial"},
+        )
+    _write_exclusive(tmp, data)
+    try:
+        if _file_sha(path) == expected:
+            return True
+        if not _directory_entry_occupied(path):
+            if _rename_noreplace(tmp, path):
+                return _file_sha(path) == expected
+            if _directory_entry_occupied(path):
+                return _file_sha(path) == expected
+            _refuse_unsafe_unlink(path.as_posix())
+        if not _is_empty_regular(path):
+            return False
+        placeholder_id = _file_identity(path)
+        exchanged = _rename_exchange(tmp, path)
+        if not exchanged or placeholder_id is None:
+            _refuse_unsafe_unlink(path.as_posix())
+        if _file_identity(tmp) != placeholder_id or not _is_empty_regular(tmp):
+            put_back = _rename_exchange(tmp, path)
+            if not put_back:
+                _refuse_unsafe_unlink(path.as_posix())
+            return _file_sha(path) == expected
+        return _file_sha(path) == expected
+    finally:
+        if _directory_entry_occupied(tmp) and (_is_empty_regular(tmp) or _file_sha(tmp) == expected):
+            os.unlink(tmp)
+
+
+def _restore_rollback_files(removed: list[dict[str, Any]], atomic_write) -> None:
+    """Restore removed members. A newer directory entry stays in place.
+
+    An absent path is published without a replacing rename. A 0-byte
+    placeholder this attempt left behind is exchanged back to the snapshot.
+    Any other live bytes stay. One path must not skip the rest of the unit.
+    """
+
+    from video_paper_wiki.pdf_migration import PdfMigrationError
+
+    unrestored: list[str] = []
     for item in reversed(removed):
         path = item["path"]
-        if path.exists() or path.is_symlink():
-            if _file_sha(path) != item["sha256"]:
-                continue
+        expected = item["sha256"]
+        data = item["data"]
+        if _file_sha(path) == expected:
             continue
-        atomic_write(path, item["data"])
-        if _file_sha(path) != item["sha256"]:
-            _fail(
-                PDF_ROLLBACK_CONFLICT,
-                "bind rollback could not restore the write unit",
-                {"path": item["relative"], "reason": "partial"},
-            )
+        if _is_empty_regular(path):
+            try:
+                restored = _restore_placeholder_bytes(path, data)
+            except (PdfBindingError, PdfMigrationError):
+                restored = _file_sha(path) == expected
+            if restored or (_directory_entry_occupied(path) and not _is_empty_regular(path)):
+                continue
+            unrestored.append(str(item["relative"]))
+            continue
+        if _directory_entry_occupied(path):
+            continue
+        try:
+            atomic_write(path, data)
+        except (PdfBindingError, PdfMigrationError):
+            if _file_sha(path) == expected or _directory_entry_occupied(path):
+                continue
+            unrestored.append(str(item["relative"]))
+            continue
+        if _file_sha(path) != expected and not _directory_entry_occupied(path):
+            unrestored.append(str(item["relative"]))
+    if unrestored:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not restore the write unit",
+            {"path": unrestored[0], "reason": "partial"},
+        )
 
 
 def _approved_plan_from_journal(journal: Mapping[str, Any], journal_path: Path) -> dict[str, Any]:

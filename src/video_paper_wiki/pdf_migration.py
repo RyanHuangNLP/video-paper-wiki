@@ -1602,6 +1602,69 @@ def _try_rename_exchange(src: Path, dest: Path) -> bool:
     return rc == 0
 
 
+def _dirent_occupied(path: Path) -> bool:
+    try:
+        os.lstat(path)
+    except OSError:
+        return False
+    return True
+
+
+def _try_rename_noreplace(src: Path, dest: Path) -> bool:
+    """Move src onto an absent dest. An existing dest is left untouched.
+
+    False when the primitive is missing or dest is occupied. The caller must
+    not fall back to a replacing rename.
+    """
+
+    src_b = os.fsencode(src)
+    dest_b = os.fsencode(dest)
+    try:
+        if sys.platform == "darwin":
+            libc = ctypes.CDLL("/usr/lib/libSystem.B.dylib", use_errno=True)
+            rc = libc.renamex_np(src_b, dest_b, ctypes.c_uint(0x00000004))
+        elif sys.platform.startswith("linux"):
+            libc = ctypes.CDLL("libc.so.6", use_errno=True)
+            renameat2 = libc.renameat2
+            renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+            rc = renameat2(-100, src_b, -100, dest_b, 1)
+        else:
+            return False
+    except (AttributeError, OSError):
+        return False
+    return rc == 0
+
+
+def _install_absent_preserving_occupant(src: Path, dest: Path) -> None:
+    """Publish src only while dest is absent. Never replace a live dest inode.
+
+    Emit the os.rename audit a builtin replace would, then RENAME_NOREPLACE.
+    A directory entry that appears in that window stays. `_OS_REPLACE` is not
+    a fallback when the primitive is missing or dest is occupied.
+    """
+
+    sys.audit("os.rename", os.fspath(src), os.fspath(dest), -1, -1)
+    if _dirent_occupied(dest):
+        _fail(
+            PDF_APPLY_CHANGED,
+            "writeset changed during apply",
+            {"path": str(dest), "reason": "parallel_edit"},
+        )
+    if _try_rename_noreplace(src, dest):
+        return
+    if _dirent_occupied(dest):
+        _fail(
+            PDF_APPLY_CHANGED,
+            "writeset changed during apply",
+            {"path": str(dest), "reason": "parallel_edit"},
+        )
+    _fail(
+        PDF_APPLY_CHANGED,
+        "atomic dest exchange unavailable; refusing unsafe replace",
+        {"path": str(dest), "reason": PDF_APPLY_EXCHANGE_UNAVAILABLE},
+    )
+
+
 def _unlink_if_present(path: Path) -> None:
     if path.exists() or path.is_symlink():
         path.unlink()
@@ -1814,7 +1877,13 @@ def _atomic_write(path: Path, data: bytes) -> None:
         if dest_fd is not None:
             approved_before = _read_fd_bytes(dest_fd)
             _assert_held_dest_matches_guard(path, approved_before)
-        os.replace(tmp, path)
+        # Guarded replaces keep the exchange install. An unguarded absent dest
+        # must not use a replacing rename: an editor can create the path after
+        # the absence check and before that syscall.
+        if dest_fd is None and _matching_install_guard(path) is None:
+            _install_absent_preserving_occupant(tmp, path)
+        else:
+            os.replace(tmp, path)
         # Exchange install leaves the displaced dest at tmp. A temp+rename
         # writer is invisible to dest_fd (that fd still holds the approved before).
         # If exchange is unavailable, the fallback refuses before a plain replace.
