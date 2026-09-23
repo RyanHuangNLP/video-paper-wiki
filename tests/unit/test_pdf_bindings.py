@@ -1331,6 +1331,173 @@ def test_rollback_keeps_preloaded_editor_save_before_recovery_rename(tmp_path, m
     run("recovery-page", "page")
 
 
+def test_rollback_keeps_preloaded_editor_save_before_recovery_reopen(tmp_path, monkeypatch) -> None:
+    """Independent editor saves after the recovery live check, before reopen.
+
+    Rollback really deletes, then the post-unlink read raises the original Q2
+    EIO and `_restore_rollback_files` runs. The save is an independent process
+    paused on the `_atomic_write` line that is about to call
+    `_open_existing_file_fd`. Helper results, Path.unlink, os.unlink, and
+    os.replace are not patched. The new inode must stay, and its bytes must
+    not be read as approved_before for a replacing rename.
+    """
+
+    from video_paper_wiki import pdf_bindings as bindings
+    from video_paper_wiki import pdf_migration as migration
+
+    editor = (
+        "import hashlib, json, os, sys\n"
+        "from pathlib import Path\n"
+        "path = Path(sys.argv[1])\n"
+        "held = path.read_bytes()\n"
+        "print(json.dumps({'ready_pid': os.getpid(), 'opened_inode': path.stat().st_ino,\n"
+        " 'opened_sha256': hashlib.sha256(held).hexdigest(), 'opened_size': len(held)}), flush=True)\n"
+        "assert sys.stdin.readline().strip() == 'save'\n"
+        "before = path.stat().st_ino if path.exists() else None\n"
+        "edited = held + b'\\nCONCURRENT USER EDIT\\n'\n"
+        "replacement = path.with_name(path.name + '.user-save')\n"
+        "replacement.write_bytes(edited)\n"
+        "replacement.replace(path)\n"
+        "print(json.dumps({'editor_pid': os.getpid(), 'replaced_inode': before,\n"
+        " 'saved_inode': path.stat().st_ino, 'saved_size': path.stat().st_size}))\n"
+    )
+    marker = b"\nCONCURRENT USER EDIT\n"
+    source_path = Path(migration.__file__).resolve()
+    lines = source_path.read_text(encoding="utf-8").splitlines()
+
+    def run(name: str, which: str) -> None:
+        world = _world(tmp_path / name, monkeypatch)
+        pdf = _plant(world["cache"], "source.pdf", _pdf(name, "2204.03458"))
+        plan = _prepare(world, _write_request(tmp_path / name, [_request_item(pdf, PAPER, session=name)]), name)
+        applied = _apply(world, plan, name, tmp_path / name)
+        page = world["notes"] / plan["items"][0]["page_path"]
+        binding = world["notes"] / plan["items"][0]["binding_path"]
+        original_binding = binding.read_bytes()
+        original_page = page.read_bytes()
+        target = binding if which == "binding" else page
+        original = original_binding if which == "binding" else original_page
+        other = page if which == "binding" else binding
+        other_bytes = original_page if which == "binding" else original_binding
+        binding_id = bindings._file_identity(binding)
+        proc = subprocess.Popen(
+            [sys.executable, "-B", "-c", editor, str(target)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        assert proc.stdout is not None
+        ready = json.loads(proc.stdout.readline())
+        assert ready["ready_pid"] != os.getpid()
+        assert ready["opened_sha256"] == sha256_bytes(original)
+        assert ready["opened_size"] == len(original)
+        saved: list[dict[str, object]] = []
+        eio: list[bool] = []
+        replaced: list[str] = []
+        read_as_before: list[object] = []
+        seen_before: list[object] = []
+        live_checked: set[int] = set()
+        busy = False
+        real_read = bindings._read_fd_bytes
+
+        def read_fails_after_unlink(fd: int) -> bytes:
+            if not eio and bindings._fd_identity(fd) == binding_id and not binding.exists():
+                eio.append(True)
+                raise OSError(errno.EIO, "injected post-unlink read failure")
+            return real_read(fd)
+
+        def trace(frame, event, arg):
+            nonlocal busy
+            if busy:
+                return None
+            if event != "line":
+                return trace
+            try:
+                in_migration = Path(frame.f_code.co_filename).resolve() == source_path
+            except OSError:
+                in_migration = False
+            if not in_migration:
+                return trace
+            line = lines[frame.f_lineno - 1].strip()
+            if frame.f_code.co_name == "_atomic_write" and line == "_assert_live_install_before_replace(path)":
+                live_checked.add(id(frame))
+            if line in {"os.replace(tmp, path)", "_OS_REPLACE(tmp, path)"}:
+                replaced.append(str(frame.f_locals.get("path")))
+            if line == "return _OS_REPLACE(src, dst, *args, **kwargs)":
+                replaced.append(str(frame.f_locals.get("dst")))
+            if frame.f_code.co_name != "_atomic_write" or frame.f_locals.get("path") != target:
+                return trace
+            if "approved_before" in frame.f_locals:
+                seen_before.append(frame.f_locals.get("approved_before"))
+            if line == "approved_before = _read_fd_bytes(dest_fd)":
+                read_as_before.append(frame.f_locals.get("dest_fd"))
+            if saved or line != "dest_fd = _open_existing_file_fd(path)":
+                return trace
+            stack: list[str] = []
+            cursor = frame
+            while cursor is not None:
+                stack.append(cursor.f_code.co_name)
+                cursor = cursor.f_back
+            assert "_restore_rollback_files" in stack
+            assert id(frame) in live_checked
+            assert frame.f_locals.get("publish_only_if_absent") is True
+            assert migration._INSTALL_GUARDS == []
+            assert not target.exists()
+            busy = True
+            try:
+                assert proc.stdin is not None
+                out, err = proc.communicate("save\n", timeout=10)
+            finally:
+                busy = False
+            assert proc.returncode == 0, err
+            row = json.loads(out)
+            assert row["editor_pid"] != os.getpid()
+            assert row["saved_inode"] != row["replaced_inode"]
+            assert target.read_bytes() == original + marker
+            assert target.stat().st_ino == row["saved_inode"]
+            assert target.stat().st_size == len(original) + len(marker)
+            saved.append(row)
+            return trace
+
+        bindings._read_fd_bytes = read_fails_after_unlink
+        prior = sys.gettrace()
+        sys.settrace(trace)
+        try:
+            with pytest.raises(Exception) as raced:
+                rollback_bind_journal(
+                    journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True
+                )
+        finally:
+            sys.settrace(prior)
+            bindings._read_fd_bytes = real_read
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate(timeout=10)
+        if isinstance(raced.value, AssertionError):
+            raise raced.value
+        assert isinstance(raced.value, OSError)
+        assert raced.value.errno == errno.EIO
+        assert eio and saved
+        assert read_as_before == []
+        assert replaced == []
+        assert seen_before
+        assert all(value is None for value in seen_before)
+        assert target.is_file()
+        assert target.read_bytes() == original + marker
+        assert target.stat().st_ino == saved[0]["saved_inode"]
+        assert other.is_file()
+        assert other.read_bytes() == other_bytes
+        copies = [path for path in (tmp_path / name).rglob("*") if path.is_file() and marker in path.read_bytes()]
+        assert len(copies) >= 1
+        assert list((tmp_path / name).rglob("*.rollback-hold")) == []
+        assert list((tmp_path / name).rglob("*.rollback-restore")) == []
+        assert list((tmp_path / name).rglob("*.user-save")) == []
+        assert list((tmp_path / name).rglob("*.tmp")) == []
+
+    run("recovery-preopen-binding", "binding")
+    run("recovery-preopen-page", "page")
+
+
 def test_rollback_restores_unit_when_noreplace_fails_after_hold_unlink(tmp_path, monkeypatch) -> None:
     """RENAME_NOREPLACE fails after exchange and the original hold is already gone.
 
@@ -1546,6 +1713,202 @@ def test_rollback_keeps_user_edit_while_restoring_failed_noreplace_placeholder(t
     assert copies
     assert list(tmp_path.rglob("*.rollback-hold")) == []
     assert list(tmp_path.rglob("*.rollback-restore")) == []
+
+
+def test_rollback_keeps_page_edit_before_reopen_after_noreplace_failure(tmp_path, monkeypatch) -> None:
+    """After noreplace fails, a page save before recovery reopen stays.
+
+    The first binding exchange has succeeded and the original hold is gone.
+    Only ``renameat2(flags=1)`` whose source is the binding returns the
+    injected errno. The independent editor then saves the source page after
+    that page's recovery live check and before ``_open_existing_file_fd``.
+    The page inode stays, the binding remains the full non-empty unit, and
+    rollback still refuses without a plain rename.
+    """
+
+    from video_paper_wiki import pdf_bindings as bindings
+    from video_paper_wiki import pdf_migration as migration
+
+    real_cdll = ctypes.CDLL
+    source_path = Path(migration.__file__).resolve()
+    lines = source_path.read_text(encoding="utf-8").splitlines()
+    editor = (
+        "import hashlib, json, os, sys\n"
+        "from pathlib import Path\n"
+        "path = Path(sys.argv[1])\n"
+        "held = path.read_bytes()\n"
+        "print(json.dumps({'ready_pid': os.getpid(), 'opened_inode': path.stat().st_ino,\n"
+        " 'opened_sha256': hashlib.sha256(held).hexdigest(), 'opened_size': len(held)}), flush=True)\n"
+        "assert sys.stdin.readline().strip() == 'save'\n"
+        "before = path.stat().st_ino if path.exists() else None\n"
+        "edited = held + b'\\nCONCURRENT USER EDIT\\n'\n"
+        "replacement = path.with_name(path.name + '.user-save')\n"
+        "replacement.write_bytes(edited)\n"
+        "replacement.replace(path)\n"
+        "print(json.dumps({'editor_pid': os.getpid(), 'replaced_inode': before,\n"
+        " 'saved_inode': path.stat().st_ino, 'saved_size': path.stat().st_size}))\n"
+    )
+    marker = b"\nCONCURRENT USER EDIT\n"
+
+    def run(name: str, fault: int) -> None:
+        world = _world(tmp_path / name, monkeypatch)
+        pdf = _plant(world["cache"], "source.pdf", _pdf(name, "2204.03458"))
+        plan = _prepare(world, _write_request(tmp_path / name, [_request_item(pdf, PAPER, session=name)]), name)
+        applied = _apply(world, plan, name, tmp_path / name)
+        page = world["notes"] / plan["items"][0]["page_path"]
+        binding = world["notes"] / plan["items"][0]["binding_path"]
+        before_binding = binding.read_bytes()
+        before_page = page.read_bytes()
+        assert len(before_binding) > 0
+        proc = subprocess.Popen(
+            [sys.executable, "-B", "-c", editor, str(page)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        assert proc.stdout is not None
+        ready = json.loads(proc.stdout.readline())
+        assert ready["ready_pid"] != os.getpid()
+        assert ready["opened_sha256"] == sha256_bytes(before_page)
+        assert ready["opened_size"] == len(before_page)
+        saved: list[dict[str, object]] = []
+        events: list[dict[str, object]] = []
+        replaced: list[str] = []
+        read_as_before: list[object] = []
+        seen_before: list[object] = []
+        live_checked: set[int] = set()
+        busy = False
+
+        class Libc:
+            def __init__(self, *args: object, **kwargs: object) -> None:
+                self.real = real_cdll(*args, **kwargs)
+                self.renameat2 = self._make_rename()
+
+            def _make_rename(self):
+                native = self.real.renameat2
+                native.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+                native.restype = ctypes.c_int
+
+                def rename(src_dir: int, src: bytes, dest_dir: int, dest: bytes, flags: int) -> int:
+                    if flags == 1 and Path(os.fsdecode(src)) == binding:
+                        events.append(
+                            {
+                                "src": os.fsdecode(src),
+                                "dest": os.fsdecode(dest),
+                                "flags": flags,
+                                "binding_size": binding.stat().st_size,
+                                "hold_exists": bindings._hold_path(binding).exists(),
+                            }
+                        )
+                        ctypes.set_errno(fault)
+                        return -1
+                    return native(src_dir, src, dest_dir, dest, flags)
+
+                return rename
+
+            def __getattr__(self, item: str) -> object:
+                return getattr(self.real, item)
+
+        def trace(frame, event, arg):
+            nonlocal busy
+            if busy:
+                return None
+            if event != "line":
+                return trace
+            try:
+                in_migration = Path(frame.f_code.co_filename).resolve() == source_path
+            except OSError:
+                in_migration = False
+            if not in_migration:
+                return trace
+            line = lines[frame.f_lineno - 1].strip()
+            if frame.f_code.co_name == "_atomic_write" and line == "_assert_live_install_before_replace(path)":
+                live_checked.add(id(frame))
+            if line in {"os.replace(tmp, path)", "_OS_REPLACE(tmp, path)"}:
+                replaced.append(str(frame.f_locals.get("path")))
+            if line == "return _OS_REPLACE(src, dst, *args, **kwargs)":
+                replaced.append(str(frame.f_locals.get("dst")))
+            if frame.f_code.co_name != "_atomic_write" or frame.f_locals.get("path") != page:
+                return trace
+            if "approved_before" in frame.f_locals:
+                seen_before.append(frame.f_locals.get("approved_before"))
+            if line == "approved_before = _read_fd_bytes(dest_fd)":
+                read_as_before.append(frame.f_locals.get("dest_fd"))
+            if saved or line != "dest_fd = _open_existing_file_fd(path)":
+                return trace
+            stack: list[str] = []
+            cursor = frame
+            while cursor is not None:
+                stack.append(cursor.f_code.co_name)
+                cursor = cursor.f_back
+            assert "_restore_rollback_files" in stack
+            assert id(frame) in live_checked
+            assert frame.f_locals.get("publish_only_if_absent") is True
+            assert migration._INSTALL_GUARDS == []
+            assert not page.exists()
+            assert events and events[0]["flags"] == 1
+            assert events[0]["binding_size"] == 0
+            assert events[0]["hold_exists"] is False
+            assert binding.is_file()
+            assert binding.read_bytes() == before_binding
+            assert binding.stat().st_size == len(before_binding)
+            busy = True
+            try:
+                assert proc.stdin is not None
+                out, err = proc.communicate("save\n", timeout=10)
+            finally:
+                busy = False
+            assert proc.returncode == 0, err
+            row = json.loads(out)
+            assert row["editor_pid"] != os.getpid()
+            assert row["saved_inode"] != row["replaced_inode"]
+            assert page.read_bytes() == before_page + marker
+            assert page.stat().st_ino == row["saved_inode"]
+            assert page.stat().st_size == len(before_page) + len(marker)
+            saved.append(row)
+            return trace
+
+        prior = sys.gettrace()
+        sys.settrace(trace)
+        try:
+            with monkeypatch.context() as patch:
+                patch.setattr(ctypes, "CDLL", Libc)
+                with pytest.raises(Exception) as raced:
+                    rollback_bind_journal(
+                        journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True
+                    )
+        finally:
+            sys.settrace(prior)
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate(timeout=10)
+        if isinstance(raced.value, AssertionError):
+            raise raced.value
+        assert isinstance(raced.value, PdfBindingError)
+        assert raced.value.code == "PDF_ROLLBACK_CONFLICT"
+        assert raced.value.details["reason"] == "exchange_unavailable"
+        assert events and saved
+        assert read_as_before == []
+        assert replaced == []
+        assert seen_before
+        assert all(value is None for value in seen_before)
+        assert page.is_file()
+        assert page.read_bytes() == before_page + marker
+        assert page.stat().st_ino == saved[0]["saved_inode"]
+        assert binding.is_file()
+        assert binding.read_bytes() == before_binding
+        assert binding.stat().st_size == len(before_binding)
+        copies = [path for path in (tmp_path / name).rglob("*") if path.is_file() and marker in path.read_bytes()]
+        assert len(copies) >= 1
+        assert list((tmp_path / name).rglob("*.rollback-hold")) == []
+        assert list((tmp_path / name).rglob("*.rollback-restore")) == []
+        assert list((tmp_path / name).rglob("*.user-save")) == []
+        assert list((tmp_path / name).rglob("*.tmp")) == []
+
+    run("noreplace-page-preopen-95", errno.EOPNOTSUPP)
+    run("noreplace-page-preopen-5", errno.EIO)
+    run("noreplace-page-preopen-38", errno.ENOSYS)
 
 
 def test_existing_note_trailing_blank_line_stays_included_after_migration(tmp_path, monkeypatch) -> None:

@@ -1851,7 +1851,7 @@ def _pop_install_guard() -> None:
         _INSTALL_GUARDS.pop()
 
 
-def _atomic_write(path: Path, data: bytes) -> None:
+def _atomic_write(path: Path, data: bytes, *, publish_only_if_absent: bool = False) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
     if tmp.exists() or tmp.is_symlink():
@@ -1874,6 +1874,19 @@ def _atomic_write(path: Path, data: bytes) -> None:
         # version is preserved by the exchange install, not by this fd.
         dest_fd = _open_existing_file_fd(path)
         approved_before: bytes | None = None
+        # publish_only_if_absent is the caller's decision that this path was
+        # absent, and it stays in force until this call returns. An inode that
+        # shows up before this reopen is not an approved before: do not read
+        # it and do not select a replacing rename.
+        if publish_only_if_absent:
+            if dest_fd is not None:
+                _fail(
+                    PDF_APPLY_CHANGED,
+                    "writeset changed during apply",
+                    {"path": str(path), "reason": "parallel_edit"},
+                )
+            _install_absent_preserving_occupant(tmp, path)
+            return
         if dest_fd is not None:
             approved_before = _read_fd_bytes(dest_fd)
             _assert_held_dest_matches_guard(path, approved_before)

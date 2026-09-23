@@ -1635,7 +1635,9 @@ def _restore_placeholder_bytes(path: Path, data: bytes) -> bool:
 def _restore_rollback_files(removed: list[dict[str, Any]], atomic_write) -> None:
     """Restore removed members. A newer directory entry stays in place.
 
-    An absent path is published without a replacing rename. A 0-byte
+    An absent path is published without a replacing rename for the whole
+    write, including after that write re-opens the target. An inode that
+    appears before the reopen is not read as an approved before. A 0-byte
     placeholder this attempt left behind is exchanged back to the snapshot.
     Any other live bytes stay. One path must not skip the rest of the unit.
     """
@@ -1661,7 +1663,7 @@ def _restore_rollback_files(removed: list[dict[str, Any]], atomic_write) -> None
         if _directory_entry_occupied(path):
             continue
         try:
-            atomic_write(path, data)
+            atomic_write(path, data, publish_only_if_absent=True)
         except (PdfBindingError, PdfMigrationError):
             if _file_sha(path) == expected or _directory_entry_occupied(path):
                 continue
