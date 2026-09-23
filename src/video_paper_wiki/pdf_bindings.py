@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import ctypes
 import json
 import os
 import re
 import stat
+import sys
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -1559,15 +1561,17 @@ def _capture_rollback_file(base: Path, entry: Mapping[str, Any]) -> dict[str, An
 
 
 def _restore_rollback_files(removed: list[dict[str, Any]], atomic_write) -> None:
+    """Restore removed members. Bytes that no longer match the snapshot stay.
+
+    A conflict on one path must not skip the rest of the write unit, and it
+    must not overwrite the newer bytes with the snapshot.
+    """
+
     for item in reversed(removed):
         path = item["path"]
         if path.exists() or path.is_symlink():
             if _file_sha(path) != item["sha256"]:
-                _fail(
-                    PDF_ROLLBACK_CONFLICT,
-                    "bind rollback stopped without covering newer bytes",
-                    {"path": item["relative"], "reason": "partial"},
-                )
+                continue
             continue
         atomic_write(path, item["data"])
         if _file_sha(path) != item["sha256"]:
@@ -1817,9 +1821,184 @@ def _restore_displaced_entry(
         )
 
 
-def _drop_placeholder(target: Path, placeholder_id: tuple[int, int], relative: str, real_unlink) -> None:
-    """Remove the placeholder only while `target` still names that inode."""
+def _directory_entry_occupied(path: Path) -> bool:
+    try:
+        path.lstat()
+    except OSError:
+        return False
+    return True
 
+
+def _rename_noreplace(src: Path, dest: Path) -> bool:
+    """Move `src` onto an absent `dest`. Never replace an existing `dest`.
+
+    False when the platform cannot do that. A false result leaves `src` in place.
+    Plain `os.rename` is not a fallback: it replaces `dest`.
+    """
+
+    src_b = os.fsencode(src)
+    dest_b = os.fsencode(dest)
+    try:
+        if sys.platform == "darwin":
+            libc = ctypes.CDLL("/usr/lib/libSystem.B.dylib", use_errno=True)
+            rc = libc.renamex_np(src_b, dest_b, ctypes.c_uint(0x00000004))
+        elif sys.platform.startswith("linux"):
+            libc = ctypes.CDLL("libc.so.6", use_errno=True)
+            renameat2 = libc.renameat2
+            renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+            renameat2.restype = ctypes.c_int
+            rc = renameat2(-100, src_b, -100, dest_b, 1)
+        else:
+            return False
+    except (AttributeError, OSError):
+        return False
+    return rc == 0
+
+
+def _capture_public_directory_entry(
+    target: Path,
+    grave: Path,
+    relative: str,
+    placeholder_id: tuple[int, int],
+) -> None:
+    """Move the live public directory entry onto `grave` without replacing `grave`.
+
+    This is the removal of the public name. The inode is not deleted here.
+    """
+
+    if _directory_entry_occupied(grave):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not capture the live directory entry",
+            {"path": relative, "reason": "partial"},
+        )
+    if _rename_noreplace(target, grave):
+        return
+    if _file_identity(target) != placeholder_id:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind target changed during removal",
+            {"path": relative, "reason": "parallel_edit"},
+        )
+    _refuse_unsafe_unlink(relative)
+
+
+def _return_captured_directory_entry(
+    captured_path: Path,
+    public: Path,
+    captured_id: tuple[int, int] | None,
+    relative: str,
+) -> None:
+    """Put the captured inode back on `public`. Never replace a different inode."""
+
+    if captured_id is None or not _directory_entry_occupied(captured_path):
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not preserve bytes edited during removal",
+            {"path": relative, "reason": "partial"},
+        )
+    if _file_identity(public) == captured_id:
+        return
+    if not _directory_entry_occupied(public):
+        if not _rename_noreplace(captured_path, public):
+            _refuse_unsafe_unlink(relative)
+    elif not _rename_exchange(captured_path, public):
+        _refuse_unsafe_unlink(relative)
+    if _file_identity(public) != captured_id:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not preserve bytes edited during removal",
+            {"path": relative, "reason": "partial"},
+        )
+
+
+def _unlink_captured_placeholder(
+    grave: Path,
+    raw: int,
+    placeholder_id: tuple[int, int],
+    relative: str,
+    real_unlink,
+) -> None:
+    """Delete the private name only when it still is the captured placeholder."""
+
+    if _file_identity(grave) != placeholder_id or _fd_identity(raw) != placeholder_id:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind target changed during removal",
+            {"path": relative, "reason": "parallel_edit"},
+        )
+    try:
+        real_unlink(grave)
+    except OSError as exc:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind rollback could not remove a created file",
+            {"path": relative, "reason": "partial", "error": type(exc).__name__},
+        )
+    info = os.fstat(raw)
+    if (info.st_dev, info.st_ino) != placeholder_id or info.st_nlink != 0:
+        _fail(
+            PDF_ROLLBACK_CONFLICT,
+            "bind target changed during removal",
+            {"path": relative, "reason": "parallel_edit"},
+        )
+
+
+def _retain_displaced_inode(
+    grave: Path,
+    public: Path,
+    placeholder_id: tuple[int, int],
+    relative: str,
+    real_unlink,
+) -> None:
+    """Keep a non-placeholder inode on the public path. Do not unlink that path."""
+
+    if not _directory_entry_occupied(grave):
+        return
+    ident = _file_identity(grave)
+    if ident is None:
+        return
+    public_id = _file_identity(public)
+    if ident == placeholder_id:
+        if public_id is not None and public_id != placeholder_id:
+            try:
+                real_unlink(grave)
+            except OSError as exc:
+                _fail(
+                    PDF_ROLLBACK_CONFLICT,
+                    "bind rollback could not remove a created file",
+                    {"path": relative, "reason": "partial", "error": type(exc).__name__},
+                )
+            return
+        if public_id is None and not _rename_noreplace(grave, public):
+            _refuse_unsafe_unlink(relative)
+        return
+    if public_id == ident or (public_id is not None and public_id != placeholder_id):
+        return
+    _return_captured_directory_entry(grave, public, ident, relative)
+    if _directory_entry_occupied(grave) and _file_identity(grave) == placeholder_id:
+        try:
+            real_unlink(grave)
+        except OSError as exc:
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind rollback could not remove a created file",
+                {"path": relative, "reason": "partial", "error": type(exc).__name__},
+            )
+
+
+def _drop_placeholder(target: Path, placeholder_id: tuple[int, int], relative: str, real_unlink) -> None:
+    """Remove a placeholder without unlinking the public path by name.
+
+    The last identity check can be stale before a path unlink: an editor can
+    replace the name, the old descriptor's `st_nlink` is already 0, and the
+    unlink deletes the new inode. The public name is moved aside instead.
+    Only the captured inode is deleted, and only when it is still the
+    placeholder. Any other inode is moved back. A missing rename primitive
+    refuses the cleanup; it does not fall back to replace or path unlink.
+    """
+
+    grave = _hold_path(target)
     try:
         raw = _open_nofollow(target)
     except OSError as exc:
@@ -1830,27 +2009,41 @@ def _drop_placeholder(target: Path, placeholder_id: tuple[int, int], relative: s
         )
     try:
         current = _fd_identity(raw)
-        if current != placeholder_id:
+        if current != placeholder_id or os.fstat(raw).st_nlink < 1:
             _fail(
                 PDF_ROLLBACK_CONFLICT,
                 "bind target changed during removal",
                 {"path": relative, "reason": "parallel_edit"},
             )
+        if _directory_entry_occupied(grave):
+            _fail(
+                PDF_ROLLBACK_CONFLICT,
+                "bind rollback could not capture the live directory entry",
+                {"path": relative, "reason": "partial"},
+            )
+        _capture_public_directory_entry(target, grave, relative, placeholder_id)
         try:
-            real_unlink(target)
-        except OSError as exc:
-            _fail(
-                PDF_ROLLBACK_CONFLICT,
-                "bind rollback could not remove a created file",
-                {"path": relative, "reason": "partial", "error": type(exc).__name__},
-            )
-        info = os.fstat(raw)
-        if (info.st_dev, info.st_ino) != placeholder_id or info.st_nlink != 0:
-            _fail(
-                PDF_ROLLBACK_CONFLICT,
-                "bind target changed during removal",
-                {"path": relative, "reason": "parallel_edit"},
-            )
+            captured_id = _file_identity(grave)
+            if (
+                captured_id != placeholder_id
+                or _fd_identity(raw) != placeholder_id
+                or os.fstat(raw).st_nlink < 1
+            ):
+                _return_captured_directory_entry(grave, target, captured_id, relative)
+                _fail(
+                    PDF_ROLLBACK_CONFLICT,
+                    "bind target changed during removal",
+                    {"path": relative, "reason": "parallel_edit"},
+                )
+            _unlink_captured_placeholder(grave, raw, placeholder_id, relative, real_unlink)
+            if _directory_entry_occupied(target):
+                _fail(
+                    PDF_ROLLBACK_CONFLICT,
+                    "bind target changed during removal",
+                    {"path": relative, "reason": "parallel_edit"},
+                )
+        finally:
+            _retain_displaced_inode(grave, target, placeholder_id, relative, real_unlink)
     finally:
         os.close(raw)
 
@@ -1942,8 +2135,18 @@ def _remove_exchanged_entry(
                 {"path": relative, "reason": "parallel_edit"},
             )
         state = "deleted"
+        try:
+            _drop_placeholder(target, placeholder_id, relative, real_unlink)
+        except Exception:
+            occupant = _file_identity(target)
+            held_aside = _file_identity(_hold_path(target))
+            user_kept = (occupant is not None and occupant != placeholder_id) or (
+                held_aside is not None and held_aside != placeholder_id
+            )
+            if not user_kept:
+                removed.append(record)
+            raise
         removed.append(record)
-        _drop_placeholder(target, placeholder_id, relative, real_unlink)
     finally:
         if raw is not None:
             os.close(raw)
@@ -1969,8 +2172,12 @@ def _unlink_verified_target(
     snapshot can itself be stale before `os.unlink`: an external process can
     atomically save after the snapshot is returned. Exchange then captures the
     object that would have been removed. A different object is exchanged back
-    and the attempt is refused. The verified object is recorded as soon as it
-    is actually unlinked, before the post-removal read of the original fd.
+    and the attempt is refused. The placeholder left on the public path is
+    moved aside and deleted only when that captured inode is still the
+    placeholder; the public path is not unlinked by name. The verified object
+    is recorded after that cleanup and before the post-removal read of the
+    original fd. A newer inode is not recorded, so a later failure cannot
+    overwrite it with the snapshot.
     """
 
     try:

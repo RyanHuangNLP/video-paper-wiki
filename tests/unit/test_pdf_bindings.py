@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import errno
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -1019,6 +1020,183 @@ def test_rollback_refuses_when_directory_exchange_is_unavailable(tmp_path, monke
     assert binding.read_bytes() == binding_bytes
     assert page.read_bytes() == page_bytes
     assert list(world["notes"].rglob("*.rollback-hold")) == []
+
+
+def test_rollback_keeps_preloaded_editor_save_before_placeholder_capture(tmp_path, monkeypatch) -> None:
+    """Independent editor saves after the placeholder check, before that inode is deleted.
+
+    The editor preloads the original bytes, waits until rollback has exchanged,
+    verified, and deleted the original hold, then replaces the public binding.
+    Hooks cover the public capture call, the non-replacing rename, and the
+    private unlink of the captured placeholder. The save is a separate process.
+    Helper results, Path.unlink, and os.unlink are not patched.
+    """
+
+    from video_paper_wiki import pdf_bindings as bindings
+
+    source_path = Path(bindings.__file__).resolve()
+    source = source_path.read_text(encoding="utf-8")
+    assert "real_unlink(target)" not in source
+    editor = (
+        "import hashlib, json, os, sys\n"
+        "from pathlib import Path\n"
+        "path = Path(sys.argv[1])\n"
+        "held = path.read_bytes()\n"
+        "print(json.dumps({'ready_pid': os.getpid(), 'opened_inode': path.stat().st_ino,\n"
+        " 'opened_sha256': hashlib.sha256(held).hexdigest()}), flush=True)\n"
+        "assert sys.stdin.readline().strip() == 'save'\n"
+        "existed = path.exists()\n"
+        "before = path.stat().st_ino if existed else None\n"
+        "edited = held + b'\\nCONCURRENT USER EDIT\\n'\n"
+        "replacement = path.with_name(path.name + '.user-save')\n"
+        "replacement.write_bytes(edited)\n"
+        "replacement.replace(path)\n"
+        "print(json.dumps({'editor_pid': os.getpid(), 'replaced_inode': before,\n"
+        " 'saved_inode': path.stat().st_ino, 'saved_size': path.stat().st_size}))\n"
+    )
+    marker = b"\nCONCURRENT USER EDIT\n"
+
+    def run(name: str, *, hook: str, inject_eio: bool) -> None:
+        world = _world(tmp_path / name, monkeypatch)
+        pdf = _plant(world["cache"], "source.pdf", _pdf(name, "2204.03458"))
+        plan = _prepare(world, _write_request(tmp_path / name, [_request_item(pdf, PAPER, session=name)]), name)
+        applied = _apply(world, plan, name, tmp_path / name)
+        page = world["notes"] / plan["items"][0]["page_path"]
+        binding = world["notes"] / plan["items"][0]["binding_path"]
+        page_bytes = page.read_bytes()
+        binding_before = binding.read_bytes()
+        binding_id = bindings._file_identity(binding)
+        proc = subprocess.Popen(
+            [sys.executable, "-B", "-c", editor, str(binding)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        assert proc.stdout is not None
+        ready = json.loads(proc.stdout.readline())
+        assert ready["ready_pid"] != os.getpid()
+        assert ready["opened_sha256"] == sha256_bytes(binding_before)
+        saved: list[dict[str, object]] = []
+        guard_returned = []
+        busy = False
+        lines = source.splitlines()
+
+        def at_injection(frame) -> bool:
+            line = lines[frame.f_lineno - 1].strip()
+            name = frame.f_code.co_name
+            if hook == "capture":
+                return (
+                    name == "_drop_placeholder"
+                    and frame.f_locals.get("target") == binding
+                    and line.startswith("_capture_public_directory_entry(")
+                )
+            if hook == "rename":
+                return (
+                    name == "_capture_public_directory_entry"
+                    and frame.f_locals.get("target") == binding
+                    and "_rename_noreplace(target, grave)" in line
+                )
+            if hook == "grave" and name == "_unlink_captured_placeholder" and line == "real_unlink(grave)":
+                grave = frame.f_locals.get("grave")
+                if not isinstance(grave, Path):
+                    return False
+                return grave.with_name(grave.name.removesuffix(".rollback-hold")) == binding
+            return False
+
+        def trace(frame, event, arg):
+            nonlocal busy
+            if busy:
+                return None
+            filename = frame.f_code.co_filename
+            try:
+                in_bindings = Path(filename).resolve() == source_path
+            except OSError:
+                in_bindings = False
+            if not in_bindings:
+                return None
+            if (
+                frame.f_code.co_name == "_read_linked_regular"
+                and event == "return"
+                and frame.f_locals.get("path") == binding
+            ):
+                assert arg == (binding_id, binding_before)
+                guard_returned.append(True)
+            if saved or not guard_returned or event != "line" or not at_injection(frame):
+                return trace
+            if hook == "grave":
+                grave = frame.f_locals["grave"]
+                assert not binding.exists()
+                assert bindings._file_identity(grave) == frame.f_locals["placeholder_id"]
+            else:
+                assert bindings._file_identity(binding) == frame.f_locals["placeholder_id"]
+                assert bindings._file_identity(binding) != binding_id
+                assert binding.read_bytes() == b""
+                assert not bindings._hold_path(binding).exists()
+                if hook == "capture":
+                    assert frame.f_locals["current"] == frame.f_locals["placeholder_id"]
+            busy = True
+            try:
+                assert proc.stdin is not None
+                out, err = proc.communicate("save\n", timeout=10)
+            finally:
+                busy = False
+            assert proc.returncode == 0, err
+            event_row = json.loads(out)
+            assert event_row["editor_pid"] != os.getpid()
+            assert event_row["replaced_inode"] != event_row["saved_inode"]
+            assert binding.read_bytes() == binding_before + marker
+            assert binding.stat().st_ino == event_row["saved_inode"]
+            saved.append(event_row)
+            return trace
+
+        read_fd = bindings._read_fd_bytes
+        if inject_eio:
+
+            def read_fails_after_unlink(fd: int) -> bytes:
+                if bindings._fd_identity(fd) == binding_id and not binding.exists():
+                    raise OSError(errno.EIO, "injected post-unlink read failure")
+                return read_fd(fd)
+
+            bindings._read_fd_bytes = read_fails_after_unlink
+        prior = sys.gettrace()
+        sys.settrace(trace)
+        try:
+            with pytest.raises(Exception) as raced:
+                rollback_bind_journal(
+                    journal_path=Path(applied["journal_path"]), roots_path=world["roots"], confirm=True
+                )
+        finally:
+            sys.settrace(prior)
+            bindings._read_fd_bytes = read_fd
+            if proc.poll() is None:
+                proc.kill()
+                proc.communicate(timeout=10)
+        exc = raced.value
+        if isinstance(exc, OSError) and not isinstance(exc, PdfBindingError):
+            assert exc.errno == errno.EIO
+        else:
+            assert isinstance(exc, PdfBindingError)
+            assert exc.code == "PDF_ROLLBACK_CONFLICT"
+            assert exc.details["reason"] == "parallel_edit"
+        assert len(saved) == 1
+        assert binding.is_file()
+        assert binding.read_bytes() == binding_before + marker
+        assert binding.read_bytes() != binding_before
+        assert binding.stat().st_ino == saved[0]["saved_inode"]
+        assert page.is_file()
+        assert page.read_bytes() == page_bytes
+        copies = [path for path in (tmp_path / name).rglob("*") if path.is_file() and marker in path.read_bytes()]
+        assert copies
+        assert list((tmp_path / name).rglob("*.rollback-hold")) == []
+        assert list((tmp_path / name).rglob("*.user-save")) == []
+
+    run("placeholder-capture", hook="capture", inject_eio=False)
+    run("placeholder-capture-eio", hook="capture", inject_eio=True)
+    run("placeholder-rename", hook="rename", inject_eio=False)
+    run("placeholder-rename-eio", hook="rename", inject_eio=True)
+    run("placeholder-grave", hook="grave", inject_eio=False)
+    run("placeholder-grave-eio", hook="grave", inject_eio=True)
 
 
 def test_existing_note_trailing_blank_line_stays_included_after_migration(tmp_path, monkeypatch) -> None:
