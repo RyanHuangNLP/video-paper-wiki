@@ -189,7 +189,15 @@
           "items": {
             "anyOf": [
               {
-                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/portable_vault_relative_path"
+                "allOf": [
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/portable_vault_relative_path"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+$(?![\\s\\S])"
+                  }
+                ]
               },
               {
                 "allOf": [

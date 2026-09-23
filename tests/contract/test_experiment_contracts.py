@@ -116,8 +116,8 @@ def test_search_scope_artifact_path_branches() -> None:
     record = _fixture(title)
     captured = ".raw/captured/" + "a" * 64 + ".md"
     derived = ".raw/derived/" + "a" * 64 + "/document.json"
-    portable = "wiki/papers/paper.md"
-    for path in (captured, derived, portable):
+    portable_paths = ("wiki/papers/paper.md", "wiki/code/page.md", "a")
+    for path in (captured, derived, *portable_paths):
         good = copy.deepcopy(record)
         good["conditions"]["resolution"]["search_scope"]["artifact_paths"] = [path]
         validate_document(good, title)
@@ -125,13 +125,22 @@ def test_search_scope_artifact_path_branches() -> None:
         "/tmp/x.md",
         "wiki/papers/../code/x.md",
         "wiki\\papers\\paper.md",
+        "wiki/papers/paper.md\n",
+        "wiki/papers/paper.md\r",
+        "wiki/papers/paper.md\r\n",
+        "wiki/papers/paper.md\x00",
         "wiki/papers/paper.md\x01",
+        "wiki/papers/paper.md\x7f",
+        "wiki/code/page.md\n",
+        "a\n",
         "https://example.invalid/x",
         ".work/batch/x.json",
         ".git/config",
         ".raw/tmp/x.md",
         ".raw/captured/" + "a" * 64 + ".md\n",
+        ".raw/captured/" + "a" * 64 + ".md\r",
         ".raw/derived/" + "a" * 64 + "/document.json\n",
+        ".raw/derived/" + "a" * 64 + "/document.json\r",
         ".raw/captured",
         ".raw/**/x.md",
     )

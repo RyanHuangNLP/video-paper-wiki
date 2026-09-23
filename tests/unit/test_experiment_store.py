@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from tests.code_proof_public_fixture import SRC_BODY, write_bytes
+from tests.code_proof_public_fixture import SRC_BODY, parse_envelope, run_module_cli, write_bytes
 from tests.source_semantics_fixture import event_for, source_fixture
 from tests.unit.test_domain_apply import _apply, _compile
 from tests.unit.test_domain_proposal import _snapshot, _write, make_world, valid_proposal
@@ -328,7 +328,26 @@ def test_search_scope_raw_captured_derived_and_rejected_paths(world):
     }
     err = _expect(lambda: _record_exp(world, payload, name="raw-bad.json", batch="rawbad"), "EXPERIMENT_RECORD_INVALID")
     assert "artifact_paths" in err.details.get("instance_pointer", "")
-    for path in (".work/x.json", ".git/config", "wiki/papers/../code/x.md", "https://example.invalid/x"):
+    portable = "wiki/papers/paper.md"
+    rejected_paths = (
+        ".work/x.json",
+        ".git/config",
+        "wiki/papers/../code/x.md",
+        "https://example.invalid/x",
+        portable + "\n",
+        portable + "\r",
+        portable + "\r\n",
+        portable + "\x00",
+        portable + "\x01",
+        portable + "\x7f",
+        "wiki/code/page.md\n",
+        "a\n",
+        captured + "\n",
+        captured + "\r",
+        derived + "\n",
+        derived + "\r",
+    )
+    for path in rejected_paths:
         bad = valid_condition_input(world, setting_key="raw-rej", claim_refs=[])
         bad["conditions"]["resolution"] = _unknown()
         bad["conditions"]["resolution"]["search_scope"] = {
@@ -337,6 +356,74 @@ def test_search_scope_raw_captured_derived_and_rejected_paths(world):
         }
         err = _expect(lambda: _record_exp(world, bad, name="raw-rej.json", batch="rawrej"), "EXPERIMENT_RECORD_INVALID")
         assert "artifact_paths" in err.details.get("instance_pointer", "")
+    for index, path in enumerate((portable + "\n", portable + "\r", portable + "\r\n", portable + "\x01", "wiki/code/page.md\n")):
+        cli_payload = valid_condition_input(world, setting_key="cli-path-" + str(index), claim_refs=[])
+        cli_payload["conditions"]["resolution"] = _unknown()
+        cli_payload["conditions"]["resolution"]["search_scope"] = {
+            "artifact_paths": [path],
+            "search_terms": ["resolution"],
+        }
+        name = "cli-path-" + str(index) + ".json"
+        _write_input(world, cli_payload, name)
+        proc = run_module_cli(
+            world["checkout"],
+            [
+                "experiments",
+                "record",
+                "--input",
+                name,
+                "--vault-root",
+                str(world["vault"]),
+                "--batch-id",
+                "pathcli",
+                "--recorded-by",
+                RECORDED_BY,
+                "--recorded-at",
+                RECORDED_AT,
+            ],
+        )
+        assert proc.returncode == 2, proc.stdout + proc.stderr
+        envelope = parse_envelope(proc)
+        assert envelope["ok"] is False
+        assert envelope["command"] == "experiments.record"
+        assert envelope["error"]["code"] == "EXPERIMENT_RECORD_INVALID"
+        assert "artifact_paths" in envelope["error"]["details"].get("instance_pointer", "")
+    assert not (world["checkout"] / ".work" / "pathcli" / "experiments" / "records").exists()
+    ok_payload = valid_condition_input(world, setting_key="cli-portable", claim_refs=[])
+    ok_payload["conditions"]["resolution"] = _unknown()
+    ok_payload["conditions"]["resolution"]["search_scope"] = {
+        "artifact_paths": [portable],
+        "search_terms": ["resolution"],
+    }
+    _write_input(world, ok_payload, "cli-portable.json")
+    ok_proc = run_module_cli(
+        world["checkout"],
+        [
+            "experiments",
+            "record",
+            "--input",
+            "cli-portable.json",
+            "--vault-root",
+            str(world["vault"]),
+            "--batch-id",
+            "cliport",
+            "--recorded-by",
+            RECORDED_BY,
+            "--recorded-at",
+            RECORDED_AT,
+        ],
+    )
+    assert ok_proc.returncode == 0, ok_proc.stdout + ok_proc.stderr
+    ok_env = parse_envelope(ok_proc)
+    assert ok_env["ok"] is True
+    assert ok_env["data"]["record"]["conditions"]["resolution"]["search_scope"]["artifact_paths"] == [portable]
+    saved = list((world["checkout"] / ".work" / "cliport" / "experiments" / "records").rglob("*.json"))
+    assert len(saved) == 1
+    raw_record = saved[0].read_bytes()
+    saved_record = json.loads(raw_record.decode("utf-8"))
+    assert saved_record["conditions"]["resolution"]["search_scope"]["artifact_paths"] == [portable]
+    assert b"wiki/papers/paper.md\n" not in raw_record
+    assert b"wiki/papers/paper.md\\n" not in raw_record
 
 
 def test_successor_and_new_lineages(world):
