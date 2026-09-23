@@ -6,6 +6,7 @@ import os
 import pty
 import stat
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -525,7 +526,6 @@ def test_rootless_research_restore_reads_real_products(tmp_path: Path, monkeypat
 def _install_isolated(tmp_path: Path) -> Path:
     """Install the product and operator wheels into a fresh venv. Returns its Python."""
 
-    import shutil
     import zipfile
 
     wheel_dir = tmp_path / "wheel"
@@ -543,8 +543,9 @@ def _install_isolated(tmp_path: Path) -> Path:
     names = zipfile.ZipFile(wheel).namelist()
     assert any(name.endswith("schemas/video-paper-wiki.backup-manifest.v2.schema.json") for name in names)
     venv = tmp_path / "venv"
+    # Use the interpreter running pytest so native runtime wheels match it.
     created = subprocess.run(
-        ["uv", "venv", str(venv), "--python", "3.12"],
+        ["uv", "venv", str(venv), "--python", sys.executable],
         cwd=tmp_path,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -555,6 +556,30 @@ def _install_isolated(tmp_path: Path) -> Path:
     python = venv / "bin" / "python"
     install_env = os.environ.copy()
     install_env["UV_LINK_MODE"] = "copy"
+    install_env["UV_OFFLINE"] = "1"
+    install_env["UV_PYTHON_DOWNLOADS"] = "never"
+    install_env["UV_PROJECT_ENVIRONMENT"] = str(venv)
+    install_env.pop("UV_FIND_LINKS", None)
+    install_env.pop("VIRTUAL_ENV", None)
+    runtime = subprocess.run(
+        [
+            "uv",
+            "sync",
+            "--locked",
+            "--offline",
+            "--no-install-project",
+            "--no-dev",
+            "--python",
+            str(python),
+        ],
+        cwd=ROOT,
+        env=install_env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert runtime.returncode == 0, runtime.stderr
     installed = subprocess.run(
         ["uv", "pip", "install", "--offline", "--no-deps", "--python", str(python), str(wheel)],
         cwd=tmp_path,
@@ -587,18 +612,23 @@ def _install_isolated(tmp_path: Path) -> Path:
         check=False,
     )
     assert operator_installed.returncode == 0, operator_installed.stderr
-    source_site = Path(subprocess.check_output([str(ROOT / ".venv" / "bin" / "python"), "-c", "import site; print(site.getsitepackages()[0])"], text=True).strip())
-    target_site = next((venv / "lib").glob("python*/site-packages"))
-    for child in source_site.iterdir():
-        if child.name.startswith("video_paper_wiki") or child.suffix == ".pth":
-            continue
-        destination = target_site / child.name
-        if destination.exists():
-            continue
-        if child.is_dir():
-            shutil.copytree(child, destination)
-        else:
-            shutil.copy2(child, destination)
+    probed = subprocess.run(
+        [
+            str(python),
+            "-I",
+            "-B",
+            "-c",
+            "import rpds, sys; print(sys.version_info[0], sys.version_info[1])",
+        ],
+        cwd=tmp_path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert probed.returncode == 0, probed.stderr
+    observed = tuple(int(part) for part in probed.stdout.split())
+    assert observed == sys.version_info[:2], (observed, sys.version_info[:2], probed.stdout)
     return python
 
 
