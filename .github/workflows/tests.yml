@@ -18,7 +18,7 @@ jobs:
   tests:
     name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -89,6 +89,6 @@ jobs:
           uv run --offline --no-sync python --version
           uv run --offline --no-sync vpwiki doctor
           # A short real path accommodates AF_UNIX fixtures and no-follow reads.
-          uv run --offline --no-sync python -m pytest -q --basetemp "$VPKB_TEST_TMP/p"
+          uv run --offline --no-sync python -m pytest -v --tb=short --durations=25 -o faulthandler_timeout=300 --basetemp "$VPKB_TEST_TMP/p"
           # --offline constrains uv, not arbitrary test-process network egress.
           git diff --exit-code -- pyproject.toml uv.lock

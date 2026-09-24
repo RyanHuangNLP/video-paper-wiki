@@ -222,10 +222,8 @@ def scale_missing_inputs(*, pairwise_state, condition_count, paper_filter, selec
                 "compare",
                 "pairwise",
                 (
-                    "pairwise comparison is not computed; vault condition count is "
-                    + str(condition_count)
-                    + " and the limit is "
-                    + str(MAX_PAIRWISE_ROWS)
+                    f"pairwise comparison is not computed; vault condition count is "
+                    f"{condition_count} and the limit is {MAX_PAIRWISE_ROWS}"
                 ),
                 [],
             )
