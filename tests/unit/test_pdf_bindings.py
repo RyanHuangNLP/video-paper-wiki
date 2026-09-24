@@ -1498,12 +1498,187 @@ def test_rollback_keeps_preloaded_editor_save_before_recovery_reopen(tmp_path, m
     run("recovery-preopen-page", "page")
 
 
+_LINUX_RENAME_NOREPLACE = 1
+_DARWIN_RENAME_EXCL = 0x4
+
+
+def _native_flag(flags: object) -> int:
+    """Numeric rename flag. Darwin passes ``c_uint``; ``int(c_uint)`` is not that value."""
+
+    value = getattr(flags, "value", flags)
+    if isinstance(value, int):
+        return value
+    return int(value)
+
+
+def _noreplace_fault_cdll(real_cdll, *, binding: Path, fault: int, record=None):
+    """CDLL stand-in that faults only the host no-replace of ``binding``.
+
+    Linux faults ``renameat2(..., flags=1)``. Darwin faults
+    ``renamex_np(..., RENAME_EXCL=0x4)``. The other OS symbol is never
+    resolved. Exchange and every non-target call go to the real native
+    function. Recorded flags are normalized to 1.
+    """
+
+    if sys.platform == "darwin":
+        kind = "darwin"
+    elif sys.platform.startswith("linux"):
+        kind = "linux"
+    else:
+        raise AssertionError(f"unsupported platform {sys.platform}")
+
+    class Libc:
+        def __init__(self, *args: object, **kwargs: object) -> None:
+            self.real = real_cdll(*args, **kwargs)
+            if kind == "darwin":
+                self.renamex_np = self._wrap_darwin()
+            else:
+                self.renameat2 = self._wrap_linux()
+
+        def _hit(self, src: bytes, dest: bytes) -> int:
+            if record is not None:
+                record(src, dest, 1)
+            ctypes.set_errno(fault)
+            return -1
+
+        def _targeted(self, src: bytes) -> bool:
+            return Path(os.fsdecode(src)) == binding
+
+        def _wrap_linux(self):
+            native = self.real.renameat2
+            native.argtypes = [
+                ctypes.c_int,
+                ctypes.c_char_p,
+                ctypes.c_int,
+                ctypes.c_char_p,
+                ctypes.c_uint,
+            ]
+            native.restype = ctypes.c_int
+
+            def rename(src_dir: int, src: bytes, dest_dir: int, dest: bytes, flags: int) -> int:
+                if _native_flag(flags) == _LINUX_RENAME_NOREPLACE and self._targeted(src):
+                    return self._hit(src, dest)
+                return native(src_dir, src, dest_dir, dest, flags)
+
+            return rename
+
+        def _wrap_darwin(self):
+            native = self.real.renamex_np
+            native.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+            native.restype = ctypes.c_int
+
+            def rename(src: bytes, dest: bytes, flags: object) -> int:
+                if _native_flag(flags) == _DARWIN_RENAME_EXCL and self._targeted(src):
+                    return self._hit(src, dest)
+                return native(src, dest, flags)
+
+            return rename
+
+        def __getattr__(self, item: str) -> object:
+            return getattr(self.real, item)
+
+    return Libc
+
+
+def test_noreplace_fault_wrapper_uses_only_the_host_symbol(monkeypatch) -> None:
+    """Darwin and Linux branches each bind one symbol and forward the other calls."""
+
+    binding = Path("/notes/wiki/meta/pdf-bindings/arxiv-2204.03458.json")
+    encoded = os.fsencode(binding)
+    hold_path = binding.with_name(binding.name + ".rollback-hold")
+    other_path = binding.with_name("arxiv-2204.03458.md")
+
+    class Probe:
+        def __init__(self) -> None:
+            self.renameat2_reads = 0
+            self.renamex_np_reads = 0
+            self.calls: list[tuple[str, int, str]] = []
+
+        @property
+        def renameat2(self):
+            self.renameat2_reads += 1
+
+            def native(src_dir: int, src: bytes, dest_dir: int, dest: bytes, flags: int) -> int:
+                self.calls.append(("renameat2", _native_flag(flags), os.fsdecode(src)))
+                return 0
+
+            return native
+
+        @property
+        def renamex_np(self):
+            self.renamex_np_reads += 1
+
+            def native(src: bytes, dest: bytes, flags: object) -> int:
+                self.calls.append(("renamex_np", _native_flag(flags), os.fsdecode(src)))
+                return 0
+
+            return native
+
+    def check(platform: str) -> None:
+        probe = Probe()
+        events: list[dict[str, object]] = []
+        monkeypatch.setattr(sys, "platform", platform)
+
+        def record(src: bytes, dest: bytes, flags: int) -> None:
+            events.append({"src": os.fsdecode(src), "dest": os.fsdecode(dest), "flags": flags})
+
+        libc = _noreplace_fault_cdll(
+            lambda *args, **kwargs: probe,
+            binding=binding,
+            fault=errno.EIO,
+            record=record,
+        )("lib", use_errno=True)
+        hold = os.fsencode(hold_path)
+        other = os.fsencode(other_path)
+        if platform == "darwin":
+            assert probe.renameat2_reads == 0
+            assert probe.renamex_np_reads == 1
+            assert "renameat2" not in libc.__dict__
+            assert libc.renamex_np(hold, encoded, ctypes.c_uint(0x2)) == 0
+            assert probe.calls[-1] == ("renamex_np", 2, str(hold_path))
+            assert events == []
+            assert libc.renamex_np(encoded, b"grave", ctypes.c_uint(_DARWIN_RENAME_EXCL)) == -1
+            assert ctypes.get_errno() == errno.EIO
+            assert events == [{"src": str(binding), "dest": "grave", "flags": 1}]
+            assert libc.renamex_np(other, b"grave", ctypes.c_uint(_DARWIN_RENAME_EXCL)) == 0
+            assert probe.calls[-1] == ("renamex_np", _DARWIN_RENAME_EXCL, str(other_path))
+            assert len(events) == 1
+            assert probe.renameat2_reads == 0
+            return
+        assert probe.renamex_np_reads == 0
+        assert probe.renameat2_reads == 1
+        assert "renamex_np" not in libc.__dict__
+        renameat2 = libc.renameat2
+        renameat2.argtypes = [
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_int,
+            ctypes.c_char_p,
+            ctypes.c_uint,
+        ]
+        renameat2.restype = ctypes.c_int
+        assert renameat2(-100, hold, -100, encoded, 2) == 0
+        assert events == []
+        assert renameat2(-100, encoded, -100, b"grave", _LINUX_RENAME_NOREPLACE) == -1
+        assert ctypes.get_errno() == errno.EIO
+        assert events == [{"src": str(binding), "dest": "grave", "flags": 1}]
+        assert renameat2(-100, other, -100, b"grave", _LINUX_RENAME_NOREPLACE) == 0
+        assert probe.calls[-1] == ("renameat2", _LINUX_RENAME_NOREPLACE, str(other_path))
+        assert len(events) == 1
+        assert probe.renamex_np_reads == 0
+
+    check("darwin")
+    check("linux")
+
+
 def test_rollback_restores_unit_when_noreplace_fails_after_hold_unlink(tmp_path, monkeypatch) -> None:
     """RENAME_NOREPLACE fails after exchange and the original hold is already gone.
 
-    Only renameat2(flags=1) whose source is the binding returns the injected
-    errno. Exchange and every other rename go to libc. The empty placeholder
-    is not left behind, and the binding is not published with a plain replace.
+    Only the native no-replace whose source is the binding returns the injected
+    errno: Linux ``renameat2(..., flags=1)`` or Darwin ``renamex_np(..., RENAME_EXCL=0x4)``.
+    Exchange and every other call go to the real libc. The other OS symbol is
+    not resolved. The empty placeholder is not left behind, and the binding is
+    not published with a plain replace.
     """
 
     from video_paper_wiki import pdf_bindings as bindings
@@ -1523,34 +1698,17 @@ def test_rollback_restores_unit_when_noreplace_fails_after_hold_unlink(tmp_path,
         renamed_binding: list[str] = []
         active = True
 
-        class Libc:
-            def __init__(self, *args: object, **kwargs: object) -> None:
-                self.real = real_cdll(*args, **kwargs)
-                self.renameat2 = self._make_rename()
+        def record(src: bytes, dest: bytes, flags: int) -> None:
+            events.append(
+                {
+                    "src": os.fsdecode(src),
+                    "dest": os.fsdecode(dest),
+                    "flags": flags,
+                    "binding_size": binding.stat().st_size,
+                }
+            )
 
-            def _make_rename(self):
-                native = self.real.renameat2
-                native.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
-                native.restype = ctypes.c_int
-
-                def rename(src_dir: int, src: bytes, dest_dir: int, dest: bytes, flags: int) -> int:
-                    if flags == 1 and Path(os.fsdecode(src)) == binding:
-                        events.append(
-                            {
-                                "src": os.fsdecode(src),
-                                "dest": os.fsdecode(dest),
-                                "flags": flags,
-                                "binding_size": binding.stat().st_size,
-                            }
-                        )
-                        ctypes.set_errno(fault)
-                        return -1
-                    return native(src_dir, src, dest_dir, dest, flags)
-
-                return rename
-
-            def __getattr__(self, item: str) -> object:
-                return getattr(self.real, item)
+        Libc = _noreplace_fault_cdll(real_cdll, binding=binding, fault=fault, record=record)
 
         def audit(event: str, args: tuple[object, ...]) -> None:
             if not active or event != "os.rename":
@@ -1634,26 +1792,7 @@ def test_rollback_keeps_user_edit_while_restoring_failed_noreplace_placeholder(t
     saved: list[dict[str, object]] = []
     busy = False
 
-    class Libc:
-        def __init__(self, *args: object, **kwargs: object) -> None:
-            self.real = real_cdll(*args, **kwargs)
-            self.renameat2 = self._make_rename()
-
-        def _make_rename(self):
-            native = self.real.renameat2
-            native.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
-            native.restype = ctypes.c_int
-
-            def rename(src_dir: int, src: bytes, dest_dir: int, dest: bytes, flags: int) -> int:
-                if flags == 1 and Path(os.fsdecode(src)) == binding:
-                    ctypes.set_errno(errno.EIO)
-                    return -1
-                return native(src_dir, src, dest_dir, dest, flags)
-
-            return rename
-
-        def __getattr__(self, item: str) -> object:
-            return getattr(self.real, item)
+    Libc = _noreplace_fault_cdll(real_cdll, binding=binding, fault=errno.EIO)
 
     def trace(frame, event, arg):
         nonlocal busy
@@ -1719,8 +1858,10 @@ def test_rollback_keeps_page_edit_before_reopen_after_noreplace_failure(tmp_path
     """After noreplace fails, a page save before recovery reopen stays.
 
     The first binding exchange has succeeded and the original hold is gone.
-    Only ``renameat2(flags=1)`` whose source is the binding returns the
-    injected errno. The independent editor then saves the source page after
+    Only the native no-replace whose source is the binding returns the
+    injected errno: Linux ``renameat2(..., flags=1)`` or Darwin
+    ``renamex_np(..., RENAME_EXCL=0x4)``. The other OS symbol is not resolved.
+    The independent editor then saves the source page after
     that page's recovery live check and before ``_open_existing_file_fd``.
     The page inode stays, the binding remains the full non-empty unit, and
     rollback still refuses without a plain rename.
@@ -1780,35 +1921,18 @@ def test_rollback_keeps_page_edit_before_reopen_after_noreplace_failure(tmp_path
         live_checked: set[int] = set()
         busy = False
 
-        class Libc:
-            def __init__(self, *args: object, **kwargs: object) -> None:
-                self.real = real_cdll(*args, **kwargs)
-                self.renameat2 = self._make_rename()
+        def record(src: bytes, dest: bytes, flags: int) -> None:
+            events.append(
+                {
+                    "src": os.fsdecode(src),
+                    "dest": os.fsdecode(dest),
+                    "flags": flags,
+                    "binding_size": binding.stat().st_size,
+                    "hold_exists": bindings._hold_path(binding).exists(),
+                }
+            )
 
-            def _make_rename(self):
-                native = self.real.renameat2
-                native.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
-                native.restype = ctypes.c_int
-
-                def rename(src_dir: int, src: bytes, dest_dir: int, dest: bytes, flags: int) -> int:
-                    if flags == 1 and Path(os.fsdecode(src)) == binding:
-                        events.append(
-                            {
-                                "src": os.fsdecode(src),
-                                "dest": os.fsdecode(dest),
-                                "flags": flags,
-                                "binding_size": binding.stat().st_size,
-                                "hold_exists": bindings._hold_path(binding).exists(),
-                            }
-                        )
-                        ctypes.set_errno(fault)
-                        return -1
-                    return native(src_dir, src, dest_dir, dest, flags)
-
-                return rename
-
-            def __getattr__(self, item: str) -> object:
-                return getattr(self.real, item)
+        Libc = _noreplace_fault_cdll(real_cdll, binding=binding, fault=fault, record=record)
 
         def trace(frame, event, arg):
             nonlocal busy
