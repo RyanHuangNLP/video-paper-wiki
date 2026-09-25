@@ -1059,6 +1059,7 @@ def build_parser() -> argparse.ArgumentParser:
     gi=_add_parser(gate_sub,"inspect");gi.add_argument("--prepared",required=True);gi.add_argument("--operation-id",required=True);gi.add_argument("--upstream-root",required=True);gi.add_argument("--vault-root",required=True);gi.set_defaults(handler=domain_commands.gate_inspect)
 
     from video_paper_wiki.pdf_cli import (
+        run_pdf_bind_prepare_command,
         run_pdf_inventory_command,
         run_pdf_link_prepare_command,
         run_pdf_migrate_prepare_command,
@@ -1068,10 +1069,11 @@ def build_parser() -> argparse.ArgumentParser:
     pdf = _add_parser(
         sub,
         "pdf",
-        help="PDF location inventory, link prepare, resolve, and migration report. No upload.",
+        help="PDF location inventory, link prepare, bind prepare, resolve, and migration report. No upload.",
         description=(
             "Read-only inventory and resolve, plus staging of link plans under "
-            ".work/<batch-id>/pdf-migration/. Commands do not upload to Drive, start a "
+            ".work/<batch-id>/pdf-migration/ and bind plans under "
+            ".work/<batch-id>/pdf-bind/. Commands do not upload to Drive, start a "
             "browser, or mutate a Vault. Apply, open, and rollback are vpwiki-admin only."
         ),
     )
@@ -1106,6 +1108,12 @@ def build_parser() -> argparse.ArgumentParser:
     pdf_report.add_argument("--plan", required=True)
     pdf_report.add_argument("--roots", required=True)
     pdf_report.set_defaults(handler=run_pdf_migrate_report_command)
+    pdf_bind = _add_parser(pdf_sub, "bind-prepare")
+    pdf_bind.add_argument("--roots", required=True)
+    pdf_bind.add_argument("--root-id", dest="root_id", required=True)
+    pdf_bind.add_argument("--request", required=True)
+    pdf_bind.add_argument("--batch-id", dest="batch_id", required=True)
+    pdf_bind.set_defaults(handler=run_pdf_bind_prepare_command)
 
     from video_paper_wiki.flow.cli import run_flow_prepare_command, run_flow_select_command, run_flow_status_command
     _flow_help=("只读正式记录与本会话 `.work/<batch-id>/flow/` 暂存，生成进度、缺失输入与下一步命令；" "不写 Vault、不 apply、不发布（publication 恒 unpublished）、不排优劣；" "进 Vault 仍需各功能自己的 `vpwiki-admin … apply`（本命令不提供）")

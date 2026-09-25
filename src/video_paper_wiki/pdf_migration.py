@@ -660,6 +660,8 @@ def _scan_formal_or_notes(root: Mapping[str, Any]) -> tuple[list[dict[str, Any]]
     notes_dir = base / "papers"
     captured_dir = base / ".raw" / "captured"
     blobs_dir = base / WORK_BLOBS
+    # Explicit wiki/meta/pdf-bindings are not digest-joined here. Inventory
+    # attaches only the binding's own cross-root local_ref.
     digest_bindings = _collect_registration_digests(base, root["root_id"])
 
     if records_dir.is_dir():
@@ -1081,6 +1083,11 @@ def build_inventory(*, roots_path: Path, batch_id: str) -> dict[str, Any]:
             rows, extra = [], []
         collected.extend(rows)
         excluded.extend(extra)
+    from video_paper_wiki.pdf_bindings import explicit_binding_scan
+
+    bound_rows, bound_excluded = explicit_binding_scan(roots)
+    collected.extend(bound_rows)
+    excluded.extend(bound_excluded)
     items = _merge_items(collected)
     excluded.sort(key=lambda row: row["path"])
     counts = {
@@ -1117,40 +1124,58 @@ def _current_location_and_page(root: Mapping[str, Any], paper_id: str) -> tuple[
     return loc, loc_sha, page_sha
 
 
+def _note_text_as_migration_reads(text: str) -> str:
+    """Newline translation of `Path.read_text(encoding="utf-8")`.
+
+    Universal newlines turn CRLF and bare CR into LF before `rstrip` and the
+    PDF section. The sealed basis keeps the original characters; this is the
+    legal read, not a rewrite the user must perform first.
+    """
+
+    return text.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def render_migrated_note(text: str, location: Mapping[str, Any]) -> str:
+    """Note text `_next_page_bytes` writes for this page and location.
+
+    The page is read with universal newlines, then trailing whitespace is
+    removed with `str.rstrip` before the PDF section is appended. Callers that
+    keep an original basis must compare against this string, not against a
+    one-character trim of the migrated prefix.
+    """
+
+    text = _note_text_as_migration_reads(text)
+    compiler_lines = render_pdf_section_lines(location)
+    section = "\n".join(compiler_lines) if compiler_lines else render_pdf_section(location)
+    from video_paper_wiki.notes.merge import join_frontmatter, merge_paper_copy, split_frontmatter
+
+    if f"## {PDF_HEADING}" not in text:
+        rendered = text.rstrip() + "\n" + section
+        if not rendered.endswith("\n"):
+            rendered += "\n"
+        return rendered
+    yaml, body = split_frontmatter(text)
+    if yaml is not None:
+        prefix = join_frontmatter(yaml, "")
+        rendered_body = (body.split(f"## {PDF_HEADING}")[0] if f"## {PDF_HEADING}" in body else body).rstrip()
+        rendered = prefix.rstrip() + "\n" + rendered_body + "\n" + section
+    else:
+        rendered = text.split(f"## {PDF_HEADING}")[0].rstrip() + "\n" + section
+    if not rendered.endswith("\n"):
+        rendered += "\n"
+    return merge_paper_copy(text, rendered)
+
+
 def _next_page_bytes(root: Mapping[str, Any], paper_id: str, location: Mapping[str, Any]) -> tuple[str | None, bytes | None]:
     page_rel = derived_page_path(root["kind"], paper_id)
     if page_rel is None:
         return None, None
     path = resolve_inside_root(Path(root["path"]), page_rel)
-    compiler_lines = render_pdf_section_lines(location)
-    section = "\n".join(compiler_lines) if compiler_lines else render_pdf_section(location)
     if not path.exists():
         # Do not invent a full paper page; only patch existing notes/compiler pages.
         return page_rel, None
     text = path.read_text(encoding="utf-8")
-    from video_paper_wiki.notes.merge import merge_paper_copy
-
-    rendered = text
-    if f"## {PDF_HEADING}" not in text:
-        rendered = text.rstrip() + "\n" + section
-        if not rendered.endswith("\n"):
-            rendered += "\n"
-    else:
-        # Rebuild a synthetic rendered document that only owns the PDF heading.
-        from video_paper_wiki.notes.merge import join_frontmatter, split_frontmatter
-
-        yaml, body = split_frontmatter(text)
-        prefix = ""
-        if yaml is not None:
-            prefix = join_frontmatter(yaml, "")
-            rendered_body = (body.split(f"## {PDF_HEADING}")[0] if f"## {PDF_HEADING}" in body else body).rstrip()
-            rendered = prefix.rstrip() + "\n" + rendered_body + "\n" + section
-        else:
-            rendered = text.split(f"## {PDF_HEADING}")[0].rstrip() + "\n" + section
-        if not rendered.endswith("\n"):
-            rendered += "\n"
-        rendered = merge_paper_copy(text, rendered)
-    return page_rel, rendered.encode("utf-8")
+    return page_rel, render_migrated_note(text, location).encode("utf-8")
 
 
 def _location_for_manifest_entry(
@@ -1577,6 +1602,69 @@ def _try_rename_exchange(src: Path, dest: Path) -> bool:
     return rc == 0
 
 
+def _dirent_occupied(path: Path) -> bool:
+    try:
+        os.lstat(path)
+    except OSError:
+        return False
+    return True
+
+
+def _try_rename_noreplace(src: Path, dest: Path) -> bool:
+    """Move src onto an absent dest. An existing dest is left untouched.
+
+    False when the primitive is missing or dest is occupied. The caller must
+    not fall back to a replacing rename.
+    """
+
+    src_b = os.fsencode(src)
+    dest_b = os.fsencode(dest)
+    try:
+        if sys.platform == "darwin":
+            libc = ctypes.CDLL("/usr/lib/libSystem.B.dylib", use_errno=True)
+            rc = libc.renamex_np(src_b, dest_b, ctypes.c_uint(0x00000004))
+        elif sys.platform.startswith("linux"):
+            libc = ctypes.CDLL("libc.so.6", use_errno=True)
+            renameat2 = libc.renameat2
+            renameat2.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+            rc = renameat2(-100, src_b, -100, dest_b, 1)
+        else:
+            return False
+    except (AttributeError, OSError):
+        return False
+    return rc == 0
+
+
+def _install_absent_preserving_occupant(src: Path, dest: Path) -> None:
+    """Publish src only while dest is absent. Never replace a live dest inode.
+
+    Emit the os.rename audit a builtin replace would, then RENAME_NOREPLACE.
+    A directory entry that appears in that window stays. `_OS_REPLACE` is not
+    a fallback when the primitive is missing or dest is occupied.
+    """
+
+    sys.audit("os.rename", os.fspath(src), os.fspath(dest), -1, -1)
+    if _dirent_occupied(dest):
+        _fail(
+            PDF_APPLY_CHANGED,
+            "writeset changed during apply",
+            {"path": str(dest), "reason": "parallel_edit"},
+        )
+    if _try_rename_noreplace(src, dest):
+        return
+    if _dirent_occupied(dest):
+        _fail(
+            PDF_APPLY_CHANGED,
+            "writeset changed during apply",
+            {"path": str(dest), "reason": "parallel_edit"},
+        )
+    _fail(
+        PDF_APPLY_CHANGED,
+        "atomic dest exchange unavailable; refusing unsafe replace",
+        {"path": str(dest), "reason": PDF_APPLY_EXCHANGE_UNAVAILABLE},
+    )
+
+
 def _unlink_if_present(path: Path) -> None:
     if path.exists() or path.is_symlink():
         path.unlink()
@@ -1763,7 +1851,7 @@ def _pop_install_guard() -> None:
         _INSTALL_GUARDS.pop()
 
 
-def _atomic_write(path: Path, data: bytes) -> None:
+def _atomic_write(path: Path, data: bytes, *, publish_only_if_absent: bool = False) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
     if tmp.exists() or tmp.is_symlink():
@@ -1786,10 +1874,29 @@ def _atomic_write(path: Path, data: bytes) -> None:
         # version is preserved by the exchange install, not by this fd.
         dest_fd = _open_existing_file_fd(path)
         approved_before: bytes | None = None
+        # publish_only_if_absent is the caller's decision that this path was
+        # absent, and it stays in force until this call returns. An inode that
+        # shows up before this reopen is not an approved before: do not read
+        # it and do not select a replacing rename.
+        if publish_only_if_absent:
+            if dest_fd is not None:
+                _fail(
+                    PDF_APPLY_CHANGED,
+                    "writeset changed during apply",
+                    {"path": str(path), "reason": "parallel_edit"},
+                )
+            _install_absent_preserving_occupant(tmp, path)
+            return
         if dest_fd is not None:
             approved_before = _read_fd_bytes(dest_fd)
             _assert_held_dest_matches_guard(path, approved_before)
-        os.replace(tmp, path)
+        # Guarded replaces keep the exchange install. An unguarded absent dest
+        # must not use a replacing rename: an editor can create the path after
+        # the absence check and before that syscall.
+        if dest_fd is None and _matching_install_guard(path) is None:
+            _install_absent_preserving_occupant(tmp, path)
+        else:
+            os.replace(tmp, path)
         # Exchange install leaves the displaced dest at tmp. A temp+rename
         # writer is invisible to dest_fd (that fd still holds the approved before).
         # If exchange is unavailable, the fallback refuses before a plain replace.

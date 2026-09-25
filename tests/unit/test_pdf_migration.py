@@ -206,3 +206,29 @@ def test_link_prepare_unverified(tmp_path, monkeypatch) -> None:
     assert plan["kind"] == "unverified-link"
     assert plan["items"][0]["verification"] == "unverified"
     assert plan["items"][0]["location"]["pdfs"][0]["verification"]["status"] == "unverified"
+
+
+def test_notes_inventory_uses_explicit_binding_local_ref_only(tmp_path, monkeypatch) -> None:
+    """A cache filename or shared digest does not become a canonical included row."""
+
+    from tests.unit.test_pdf_bindings import OTHER, _pdf, _plant, _prepare, _request_item, _world, _write_request
+
+    world = _world(tmp_path, monkeypatch)
+    data = _pdf("migrate-ref", "2209.14792")
+    pdf = _plant(world["cache"], "arxiv-2209.14792.pdf", data)
+    _plant(world["cache"], "also-this-digest.pdf", data)
+    plan = _prepare(world, _write_request(tmp_path, [_request_item(pdf, OTHER, session="bind-migrate")]), "bind-migrate")
+    from video_paper_wiki.pdf_bindings import apply_bind_plan
+
+    apply_bind_plan(
+        plan_path=tmp_path / ".work" / "bind-migrate" / "pdf-bind" / "plan.json",
+        roots_path=world["roots"],
+        root_id="notes-vault",
+        approved_plan_sha256=plan["plan_sha256"],
+        confirm=True,
+    )
+    inventory = build_inventory(roots_path=world["roots"], batch_id="explicit-ref")
+    included = [item for item in inventory["items"] if item["status"] == "included"]
+    assert [item["paper_id"] for item in included] == [OTHER]
+    assert [copy["relative_path"] for copy in included[0]["local_copies"]] == ["arxiv-2209.14792.pdf"]
+    assert not (world["notes"] / ".raw" / "captured").exists()

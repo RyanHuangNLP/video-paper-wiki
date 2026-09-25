@@ -6,6 +6,7 @@ from pathlib import Path
 
 from video_paper_wiki.contracts import ContractError
 from video_paper_wiki.envelope import emit_error, emit_staging_error, emit_success
+from video_paper_wiki.pdf_bindings import PdfBindingError, prepare_bindings
 from video_paper_wiki.pdf_locations import PREFER_AUTO, PdfLocationError
 from video_paper_wiki.pdf_migration import (
     PdfMigrationError,
@@ -23,6 +24,7 @@ PREPARE_COMMAND = "pdf.migrate-prepare"
 LINK_COMMAND = "pdf.link-prepare"
 RESOLVE_COMMAND = "pdf.resolve"
 REPORT_COMMAND = "pdf.migrate-report"
+BIND_COMMAND = "pdf.bind-prepare"
 
 
 def _emit_coded(command: str, exc) -> int:
@@ -41,7 +43,7 @@ def _run(command: str, function):
         return emit_success(command, function())
     except StagingError as exc:
         return emit_staging_error(command, exc)
-    except (PdfLocationError, PdfMigrationError, ContractError, SecureIOError) as exc:
+    except (PdfLocationError, PdfMigrationError, PdfBindingError, ContractError, SecureIOError) as exc:
         return _emit_coded(command, exc)
 
 
@@ -96,4 +98,16 @@ def run_pdf_migrate_report_command(args):
     return _run(
         REPORT_COMMAND,
         lambda: build_report(plan_path=Path(args.plan), roots_path=Path(args.roots)),
+    )
+
+
+def run_pdf_bind_prepare_command(args):
+    return _run(
+        BIND_COMMAND,
+        lambda: prepare_bindings(
+            roots_path=Path(args.roots),
+            root_id=args.root_id,
+            request_path=Path(args.request),
+            batch_id=args.batch_id,
+        ),
     )

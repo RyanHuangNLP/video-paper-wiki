@@ -136,6 +136,9 @@ _SCHEMA_TITLES = {
     "video-paper-wiki.pdf-upload-manifest.v1",
     "video-paper-wiki.pdf-link-plan.v1",
     "video-paper-wiki.pdf-migration-report.v1",
+    "video-paper-wiki.pdf-bind-request.v1",
+    "video-paper-wiki.pdf-bind-plan.v1",
+    "video-paper-wiki.pdf-binding.v1",
 }
 
 

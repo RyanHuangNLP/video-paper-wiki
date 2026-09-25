@@ -86,3 +86,23 @@ def test_pdf_leaves_and_resolve_offline_conflict(tmp_path, monkeypatch, capsys) 
     reported = _stdout(capsys)
     assert report == 0
     assert reported["data"]["schema"] == "video-paper-wiki.pdf-migration-report.v1"
+    missing = tmp_path / "missing-bind-request.json"
+    bound = main(
+        [
+            "pdf",
+            "bind-prepare",
+            "--roots",
+            str(roots),
+            "--root-id",
+            "notes-main",
+            "--request",
+            str(missing),
+            "--batch-id",
+            "cli-bind",
+        ]
+    )
+    refused = _stdout(capsys)
+    assert bound == 2
+    assert refused["command"] == "pdf.bind-prepare"
+    assert refused["ok"] is False
+    assert refused["error"]["code"] == "PDF_BIND_INVALID"
