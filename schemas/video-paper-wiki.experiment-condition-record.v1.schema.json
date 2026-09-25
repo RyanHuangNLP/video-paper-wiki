@@ -187,7 +187,41 @@
           "minItems": 1,
           "maxItems": 16,
           "items": {
-            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/portable_vault_relative_path"
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/portable_vault_relative_path"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+$(?![\\s\\S])"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/captured_artifact_path"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+$(?![\\s\\S])"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/derived_artifact_path"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+$(?![\\s\\S])"
+                  }
+                ]
+              }
+            ]
           }
         },
         "search_terms": {

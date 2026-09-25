@@ -8,7 +8,7 @@ from video_paper_wiki.article_revision import check_article_revision, status_art
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.domain_store import status_domain_store
 from video_paper_wiki.domain_versions import build_domain_source_version_view
-from video_paper_wiki.experiment_matrix import build_experiment_comparison_matrix
+from video_paper_wiki.experiment_matrix import MAX_PAIRWISE_ROWS, build_experiment_comparison_matrix
 from video_paper_wiki.experiment_store import status_experiment_store
 from video_paper_wiki.flow.actions import (
     AGENT_APPLY_KEY,
@@ -25,6 +25,7 @@ from video_paper_wiki.flow.actions import (
     fail,
     invariants,
     missing_item,
+    scale_missing_inputs,
     unique_sorted,
 )
 from video_paper_wiki.identity import is_canonical_paper_id
@@ -196,7 +197,17 @@ def _selection_view(selection, current_basis):
     }
 
 
-def _missing_inputs(selection, universe_ids, papers, batch_id, claims_by_paper):
+def _missing_inputs(
+    selection,
+    universe_ids,
+    papers,
+    batch_id,
+    claims_by_paper,
+    *,
+    paper_filter,
+    pairwise_state,
+    condition_count,
+):
     items = []
     if selection is None:
         items.append(
@@ -278,6 +289,15 @@ def _missing_inputs(selection, universe_ids, papers, batch_id, claims_by_paper):
                     claim_ids,
                 )
             )
+    items.extend(
+        scale_missing_inputs(
+            pairwise_state=pairwise_state,
+            condition_count=condition_count,
+            paper_filter=paper_filter,
+            selection=selection,
+            papers=papers,
+        )
+    )
     return items[:256]
 
 
@@ -289,21 +309,28 @@ def build_flow_status(*, vault_root, batch_id=None, paper_id=None):
     versions = build_domain_source_version_view(vault_root=vault_root)
     domain = status_domain_store(vault_root=vault_root)
     experiments = status_experiment_store(vault_root=vault_root)
-    matrix = build_experiment_comparison_matrix(vault_root=vault_root)
+    _require(experiments, ("basis", "conditions", "next_action"), "/status_experiment_store")
+    condition_count = len(experiments["conditions"])
+    pairwise_state = "computed"
+    matrix = None
+    if condition_count > MAX_PAIRWISE_ROWS:
+        pairwise_state = "not_computed_limit"
+    else:
+        matrix = build_experiment_comparison_matrix(vault_root=vault_root)
     articles_status = status_article_store(vault_root=vault_root, batch_id=batch_id)
     _require(versions, ("papers", "lineages", "basis"), "/build_domain_source_version_view")
     _require(domain, ("lineages",), "/status_domain_store")
-    _require(experiments, ("basis", "conditions", "next_action"), "/status_experiment_store")
-    _require(matrix, ("basis", "pairwise"), "/build_experiment_comparison_matrix")
+    if matrix is not None:
+        _require(matrix, ("basis", "pairwise"), "/build_experiment_comparison_matrix")
     _require(articles_status, ("basis", "articles"), "/status_article_store")
-    ref = _check_bases(
-        (
-            ("/build_domain_source_version_view", versions["basis"]),
-            ("/status_experiment_store", experiments["basis"]),
-            ("/build_experiment_comparison_matrix", matrix["basis"]),
-            ("/status_article_store", articles_status["basis"]),
-        )
-    )
+    basis_pairs = [
+        ("/build_domain_source_version_view", versions["basis"]),
+        ("/status_experiment_store", experiments["basis"]),
+    ]
+    if matrix is not None:
+        basis_pairs.append(("/build_experiment_comparison_matrix", matrix["basis"]))
+    basis_pairs.append(("/status_article_store", articles_status["basis"]))
+    ref = _check_bases(tuple(basis_pairs))
     selection = _read_selection(batch_id)
     article_rows = list(articles_status["articles"])
     if paper_id is not None:
@@ -420,11 +447,16 @@ def build_flow_status(*, vault_root, batch_id=None, paper_id=None):
         "incomparable",
         "insufficient_conditions",
     }
-    verdicts = []
-    for item in matrix["pairwise"]:
-        if type(item) is dict and item.get("verdict") in known_verdicts:
-            verdicts.append(item["verdict"])
-    verdict_counts = _count_map(verdicts)
+    if pairwise_state == "computed":
+        pairwise_count = len(matrix["pairwise"])
+        verdicts = []
+        for item in matrix["pairwise"]:
+            if type(item) is dict and item.get("verdict") in known_verdicts:
+                verdicts.append(item["verdict"])
+        verdict_counts = _count_map(verdicts)
+    else:
+        pairwise_count = None
+        verdict_counts = {}
     staged_count = sum(1 for row in articles_status["articles"] if row.get("head_location") == "staged")
     complete_count = sum(1 for row in articles_status["articles"] if row.get("complete"))
     in_progress = len(articles_status["articles"]) - complete_count
@@ -438,16 +470,27 @@ def build_flow_status(*, vault_root, batch_id=None, paper_id=None):
         fail("FLOW_INVALID", "/status_article_store", "repair_input", {"reason": "upstream_shape"})
     visible = papers if paper_id is None else [row for row in papers if row["paper_id"] == paper_id]
     selection_view = _selection_view(selection, output_basis)
-    missing = _missing_inputs(selection, ordered, papers, batch_id, claims_by_paper)
+    missing = _missing_inputs(
+        selection,
+        ordered,
+        papers,
+        batch_id,
+        claims_by_paper,
+        paper_filter=paper_id,
+        pairwise_state=pairwise_state,
+        condition_count=condition_count,
+    )
     actions = assemble_next_actions(
         vault_root=vault_root,
         batch_id=batch_id,
         selection=selection,
         papers=papers,
         universe_ids=ordered,
-        condition_count=len(experiments["conditions"]),
+        condition_count=condition_count,
         experiment_next=experiments["next_action"],
         articles=all_articles,
+        pairwise_state=pairwise_state,
+        paper_filter=paper_id,
     )
     document = {
         "schema": STATUS_SCHEMA,
@@ -461,7 +504,7 @@ def build_flow_status(*, vault_root, batch_id=None, paper_id=None):
             "papers": len(ordered),
             "lineages": len(versions["lineages"]),
             "conditions": len(experiments["conditions"]),
-            "pairwise": len(matrix["pairwise"]),
+            "pairwise": pairwise_count,
             "articles": len(articles_status["articles"]),
             "staged_articles": staged_count,
         },
@@ -475,8 +518,9 @@ def build_flow_status(*, vault_root, batch_id=None, paper_id=None):
                 "by_typed_fact_status": typed_counts,
             },
             "compare": {
-                "condition_count": len(experiments["conditions"]),
-                "pairwise_count": len(matrix["pairwise"]),
+                "condition_count": condition_count,
+                "pairwise_state": pairwise_state,
+                "pairwise_count": pairwise_count,
                 "by_verdict": verdict_counts,
             },
             "survey": {

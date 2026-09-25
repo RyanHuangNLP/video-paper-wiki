@@ -178,3 +178,39 @@ def test_real_world_documents(world) -> None:
         item for item in live_multi["next_actions"] if item["id"].startswith("compare-prepare-experiment-")
     )
     assert action["argv"].count("--paper-id") == 1
+
+
+def test_pairwise_state_legacy_computed_and_limit_refusals() -> None:
+    status = _fixture(STATUS_SCHEMA)
+    validate_document(status, expected_schema=STATUS_SCHEMA)
+    assert "pairwise_state" not in status["stages"]["compare"]
+    computed = copy.deepcopy(status)
+    computed["stages"]["compare"]["pairwise_state"] = "computed"
+    validate_document(computed, expected_schema=STATUS_SCHEMA)
+    limited = copy.deepcopy(status)
+    limited["stages"]["compare"]["pairwise_state"] = "not_computed_limit"
+    limited["counts"]["pairwise"] = None
+    limited["stages"]["compare"]["pairwise_count"] = None
+    limited["stages"]["compare"]["by_verdict"] = {}
+    validate_document(limited, expected_schema=STATUS_SCHEMA)
+    null_without_state = copy.deepcopy(status)
+    null_without_state["counts"]["pairwise"] = None
+    null_without_state["stages"]["compare"]["pairwise_count"] = None
+    _reject(null_without_state, STATUS_SCHEMA)
+    computed_null = copy.deepcopy(computed)
+    computed_null["counts"]["pairwise"] = None
+    computed_null["stages"]["compare"]["pairwise_count"] = None
+    _reject(computed_null, STATUS_SCHEMA)
+    limited_zero = copy.deepcopy(limited)
+    limited_zero["counts"]["pairwise"] = 0
+    limited_zero["stages"]["compare"]["pairwise_count"] = 0
+    _reject(limited_zero, STATUS_SCHEMA)
+    limited_verdict = copy.deepcopy(limited)
+    limited_verdict["stages"]["compare"]["by_verdict"] = {"comparable": 1}
+    _reject(limited_verdict, STATUS_SCHEMA)
+    mixed = copy.deepcopy(limited)
+    mixed["counts"]["pairwise"] = 3
+    _reject(mixed, STATUS_SCHEMA)
+    unknown_state = copy.deepcopy(status)
+    unknown_state["stages"]["compare"]["pairwise_state"] = "skipped"
+    _reject(unknown_state, STATUS_SCHEMA)

@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import re
 
-from video_paper_wiki.article_store import article_id_from_question
+from video_paper_wiki.article_store import MAX_TABLE_ROWS, article_id_from_question
 from video_paper_wiki.contracts import schema_by_title
+from video_paper_wiki.experiment_matrix import MAX_PAIRWISE_ROWS
 
 FORBIDDEN_TOKENS = ("apply", "vpwiki-admin", "publish")
 PUBLISH_REASON = (
@@ -174,6 +175,94 @@ def _batch_token(batch_id):
     return batch_id
 
 
+def paper_condition_count(row):
+    conditions = row.get("conditions")
+    if type(conditions) is not list:
+        return 0
+    return len(conditions)
+
+
+def compare_scope_paper_ids(paper_filter, selection, papers):
+    if paper_filter is not None:
+        return [paper_filter]
+    if selection is not None:
+        return unique_sorted(selection["paper_ids"])
+    return unique_sorted(row["paper_id"] for row in papers)
+
+
+def consumable_compare_paper_id(paper_filter, selection, papers, *, max_rows=MAX_PAIRWISE_ROWS):
+    by_id = {row["paper_id"]: row for row in papers}
+    for paper_id in compare_scope_paper_ids(paper_filter, selection, papers):
+        row = by_id.get(paper_id)
+        if row is None:
+            continue
+        count = paper_condition_count(row)
+        if 1 <= count <= max_rows:
+            return paper_id
+    return None
+
+
+def selected_condition_count(selection, papers):
+    if selection is None:
+        return 0
+    wanted = set(selection["paper_ids"])
+    total = 0
+    for row in papers:
+        if row["paper_id"] in wanted:
+            total += paper_condition_count(row)
+    return total
+
+
+def scale_missing_inputs(*, pairwise_state, condition_count, paper_filter, selection, papers):
+    items = []
+    if pairwise_state == "not_computed_limit":
+        items.append(
+            missing_item(
+                "compare-pairwise-limit",
+                "compare",
+                "pairwise",
+                (
+                    f"pairwise comparison is not computed; vault condition count is "
+                    f"{condition_count} and the limit is {MAX_PAIRWISE_ROWS}"
+                ),
+                [],
+            )
+        )
+        if consumable_compare_paper_id(paper_filter, selection, papers) is None:
+            items.append(
+                missing_item(
+                    "compare-paper-id",
+                    "compare",
+                    "paper_id",
+                    (
+                        "current scope has no paper with 1-"
+                        + str(MAX_PAIRWISE_ROWS)
+                        + " conditions; bind --paper-id on status or select an eligible paper in a new batch"
+                    ),
+                    compare_scope_paper_ids(paper_filter, selection, papers),
+                )
+            )
+    if selection is not None:
+        selected_total = selected_condition_count(selection, papers)
+        if selected_total > MAX_TABLE_ROWS:
+            items.append(
+                missing_item(
+                    "article-narrow-selection",
+                    "survey",
+                    "paper_ids",
+                    (
+                        "selected papers have "
+                        + str(selected_total)
+                        + " conditions; article context limit is "
+                        + str(MAX_TABLE_ROWS)
+                        + "; narrow the selection in a new batch"
+                    ),
+                    list(selection["paper_ids"]),
+                )
+            )
+    return items
+
+
 def eligible_experiment_paper_id(selection, papers):
     if selection is None:
         return None
@@ -220,6 +309,8 @@ def assemble_next_actions(
     prepare_paths=None,
     previous_record_id=None,
     setting_key=None,
+    pairwise_state="computed",
+    paper_filter=None,
 ):
     items = []
     selected_ids = set(selection["paper_ids"]) if selection else set()
@@ -458,7 +549,28 @@ def assemble_next_actions(
                 "command_tree",
             )
         )
-    if condition_count >= 2:
+    bound_paper = None
+    if pairwise_state == "not_computed_limit":
+        bound_paper = consumable_compare_paper_id(paper_filter, selection, papers)
+        if bound_paper is not None:
+            items.append(
+                make_action(
+                    "compare-matrix-" + bound_paper,
+                    "compare",
+                    "read the experiment comparison matrix for 单篇 " + bound_paper,
+                    [
+                        "experiments",
+                        "matrix",
+                        "--vault-root",
+                        vault_root,
+                        "--paper-id",
+                        bound_paper,
+                    ],
+                    "none",
+                    "command_tree",
+                )
+            )
+    elif condition_count >= 2:
         items.append(
             make_action(
                 "compare-matrix",
@@ -481,27 +593,28 @@ def assemble_next_actions(
             )
         )
     if selection and batch_id is not None and selection.get("question") and kind != "article":
-        expected = article_id_from_question(selection["question"], selection["paper_ids"])
-        if all(item["article_id"] != expected for item in articles):
-            items.append(
-                make_action(
-                    "survey-prepare-article",
-                    "survey",
-                    "prepare article context and outline",
-                    [
-                        "flow",
-                        "prepare",
-                        "--vault-root",
-                        vault_root,
-                        "--batch-id",
-                        batch_id,
-                        "--kind",
-                        "article",
-                    ],
-                    "work_staging",
-                    "command_tree",
+        if selected_condition_count(selection, papers) <= MAX_TABLE_ROWS:
+            expected = article_id_from_question(selection["question"], selection["paper_ids"])
+            if all(item["article_id"] != expected for item in articles):
+                items.append(
+                    make_action(
+                        "survey-prepare-article",
+                        "survey",
+                        "prepare article context and outline",
+                        [
+                            "flow",
+                            "prepare",
+                            "--vault-root",
+                            vault_root,
+                            "--batch-id",
+                            batch_id,
+                            "--kind",
+                            "article",
+                        ],
+                        "work_staging",
+                        "command_tree",
+                    )
                 )
-            )
     if prepare_paths and kind == "article":
         items.append(
             make_action(
@@ -615,16 +728,32 @@ def assemble_next_actions(
             "--articles-batch",
             batch_id,
         ]
-        items.append(
-            make_action(
-                "survey-reading-build",
-                "survey",
-                "build reading pages in a distinct batch",
-                argv,
-                "work_staging",
-                "module_entry",
+        if pairwise_state == "not_computed_limit":
+            if bound_paper is None:
+                bound_paper = consumable_compare_paper_id(paper_filter, selection, papers)
+            if bound_paper is not None:
+                argv.extend(["--paper-id", bound_paper])
+                items.append(
+                    make_action(
+                        "survey-reading-build-" + bound_paper,
+                        "survey",
+                        "build reading pages for 单篇 " + bound_paper + " in a distinct batch",
+                        argv,
+                        "work_staging",
+                        "module_entry",
+                    )
+                )
+        else:
+            items.append(
+                make_action(
+                    "survey-reading-build",
+                    "survey",
+                    "build reading pages in a distinct batch",
+                    argv,
+                    "work_staging",
+                    "module_entry",
+                )
             )
-        )
     items.append(
         make_action(
             "publish-human-gate",
