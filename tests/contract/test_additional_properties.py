@@ -5,7 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from .paths import load_json
+from video_paper_wiki.contracts import ContractError, validate_document
+
+from .paths import VALID, load_json
 
 ENVELOPE_EXCEPTIONS = {
     ("oneOf", "0", "properties", "data"),
@@ -48,6 +50,11 @@ _FLOW_OVERLAY_SUFFIXES = (
         ),
     ),
 )
+PDF_BINDING_SCHEMA = "video-paper-wiki.pdf-binding.v1.schema.json"
+PDF_BINDING_TITLE = "video-paper-wiki.pdf-binding.v1"
+# Exact frozen allowance: the existing-note predicate only. No blanket
+# if/then/allOf or whole-schema exemption.
+_PDF_BINDING_OVERLAY_SUFFIXES = (("properties/identity_basis/allOf/0/if", ("",)),)
 _APPLICATOR_KEYWORDS = frozenset({"allOf", "anyOf", "oneOf", "if", "then", "else", "not"})
 _INDEXED_APPLICATORS = frozenset({"allOf", "anyOf", "oneOf"})
 
@@ -63,6 +70,7 @@ def _cartesian_overlays(rows: tuple[tuple[str, tuple[str, ...]], ...]) -> set[tu
 
 
 FLOW_OVERLAYS = _cartesian_overlays(_FLOW_OVERLAY_SUFFIXES)
+PDF_BINDING_OVERLAYS = _cartesian_overlays(_PDF_BINDING_OVERLAY_SUFFIXES)
 
 
 def _assert_code_overlay_is_inside_closed_object(schema, node, path) -> None:
@@ -159,6 +167,8 @@ def _assert_schema_objects_closed(schema: dict, schema_label: Path | str) -> Non
                 _assert_code_overlay_is_inside_closed_object(schema, node, path)
             elif schema_name == FLOW_STATUS_SCHEMA and path in FLOW_OVERLAYS:
                 _assert_guarded_overlay(schema, node, path)
+            elif schema_name == PDF_BINDING_SCHEMA and path in PDF_BINDING_OVERLAYS:
+                _assert_guarded_overlay(schema, node, path)
             else:
                 assert node.get("additionalProperties") is False, f"{schema_label}:{'/'.join(path)}"
 
@@ -199,6 +209,59 @@ def test_opened_flow_instance_is_rejected() -> None:
     del schema["$defs"]["stages"]["properties"]["compare"]["additionalProperties"]
     with pytest.raises(AssertionError, match="not an already closed instance"):
         _assert_schema_objects_closed(schema, FLOW_STATUS_SCHEMA)
+
+
+def test_pdf_binding_conditional_overlay_only_refines_closed_object() -> None:
+    schema = load_json(Path("schemas") / PDF_BINDING_SCHEMA)
+    assert len(PDF_BINDING_OVERLAYS) == 1
+    observed: set[tuple[str, ...]] = set()
+    for node, path in _walk(schema):
+        if (node.get("type") == "object" or "properties" in node) and node.get("additionalProperties") is not False:
+            assert path in PDF_BINDING_OVERLAYS
+            _assert_guarded_overlay(schema, node, path)
+            observed.add(path)
+    assert observed == PDF_BINDING_OVERLAYS
+
+
+def test_unlisted_pdf_binding_overlay_is_rejected() -> None:
+    schema = copy.deepcopy(load_json(Path("schemas") / PDF_BINDING_SCHEMA))
+    schema["properties"]["identity_basis"]["allOf"][0]["then"] = {
+        "properties": {"scanned_text": {"minLength": 1}}
+    }
+    with pytest.raises(AssertionError, match="properties/identity_basis/allOf/0/then"):
+        _assert_schema_objects_closed(schema, PDF_BINDING_SCHEMA)
+
+
+def test_pdf_binding_overlay_cannot_refine_an_undeclared_field() -> None:
+    schema = copy.deepcopy(load_json(Path("schemas") / PDF_BINDING_SCHEMA))
+    schema["properties"]["identity_basis"]["allOf"][0]["if"]["properties"]["not_declared"] = {"const": True}
+    with pytest.raises(AssertionError, match="refines undeclared"):
+        _assert_schema_objects_closed(schema, PDF_BINDING_SCHEMA)
+
+
+def test_opened_pdf_binding_instance_is_rejected() -> None:
+    schema = copy.deepcopy(load_json(Path("schemas") / PDF_BINDING_SCHEMA))
+    del schema["properties"]["identity_basis"]["additionalProperties"]
+    with pytest.raises(AssertionError, match="properties/identity_basis"):
+        _assert_schema_objects_closed(schema, PDF_BINDING_SCHEMA)
+
+
+def test_existing_note_conditional_keeps_declared_scanned_text() -> None:
+    document = load_json(VALID / f"{PDF_BINDING_TITLE}.json")
+    validate_document(document, expected_schema=PDF_BINDING_TITLE)
+    missing = copy.deepcopy(document)
+    missing["identity_basis"]["kind"] = "existing-note"
+    with pytest.raises(ContractError) as missing_text:
+        validate_document(missing, expected_schema=PDF_BINDING_TITLE)
+    assert missing_text.value.code == "SCHEMA_INVALID"
+    present = copy.deepcopy(missing)
+    present["identity_basis"]["scanned_text"] = "kept note\n"
+    validate_document(present, expected_schema=PDF_BINDING_TITLE)
+    unknown = copy.deepcopy(document)
+    unknown["identity_basis"]["not_declared"] = True
+    with pytest.raises(ContractError) as extra_field:
+        validate_document(unknown, expected_schema=PDF_BINDING_TITLE)
+    assert extra_field.value.code == "SCHEMA_INVALID"
 
 
 def test_code_conditional_overlays_only_refine_closed_objects() -> None:

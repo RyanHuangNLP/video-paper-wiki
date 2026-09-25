@@ -11,8 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from tests.research.conftest import ROOT
 from tests.support import make_checkout, pdf_bytes
+
+ROOT = Path(__file__).resolve().parents[2]
 
 
 def test_pyproject_exposes_research_script_not_admin() -> None:
@@ -40,6 +41,14 @@ def test_installed_layout_exposes_entrypoints_and_resources(tmp_path: Path) -> N
     lib = prefix / "lib"
     lib.mkdir(parents=True)
     _install_tree(ROOT / "src" / "video_paper_wiki", lib / "video_paper_wiki")
+    schema_dest = lib / "video_paper_wiki" / "schemas"
+    schema_dest.mkdir()
+    for name in (
+        "video-paper-wiki.pdf-bind-request.v1.schema.json",
+        "video-paper-wiki.pdf-bind-plan.v1.schema.json",
+        "video-paper-wiki.pdf-binding.v1.schema.json",
+    ):
+        shutil.copyfile(ROOT / "schemas" / name, schema_dest / name)
     _install_tree(ROOT / "src" / "video_paper_wiki_research", lib / "video_paper_wiki_research")
     _install_tree(
         ROOT / "operator" / "parser_executor" / "src" / "video_paper_wiki_parser_executor",
@@ -56,9 +65,14 @@ def test_installed_layout_exposes_entrypoints_and_resources(tmp_path: Path) -> N
     bin_dir = prefix / "bin"
     bin_dir.mkdir()
     research = bin_dir / "vpwiki-research"
+    vpwiki = bin_dir / "vpwiki"
     parser = bin_dir / "vpwiki-parser"
     research.write_text(
         "#!" + sys.executable + "\nfrom video_paper_wiki_research.cli import main\nimport sys\nsys.exit(main())\n",
+        encoding="utf-8",
+    )
+    vpwiki.write_text(
+        "#!" + sys.executable + "\nfrom video_paper_wiki.cli import main\nimport sys\nsys.exit(main())\n",
         encoding="utf-8",
     )
     parser.write_text(
@@ -67,6 +81,7 @@ def test_installed_layout_exposes_entrypoints_and_resources(tmp_path: Path) -> N
     )
     research.chmod(stat.S_IRWXU)
     parser.chmod(stat.S_IRWXU)
+    vpwiki.chmod(stat.S_IRWXU)
     env = {
         "PATH": str(bin_dir) + ":/usr/bin:/bin",
         "PYTHONPATH": str(lib),
@@ -96,6 +111,39 @@ def test_installed_layout_exposes_entrypoints_and_resources(tmp_path: Path) -> N
     assert Path(payload["module"]).resolve().is_relative_to(lib.resolve())
     assert payload["schema"] is True
     assert payload["prompt"] is True
+    bind_schemas = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import video_paper_wiki, video_paper_wiki.resources as r; "
+            "names=set(r.schema_resource_names()); "
+            "need=("
+            "'video-paper-wiki.pdf-bind-request.v1.schema.json',"
+            "'video-paper-wiki.pdf-bind-plan.v1.schema.json',"
+            "'video-paper-wiki.pdf-binding.v1.schema.json'"
+            "); "
+            "missing=[name for name in need if name not in names]; "
+            "raise SystemExit(0 if not missing else repr(missing))",
+        ],
+        cwd=tmp_path,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert bind_schemas.returncode == 0, bind_schemas.stdout + bind_schemas.stderr
+    bind_usage = subprocess.run(
+        [str(vpwiki), "pdf", "bind-prepare"],
+        cwd=tmp_path,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        check=False,
+    )
+    assert bind_usage.returncode == 2
+    assert json.loads(bind_usage.stdout)["error"]["code"] == "USAGE"
     usage = subprocess.run(
         [str(research), "pdf", "intake"],
         cwd=tmp_path,

@@ -693,6 +693,42 @@ def _main(argv:list[str]|None=None)->int:
         except (PdfMigrationError,PdfLocationError,ContractError,SecureIOError) as exc:
             details=dict(getattr(exc,'details',{}) or {})
             sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
+    if words[:2]==['pdf','bind-apply']:
+        command=_Parser(prog='vpwiki-admin pdf bind-apply');command.add_argument('--plan',required=True);command.add_argument('--roots',required=True);command.add_argument('--root-id',required=True);command.add_argument('--approved-plan-sha256',required=True);args=command.parse_args(words[2:])
+        from video_paper_wiki.contracts import ContractError
+        from video_paper_wiki.jcs import canonicalize
+        from video_paper_wiki.pdf_bindings import PdfBindingError
+        from video_paper_wiki.pdf_locations import PdfLocationError
+        from video_paper_wiki.pdf_migration import PdfMigrationError
+        from video_paper_wiki.secure_io import SecureIOError
+        from video_paper_wiki.staging import StagingError
+        from video_paper_wiki_operator.pdf_bindings import apply_pdf_bindings
+        def _pdf_bind_confirm(summary):
+            sys.stderr.buffer.write(canonicalize(summary)+b'\n');sys.stderr.buffer.flush();return _confirm(words)
+        try:
+            result=apply_pdf_bindings(plan_path=Path(args.plan),roots_path=Path(args.roots),root_id=args.root_id,approved_plan_sha256=args.approved_plan_sha256,confirm=_pdf_bind_confirm)
+            sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
+        except (PdfBindingError,PdfMigrationError,PdfLocationError,StagingError,ContractError,SecureIOError) as exc:
+            details=dict(getattr(exc,'details',{}) or {})
+            if 'next_action' not in details:details['next_action']='repair_input'
+            sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
+    if words[:2]==['pdf','bind-rollback']:
+        command=_Parser(prog='vpwiki-admin pdf bind-rollback');command.add_argument('--journal',required=True);command.add_argument('--roots',required=True);args=command.parse_args(words[2:])
+        from video_paper_wiki.contracts import ContractError
+        from video_paper_wiki.jcs import canonicalize
+        from video_paper_wiki.pdf_bindings import PdfBindingError
+        from video_paper_wiki.pdf_locations import PdfLocationError
+        from video_paper_wiki.pdf_migration import PdfMigrationError
+        from video_paper_wiki.secure_io import SecureIOError
+        from video_paper_wiki_operator.pdf_bindings import rollback_pdf_bindings
+        def _pdf_bind_rollback_confirm(summary):
+            sys.stderr.buffer.write(canonicalize(summary)+b'\n');sys.stderr.buffer.flush();return _confirm(words)
+        try:
+            result=rollback_pdf_bindings(journal_path=Path(args.journal),roots_path=Path(args.roots),confirm=_pdf_bind_rollback_confirm)
+            sys.stdout.write(json.dumps({'ok':True,'data':result},sort_keys=True,separators=(',',':'))+'\n');return 0
+        except (PdfBindingError,PdfMigrationError,PdfLocationError,ContractError,SecureIOError) as exc:
+            details=dict(getattr(exc,'details',{}) or {})
+            sys.stdout.write(json.dumps({'ok':False,'error':{'code':exc.code,'message':getattr(exc,'message',str(exc)),'details':details}},sort_keys=True,separators=(',',':'))+'\n');return int(getattr(exc,'exit_code',2))
     if ns.upstream_root is None:parser.error('--upstream-root is required for upstream passthrough')
     root=_verified_root(ns.upstream_root)
     if words[0]=='index':
