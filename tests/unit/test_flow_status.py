@@ -663,10 +663,15 @@ def test_bulk_scale_fixture_invalid_inputs_fail_like_serial_publication(tmp_path
             err.message,
             getattr(err, "details", None),
             getattr(err, "exit_code", None),
+            type(err.code),
+            type(err.message),
+            type(getattr(err, "exit_code", None)),
         )
 
     for kind in ("missing", "extra", "nested", "reference"):
         expected = failure("serial", kind, serial)
         actual = failure("bulk", kind, _grow_conditions)
         assert expected[1], kind
+        assert expected[7] is int, kind
+        assert expected[5] is str and expected[6] is str, kind
         assert actual == expected, kind
