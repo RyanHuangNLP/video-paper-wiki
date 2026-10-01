@@ -658,7 +658,7 @@ def test_bulk_scale_fixture_invalid_inputs_fail_like_serial_publication(tmp_path
             grow(world, payload, count=3, key_prefix="invalid-", batch_prefix="inv")
         err = exc.value
         return (
-            type(err).__name__,
+            type(err),
             err.code,
             err.message,
             getattr(err, "details", None),
