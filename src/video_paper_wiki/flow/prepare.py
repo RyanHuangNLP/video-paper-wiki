@@ -18,6 +18,7 @@ from video_paper_wiki.flow.actions import (
     fail,
     invariants,
     missing_item,
+    scale_missing_inputs,
     setting_key_schema,
     unique_sorted,
 )
@@ -240,6 +241,14 @@ def _prepare_experiment(*, vault_root, batch_id, status, paper_ids, setting_key,
     validate_document(document, PREPARE_SCHEMA)
     staged = _stage_output(batch_id, relative, payload, "experiments.record --input")
     document["outputs"] = [staged]
+    pairwise_state = status["stages"]["compare"].get("pairwise_state", "computed")
+    document["missing_inputs"] = list(missing) + scale_missing_inputs(
+        pairwise_state=pairwise_state,
+        condition_count=status["counts"]["conditions"],
+        paper_filter=status.get("paper_filter"),
+        selection=selection,
+        papers=status["papers"],
+    )
     document["next_actions"] = assemble_next_actions(
         vault_root=vault_root,
         batch_id=batch_id,
@@ -253,6 +262,8 @@ def _prepare_experiment(*, vault_root, batch_id, status, paper_ids, setting_key,
         prepare_paths=[staged["path"]],
         previous_record_id=previous,
         setting_key=setting_key,
+        pairwise_state=pairwise_state,
+        paper_filter=status.get("paper_filter"),
     )
     return document
 
@@ -362,6 +373,14 @@ def _prepare_article(*, vault_root, batch_id, status, paper_ids, question, selec
     staged_ctx = _stage_output(batch_id, ctx_rel, envelope, "articles.import --context")
     staged_doc = _stage_output(batch_id, doc_rel, document_bytes, "articles.import --document")
     document["outputs"] = [staged_ctx, staged_doc]
+    pairwise_state = status["stages"]["compare"].get("pairwise_state", "computed")
+    document["missing_inputs"] = list(document["missing_inputs"]) + scale_missing_inputs(
+        pairwise_state=pairwise_state,
+        condition_count=status["counts"]["conditions"],
+        paper_filter=status.get("paper_filter"),
+        selection=selection,
+        papers=status["papers"],
+    )
     document["next_actions"] = assemble_next_actions(
         vault_root=vault_root,
         batch_id=batch_id,
@@ -373,6 +392,8 @@ def _prepare_article(*, vault_root, batch_id, status, paper_ids, question, selec
         articles=[item for row in status["papers"] for item in row["articles"]],
         kind="article",
         prepare_paths=[staged_ctx["path"], staged_doc["path"]],
+        pairwise_state=pairwise_state,
+        paper_filter=status.get("paper_filter"),
     )
     return document
 

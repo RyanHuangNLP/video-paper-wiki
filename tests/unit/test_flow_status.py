@@ -2,13 +2,16 @@ from __future__ import annotations
 
 import copy
 import json
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
 
 from tests.unit.test_article_revision import _apply_staged_articles, _import_outline
 from tests.unit.test_domain_proposal import _snapshot, make_world
-from tests.unit.test_experiment_matrix import _publish_exp
+from tests.unit.test_experiment_matrix import _publish_exp, _second_paper_payload
 from tests.unit.test_experiment_store import valid_condition_input
 from tests.unit.test_graph_projection import _three_chain
 from video_paper_wiki.contracts import validate_document
@@ -112,6 +115,7 @@ def test_three_chain_counts_filter_and_lineage_keys(world):
     assert document["counts"]["lineages"] == 1
     assert document["counts"]["conditions"] == 3
     assert document["counts"]["pairwise"] == len(matrix["pairwise"])
+    assert document["stages"]["compare"]["pairwise_state"] == "computed"
     assert document["stages"]["annotate"]["by_typed_fact_status"] == {"reviewed_accepted": 1}
     verdicts = document["stages"]["compare"]["by_verdict"]
     assert set(verdicts) <= VERDICTS
@@ -308,3 +312,212 @@ def test_multiselect_experiment_primary_and_incompatible_association(world):
     assert reselect["argv"][reselect["argv"].index("--batch-id") + 1] != "st-incompat"
     assert "<batch_id>" in reselect["placeholders"]
     assert "<paper_id>" in reselect["placeholders"]
+
+
+def _grow_conditions(world, payload, *, count, key_prefix, batch_prefix):
+    for index in range(count):
+        extra = copy.deepcopy(payload)
+        extra["setting_key"] = key_prefix + format(index, "03d")
+        extra["claim_refs"] = []
+        _publish_exp(
+            world,
+            extra,
+            name=batch_prefix + str(index) + ".json",
+            batch=batch_prefix + str(index),
+        )
+
+
+def _paper_rows_by_id(document):
+    return {row["paper_id"]: row for row in document["papers"]}
+
+
+def _action_ids(document):
+    return {item["id"] for item in document["next_actions"]}
+
+
+def test_scale_64_computed_then_a2_b63_continues_small_scope(world):
+    from tests.code_proof_public_fixture import parse_envelope, run_module_cli
+    from tests.unit.test_article_revision import _question
+    from video_paper_wiki.article_context import ArticleContextError
+    from video_paper_wiki.experiment_matrix import ExperimentMatrixError, MAX_PAIRWISE_ROWS
+    from video_paper_wiki.flow.prepare import prepare_flow
+
+    _three_chain(world)
+    paper_a = world["association"]["paper_id"]
+    paper_b = "sha256:" + "b" * 64
+    payload, _association = _second_paper_payload(world)
+    _grow_conditions(world, payload, count=61, key_prefix="grow-b-", batch_prefix="gb")
+    vault = _vault(world)
+    at_64 = build_flow_status(vault_root=vault)
+    validate_document(at_64, STATUS_SCHEMA)
+    matrix_64 = build_experiment_comparison_matrix(vault_root=vault)
+    assert at_64["counts"]["conditions"] == 64
+    assert at_64["stages"]["compare"]["pairwise_state"] == "computed"
+    assert at_64["counts"]["pairwise"] == len(matrix_64["pairwise"])
+    assert at_64["stages"]["compare"]["pairwise_count"] == len(matrix_64["pairwise"])
+    assert sum(at_64["stages"]["compare"]["by_verdict"].values()) == at_64["counts"]["pairwise"]
+    assert "compare-matrix" in _action_ids(at_64)
+    _grow_conditions(world, payload, count=1, key_prefix="grow-b-x-", batch_prefix="gbx")
+    before_vault = _snapshot(world["vault"])
+    default = build_flow_status(vault_root=vault)
+    filtered = build_flow_status(vault_root=vault, paper_id=paper_a)
+    saved = select_flow(vault_root=vault, batch_id="saved-small", paper_ids=[paper_a])
+    session = build_flow_status(vault_root=vault, batch_id="saved-small")
+    assert _snapshot(world["vault"]) == before_vault
+    for document in (default, filtered, session):
+        validate_document(document, STATUS_SCHEMA)
+        _assert_actions(document)
+        assert document["counts"]["conditions"] == 65
+        rows = _paper_rows_by_id(document) if document is default else {row["paper_id"]: row for row in document["papers"]}
+        if document is default:
+            assert len(rows[paper_a]["conditions"]) == 2
+            assert len(rows[paper_b]["conditions"]) == 63
+        assert document["stages"]["compare"]["pairwise_state"] == "not_computed_limit"
+        assert document["counts"]["pairwise"] is None
+        assert document["stages"]["compare"]["pairwise_count"] is None
+        assert document["stages"]["compare"]["by_verdict"] == {}
+        assert document["counts"] == default["counts"]
+        assert any(item["id"] == "compare-pairwise-limit" for item in document["missing_inputs"])
+        matrix_action = next(item for item in document["next_actions"] if item["id"].startswith("compare-matrix-"))
+        assert matrix_action["id"] == "compare-matrix-" + paper_a
+        assert matrix_action["argv"].count("--paper-id") == 1
+        assert matrix_action["argv"][matrix_action["argv"].index("--paper-id") + 1] == paper_a
+        assert "单篇" in matrix_action["reason"]
+        assert paper_a in matrix_action["reason"]
+        assert "compare-matrix" not in _action_ids(document)
+    assert [row["paper_id"] for row in filtered["papers"]] == [paper_a]
+    assert session["selection"]["paper_ids"] == [paper_a]
+    assert saved["selection"]["paper_ids"] == [paper_a]
+    matrix_proc = run_module_cli(
+        world["checkout"],
+        next(item["argv"] for item in default["next_actions"] if item["id"] == "compare-matrix-" + paper_a),
+    )
+    assert matrix_proc.returncode == 0, matrix_proc.stdout + matrix_proc.stderr
+    matrix_env = parse_envelope(matrix_proc)
+    assert matrix_env["ok"] is True
+    assert matrix_env["data"]["paper_filter"] == paper_a
+    assert matrix_env["data"]["row_count"] == 2
+    prepared_exp = prepare_flow(
+        vault_root=vault,
+        batch_id="saved-small",
+        kind="experiment",
+        setting_key="table9-row1-flow",
+    )
+    assert prepared_exp["paper_ids"] == [paper_a]
+    question = _question(world)
+    prepared_art = prepare_flow(
+        vault_root=vault,
+        batch_id="saved-small",
+        kind="article",
+        question=question,
+    )
+    import_action = next(item for item in prepared_art["next_actions"] if item["id"] == "survey-import-article")
+    imported = run_module_cli(
+        world["checkout"],
+        [
+            token
+            if token not in {"<recorded_by>", "<recorded_at>"}
+            else {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"}[token]
+            for token in import_action["argv"]
+        ],
+    )
+    assert imported.returncode == 0, imported.stdout + imported.stderr
+    live = build_flow_status(vault_root=vault, batch_id="saved-small")
+    assert live["selection"]["paper_ids"] == [paper_a]
+    reading = next(item for item in live["next_actions"] if item["id"].startswith("survey-reading-build-"))
+    assert reading["id"] == "survey-reading-build-" + paper_a
+    assert reading["argv"].count("--paper-id") == 1
+    assert reading["argv"][reading["argv"].index("--paper-id") + 1] == paper_a
+    assert "单篇" in reading["reason"]
+    env = os.environ.copy()
+    previous = env.get("PYTHONPATH")
+    src = str(Path(__file__).resolve().parents[2] / "src")
+    env["PYTHONPATH"] = src if not previous else src + os.pathsep + previous
+    filled = [
+        token if token != "<reading_batch>" else "read-a"
+        for token in reading["argv"]
+    ]
+    assert filled[:3] == ["python", "-m", "video_paper_wiki.reading"]
+    reading_proc = subprocess.run(
+        [sys.executable, "-m", "video_paper_wiki.reading", *filled[3:]],
+        cwd=world["checkout"],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert reading_proc.returncode == 0, reading_proc.stdout + reading_proc.stderr
+    reading_env = parse_envelope(reading_proc)
+    assert reading_env["ok"] is True
+    assert reading_env["data"]["paper_filter"] == paper_a
+    both = select_flow(vault_root=vault, batch_id="saved-both", paper_ids=[paper_a, paper_b], question=question)
+    both_status = build_flow_status(vault_root=vault, batch_id="saved-both")
+    assert both_status["selection"]["paper_ids"] == both["selection"]["paper_ids"]
+    assert "survey-prepare-article" not in _action_ids(both_status)
+    assert any(item["id"] == "article-narrow-selection" for item in both_status["missing_inputs"])
+    with pytest.raises(ArticleContextError) as art_err:
+        prepare_flow(vault_root=vault, batch_id="over-art", kind="article", paper_ids=[paper_a, paper_b], question=question)
+    assert art_err.value.code == "ARTICLE_CONTEXT_LIMIT"
+    with pytest.raises(ExperimentMatrixError) as matrix_err:
+        build_experiment_comparison_matrix(vault_root=vault)
+    assert matrix_err.value.code == "EXPERIMENT_MATRIX_LIMIT"
+    assert matrix_err.value.details["row_count"] == 65
+    assert matrix_err.value.details["limit"] == MAX_PAIRWISE_ROWS
+    assert _snapshot(world["vault"]) == before_vault
+
+
+def test_single_paper_65_keeps_experiment_and_omits_doomed_actions(world):
+    from tests.unit.test_article_revision import _question
+    from tests.unit.test_domain_relations import _accept, _bound_proposal, _publish
+    from video_paper_wiki.article_context import ArticleContextError
+    from video_paper_wiki.experiment_matrix import ExperimentMatrixError, MAX_PAIRWISE_ROWS
+    from video_paper_wiki.flow.prepare import prepare_flow
+
+    proposal, _planted = _bound_proposal(world)
+    first = _publish(world, proposal, name="g.json", batch="g1")
+    _accept(world, first, batch="r1", officiality="official")
+    base = valid_condition_input(world, claim_refs=[])
+    _grow_conditions(world, base, count=65, key_prefix="solo-", batch_prefix="solo")
+    paper = world["association"]["paper_id"]
+    vault = _vault(world)
+    before_vault = _snapshot(world["vault"])
+    document = build_flow_status(vault_root=vault)
+    validate_document(document, STATUS_SCHEMA)
+    _assert_actions(document)
+    assert document["counts"]["conditions"] == 65
+    assert document["stages"]["compare"]["pairwise_state"] == "not_computed_limit"
+    assert document["counts"]["pairwise"] is None
+    ids = _action_ids(document)
+    assert not any(item.startswith("compare-matrix") for item in ids)
+    assert not any(item.startswith("survey-reading-build") for item in ids)
+    assert "survey-prepare-article" not in ids
+    assert any(item["id"] == "compare-pairwise-limit" for item in document["missing_inputs"])
+    assert any(item["id"] == "compare-paper-id" for item in document["missing_inputs"])
+    selected = select_flow(
+        vault_root=vault,
+        batch_id="solo-sel",
+        paper_ids=[paper],
+        question=_question(world),
+    )
+    live = build_flow_status(vault_root=vault, batch_id="solo-sel")
+    assert live["selection"]["paper_ids"] == selected["selection"]["paper_ids"]
+    assert "survey-prepare-article" not in _action_ids(live)
+    assert any(item["id"].startswith("compare-prepare-experiment-") for item in live["next_actions"])
+    prepared = prepare_flow(
+        vault_root=vault,
+        batch_id="solo-sel",
+        kind="experiment",
+        setting_key="table9-row1-flow",
+    )
+    assert prepared["paper_ids"] == [paper]
+    with pytest.raises(ArticleContextError) as art_err:
+        prepare_flow(vault_root=vault, batch_id="solo-sel", kind="article")
+    assert art_err.value.code == "ARTICLE_CONTEXT_LIMIT"
+    with pytest.raises(ExperimentMatrixError) as matrix_err:
+        build_experiment_comparison_matrix(vault_root=vault, paper_id=paper)
+    assert matrix_err.value.code == "EXPERIMENT_MATRIX_LIMIT"
+    assert matrix_err.value.details["row_count"] == 65
+    assert matrix_err.value.details["limit"] == MAX_PAIRWISE_ROWS
+    reselect = next(item for item in live["missing_inputs"] if item["id"] == "compare-paper-id")
+    assert "new batch" in reselect["reason"]
+    assert _snapshot(world["vault"]) == before_vault

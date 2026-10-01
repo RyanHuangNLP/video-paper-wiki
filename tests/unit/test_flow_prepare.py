@@ -647,3 +647,46 @@ def test_experiment_multiselect_primary_prepare(world):
     assert missing["field"] == "paper_id"
     assert p2 in missing["candidates"]
     assert _snapshot(world["vault"]) == before_vault
+
+
+def test_experiment_prepare_record_consumes_generated_unknowns(world):
+    _three_chain(world)
+    p1 = world["association"]["paper_id"]
+    select_flow(vault_root=_vault(world), batch_id="cons1", paper_ids=[p1])
+    before_vault = _snapshot(world["vault"])
+    prepared = prepare_flow(
+        vault_root=_vault(world),
+        batch_id="cons1",
+        kind="experiment",
+        setting_key="table9-row1-flow",
+    )
+    _assert_kind_binding(prepared)
+    draft = json.loads((world["checkout"] / prepared["outputs"][0]["path"]).read_bytes().decode("utf-8"))
+    assert draft["source_digest"]["path"].startswith(".raw/captured/")
+    for slot in draft["conditions"].values():
+        assert slot["status"] == "unknown"
+        assert slot["value"] is None
+        assert slot["sources"] == []
+        assert slot["search_scope"]["artifact_paths"] == [draft["source_digest"]["path"]]
+    action = _action(prepared, "compare-record-experiment")
+    assert set(action["placeholders"]) == {"<recorded_by>", "<recorded_at>"}
+    proc = _run_filled(
+        world,
+        action,
+        {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"},
+    )
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    recorded = parse_envelope(proc)
+    assert recorded["ok"] is True
+    record = recorded["data"]["record"]
+    assert record["paper_id"] == p1
+    assert record["source_digest"] == draft["source_digest"]
+    assert record["source_association"] == draft["source_association"]
+    assert set(record["conditions"]) == set(draft["conditions"])
+    for name, slot in record["conditions"].items():
+        assert slot["status"] == "unknown"
+        assert slot["value"] is None
+        assert slot["sources"] == []
+        assert slot["search_scope"]["artifact_paths"] == [draft["source_digest"]["path"]]
+        assert slot["search_scope"]["search_terms"] == [name]
+    assert _snapshot(world["vault"]) == before_vault

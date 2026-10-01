@@ -6,7 +6,7 @@ import posixpath
 import re
 
 from video_paper_wiki.experiment_matrix import COLUMNS
-from video_paper_wiki.identity import IdentityError, paper_page_slug, repo_page_slug
+from video_paper_wiki.identity import IdentityError, paper_page_slug, repo_id, repo_page_slug
 
 _HIB = "higher_is_b" + "etter"
 VALUE_LIMIT = 512
@@ -198,7 +198,7 @@ def _paper_detail(relative, model, paper_id, slug):
 
 def _repo_link(relative, model, repository):
     try:
-        slug = repo_page_slug(repository)
+        slug = repo_page_slug(repo_id(repository))
     except IdentityError:
         return _escape_md(repository)
     target = "wiki/code/" + slug + ".md"

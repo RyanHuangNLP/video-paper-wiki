@@ -269,3 +269,19 @@ def test_cli_title_cite_mark_and_experiment_primary(tmp_path, monkeypatch):
     prepared_exp = parse_envelope(executed)["data"]
     assert prepared_exp["paper_ids"] == [p1]
     assert prepared_exp["experiment_binding"]["paper_id"] == p1
+    record_action = next(item for item in prepared_exp["next_actions"] if item["id"] == "compare-record-experiment")
+    recorded = run_module_cli(
+        world["checkout"],
+        _fill(record_action["argv"], {"<recorded_by>": "fixture", "<recorded_at>": "2026-09-15T00:00:00Z"}),
+    )
+    assert recorded.returncode == 0, recorded.stdout + recorded.stderr
+    recorded_env = parse_envelope(recorded)
+    assert recorded_env["ok"] is True
+    record = recorded_env["data"]["record"]
+    assert record["paper_id"] == p1
+    for slot in record["conditions"].values():
+        assert slot["status"] == "unknown"
+        assert slot["value"] is None
+        assert slot["sources"] == []
+        assert slot["search_scope"]["artifact_paths"] == [record["source_digest"]["path"]]
+    assert record["source_digest"]["path"].startswith(".raw/captured/")

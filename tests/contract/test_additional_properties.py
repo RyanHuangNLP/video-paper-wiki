@@ -25,6 +25,31 @@ CODE_CONDITIONAL_OVERLAYS = {
     for index in range(count)
     for branch in ("if", "then")
 }
+FLOW_STATUS_SCHEMA = "video-paper-wiki.flow-status.v1.schema.json"
+# Exact Cartesian suffixes from the frozen CI-4MATRIX-R1 allowance. Empty
+# suffix is the applicator node itself. No blanket if/then/allOf exemption.
+_FLOW_OVERLAY_SUFFIXES = (
+    ("allOf/0/if", ("", "properties/stages", "properties/stages/properties/compare")),
+    (
+        "allOf/0/then",
+        (
+            "",
+            "properties/counts",
+            "properties/stages",
+            "properties/stages/properties/compare",
+        ),
+    ),
+    ("allOf/1/if/not", ("", "properties/stages", "properties/stages/properties/compare")),
+    (
+        "allOf/1/then",
+        (
+            "",
+            "properties/counts",
+            "properties/stages",
+            "properties/stages/properties/compare",
+        ),
+    ),
+)
 PDF_BINDING_SCHEMA = "video-paper-wiki.pdf-binding.v1.schema.json"
 PDF_BINDING_TITLE = "video-paper-wiki.pdf-binding.v1"
 # Exact frozen allowance: the existing-note predicate only. No blanket
@@ -44,6 +69,7 @@ def _cartesian_overlays(rows: tuple[tuple[str, tuple[str, ...]], ...]) -> set[tu
     return overlays
 
 
+FLOW_OVERLAYS = _cartesian_overlays(_FLOW_OVERLAY_SUFFIXES)
 PDF_BINDING_OVERLAYS = _cartesian_overlays(_PDF_BINDING_OVERLAY_SUFFIXES)
 
 
@@ -139,6 +165,8 @@ def _assert_schema_objects_closed(schema: dict, schema_label: Path | str) -> Non
                 assert "additionalProperties" not in node
             elif schema_name == CODE_COMMON_SCHEMA and path in CODE_CONDITIONAL_OVERLAYS:
                 _assert_code_overlay_is_inside_closed_object(schema, node, path)
+            elif schema_name == FLOW_STATUS_SCHEMA and path in FLOW_OVERLAYS:
+                _assert_guarded_overlay(schema, node, path)
             elif schema_name == PDF_BINDING_SCHEMA and path in PDF_BINDING_OVERLAYS:
                 _assert_guarded_overlay(schema, node, path)
             else:
@@ -148,6 +176,39 @@ def _assert_schema_objects_closed(schema: dict, schema_label: Path | str) -> Non
 def test_every_declared_object_schema_is_closed(schema_paths: list[Path]) -> None:
     for schema_path in schema_paths:
         _assert_schema_objects_closed(load_json(schema_path), schema_path)
+
+
+def test_flow_conditional_overlays_only_refine_closed_objects() -> None:
+    schema = load_json(Path("schemas") / FLOW_STATUS_SCHEMA)
+    assert len(FLOW_OVERLAYS) == 14
+    observed: set[tuple[str, ...]] = set()
+    for node, path in _walk(schema):
+        if (node.get("type") == "object" or "properties" in node) and node.get("additionalProperties") is not False:
+            assert path in FLOW_OVERLAYS
+            _assert_guarded_overlay(schema, node, path)
+            observed.add(path)
+    assert observed == FLOW_OVERLAYS
+
+
+def test_unlisted_flow_overlay_is_rejected() -> None:
+    schema = copy.deepcopy(load_json(Path("schemas") / FLOW_STATUS_SCHEMA))
+    schema["allOf"].append({"if": {"properties": {"publication": {"const": "unpublished"}}}})
+    with pytest.raises(AssertionError, match="allOf/2/if"):
+        _assert_schema_objects_closed(schema, FLOW_STATUS_SCHEMA)
+
+
+def test_flow_overlay_cannot_refine_an_undeclared_field() -> None:
+    schema = copy.deepcopy(load_json(Path("schemas") / FLOW_STATUS_SCHEMA))
+    schema["allOf"][0]["if"]["properties"]["not_declared"] = {"const": True}
+    with pytest.raises(AssertionError, match="refines undeclared"):
+        _assert_schema_objects_closed(schema, FLOW_STATUS_SCHEMA)
+
+
+def test_opened_flow_instance_is_rejected() -> None:
+    schema = copy.deepcopy(load_json(Path("schemas") / FLOW_STATUS_SCHEMA))
+    del schema["$defs"]["stages"]["properties"]["compare"]["additionalProperties"]
+    with pytest.raises(AssertionError, match="not an already closed instance"):
+        _assert_schema_objects_closed(schema, FLOW_STATUS_SCHEMA)
 
 
 def test_pdf_binding_conditional_overlay_only_refines_closed_object() -> None:

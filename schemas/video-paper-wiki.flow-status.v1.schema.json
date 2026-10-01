@@ -136,7 +136,116 @@
       "const": "follow_next_actions"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "stages": {
+            "type": "object",
+            "properties": {
+              "compare": {
+                "type": "object",
+                "properties": {
+                  "pairwise_state": {
+                    "const": "not_computed_limit"
+                  }
+                },
+                "required": [
+                  "pairwise_state"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "type": "object",
+            "properties": {
+              "pairwise": {
+                "type": "null"
+              }
+            }
+          },
+          "stages": {
+            "type": "object",
+            "properties": {
+              "compare": {
+                "type": "object",
+                "properties": {
+                  "pairwise_count": {
+                    "type": "null"
+                  },
+                  "by_verdict": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "maxProperties": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "not": {
+          "properties": {
+            "stages": {
+              "type": "object",
+              "properties": {
+                "compare": {
+                  "type": "object",
+                  "properties": {
+                    "pairwise_state": {
+                      "const": "not_computed_limit"
+                    }
+                  },
+                  "required": [
+                    "pairwise_state"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "counts": {
+            "type": "object",
+            "properties": {
+              "pairwise": {
+                "$ref": "#/$defs/nonneg"
+              }
+            }
+          },
+          "stages": {
+            "type": "object",
+            "properties": {
+              "compare": {
+                "type": "object",
+                "properties": {
+                  "pairwise_count": {
+                    "$ref": "#/$defs/nonneg"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
   "$defs": {
+    "pairwise_state": {
+      "enum": [
+        "computed",
+        "not_computed_limit"
+      ]
+    },
     "output_basis": {
       "type": "object",
       "additionalProperties": false,
@@ -244,7 +353,14 @@
           "$ref": "#/$defs/nonneg"
         },
         "pairwise": {
-          "$ref": "#/$defs/nonneg"
+          "anyOf": [
+            {
+              "$ref": "#/$defs/nonneg"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "articles": {
           "$ref": "#/$defs/nonneg"
@@ -316,8 +432,18 @@
             "condition_count": {
               "$ref": "#/$defs/nonneg"
             },
+            "pairwise_state": {
+              "$ref": "#/$defs/pairwise_state"
+            },
             "pairwise_count": {
-              "$ref": "#/$defs/nonneg"
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/nonneg"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "by_verdict": {
               "type": "object",
