@@ -623,3 +623,50 @@ def test_bulk_scale_fixture_matches_serial_records_heads_and_validation(tmp_path
             expected, actual = outcome(serial_doc), outcome(bulk_doc)
             assert expected[0] == "error"
             assert actual == expected
+
+
+def test_bulk_scale_fixture_invalid_inputs_fail_like_serial_publication(tmp_path, monkeypatch):
+    def serial(world, payload, *, count, key_prefix, batch_prefix):
+        for index in range(count):
+            extra = copy.deepcopy(payload)
+            extra["setting_key"] = key_prefix + format(index, "03d")
+            extra["claim_refs"] = []
+            _publish_exp(
+                world,
+                extra,
+                name=batch_prefix + str(index) + ".json",
+                batch=batch_prefix + str(index),
+            )
+
+    def corrupt(payload, kind):
+        if kind == "missing":
+            del payload["conditions"]
+        elif kind == "extra":
+            payload["unexpected"] = True
+        elif kind == "nested":
+            payload["conditions"]["frames"]["value"]["count"] = "invalid"
+        else:
+            payload["conditions"]["metrics"]["sources"][0]["locator"]["page"] = -1
+
+    def failure(name, kind, grow):
+        root = tmp_path / (name + "-" + kind)
+        root.mkdir()
+        world = make_world(root, monkeypatch)
+        payload = valid_condition_input(world, claim_refs=[])
+        corrupt(payload, kind)
+        with pytest.raises(Exception) as exc:
+            grow(world, payload, count=3, key_prefix="invalid-", batch_prefix="inv")
+        err = exc.value
+        return (
+            type(err).__name__,
+            err.code,
+            err.message,
+            getattr(err, "details", None),
+            getattr(err, "exit_code", None),
+        )
+
+    for kind in ("missing", "extra", "nested", "reference"):
+        expected = failure("serial", kind, serial)
+        actual = failure("bulk", kind, _grow_conditions)
+        assert expected[1], kind
+        assert actual == expected, kind
