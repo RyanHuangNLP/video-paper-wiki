@@ -648,6 +648,22 @@ def test_bulk_scale_fixture_invalid_inputs_fail_like_serial_publication(tmp_path
         else:
             payload["conditions"]["metrics"]["sources"][0]["locator"]["page"] = -1
 
+    def strict(value):
+        # Exact-type, recursive canonical form: equal values of different
+        # types (2 vs 2.0, True vs 1, UserDict vs dict, UserString vs str)
+        # produce different results. Dict key order is not significant.
+        kind = type(value)
+        if kind is dict:
+            items = sorted(((strict(k), strict(v)) for k, v in value.items()), key=repr)
+            return (kind, tuple(items))
+        if kind in (list, tuple):
+            return (kind, tuple(strict(item) for item in value))
+        if kind is float:
+            return (kind, repr(value))
+        if kind in (str, int, bool, type(None)) or isinstance(value, type):
+            return (kind, value)
+        return (kind, repr(value))
+
     def failure(name, kind, grow):
         root = tmp_path / (name + "-" + kind)
         root.mkdir()
@@ -657,21 +673,19 @@ def test_bulk_scale_fixture_invalid_inputs_fail_like_serial_publication(tmp_path
         with pytest.raises(Exception) as exc:
             grow(world, payload, count=3, key_prefix="invalid-", batch_prefix="inv")
         err = exc.value
-        return (
-            type(err),
-            err.code,
-            err.message,
-            getattr(err, "details", None),
-            getattr(err, "exit_code", None),
-            type(err.code),
-            type(err.message),
-            type(getattr(err, "exit_code", None)),
+        return strict(
+            (
+                type(err),
+                err.code,
+                err.message,
+                getattr(err, "details", None),
+                getattr(err, "exit_code", None),
+            )
         )
 
     for kind in ("missing", "extra", "nested", "reference"):
         expected = failure("serial", kind, serial)
         actual = failure("bulk", kind, _grow_conditions)
-        assert expected[1], kind
-        assert expected[7] is int, kind
-        assert expected[5] is str and expected[6] is str, kind
+        assert expected[1][1][1], kind
+        assert expected[1][4][0] is int, kind
         assert actual == expected, kind
