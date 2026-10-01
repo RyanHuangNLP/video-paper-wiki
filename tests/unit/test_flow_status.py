@@ -315,16 +315,50 @@ def test_multiselect_experiment_primary_and_incompatible_association(world):
 
 
 def _grow_conditions(world, payload, *, count, key_prefix, batch_prefix):
+    from tests.unit.test_experiment_apply import _apply_exp, _compile
+    from tests.unit.test_experiment_store import _record_exp
+    from video_paper_wiki.staging import stage_bytes
+
+    if count <= 1:
+        for index in range(count):
+            extra = copy.deepcopy(payload)
+            extra["setting_key"] = key_prefix + format(index, "03d")
+            extra["claim_refs"] = []
+            _publish_exp(
+                world,
+                extra,
+                name=batch_prefix + str(index) + ".json",
+                batch=batch_prefix + str(index),
+            )
+        return
+    records = []
+    heads = None
     for index in range(count):
         extra = copy.deepcopy(payload)
         extra["setting_key"] = key_prefix + format(index, "03d")
         extra["claim_refs"] = []
-        _publish_exp(
+        data = _record_exp(
             world,
             extra,
             name=batch_prefix + str(index) + ".json",
             batch=batch_prefix + str(index),
+            recorded_at="2026-09-14T00:00:00Z",
         )
+        records.append(data["record"])
+        if heads is None:
+            heads = copy.deepcopy(data["heads"])
+        else:
+            heads["heads"].update(data["heads"]["heads"])
+    batch = batch_prefix + "-bulk"
+    for record in records:
+        stage_bytes(
+            batch_id=batch,
+            relative=("experiments", "records", record["condition_id"], record["record_id"] + ".json"),
+            data=canonicalize(record),
+        )
+    stage_bytes(batch_id=batch, relative=("experiments", "heads.json"), data=canonicalize(heads))
+    _compile(world, batch)
+    _apply_exp(world, batch)
 
 
 def _paper_rows_by_id(document):
@@ -521,3 +555,71 @@ def test_single_paper_65_keeps_experiment_and_omits_doomed_actions(world):
     reselect = next(item for item in live["missing_inputs"] if item["id"] == "compare-paper-id")
     assert "new batch" in reselect["reason"]
     assert _snapshot(world["vault"]) == before_vault
+
+
+def test_bulk_scale_fixture_matches_serial_records_heads_and_validation(tmp_path, monkeypatch):
+    from video_paper_wiki.contracts import ContractError
+
+    def serial(world, payload, *, count, key_prefix, batch_prefix):
+        for index in range(count):
+            extra = copy.deepcopy(payload)
+            extra["setting_key"] = key_prefix + format(index, "03d")
+            extra["claim_refs"] = []
+            _publish_exp(
+                world,
+                extra,
+                name=batch_prefix + str(index) + ".json",
+                batch=batch_prefix + str(index),
+            )
+
+    def build(name, grow):
+        root = tmp_path / name
+        root.mkdir()
+        world = make_world(root, monkeypatch)
+        _publish_exp(world, valid_condition_input(world, setting_key="existing-row"), batch="existing")
+        payload = valid_condition_input(world, claim_refs=[])
+        grow(world, payload, count=3, key_prefix="equivalent-", batch_prefix="eq")
+        # count=1 stays on the original per-record publication path.
+        grow(world, payload, count=1, key_prefix="boundary-", batch_prefix="boundary")
+        exp = world["vault"] / "wiki/meta/experiments"
+        material = {str(path.relative_to(exp)): path.read_bytes() for path in exp.rglob("*.json")}
+        matrix = build_experiment_comparison_matrix(vault_root=str(world["vault"]))
+        return material, canonicalize(matrix)
+
+    old_material, old_matrix = build("serial", serial)
+    new_material, new_matrix = build("bulk", _grow_conditions)
+    assert old_material == new_material
+    assert old_matrix == new_matrix
+    assert len(json.loads(new_material["heads.json"])["heads"]) == 5
+
+    def outcome(document):
+        before = copy.deepcopy(document)
+        try:
+            actual = validate_document(document, document["schema"])
+        except ContractError as exc:
+            result = ("error", exc.code, exc.message, exc.details, exc.exit_code)
+        else:
+            result = ("ok", actual)
+        assert document == before
+        return result
+
+    for path in old_material:
+        left, right = json.loads(old_material[path]), json.loads(new_material[path])
+        assert outcome(left) == outcome(right)
+        assert outcome(left)[0] == "ok"
+        if path == "heads.json":
+            continue
+        for kind in ("missing", "extra", "nested", "reference"):
+            serial_doc, bulk_doc = copy.deepcopy(left), copy.deepcopy(right)
+            for doc in (serial_doc, bulk_doc):
+                if kind == "missing":
+                    del doc["conditions"]
+                elif kind == "extra":
+                    doc["unexpected"] = True
+                elif kind == "nested":
+                    doc["conditions"]["frames"]["value"]["count"] = "invalid"
+                else:
+                    doc["conditions"]["metrics"]["sources"][0]["locator"]["page"] = -1
+            expected, actual = outcome(serial_doc), outcome(bulk_doc)
+            assert expected[0] == "error"
+            assert actual == expected
