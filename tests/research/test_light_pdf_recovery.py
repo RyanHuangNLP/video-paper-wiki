@@ -29,11 +29,30 @@ SOURCE_ROOT = Path(__file__).resolve().parents[2]
 PYTHON = sys.executable
 
 
+def _child_inject(point: str) -> None:
+    """Only the recovery subprocess harness honors injection environment variables."""
+    with open(os.environ["VPWIKI_LIGHT_PDF_INJECT_READY"], "w", encoding="utf-8") as handle:
+        handle.write(point + "\n")
+        handle.flush()
+    with open(os.environ["VPWIKI_LIGHT_PDF_INJECT_WAIT"], "r", encoding="utf-8") as handle:
+        handle.read()
+    action = os.environ["VPWIKI_LIGHT_PDF_INJECT_ACTION"]
+    if action == "continue":
+        return
+    if action == "raise":
+        raise RuntimeError(f"injected failure at {point}")
+    os._exit(77)
+
+
 def child_extract() -> None:
     pdf = Path(os.environ["VPWIKI_LIGHT_PDF_PDF"])
     workspace = Path(os.environ["VPWIKI_LIGHT_PDF_WORKSPACE"])
     title = os.environ.get("VPWIKI_LIGHT_PDF_TITLE")
-    result = extract_pdf(pdf, workspace, title=title or None)
+    set_inject_hook(os.environ["VPWIKI_LIGHT_PDF_INJECT"], _child_inject)
+    try:
+        result = extract_pdf(pdf, workspace, title=title or None)
+    finally:
+        set_inject_hook(None)
     out = os.environ.get("VPWIKI_LIGHT_PDF_RESULT")
     if out:
         Path(out).write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")
@@ -111,6 +130,53 @@ def _clear_hooks() -> None:
     set_inject_hook(None)
     yield
     set_inject_hook(None)
+
+
+@pytest.mark.parametrize("point", INJECT_POINTS)
+@pytest.mark.parametrize("symlink", [False, True])
+def test_extraction_ignores_environment_ready_path(tmp_path: Path, monkeypatch, point: str, symlink: bool) -> None:
+    pdf = _write_pdf(tmp_path / "paper.pdf", _pdf_with_page_texts(["Environment is not a test harness."]))
+    note = tmp_path / "user-note.md"
+    note.write_bytes(b"preserve user bytes\n")
+    ready = tmp_path / "ready-link" if symlink else note
+    if symlink:
+        ready.symlink_to(note)
+    monkeypatch.setenv("VPWIKI_LIGHT_PDF_INJECT", point)
+    monkeypatch.setenv("VPWIKI_LIGHT_PDF_INJECT_READY", str(ready))
+    monkeypatch.setenv("VPWIKI_LIGHT_PDF_INJECT_ACTION", "continue")
+    monkeypatch.delenv("VPWIKI_LIGHT_PDF_INJECT_WAIT", raising=False)
+
+    result = extract_pdf(pdf, tmp_path / ".work" / "ws")
+
+    assert result["ok"] is True
+    assert note.read_bytes() == b"preserve user bytes\n"
+    assert ready.is_symlink() is symlink
+
+
+@pytest.mark.parametrize("control", ["exit", "raise", "wait"])
+def test_extraction_ignores_environment_control(tmp_path: Path, monkeypatch, control: str) -> None:
+    pdf = _write_pdf(tmp_path / "paper.pdf", _pdf_with_page_texts(["No environment-controlled failure."]))
+    monkeypatch.setenv("VPWIKI_LIGHT_PDF_INJECT", "after_lock")
+    monkeypatch.setenv("VPWIKI_LIGHT_PDF_INJECT_ACTION", "continue" if control == "wait" else control)
+    monkeypatch.delenv("VPWIKI_LIGHT_PDF_INJECT_READY", raising=False)
+    monkeypatch.delenv("VPWIKI_LIGHT_PDF_INJECT_WAIT", raising=False)
+    if control == "wait":
+        monkeypatch.setenv("VPWIKI_LIGHT_PDF_INJECT_WAIT", str(tmp_path / "missing-wait"))
+    result = subprocess.run(
+        [
+            PYTHON, "-c",
+            "import sys; from pathlib import Path; "
+            "from video_paper_wiki_research.light_pdf import extract_pdf; "
+            "assert extract_pdf(Path(sys.argv[1]), Path(sys.argv[2]))['ok']",
+            str(pdf), str(tmp_path / ".work" / "ws"),
+        ],
+        cwd=SOURCE_ROOT,
+        env={**os.environ, "PYTHONPATH": str(SOURCE_ROOT / "src")},
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 @pytest.mark.parametrize("point", INJECT_POINTS)
