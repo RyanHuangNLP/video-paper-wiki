@@ -164,3 +164,121 @@ def test_dup_failure_cleans_only_owned_file_and_closes_fds(apply_case, monkeypat
             real_close(fd)
         real_close(parent_fd)
         real_close(root_fd)
+
+
+@pytest.mark.parametrize("fail_at", [1, 2], ids=["parent-dup", "file-dup"])
+@pytest.mark.parametrize(
+    "cleanup_failure",
+    [None, "unlink", "ancestor-open", "leaf-stat"],
+    ids=["cleaned", "unlink-denied", "rollback-open-emfile", "rollback-stat-denied"],
+)
+def test_public_apply_dup_failure_rollback(apply_case, monkeypatch, fail_at, cleanup_failure):
+    world, module, apply, _status = apply_case
+    before = _snapshot(world["vault"])
+    work_before = _snapshot(world["checkout"] / ".work")
+    live_fds = set()
+    real_open, real_dup, real_close = os.open, os.dup, os.close
+    real_unlink, real_stat = os.unlink, os.stat
+    dup_error = OSError(errno.EMFILE, "injected public apply dup failure")
+    unlink_error = OSError(errno.EACCES, "injected cleanup unlink failure")
+    armed = False
+    dup_calls = 0
+    unlink_calls = 0
+    probe_failures = 0
+    created_fd = None
+    relative = None
+
+    def confirm(summary):
+        nonlocal relative
+        relative = min(path for path in summary["changed_paths"] if path != module.HEADS_PATH)
+        assert not (world["vault"] / relative).exists()
+        return True
+
+    def arm_failure(phase):
+        nonlocal armed
+        if phase == "before-create":
+            armed = True
+
+    def track_open(name, flags, *args, **kwargs):
+        nonlocal created_fd, probe_failures
+        if cleanup_failure == "ancestor-open" and unlink_calls and name == "meta":
+            # Fail after the first ancestor fd was acquired, exercising its close.
+            probe_failures += 1
+            raise OSError(errno.EMFILE, "injected rollback ancestor open failure")
+        fd = real_open(name, flags, *args, **kwargs)
+        live_fds.add(fd)
+        if armed and flags & os.O_EXCL:
+            assert name == relative.rsplit("/", 1)[1]
+            created_fd = fd
+        return fd
+
+    def fail_dup(fd):
+        nonlocal dup_calls
+        if armed:
+            dup_calls += 1
+            if dup_calls == fail_at:
+                assert created_fd is not None
+                assert os.fstat(created_fd).st_size == 0
+                raise dup_error
+        owned = real_dup(fd)
+        live_fds.add(owned)
+        return owned
+
+    def track_close(fd):
+        real_close(fd)
+        live_fds.discard(fd)
+
+    def fail_unlink(name, *args, **kwargs):
+        nonlocal unlink_calls
+        if armed and name == relative.rsplit("/", 1)[1]:
+            unlink_calls += 1
+            if cleanup_failure is not None:
+                raise unlink_error
+        return real_unlink(name, *args, **kwargs)
+
+    def fail_stat(name, *args, **kwargs):
+        nonlocal probe_failures
+        if (cleanup_failure == "leaf-stat" and unlink_calls
+                and name == relative.rsplit("/", 1)[1]):
+            probe_failures += 1
+            raise OSError(errno.EACCES, "injected rollback leaf stat failure")
+        return real_stat(name, *args, **kwargs)
+
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(os, "open", track_open)
+            patch.setattr(os, "dup", fail_dup)
+            patch.setattr(os, "close", track_close)
+            patch.setattr(os, "unlink", fail_unlink)
+            patch.setattr(os, "stat", fail_stat)
+            with pytest.raises((domain.DomainApplyError, experiment.ExperimentApplyError, article.ArticleApplyError)) as exc:
+                apply(confirm=confirm, _fault=arm_failure)
+        assert armed
+        assert dup_calls == fail_at
+        assert unlink_calls == 1
+        assert not live_fds, f"leaked descriptors: {live_fds}"
+        family = module.__name__.rsplit(".", 1)[1].removesuffix("_apply").upper()
+        assert exc.value.code == family + "_APPLY_WRITE_FAILED"
+        assert exc.value.details["phase"] == "write"
+        after = _snapshot(world["vault"])
+        if cleanup_failure is None:
+            assert not (world["vault"] / relative).exists()
+            assert relative in exc.value.details["rolled_back"]
+            assert exc.value.details["rollback_complete"] is True
+        else:
+            assert after.pop(relative)[0] == b""
+            assert exc.value.details["rollback_complete"] is False
+            assert relative not in exc.value.details["rolled_back"]
+        assert after == before
+        assert _snapshot(world["checkout"] / ".work") == work_before
+        if cleanup_failure in {"ancestor-open", "leaf-stat"}:
+            assert probe_failures > 0
+        else:
+            assert probe_failures == 0
+        assert exc.value.details["errno"] == errno.EMFILE
+        assert exc.value.__context__ is dup_error
+        if cleanup_failure is not None:
+            assert dup_error.__cause__ is unlink_error
+    finally:
+        for fd in live_fds:
+            real_close(fd)
