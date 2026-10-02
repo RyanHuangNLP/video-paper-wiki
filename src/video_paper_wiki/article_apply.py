@@ -113,7 +113,24 @@ def _write_excl(parent_fd, name, data, created_files=None, created_path=None):
     fd = os.open(name, WRITE_FLAGS, 0o600, dir_fd=parent_fd)
     try:
         if created_files is not None and created_path is not None:
-            created_files.append((created_path, os.dup(parent_fd), os.dup(fd)))
+            # Register before acquiring rollback descriptors: either dup can fail.
+            slot = len(created_files)
+            created_files.append((created_path, None, None))
+            owned_parent = owned_file = None
+            try:
+                owned_parent = os.dup(parent_fd)
+                owned_file = os.dup(fd)
+            except OSError:
+                close_fd(owned_file)
+                close_fd(owned_parent)
+                # The originals still pin our creation here. Once they close,
+                # rollback must never unlink this name without retained ownership.
+                current = _stat_child(parent_fd, name)
+                if (current is not None and stamp(current) == stamp(os.fstat(fd))
+                        and current.st_nlink == 1 and stat.S_IMODE(current.st_mode) == 0o600):
+                    os.unlink(name, dir_fd=parent_fd)
+                raise
+            created_files[slot] = (created_path, owned_parent, owned_file)
         view = memoryview(data)
         while view:
             view = view[os.write(fd, view) :]
@@ -208,6 +225,13 @@ def _rollback(root_fd, tmp_name, created_files, created_dirs, *, heads_mode, hea
     # Only retained exclusive creations belong to this attempt's rollback.
     for relative, parent_fd, file_fd in reversed(created_files):
         try:
+            if parent_fd is None or file_fd is None:
+                # Failed registration was cleaned while the originals were open.
+                if _stat_via_root(root_fd, relative) is None:
+                    note(relative)
+                else:
+                    complete = False
+                continue
             parent = _stat_via_root(root_fd, relative.rsplit("/", 1)[0])
             current = _stat_via_root(root_fd, relative)
             owned = os.fstat(file_fd)

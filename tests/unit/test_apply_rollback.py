@@ -85,3 +85,82 @@ def test_rollback_preserves_replaced_created_file(apply_case):
     assert exc.value.code.endswith("APPLY_WRITE_FAILED")
     assert exc.value.details["rollback_complete"] is False
     assert replaced[0].read_bytes() == b"foreign writer bytes\n"
+
+
+@pytest.mark.parametrize("fail_at", [1, 2], ids=["parent-dup", "file-dup"])
+@pytest.mark.parametrize("replace_created", [False, True], ids=["owned", "replaced"])
+def test_dup_failure_cleans_only_owned_file_and_closes_fds(apply_case, monkeypatch, fail_at, replace_created):
+    world, module, apply, status = apply_case
+    assert apply()["applied"] is True
+    winner = _snapshot(world["vault"])
+    store = world["vault"] / module.HEADS_PATH.rsplit("/", 1)[0]
+    lineage = next(path.parent for path in store.rglob("*.json") if path.name != "heads.json")
+    created = lineage / "failed-attempt.json"
+    relative = str(created.relative_to(world["vault"]))
+    replacement = world["vault"].parent / "replacement.json"
+    replacement.write_bytes(b"another writer's file\n")
+    os.chmod(replacement, 0o600)
+    root_fd = os.open(world["vault"], module.dir_open_flags())
+    parent_fd = os.open(lineage, module.dir_open_flags())
+    created_files = []
+    live_fds = set()
+    real_open, real_dup, real_close = os.open, os.dup, os.close
+    dup_calls = 0
+
+    def track_open(*args, **kwargs):
+        fd = real_open(*args, **kwargs)
+        live_fds.add(fd)
+        return fd
+
+    def fail_dup(fd):
+        nonlocal dup_calls
+        dup_calls += 1
+        if dup_calls == fail_at:
+            assert created.read_bytes() == b""
+            if replace_created:
+                replacement.replace(created)
+            raise OSError(errno.EMFILE, "injected dup failure")
+        owned = real_dup(fd)
+        live_fds.add(owned)
+        return owned
+
+    def track_close(fd):
+        real_close(fd)
+        live_fds.discard(fd)
+
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(module.os, "open", track_open)
+            patch.setattr(module.os, "dup", fail_dup)
+            patch.setattr(module.os, "close", track_close)
+            try:
+                with pytest.raises(OSError, match="injected dup failure"):
+                    module._write_excl(parent_fd, created.name, b"attempt bytes\n", created_files, relative)
+                rolled, complete = module._rollback(
+                    root_fd, None, created_files, [], heads_mode="create", heads_existed=False,
+                )
+            finally:
+                for _relative, owned_parent, owned_file in reversed(created_files):
+                    module.close_fd(owned_file)
+                    module.close_fd(owned_parent)
+            assert dup_calls == fail_at
+            assert not live_fds, f"leaked descriptors: {live_fds}"
+        after = _snapshot(world["vault"])
+        assert after[module.HEADS_PATH] == winner[module.HEADS_PATH]
+        if replace_created:
+            assert created.read_bytes() == b"another writer's file\n"
+            assert rolled == []
+            assert complete is False
+            del after[relative]
+        else:
+            assert not created.exists()
+            assert rolled == [relative]
+            assert complete is True
+        assert after == winner
+        if not replace_created:
+            status(vault_root=str(world["vault"]))
+    finally:
+        for fd in live_fds:
+            real_close(fd)
+        real_close(parent_fd)
+        real_close(root_fd)
