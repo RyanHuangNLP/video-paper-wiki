@@ -1260,7 +1260,9 @@ def _work_bound_path(
     require_suffix: str | None = None,
     label: str = "path",
 ) -> Path:
-    given = Path(raw).expanduser()
+    from video_paper_wiki_research.light_library_state import absolute_path
+
+    given = absolute_path(raw, label)
     if require_suffix and given.suffix.lower() != require_suffix.lower():
         raise ResearchError(
             "WORKSPACE_INVALID",
