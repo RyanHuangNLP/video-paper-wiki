@@ -11,12 +11,14 @@ from tests.research.test_light_knowledge import (
     _knowledge_document,
     _raw_symlink_parent_path,
     _regular_file_snapshot,
+    _unknown,
 )
 from tests.research.test_light_knowledge_batch import _run_batches
 from video_paper_wiki_research.light_index import build_index
 from video_paper_wiki_research.contracts import ResearchError
 from video_paper_wiki_research.light_knowledge import (
     KNOWLEDGE_STATE_DIR,
+    DOCUMENT_NAME,
     LIGHT_BATCH_INVALID,
     LIGHT_REFRESH_CONFLICT,
     LIGHT_REFRESH_INVALID,
@@ -39,6 +41,7 @@ from video_paper_wiki_research.light_knowledge_batch import (
     import_knowledge_batch,
     import_knowledge_merge,
     load_plan,
+    plan_knowledge_batches,
 )
 from video_paper_wiki_research.light_knowledge_refresh import (
     apply_knowledge_refresh,
@@ -160,27 +163,87 @@ def test_retained_content_despite_shifted_offsets(tmp_path: Path) -> None:
     assert retry["reused"] is True
 
 
+def _publish_deleted_evidence_base(workspace: Path, *, retain_method: bool) -> tuple[dict, dict, str]:
+    planned = plan_knowledge_batches(workspace, paper_id=PAPER_A)
+    assert planned["ok"] is True
+    assert planned["batch_count"] == 1
+    exported = export_knowledge_batch(workspace, plan_id=planned["plan_id"], batch_index=0)
+    evidence = exported["context"]["evidence"]
+    kept = next(item["chunk_id"] for item in evidence if item["page"] == 1)
+    removed = next(item["chunk_id"] for item in evidence if item["page"] == 2)
+    document = _knowledge_document(PAPER_A, removed, concept="Removed Method")
+    if retain_method:
+        document["sections"]["method"] = {
+            "citations": [kept], "status": "provisional", "text": "Retained method description.",
+        }
+        document["concepts"].append({"citations": [kept], "name": "Retained Method"})
+    assert import_knowledge_batch(workspace, exported, document)["ok"] is True
+    merge = export_knowledge_merge_context(workspace, plan_id=planned["plan_id"])
+    assert import_knowledge_merge(workspace, merge, document)["ok"] is True
+    published = finalize_knowledge_batches(workspace, plan_id=planned["plan_id"])
+    assert published["ok"] is True
+    saved = json.loads((Path(published["page_path"]).parent / DOCUMENT_NAME).read_bytes())
+    assert saved == document
+    assert saved["sections"]["summary"]["citations"] == [removed]
+    assert saved["concepts"][0]["citations"] == [removed]
+    return published, document, removed
+
+
 def test_deleted_evidence_invalidates_old_blocks(tmp_path: Path) -> None:
     workspace = _workspace(tmp_path, pages_a=["keep page one uniquealpha.", "drop page two uniquealpha."])
-    published = _run_batches(workspace, PAPER_A)
-    assert published["ok"] is True
+    published, document, removed = _publish_deleted_evidence_base(workspace, retain_method=True)
+    notes = workspace / "knowledge" / "notes.md"
+    notes.parent.mkdir(parents=True, exist_ok=True)
+    notes.write_bytes(b"Keep these user notes.\n")
     _rewrite_paper(workspace, SHA_A, "Alpha paper", ["keep page one uniquealpha."])
     assert build_index(workspace)["ok"] is True
-    planned = plan_knowledge_refresh(workspace, paper_id=PAPER_A)
-    assert planned["ok"] is True
-    assert planned["changed_or_removed"]
-    assert "summary" in planned["affected_sections"] or planned["changed_or_removed"]
     candidate = _run_refresh_to_candidate(workspace, PAPER_A)
+    assert candidate["changed_or_removed"] == [removed]
+    assert candidate["affected_sections"] == ["summary"]
+    assert list_knowledge(workspace)["heads"][PAPER_A] == published["record_id"]
     diff = export_knowledge_diff(
         workspace,
         base_record_id=published["record_id"],
         candidate_record_id=candidate["candidate"]["record_id"],
     )
     assert diff["ok"] is True
+    assert diff["sections"]["summary"]["retain_allowed"] is False
+    assert diff["sections"]["method"]["retain_allowed"] is True
+    assert diff["concepts"]["retain_allowed"] is False
+    applied = apply_knowledge_refresh(workspace, diff, accept_sections=[], accept_concepts=False)
+    assert applied["ok"] is True
+    saved = json.loads((Path(applied["page_path"]).parent / DOCUMENT_NAME).read_bytes())
+    assert saved["sections"]["summary"] == _unknown()
+    current = export_knowledge_context(workspace, paper_id=PAPER_A)
+    kept = current["context"]["evidence"][0]["chunk_id"]
+    assert saved["sections"]["method"] == {**document["sections"]["method"], "citations": [kept]}
+    assert saved["concepts"] == [{"citations": [kept], "name": "Retained Method"}]
+    assert notes.read_bytes() == b"Keep these user notes.\n"
+    assert list_knowledge(workspace)["heads"][PAPER_A] == applied["record_id"]
+
+
+def test_deleted_evidence_all_invalid_selection_preserves_head(tmp_path: Path) -> None:
+    workspace = _workspace(tmp_path, pages_a=["keep page one uniquealpha.", "drop page two uniquealpha."])
+    published, _document, removed = _publish_deleted_evidence_base(workspace, retain_method=False)
+    _rewrite_paper(workspace, SHA_A, "Alpha paper", ["new page one uniquealpha evidence."])
+    assert build_index(workspace)["ok"] is True
+    candidate = _run_refresh_to_candidate(workspace, PAPER_A)
+    assert removed in candidate["changed_or_removed"]
+    assert candidate["affected_sections"] == ["summary"]
+    diff = export_knowledge_diff(
+        workspace,
+        base_record_id=published["record_id"],
+        candidate_record_id=candidate["candidate"]["record_id"],
+    )
+    assert diff["ok"] is True
+    assert diff["sections"]["summary"]["retain_allowed"] is False
+    assert diff["concepts"]["retain_allowed"] is False
+    before = _regular_file_snapshot(workspace)
     rejected = apply_knowledge_refresh(workspace, diff, accept_sections=[], accept_concepts=False)
-    if diff["sections"]["summary"]["retain_allowed"] is False:
-        assert rejected["ok"] is False
-        assert rejected["status"] == LIGHT_REFRESH_INVALID
+    assert rejected["ok"] is False
+    assert rejected["status"] == LIGHT_REFRESH_INVALID
+    assert list_knowledge(workspace)["heads"][PAPER_A] == published["record_id"]
+    assert _regular_file_snapshot(workspace) == before
 
 
 def test_metadata_only_refresh_has_zero_batches(tmp_path: Path) -> None:
