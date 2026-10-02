@@ -500,8 +500,7 @@ def test_live_library_knowledge_compare_backup_chain(checkout: Path, capsys) -> 
     assert extra_rows[0]["restore_path"].endswith(CHINESE_EXTERNAL_REPORT)
     assert (destination / extra_rows[0]["restore_path"]).read_bytes() == extra_bytes
     assert extra.read_bytes() == extra_before
-    # The file-only ZIP retains the archive manifest's required directories.
-    assert list(destination.joinpath(".light-library").glob("archive/*/paper/" + NESTED_EMPTY_DIR.as_posix()))
+    # Backup ZIP is file-only; empty directories are a library archive/restore property.
     duplicate = _run(
         [
             "compare",

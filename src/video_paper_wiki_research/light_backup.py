@@ -16,13 +16,7 @@ from video_paper_wiki_research.light_knowledge_batch import (
     LIGHT_BATCH_CONFLICT,
     knowledge_batch_backup_blockers,
 )
-from video_paper_wiki_research.light_library import (
-    _archive_matches_operation,
-    _load_archive_bundle,
-    _recognized_archive_event,
-    _validate_archive_manifest_shape,
-    library_backup_blockers,
-)
+from video_paper_wiki_research.light_library import library_backup_blockers
 from video_paper_wiki_research.light_library_state import (
     BACKUP_SCHEMA,
     HISTORY_DIRNAME,
@@ -63,13 +57,11 @@ from video_paper_wiki_research.light_library_state import (
     knowledge_staging_nonempty,
     limits_ok,
     list_names,
-    load_persisted_object,
     looks_binary,
     ok_result,
     persisted_bytes,
     posix_rel,
     require_work_path,
-    recognized_operation,
     require_workspace,
     run_library_inject,
     sha256_bytes,
@@ -1090,42 +1082,6 @@ def verify_backup(archive_path: Path) -> dict[str, Any]:
     }
 
 
-def _restore_archive_directories(workspace: Path) -> dict[str, Any] | None:
-    """Rebuild directories required by retained, journal-bound archive payloads."""
-    archives = workspace / LIBRARY_DIRNAME / "archive"
-    if not archives.exists():
-        return None
-    for archive in sorted(archives.iterdir()):
-        manifest, event = _load_archive_bundle(archive)
-        if manifest is None:
-            return closed(LIGHT_BACKUP_INVALID, "retained archive manifest is missing")
-        error = _validate_archive_manifest_shape(manifest, archive)
-        if error is not None:
-            return closed(LIGHT_BACKUP_INVALID, error["message"])
-        if not (archive / "paper").exists():
-            continue
-        event = _recognized_archive_event(event, archive_id=archive.name, paper_id=manifest["paper_id"])
-        if event is None or event["state"] != "archived":
-            return closed(LIGHT_BACKUP_INVALID, "retained archive event is invalid")
-        journal = workspace / LIBRARY_DIRNAME / "operations" / (event["operation_id"] + ".json")
-        operation = recognized_operation(load_persisted_object(journal), filename=journal.name)
-        if (operation is None or operation["phase"] != "complete"
-                or operation["archive_id"] != archive.name or operation["paper_id"] != manifest["paper_id"]
-                or operation["kind"] not in {"archive", "replace"}
-                or operation["file_inventory"] != manifest["files"] or operation["directories"] != manifest["directories"]):
-            return closed(LIGHT_BACKUP_INVALID, "retained archive differs from its completed journal")
-        prefix = manifest["original_directory"]
-        for relative in manifest["directories"]:
-            if relative != prefix and not relative.startswith(prefix + "/"):
-                return closed(LIGHT_BACKUP_INVALID, "archive directory is outside its paper")
-            target = archive / "paper" / relative[len(prefix):].lstrip("/")
-            target.mkdir(parents=True, exist_ok=True)
-        error = _archive_matches_operation(archive, operation)
-        if error is not None:
-            return closed(LIGHT_BACKUP_INVALID, error["message"])
-    return None
-
-
 def restore_backup(archive_path: Path, *, destination: Path) -> dict[str, Any]:
     archive = _require_backup_archive(archive_path)
     dest_given = absolute_path(destination, "destination")
@@ -1185,10 +1141,6 @@ def restore_backup(archive_path: Path, *, destination: Path) -> dict[str, Any]:
                 result = closed(LIGHT_BACKUP_INVALID, f"restored bytes do not match the manifest for {relative}")
                 return result
             owned_snapshot = _scan_owned_tree(stage)
-        result = _restore_archive_directories(payload)
-        owned_snapshot = _scan_owned_tree(stage)
-        if result is not None:
-            return result
         from video_paper_wiki_research.light_library_state import write_persisted_atomic
 
         restoration_rel = f"{LIBRARY_DIRNAME}/restorations/{manifest['workspace_id']}.json"

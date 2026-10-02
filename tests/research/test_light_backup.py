@@ -15,7 +15,7 @@ from tests.research.test_light_pdf import _pdf_with_page_texts, _write_pdf
 from video_paper_wiki_research.contracts import ResearchError
 from video_paper_wiki_research.light_backup import create_backup, restore_backup, verify_backup
 from video_paper_wiki_research.light_index import build_index
-from video_paper_wiki_research.light_library import archive_paper, restore_paper
+from video_paper_wiki_research.light_library import archive_paper
 from video_paper_wiki_research.light_library_state import (
     LIGHT_BACKUP_CONFLICT,
     LIGHT_BACKUP_INVALID,
@@ -133,28 +133,6 @@ def test_backup_refuses_raw_parent_traversal(tmp_path: Path, boundary) -> None:
     assert exc.value.code == "WORKSPACE_INVALID"
     assert _tree_bytes(tmp_path) == before
     assert not destination.exists()
-
-
-def test_restored_workspace_can_restore_archived_empty_directories(tmp_path):
-    workspace = _workspace(tmp_path)
-    added = _add(tmp_path, workspace, "empty-notes", "Archived paper with empty notes.")
-    paper = Path(added["markdown_path"]).parent
-    (paper / "notes" / "nested" / "empty").mkdir(parents=True)
-    (paper / "notes" / "kept.md").write_text("user note\n", encoding="utf-8")
-    files = _tree_bytes(paper)
-    directories = sorted(p.relative_to(paper).as_posix() for p in paper.rglob("*") if p.is_dir())
-    archived = archive_paper(workspace, added["paper_id"])
-    assert archived["ok"] is True
-    archive = _output(tmp_path)
-    assert create_backup(workspace, output=archive)["ok"] is True
-    workspace.rename(tmp_path / "offline-workspace")
-    restored = workspace.with_name("restored")
-    assert restore_backup(archive, destination=restored)["ok"] is True
-    result = restore_paper(restored, archived["archive_id"])
-    assert result["ok"] is True, result
-    restored_paper = restored / "papers" / added["paper_id"].split(":")[1]
-    assert _tree_bytes(restored_paper) == files
-    assert sorted(p.relative_to(restored_paper).as_posix() for p in restored_paper.rglob("*") if p.is_dir()) == directories
 
 
 @pytest.mark.parametrize("case", ["reserved", "uppercase", "duplicate"])
