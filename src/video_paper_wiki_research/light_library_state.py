@@ -379,7 +379,11 @@ def absolute_path(value: object, name: str) -> Path:
     path = _as_path(value, name).expanduser()
     if not path.is_absolute():
         path = Path.cwd() / path
-    return Path(os.path.normpath(path))
+    if ".." in path.parts:
+        fail(WORKSPACE_INVALID, f"{name} must not contain parent traversal", {"path": str(path)})
+    if chain_has_symlink(path):
+        fail(WORKSPACE_INVALID, f"{name} must not traverse a symlink", {"path": str(path)})
+    return path
 
 
 def chain_has_symlink(path: Path, *, stop_at: Path | None = None) -> bool:

@@ -11,6 +11,8 @@ import json
 import os
 from pathlib import Path
 
+import pytest
+
 from tests.research.conftest import stdout_json
 from tests.research.test_light_cli import _pdf_with_page_texts
 from video_paper_wiki_research.cli import build_parser, main as research_main
@@ -570,22 +572,33 @@ def test_new_routes_refuse_raw_workspace_edges(checkout: Path, capsys) -> None:
             assert "Traceback" not in payload.get("message", "")
 
 
-def test_safe_workspace_positive_and_legacy_dotdot_control(checkout: Path, capsys) -> None:
+def test_safe_workspace_positive_and_legacy_dotdot_refusal(checkout: Path, capsys) -> None:
     workspace = _workspace(checkout, "safe-ws")
     assert research_main(["knowledge", "batch-status", "--workspace", str(workspace)]) == 0
     safe = stdout_json(capsys)
     assert safe["ok"] is True
     legacy = workspace / ".." / workspace.name
-    assert research_main(["knowledge", "list", "--workspace", str(legacy)]) == 0
+    assert research_main(["knowledge", "list", "--workspace", str(legacy)]) == 2
     listed = stdout_json(capsys)
-    assert listed["ok"] is True
-    assert research_main(["library", "list", "--workspace", str(legacy)]) == 0
+    assert listed["ok"] is False
+    assert research_main(["library", "list", "--workspace", str(legacy)]) == 2
     library = stdout_json(capsys)
-    assert library["ok"] is True
+    assert library["ok"] is False
     assert research_main(["knowledge", "batch-status", "--workspace", str(legacy)]) == 2
     refused = _closed_payload(capsys)
     assert refused["ok"] is False
     assert _error_code(refused) == "WORKSPACE_INVALID"
+
+
+@pytest.mark.parametrize("route", ["library", "knowledge"])
+@pytest.mark.parametrize("kind", ["symlink", "symlink-dotdot", "dotdot"])
+def test_legacy_routes_refuse_raw_workspace_edges(checkout: Path, capsys, route, kind) -> None:
+    workspace = _workspace(checkout, "legacy-edge")
+    before = {str(p): p.read_bytes() for p in workspace.rglob("*") if p.is_file()}
+    unsafe = _edge_workspace(workspace, kind)
+    assert research_main([route, "list", "--workspace", str(unsafe)]) == 2
+    assert _error_code(_closed_payload(capsys)) == "WORKSPACE_INVALID"
+    assert {str(p): p.read_bytes() for p in workspace.rglob("*") if p.is_file()} == before
 
 
 def test_no_workspace_import_closes_decoder_exceptions(checkout: Path, capsys) -> None:

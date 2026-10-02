@@ -41,6 +41,7 @@ from video_paper_wiki_research.light_library_state import (
     WORKSPACE_LOCK_NAME,
     HEX64,
     _Busy,
+    absolute_path,
     chain_has_symlink,
     classify_text_file,
     closed,
@@ -409,10 +410,7 @@ def _prefix_collisions(paths: list[str]) -> str | None:
 
 
 def _require_backup_archive(archive_path: Path) -> Path:
-    path = Path(archive_path).expanduser()
-    if not path.is_absolute():
-        path = Path.cwd() / path
-    path = Path(os.path.normpath(path))
+    path = absolute_path(archive_path, "archive_path")
     if chain_has_symlink(path):
         fail(LIGHT_BACKUP_INVALID, "archive_path must not traverse a symlink", {"path": str(path)})
     if path.is_symlink() or not path.is_file():
@@ -1078,10 +1076,7 @@ def verify_backup(archive_path: Path) -> dict[str, Any]:
 
 def restore_backup(archive_path: Path, *, destination: Path) -> dict[str, Any]:
     archive = _require_backup_archive(archive_path)
-    dest_given = Path(destination).expanduser()
-    if not dest_given.is_absolute():
-        dest_given = Path.cwd() / dest_given
-    dest_given = Path(os.path.normpath(dest_given))
+    dest_given = absolute_path(destination, "destination")
     if not has_work_component(dest_given):
         fail(WORKSPACE_INVALID, "destination must be under .work/**", {"path": str(dest_given)})
     if os.path.lexists(dest_given):

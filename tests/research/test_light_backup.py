@@ -107,6 +107,34 @@ def _tree_bytes(root: Path) -> dict[str, bytes]:
     return payload
 
 
+@pytest.mark.parametrize("boundary", ["workspace", "output", "archive", "destination", "extra"])
+def test_backup_refuses_raw_parent_traversal(tmp_path: Path, boundary) -> None:
+    workspace = _workspace(tmp_path)
+    (workspace / "notes.md").write_text("note\n", encoding="utf-8")
+    archive = _output(tmp_path)
+    assert create_backup(workspace, output=archive)["ok"] is True
+    extra = workspace.parent / "extra.md"
+    extra.write_text("extra\n", encoding="utf-8")
+    destination = workspace.parent / "restored"
+    def unsafe(path):
+        return path.parent / ".." / path.parent.name / path.name
+    before = _tree_bytes(tmp_path)
+    with pytest.raises(ResearchError) as exc:
+        if boundary == "workspace":
+            create_backup(unsafe(workspace), output=archive)
+        elif boundary == "output":
+            create_backup(workspace, output=unsafe(archive))
+        elif boundary == "archive":
+            verify_backup(unsafe(archive))
+        elif boundary == "destination":
+            restore_backup(archive, destination=unsafe(destination))
+        else:
+            create_backup(workspace, output=archive, extra_outputs=[unsafe(extra)])
+    assert exc.value.code == "WORKSPACE_INVALID"
+    assert _tree_bytes(tmp_path) == before
+    assert not destination.exists()
+
+
 def test_backup_exclusions_and_byte_exact_restore(tmp_path: Path) -> None:
     workspace = _workspace(tmp_path)
     added = _add(tmp_path, workspace, "bk", "Backup lexical body token.")
