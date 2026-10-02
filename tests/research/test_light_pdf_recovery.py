@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import errno
 import hashlib
 import json
 import os
+import select
 import signal
 import subprocess
 import sys
+import time
+from contextlib import contextmanager
 from pathlib import Path
 
 import pytest
@@ -27,15 +31,17 @@ from video_paper_wiki_research.light_pdf import (
 
 SOURCE_ROOT = Path(__file__).resolve().parents[2]
 PYTHON = sys.executable
+HANDSHAKE_TIMEOUT = 10.0
 
 
 def _child_inject(point: str) -> None:
     """Only the recovery subprocess harness honors injection environment variables."""
-    with open(os.environ["VPWIKI_LIGHT_PDF_INJECT_READY"], "w", encoding="utf-8") as handle:
-        handle.write(point + "\n")
-        handle.flush()
-    with open(os.environ["VPWIKI_LIGHT_PDF_INJECT_WAIT"], "r", encoding="utf-8") as handle:
-        handle.read()
+    _write_fifo(Path(os.environ["VPWIKI_LIGHT_PDF_INJECT_READY"]), (point + "\n").encode("utf-8"))
+    wait_fd = os.open(os.environ["VPWIKI_LIGHT_PDF_INJECT_WAIT"], os.O_RDONLY | os.O_NONBLOCK)
+    try:
+        _read_ready(wait_fd, "go")
+    finally:
+        os.close(wait_fd)
     action = os.environ["VPWIKI_LIGHT_PDF_INJECT_ACTION"]
     if action == "continue":
         return
@@ -111,18 +117,77 @@ def _fifo_pair(tmp_path: Path, name: str) -> tuple[Path, Path, int]:
     wait = tmp_path / f"{name}-wait.fifo"
     os.mkfifo(ready)
     os.mkfifo(wait)
-    ready_fd = os.open(ready, os.O_RDWR)
+    ready_fd = os.open(ready, os.O_RDWR | os.O_NONBLOCK)
     return ready, wait, ready_fd
 
 
-def _read_ready(ready_fd: int, point: str) -> None:
-    chunk = os.read(ready_fd, 128)
-    assert point.encode("utf-8") in chunk
+def _remaining(deadline: float, phase: str, child: subprocess.Popen[bytes] | None) -> float:
+    if child is not None and child.poll() is not None:
+        stdout, stderr = child.communicate(timeout=5)
+        raise AssertionError(f"child exited {child.returncode} during {phase}: stdout={stdout!r}, stderr={stderr!r}")
+    remaining = deadline - time.monotonic()
+    assert remaining > 0, f"timed out during {phase} (child pid={child.pid if child else None})"
+    return min(remaining, 0.05)
 
 
-def _continue(wait: Path) -> None:
-    with open(wait, "w", encoding="utf-8") as handle:
-        handle.write("go\n")
+def _read_ready(ready_fd: int, point: str, child: subprocess.Popen[bytes] | None = None) -> None:
+    deadline = time.monotonic() + HANDSHAKE_TIMEOUT
+    payload = b""
+    while b"\n" not in payload:
+        interval = _remaining(deadline, f"waiting for {point}", child)
+        if select.select([ready_fd], [], [], interval)[0]:
+            chunk = os.read(ready_fd, 128)
+            if not chunk:
+                time.sleep(interval)
+            payload += chunk
+    assert payload == (point + "\n").encode("utf-8"), payload
+
+
+def _write_fifo(path: Path, payload: bytes, child: subprocess.Popen[bytes] | None = None) -> None:
+    deadline = time.monotonic() + HANDSHAKE_TIMEOUT
+    while True:
+        interval = _remaining(deadline, f"opening FIFO {path.name}", child)
+        try:
+            fd = os.open(path, os.O_WRONLY | os.O_NONBLOCK)
+        except OSError as exc:
+            if exc.errno != errno.ENXIO:
+                raise
+            time.sleep(interval)
+            continue
+        try:
+            assert os.write(fd, payload) == len(payload)
+        finally:
+            os.close(fd)
+        return
+
+
+def _continue(wait: Path, child: subprocess.Popen[bytes] | None = None) -> None:
+    _write_fifo(wait, b"go\n", child)
+
+
+def _stop_child(child: subprocess.Popen[bytes]) -> None:
+    try:
+        if child.poll() is None:
+            child.kill()
+        child.communicate(timeout=5)
+    finally:
+        child.stdout.close()
+        child.stderr.close()
+
+
+@contextmanager
+def _running_child(tmp_path: Path, name: str, **kwargs):
+    ready, wait, ready_fd = _fifo_pair(tmp_path, name)
+    child = None
+    try:
+        child = _start_child(ready=ready, wait=wait, **kwargs)
+        yield child, ready_fd, wait
+    finally:
+        try:
+            if child is not None:
+                _stop_child(child)
+        finally:
+            os.close(ready_fd)
 
 
 @pytest.fixture(autouse=True)
@@ -130,6 +195,88 @@ def _clear_hooks() -> None:
     set_inject_hook(None)
     yield
     set_inject_hook(None)
+
+
+@pytest.mark.parametrize("phase", ["ready", "continue", "child"])
+def test_fifo_handshake_without_peer_has_deadline(tmp_path: Path, phase: str) -> None:
+    # The outer watchdog also bounds this regression when the helper is broken.
+    probe = """
+import os
+import sys
+from pathlib import Path
+from tests.research import test_light_pdf_recovery as recovery
+
+recovery.HANDSHAKE_TIMEOUT = 0.1
+ready, wait, fd = recovery._fifo_pair(Path(sys.argv[1]), "deadline")
+try:
+    try:
+        if sys.argv[2] == "ready":
+            recovery._read_ready(fd, "after_lock")
+        elif sys.argv[2] == "continue":
+            recovery._continue(wait)
+        else:
+            os.environ.update({
+                "VPWIKI_LIGHT_PDF_INJECT_READY": str(ready),
+                "VPWIKI_LIGHT_PDF_INJECT_WAIT": str(wait),
+                "VPWIKI_LIGHT_PDF_INJECT_ACTION": "continue",
+            })
+            recovery._child_inject("after_lock")
+    except AssertionError as exc:
+        assert "timed out" in str(exc), str(exc)
+    else:
+        raise AssertionError("handshake succeeded without its peer")
+finally:
+    os.close(fd)
+"""
+    result = subprocess.run(
+        [PYTHON, "-c", probe, str(tmp_path), phase],
+        cwd=SOURCE_ROOT,
+        env={**os.environ, "PYTHONPATH": str(SOURCE_ROOT / "src")},
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("phase", ["ready", "continue"])
+def test_fifo_handshake_reports_early_child_exit(tmp_path: Path, phase: str) -> None:
+    _ready, wait, ready_fd = _fifo_pair(tmp_path, "early-exit")
+    child = None
+    try:
+        child = subprocess.Popen(
+            [PYTHON, "-c", "import sys; sys.stderr.write('child failed before handshake'); sys.exit(23)"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        child.wait(timeout=5)
+        with pytest.raises(AssertionError, match="exited.*23.*child failed before handshake"):
+            if phase == "ready":
+                _read_ready(ready_fd, "after_lock", child)
+            else:
+                _continue(wait, child)
+    finally:
+        try:
+            if child is not None:
+                _stop_child(child)
+        finally:
+            os.close(ready_fd)
+
+
+def test_recovery_child_and_descriptors_close_on_failure(tmp_path: Path) -> None:
+    pdf = _write_pdf(tmp_path / "paper.pdf", _pdf_with_page_texts(["Cleanup on assertion failure."]))
+    with pytest.raises(RuntimeError, match="parent assertion failed"):
+        with _running_child(
+            tmp_path, "cleanup", pdf=pdf, workspace=tmp_path / "ws",
+            result_path=tmp_path / "result.json", inject="after_lock", action="continue",
+        ) as (child, ready_fd, _wait):
+            _read_ready(ready_fd, "after_lock", child)
+            raise RuntimeError("parent assertion failed")
+    assert child.poll() is not None
+    assert child.stdout.closed
+    assert child.stderr.closed
+    with pytest.raises(OSError):
+        os.fstat(ready_fd)
 
 
 @pytest.mark.parametrize("point", INJECT_POINTS)
@@ -213,19 +360,16 @@ def test_child_killed_at_inject_then_parent_recovers(tmp_path: Path, point: str)
     workspace = tmp_path / "ws"
     digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
     paper_dir = workspace / "papers" / digest
-    ready, wait, ready_fd = _fifo_pair(tmp_path, point)
     result_path = tmp_path / f"{point}.json"
-    child = _start_child(
+    with _running_child(
+        tmp_path, point,
         pdf=pdf,
         workspace=workspace,
-        ready=ready,
-        wait=wait,
         result_path=result_path,
         inject=point,
         action="continue",
-    )
-    try:
-        _read_ready(ready_fd, point)
+    ) as (child, ready_fd, _wait):
+        _read_ready(ready_fd, point, child)
         if point == "after_publish":
             assert _paper_regular_names(paper_dir) == {"source.md", "source.json"}
         else:
@@ -242,11 +386,6 @@ def test_child_killed_at_inject_then_parent_recovers(tmp_path: Path, point: str)
             assert retry["disposition"] == "reused"
         else:
             assert retry["disposition"] in {"created", "recovered"}
-    finally:
-        os.close(ready_fd)
-        if child.poll() is None:
-            child.kill()
-            child.wait(timeout=5)
 
 
 def test_concurrent_add_busy_then_reuse_preserves_notes(tmp_path: Path) -> None:
@@ -254,25 +393,22 @@ def test_concurrent_add_busy_then_reuse_preserves_notes(tmp_path: Path) -> None:
     workspace = tmp_path / "ws"
     digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
     paper_dir = workspace / "papers" / digest
-    ready, wait, ready_fd = _fifo_pair(tmp_path, "conc")
     result_path = tmp_path / "child.json"
-    child = _start_child(
+    with _running_child(
+        tmp_path, "conc",
         pdf=pdf,
         workspace=workspace,
-        ready=ready,
-        wait=wait,
         result_path=result_path,
         inject="before_publish",
         action="continue",
-    )
-    try:
-        _read_ready(ready_fd, "before_publish")
+    ) as (child, ready_fd, wait):
+        _read_ready(ready_fd, "before_publish", child)
         assert not os.path.lexists(paper_dir)
         busy = extract_pdf(pdf, workspace, title="Recovery")
         assert busy["ok"] is False
         assert busy["status"] == "LIGHT_WORKSPACE_BUSY"
         assert not os.path.lexists(paper_dir)
-        _continue(wait)
+        _continue(wait, child)
         assert child.wait(timeout=10) == 0
         first = json.loads(result_path.read_text(encoding="utf-8"))
         assert first["ok"] is True
@@ -282,24 +418,21 @@ def test_concurrent_add_busy_then_reuse_preserves_notes(tmp_path: Path) -> None:
         note.write_text("keep-me\n", encoding="utf-8")
         note_sha = hashlib.sha256(note.read_bytes()).hexdigest()
         md_sha = hashlib.sha256((paper_dir / "source.md").read_bytes()).hexdigest()
-        ready2, wait2, ready_fd2 = _fifo_pair(tmp_path, "hold")
-        holder = _start_child(
+        with _running_child(
+            tmp_path, "hold",
             pdf=pdf,
             workspace=workspace,
-            ready=ready2,
-            wait=wait2,
             result_path=tmp_path / "holder.json",
             inject="after_lock",
             action="continue",
             title="Recovery",
-        )
-        _read_ready(ready_fd2, "after_lock")
-        second_busy = extract_pdf(pdf, workspace)
-        assert second_busy["ok"] is False
-        assert second_busy["status"] == "LIGHT_WORKSPACE_BUSY"
-        _continue(wait2)
-        assert holder.wait(timeout=10) == 0
-        os.close(ready_fd2)
+        ) as (holder, ready_fd2, wait2):
+            _read_ready(ready_fd2, "after_lock", holder)
+            second_busy = extract_pdf(pdf, workspace)
+            assert second_busy["ok"] is False
+            assert second_busy["status"] == "LIGHT_WORKSPACE_BUSY"
+            _continue(wait2, holder)
+            assert holder.wait(timeout=10) == 0
         reused = extract_pdf(pdf, workspace)
         assert reused["ok"] is True
         assert reused["disposition"] == "reused"
@@ -310,11 +443,6 @@ def test_concurrent_add_busy_then_reuse_preserves_notes(tmp_path: Path) -> None:
         assert built["ok"] is True
         found = search(workspace, "Concurrent body")
         assert found["ok"] is True
-    finally:
-        os.close(ready_fd)
-        if child.poll() is None:
-            child.kill()
-            child.wait(timeout=5)
 
 
 def test_unknown_transaction_and_partial_final_dir_are_preserved(tmp_path: Path) -> None:
