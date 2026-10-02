@@ -588,6 +588,10 @@ def _update_metadata_locked(
         )
     loaded = classified["loaded"]
     meta = dict(loaded["metadata"])
+    dest = paper_dir / "source.json"
+    original_bytes = dest.read_bytes()
+    if sha256_bytes(original_bytes) != loaded["source_json_sha256"] or json.loads(original_bytes) != meta:
+        fail(LIGHT_LIBRARY_CONFLICT, "paper metadata changed while loaded", {"path": str(dest)})
     current_title = meta.get("title") if type(meta.get("title")) is str else loaded["title"]
     current_tags = _current_tags(meta)
     next_title = current_title if title is None else title
@@ -605,8 +609,7 @@ def _update_metadata_locked(
     meta["title"] = next_title
     meta["tags"] = list(next_tags)
     encoded = (json.dumps(meta, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-    dest = paper_dir / "source.json"
-    write_bytes_atomic(dest, encoded, inject="after_metadata_tmp")
+    write_bytes_atomic(dest, encoded, inject="after_metadata_tmp", expected_bytes=original_bytes)
     return ok_result(
         "updated paper metadata; existing index is now stale",
         paper_id=paper_id,

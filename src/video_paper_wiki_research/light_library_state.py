@@ -667,7 +667,7 @@ def load_persisted_object(path: Path) -> dict[str, Any] | None:
     return value
 
 
-def write_bytes_atomic(path: Path, data: bytes, *, inject: str | None = None) -> None:
+def write_bytes_atomic(path: Path, data: bytes, *, inject: str | None = None, expected_bytes: bytes | None = None) -> None:
     """Write data through an exclusively created owned temp. Never reuse dest.tmp."""
     if chain_has_symlink(path):
         fail(LIGHT_LIBRARY_INVALID, "managed path must not traverse a symlink", {"path": str(path)})
@@ -728,6 +728,8 @@ def write_bytes_atomic(path: Path, data: bytes, *, inject: str | None = None) ->
             now = path.stat()
             if (now.st_dev, now.st_ino) != dest_identity:
                 fail(LIGHT_LIBRARY_CONFLICT, "managed destination identity changed before replace", {"path": str(path)})
+        if expected_bytes is not None and (dest_identity is None or path.read_bytes() != expected_bytes):
+            fail(LIGHT_LIBRARY_CONFLICT, "managed destination bytes changed before replace", {"path": str(path)})
         os.replace(created_tmp, path)
         created_tmp = None
     except BaseException:
