@@ -274,8 +274,12 @@ def _rollback(root_fd, tmp_name, created_files, created_dirs, *, heads_mode, hea
     for relative, parent_fd, file_fd in reversed(created_files):
         try:
             if parent_fd is None or file_fd is None:
-                # Failed registration was cleaned while the originals were open.
-                if _stat_via_root(root_fd, relative) is None:
+                # Cleanup may have failed; only confirmed absence proves rollback.
+                try:
+                    absent = _stat_via_root(root_fd, relative, strict=True) is None
+                except OSError:
+                    absent = False
+                if absent:
                     note(relative)
                 else:
                     complete = False
@@ -304,7 +308,7 @@ def _rollback(root_fd, tmp_name, created_files, created_dirs, *, heads_mode, hea
     return rolled, complete
 
 
-def _stat_via_root(root_fd, relative):
+def _stat_via_root(root_fd, relative, *, strict=False):
     parts = relative.split("/")
     fds = []
     parent = root_fd
@@ -317,7 +321,11 @@ def _stat_via_root(root_fd, relative):
             fds.append(fd)
             parent = fd
         return _stat_child(parent, parts[-1])
+    except FileNotFoundError:
+        return None
     except OSError:
+        if strict:
+            raise
         return None
     finally:
         _close_all(fds)
