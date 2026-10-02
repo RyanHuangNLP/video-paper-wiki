@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   tests:
-    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }} / ${{ matrix.shard }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
@@ -24,6 +24,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-15]
         python-version: ["3.12", "3.13"]
+        shard: [unit, rest]
     env:
       PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
       UV_NO_PROGRESS: "1"
@@ -80,15 +81,146 @@ jobs:
         env:
           UV_OFFLINE: "1"
           UV_PYTHON_DOWNLOADS: never
+          VPKB_SHARD: ${{ matrix.shard }}
         run: |
           set -euo pipefail
+          case "$VPKB_SHARD" in
+            unit|rest) ;;
+            *)
+              echo "unknown shard: $VPKB_SHARD" >&2
+              exit 1
+              ;;
+          esac
           VPKB_TEST_TMP="$(mktemp -d "${RUNNER_TEMP}/vp.XXXXXX")"
           VPKB_TEST_TMP="$(uv run --offline --no-sync python -c 'import pathlib, sys; print(pathlib.Path(sys.argv[1]).resolve())' "$VPKB_TEST_TMP")"
           trap 'rm -rf "$VPKB_TEST_TMP"' EXIT
           uv --version
           uv run --offline --no-sync python --version
           uv run --offline --no-sync vpwiki doctor
+          # Collect-only partition check for this job's locked tree. Overhead is three quiet collections.
+          INV="${RUNNER_TEMP}/ci-test-inventory"
+          rm -rf "$INV"
+          mkdir -p "$INV"
+          collect_ids() {
+            local name="$1"
+            shift
+            uv run --offline --no-sync python -m pytest --collect-only -q "$@" >"$INV/${name}.stdout.log" 2>"$INV/${name}.stderr.log"
+          }
+          collect_ids baseline tests
+          collect_ids unit tests/unit
+          collect_ids rest tests --ignore=tests/unit
+          cat >"${RUNNER_TEMP}/check_partition.py" <<'PY'
+          import hashlib
+          import re
+          import sys
+          from collections import Counter
+          from pathlib import Path
+
+          inv = Path(sys.argv[1])
+          shard = sys.argv[2]
+          summary_re = re.compile(
+              r"^(?:=+\s*)?(?:(\d+)\s+tests?\s+collected|no tests collected)"
+              r"(?:,\s*\d+\s+(?:deselected|errors?))*"
+              r"(?:\s+in\s+[\d.]+s)?"
+              r"(?:\s*=+)?$"
+          )
+
+          def parse(name):
+              raw = (inv / f"{name}.stdout.log").read_text(encoding="utf-8")
+              nodeids = []
+              summary_count = None
+              for line_no, line in enumerate(raw.splitlines(), 1):
+                  stripped = line.strip()
+                  if not stripped:
+                      continue
+                  match = summary_re.match(stripped)
+                  if match and "::" not in stripped:
+                      if summary_count is not None:
+                          raise SystemExit(f"{name}: multiple collect summaries")
+                      summary_count = int(match.group(1) or 0)
+                      continue
+                  if "::" not in stripped:
+                      raise SystemExit(f"{name}:{line_no}: unrecognized collect line: {stripped}")
+                  nodeids.append(stripped)
+              if summary_count is None:
+                  raise SystemExit(f"{name}: missing pytest collect summary")
+              if summary_count != len(nodeids):
+                  raise SystemExit(
+                      f"{name}: summary count {summary_count} != parsed nodeids {len(nodeids)}"
+                  )
+              text = "".join(f"{nodeid}\n" for nodeid in nodeids)
+              (inv / f"{name}.nodeids").write_text(text, encoding="utf-8")
+              return nodeids
+
+          names = ("baseline", "unit", "rest")
+          parsed = {name: parse(name) for name in names}
+          baseline = parsed["baseline"]
+          unit = parsed["unit"]
+          rest = parsed["rest"]
+          baseline_counts = Counter(baseline)
+          unit_counts = Counter(unit)
+          rest_counts = Counter(rest)
+          intersection = set(unit_counts) & set(rest_counts)
+          union = set(unit_counts) | set(rest_counts)
+          problems = []
+          if unit_counts + rest_counts != baseline_counts:
+              missing = list((baseline_counts - (unit_counts + rest_counts)).elements())
+              extra = list(((unit_counts + rest_counts) - baseline_counts).elements())
+              problems.append(
+                  "counter mismatch "
+                  f"missing={len(missing)} extra={len(extra)} "
+                  f"sample_missing={missing[:10]} sample_extra={extra[:10]}"
+              )
+          if intersection:
+              problems.append(
+                  f"intersection nonempty size={len(intersection)} sample={sorted(intersection)[:10]}"
+              )
+          if len(union) != len(set(baseline_counts)):
+              problems.append(
+                  f"union size {len(union)} != baseline unique {len(set(baseline_counts))}"
+              )
+          digest_lines = []
+          for name in names:
+              for suffix in ("stdout.log", "stderr.log", "nodeids"):
+                  path = inv / f"{name}.{suffix}"
+                  digest = hashlib.sha256(path.read_bytes()).hexdigest()
+                  digest_lines.append(f"{digest}  {path.name}")
+          (inv / "SHA256SUMS").write_text("\n".join(digest_lines) + "\n", encoding="utf-8")
+          counter_equal = unit_counts + rest_counts == baseline_counts
+          report = (
+              f"shard={shard}\n"
+              f"baseline={len(baseline)}\n"
+              f"unit={len(unit)}\n"
+              f"rest={len(rest)}\n"
+              f"baseline_unique={len(set(baseline))}\n"
+              f"intersection={len(intersection)}\n"
+              f"union={len(union)}\n"
+              f"counter_equal={str(counter_equal).lower()}\n"
+          )
+          (inv / "partition.txt").write_text(report, encoding="utf-8")
+          print(report, end="")
+          if problems:
+              print("\n".join(problems), file=sys.stderr)
+              raise SystemExit(1)
+          PY
+          uv run --offline --no-sync python "${RUNNER_TEMP}/check_partition.py" "$INV" "$VPKB_SHARD"
+          case "$VPKB_SHARD" in
+            unit)
+              set -- tests/unit
+              ;;
+            rest)
+              set -- tests --ignore=tests/unit
+              ;;
+          esac
           # A short real path accommodates AF_UNIX fixtures and no-follow reads.
-          uv run --offline --no-sync python -m pytest -v --tb=short --durations=25 -o faulthandler_timeout=300 --basetemp "$VPKB_TEST_TMP/p"
+          uv run --offline --no-sync python -m pytest -v --tb=short --durations=25 -o faulthandler_timeout=300 --basetemp "$VPKB_TEST_TMP/p" "$@"
           # --offline constrains uv, not arbitrary test-process network egress.
           git diff --exit-code -- pyproject.toml uv.lock
+
+      - name: Upload shard inventory evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: test-inventory-${{ matrix.os }}-py${{ matrix.python-version }}-${{ matrix.shard }}
+          path: ${{ runner.temp }}/ci-test-inventory
+          if-no-files-found: error
