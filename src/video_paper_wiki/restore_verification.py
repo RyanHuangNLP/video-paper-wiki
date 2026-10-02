@@ -112,21 +112,21 @@ def _retained_article_renders(root:Path,batch:str,revision_ids:set[str])->list[d
 
 def verify_restored_research(*,restore_root:Path|str,manifest:object,expected_manifest_sha256:str,upstream_root:Path|str,config:object,research_reads:bool=False)->dict[str,Any]:
     """Vault checks always run on the restored tree. Research reads stay pending until requested."""
-    from video_paper_wiki.backup_manifest import verify_restored_research_tree
-    tree=verify_restored_research_tree(restore_root,manifest,expected_manifest_sha256=expected_manifest_sha256)
-    semantics=_vault_semantics(restore_root,upstream_root,config)
-    if not isinstance(manifest,dict):raise ContractError('BACKUP_MANIFEST_INVALID','research manifest is not an object')
-    document=manifest
-    value={'valid':False,'research_validation':'pending','vault_verified':True,'manifest_sha256':tree['manifest_sha256'],'source_anchor':tree['source_anchor'],'vault_manifest_sha256':tree['vault_manifest_sha256'],'coverage_counts':{'batches':tree['batch_count'],'included_rules':tree['included_rules'],'absent_rules':tree['absent_rules'],'file_count':tree['file_count']},'byte_checks':[{'path':row['path'],'sha256':row['sha256'],'size_bytes':row['size_bytes'],'matched':True} for row in document['files']],'tree':tree,'external_backup_observation':False,'research_reads':None}
-    value.update(semantics)
-    if not research_reads:return value
-    try:reads=_research_reads(Path(restore_root),document)
-    except ContractError:raise
-    except Exception as exc:
-        code=getattr(exc,'code',None)
-        if type(code) is str:raise ContractError(code,str(getattr(exc,'message',exc)),dict(getattr(exc,'details',{}) or {})) from exc
-        raise ContractError('RESTORE_VERIFICATION_FAILED','research read failed',{}) from exc
-    value['research_reads']=reads;value['research_validation']='passed';value['valid']=True
-    return value
+    from video_paper_wiki.backup_manifest import retained_restored_research_tree
+    with retained_restored_research_tree(restore_root,manifest,expected_manifest_sha256=expected_manifest_sha256) as tree:
+        semantics=_vault_semantics(restore_root,upstream_root,config)
+        if not isinstance(manifest,dict):raise ContractError('BACKUP_MANIFEST_INVALID','research manifest is not an object')
+        document=manifest
+        value={'valid':False,'research_validation':'pending','vault_verified':True,'manifest_sha256':tree['manifest_sha256'],'source_anchor':tree['source_anchor'],'vault_manifest_sha256':tree['vault_manifest_sha256'],'coverage_counts':{'batches':tree['batch_count'],'included_rules':tree['included_rules'],'absent_rules':tree['absent_rules'],'file_count':tree['file_count']},'byte_checks':[{'path':row['path'],'sha256':row['sha256'],'size_bytes':row['size_bytes'],'matched':True} for row in document['files']],'tree':tree,'external_backup_observation':False,'research_reads':None}
+        value.update(semantics)
+        if not research_reads:return value
+        try:reads=_research_reads(Path(restore_root),document)
+        except ContractError:raise
+        except Exception as exc:
+            code=getattr(exc,'code',None)
+            if type(code) is str:raise ContractError(code,str(getattr(exc,'message',exc)),dict(getattr(exc,'details',{}) or {})) from exc
+            raise ContractError('RESTORE_VERIFICATION_FAILED','research read failed',{}) from exc
+        value['research_reads']=reads;value['research_validation']='passed';value['valid']=True
+        return value
 
 __all__=['verify_restored_vault','verify_restored_research']

@@ -1,5 +1,7 @@
 """Raw-inclusive complete-set inventory; archive work stays in upstream checkpoint."""
 from __future__ import annotations
+
+from contextlib import contextmanager
 import hashlib,os,stat,unicodedata
 from pathlib import Path
 from typing import Any
@@ -286,9 +288,10 @@ def build_research_backup_manifest(vault_root:Path|str,checkout_root:Path|str,*,
         if owns_checkout and checkout_snap is not None:checkout_snap.close()
         if owns_vault:vault_snap.close()
 
-def verify_restored_research_tree(root:Path|str,manifest:object,*,expected_manifest_sha256:str)->dict[str,Any]:
+def verify_restored_research_tree(root:Path|str,manifest:object,*,expected_manifest_sha256:str,_snapshot=None,_checkout_snapshot=None)->dict[str,Any]:
     """Check a restored tree without opening the original vault or checkout."""
-    from video_paper_wiki.backup_coverage import SCHEMA_V2,scan_research_coverage
+    from video_paper_wiki.backup_coverage import SCHEMA_V2,CoverageSnapshot,scan_research_coverage
+    from video_paper_wiki.receipt_audit import _Snapshot
     expected=validate_document(manifest,SCHEMA_V2)
     digest=hashlib.sha256(canonicalize({key:item for key,item in expected.items() if key!="manifest_sha256"})).hexdigest()
     if type(expected_manifest_sha256) is not str or digest!=expected["manifest_sha256"] or digest!=expected_manifest_sha256:_fail("manifest self hash differs")
@@ -305,12 +308,15 @@ def verify_restored_research_tree(root:Path|str,manifest:object,*,expected_manif
                 raise ContractError("RESTORE_ROOT_UNSAFE","restore root overlaps a recorded source",{})
         except ContractError:raise
         except OSError:raise ContractError("RESTORE_ROOT_UNSAFE","recorded source root is unsafe",{})
-    checkout_snap=None
+    owns_vault=_snapshot is None;owns_checkout=_checkout_snapshot is None
+    vault_snap=_snapshot if _snapshot is not None else _Snapshot(target)
+    checkout_snap=_checkout_snapshot
     try:
-        vault_doc=build_backup_manifest(target)
+        if checkout_snap is None:checkout_snap=CoverageSnapshot(target)
+        vault_doc=build_backup_manifest(target,_snapshot=vault_snap)
         if vault_doc["manifest_sha256"]!=expected["vault_manifest_sha256"] or vault_doc["source_anchor"]!=expected["source_anchor"]:
             raise ContractError("RESTORE_VERIFICATION_FAILED","restored vault manifest differs",{})
-        checkout_snap=scan_research_coverage(target)
+        checkout_snap=scan_research_coverage(target,snapshot=checkout_snap)
         report=checkout_snap.report or {}
         if report.get("batches")!=expected["scope"]["batch_ids"] or report.get("coverage")!=expected["coverage"]:
             raise ContractError("RESTORE_VERIFICATION_FAILED","restored research coverage differs",{})
@@ -318,18 +324,36 @@ def verify_restored_research_tree(root:Path|str,manifest:object,*,expected_manif
             raise ContractError("RESTORE_VERIFICATION_FAILED","restored research files differ",{})
         if vault_doc["directories"]!=[row for row in expected["directories"] if not _work_path(row["path"])] or vault_doc["files"]!=[row for row in expected["files"] if not row["path"].startswith(".work/")]:
             raise ContractError("RESTORE_VERIFICATION_FAILED","restored vault files differ",{})
-        checkout_snap.verify()
+        _recheck_research_sources(vault_snap,checkout_snap)
         included=sum(1 for row in expected["coverage"] if row["state"]=="included")
         absent=sum(1 for row in expected["coverage"] if row["state"]=="absent")
         return {"valid":True,"raw_included":True,"file_count":len(expected["files"]),"manifest_sha256":digest,"source_anchor":expected["source_anchor"],"vault_manifest_sha256":expected["vault_manifest_sha256"],"batch_count":len(expected["scope"]["batch_ids"]),"included_rules":included,"absent_rules":absent,"external_backup_observation":False}
-    except ContractError as exc:
+    except BaseException as exc:
         if checkout_snap is not None:
-            try:checkout_snap.verify()
-            except ContractError:raise ContractError("RESTORE_VERIFICATION_FAILED","restored research tree changed",{})
-        if exc.code in {"RESTORE_ROOT_UNSAFE","RESTORE_VERIFICATION_FAILED","BACKUP_MANIFEST_INVALID"}:raise
+            try:_recheck_research_sources(vault_snap,checkout_snap)
+            except (ContractError,OSError):raise ContractError("RESTORE_VERIFICATION_FAILED","restored research tree changed",{}) from exc
+        if not isinstance(exc,ContractError) or exc.code in {"RESTORE_ROOT_UNSAFE","RESTORE_VERIFICATION_FAILED","BACKUP_MANIFEST_INVALID"}:raise
         raise ContractError("RESTORE_VERIFICATION_FAILED","restore verification failed",{}) from exc
     finally:
+        if owns_checkout and checkout_snap is not None:checkout_snap.close()
+        if owns_vault:vault_snap.close()
+
+@contextmanager
+def retained_restored_research_tree(root,manifest,*,expected_manifest_sha256):
+    """Keep byte-bound snapshots alive through every restore verification consumer."""
+    from video_paper_wiki.backup_coverage import CoverageSnapshot
+    from video_paper_wiki.receipt_audit import _Snapshot
+    vault_snap=_Snapshot(Path(root));checkout_snap=None
+    try:
+        checkout_snap=CoverageSnapshot(root)
+        tree=verify_restored_research_tree(root,manifest,expected_manifest_sha256=expected_manifest_sha256,_snapshot=vault_snap,_checkout_snapshot=checkout_snap)
+        try:yield tree
+        finally:
+            try:_recheck_research_sources(vault_snap,checkout_snap)
+            except (ContractError,OSError) as exc:raise ContractError("RESTORE_VERIFICATION_FAILED","restored research tree changed",{}) from exc
+    finally:
         if checkout_snap is not None:checkout_snap.close()
+        vault_snap.close()
 
 def _paths_nest(left:Path,right:Path)->bool:
     lp=left.absolute().parts;rp=right.absolute().parts
