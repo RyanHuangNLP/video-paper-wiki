@@ -7,6 +7,7 @@ backup, transaction authority, or canonical official fact is produced.
 from __future__ import annotations
 
 import os
+from fcntl import LOCK_EX, LOCK_NB, flock
 import secrets
 import stat
 
@@ -132,7 +133,7 @@ def _write_excl(parent_fd, name, data, created_files=None, created_path=None):
     fd = os.open(name, WRITE_FLAGS, 0o600, dir_fd=parent_fd)
     try:
         if created_files is not None and created_path is not None:
-            created_files.append(created_path)
+            created_files.append((created_path, os.dup(parent_fd), os.dup(fd)))
         view = memoryview(data)
         while view:
             view = view[os.write(fd, view) :]
@@ -251,27 +252,23 @@ def _rollback(root_fd, tmp_name, created_files, created_dirs, *, heads_mode, hea
     def note(relative):
         rolled.append(relative)
 
-    if tmp_name:
+    # Before committed=True, heads.json has never been installed by us.
+    # Only retained exclusive creations belong to this attempt's rollback.
+    for relative, parent_fd, file_fd in reversed(created_files):
         try:
-            _unlink_relative(root_fd, DOMAIN_ROOT + "/" + tmp_name)
-            note(DOMAIN_ROOT + "/" + tmp_name)
-        except OSError:
-            if _stat_via_root(root_fd, DOMAIN_ROOT + "/" + tmp_name) is not None:
+            parent = _stat_via_root(root_fd, relative.rsplit("/", 1)[0])
+            current = _stat_via_root(root_fd, relative)
+            owned = os.fstat(file_fd)
+            if (parent is None or current is None
+                    or _dir_id(parent) != _dir_id(os.fstat(parent_fd))
+                    or stamp(current) != stamp(owned)
+                    or current.st_nlink != 1 or stat.S_IMODE(current.st_mode) != 0o600):
                 complete = False
-    for relative in reversed(created_files):
-        try:
-            _unlink_relative(root_fd, relative)
+                continue
+            os.unlink(relative.rsplit("/", 1)[1], dir_fd=parent_fd)
             note(relative)
         except OSError:
             if _stat_via_root(root_fd, relative) is not None:
-                complete = False
-    if heads_mode == "create" and not heads_existed:
-        try:
-            if _stat_via_root(root_fd, HEADS_PATH) is not None:
-                _unlink_relative(root_fd, HEADS_PATH)
-                note(HEADS_PATH)
-        except OSError:
-            if _stat_via_root(root_fd, HEADS_PATH) is not None:
                 complete = False
     for relative in reversed(created_dirs):
         try:
@@ -681,6 +678,10 @@ def apply_domain_publication(*, prepared, vault_root, confirm, _fault=None):
         except OSError as exc:
             _map_snapshot(ContractError("AUDIT_RACE", "Vault root is unavailable", {"errno": exc.errno}))
         try:
+            flock(snapshot.root_fd, LOCK_EX | LOCK_NB)
+        except BlockingIOError:
+            _fail("DOMAIN_APPLY_CHANGED", "/vault_root", "repeat_apply", {"reason": "busy"}, exit_code=75)
+        try:
             store = _load_store(snapshot)
         except ContractError as exc:
             _map_snapshot(exc)
@@ -751,7 +752,7 @@ def apply_domain_publication(*, prepared, vault_root, confirm, _fault=None):
             _write_create_payloads(domain_fd, request, content, created_dirs, created_files)
             tmp_name = ".heads.json." + secrets.token_hex(12) + ".tmp"
             phase = "before-commit"
-            _write_excl(domain_fd, tmp_name, content[heads["after_sha256"]])
+            _write_excl(domain_fd, tmp_name, content[heads["after_sha256"]], created_files, DOMAIN_ROOT + "/" + tmp_name)
             if _fault is not None:
                 _fault("before-commit")
             _check_heads(domain_fd, heads)
@@ -807,6 +808,9 @@ def apply_domain_publication(*, prepared, vault_root, confirm, _fault=None):
                 _fail("DOMAIN_APPLY_WRITE_FAILED", "/wiki/meta/domain", "retry_apply", extra)
             _verify_failed({"reason": "after-commit", "prior_type": type(exc).__name__})
         finally:
+            for _relative, owned_parent, owned_file in reversed(created_files):
+                close_fd(owned_file)
+                close_fd(owned_parent)
             if domain_fd is not None:
                 close_fd(domain_fd)
             if meta_fd is not None:
