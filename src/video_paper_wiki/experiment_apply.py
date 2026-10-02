@@ -145,15 +145,18 @@ def _write_excl(parent_fd, name, data, created_files=None, created_path=None):
             try:
                 owned_parent = os.dup(parent_fd)
                 owned_file = os.dup(fd)
-            except OSError:
+            except OSError as dup_error:
                 close_fd(owned_file)
                 close_fd(owned_parent)
                 # The originals still pin our creation here. Once they close,
                 # rollback must never unlink this name without retained ownership.
-                current = _stat_child(parent_fd, name)
-                if (current is not None and stamp(current) == stamp(os.fstat(fd))
-                        and current.st_nlink == 1 and stat.S_IMODE(current.st_mode) == 0o600):
-                    os.unlink(name, dir_fd=parent_fd)
+                try:
+                    current = _stat_child(parent_fd, name)
+                    if (current is not None and stamp(current) == stamp(os.fstat(fd))
+                            and current.st_nlink == 1 and stat.S_IMODE(current.st_mode) == 0o600):
+                        os.unlink(name, dir_fd=parent_fd)
+                except OSError as cleanup_error:
+                    raise dup_error from cleanup_error
                 raise
             created_files[slot] = (created_path, owned_parent, owned_file)
         view = memoryview(data)
