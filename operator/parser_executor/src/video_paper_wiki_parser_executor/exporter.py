@@ -14,7 +14,7 @@ from typing import Any, Callable
 from video_paper_wiki import __version__ as VPWIKI_VERSION
 from video_paper_wiki.contracts import ContractError, validate_document
 from video_paper_wiki.identity import pipeline_fingerprint
-from video_paper_wiki.secure_io import SOURCE_CHANGED, SecureIOError, read_regular_file
+from video_paper_wiki.secure_io import SOURCE_CHANGED, SecureIOError, read_regular_file, stamp
 from video_paper_wiki.staging import StagingError, validate_batch_id
 
 from video_paper_wiki_research.contracts import (
@@ -28,6 +28,7 @@ from video_paper_wiki_research.contracts import (
     PARSER_OUTPUT_INVALID,
     PARSER_PARTIAL_RESULT,
     PARSER_PROFILE_INVALID,
+    PARSER_PROFILE_CHANGED,
     PARSER_RUNTIME_INCOMPATIBLE,
     PARSER_RUNTIME_MISSING,
     PARSER_RUN_CONFLICT,
@@ -43,7 +44,7 @@ from video_paper_wiki_research.contracts import (
     sha256_bytes,
 )
 from video_paper_wiki_research.manual_pdf import load_intake
-from video_paper_wiki_research.parser_profile import installed_versions, load_profile
+from video_paper_wiki_research.parser_profile import installed_versions, inventory_models, load_profile, recheck_models
 from video_paper_wiki_research.storage import (
     RetainedResearchSession,
     require_family_slot,
@@ -250,6 +251,21 @@ def export_run(
         raise ResearchError(PARSER_RUN_INCOMPLETE, "incomplete run-id cannot be overwritten")
     require_family_slot(session, "runs", run_dir)
     installed_versions()
+    files, total, identities = inventory_models(artifacts_path)
+    root_identity = stamp(artifacts_path.lstat())
+    live_manifest = {"schema": "manual-pdf-model-manifest.v1", "files": files, "total_bytes": total}
+    if jcs_bytes(live_manifest) + b"\n" != manifest_bytes:
+        raise ResearchError(PARSER_PROFILE_CHANGED, "live models differ from the profile manifest")
+
+    def verify_models() -> None:
+        try:
+            if stamp(artifacts_path.lstat()) != root_identity:
+                raise ResearchError(PARSER_PROFILE_CHANGED, "model root changed")
+            recheck_models(artifacts_path, identities)
+        except (OSError, ResearchError) as exc:
+            raise ResearchError(PARSER_PROFILE_CHANGED, "model tree changed during export") from exc
+
+    verify_models()
     started = _utc_now()
     producer = converter if converter is not None else _TEST_CONVERTER
     sock, connect, dns, env = _patch_offline()
@@ -288,7 +304,12 @@ def export_run(
         if len(document_bytes) > DOCUMENT_JSON_MAX_BYTES:
             raise ResearchError(PARSER_OUTPUT_INVALID, "document JSON exceeds 64 MiB")
         parse_float_json(document_bytes, invalid_code=PARSER_OUTPUT_INVALID)
+        verify_models()
     except BaseException as exc:
+        try:
+            verify_models()
+        except ResearchError as changed:
+            exc = changed
         ended = _utc_now()
         code = getattr(exc, "code", PARSER_FAILED) if isinstance(exc, ResearchError) else PARSER_FAILED
         _write_failure(
@@ -304,7 +325,7 @@ def export_run(
                 "run_id": run,
             },
         )
-        raise
+        raise exc
     finally:
         _restore_offline(sock, connect, dns, env)
     ended = _utc_now()
@@ -334,11 +355,15 @@ def export_run(
     except ContractError as exc:
         raise ResearchError(PARSER_OUTPUT_INVALID, str(exc.message), dict(exc.details)) from exc
     run_bytes = jcs_bytes(run_manifest) + b"\n"
-    session.verify()
-    doc_s = stage_research(session, ("runs", run, "document.json"), document_bytes)
-    cfg_s = stage_research(session, ("runs", run, "parser-config.json"), config_bytes)
-    man_s = stage_research(session, ("runs", run, "model-manifest.json"), manifest_bytes)
-    run_s = stage_research(session, ("runs", run, "run.json"), run_bytes)
+    try:
+        session.verify()
+        doc_s = stage_research(session, ("runs", run, "document.json"), document_bytes)
+        cfg_s = stage_research(session, ("runs", run, "parser-config.json"), config_bytes)
+        man_s = stage_research(session, ("runs", run, "model-manifest.json"), manifest_bytes)
+        verify_models()
+        run_s = stage_research(session, ("runs", run, "run.json"), run_bytes)
+    finally:
+        verify_models()
     return _result_payload(
         session,
         run,
