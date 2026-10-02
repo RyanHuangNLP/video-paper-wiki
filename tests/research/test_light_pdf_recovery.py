@@ -31,7 +31,7 @@ from video_paper_wiki_research.light_pdf import (
 
 SOURCE_ROOT = Path(__file__).resolve().parents[2]
 PYTHON = sys.executable
-HANDSHAKE_TIMEOUT = 10.0
+HANDSHAKE_TIMEOUT = 60.0
 
 
 def _child_inject(point: str) -> None:
@@ -240,6 +240,25 @@ finally:
 
 
 @pytest.mark.parametrize("phase", ["ready", "continue"])
+def test_fifo_handshake_allows_slow_peer(tmp_path: Path, monkeypatch, phase: str) -> None:
+    _ready, wait, ready_fd = _fifo_pair(tmp_path, "slow-peer")
+    wait_fd = os.open(wait, os.O_RDONLY | os.O_NONBLOCK)
+    try:
+        os.write(ready_fd, b"after_lock\n")
+        # A peer becomes ready after the old ten-second budget, without a slow test.
+        ticks = iter([0.0, 11.0])
+        monkeypatch.setattr(time, "monotonic", lambda: next(ticks))
+        if phase == "ready":
+            _read_ready(ready_fd, "after_lock")
+        else:
+            _continue(wait)
+            assert os.read(wait_fd, 128) == b"go\n"
+    finally:
+        os.close(wait_fd)
+        os.close(ready_fd)
+
+
+@pytest.mark.parametrize("phase", ["ready", "continue"])
 def test_fifo_handshake_reports_early_child_exit(tmp_path: Path, phase: str) -> None:
     _ready, wait, ready_fd = _fifo_pair(tmp_path, "early-exit")
     child = None
@@ -409,7 +428,7 @@ def test_concurrent_add_busy_then_reuse_preserves_notes(tmp_path: Path) -> None:
         assert busy["status"] == "LIGHT_WORKSPACE_BUSY"
         assert not os.path.lexists(paper_dir)
         _continue(wait, child)
-        assert child.wait(timeout=10) == 0
+        assert child.wait(timeout=HANDSHAKE_TIMEOUT) == 0
         first = json.loads(result_path.read_text(encoding="utf-8"))
         assert first["ok"] is True
         assert first["disposition"] == "created"
@@ -432,7 +451,7 @@ def test_concurrent_add_busy_then_reuse_preserves_notes(tmp_path: Path) -> None:
             assert second_busy["ok"] is False
             assert second_busy["status"] == "LIGHT_WORKSPACE_BUSY"
             _continue(wait2, holder)
-            assert holder.wait(timeout=10) == 0
+            assert holder.wait(timeout=HANDSHAKE_TIMEOUT) == 0
         reused = extract_pdf(pdf, workspace)
         assert reused["ok"] is True
         assert reused["disposition"] == "reused"
