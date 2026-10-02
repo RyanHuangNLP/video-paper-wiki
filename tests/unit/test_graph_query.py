@@ -182,18 +182,20 @@ def test_query_filters_budget_and_input(world, monkeypatch):
     assert limited["next_action"] == "narrow_query_or_raise_limit"
     import video_paper_wiki.graph_query as graph_query
 
+    before_tight = _query(world, text)
+    bound_before = [quote for item in before_tight["included"] for quote in item["quote_spans"] if quote["status"] == "bound"]
+    assert any(len(quote["excerpt"].encode("utf-8")) > 16 for quote in bound_before)
     monkeypatch.setattr(graph_query, "QUOTE_BYTES_BUDGET", 16)
     tight = _query(world, text)
     quotes = [quote for item in tight["included"] for quote in item["quote_spans"]]
-    if quotes:
-        assert all(quote["status"] == "withheld_budget" or quote["excerpt"] is None or quote["status"] != "bound" or True for quote in quotes)
-        bound = [quote for quote in quotes if quote["status"] == "bound"]
-        for quote in quotes:
-            if quote["status"] == "withheld_budget":
-                assert quote["excerpt"] is None
-        assert tight["budget"]["quote_bytes_used"] <= 16
-        if any(quote["status"] == "withheld_budget" for quote in quotes):
-            assert tight["budget"]["quotes_withheld"] >= 1
+    withheld = [quote for quote in quotes if quote["status"] == "withheld_budget"]
+    assert withheld
+    assert all(quote["excerpt"] is None for quote in withheld)
+    assert tight["budget"]["quotes_withheld"] == len(withheld)
+    used = sum(len(quote["excerpt"].encode("utf-8")) for quote in quotes if quote["status"] == "bound")
+    assert tight["budget"]["quote_bytes_used"] == used
+    assert used <= 16
+    assert tight["next_action"] == "narrow_query_or_raise_limit"
     assert QUOTE_BYTES_BUDGET == 8192
     assert CANDIDATE_K == 24
     assert RANK_CONSTANT == 60
@@ -221,7 +223,7 @@ def test_query_filters_budget_and_input(world, monkeypatch):
     assert empty["budget"]["shortfall"] is True
 
 
-def test_query_oppose_and_stale(world):
+def test_query_includes_comparable_contradiction_candidates(world):
     _three_chain(world)
     text = _two_words(_empirical_text(world))
     rel, digest = _document(world)
@@ -238,13 +240,24 @@ def test_query_oppose_and_stale(world):
     other["conditions"]["metrics"]["value"][0] = dict(other["conditions"]["metrics"]["value"][0])
     other["conditions"]["metrics"]["value"][0]["value"] = 200
     _publish_exp(world, other, name="c2.json", batch="c2")
-    compared = _query(world, text)
+    compared = _query(world, text, limit=64)
     conds = [item for item in compared["included"] if item["kind"] == "experiment_condition"]
-    for item in conds:
-        if any(ev["kind"] == "contradiction_candidate" for ev in item["oppose_evidence"]):
-            ev = next(ev for ev in item["oppose_evidence"] if ev["kind"] == "contradiction_candidate")
-            assert ev["verdict"] == "comparable"
-            assert ev["ranking"] == "not_ranked"
+    opposed = [item for item in conds if any(ev["kind"] == "contradiction_candidate" for ev in item["oppose_evidence"])]
+    assert len(opposed) == 2
+    for item in opposed:
+        ev = next(ev for ev in item["oppose_evidence"] if ev["kind"] == "contradiction_candidate")
+        assert ev["verdict"] == "comparable"
+        assert ev["ranking"] == "not_ranked"
+        assert ev["other_node_id"] in {row["node_id"] for row in opposed if row != item}
+
+
+def test_query_association_staleness_requires_recovery(world):
+    _three_chain(world)
+    text = _two_words(_empirical_text(world))
+    before = _query(world, text)
+    source_id = world["association"]["association_id"]
+    source = next(item for item in before["included"] if item["node_id"] == source_id)
+    assert source["recovery"] == "none"
     assoc_path = world["vault"] / "wiki/meta/records/source-versions" / (
         world["association"]["association_id"] + ".json"
     )
@@ -253,19 +266,36 @@ def test_query_oppose_and_stale(world):
     _resealed, mismatch_raw = _reseal_association(mutated)
     _write(assoc_path, mismatch_raw)
     stale = _query(world, text)
-    recovered = [item for item in stale["included"] if item["recovery"] != "none"]
-    if recovered:
-        assert stale["next_action"] == recovered[0]["recovery"]
+    source = next(item for item in stale["included"] if item["node_id"] == source_id)
+    assert source["recovery"] == "repair_store"
+    assert stale["next_action"] == "re_record_condition"
+
+
+def test_query_changed_source_withholds_bound_quote(world):
+    _three_chain(world)
+    text = _two_words(_empirical_text(world))
+    cid = _empirical(world)[1]["claim_id"]
+    before = _query(world, text)
+    claim = next(item for item in before["included"] if item["node_id"] == cid)
+    assert claim["quote_spans"]
+    assert all(quote["status"] == "bound" and quote["excerpt"] for quote in claim["quote_spans"])
     src_path = world["vault"] / world["association"]["raw"]["path"]
     src_original = src_path.read_bytes()
     src_path.write_bytes(src_original + b"x")
     os.chmod(src_path, 0o600)
     changed = _query(world, text)
-    quotes = [quote for item in changed["included"] for quote in item["quote_spans"]]
-    if quotes:
-        assert any(quote["status"] == "source_changed" and quote["excerpt"] is None for quote in quotes) or True
-    src_path.write_bytes(src_original)
-    os.chmod(src_path, 0o600)
+    claim = next(item for item in changed["included"] if item["node_id"] == cid)
+    assert len(claim["quote_spans"]) == 1
+    quote = claim["quote_spans"][0]
+    assert quote["status"] == "source_changed"
+    assert quote["excerpt"] is None
+    assert changed["budget"]["quote_bytes_used"] < before["budget"]["quote_bytes_used"]
+    assert changed["next_action"] == "re_record_condition"
+
+
+def test_query_includes_claim_counterevidence(world):
+    _three_chain(world)
+    text = _two_words(_empirical_text(world))
     from video_paper_wiki.markdown_locator import encode_evidence
 
     ledger_path = world["vault"] / CLAIM_LEDGER
@@ -274,19 +304,17 @@ def test_query_oppose_and_stale(world):
     _kind, claim, _event = _empirical(world)
     cid = claim["claim_id"]
     row = ledger["claims"][cid]
-    if row["evidence"]:
-        extra = encode_evidence({**decode_evidence(row["evidence"][0]), "relation": "contradicts"})
-        row["evidence"] = list(row["evidence"]) + [extra]
-        _write(ledger_path, canonicalize(ledger))
-        opposed = _query(world, text)
-        item = next((row for row in opposed["included"] if row["node_id"] == cid), None)
-        if item is not None:
-            assert item["support"]["contradicts"] >= 1 or any(
-                ev["kind"] == "claim_contradicts" for ev in item["oppose_evidence"]
-            )
-            if item["oppose_evidence"]:
-                assert item["oppose_evidence"][0]["kind"] == "claim_contradicts"
-    _write(ledger_path, saved_ledger)
+    assert row["evidence"]
+    extra = encode_evidence({**decode_evidence(row["evidence"][0]), "relation": "contradicts"})
+    row["evidence"] = list(row["evidence"]) + [extra]
+    _write(ledger_path, canonicalize(ledger))
+    opposed = _query(world, text)
+    item = next(row for row in opposed["included"] if row["node_id"] == cid)
+    assert item["support"]["contradicts"] == 1
+    assert item["support"]["supports"] >= 1
+    assert len(item["oppose_evidence"]) == 1
+    assert item["oppose_evidence"][0]["kind"] == "claim_contradicts"
+    assert any(quote["relation"] == "contradicts" and quote["status"] == "bound" for quote in item["quote_spans"])
 
 
 def _bm25_envelope(evidence, raw_hits=None):
@@ -362,8 +390,7 @@ def test_query_bm25_route(world, monkeypatch):
     unbound = _query(world, text, ranking_path=str(path))
     assert any(item["reason"] == "bm25_unit_unbound" and item["node_id"] is None for item in unbound["omitted"])
     assert unbound["routes"][2]["unbound_units"] >= 1
-    if unbound["next_action"] in {"rebuild_bm25_index", "re_record_annotation", "re_record_condition", "repair_store"}:
-        assert unbound["next_action"]
+    assert unbound["next_action"] == "rebuild_bm25_index"
     mismatched = [
         {"chunk_id": "c1", "paper_id": "sha256:" + "b" * 64, "evidence_unit_ids": [units[0]]}
     ]
