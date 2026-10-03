@@ -385,37 +385,10 @@ def _load_light(module: str):
 
 
 def _workspace_root(raw: str, *, create: bool, allow_missing: bool = False) -> Path:
-    given = Path(raw).expanduser()
-    if ".work" not in given.parts:
-        raise ResearchError(
-            "WORKSPACE_INVALID",
-            "workspace must be under .work/**",
-            {"path": str(given)},
-        )
+    given = _lexical_workspace_root(raw, allow_missing=create or allow_missing)
     if create:
         given.mkdir(parents=True, exist_ok=True)
-    resolved = given.resolve()
-    if ".work" not in resolved.parts:
-        raise ResearchError(
-            "WORKSPACE_INVALID",
-            "workspace must be under .work/**",
-            {"path": str(resolved)},
-        )
-    if resolved.exists():
-        if resolved.is_symlink() or not resolved.is_dir():
-            raise ResearchError(
-                "WORKSPACE_INVALID",
-                "workspace must be a regular directory under .work/**",
-                {"path": str(resolved)},
-            )
-        return resolved
-    if allow_missing and not create:
-        return resolved
-    raise ResearchError(
-        "WORKSPACE_INVALID",
-        "workspace must be a regular directory under .work/**",
-        {"path": str(resolved)},
-    )
+    return given
 
 
 def _absolute_given_path(raw: str) -> Path:
@@ -1287,7 +1260,9 @@ def _work_bound_path(
     require_suffix: str | None = None,
     label: str = "path",
 ) -> Path:
-    given = Path(raw).expanduser()
+    from video_paper_wiki_research.light_library_state import absolute_path
+
+    given = absolute_path(raw, label)
     if require_suffix and given.suffix.lower() != require_suffix.lower():
         raise ResearchError(
             "WORKSPACE_INVALID",

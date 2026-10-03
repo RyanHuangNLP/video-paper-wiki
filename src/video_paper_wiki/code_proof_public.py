@@ -14,6 +14,9 @@ from video_paper_wiki.code_evidence_contracts import (
 )
 from video_paper_wiki.code_git_objects import (
     CodeGitProofError,
+    _check_declared_sizes,
+    _parse_tree,
+    _validate_objects,
     git_object_ids,
     verify_code_git_objects,
 )
@@ -963,6 +966,10 @@ def _normalized_targets(value, pointer, request_data, limits):
             encoded = text.encode("utf-8")
             if len(encoded) > cap:
                 _limit(ip + "/text", "max_inline_normalized_bytes", cap, len(encoded))
+            try:
+                normalize_code_bytes(encoded)
+            except ContractError:
+                _document(ip + "/text", "noncanonical_text")
             rows.append(
                 {
                     "path": path,
@@ -1934,6 +1941,20 @@ def _inspect(session, batch_id):
     if not prefix_ok:
         _state("/objects", "nonprefix_objects")
     _bind_present_bodies(bundle_data, present_oids, snapshot)
+    git_limits = request_data["limits"]["git"]
+    records = _validate_objects(
+        bundle_data["objects"], bundle_data["commit_oid"],
+        40 if bundle_data["object_format"] == "sha1" else 64,
+        git_limits["max_objects"],
+    )
+    _check_declared_sizes(records, git_limits)
+    parsed_entries = 0
+    for record in records:
+        if record["object_type"] == "tree" and record["oid"] in present_oids:
+            _, parsed_entries = _parse_tree(
+                record["oid"], snapshot["objects/" + record["oid"] + ".body"],
+                bundle_data["object_format"], git_limits["max_tree_entries"], parsed_entries,
+            )
     complete_objects = present_oids == expected_oids
     if not has_observation:
         if config_names or handoff_names or families["configs"] or families["handoffs"]:
@@ -1959,6 +1980,8 @@ def _inspect(session, batch_id):
     ok_prefix, prefix_paths = _handoff_prefix(paths, snapshot)
     if not ok_prefix:
         _state("/handoffs", "nonprefix_handoffs")
+    if prefix_paths and not observation_env["data"]["eligibility"]["source_handoff_eligible"]:
+        _state("/handoffs", "forbidden_family")
     view["handoff_prefix"] = prefix_paths
     configs = []
     for name in config_names:

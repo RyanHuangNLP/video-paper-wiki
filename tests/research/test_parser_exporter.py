@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,7 @@ from video_paper_wiki.extraction_artifact import validate_docling_artifact_set
 from video_paper_wiki_parser_executor.cli import main as parser_main
 from video_paper_wiki_parser_executor.exporter import export_run, set_test_converter
 from video_paper_wiki_research.cli import main as research_main
+from video_paper_wiki_research.contracts import ResearchError
 from video_paper_wiki_research.parser_profile import create_profile
 from video_paper_wiki_research.storage import open_research_session
 
@@ -171,3 +173,60 @@ def test_export_failed_status_keeps_failed_run(checkout: Path, models: Path, mon
             assert failed.is_file()
     finally:
         set_test_converter(None)
+
+
+@pytest.mark.parametrize("change", ["modify", "add", "remove", "other_root"])
+def test_export_binds_live_model_manifest(checkout, models, monkeypatch, capsys, change):
+    intake, profile = _intake_and_profile(checkout, models, monkeypatch, capsys)
+    if change == "modify":
+        (models / "config.json").write_text('{"changed":true}\n')
+    elif change == "add":
+        (models / "extra.bin").write_bytes(b"extra")
+    elif change == "remove":
+        (models / "config.json").unlink()
+    else:
+        models = checkout / "other-models"
+        models.mkdir()
+        (models / "config.json").write_text('{}\n')
+    calls = []
+    def convert(**kwargs):
+        calls.append(kwargs)
+        return fixture_converter()(**kwargs)
+    with open_research_session(SESSION) as session:
+        with pytest.raises(ResearchError) as exc:
+            export_run(session, intake_path=intake, profile_path=profile,
+                       artifacts_path=models, run_id="changed", converter=convert)
+        assert exc.value.code == "PARSER_PROFILE_CHANGED"
+        assert not session.path("runs", "changed", "run.json").exists()
+    assert calls == []
+
+
+@pytest.mark.parametrize("change", ["modify", "replace_root", "replace_file", "add", "remove"])
+@pytest.mark.parametrize("fail_conversion", [False, True])
+def test_export_rechecks_models_on_conversion_exit(checkout, models, monkeypatch, capsys, change, fail_conversion):
+    intake, profile = _intake_and_profile(checkout, models, monkeypatch, capsys)
+    def convert(**kwargs):
+        if change == "replace_root":
+            old = models.with_name("old-models")
+            models.rename(old)
+            shutil.copytree(old, models)
+        elif change == "replace_file":
+            path = models / "config.json"
+            replacement = models / "replacement.json"
+            shutil.copy2(path, replacement)
+            replacement.replace(path)
+        elif change == "modify":
+            (models / "config.json").write_text('{"changed":true}\n')
+        elif change == "add":
+            (models / "extra.bin").write_bytes(b"extra")
+        else:
+            (models / "config.json").unlink()
+        if fail_conversion:
+            raise ResearchError("PARSER_FAILED", "injected conversion failure")
+        return fixture_converter()(**kwargs)
+    with open_research_session(SESSION) as session:
+        with pytest.raises(ResearchError) as exc:
+            export_run(session, intake_path=intake, profile_path=profile,
+                       artifacts_path=models, run_id="changed", converter=convert)
+        assert exc.value.code == "PARSER_PROFILE_CHANGED"
+        assert not session.path("runs", "changed", "run.json").exists()

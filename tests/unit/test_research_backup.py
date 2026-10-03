@@ -17,6 +17,58 @@ from video_paper_wiki.identity import receipt_intent_sha256
 from video_paper_wiki.jcs import canonicalize
 
 
+def _restored_fixture(tmp_path):
+    vault, checkout, restored = (tmp_path / name for name in ("vault", "checkout", "restored"))
+    _vault(vault)
+    _checkout(checkout)
+    manifest = build_research_backup_manifest(vault, checkout)
+    restored.mkdir(mode=0o700)
+    for row in manifest["directories"]:
+        (restored / row["path"]).mkdir(parents=True, exist_ok=True)
+    for row in manifest["files"]:
+        source = checkout if row["path"].startswith(".work/") else vault
+        _put(restored, row["path"], (source / row["path"]).read_bytes())
+    _seal(restored)
+    return restored, manifest
+
+
+@pytest.mark.parametrize("fail_consumer", [False, True])
+@pytest.mark.parametrize("boundary", ["coverage", "semantics", "research"])
+def test_restore_rechecks_vault_bytes_after_consumers(tmp_path, monkeypatch, boundary, fail_consumer):
+    from video_paper_wiki import backup_coverage, restore_verification
+    from video_paper_wiki.backup_manifest import verify_restored_research_tree
+    restored, manifest = _restored_fixture(tmp_path)
+    args = {"expected_manifest_sha256": manifest["manifest_sha256"]}
+    assert verify_restored_research_tree(restored, manifest, **args)["valid"] is True
+    note = restored / "wiki/reading-notes/note.md"
+    def mutate():
+        note.write_bytes(b"changed after initial verification")
+        if fail_consumer:
+            raise ContractError("INJECTED_FAILURE", "consumer failed", {})
+    if boundary == "coverage":
+        original = backup_coverage.scan_research_coverage
+        def scan(*a, **kw):
+            mutate()
+            return original(*a, **kw)
+        monkeypatch.setattr(backup_coverage, "scan_research_coverage", scan)
+        operation = lambda: verify_restored_research_tree(restored, manifest, **args)
+    else:
+        def consumer(*a, **kw):
+            mutate()
+            return {}
+        monkeypatch.setattr(restore_verification, "_vault_semantics", consumer if boundary == "semantics" else lambda *a: {})
+        monkeypatch.setattr(restore_verification, "_research_reads", consumer if boundary == "research" else lambda *a: {})
+        operation = lambda: restore_verification.verify_restored_research(
+            restore_root=restored, manifest=manifest, upstream_root=restored,
+            config={}, research_reads=True, **args,
+        )
+    with pytest.raises(ContractError) as exc:
+        operation()
+    assert exc.value.code == "RESTORE_VERIFICATION_FAILED"
+    assert exc.value.message == "restored research tree changed"
+    assert note.read_bytes() == b"changed after initial verification"
+
+
 def _put(root: Path, relative: str, data: bytes) -> None:
     target = root / relative
     target.parent.mkdir(parents=True, exist_ok=True)

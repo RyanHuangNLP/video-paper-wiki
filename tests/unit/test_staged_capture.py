@@ -3,6 +3,7 @@ import copy, hashlib, os, shutil, stat
 from pathlib import Path
 import pytest
 from tests.support import make_checkout, staged_pdf_capture_input
+from tests.unit.test_prepare import _replace_same_bytes_with_distinct_inode
 from video_paper_wiki.contracts import ContractError
 from video_paper_wiki.staged_capture import inspect_staged_pdf_capture, validate_staged_pdf_capture_request
 from video_paper_wiki.transaction_staging import encode_transaction_inspect_bundle
@@ -21,8 +22,19 @@ def replace_directory(path: Path) -> None:
     shutil.copytree(displaced,path,copy_function=shutil.copy2)
 
 def replace_file(path: Path) -> None:
-    raw=path.read_bytes(); mode=stat.S_IMODE(path.stat().st_mode)
-    path.unlink(); path.write_bytes(raw); os.chmod(path,mode)
+    _replace_same_bytes_with_distinct_inode(path)
+
+def test_replace_file_guarantees_distinct_identity(tmp_path):
+    path = tmp_path / 'replacement.json'
+    path.write_bytes(b'{"identical":true}')
+    os.chmod(path, 0o600)
+    for _ in range(128):
+        before = path.stat()
+        replace_file(path)
+        after = path.stat()
+        assert (after.st_dev, after.st_ino) != (before.st_dev, before.st_ino)
+        assert path.read_bytes() == b'{"identical":true}'
+        assert stat.S_IMODE(after.st_mode) == stat.S_IMODE(before.st_mode)
 
 def test_request_deep_copy_and_correlation():
     import json

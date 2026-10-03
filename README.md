@@ -161,7 +161,7 @@ vpwiki backup verify --profile research-r1 --manifest backup-manifest.json --exp
 
 `backup verify` 把 Vault 路径以字符串传给 flow。已经安装、但 checkout 里仍留着 staging 的文章不会把 staging 再接成第二条链：staging 记录按自身链校验，并与 Vault 里同一修订的字节对照，staging 文件保持不动。
 
-最终 `backup verify` 要在已检出对应代码的恢复根里执行。当前目录不是这份 checkout 时，研究读取会拒绝，消息是 `research verify requires the restored checkout`。含有 `assessment-heads` 和 source-version association 的研究树，恢复后的 catalog 会返回 `SOURCE_PROFILE_REQUIRED`。已安装的 `wiki/reading/**` 生成页目前也过不了 strict lint。工作目录不对，以及 catalog 拒绝或 strict lint 失败，都会让 `valid` 保持不是 `true`。字节恢复和上述研究读取仍然可以核对。本轮不改 catalog 或阅读页生成。详见 [P3 备份与恢复](docs/p3-backup-restore-r1.md)。
+最终 `backup verify` 要在已检出对应代码的恢复根里执行。当前目录不是这份 checkout 时，研究读取会拒绝，消息是 `research verify requires the restored checkout`。P3-§6 已支持校验含有 `assessment-heads` 和 source-version association 的来源状态并重建 catalog；`wiki/reading/**` 生成页也已补齐 strict lint 所需的元数据与链接。工作目录不对、来源状态无效或 strict lint 失败时，`valid` 仍不会为 `true`。这些兼容修复不改变现有发布、receipt 或 `not_wired` 边界。详见 [catalog／reading 兼容](docs/p3-s6-catalog-reading-r1.md)及 [P3 备份与恢复](docs/p3-backup-restore-r1.md)。
 
 `vpwiki` 只在 `.work/**` 生成 staging，不 apply、不 recover、不构建索引。写操作直接使用固定上游公开 CLI；可选 `operator/` 包只是透明转发器，对每次副作用命令要求交互式逐次确认且没有 `--yes`。
 

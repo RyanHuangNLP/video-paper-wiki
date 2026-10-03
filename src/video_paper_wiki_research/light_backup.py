@@ -41,6 +41,7 @@ from video_paper_wiki_research.light_library_state import (
     WORKSPACE_LOCK_NAME,
     HEX64,
     _Busy,
+    absolute_path,
     chain_has_symlink,
     classify_text_file,
     closed,
@@ -209,6 +210,8 @@ def _snapshot_workspace(workspace: Path, *, extra_outputs: list[Path], held_work
         if classified["kind"] != "ok":
             return closed(LIGHT_BACKUP_INVALID, classified.get("reason") or f"refusing unsupported file {relative}", path=relative)
         dest = archive_path or relative
+        if dest.casefold() == MANIFEST_NAME.casefold():
+            return closed(LIGHT_BACKUP_INVALID, "workspace member uses the reserved backup manifest name")
         files.append({"path": dest, "size_bytes": classified["size_bytes"], "sha256": classified["sha256"]})
         total += classified["size_bytes"]
         return None
@@ -287,6 +290,8 @@ def _snapshot_workspace(workspace: Path, *, extra_outputs: list[Path], held_work
         if classified["kind"] != "ok":
             return closed(LIGHT_BACKUP_INVALID, classified.get("reason") or "extra output is not allowed text", path=str(given))
         archive_path = f"exports/external/{classified['sha256']}/{given.name}"
+        if any(row["archive_path"] == archive_path for row in extra_rows):
+            return closed(LIGHT_BACKUP_INVALID, "extra_outputs contains a duplicate archive mapping")
         if any(item["path"].casefold() == archive_path.casefold() and item["path"] != archive_path for item in files):
             return closed(LIGHT_BACKUP_CONFLICT, f"extra output collides by casefold with {archive_path}")
         if any(item["path"] == archive_path and item["sha256"] != classified["sha256"] for item in files):
@@ -409,10 +414,7 @@ def _prefix_collisions(paths: list[str]) -> str | None:
 
 
 def _require_backup_archive(archive_path: Path) -> Path:
-    path = Path(archive_path).expanduser()
-    if not path.is_absolute():
-        path = Path.cwd() / path
-    path = Path(os.path.normpath(path))
+    path = absolute_path(archive_path, "archive_path")
     if chain_has_symlink(path):
         fail(LIGHT_BACKUP_INVALID, "archive_path must not traverse a symlink", {"path": str(path)})
     if path.is_symlink() or not path.is_file():
@@ -774,7 +776,7 @@ def _validate_manifest_object(manifest: Mapping[str, Any], *, zip_names: list[st
         digest = extra.get("hash")
         if not _absolute_normalized_posix(original, require_work=False):
             return "extra_outputs original_path is not a safe path string"
-        if type(original) is not str or not original.endswith(".md"):
+        if type(original) is not str or Path(original).suffix.casefold() != ".md":
             return "extra_outputs original_path must be an absolute .md path"
         if _path_is_within_root(str(original), str(workspace_root)):
             return "extra_outputs original_path must be outside the original workspace"
@@ -985,6 +987,10 @@ def create_backup(workspace_root: Path, *, output: Path, extra_outputs: list[Pat
                     if is_regular_file(tmp):
                         tmp.unlink()
                     return closed(LIGHT_BACKUP_CONFLICT, "workspace files changed after archive construction and before publication")
+                verified = _verify_zip(tmp)
+                if verified.get("ok") is not True:
+                    tmp.unlink()
+                    return {key: value for key, value in verified.items() if key not in {"manifest", "contents"}}
                 produced = tmp.read_bytes()
                 if os.path.lexists(output_path):
                     if output_path.is_symlink() or not output_path.is_file() or file_is_hardlinked(output_path):
@@ -1078,10 +1084,7 @@ def verify_backup(archive_path: Path) -> dict[str, Any]:
 
 def restore_backup(archive_path: Path, *, destination: Path) -> dict[str, Any]:
     archive = _require_backup_archive(archive_path)
-    dest_given = Path(destination).expanduser()
-    if not dest_given.is_absolute():
-        dest_given = Path.cwd() / dest_given
-    dest_given = Path(os.path.normpath(dest_given))
+    dest_given = absolute_path(destination, "destination")
     if not has_work_component(dest_given):
         fail(WORKSPACE_INVALID, "destination must be under .work/**", {"path": str(dest_given)})
     if os.path.lexists(dest_given):

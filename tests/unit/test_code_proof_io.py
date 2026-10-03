@@ -1523,6 +1523,53 @@ def test_cleanup_requires_identity_before_unlink(
     _assert_io(caught.value, "WORK_PATH_UNSAFE", reason="temp_ownership_lost")
 
 
+@pytest.mark.parametrize("change", ["mode", "link"])
+def test_failed_write_cleanup_preserves_changed_temp_authority(checkout, monkeypatch, change):
+    names = []
+    with pytest.raises(CodeProofIOError) as caught:
+        with open_code_session(batch_id="b1") as session:
+            session.set_output_limits(_HARD_OUTPUT)
+            def fail_write(fd, data):
+                path = checkout / ".work/b1/code-evidence-v1" / session._install.temp_name
+                names.append(path)
+                if change == "mode":
+                    os.chmod(path, 0o666)
+                else:
+                    os.link(path, checkout / "other-link")
+                raise OSError(errno.EIO, "injected write failure")
+            monkeypatch.setattr(io, "_write", fail_write)
+            session.install("request.json", b"{}\n")
+    _assert_io(caught.value, "WORK_PATH_UNSAFE")
+    assert names[0].exists()
+    assert names[0].stat().st_nlink == (2 if change == "link" else 1)
+
+
+def test_failed_write_cleanup_rechecks_retained_metadata(checkout, monkeypatch):
+    path = checkout / "input.json"
+    path.write_bytes(b"{}\n")
+    real_unlink = io._unlink
+    kept = []
+    def unlink(*args, **kwargs):
+        real_unlink(*args, **kwargs)
+        kept.append(_replace_keep_alive(path, b"{}\n"))
+    def fail_write(fd, data):
+        raise OSError(errno.EIO, "injected write failure")
+    monkeypatch.setattr(io, "_unlink", unlink)
+    monkeypatch.setattr(io, "_write", fail_write)
+    try:
+        with pytest.raises(CodeProofIOError) as caught:
+            with open_code_session(batch_id="b1") as session:
+                session.set_output_limits(_HARD_OUTPUT)
+                session.retain_input("input.json", maximum=65536)
+                session.install("request.json", b"{}\n")
+        _assert_io(caught.value, "WORK_PATH_UNSAFE")
+        assert "metadata" in caught.value.details["failed_groups"]
+        assert caught.value.details["prior_code"] == "CODE_PROOF_IO_ERROR"
+    finally:
+        for fd in kept:
+            os.close(fd)
+
+
 def test_directory_fsync_failure_after_cleaned_then_reentry(
     checkout: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

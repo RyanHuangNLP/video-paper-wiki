@@ -157,6 +157,26 @@ def test_export_bad_json_and_missing_file(tmp_path, monkeypatch, capsys, network
     assert network_attempts == []
 
 
+@pytest.mark.parametrize("command", ["draft", "review"])
+@pytest.mark.parametrize("payload", ['{"n":' + '1' * 5000 + '}', '[' * 1400 + ']' * 1400], ids=["large-integer", "deep-array"])
+def test_draft_review_resource_json_refusal(tmp_path, monkeypatch, capsys, command, payload):
+    make_checkout(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    draft = tmp_path / "bad.json"
+    draft.write_text(payload, encoding="utf-8")
+    argv = (["draft", "validate", "--path", str(draft)] if command == "draft" else
+            ["review", "export", "--draft", str(draft), "--batch-id", "b1"])
+    assert main(argv) == 2
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert len(captured.out.splitlines()) == 1
+    envelope = json.loads(captured.out)
+    assert envelope["ok"] is False
+    assert envelope["error"]["code"] == "DRAFT_INVALID"
+    assert not (tmp_path / ".work").exists()
+    assert draft.read_text(encoding="utf-8") == payload
+
+
 def test_export_catalog_paper_writes_work_review(
     tmp_path, monkeypatch, capsys, network_attempts
 ) -> None:
