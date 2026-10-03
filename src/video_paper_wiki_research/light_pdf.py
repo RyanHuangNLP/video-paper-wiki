@@ -151,25 +151,6 @@ def _run_inject(point: str) -> None:
     hook = _inject_hooks.get(point)
     if hook is not None:
         hook(point)
-    env_point = os.environ.get("VPWIKI_LIGHT_PDF_INJECT")
-    if env_point != point:
-        return
-    ready = os.environ.get("VPWIKI_LIGHT_PDF_INJECT_READY")
-    wait = os.environ.get("VPWIKI_LIGHT_PDF_INJECT_WAIT")
-    action = os.environ.get("VPWIKI_LIGHT_PDF_INJECT_ACTION", "exit")
-    if ready:
-        ready_path = Path(ready)
-        with open(ready_path, "w", encoding="utf-8") as handle:
-            handle.write(point + "\n")
-            handle.flush()
-    if wait:
-        with open(wait, "r", encoding="utf-8") as handle:
-            handle.read()
-    if action == "continue":
-        return
-    if action == "raise":
-        raise RuntimeError(f"injected failure at {point}")
-    os._exit(77)
 
 
 def _closed(status: str, message: str, **extra: Any) -> dict[str, Any]:

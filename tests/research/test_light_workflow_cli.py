@@ -2,11 +2,12 @@
 
 Protocol tests inject interface stubs and check argparse mapping, help,
 mixed-flag rejection, and legacy dispatch. Integrated cases use real
-T1/T2/T3 backends when those modules are present; they do not mock success.
+T1/T2/T3 backends, which are required; they do not mock success.
 """
 
 from __future__ import annotations
 
+import importlib
 import json
 import sys
 import types
@@ -35,9 +36,9 @@ def _workspace(checkout: Path, name: str = "light-workflow-cli") -> Path:
 
 
 def _live_backends():
-    workspace = pytest.importorskip("video_paper_wiki_research.light_workspace")
-    context = pytest.importorskip("video_paper_wiki_research.light_context")
-    workflow = pytest.importorskip("video_paper_wiki_research.light_workflow")
+    workspace = importlib.import_module("video_paper_wiki_research.light_workspace")
+    context = importlib.import_module("video_paper_wiki_research.light_context")
+    workflow = importlib.import_module("video_paper_wiki_research.light_workflow")
     missing = [
         name
         for name, module, attr in (
@@ -50,9 +51,36 @@ def _live_backends():
         )
         if not callable(getattr(module, attr, None))
     ]
-    if missing:
-        pytest.skip("live workflow backends are incomplete: " + ", ".join(missing))
+    assert not missing, "live workflow backends are incomplete: " + ", ".join(missing)
     return workspace, context, workflow
+
+
+@pytest.mark.parametrize("name", ["light_workspace", "light_context", "light_workflow"])
+def test_required_backend_import_error_is_not_skipped(monkeypatch, name: str) -> None:
+    monkeypatch.setitem(sys.modules, f"video_paper_wiki_research.{name}", None)
+    try:
+        with pytest.raises(ModuleNotFoundError):
+            _live_backends()
+    except pytest.skip.Exception as exc:
+        pytest.fail(f"required backend import became a skip: {exc}")
+
+
+@pytest.mark.parametrize("name, attr", [
+    ("light_workspace", "inspect_workspace"),
+    ("light_context", "export_context"),
+    ("light_context", "import_document"),
+    ("light_workflow", "prepare_workflow"),
+    ("light_workflow", "workflow_status"),
+    ("light_workflow", "complete_workflow"),
+])
+def test_required_backend_callable_is_not_skipped(monkeypatch, name: str, attr: str) -> None:
+    module = importlib.import_module(f"video_paper_wiki_research.{name}")
+    monkeypatch.setattr(module, attr, None)
+    try:
+        with pytest.raises(AssertionError, match="live workflow backends are incomplete"):
+            _live_backends()
+    except pytest.skip.Exception as exc:
+        pytest.fail(f"required backend API became a skip: {exc}")
 
 
 def test_protocol_help_lists_workspace_and_workflow_commands() -> None:

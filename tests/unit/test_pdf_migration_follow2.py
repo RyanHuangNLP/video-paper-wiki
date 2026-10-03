@@ -128,16 +128,37 @@ def _verified_notes_plan(tmp_path: Path, *, batch_prefix: str, with_page: bool =
     }
 
 
-def _init_formal_vault(vault: Path, operation_id: str) -> None:
-    if not (UPSTREAM / "scripts" / "claude-obsidian.py").is_file():
-        pytest.skip("pinned upstream is not checked out")
-    verify = getattr(pdf_migration, "verify_pinned_upstream_root", None)
-    if verify is None:
-        pytest.skip("verify_pinned_upstream_root is missing")
+def test_required_upstream_validator_error_is_not_skipped(tmp_path, monkeypatch) -> None:
+    error = PdfMigrationError("PDF_UPSTREAM_INVALID", "injected validator regression")
+
+    def reject(_root):
+        raise error
+
+    monkeypatch.setattr(pdf_migration, "verify_pinned_upstream_root", reject)
     try:
-        verify(UPSTREAM)
-    except PdfMigrationError as exc:
-        pytest.skip(f"upstream pin is not clean: {exc.code}")
+        with pytest.raises(PdfMigrationError) as caught:
+            _init_formal_vault(tmp_path / "vault", "validator-probe")
+        assert caught.value is error
+    except pytest.skip.Exception as exc:
+        pytest.fail(f"required upstream validator error became a skip: {exc}")
+
+
+@pytest.mark.parametrize("missing", ["checkout", "verifier"])
+def test_required_upstream_prerequisite_is_not_skipped(tmp_path, monkeypatch, missing) -> None:
+    if missing == "checkout":
+        monkeypatch.setattr(f"{__name__}.UPSTREAM", tmp_path / "missing-upstream")
+    else:
+        monkeypatch.delattr(pdf_migration, "verify_pinned_upstream_root")
+    try:
+        with pytest.raises((AssertionError, AttributeError)):
+            _init_formal_vault(tmp_path / "vault", "prerequisite-probe")
+    except pytest.skip.Exception as exc:
+        pytest.fail(f"required upstream prerequisite became a skip: {exc}")
+
+
+def _init_formal_vault(vault: Path, operation_id: str) -> None:
+    assert (UPSTREAM / "scripts" / "claude-obsidian.py").is_file(), "pinned upstream is not checked out"
+    pdf_migration.verify_pinned_upstream_root(UPSTREAM)
     cli = [sys.executable, "-I", "-B", "-X", "utf8", str(UPSTREAM / "scripts" / "claude-obsidian.py")]
     dry = json.loads(
         subprocess.run(
