@@ -21,6 +21,7 @@ from video_paper_wiki.pdf_migration import (
     parse_roots,
     prepare_migration,
     prepare_unverified_link,
+    verify_pinned_upstream_root,
 )
 from video_paper_wiki.staging import resolve_checkout_root
 import video_paper_wiki.pdf_migration as pdf_migration
@@ -33,7 +34,6 @@ PDF_UPSTREAM_INVALID = getattr(pdf_migration, "PDF_UPSTREAM_INVALID", "PDF_UPSTR
 PDF_UPSTREAM_REQUIRED = getattr(pdf_migration, "PDF_UPSTREAM_REQUIRED", "PDF_UPSTREAM_REQUIRED")
 plan_content_digest = getattr(pdf_migration, "plan_content_digest", None)
 load_uploaded_manifest = getattr(pdf_migration, "load_uploaded_manifest", None)
-verify_pinned_upstream_root = getattr(pdf_migration, "verify_pinned_upstream_root", None)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -493,12 +493,7 @@ def test_formal_apply_uses_upstream_receipt(tmp_path, monkeypatch) -> None:
     repo = Path(__file__).resolve().parents[2]
     upstream = repo / "vendor" / "claude-obsidian"
     cli = [sys.executable, "-I", "-B", "-X", "utf8", str(upstream / "scripts" / "claude-obsidian.py")]
-    if verify_pinned_upstream_root is None:
-        pytest.fail("verify_pinned_upstream_root is missing")
-    try:
-        verify_pinned_upstream_root(upstream)
-    except PdfMigrationError as exc:
-        pytest.skip(f"upstream pin is not clean: {exc.code}")
+    verify_pinned_upstream_root(upstream)
     work = tmp_path / "work"
     work.mkdir()
     make_checkout(work)
@@ -564,12 +559,25 @@ def test_formal_apply_uses_upstream_receipt(tmp_path, monkeypatch) -> None:
 
 def test_pinned_upstream_helper_accepts_vendor() -> None:
     root = Path(__file__).resolve().parents[2] / "vendor" / "claude-obsidian"
-    if not (root / "scripts" / "claude-obsidian.py").is_file():
-        pytest.skip("pinned upstream is not checked out")
-    if verify_pinned_upstream_root is None:
-        pytest.fail("verify_pinned_upstream_root is missing")
-    try:
-        verified = verify_pinned_upstream_root(root)
-    except PdfMigrationError as exc:
-        pytest.skip(f"upstream pin is not clean: {exc.code}")
+    assert (root / "scripts" / "claude-obsidian.py").is_file(), "pinned upstream is not checked out"
+    verified = verify_pinned_upstream_root(root)
     assert verified == root.resolve()
+
+
+@pytest.mark.parametrize("formal_apply", [False, True])
+def test_required_upstream_validator_error_is_not_skipped(tmp_path, monkeypatch, formal_apply) -> None:
+    error = PdfMigrationError(PDF_UPSTREAM_INVALID, "injected validator regression")
+
+    def reject(_root):
+        raise error
+
+    monkeypatch.setattr(f"{__name__}.verify_pinned_upstream_root", reject)
+    try:
+        with pytest.raises(PdfMigrationError) as caught:
+            if formal_apply:
+                test_formal_apply_uses_upstream_receipt(tmp_path, monkeypatch)
+            else:
+                test_pinned_upstream_helper_accepts_vendor()
+        assert caught.value is error
+    except pytest.skip.Exception as exc:
+        pytest.fail(f"required upstream validator error became a skip: {exc}")
