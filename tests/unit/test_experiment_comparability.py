@@ -323,3 +323,49 @@ def test_same_record_and_schema_failures():
         compare_experiment_records({"schema": "video-paper-wiki.experiment-condition-record.v1"}, left)
     assert missing.value.details["reason"] == "schema"
     assert missing.value.details["next_action"] == "repair_input"
+
+
+@pytest.mark.parametrize(
+    "key,field,value,rule",
+    [
+        ("frames", "fps", 24, "same_frame_count"),
+        ("frames", "fps", None, "same_frame_count"),
+        ("inference_steps", "steps", 100, "inference_steps_declared"),
+        ("inference_steps", "scheduler", "euler", "inference_steps_declared"),
+        ("inference_steps", "scheduler", None, "inference_steps_declared"),
+        ("sampling_guidance", "guidance_scale", 20, "guidance_declared"),
+        ("sampling_guidance", "sampler", "euler", "guidance_declared"),
+        ("sampling_guidance", "sampler", None, "guidance_declared"),
+        ("sampling_guidance", "seed", 2, "guidance_declared"),
+        ("sampling_guidance", "seed", None, "guidance_declared"),
+        ("parameter_count", "basis", "trainable", "parameter_basis_declared"),
+        ("evaluation_setup", "evaluator", None, "same_evaluation_protocol"),
+        ("evaluation_setup", "num_samples", None, "same_evaluation_protocol"),
+    ],
+)
+def test_different_or_unknown_settings_never_claim_comparable(key, field, value, rule):
+    left = _seal(recorded_by="left")
+    condition = copy.deepcopy(left["conditions"][key])
+    condition["value"][field] = value
+    right = _seal(
+        {"conditions": {key: condition, "metrics": _reported([_metric(value=140)])}},
+        recorded_by="right",
+    )
+    for a, b in ((left, right), (right, left)):
+        result = _compare(a, b)
+        assert _rule(result, rule)["outcome"] in {"violated", "unknown_left", "unknown_right"}
+        assert result["verdict"] != "comparable"
+        assert result["contradiction_candidates"] == []
+
+
+def test_different_metric_definition_identity_blocks_comparison():
+    metric = _metric(value=140)
+    metric["definition_source"] = copy.deepcopy(PAPER_DIRECT)
+    metric["definition_source"]["locator"]["page"] = 2
+    result = _compare(
+        _seal(recorded_by="left"),
+        _seal({"conditions": {"metrics": _reported([metric])}}, recorded_by="right"),
+    )
+    assert _rule(result, "same_metric_definition")["outcome"] == "violated"
+    assert result["verdict"] == "incomparable"
+    assert result["contradiction_candidates"] == []

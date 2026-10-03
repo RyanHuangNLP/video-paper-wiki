@@ -11,6 +11,8 @@ import json
 import os
 from pathlib import Path
 
+import pytest
+
 from tests.research.conftest import stdout_json
 from tests.research.test_light_cli import _pdf_with_page_texts
 from video_paper_wiki_research.cli import build_parser, main as research_main
@@ -570,22 +572,89 @@ def test_new_routes_refuse_raw_workspace_edges(checkout: Path, capsys) -> None:
             assert "Traceback" not in payload.get("message", "")
 
 
-def test_safe_workspace_positive_and_legacy_dotdot_control(checkout: Path, capsys) -> None:
+def test_safe_workspace_positive_and_legacy_dotdot_refusal(checkout: Path, capsys) -> None:
     workspace = _workspace(checkout, "safe-ws")
     assert research_main(["knowledge", "batch-status", "--workspace", str(workspace)]) == 0
     safe = stdout_json(capsys)
     assert safe["ok"] is True
     legacy = workspace / ".." / workspace.name
-    assert research_main(["knowledge", "list", "--workspace", str(legacy)]) == 0
+    assert research_main(["knowledge", "list", "--workspace", str(legacy)]) == 2
     listed = stdout_json(capsys)
-    assert listed["ok"] is True
-    assert research_main(["library", "list", "--workspace", str(legacy)]) == 0
+    assert listed["ok"] is False
+    assert research_main(["library", "list", "--workspace", str(legacy)]) == 2
     library = stdout_json(capsys)
-    assert library["ok"] is True
+    assert library["ok"] is False
     assert research_main(["knowledge", "batch-status", "--workspace", str(legacy)]) == 2
     refused = _closed_payload(capsys)
     assert refused["ok"] is False
     assert _error_code(refused) == "WORKSPACE_INVALID"
+
+
+@pytest.mark.parametrize("route", ["library", "knowledge"])
+@pytest.mark.parametrize("kind", ["symlink", "symlink-dotdot", "dotdot"])
+def test_legacy_routes_refuse_raw_workspace_edges(checkout: Path, capsys, route, kind) -> None:
+    workspace = _workspace(checkout, "legacy-edge")
+    before = {str(p): p.read_bytes() for p in workspace.rglob("*") if p.is_file()}
+    unsafe = _edge_workspace(workspace, kind)
+    assert research_main([route, "list", "--workspace", str(unsafe)]) == 2
+    assert _error_code(_closed_payload(capsys)) == "WORKSPACE_INVALID"
+    assert {str(p): p.read_bytes() for p in workspace.rglob("*") if p.is_file()} == before
+
+
+@pytest.mark.parametrize("route", ["comparison", "create", "verify", "restore-archive", "restore-destination"])
+@pytest.mark.parametrize("kind", ["dotdot", "symlink", "symlink-dotdot", "safe"])
+def test_work_bound_cli_routes_validate_original_path(checkout: Path, capsys, route, kind) -> None:
+    from tests.research.test_light_compare import _comparison_pair
+    from tests.research.test_light_knowledge import _workspace as comparison_workspace
+
+    workspace = comparison_workspace(
+        checkout,
+        pages_a=["transformer architecture training alpha"],
+        pages_b=["transformer architecture training beta"],
+    )
+    work = workspace.parent
+    context, document = _comparison_pair(workspace)
+    context_path = _save(work / "context.json", context)
+    document_path = _save(work / "document.json", document)
+    archive = work / "backup.zip"
+    assert research_main(["backup", "create", "--workspace", str(workspace), "--output", str(archive)]) == 0
+    assert _closed_payload(capsys)["ok"] is True
+
+    (checkout / "other").mkdir()
+    alias = checkout / "alias"
+    alias.symlink_to(checkout, target_is_directory=True)
+    parent = {
+        "dotdot": checkout / "other" / ".." / ".work",
+        "symlink": alias / ".work",
+        "symlink-dotdot": alias / "other" / ".." / ".work",
+        "safe": work,
+    }[kind]
+    commands = {
+        "comparison": [
+            "compare", "import", "--workspace", str(workspace),
+            "--context", str(context_path), "--document", str(document_path),
+            "--output", str(parent / "comparison.md"),
+        ],
+        "create": ["backup", "create", "--workspace", str(workspace), "--output", str(parent / "new.zip")],
+        "verify": ["backup", "verify", "--archive", str(parent / archive.name)],
+        "restore-archive": [
+            "backup", "restore", "--archive", str(parent / archive.name), "--destination", str(work / "restored"),
+        ],
+        "restore-destination": [
+            "backup", "restore", "--archive", str(archive), "--destination", str(parent / "restored"),
+        ],
+    }
+    before = {str(p.relative_to(work)): p.read_bytes() if p.is_file() else None for p in work.rglob("*")}
+    code = research_main(commands[route])
+    payload = _closed_payload(capsys)
+    if kind == "safe":
+        assert code == 0, payload
+        assert payload["ok"] is True
+    else:
+        assert code == 2, payload
+        assert payload["ok"] is False
+        assert _error_code(payload) == "WORKSPACE_INVALID"
+        assert {str(p.relative_to(work)): p.read_bytes() if p.is_file() else None for p in work.rglob("*")} == before
 
 
 def test_no_workspace_import_closes_decoder_exceptions(checkout: Path, capsys) -> None:

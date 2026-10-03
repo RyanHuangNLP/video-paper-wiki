@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from video_paper_wiki.projection_runtime import parse_projection_json
 from typing import Any
 
 from video_paper_wiki.blob_store import BlobStore, resolve_blob_root
@@ -175,7 +176,7 @@ def validate(_args: object | None = None) -> int:
             {"path": str(raw)},
         )
     try:
-        document = json.loads(path.read_text(encoding="utf-8"))
+        document = parse_projection_json(path.read_text(encoding="utf-8").encode("utf-8"))
     except UnicodeDecodeError:
         return emit_error(
             "draft.validate",
@@ -183,11 +184,11 @@ def validate(_args: object | None = None) -> int:
             "draft file is not valid UTF-8",
             {"path": path.as_posix()},
         )
-    except json.JSONDecodeError as exc:
+    except ContractError:
         return emit_error(
             "draft.validate",
             "DRAFT_INVALID",
-            f"draft is not valid JSON: {exc.msg}",
+            "draft is not valid bounded JSON",
             {"path": path.as_posix()},
         )
     try:

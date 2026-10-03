@@ -3626,6 +3626,22 @@ class _CodeSession:
             expected = (fst.st_dev, fst.st_ino)
         return expected
 
+    def _record_temp_cleanup(self, record):
+        for scan in self._scans:
+            if scan.parent is record.parent_node:
+                scan.additions.discard(record.temp_name)
+        record.owned_temp = False
+        if record.link_success and record.final_node is not None:
+            base = record.target.rsplit("/", 1)[-1]
+            final_st = self._require_final_matches_temp_fd(
+                record.parent_node, base, record.temp_fd, nlink=1,
+            )
+            self._bind_final_file(record.parent_node, base, record.final_node, final_st, record.payload)
+            self._mark_cleaned_prefix(
+                record.parent_node, base, record.temp_name, record.payload,
+                record.final_node, final_st,
+            )
+
     def _cleanup_owned_temp(self):
         record = self._install
         if not record.owned_temp or record.temp_name is None or record.parent_node is None:
@@ -3640,10 +3656,7 @@ class _CodeSession:
             st = _stat(record.temp_name, dir_fd=parent.fd, follow_symlinks=False)
         except OSError as exc:
             if _errno_of(exc) == errno.ENOENT:
-                record.owned_temp = False
-                for scan in self._scans:
-                    if scan.parent is parent:
-                        scan.additions.discard(record.temp_name)
+                self._record_temp_cleanup(record)
                 return None
             return _Failure(
                 "syscall_failed",
@@ -3660,6 +3673,9 @@ class _CodeSession:
                 None,
                 "installation",
             )
+        expected_links = 2 if record.link_success else 1
+        if not _output_file_mode_ok(st.st_mode) or st.st_nlink != expected_links:
+            return _Failure("temp_ownership_lost", "unlink", None, "installation")
         if record.temp_fd is not None:
             try:
                 fst = _fstat(record.temp_fd)
@@ -3672,7 +3688,8 @@ class _CodeSession:
                     lineage=False,
                     code="CODE_PROOF_IO_ERROR",
                 )
-            if fst.st_dev != expected[0] or fst.st_ino != expected[1]:
+            if (fst.st_dev != expected[0] or fst.st_ino != expected[1]
+                    or not _output_file_mode_ok(fst.st_mode) or fst.st_nlink != expected_links):
                 return _Failure(
                     "temp_ownership_lost",
                     "fstat",
@@ -3682,6 +3699,11 @@ class _CodeSession:
         try:
             _unlink(record.temp_name, dir_fd=parent.fd)
         except OSError as exc:
+            try:
+                _stat(record.temp_name, dir_fd=parent.fd, follow_symlinks=False)
+            except OSError as check:
+                if _errno_of(check) == errno.ENOENT:
+                    self._record_temp_cleanup(record)
             return _Failure(
                 "syscall_failed",
                 "unlink",
@@ -3690,10 +3712,7 @@ class _CodeSession:
                 lineage=False,
                 code="CODE_PROOF_IO_ERROR",
             )
-        for scan in self._scans:
-            if scan.parent is parent:
-                scan.additions.discard(record.temp_name)
-        record.owned_temp = False
+        self._record_temp_cleanup(record)
         return None
 
     def _verify_group_names(self, group):
@@ -4037,6 +4056,21 @@ class _CodeSession:
         parent = record.parent_node
         if parent.fd is None:
             return _Failure("missing", "stat", None, "installation")
+        if not record.owned_temp and not record.link_success:
+            try:
+                _stat(record.temp_name, dir_fd=parent.fd, follow_symlinks=False)
+            except OSError as exc:
+                if _errno_of(exc) != errno.ENOENT:
+                    return _Failure("syscall_failed", "stat", _errno_of(exc), "installation")
+            else:
+                return _Failure("temp_ownership_lost", "stat", None, "installation")
+            if record.temp_fd is None:
+                return _Failure("temp_ownership_lost", "fstat", None, "installation")
+            fst = _fstat(record.temp_fd)
+            if ((fst.st_dev, fst.st_ino) != node.first_stamp[:2]
+                    or not _output_file_mode_ok(fst.st_mode) or fst.st_nlink != 0):
+                return _Failure("temp_ownership_lost", "fstat", None, "installation")
+            return None
         if phase in ("cleaned", "durable", "idle") and record.cleaned_prefix:
             try:
                 _stat(record.temp_name, dir_fd=parent.fd, follow_symlinks=False)
@@ -4418,7 +4452,7 @@ class _CodeSession:
         def record(group, failure):
             if failure is None:
                 return
-            if group not in failures:
+            if group not in failures or (failure.lineage and not failures[group].lineage):
                 failures[group] = failure
 
         def capture_interrupt(exc):
@@ -4450,6 +4484,7 @@ class _CodeSession:
             record(group, failure)
         self._phase = "closing"
         cleanup = None
+        had_temp = self._install.owned_temp
         try:
             cleanup = self._cleanup_owned_temp()
         except BaseException as exc:
@@ -4463,6 +4498,26 @@ class _CodeSession:
                     lineage=False,
                     code="CODE_PROOF_IO_ERROR",
                 )
+        if cleanup is not None and cleanup.lineage:
+            record("installation", cleanup)
+        if had_temp:
+            # Cleanup changes named entries; recheck all retained groups before
+            # closing descriptors and choosing the error that escapes.
+            for group in groups:
+                for verifier in (self._verify_group_names, self._verify_group_bytes):
+                    try:
+                        failure = verifier(group)
+                    except BaseException as exc:
+                        capture_interrupt(exc)
+                        failure = _Failure("edge_changed", None, None, group, lineage=True)
+                    record(group, failure)
+            for group in groups:
+                try:
+                    failure = self._verify_group_names(group)
+                except BaseException as exc:
+                    capture_interrupt(exc)
+                    failure = _Failure("edge_changed", None, None, group, lineage=True)
+                record(group, failure)
         close_err = None
         try:
             close_err, close_interrupt = self._close_all()

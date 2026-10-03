@@ -648,6 +648,94 @@ def _dir_bytes(path: Path) -> dict[str, bytes]:
     return out
 
 
+@pytest.mark.parametrize("text", ["\ufeffx\n", "x\x00\n", "x\u2028y\n", "x\ry\n"])
+def test_normalized_text_refusal_is_one_cli_envelope(checkout, text):
+    repo = make_repo("sha1", default_files())
+    _write_request(checkout, repo)
+    request_code_proof(input_path="request.json", batch_id="norm-bad")
+    _write_observe_norm(checkout, repo, {"config.json": text, "src.py": "x\n"})
+    ns = checkout / ".work" / "norm-bad" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    proc = run_module_cli(checkout, ["code-evidence", "observe", "--batch-id", "norm-bad", "--input", "observe.json"])
+    envelope = parse_envelope(proc)
+    assert proc.returncode == 2
+    assert proc.stderr == ""
+    assert envelope["error"]["code"] == "CODE_PROOF_DOCUMENT_INVALID"
+    assert envelope["error"]["details"] == {"instance_pointer": "/targets/0/text", "reason": "noncanonical_text"}
+    assert _dir_bytes(ns) == before
+
+
+@pytest.mark.parametrize("limit_name", ["max_objects", "max_object_bytes", "max_total_object_bytes", "max_tree_entries"])
+@pytest.mark.parametrize("delta", [-1, 0, 1])
+@pytest.mark.parametrize("prefix", ["empty", "complete"])
+def test_pending_status_enforces_lowered_git_limits(checkout, limit_name, delta, prefix):
+    repo, requested, observed = _complete_raw(checkout)
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    request = json.loads((ns / "request.json").read_bytes())["data"]
+    bundle = json.loads((ns / "bundle.json").read_bytes())["data"]
+    intent = json.loads((ns / "intent.json").read_bytes())["data"]
+    actual = {
+        "max_objects": len(repo["objects"]),
+        "max_object_bytes": max(len(b) for b in repo["bodies"].values()),
+        "max_total_object_bytes": sum(len(b) for b in repo["bodies"].values()),
+        "max_tree_entries": len(default_files()),
+    }[limit_name]
+    request["limits"]["git"][limit_name] = actual + delta
+    _, request_bytes, request_ref = public._seal("code-proof-request", request)
+    bundle["request"] = request_ref
+    _, bundle_bytes, bundle_ref = public._seal("code-git-bundle", bundle)
+    intent["request"] = request_ref
+    intent["bundle"]["reference"] = bundle_ref
+    _, intent_bytes, _ = public._seal("code-acquisition-intent", intent)
+    with open_code_session(batch_id="pending") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        for name, payload in [("request.json", request_bytes), ("intent.json", intent_bytes), ("bundle.json", bundle_bytes)]:
+            session.install(name, payload)
+        if prefix == "complete":
+            for record in repo["objects"]:
+                session.install("objects/" + record["oid"] + ".body", repo["bodies"][record["oid"]])
+    pending = checkout / ".work" / "pending" / "code-evidence-v1"
+    before = _dir_bytes(pending)
+    if delta == -1 and (limit_name != "max_tree_entries" or prefix == "complete"):
+        with pytest.raises((public.CodeGitProofError, CodeProofIOError)) as exc:
+            status_code_proof(batch_id="pending")
+        assert exc.value.code == "CODE_PROOF_LIMIT_EXCEEDED"
+        assert exc.value.details["limit_name"] == limit_name
+        assert exc.value.details["limit"] == actual - 1
+        assert exc.value.details["observed"] == actual
+    else:
+        assert status_code_proof(batch_id="pending")["state"] == "pending_raw_bodies"
+    assert _dir_bytes(pending) == before
+
+
+@pytest.mark.parametrize("ineligible", ["hosting", "target"])
+@pytest.mark.parametrize("count", [1, 2])
+def test_saved_handoff_requires_whole_request_eligibility(checkout, ineligible, count):
+    targets = default_targets()
+    if ineligible == "target":
+        targets.append({"path": "zzz-missing.py", "roles": ["implementation"], "allow_executable_source": False})
+    _complete_raw(checkout, targets=targets, require_repository_assertion=ineligible == "hosting")
+    with open_code_session(batch_id="b1") as session:
+        session.set_output_limits(dict(OUTPUT_LIMITS))
+        view = public._inspect(session, "b1")
+        assert view["observation_data"]["eligibility"]["source_handoff_eligible"] is False
+        for target in targets[:count]:
+            _, saved, _ = public._derive_handoff(
+                batch_id="b1", request_data=view["request_data"], request_ref=view["request_ref"],
+                observation_ref=view["observation_ref"], bundle_ref=view["bundle_ref"],
+                observation_data=view["observation_data"], git_proof=view["git_proof"],
+                bodies=view["bodies"], path=target["path"],
+            )
+            session.install("handoffs/" + public._path_key(target["path"]), saved)
+    ns = checkout / ".work" / "b1" / "code-evidence-v1"
+    before = _dir_bytes(ns)
+    with pytest.raises(CodeProofPublicError) as exc:
+        status_code_proof(batch_id="b1")
+    assert exc.value.code == "CODE_PROOF_STATE_INVALID"
+    assert exc.value.details == {"instance_pointer": "/handoffs", "reason": "forbidden_family"}
+    assert _dir_bytes(ns) == before
+
+
 def test_tampered_pending_body_refuses(checkout: Path) -> None:
     repo, _requested, _observed = _complete_raw(checkout, "sha1")
     copy_outputs("b1", "tamper", ["request.json", "intent.json", "bundle.json"])

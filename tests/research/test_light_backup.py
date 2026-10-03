@@ -107,6 +107,74 @@ def _tree_bytes(root: Path) -> dict[str, bytes]:
     return payload
 
 
+@pytest.mark.parametrize("boundary", ["workspace", "output", "archive", "destination", "extra"])
+def test_backup_refuses_raw_parent_traversal(tmp_path: Path, boundary) -> None:
+    workspace = _workspace(tmp_path)
+    (workspace / "notes.md").write_text("note\n", encoding="utf-8")
+    archive = _output(tmp_path)
+    assert create_backup(workspace, output=archive)["ok"] is True
+    extra = workspace.parent / "extra.md"
+    extra.write_text("extra\n", encoding="utf-8")
+    destination = workspace.parent / "restored"
+    def unsafe(path):
+        return path.parent / ".." / path.parent.name / path.name
+    before = _tree_bytes(tmp_path)
+    with pytest.raises(ResearchError) as exc:
+        if boundary == "workspace":
+            create_backup(unsafe(workspace), output=archive)
+        elif boundary == "output":
+            create_backup(workspace, output=unsafe(archive))
+        elif boundary == "archive":
+            verify_backup(unsafe(archive))
+        elif boundary == "destination":
+            restore_backup(archive, destination=unsafe(destination))
+        else:
+            create_backup(workspace, output=archive, extra_outputs=[unsafe(extra)])
+    assert exc.value.code == "WORKSPACE_INVALID"
+    assert _tree_bytes(tmp_path) == before
+    assert not destination.exists()
+
+
+@pytest.mark.parametrize("case", ["reserved", "uppercase", "duplicate"])
+def test_backup_creation_and_verification_agree(tmp_path, case):
+    workspace = _workspace(tmp_path)
+    (workspace / "note.md").write_text("note\n")
+    extra = workspace.parent / "draft.MD"
+    extra.write_text("external draft\n")
+    extras = [extra]
+    if case == "reserved":
+        (workspace / "LIGHT-LIBRARY-MANIFEST.json").write_text("{}\n")
+        extras = []
+    elif case == "duplicate":
+        extras.append(extra)
+    archive = _output(tmp_path)
+    created = create_backup(workspace, output=archive, extra_outputs=extras)
+    if case in {"reserved", "duplicate"}:
+        assert created["ok"] is False
+        assert not archive.exists()
+    else:
+        assert created["ok"] is True
+        assert verify_backup(archive)["ok"] is True
+        assert create_backup(workspace, output=archive, extra_outputs=extras)["reused"] is True
+        assert verify_backup(archive)["ok"] is True
+        assert restore_backup(archive, destination=workspace.with_name("restored"))["ok"] is True
+
+
+def test_backup_verifies_staged_zip_before_success(tmp_path, monkeypatch):
+    from video_paper_wiki_research import light_backup
+    workspace = _workspace(tmp_path)
+    (workspace / "note.md").write_text("note\n")
+    original = light_backup._write_zip
+    def corrupt(path, *args):
+        result = original(path, *args)
+        path.write_bytes(b"not a ZIP")
+        return result
+    monkeypatch.setattr(light_backup, "_write_zip", corrupt)
+    archive = _output(tmp_path)
+    assert create_backup(workspace, output=archive)["ok"] is False
+    assert not archive.exists()
+
+
 def test_backup_exclusions_and_byte_exact_restore(tmp_path: Path) -> None:
     workspace = _workspace(tmp_path)
     added = _add(tmp_path, workspace, "bk", "Backup lexical body token.")

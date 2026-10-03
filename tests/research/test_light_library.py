@@ -22,12 +22,37 @@ from video_paper_wiki_research.light_library_state import (
     LIGHT_LIBRARY_INVALID,
     LIGHT_WORKSPACE_BUSY,
     persisted_bytes,
+    set_library_inject_hook,
     try_workspace_lock,
     write_persisted_atomic,
 )
 from video_paper_wiki_research.light_pdf import extract_pdf
 from video_paper_wiki_research.light_workflow import _exclusive_lock, _workspace_lock_path, prepare_workflow, workflow_status
 from video_paper_wiki_research.light_workspace import inspect_workspace
+
+
+def test_metadata_update_preserves_in_place_external_edit(tmp_path):
+    workspace = _workspace(tmp_path)
+    added = _add_paper(tmp_path, workspace, "edit", "Metadata preservation.", title="old")
+    path = Path(added["metadata_path"])
+    initial = json.loads(path.read_bytes())
+    initial["annotation"] = "original"
+    path.write_text(json.dumps(initial), encoding="utf-8")
+    concurrent = json.dumps({**initial, "annotation": "concurrent user edit"}).encode("utf-8")
+    before_inode = path.stat().st_ino
+    def edit(phase):
+        if phase == "after_metadata_tmp":
+            path.write_bytes(concurrent)
+            assert path.stat().st_ino == before_inode
+    set_library_inject_hook("after_metadata_tmp", edit)
+    try:
+        with pytest.raises(ResearchError) as exc:
+            update_paper_metadata(workspace, added["paper_id"], title="updated")
+        assert exc.value.code == LIGHT_LIBRARY_CONFLICT
+    finally:
+        set_library_inject_hook(None)
+    assert path.read_bytes() == concurrent
+    assert not list(path.parent.glob("*.tmp"))
 
 
 def _workspace(tmp_path: Path) -> Path:

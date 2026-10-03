@@ -241,8 +241,12 @@ def _eval_metric_definition(left, right, shared, lmap, rmap):
             left_unknown = True
         if rm["definition_source"] is None or rm["higher_is_better"] is None:
             right_unknown = True
+        if lm["definition_source"] is not None and rm["definition_source"] is not None:
+            if not _equal_jcs(lm["definition_source"], rm["definition_source"]):
+                mismatch = name
+                break
     if mismatch is not None:
-        return "violated", "metric_definition_differs", mismatch, "shared metric higher_is_better differs"
+        return "violated", "metric_definition_differs", mismatch, "shared metric definition source or direction differs"
     if left_unknown or right_unknown:
         return _unknown_outcome(left_unknown, right_unknown), "condition_unknown", None, "metric definition is incomplete"
     return "satisfied", None, None, "shared metrics have matching definitions"
@@ -279,9 +283,15 @@ def _eval_frames(left, right):
     outcome, kind = _status_outcome(left, right, "frames")
     if outcome is not None:
         return outcome, kind, "frames statuses compared"
-    if _value(left, "frames")["count"] == _value(right, "frames")["count"]:
-        return "satisfied", None, "frame counts match"
-    return "violated", "condition_differs", "frame counts differ"
+    lv = _value(left, "frames")
+    rv = _value(right, "frames")
+    if lv["count"] != rv["count"]:
+        return "violated", "condition_differs", "frame counts differ"
+    if lv["fps"] is None or rv["fps"] is None:
+        return _unknown_outcome(lv["fps"] is None, rv["fps"] is None), "condition_unknown", "FPS is unknown"
+    if lv["fps"] != rv["fps"]:
+        return "violated", "condition_differs", "FPS differs"
+    return "satisfied", None, "frame counts and FPS match"
 
 
 def _eval_protocol(left, right):
@@ -295,6 +305,10 @@ def _eval_protocol(left, right):
     for field in ("num_samples", "evaluator"):
         if lv[field] is not None and rv[field] is not None and lv[field] != rv[field]:
             return "violated", "condition_differs", field + " differs"
+    left_unknown = any(lv[field] is None for field in ("num_samples", "evaluator"))
+    right_unknown = any(rv[field] is None for field in ("num_samples", "evaluator"))
+    if left_unknown or right_unknown:
+        return _unknown_outcome(left_unknown, right_unknown), "condition_unknown", "evaluation setup is incomplete"
     return "satisfied", None, "evaluation protocols match"
 
 
@@ -329,27 +343,33 @@ def _eval_parameter(left, right):
     right_unknown = rs not in KNOWN or _value(right, "parameter_count")["basis"] == "unspecified"
     if left_unknown or right_unknown:
         return _unknown_outcome(left_unknown, right_unknown), "condition_unknown", "parameter basis is not declared"
-    return "satisfied", None, "parameter bases are declared"
+    if _value(left, "parameter_count")["basis"] != _value(right, "parameter_count")["basis"]:
+        return "violated", "condition_differs", "parameter bases differ"
+    return "satisfied", None, "parameter bases match"
 
 
 def _eval_steps(left, right):
     ls = _status(left, "inference_steps")
     rs = _status(right, "inference_steps")
-    left_unknown = ls not in KNOWN
-    right_unknown = rs not in KNOWN
+    left_unknown = ls not in KNOWN or _value(left, "inference_steps")["scheduler"] is None
+    right_unknown = rs not in KNOWN or _value(right, "inference_steps")["scheduler"] is None
     if left_unknown or right_unknown:
         return _unknown_outcome(left_unknown, right_unknown), "condition_unknown", "inference steps are not declared"
-    return "satisfied", None, "inference steps are declared"
+    if not _equal_jcs(_value(left, "inference_steps"), _value(right, "inference_steps")):
+        return "violated", "condition_differs", "inference steps or scheduler differ"
+    return "satisfied", None, "inference steps and scheduler match"
 
 
 def _eval_guidance(left, right):
     ls = _status(left, "sampling_guidance")
     rs = _status(right, "sampling_guidance")
-    left_unknown = ls not in KNOWN or _value(left, "sampling_guidance")["guidance_scale"] is None
-    right_unknown = rs not in KNOWN or _value(right, "sampling_guidance")["guidance_scale"] is None
+    left_unknown = ls not in KNOWN or any(value is None for value in _value(left, "sampling_guidance").values())
+    right_unknown = rs not in KNOWN or any(value is None for value in _value(right, "sampling_guidance").values())
     if left_unknown or right_unknown:
-        return _unknown_outcome(left_unknown, right_unknown), "condition_unknown", "guidance scale is not declared"
-    return "satisfied", None, "guidance scales are declared"
+        return _unknown_outcome(left_unknown, right_unknown), "condition_unknown", "sampling guidance is incomplete"
+    if not _equal_jcs(_value(left, "sampling_guidance"), _value(right, "sampling_guidance")):
+        return "violated", "condition_differs", "sampling guidance differs"
+    return "satisfied", None, "sampling guidance matches"
 
 
 def _eval_source_version(left, right, same_paper):

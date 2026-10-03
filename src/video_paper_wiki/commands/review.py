@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +13,7 @@ from video_paper_wiki.notes import paper_note_link_suffix, render_paper_copy_mar
 from video_paper_wiki.notes.encoding import InvalidEncoding, read_utf8
 from video_paper_wiki.notes.frozen import FrozenSeedMissing
 from video_paper_wiki.parse.draft_document import InvalidPaperId, validate_paper_id
+from video_paper_wiki.projection_runtime import parse_projection_json
 from video_paper_wiki.staging import StagingError, stage_bytes
 
 COMMAND = "review.export"
@@ -36,7 +36,7 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
             {"path": path.as_posix()},
         )
     try:
-        document = json.loads(read_utf8(path))
+        document = parse_projection_json(read_utf8(path).encode("utf-8"))
     except InvalidEncoding:
         return None, emit_error(
             COMMAND,
@@ -44,9 +44,9 @@ def _load_draft(path: Path) -> tuple[dict[str, Any] | None, int | None]:
             "draft file is not valid UTF-8",
             {"path": path.as_posix()},
         )
-    except json.JSONDecodeError as exc:
+    except ContractError:
         return None, _draft_invalid(
-            f"draft is not valid JSON: {exc.msg}",
+            "draft is not valid bounded JSON",
             {"path": path.as_posix()},
         )
     except OSError as exc:
