@@ -1,0 +1,304 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-implementation-candidate.v1",
+  "architect_review_findings_closed": [
+    {
+      "finding": "public encoder rejects arbitrary/unhashable operation_type with ContractError",
+      "tests": [
+        "tests/unit/test_transaction_staging.py::test_public_encoder_unhashable_operation_type_is_typed"
+      ]
+    },
+    {
+      "finding": "retained input, batch, and captured snapshot verification runs on downstream exceptions and drift overrides the prior error",
+      "tests": [
+        "tests/unit/test_staged_capture.py::test_downstream_error_plus_input_drift_returns_input_error",
+        "tests/unit/test_staged_capture.py::test_downstream_error_plus_captured_drift_returns_snapshot_error"
+      ]
+    },
+    {
+      "finding": "paper request construction occurs inside the retained plan lineage and detects named plan replacement",
+      "tests": [
+        "tests/unit/test_prepare.py::test_paper_pair_refuses_plan_replacement_before_request_construction",
+        "tests/unit/test_prepare.py::test_paper_pair_refuses_plan_same_bytes_inode_replacement_between_installs"
+      ]
+    },
+    {
+      "finding": "request read-close/named-stat replacement is rejected",
+      "tests": [
+        "tests/unit/test_staged_capture.py::test_request_read_close_to_named_stat_replacement_is_refused"
+      ]
+    },
+    {
+      "finding": "captured matching-file opens are nonblocking and special-file races fail closed",
+      "tests": [
+        "tests/security/test_staged_pdf_capture_boundary.py::test_matching_file_open_is_nonblocking",
+        "tests/security/test_staged_pdf_capture_boundary.py::test_matching_unsafe_entries_are_refused"
+      ]
+    },
+    {
+      "finding": "canonical plan semantic errors precede blob/path errors",
+      "tests": [
+        "tests/unit/test_staged_capture.py::test_plan_semantic_error_precedes_missing_blob"
+      ]
+    },
+    {
+      "finding": "authority validator cross-binds staging operation type and remains object-only",
+      "tests": [
+        "tests/upstream/test_vpkb001_staged_pdf_capture.py::test_create_authority_crossed_staging_type_and_profile_io_are_refused_or_absent"
+      ]
+    },
+    {
+      "finding": "prepare fixed slots retain initial identity across missing-item repair",
+      "tests": [
+        "tests/unit/test_prepare.py::test_missing_blob_repair_refuses_existing_request_inode_replacement"
+      ]
+    },
+    {
+      "finding": "reuse calls no proposal, encoder, staging, child process, or network and writes nothing",
+      "tests": [
+        "tests/security/test_staged_pdf_capture_boundary.py::test_reuse_attempts_no_process_network_or_write"
+      ]
+    },
+    {
+      "finding": "pure root/path gate precedes prepared-session filesystem access",
+      "tests": [
+        "tests/unit/test_staged_capture.py::test_invalid_root_shape_precedes_missing_prepared_session"
+      ]
+    },
+    {
+      "finding": "captured resource bounds use existing UPSTREAM_LIMIT_EXCEEDED domain",
+      "tests": [
+        "tests/security/test_staged_pdf_capture_boundary.py::test_capture_entry_limit_is_closed"
+      ]
+    },
+    {
+      "finding": "legacy code-map plan path and JSON whitespace behavior remain compatible while ingest whitespace is refused without publication",
+      "tests": [
+        "tests/unit/test_prepare.py::test_code_map_prepare_opaque_no_unzip_or_pypdf",
+        "tests/unit/test_json_boundary.py::test_plan_and_prepare_json_whitespace_boundary"
+      ]
+    }
+  ],
+  "authority": {
+    "frozen_inputs": {
+      "architecture_acceptance": {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-architect-acceptance.json",
+        "sha256": "3e18f60f70b759e03ead8cb14fa2882afc15036e4bd52062b940c64557ad5432",
+        "size_bytes": 12528,
+        "unchanged": true
+      },
+      "architecture_ci_observation": {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-ci-observation.json",
+        "sha256": "b1413e978123804f8d071fa1f078c665bbad4a73c7c8ba9afa9afd32b3254ea3",
+        "size_bytes": 7713,
+        "unchanged": true
+      },
+      "architecture_merge_parents": {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-freeze-merge-parents.json",
+        "sha256": "1c8b5c7c59169542993c154640e3f635346318ed056c26784187846f06d0cbbb",
+        "size_bytes": 3474,
+        "unchanged": true
+      },
+      "architecture_work_package": {
+        "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+        "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421",
+        "size_bytes": 7303,
+        "unchanged": true
+      },
+      "authority_schema": {
+        "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+        "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+        "size_bytes": 3002,
+        "unchanged": true
+      },
+      "contract": {
+        "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+        "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f",
+        "size_bytes": 20132,
+        "unchanged": true
+      },
+      "request_schema": {
+        "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+        "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f",
+        "size_bytes": 5052,
+        "unchanged": true
+      }
+    },
+    "implementation_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json",
+      "sha256": "6b6453efd41547cba9cded18301887b7390f5cb8bfd7a2edfb54bc173c7255e1",
+      "size_bytes": 20276
+    },
+    "supersedes_revision_1": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package-r1.json",
+      "sha256": "ddb0ecb1aab3da105fe6eb5f7606036d8605111973e42fd41540e7ff110e013e",
+      "size_bytes": 17824
+    }
+  },
+  "baseline": {
+    "accepted_architecture_head": "4168e151c332cdcf89227bf086d4a6bc5308e649",
+    "tree": "78d43e20f8937a96c6cc86357729c72d295658cb"
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/captured_snapshot.py": {
+      "sha256": "f3c0fe82a09b99b067697a84acceae1eae80f8c7e0f703f883efadaa0d1b051f",
+      "size_bytes": 8268
+    },
+    "src/video_paper_wiki/cli.py": {
+      "sha256": "53f7d77ab1c34d96b2c400839abbe499845ae50dd5b9f292d108f10eaa81acfb",
+      "size_bytes": 8644
+    },
+    "src/video_paper_wiki/commands/capture.py": {
+      "sha256": "7067dce5aabba67894fe856a36045ddce323a6ec69cd8f011ff23d122324f6df",
+      "size_bytes": 230
+    },
+    "src/video_paper_wiki/commands/prepare.py": {
+      "sha256": "5bfb14e73d2f25589316c0cda7832933624a3bad2ed521a528a2161a943e5b3b",
+      "size_bytes": 12610
+    },
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "06aa47e58e35fb87d1c8ce520e499bf1dbedc022f0f42a4ed9be1d1533682906",
+      "size_bytes": 75547
+    },
+    "src/video_paper_wiki/staged_capture.py": {
+      "sha256": "0cdc1bffa73353cb790d37ba2920d4deaff7505ce82969237955c6a63944319f",
+      "size_bytes": 23266
+    },
+    "src/video_paper_wiki/staging.py": {
+      "sha256": "d511356c502d8095da8e48fd3dbd387c2372e4d2eadd780e74f03a637ce1b635",
+      "size_bytes": 51658
+    },
+    "src/video_paper_wiki/transaction_staging.py": {
+      "sha256": "71d77db124be2673362a6186f68af1df7e354f975bcac985c4bf2237927694b1",
+      "size_bytes": 11104
+    },
+    "src/video_paper_wiki/upstream_adapter.py": {
+      "sha256": "4ffe8d84be005d25cc3d5e377e8a5ca9f79d5b9441e5075682552e884aa23406",
+      "size_bytes": 64058
+    },
+    "tests/contract/test_staged_pdf_capture.py": {
+      "sha256": "67f95bf9410305ad1de615d934467c0127a18249bc6d8f12fc81554d6109e7fc",
+      "size_bytes": 1517
+    },
+    "tests/security/test_staged_pdf_capture_boundary.py": {
+      "sha256": "56df27c88f4b3f59b78bb08995f3dcd8e2d970f4d8e3c16cf8d7fe36a3cecd38",
+      "size_bytes": 4318
+    },
+    "tests/support.py": {
+      "sha256": "b7ad0ea11a25e10bef8312d5e6e5c697b7e7ad58e428486071221c712bcf3e85",
+      "size_bytes": 7935
+    },
+    "tests/unit/test_json_boundary.py": {
+      "sha256": "e3bd484feed3b6c5ecf4dbf7b85af0ea4d79678d047e8d67c3f18af3ec14ddd5",
+      "size_bytes": 5631
+    },
+    "tests/unit/test_prepare.py": {
+      "sha256": "e6a24237cbe441578d6a905c6e4d27342573f49d4c19374bb31a52fa8876de99",
+      "size_bytes": 28221
+    },
+    "tests/unit/test_staged_capture.py": {
+      "sha256": "a4b134b5da726705932c117885a380179893c5990aa46103105be68ea021b2bd",
+      "size_bytes": 10340
+    },
+    "tests/unit/test_transaction_staging.py": {
+      "sha256": "816766e69814e8b75f9ce0004807b4b5db8f1cbed4b02d1b240c2baecd70f639",
+      "size_bytes": 11859
+    },
+    "tests/upstream/test_vpkb001_staged_pdf_capture.py": {
+      "sha256": "20b358aa66df2c09ddce6bde74996c47c489fbbb5c5baf250c3af492a9fc2906",
+      "size_bytes": 2123
+    }
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted_by_raw_utf8(repo_relative_path) of utf8(path) || TAB || ascii(sha256(raw_file_bytes)) || TAB || ascii(decimal_size_bytes) || LF))",
+    "includes_raw_bytes_directly": false,
+    "path_count": 17,
+    "sha256": "eb228e6d5a0d76117d3f769deaba393f2c52190336218d22a1f76bd1f8b8a373"
+  },
+  "limitations": [
+    "Offline wheel packaging/install smoke, independent review, fresh merge-ref CI, delivery recording, and separate exact-head Architect acceptance remain pending.",
+    "The accepted dry-run inspection remains non-mutating: it does not apply capture writes or access a real Vault."
+  ],
+  "revision": 2,
+  "scope_verification": {
+    "candidate_source_test_paths_within_revision_2_builder_scope": true,
+    "catalog_entries": 67,
+    "git_diff_check_exit_code": 0,
+    "git_index_empty": true,
+    "git_stage_commit_push_pr_mutated": false,
+    "network_accessed": false,
+    "process_use_limited_to_disposable_pinned_public_fixture_behavior": true,
+    "protected_untracked_content_untouched_by_builder": true,
+    "real_vault_accessed": false,
+    "source_test_writes_stopped_before_evidence": true
+  },
+  "status": "builder_candidate_local_only",
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_staged_capture.py tests/contract/test_staged_pdf_capture.py tests/security/test_staged_pdf_capture_boundary.py tests/upstream/test_vpkb001_staged_pdf_capture.py tests/unit/test_prepare.py tests/security/test_prepare_offline.py tests/security/test_work_staging_boundary.py tests/security/test_cli_isolation.py tests/contract/test_agent_command_tree.py tests/unit/test_transaction_staging.py tests/security/test_transaction_staging_boundary.py tests/upstream/test_vpkb001_staged_transaction_inspect.py tests/unit/test_upstream_adapter_capture.py tests/security/test_upstream_adapter_boundary.py tests/unit/test_json_boundary.py --basetemp=/private/tmp/vpkb-spci-focus-final --junitxml=/private/tmp/vpkb-spci-focus-final.xml",
+      "duration_seconds": 11.91,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-focus-final.xml",
+        "sha256": "57bfc1cac03769a883e3dfc9971f8e225e5c7ed774733530013df110fa9a629e",
+        "size_bytes": 38390
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-focus-final.log",
+        "sha256": "fd2162ebb93a3b71cb1576d67e5e5ea6ea6655c599d7e8bec2107d3a59a76501",
+        "size_bytes": 341
+      },
+      "name": "focused_and_compatibility",
+      "passed": 265,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 265
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q --basetemp=/private/tmp/vpkb-spci-full313-final --junitxml=/private/tmp/vpkb-spci-full313-final.xml",
+      "duration_seconds": 76.5,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-full313-final.xml",
+        "sha256": "3fabb53d1029bb889469ab4840d2f8a75983d9133973379af235d0c4229ded0b",
+        "size_bytes": 479129
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-full313-final.log",
+        "sha256": "e4f5be0ac93d9686e4b957d09d6701e151a3de53c5014f0997dc00c2fe76e2d1",
+        "size_bytes": 2192
+      },
+      "name": "complete_python_3_13_no_deselect",
+      "passed": 1938,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 1938
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /private/tmp/vpkb-py312-venv/bin/python -m pytest -q --basetemp=/private/tmp/vpkb-spci-full312-final --junitxml=/private/tmp/vpkb-spci-full312-final.xml",
+      "duration_seconds": 77.15,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-spci-full312-final.xml",
+        "sha256": "42de4b15fdfe717b79821f4636c13ff5a4d87ed815c56d21772719b032bb7e1c",
+        "size_bytes": 479129
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-spci-full312-final.log",
+        "sha256": "9a3136b7b9d5c8299fe02bafdf08b88b5b0b78ef1db31aa3b821de30fc5326e8",
+        "size_bytes": 2192
+      },
+      "name": "complete_python_3_12_no_deselect",
+      "passed": 1938,
+      "python": "3.12.14",
+      "skipped": 0,
+      "tests": 1938
+    }
+  ],
+  "unresolved_contract_blockers": []
+}

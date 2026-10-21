@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-request.v1.schema.json",
+  "title": "video-paper-wiki.markdown-capture-request.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "plan",
+    "plan_sha256",
+    "approval_ref",
+    "approval_ref_sha256",
+    "payload_file"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.markdown-capture-request.v1"
+    },
+    "plan": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-plan.v1.schema.json"
+    },
+    "plan_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "approval_ref": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.markdown-capture-approval-ref.v1.schema.json"
+    },
+    "approval_ref_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "payload_file": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    }
+  }
+}

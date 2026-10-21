@@ -1,0 +1,33 @@
+{
+  "stable_subject_id": {
+    "grammar": ["paper:<canonical-paper-id>", "repo:github:<casefold-owner>/<casefold-repo>", "concept:<taxonomy-version>:<canonical-slug>"],
+    "valid": ["paper:arxiv:2311.15127", "repo:github:stability-ai/generative-models", "concept:v1:video-dit"],
+    "invalid": ["repo:github:Stability-AI/generative-models", "repo:github:stability-ai/generative-models@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"],
+    "commit_is_not_part_of_subject": true
+  },
+  "claim_id": {
+    "formula": "clm- + first 20 lowercase hex of SHA256(video-paper-wiki.claim.v1\\0 + UTF-8 stable_subject_id + \\0 + UTF-8 collapse_whitespace(NFKC(canonical_claim_text)))",
+    "evidence_fields_are_excluded": true,
+    "vectors": [
+      {"name": "base", "subject": "paper:arxiv:2311.15127", "text": "The model uses a diffusion transformer.", "expected": "clm-fc3a0a81a0e8e2bbf906"},
+      {"name": "whitespace_nfkc_equivalent", "subject": "paper:arxiv:2311.15127", "text": "  The model\tuses a diffusion transformer．  ", "equivalent_to_text": "The model uses a diffusion transformer.", "expected": "clm-fc3a0a81a0e8e2bbf906"},
+      {"name": "different_text", "subject": "paper:arxiv:2311.15127", "text": "The model uses a U-Net.", "expected": "clm-42f9b0794a7acfecb447"},
+      {"name": "different_subject", "subject": "repo:github:stability-ai/generative-models", "text": "The model uses a diffusion transformer.", "expected": "clm-170f259c999fdaacde89"}
+    ]
+  },
+  "assessment_event_id": {
+    "formula": "ase- + first 20 lowercase hex of SHA256(RFC8785-JCS(event_object_without_event_id))",
+    "event": {"schema": "video-paper-wiki.assessment-event.v1", "claim_id": "clm-0123456789abcdefabcd", "previous_event_id": null, "actor_kind": "system", "transition_kind": "genesis", "from_assessment": null, "to_assessment": "provisional", "claim_text_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "evidence_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "decided_by": "vpwiki", "decided_at": "2026-08-29T12:00:00Z", "reason": "Initial provisional assessment."},
+    "expected": "ase-eac1874e04cab30145b9",
+    "key_order_independent": true
+  },
+  "evidence_fingerprint": {
+    "formula": "SHA256(RFC8785-JCS(array of evidence identity objects sorted lexicographically by each object's RFC8785-JCS UTF-8 bytes))",
+    "pdf_fields": ["relation", "kind", "source_id", "page", "ref", "artifact_path", "artifact_sha256", "text_sha256"],
+    "pdf_excluded_fields": ["bbox", "charspan"],
+    "code_fields": ["relation", "kind", "source_id", "repository", "commit", "path", "lines", "snippet_sha256"],
+    "code_excluded_fields": ["symbol"],
+    "repository_identity": "casefold owner/repo",
+    "expected": "00eb9c8b0e102b30fb95278afc606b456f00c051af5981f3740af2a0f5fbf73b"
+  }
+}

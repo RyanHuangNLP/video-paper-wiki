@@ -1,0 +1,348 @@
+{
+  "$schema": "video-paper-wiki.repo-steward-implementation-review.v1",
+  "accepted_v1_regression_inputs": {
+    "all_match": true,
+    "checks": [
+      {
+        "matches_expected": true,
+        "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+        "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+        "size_bytes": 5731
+      },
+      {
+        "matches_expected": true,
+        "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md",
+        "sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+        "size_bytes": 17356
+      },
+      {
+        "matches_expected": true,
+        "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+        "sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+        "size_bytes": 3741
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/contract/test_upstream_authority.py",
+        "sha256": "8d51287f233563265ae84a6cd040a3700571143f885885ce5beb958f9dff21d4",
+        "size_bytes": 3724
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-authority.v1.invalid.json",
+        "sha256": "38719a382fea64e581db07f83c5e2e9c048ce3931530ee982927871a0ec74826",
+        "size_bytes": 5577
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/fixtures/contracts/valid/video-paper-wiki.upstream-authority.v1.json",
+        "sha256": "f18f287fafe5feb557884db1080cbc38c2507cedf525f89285138d93a7e70af5",
+        "size_bytes": 5577
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/security/test_upstream_adapter_boundary.py",
+        "sha256": "262c0f22ac935cd58fe5731b5074adb74e6951df3f07c103f899791ca0017a47",
+        "size_bytes": 15922
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/unit/test_upstream_adapter.py",
+        "sha256": "26b5d8d214c7d4b0dd7798518710d9cc460b505989ee4011c9bc2dc8ce818d89",
+        "size_bytes": 8256
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/upstream/test_vpkb001_transaction_inspect.py",
+        "sha256": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817",
+        "size_bytes": 8646
+      }
+    ]
+  },
+  "authority": {
+    "builder_candidate_r2": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate-r2.json",
+      "sha256": "4b1fb44c43691c92b04f3a0443e18c06308aa27d211f8e810485a69d042939b5",
+      "size_bytes": 8057
+    },
+    "implementation_work_package": {
+      "matches_expected": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json",
+      "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+      "size_bytes": 20794
+    },
+    "r1_steward_review": {
+      "matches_expected": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/steward-review-r1.json",
+      "sha256": "43a60a6ce499f86910a1bb95f70faf8be31084018bc556fc65cd724060d6eb5d",
+      "size_bytes": 11274
+    },
+    "rejected_r1_candidate": {
+      "matches_expected": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/builder-candidate.json",
+      "sha256": "14070f9dc7985a52dde69ba5074553664bc4823d1ca509ebd9c8c4e51686f6a8",
+      "size_bytes": 8069
+    }
+  },
+  "authorization": {
+    "auto_merge": false,
+    "commit": false,
+    "human_gate": false,
+    "merge": false,
+    "push": false,
+    "ready_for_review": false
+  },
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478"
+  },
+  "blockers": [],
+  "candidate": {
+    "all_file_hashes_and_sizes_match": true,
+    "declared_snapshot_sha256": "4ae784a1ab302c626688ef3e724ee2cd546e502c42e74b4ea8c8fd6afcb5b3f3",
+    "file_count": 7,
+    "files": {
+      "src/video_paper_wiki/contracts.py": {
+        "matches_candidate": true,
+        "sha256": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+        "size_bytes": 74613
+      },
+      "src/video_paper_wiki/upstream_adapter.py": {
+        "matches_candidate": true,
+        "sha256": "8f54858d3e16a66167e2b98edbf2eca6c67525aa501fb85c5c6603b0b8b72adc",
+        "size_bytes": 63527
+      },
+      "tests/contract/test_upstream_capture_authority.py": {
+        "matches_candidate": true,
+        "sha256": "195f353403557dfd7e52a38a8cff53bb6ac36497fc67025aa0bb57f2acac68eb",
+        "size_bytes": 3333
+      },
+      "tests/security/test_upstream_capture_boundary.py": {
+        "matches_candidate": true,
+        "sha256": "ad218f3335dfdf4778cd0d6fb5d73294a4c69d63452cdfe1d7c28a2979c7b49e",
+        "size_bytes": 14043
+      },
+      "tests/unit/test_upstream_adapter_capture.py": {
+        "matches_candidate": true,
+        "sha256": "ec0e9bfb03796a94b9b8cf8b4d18c625f53be32853d5b01d254639062f530188",
+        "size_bytes": 6239
+      },
+      "tests/upstream/_manual_pdf_capture_fixture.py": {
+        "matches_candidate": true,
+        "sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+        "size_bytes": 1485
+      },
+      "tests/upstream/test_vpkb001_manual_pdf_capture.py": {
+        "matches_candidate": true,
+        "sha256": "6e7bd265528716506ae52daa43ba5e96bc74770dfae69dcb0447cef73bd6c486",
+        "size_bytes": 5443
+      }
+    },
+    "snapshot_formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "snapshot_sha256": "4ae784a1ab302c626688ef3e724ee2cd546e502c42e74b4ea8c8fd6afcb5b3f3"
+  },
+  "frozen_inputs": {
+    "all_match": true,
+    "checks": [
+      {
+        "matches_expected": true,
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-freeze-architect-acceptance.json",
+        "sha256": "e7261b9ec0bfaa5dd3378fb58aedcb09fe70066a798e4f063e6bbd1fa11bb25d",
+        "size_bytes": 6318
+      },
+      {
+        "matches_expected": true,
+        "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json",
+        "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+        "size_bytes": 20794
+      },
+      {
+        "matches_expected": true,
+        "path": "catalog/claude-obsidian-capture-apply-dry-run-9f8c119-v1.profile.json",
+        "sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+        "size_bytes": 6221
+      },
+      {
+        "matches_expected": true,
+        "path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md",
+        "sha256": "6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b",
+        "size_bytes": 18851
+      },
+      {
+        "matches_expected": true,
+        "path": "docs/ai/packets/VPKB-001-adapter-contract.md",
+        "sha256": "64f9e82a1325138c5bf97eafd5cf590274df8cc945ab357e636dd6cf6ba5a879",
+        "size_bytes": 8076
+      },
+      {
+        "matches_expected": true,
+        "path": "schemas/video-paper-wiki.upstream-capture-authority.v1.schema.json",
+        "sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+        "size_bytes": 8032
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-capture-authority.v1.invalid.json",
+        "sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+        "size_bytes": 3257
+      },
+      {
+        "matches_expected": true,
+        "path": "tests/fixtures/contracts/valid/video-paper-wiki.upstream-capture-authority.v1.json",
+        "sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6",
+        "size_bytes": 3262
+      }
+    ]
+  },
+  "independent_adversarial_replay": {
+    "observations": [
+      {
+        "case": "real create dry-run",
+        "result": "accepted",
+        "vault_byte_type_mode_unchanged": true
+      },
+      {
+        "case": "real reuse noop",
+        "result": "accepted",
+        "vault_byte_type_mode_unchanged": true
+      },
+      {
+        "case": "replace scratch with equal-mode empty directory after real child",
+        "result": "UPSTREAM_CONTRACT_MISMATCH"
+      },
+      {
+        "case": "replace execution with equal-byte/equal-mode copied directory after real child",
+        "result": "UPSTREAM_CONTRACT_MISMATCH"
+      },
+      {
+        "case": "replace allocation root with equal-byte/equal-mode copied tree after real child",
+        "result": "UPSTREAM_CONTRACT_MISMATCH"
+      },
+      {
+        "case": "replace matching sibling with equal bytes/mode/new inode and restore parent timestamps after real child",
+        "result": "UPSTREAM_CONTRACT_MISMATCH"
+      }
+    ],
+    "r1_blockers_resolved": true,
+    "result": {
+      "path": "/private/tmp/vpm-steward-r2-probes.json",
+      "sha256": "20bebed90b2fa2d7617c17cd9319aa453d22577e5a8b7ce2e393620be64efe23",
+      "size_bytes": 956
+    },
+    "runner": {
+      "path": "/private/tmp/vpm-steward-r2-probes.py",
+      "sha256": "43f4fbfcb31a0577d3a6adc33e0065d602cf549fbd743f7ec0a31cf4c6b9a879",
+      "size_bytes": 4640
+    }
+  },
+  "independent_tests": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider <ten work-package focused files> --basetemp=/private/tmp/vpm-steward-r2-final/focus-t --junitxml=/private/tmp/vpm-steward-r2-final/focus.xml",
+      "coverage_observed": [
+        "real create/noop",
+        "5-byte and 64MiB source limits",
+        "4096/4097 entry limits",
+        "timeout/output overflow",
+        "exit75/exit2",
+        "cleanup override",
+        "strict JSON",
+        "complete authority correlations",
+        "exact four-key child environment",
+        "deep-copy",
+        "Vault byte/type/mode stability",
+        "postcheck on success and mapped failures"
+      ],
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpm-steward-r2-final/focus.xml",
+        "sha256": "f48b8b29e574e59dc84601e81c2d6590696da3427c343e322c0a15a09535cc9b",
+        "size_bytes": 51909
+      },
+      "log": {
+        "path": "/private/tmp/vpm-steward-r2-final/focus.log",
+        "sha256": "3357f3ffb7e9d5eb903915941d93a3f5731ed9e75aed3f1da732377922342b92",
+        "size_bytes": 421
+      },
+      "name": "required ten-file focused suite",
+      "passed": 342,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 342
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/security/test_source_policy.py tests/security/test_cli_isolation.py tests/security/test_upstream_capture_boundary.py tests/contract/test_upstream_capture_authority.py --basetemp=/private/tmp/vpm-steward-r2-security/t --junitxml=/private/tmp/vpm-steward-r2-security/security.xml",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpm-steward-r2-security/security.xml",
+        "sha256": "878022ac622c45ab019b7ebb80a71a8b95606040f0319bea2ba097b7461c1e43",
+        "size_bytes": 21706
+      },
+      "log": {
+        "path": "/private/tmp/vpm-steward-r2-security/security.log",
+        "sha256": "6faa80fd68d3b8868444ed4cad89c34fc8c8387c76b1f59c058926b0ccd2fa7d",
+        "size_bytes": 180
+      },
+      "name": "security/source-policy/CLI/schema selection",
+      "passed": 131,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 131
+    }
+  ],
+  "limitations_and_remaining_architect_work": [
+    "CPython 3.12 complete locked-suite acceptance has not been run by Repo Steward in this review.",
+    "Fresh offline wheel build/install/resource parity remains Architect acceptance work.",
+    "Fresh exact-head four-job CI, merge-preview evidence and post-CI Architect acceptance remain future delivery gates.",
+    "The zero-network evidence is a bounded route/source/argv/environment observation rather than OS egress confinement."
+  ],
+  "packet": "VPKB-001-adapter-contract",
+  "repository_guards": {
+    "candidate_paths_within_work_package": true,
+    "catalog_count": 67,
+    "diff_check_passed": true,
+    "git_or_remote_mutation_performed": false,
+    "head_matches_baseline": true,
+    "index_empty": true,
+    "protected_untracked_preserved": [
+      ".DS_Store",
+      "five protected user docs",
+      "inbox/**",
+      "tools/**"
+    ],
+    "vendor_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "vendor_profile_source_snapshot_matches": true
+  },
+  "reviewed_at_utc": "2026-09-01T05:38:22.656976+00:00",
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "revision": 2,
+  "security_and_contract_review": {
+    "central_dispatch": "capture authority title is closed through schema plus semantic post-check and public validation returns a deep copy",
+    "error_surface": "replacement/race/transport/constructed-authority paths are sanitized to frozen codes without raw stdout, approval hint, private allocation path or caller environment in details",
+    "old_v1_behavior": "all nine accepted-v1 compatibility files match their frozen hashes and the four accepted-v1 focused test files pass inside the 342-test run",
+    "postcheck": "runs after normal child return and after every ContractError from bounded execution, before success parsing or mapped refusal escapes; cleanup remains in finally and cleanup failure overrides",
+    "private_baseline": "root, execution and scratch dev/inode/exact 0700 are captured before the child and compared before the existing closed tree verification",
+    "sibling_baseline": "matching sibling dev/inode/type/mode/size/mtime_ns is now included while the portable authority projection remains unchanged"
+  },
+  "source_and_network_review": {
+    "authenticated_source_count": 21,
+    "authenticated_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "finding": "The authenticated capture route contains no connect/send/address-resolution/HTTP client call in the reviewed public capture path. socket use is hostname/local coordination and urllib.parse use is lexical. The generic dynamic-import scanner flags the pinned fcntl import used for local advisory locking, not network loading.",
+    "limitation": "Evidence is bounded source/argv/environment observation and disposable execution; it is not an operating-system egress sandbox, matching the candidate limitation and the frozen contract non-privileged-actor boundary.",
+    "scan_evidence": {
+      "path": "/private/tmp/vpm-steward-r2-source-scan.json",
+      "sha256": "48617052c98f6f091f3544322a1ceecdc2517275081bfe92040831eba903c98a",
+      "size_bytes": 967
+    }
+  },
+  "subrelease": "manual-pdf-capture-dry-run",
+  "verdict": "GO_FOR_ARCHITECT_ACCEPTANCE"
+}

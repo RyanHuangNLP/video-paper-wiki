@@ -1,0 +1,281 @@
+{
+  "schema": "full-todo.code-io-independent-returned-production-review-supplement-r2.v1",
+  "recorded_at_utc": "2026-09-11T03:57:10.077831+00:00",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "REJECTED_INCOMPLETE_TWO_FILE_DELIVERY_AND_PRODUCTION_BLOCKERS_SUPPLEMENT_R2",
+  "scope": "Supplemental bounded reproductions for prior-field getter safety and persistent resource lineage, plus independent contract assessment of the newly supplied raw-bundle diagnostics. The original R1 review is preserved byte-for-byte.",
+  "source": {
+    "path": "/private/tmp/cio-r1-iyedhdwx/source/src/video_paper_wiki/code_proof_io.py",
+    "size_bytes": 155603,
+    "sha256": "a5113bf49b469a5d8f62df599b40c6c13c5162e2f29be131a2b894ad1757e431",
+    "diagnostic_only": true,
+    "production_ast_passed": true
+  },
+  "foundation": {
+    "path": "/private/tmp/cio-r1-iyedhdwx/source/src/video_paper_wiki/code_proof_resources.py",
+    "size_bytes": 29412,
+    "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6"
+  },
+  "frozen_inputs": {
+    "contract": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-IO-IMPLEMENTATION-R2.md",
+      "size_bytes": 48349,
+      "sha256": "0d1f0a30df7c097be05b5e03fe0813d4a929385b90e94896733316f7802c39d7"
+    },
+    "freeze": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-freeze-r1.json",
+      "size_bytes": 571899,
+      "sha256": "267cd82f8dccb673eb07bdaabddcb4de0c4a38ba6fcd8055474c11e5dca9ad07"
+    }
+  },
+  "preserved_prior_review": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/independent-returned-production-review-r1.json",
+    "size_bytes": 6967,
+    "sha256": "d45b845a437a009a4ff5144c0620dbf8f0d4abec333bd1fd5513d931e1e778ff"
+  },
+  "diagnostic_inputs": {
+    "architect_io_diagnostics_r1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_diagnostics_r1.py",
+      "size_bytes": 7338,
+      "sha256": "76c3a5fe7f1fbfa1e8ca0594b77ae1c2f77b2039e0b0e9ec4f4eaaf67d58b337"
+    },
+    "bounded_diagnostics_r1_py312": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/bounded-diagnostics-r1-py312.json",
+      "size_bytes": 4913,
+      "sha256": "31c6cdec4f397263befbb55c22a7f28a6186933bc7d7280d2f2148a2d7632f80"
+    },
+    "architect_io_bundle_diagnostics_r1": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/architect_io_bundle_diagnostics_r1.py",
+      "size_bytes": 5168,
+      "sha256": "93c2cc45aa0eada88b183b5a3a47b53c09624dad1875da767e9ed54aa71086b1"
+    },
+    "bundle_diagnostics_r1_py312": {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/io-r1/bundle-diagnostics-r1-py312.json",
+      "size_bytes": 2328,
+      "sha256": "f5d11d7526243c5917ba440da050d4c3c231a798e532b8a849c7b4d06ee16333"
+    }
+  },
+  "fresh_reproduction": {
+    "script": {
+      "path": "/private/tmp/cio_r2_narrow_repros.py",
+      "size_bytes": 8968,
+      "sha256": "ea958d39da41544b14a0d2de9e1ac72dfd9cfb69d5c6d3f8c7ac97c7eebf5c3d"
+    },
+    "result": {
+      "path": "/private/tmp/cio_r2_narrow_repros.json",
+      "size_bytes": 5013,
+      "sha256": "e28b61420a7ba80e2c135d00fbc6898d80cee864f1b9315011218f82aad60472"
+    },
+    "result_record": {
+      "candidate_accepted": false,
+      "foundation": {
+        "path": "/private/tmp/cio-r1-iyedhdwx/source/src/video_paper_wiki/code_proof_resources.py",
+        "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6",
+        "size_bytes": 29412
+      },
+      "product_source_modified": false,
+      "reproductions": {
+        "original_exception_getters_raise_during_prior_fields": [
+          {
+            "actual": {
+              "class": "RuntimeError",
+              "code_getter": {
+                "class": "AttributeError",
+                "message": "'RuntimeError' object has no attribute 'code'"
+              },
+              "details_getter": {
+                "class": "AttributeError",
+                "message": "'RuntimeError' object has no attribute 'details'"
+              },
+              "message": "fixture code getter failure"
+            },
+            "expected": "bounded WORK_PATH_UNSAFE final_verify with prior fields null",
+            "generated_original": {
+              "class": "CodeProofIOError",
+              "code": "WORK_PATH_UNSAFE",
+              "details": {
+                "errno": null,
+                "failed_groups": [],
+                "group": "metadata",
+                "operation": "stat",
+                "phase": "retaining",
+                "prior_code": null,
+                "prior_errno": null,
+                "prior_operation": null,
+                "reason": "edge_changed"
+              },
+              "message": "CODE retained path is unsafe"
+            },
+            "getter_events": [
+              "code"
+            ],
+            "mode": "code",
+            "replacement_persisted": true
+          },
+          {
+            "actual": {
+              "class": "RuntimeError",
+              "code_getter": {
+                "class": "AttributeError",
+                "message": "'RuntimeError' object has no attribute 'code'"
+              },
+              "details_getter": {
+                "class": "AttributeError",
+                "message": "'RuntimeError' object has no attribute 'details'"
+              },
+              "message": "fixture details getter failure"
+            },
+            "expected": "bounded WORK_PATH_UNSAFE final_verify with prior fields null",
+            "generated_original": {
+              "class": "CodeProofIOError",
+              "code": "WORK_PATH_UNSAFE",
+              "details": {
+                "errno": null,
+                "failed_groups": [],
+                "group": "metadata",
+                "operation": "stat",
+                "phase": "retaining",
+                "prior_code": null,
+                "prior_errno": null,
+                "prior_operation": null,
+                "reason": "edge_changed"
+              },
+              "message": "CODE retained path is unsafe"
+            },
+            "getter_events": [
+              "code",
+              "details"
+            ],
+            "mode": "details",
+            "replacement_persisted": true
+          }
+        ],
+        "persistent_missing_resource_overridden_by_blanket_unchanged_skip": {
+          "expected": "final graph preserves persistent resource missing as WORK_PATH_UNSAFE, group resources, reason missing",
+          "final_exception": {
+            "class": "CodeProofIOError",
+            "code": "CODE_PROOF_RESOURCE_INVALID",
+            "details": {
+              "errno": null,
+              "failed_groups": [],
+              "group": "resources",
+              "operation": null,
+              "phase": "setup",
+              "prior_code": null,
+              "prior_errno": null,
+              "prior_operation": null,
+              "reason": "resource_hash"
+            },
+            "message": "CODE evidence resource is invalid"
+          },
+          "fixture": {
+            "earlier_exists_after": false,
+            "earlier_hash_before_mutation": "0ffa9df364aca3866162f717b8c89cf38803be76a044282b12f4c6d5bc464d60",
+            "earlier_relative_path": "profiles/code-proof-v1.json",
+            "earlier_size_after": 3761,
+            "earlier_size_before": 3761,
+            "later_inode": 15994182,
+            "later_relative_path": "schemas/video-paper-wiki.code-acquisition-intent.v1.schema.json",
+            "removed_during_later_read": true,
+            "resource_count": 11
+          },
+          "persistent_resource_graph_failure_before_finalize": {
+            "errno": 2,
+            "operation": "stat",
+            "reason": "missing"
+          },
+          "setup_exception": {
+            "class": "CodeProofIOError",
+            "code": "CODE_PROOF_RESOURCE_INVALID",
+            "details": {
+              "errno": null,
+              "failed_groups": [],
+              "group": "resources",
+              "operation": null,
+              "phase": "setup",
+              "prior_code": null,
+              "prior_errno": null,
+              "prior_operation": null,
+              "reason": "resource_hash"
+            },
+            "message": "CODE evidence resource is invalid"
+          },
+          "unchanged_resource_invalid": true
+        }
+      },
+      "runtime": "/private/tmp/l4r5.s54ypl35/locked-312/bin/python",
+      "schema": "full-todo.code-io-independent-returned-production-review-supplement-r2.v1",
+      "scratch_root": "/private/tmp/cio-r2-narrow-2h603_3q",
+      "source": {
+        "path": "/private/tmp/cio-r1-iyedhdwx/source/src/video_paper_wiki/code_proof_io.py",
+        "sha256": "a5113bf49b469a5d8f62df599b40c6c13c5162e2f29be131a2b894ad1757e431",
+        "size_bytes": 155603
+      }
+    }
+  },
+  "findings": [
+    {
+      "id": "IO-R2-FINALIZER-PRIOR-GETTER-ESCAPES",
+      "severity": "high",
+      "lines": "798-823, 4581-4600",
+      "description": "The finalizer calls _prior_fields(original) after selecting a persistent lineage failure, but _prior_fields reads original.code and original.details without a bounded exception guard. A real retained-input edge replacement followed by an original WORK_PATH_UNSAFE can therefore be replaced by an arbitrary exception from either getter, violating the fixed facade and null-prior fallback.",
+      "bounded_reproduction": {
+        "fixture": "Locked Python 3.12, disposable synthetic checkout with valid markers and an active diagnostic session from the approved mirror.",
+        "injection": "Retain input.json, replace its named edge with a same-size replacement, and verify the real metadata edge_changed. The returned original facade exception was wrapped with a code getter that raises, then repeated with a details getter that raises.",
+        "observed": "Both variants escaped RuntimeError from finalization. The code variant recorded getter event code; the details variant recorded code followed by details. The real generated original was WORK_PATH_UNSAFE/metadata/edge_changed.",
+        "expected": "Return bounded WORK_PATH_UNSAFE/final_verify with the retained lineage fields and prior_code, prior_operation, prior_errno all null when getter access is unavailable."
+      }
+    },
+    {
+      "id": "IO-R2-RESOURCE-PERSISTENT-MISSING-SUPPRESSED",
+      "severity": "high",
+      "lines": "4499-4532",
+      "description": "The _unchanged_resource_invalid flag blanket-skips resource missing/hash/shape failures in both final verification passes. If an earlier resource has same-size invalid bytes and disappears while a later resource is read, the resource graph records a persistent missing failure, but finalization suppresses it and returns the original setup resource_hash error.",
+      "bounded_reproduction": {
+        "fixture": "Copied actual eleven-resource fixture only, with the pinned profile kept at 3761 bytes and made hash-invalid by changing only its final newline; locked Python 3.12 and the module _read seam.",
+        "injection": "Remove the earlier profiles/code-proof-v1.json while the later code-acquisition-intent schema is read. No source resource or product file was modified.",
+        "observed": "Before finalization, _verify_group_names(\"resources\") returned reason missing, operation stat, errno 2, and _unchanged_resource_invalid was true. Finalization returned CODE_PROOF_RESOURCE_INVALID/setup/resource_hash, suppressing the persistent missing graph failure.",
+        "expected": "The later persistent missing/uncheckable lineage must take normal final-lineage precedence: WORK_PATH_UNSAFE/final_verify, group resources, reason missing, with bounded prior resource-invalid fields."
+      }
+    }
+  ],
+  "independent_bundle_contract_assessment": [
+    {
+      "id": "IO-R2-BUNDLE-RAW-ROOT-COMPLETE-SET",
+      "severity": "high",
+      "diagnostic_observation": "raw_root_complete_set succeeded after a third raw-root entry foreign.bin appeared.",
+      "contract_basis": "The bundle root has an exact complete set and every later mismatch must be WORK_PATH_UNSAFE; the final bundle graph must retain and verify the raw root edge/set, not only the objects directory.",
+      "assessment": "Confirmed production blocker; the supplied fixture is valid and isolates the missing raw-root final lineage check."
+    },
+    {
+      "id": "IO-R2-BUNDLE-NAMED-OBJECTS-DIR-REPLACEMENT",
+      "severity": "high",
+      "diagnostic_observation": "raw_objects_named_directory_lineage succeeded after the named objects directory was replaced while the original directory remained alive.",
+      "contract_basis": "The retained raw root and named objects edge must be checked; a descriptor retaining the old directory cannot by itself authorize the current named path.",
+      "assessment": "Confirmed production blocker; both directories remaining alive is the required adversarial fixture and shows descriptor-only scanning misses the named replacement."
+    },
+    {
+      "id": "IO-R2-BUNDLE-INVENTORY-RECORD-CLOSURE",
+      "severity": "high",
+      "diagnostic_observation": "inventory_records_are_closed accepted a sixth unexpected key and retained two bodies.",
+      "contract_basis": "retain_bundle_bodies receives closed five-key inventory records and must reject extra keys before any body open.",
+      "assessment": "Confirmed production blocker; the fixture is contract-aligned and returned retained bodies, demonstrating that the closed-record refusal did not occur."
+    },
+    {
+      "id": "IO-R2-BUNDLE-INVENTORY-OID-ORDER",
+      "severity": "medium",
+      "diagnostic_observation": "inventory_oid_order accepted reversed OID order and returned both bodies in reversed order.",
+      "contract_basis": "The validated inventory is ordered; body reads and returned mapping construction must use OID order, and malformed ordering must be rejected before body opens.",
+      "assessment": "Confirmed production blocker; the independent fixture isolates absent ordered-inventory validation and the observed retained bodies show the refusal did not happen pre-read."
+    }
+  ],
+  "execution_boundary": "Only bounded diagnostic reproductions ran against the approved disposable mirror with locked Python 3.12. The four bundle observations were independently assessed from the supplied diagnostic artifact without rerun. No returned source was imported from the real checkout or Vault, no product file was changed, and no Git/model/lease/status action was performed.",
+  "candidate_accepted": false,
+  "product_source_modified": false,
+  "phase_clarification": {
+    "finding_reference": "IO-R1-FINALIZER-PHASE-IDLE-AFTER-FAILED-INSTALL",
+    "clarification": "The blocker is the missing failed/in-flight guard on snapshot/layout views, not a requirement to invent a new phase token.",
+    "required_behavior": "An error before any installer creation may retain the actual pre-creation phase while an explicit failed flag blocks snapshot/layout views. A later reached phase must never be relabelled idle after failure; idle is entered only after durable success.",
+    "assessment": "The supplied R1 reproduction remains confirmed: after _ensure_install_parent raised, snapshot() succeeded with {}. The implementation must preserve actual phase and successful-link/cleaned-prefix facts while refusing views until finalization."
+  }
+}

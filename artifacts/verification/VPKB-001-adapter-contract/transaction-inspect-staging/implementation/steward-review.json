@@ -1,0 +1,187 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-steward-review.v1",
+  "authority": {
+    "baseline_head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "baseline_tree": "37dfbba09e9f73656af4bb5510f7586bb5d4223e",
+    "builder_candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/builder-candidate.json",
+      "sha256": "d180b6143115c8f96a6b3fa52e8429d5fbb4e479eaf8a7050b7048f0ac90def3",
+      "size_bytes": 10720
+    },
+    "contract": {
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "size_bytes": 16847
+    },
+    "work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package.json",
+      "revision": 1,
+      "sha256": "13a739ac8ad38bdf5935df202c52fa9d980d1f81899cbbfffdcfd453a00e023a",
+      "size_bytes": 22084
+    }
+  },
+  "blockers": [
+    {
+      "architect_clarification": "Re-hashing bytes of an unreferenced safe regular digest-named orphan is not required by this revision; avoiding an unbounded read is preferred. Expected files remain exact-byte checked.",
+      "counterexamples": [
+        {
+          "accepted": true,
+          "layout": "content/orphan FIFO"
+        },
+        {
+          "accepted": true,
+          "layout": "content/orphan symlink to /private/tmp"
+        },
+        {
+          "accepted": true,
+          "layout": "content/orphan directory"
+        },
+        {
+          "accepted": true,
+          "layout": "content/orphan non-digest regular file"
+        },
+        {
+          "accepted": true,
+          "layout": "transaction-inspect/extra.json regular file"
+        }
+      ],
+      "id": "COMPLETE-SET-ORPHAN-SAFETY-001",
+      "invariant_to_preserve": "Do not delete, overwrite, chmod or recursively roll back shared digest-addressed content.",
+      "lines": "840-863",
+      "minimum_correction": [
+        "At the same retained-lineage pre-bundle and final checks, enumerate transaction-inspect and allow exactly content plus bundle.json.",
+        "Enumerate content no-follow and reject every extra entry whose name is not fullmatch lowercase 64-hex or whose inode is not a regular file.",
+        "Keep expected digest files exact-byte checked and retain acceptance of unrelated safe regular digest-named content orphans.",
+        "Add regressions for the five counterexamples and retain the positive safe-orphan case."
+      ],
+      "observed": "The two final-set loops read only declared digests and bundle.json and never enumerate either retained directory. A pre-existing unrelated FIFO, symlink, directory, non-digest regular content file, or transaction-inspect/extra.json is ignored; all five probes return success.",
+      "path": "src/video_paper_wiki/staging.py",
+      "probe": {
+        "exit_code": 0,
+        "script": "/private/tmp/vpkb-stage-orphan-probe.py",
+        "script_sha256": "455efe38bf0064c1efbb318b322221f4378cc1163bc6de2b4225aea66415f8f9",
+        "script_size_bytes": 1295,
+        "stdout": "/private/tmp/vpkb-stage-orphan-probe.log",
+        "stdout_sha256": "4ec2b41170877315d6cba8a36e6a3db526741d97366c4e532f43d6df5031ca06",
+        "stdout_size_bytes": 462
+      },
+      "requirement": "The work package permits unrelated safe regular digest-addressed orphan content only. Complete-set success must not ignore arbitrary FIFO, symlink, directory, non-digest content entries, or extra names in the transaction-inspect directory.",
+      "severity": "blocker"
+    }
+  ],
+  "candidate_verification": {
+    "all_ten_hashes_and_sizes_match": true,
+    "candidate_paths_within_builder_source_test_scope": true,
+    "catalog_count_unchanged": 67,
+    "declared_snapshot_sha256": "dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d",
+    "git_diff_check_exit_code": 0,
+    "git_index_empty": true,
+    "git_or_pr_mutation_observed": false,
+    "independently_recomputed_snapshot_sha256": "dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d",
+    "path_count": 10,
+    "post_test_snapshot_unchanged": true,
+    "pr_observation": {
+      "base_branch": "integration",
+      "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+      "draft": true,
+      "head_sha": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+      "number": 94,
+      "state": "OPEN"
+    },
+    "protected_untracked_preserved_and_unstaged": true,
+    "snapshot_formula": "sha256(concat(sorted_by_raw_utf8(path) of utf8(path) || TAB || ascii(sha256(raw_bytes)) || TAB || ascii(decimal_size) || LF))"
+  },
+  "generated_at_utc": "2026-09-01T08:15:37Z",
+  "independent_tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_staging.py tests/unit/test_transaction_staging.py tests/contract/test_transaction_staging.py tests/security/test_work_staging_boundary.py tests/security/test_transaction_staging_boundary.py tests/upstream/test_vpkb001_staged_transaction_inspect.py tests/unit/test_transaction_contracts.py tests/contract/test_transaction_contracts.py tests/unit/test_upstream_adapter.py tests/security/test_upstream_adapter_boundary.py tests/upstream/test_vpkb001_transaction_inspect.py tests/unit/test_upstream_adapter_capture.py tests/security/test_upstream_capture_boundary.py tests/contract/test_upstream_capture_authority.py tests/upstream/test_vpkb001_manual_pdf_capture.py tests/contract/test_schemas.py --basetemp=/private/tmp/vpkb-stage-steward-focus2 -o cache_dir=/private/tmp/vpkb-stage-steward-focus2-cache --junitxml=/private/tmp/vpkb-stage-steward-focus2.xml",
+      "environment_note": "Run with managed permission for local AF_UNIX fixtures; no network egress was authorized.",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-steward-focus2.xml",
+        "sha256": "893bb527e05c32956709f186d77c0679d4385ba703260fcd9b4792278ac5334a",
+        "size_bytes": 63607
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-steward-focus2.log",
+        "sha256": "4c1a9dbd656889a28cca701336aa75b3030bcad033e6788ef3a0fc48d6b7fb08",
+        "size_bytes": 501
+      },
+      "name": "focused_and_real_pinned_compatibility",
+      "passed": 428,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 428
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/security/test_work_staging_boundary.py::test_transaction_session_refuses_named_lineage_replacement_after_content tests/security/test_work_staging_boundary.py::test_transaction_session_rechecks_lineage_at_publication_boundaries tests/security/test_work_staging_boundary.py::test_transaction_session_rechecks_named_lineage_before_first_install tests/security/test_work_staging_boundary.py::test_transaction_session_refuses_deleted_open_content_directory tests/security/test_work_staging_boundary.py::test_transaction_session_final_set_rejects_content_tamper_after_bundle tests/unit/test_staging.py::test_transaction_session_allows_unrelated_safe_orphan_content tests/unit/test_staging.py::test_transaction_session_content_conflict_does_not_create_bundle tests/unit/test_staging.py::test_transaction_session_mid_content_failure_keeps_bundle_absent tests/unit/test_staging.py::test_transaction_session_bundle_conflict_keeps_exact_content tests/unit/test_transaction_staging.py::test_partial_exact_repair_is_not_full_reuse tests/unit/test_transaction_staging.py::test_bundle_digest_mismatch_precedes_bundle_limit tests/unit/test_transaction_staging.py::test_result_does_not_share_mutable_input --basetemp=/private/tmp/vpkb-stage-steward-adversarial2 -o cache_dir=/private/tmp/vpkb-stage-steward-adversarial2-cache --junitxml=/private/tmp/vpkb-stage-steward-adversarial2.xml",
+      "coverage": [
+        "checkout/work/batch/transport/content identity replacement",
+        "pre-first-install and post-final-content boundaries",
+        "deleted-open content directory",
+        "post-bundle content tamper",
+        "safe regular orphan",
+        "content and bundle conflicts",
+        "mid-content failure",
+        "partial repair",
+        "deep copy"
+      ],
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-steward-adversarial2.xml",
+        "sha256": "f440a30baaf84031429d662ec75a2d61d84066562e566d81cd9f7d6f4fff5fff",
+        "size_bytes": 2812
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-steward-adversarial2.log",
+        "sha256": "ba9c0f95a246eeefd91c454aff27dac63c228e2d212a2e5ec5b42a45abe68b50",
+        "size_bytes": 99
+      },
+      "name": "retained_lineage_and_publication_adversarial_selection",
+      "passed": 17,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 17
+    },
+    {
+      "cases": 5,
+      "exit_code": 0,
+      "expected_after_fix": "all five refuse with WORK_PATH_UNSAFE without deleting the extra object",
+      "name": "independent_unsafe_orphan_probe",
+      "script_sha256": "455efe38bf0064c1efbb318b322221f4378cc1163bc6de2b4225aea66415f8f9",
+      "stdout_sha256": "4ec2b41170877315d6cba8a36e6a3db526741d97366c4e532f43d6df5031ca06",
+      "unexpected_successes": 5
+    }
+  ],
+  "limitations": [
+    "The passing focused and adversarial suites do not override the independent unsafe-orphan counterexamples.",
+    "Architect complete dual-Python, wheel, final exact-path delivery, fresh merge-ref CI and exact-head acceptance remain pending after a corrected R2 candidate.",
+    "No real Vault, apply/recover/admin, mapper, ledger, integrity-runtime, network, Git/index or PR mutation was performed."
+  ],
+  "next_revision_rule": "Preserve this Builder R1 candidate and Steward R1 review byte-for-byte. A corrected implementation must be authorized by a revision-2 work package and use separately named R2 Builder and Steward evidence.",
+  "role": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "source_review": {
+    "blocker_count": 1,
+    "passed_findings": [
+      "All facade, proposal-phase, supplied-byte, batch, bundle-correlation, bundle-limit and both result-variant checks precede checkout resolution.",
+      "Bundle encoding matches the accepted adapter byte domain; content is digest-deduplicated and sorted while bundle writes retain proposal order.",
+      "The session retains checkout, .work, batch, transaction-inspect and content descriptors; it reopens the lexical checkout and every named edge no-follow before and after each installation and before return.",
+      "Expected content is checked before bundle installation; bundle is installed last; expected content plus bundle are checked before success.",
+      "Exact reuse, partial exact repair, content/bundle conflict behavior and already_staged semantics match the frozen contract for referenced files.",
+      "validate_transaction_staging uses central semantic dispatch and returns an independent deep copy.",
+      "Public stage_bytes signature and existing single-file implementation remain unchanged; only additive private staging machinery was added.",
+      "Production imports and AST contain no subprocess or network client entry points; focused security instrumentation observed zero attempts.",
+      "Real pinned public inspect compatibility passed for capture, generic genesis, later generic and ingest in disposable Vault fixtures."
+    ]
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

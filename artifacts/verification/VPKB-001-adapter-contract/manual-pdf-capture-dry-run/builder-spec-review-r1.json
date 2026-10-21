@@ -1,0 +1,287 @@
+{
+  "baseline": {
+    "head": "17c13f6317416f47d2610240aaf905598131e5bc",
+    "verification_mode": "caller-supplied baseline plus byte-bound work package; no Git command invoked"
+  },
+  "blockers": [
+    {
+      "finding": "The future Builder is explicitly allowed to add the new public functions in src/video_paper_wiki/upstream_adapter.py, but the same paragraphs call the accepted v1 implementation a frozen input. The accepted v1 implementation occupies that exact shared module, so a byte-level reading makes the only allowed production edit forbidden. The requirement to avoid widening old v1 behavior is sound, but the frozen unit is not defined as behavior/API/constants versus the complete module bytes.",
+      "id": "B1_SHARED_MODULE_FREEZE_CONTRADICTION",
+      "impact": "A conforming implementation cannot determine whether appending the new command-specific profile loader, snapshot code and APIs to the shared module violates the freeze. Reviewers could reject either required implementation or preservation of the old module, depending on interpretation.",
+      "locations": [
+        {
+          "lines": "301-315",
+          "path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md"
+        },
+        {
+          "lines": "99-116",
+          "path": "docs/ai/packets/VPKB-001-adapter-contract.md"
+        }
+      ],
+      "required_correction": "State that the accepted v1 contract, schema, profile, fixtures, public behavior, constants and goldens remain immutable, while src/video_paper_wiki/upstream_adapter.py is an expressly shared allowed path for branch-isolated additions. Require all existing v1 APIs/error order/profile selection/tests to remain unchanged; do not describe the complete prior module bytes as an immutable implementation input.",
+      "severity": "HIGH"
+    }
+  ],
+  "candidate": {
+    "architecture_work_package_sha256": "d6292e2fc4115911bc765692d075e2136fd5954c97d76db884f7412ab6c49e33",
+    "contract_sha256": "df725681651984f69bd339592b50e8d271a6ca8a8e0e52a127ff3a564df30a54",
+    "invalid_fixture_sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+    "profile_sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+    "schema_sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+    "source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "valid_fixture_sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6"
+  },
+  "checks": [
+    {
+      "evidence": "15 of 15 candidate_files matched declared SHA-256 and size",
+      "name": "candidate_work_package_manifest",
+      "result": "PASS"
+    },
+    {
+      "evidence": "ASCII path + NUL + lowercase file SHA-256 + LF including final LF recomputed to 94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+      "name": "profile_source_snapshot_formula",
+      "result": "PASS"
+    },
+    {
+      "evidence": "21 of 21 profile entries matched pinned vendor file size and SHA-256",
+      "name": "profile_live_source_files",
+      "result": "PASS"
+    },
+    {
+      "evidence": "central validate_document accepted the valid authority fixture",
+      "name": "schema_valid_fixture",
+      "result": "PASS"
+    },
+    {
+      "evidence": "central validate_document rejected media_type text/plain with SCHEMA_INVALID at /observation/item/metadata/media_type",
+      "name": "schema_invalid_fixture",
+      "result": "PASS"
+    },
+    {
+      "evidence": "capture_approval_hash recomputed 918259d22fb879f454e01e782f6b4119932afb075688146049c0ce7fa0002fe0",
+      "name": "capture_approval_fixture",
+      "result": "PASS"
+    },
+    {
+      "evidence": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/contract/test_schemas.py tests/contract/test_capture_contracts.py; 171 passed in 0.24s",
+      "name": "focused_schema_capture_tests",
+      "result": "PASS"
+    },
+    {
+      "evidence": "exit 0, empty stderr, status dry-run, exact seven top-level keys, one expected hash, one write, Vault byte/type/mode snapshot unchanged",
+      "name": "private_snapshot_public_cli_create",
+      "result": "PASS"
+    },
+    {
+      "evidence": "exit 0, empty stderr, status noop, exact four top-level keys, empty expected hashes/writes, Vault byte/type/mode snapshot unchanged",
+      "name": "private_snapshot_public_cli_reuse",
+      "result": "PASS"
+    },
+    {
+      "evidence": "No Git, remote, real Vault, apply, recover, admin, network or model operation was run; only this assigned review file was written",
+      "name": "repository_mutation_boundary",
+      "result": "PASS"
+    }
+  ],
+  "generated_at_utc": "2026-09-01T03:54:05.357085Z",
+  "implementability": {
+    "authority_binding": "Implementable by verifying raw stdout before projection, verifying absolute content_file transiently, constructing the portable observation, constructing capture-inspection, recomputing capture_approval_hash, then validating all request/item/operation/inspection branch correlations.",
+    "create_stdout": "Exactly seven top-level keys; status dry-run; one item; one expected hash mapping to null; one create write including host absolute content_file; approval/time/hint present.",
+    "dry_run_command_reason": "Public capture plan emits only schema/status/items/summary. Public capture apply without --apply emits schema/status/items/operation and, for create, approved_plan_sha256/generated_at/approval_hint, while returning before apply_bundle. It is the minimum public read-only authority for the frozen capture inspection plan hash.",
+    "error_order": "Implementable in seven sequential phases: pure arguments; roots/layout/config; profile/pin/private tree; source/sibling snapshot and limits; execution; typed upstream refusals; successful-output/projection/postcheck/cleanup/authority validation.",
+    "old_v1_preservation": "Current old contract/schema/profile hashes equal their accepted frozen values, and the source-snapshot profile still verifies all 21 vendor source files. New code must select a separate immutable command profile and keep old API/profile constants and tests unchanged.",
+    "public_api": "Implementable as two keyword-only APIs in upstream_adapter.py plus one title-scoped contracts.py post-schema dispatch. Existing accepted isolation/authentication/process primitives are reusable without changing the old transaction authority API, provided B1 is clarified.",
+    "reuse_stdout": "Exactly four top-level keys; status noop; one item; empty expected hashes and writes; approval/time/hint absent; operation still echoes request operation ID."
+  },
+  "non_blocking_limitations": [
+    {
+      "contract_support": "contract lines 151-156 and 191-197; profile execution_snapshot.host_path_serialization_policy",
+      "description": "Create stdout contains an absolute content_file and its approval depends on the disposable Vault identity. The checked-in valid authority fixture is therefore a closed schema/semantic exemplar, not a cross-host raw-stdout golden. Implementation tests must derive exact raw stdout expectations within each private disposable run while keeping the authority projection portable.",
+      "id": "L1_HOST_DEPENDENT_RAW_STDOUT"
+    },
+    {
+      "contract_support": "contract lines 87-96 and 289-293; vendor capture.py lines 558-582",
+      "description": "The pure ASCII source_path grammar is broader than the pinned upstream filename portability rule, including reserved Windows stems and names over 240 bytes. Such real files are deterministically handled by a well-formed upstream exit 2 and UPSTREAM_INSPECT_REFUSED unless the final contract explicitly promotes those rules into phase-4 snapshot validation. This does not prevent implementation but needs a regression fixing the chosen mapping.",
+      "id": "L2_UPSTREAM_FILENAME_REFUSALS"
+    },
+    {
+      "contract_support": "contract lines 230-272 and 301-326; contracts.py current post-schema dispatch",
+      "description": "The title is registered and schema-valid now, but central validation has no title-specific authority post-check yet. The future implementation must add JSON preflight, nested capture-inspection validation, branch correlations and deep-copy wrapper; architecture evidence must not be represented as production acceptance.",
+      "id": "L3_ARCHITECTURE_ONLY_SEMANTICS"
+    }
+  ],
+  "reviewed_core": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "246e91a63bec5b025fde46525514f930ebe33bce54c2622bd5c86c00f7793687",
+      "size_bytes": 5034
+    },
+    {
+      "path": "docs/ai/task-index.yaml",
+      "sha256": "c96a73415763baa903bb8c111ad1c589c5c75d91d045904028b5c6e612199967",
+      "size_bytes": 38636
+    },
+    {
+      "path": "docs/ai/packets/VPKB-001-adapter-contract.md",
+      "sha256": "10577d91107110fc1ace5fb267efd6b4ccaabcec1589a5e1d94bf2d17934965e",
+      "size_bytes": 7741
+    },
+    {
+      "path": "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md",
+      "sha256": "df725681651984f69bd339592b50e8d271a6ca8a8e0e52a127ff3a564df30a54",
+      "size_bytes": 17234
+    },
+    {
+      "path": "schemas/video-paper-wiki.upstream-capture-authority.v1.schema.json",
+      "sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+      "size_bytes": 8032
+    },
+    {
+      "path": "catalog/claude-obsidian-capture-apply-dry-run-9f8c119-v1.profile.json",
+      "sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+      "size_bytes": 6221
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.upstream-capture-authority.v1.json",
+      "sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6",
+      "size_bytes": 3262
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-capture-authority.v1.invalid.json",
+      "sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+      "size_bytes": 3257
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-work-package.json",
+      "sha256": "d6292e2fc4115911bc765692d075e2136fd5954c97d76db884f7412ab6c49e33",
+      "size_bytes": 9188
+    },
+    {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "d4e21ec74f88ad7c8ed8d8df5571ae3aa24b20507bd094f4895caad32fca8e67",
+      "size_bytes": 74278
+    },
+    {
+      "path": "src/video_paper_wiki/upstream_adapter.py",
+      "sha256": "febf3e08274892f50d3a8e01bcc06c72362000db6f279f37a9f3d41db5c7c199",
+      "size_bytes": 34854
+    },
+    {
+      "path": "src/video_paper_wiki/capture_contracts.py",
+      "sha256": "ae257bed78036511ef12a70fee15e718522bc95e9dc300f53ea5bdb628cd85af",
+      "size_bytes": 7759
+    },
+    {
+      "path": "schemas/video-paper-wiki.capture-inspection.v1.schema.json",
+      "sha256": "7b1116a1e9ec6491c2bd61b00a809b8e432d3a47af14f8cf07cde112a54100d6",
+      "size_bytes": 3808
+    },
+    {
+      "path": "schemas/video-paper-wiki.common.v1.schema.json",
+      "sha256": "d004a55546358dde8315e9ee552083d27d3a2b35a6825d028bc7ad7b6c1d7dfa",
+      "size_bytes": 6581
+    },
+    {
+      "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md",
+      "sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "size_bytes": 17356
+    },
+    {
+      "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json",
+      "sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "size_bytes": 3741
+    },
+    {
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json",
+      "sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "size_bytes": 5731
+    },
+    {
+      "path": "tests/contract/test_schemas.py",
+      "sha256": "064702aa9c1f032ed9deb78c0e7de817f3b2bc5aa0087f3322d064154a702523",
+      "size_bytes": 11337
+    },
+    {
+      "path": "tests/contract/test_capture_contracts.py",
+      "sha256": "b9edcd88e51536bc0a7017f6d84e44854f1ef15b48a24131ddd443cc3ed6a2ef",
+      "size_bytes": 15263
+    },
+    {
+      "path": "tests/unit/test_upstream_adapter.py",
+      "sha256": "26b5d8d214c7d4b0dd7798518710d9cc460b505989ee4011c9bc2dc8ce818d89",
+      "size_bytes": 8256
+    },
+    {
+      "path": "tests/upstream/test_vpkb001_transaction_inspect.py",
+      "sha256": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817",
+      "size_bytes": 8646
+    },
+    {
+      "path": "tests/security/test_upstream_adapter_boundary.py",
+      "sha256": "262c0f22ac935cd58fe5731b5074adb74e6951df3f07c103f899791ca0017a47",
+      "size_bytes": 15922
+    },
+    {
+      "path": "vendor/claude-obsidian/AGENTS.md",
+      "sha256": "f12fe295445b942a38c82e07f486428f548df32f9ca9ca2302b58ace8c68cf99",
+      "size_bytes": 4775
+    },
+    {
+      "path": "vendor/claude-obsidian/claude_obsidian/cli.py",
+      "sha256": "38703e6db742f1c76ba6f8cce797b8ecf69a7cdf2ff1f9c739df60acab7e973a",
+      "size_bytes": 44772
+    },
+    {
+      "path": "vendor/claude-obsidian/claude_obsidian/capture.py",
+      "sha256": "9fded207710e1e9b2fb60c6616b0675338b5eeaa1959f4ad972faec3c1ebd891",
+      "size_bytes": 83828
+    },
+    {
+      "path": "vendor/claude-obsidian/claude_obsidian/transaction.py",
+      "sha256": "e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2",
+      "size_bytes": 179506
+    },
+    {
+      "path": "vendor/claude-obsidian/scripts/claude-obsidian.py",
+      "sha256": "34f3030da4a0ebc223a5dfba7f7180638d08dffa3d044be33fa72234866900c2",
+      "size_bytes": 357
+    }
+  ],
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Builder"
+  },
+  "schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-builder-spec-review.v1",
+  "test_matrix_review": {
+    "covered_by_contract": [
+      "create dry-run",
+      "reuse noop",
+      "exact argv without --apply",
+      "closed stdout and projection",
+      "argument and UTC grammar",
+      "root disjointness and no-follow layout",
+      "absent config",
+      "PDF magic and byte bounds",
+      "captured-entry count and unique matching sibling",
+      "symlink/special/multiple/wrong-byte sibling refusal",
+      "source and directory races",
+      "pin/private-tree/ignored-bytecode checks",
+      "hostile child environment",
+      "timeout/signal/exit/refusal/malformed/oversize output",
+      "deep-copy and semantic mismatch",
+      "complete disposable Vault stability",
+      "offline wheel resource equality and missing-upstream refusal"
+    ],
+    "implementation_regressions_required": [
+      "non-string and cyclic authority inputs map to ContractError",
+      "nested capture inspection semantic validation is invoked rather than only $ref shape validation",
+      "reserved or over-240-byte source filename exit-2 mapping is fixed",
+      "raw content_file is verified but never retained in authority/errors",
+      "all mapped child failures perform the post-snapshot when a pre-snapshot exists",
+      "old v1 focused and complete locked suites remain byte/behavior compatible"
+    ]
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

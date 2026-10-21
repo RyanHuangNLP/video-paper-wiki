@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.staged-code-capture-request.v1.schema.json",
+  "title": "video-paper-wiki.staged-code-capture-request.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "plan_sha256",
+    "plan_size_bytes",
+    "approval_ref",
+    "approval_ref_sha256",
+    "payload_file",
+    "manifest"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.staged-code-capture-request.v1"
+    },
+    "batch_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+    },
+    "plan_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "plan_size_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1048576
+    },
+    "approval_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "format",
+        "plan_approval_hash",
+        "plan_kind",
+        "batch_id",
+        "stable_subject_id",
+        "input_sha256",
+        "limits_sha256",
+        "network_targets_sha256",
+        "pipeline_fingerprint"
+      ],
+      "properties": {
+        "format": {
+          "const": "video-paper-wiki.approval-ref.v1"
+        },
+        "plan_approval_hash": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "plan_kind": {
+          "const": "code-evidence"
+        },
+        "batch_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+        },
+        "stable_subject_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/stable_subject_id"
+        },
+        "input_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "limits_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "network_targets_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "pipeline_fingerprint": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "approval_ref_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "payload_file": {
+      "type": "string",
+      "pattern": "^prepared/[0-9a-f]{64}\\.blob$(?![\\s\\S])"
+    },
+    "manifest": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.code-evidence-manifest.v1.schema.json"
+    }
+  }
+}

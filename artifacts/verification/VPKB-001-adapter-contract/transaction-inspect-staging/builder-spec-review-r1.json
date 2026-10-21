@@ -1,0 +1,173 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-builder-spec-review.v1",
+  "baseline": {
+    "head": "57c2519425dbccd6bb48a0f82e77699e17afcfb6",
+    "tree": "c77a7c6ccc8bae3292611c2b24c33255f248710c"
+  },
+  "checks": [
+    {
+      "evidence": "All five requested raw SHA-256 values match exact files.",
+      "id": "CORE-HASHES",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Draft2020-12 schema checks; valid fixture has zero schema errors; invalid fixture is deliberately schema-valid and requires the specified semantic validator.",
+      "id": "SCHEMA-STRUCTURE",
+      "status": "PASS"
+    },
+    {
+      "evidence": "The ordered pure phases are implementable with validate_transaction, verify_transaction_bytes, validate_batch_id, exact bundle encoding, deduplication, and object-only validation before stage_bytes.",
+      "id": "PURE-PREFLIGHT",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Frozen field set, per-write projection, sort_keys compact JSON parameters, UTF-8 and no-LF bytes exactly match accepted upstream_adapter _bundle_value/_compact_bundle_bytes domain.",
+      "id": "BUNDLE-PARITY",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Unique physical entries can sort by declared digest while bundle retains facade write order; exact-byte equality can be checked even for an adversarial same-digest condition.",
+      "id": "DEDUP-AND-COLLISION",
+      "status": "PASS"
+    },
+    {
+      "evidence": "Closed schema plus title-scoped semantic checks can enforce content path/digest equality, strict digest order and uniqueness; deep-copy implementation is straightforward.",
+      "id": "RESULT-CONTRACT",
+      "status": "PASS"
+    },
+    {
+      "evidence": "A disposable checkout probe staged content A, replaced .work/b between calls, then staged content B and bundle. All three existing stage_bytes calls succeeded, but the final published tree contained bundle and B while A remained only in the displaced tree.",
+      "id": "MULTIFILE-DIRECTORY-IDENTITY",
+      "status": "FAIL"
+    },
+    {
+      "evidence": "Candidate keeps proposal mapping, subprocess/upstream, Vault, apply/recover/admin, operation result, ledger/integrity, mapper/index/retrieval and Git/human gates excluded.",
+      "id": "SCOPE-AND-GATES",
+      "status": "PASS"
+    }
+  ],
+  "commands": [
+    {
+      "command": "sha256sum/wc over five requested core files and work-package referenced inputs",
+      "result": "all matched"
+    },
+    {
+      "command": ".venv Draft202012Validator schema/fixture probe",
+      "result": "schema well formed; valid fixture 0 errors; semantic-invalid fixture 0 schema errors as intended"
+    },
+    {
+      "command": "pytest tests/contract/test_schemas.py with plugin autoload disabled and /private/tmp basetemp",
+      "result": "44 passed in 0.13s"
+    },
+    {
+      "command": "disposable /private/tmp multi-call stage_bytes batch-replacement probe",
+      "result": "reproduced incomplete final published layout after three successful calls"
+    }
+  ],
+  "examined_implementation_inputs": {
+    "src/video_paper_wiki/staging.py": {
+      "sha256": "b486c5000d2284f03d1aa8ab55136e8deb8735bbdf7e3560ad2cb6e1f67015b0",
+      "size_bytes": 25133
+    },
+    "src/video_paper_wiki/transaction_contracts.py": {
+      "sha256": "e6e3c7e9e97cdcd9c0d080e846b9c5ef7211331162823e999b47aac9d855a0d3",
+      "size_bytes": 19863
+    },
+    "src/video_paper_wiki/upstream_adapter.py": {
+      "sha256": "8f54858d3e16a66167e2b98edbf2eca6c67525aa501fb85c5c6603b0b8b72adc",
+      "size_bytes": 63527
+    }
+  },
+  "findings": [
+    {
+      "id": "STAGING-MULTIFILE-IDENTITY-001",
+      "impact": "This contradicts the stated checkout/.work replacement refusal, bundle-last publication meaning, portable result binding, and required batch/transport inode-replacement tests. A later pinned inspect would fail closed, but this staging API itself would already have returned a false successful result.",
+      "locations": [
+        "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md:156",
+        "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md:162",
+        "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md:171",
+        "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md:175",
+        "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md:186",
+        "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json:180",
+        "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json:200",
+        "src/video_paper_wiki/staging.py:661"
+      ],
+      "problem": "stage_bytes authenticates directory identities only within one file call and closes all descriptors before returning. The proposed API performs several independent calls. Replacing the batch or transaction-inspect directory between successful content calls is accepted as a new safe tree; bundle-last can then publish bundle.json beside only a suffix of the declared content set. The API can return success and an apparently complete manifest although the final layout is incomplete. already_staged aggregation also cannot authenticate one common directory lineage.",
+      "reproducer": {
+        "location": "disposable /private/tmp checkout only",
+        "result": {
+          "calls_succeeded": true,
+          "final_bundle_exists": true,
+          "final_first_exists": false,
+          "final_second_exists": true,
+          "old_first_exists": true,
+          "per_call_already_staged": [
+            false,
+            false,
+            false
+          ]
+        }
+      },
+      "required_change": "Before freeze, define a multi-file identity boundary. Recommended: narrowly extend staging.py and the implementation path ceiling with an additive authenticated staging session/batch primitive that retains or compares checkout, .work, batch, transaction-inspect and content directory dev/inode identities across the complete ordered write set, then verifies the complete final file set before reporting success. Preserve existing stage_bytes behavior. Alternatively revise the public API to combine staging with mandatory pinned inspection and explicitly make the staging result non-authoritative; that is a larger scope change. Merely calling stage_bytes again cannot provide one atomic lineage and should not be presented as closing this requirement.",
+      "severity": "blocker",
+      "status": "open"
+    }
+  ],
+  "inputs": {
+    "architecture_work_package": {
+      "actual_sha256": "e8c717da1df1835c8c18924930035a2f5b752bfc753c8fdc87a2a234f9b8d62b",
+      "expected_sha256": "e8c717da1df1835c8c18924930035a2f5b752bfc753c8fdc87a2a234f9b8d62b",
+      "matches": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/architecture-work-package.json",
+      "size_bytes": 12381
+    },
+    "contract": {
+      "actual_sha256": "10b2ece4d4ff123e563d946f2a322272cb76bf8d24dd4d868e86efdc39223bc4",
+      "expected_sha256": "10b2ece4d4ff123e563d946f2a322272cb76bf8d24dd4d868e86efdc39223bc4",
+      "matches": true,
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "size_bytes": 14236
+    },
+    "invalid_fixture": {
+      "actual_sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "expected_sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "matches": true,
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json",
+      "size_bytes": 710
+    },
+    "schema": {
+      "actual_sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "expected_sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "matches": true,
+      "path": "schemas/video-paper-wiki.transaction-staging.v1.schema.json",
+      "size_bytes": 2470
+    },
+    "valid_fixture": {
+      "actual_sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "expected_sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "matches": true,
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json",
+      "size_bytes": 1186
+    }
+  },
+  "non_blocking_notes": [
+    "The invalid fixture is intentionally accepted by JSON Schema and must be rejected by the future semantic validator because content_file does not match sha256.",
+    "The exact encoder may be independently implemented in the new module, but implementation tests must compare raw bytes against the accepted adapter encoder and fixed independent goldens.",
+    "Existing StagingError path details are explicitly local diagnostics; the portable success object remains path-free."
+  ],
+  "repository_effects": {
+    "git_mutation": false,
+    "network": false,
+    "only_written_path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/builder-spec-review.json",
+    "real_vault": false,
+    "review_only": true
+  },
+  "reviewed_at_utc": "2026-09-01T06:56:09.558049Z",
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Builder"
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

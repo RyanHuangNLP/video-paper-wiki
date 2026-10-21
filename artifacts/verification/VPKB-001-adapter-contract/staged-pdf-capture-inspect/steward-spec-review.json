@@ -1,0 +1,115 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-steward-spec-review.v1",
+  "recorded_on": "2026-09-01",
+  "role": "Repo Steward",
+  "agent": "Codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "medium",
+  "baseline_head": "fb2cbcb565195a232f22d02c0474ac1b1b34f7d3",
+  "reviewed_paths": [
+    {
+      "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+      "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f"
+    },
+    {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f"
+    },
+    {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af"
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.staged-pdf-capture-request.v1.json",
+      "sha256": "c973201fee3ab52066fc083932764d2887dab2ba449ec5ac59e6790a7f81cce2"
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.staged-pdf-capture-authority.v1.json",
+      "sha256": "240ec49009fbb801c16c093fd6c5008063ae9855b57000b50b16ec746ea38aed"
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.staged-pdf-capture-request.v1.invalid.json",
+      "sha256": "a7d773754aecd618f29080b4c73da0c3f20ae94eb80dfa373be0630756cf4428"
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.staged-pdf-capture-authority.v1.invalid.json",
+      "sha256": "5d2dbcbaf4da9002ce0152c2f74838f5d47e3a702d7a6b1fb87d28dcdc7e0acd"
+    },
+    {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "46856cd5e4458862ff7fa2e43db087bba38af540a28149f22136a9c95e23251e"
+    },
+    {
+      "path": "tests/contract/test_schemas.py",
+      "sha256": "046e52fd5e10aaf024296e84e0a560900be0b58b7426a710379581702011d3b0"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+      "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "verdict": "CHANGES_REQUIRED",
+      "blockers": [
+        "approval provenance absent",
+        "cross-call batch lineage and staged Vault snapshot were not closed",
+        "wrapper/hash/CLI boundaries were incomplete"
+      ]
+    },
+    {
+      "round": 2,
+      "verdict": "CHANGES_REQUIRED",
+      "blockers": [
+        "object-only request validator could not recompute absent plan/PDF bytes"
+      ]
+    },
+    {
+      "round": 3,
+      "verdict": "GO",
+      "resolution": "Pure and runtime checks are separated; retained sessions and complete Vault snapshots are frozen; arXiv network-target provenance remains bound without granting this command egress; create/reuse, encoder and delivery scopes are closed."
+    },
+    {
+      "round": 4,
+      "verdict": "GO",
+      "resolution": "The authority root remains closed while patternProperties conditionally overlays create/reuse fields without introducing open conditional objects; request/authority references resolve and the final condition matrix passes."
+    }
+  ],
+  "checks": {
+    "all_schema_refs_resolve_offline": true,
+    "schema_tests": "51 passed (schema plus additional-properties condition matrix)",
+    "valid_fixture_schema_errors": 0,
+    "invalid_fixtures_rejected": true,
+    "approval_ref_digest_recomputed": true,
+    "embedded_request_digest_recomputed": true,
+    "git_diff_check": true,
+    "architecture_path_ceiling_closed": true,
+    "builder_path_ownership_closed": true,
+    "draft_integration_no_merge_gate_preserved": true,
+    "protected_paths_excluded": true,
+    "authority_root_additional_properties_closed": true,
+    "authority_create_reuse_condition_matrix": true,
+    "final_authority_schema_sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+    "final_architecture_work_package_sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421",
+    "independent_python312_full": {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /private/tmp/vpkb-py312-venv/bin/python -m pytest -q --basetemp=/private/tmp/vsc312-full-r1 --junitxml=/private/tmp/vsc312-full-r1.xml",
+      "python": "3.12.14",
+      "pytest": "9.1.1",
+      "result": "1901 passed in 82.65s",
+      "tests": 1901,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "80eba39fd409423759720b8718249858fc017099564ccca586ac8342bbd64df0",
+      "junit_size_bytes": 474153,
+      "log_sha256": "8794cc334fe75ca230994e29a42ee6a7f454cfd2c5b6b10195888c599e0e95c0",
+      "log_size_bytes": 2192,
+      "network_used": false,
+      "note": "JUnit is retained only in /private/tmp and is identified by digest/count because its raw attributes include a local hostname."
+    }
+  },
+  "verdict": "GO",
+  "remaining_blockers": [],
+  "note": "Independent repository/scope review. Only this Steward-owned review record was updated; no Git, PR, CI, Vault, network, source, test, or protected-file mutation was performed."
+}

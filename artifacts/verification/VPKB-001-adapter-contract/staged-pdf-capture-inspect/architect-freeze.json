@@ -1,0 +1,117 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-architect-freeze.v1",
+  "recorded_on": "2026-09-01",
+  "packet": "VPKB-001-adapter-contract",
+  "subrelease": "staged-pdf-capture-inspect-v1",
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "baseline_head": "fb2cbcb565195a232f22d02c0474ac1b1b34f7d3",
+  "accepted_predecessor": {
+    "head": "fb2cbcb565195a232f22d02c0474ac1b1b34f7d3",
+    "tree": "4a28ee53f71a0f2971f23b87e1f4c06d3bdf5b79",
+    "ci_run_id": 33491834331,
+    "tested_merge_sha": "12bc7925140352fad516405b7eafaa8923d106e7",
+    "tests_per_job": 1895,
+    "decision": "ACCEPTED_VPKB_001_TRANSACTION_INSPECT_STAGING_IMPLEMENTATION_AT_EXACT_HEAD"
+  },
+  "contract": {
+    "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+    "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f"
+  },
+  "work_package": {
+    "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+    "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421"
+  },
+  "schemas": [
+    {
+      "title": "video-paper-wiki.staged-pdf-capture-request.v1",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f"
+    },
+    {
+      "title": "video-paper-wiki.staged-pdf-capture-authority.v1",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "role": "Builder",
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/builder-spec-review.json",
+      "sha256": "361aa56011d420786d1a9e293106572bf15b2899db8f59b58f0924af70d93942",
+      "verdict": "GO"
+    },
+    {
+      "role": "Repo Steward",
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/steward-spec-review.json",
+      "sha256": "a137de9267f11e608200e9678eb8a64296b808c3cdf1b007c2fa30ea9b73369c",
+      "verdict": "GO"
+    }
+  ],
+  "frozen_decisions": [
+    "Paper prepare persists one canonical request containing the parsed desensitized approval-ref and exact plan/PDF descriptors.",
+    "Prepare publishes blob first and request last in one retained batch/prepared session.",
+    "Capture inspect consumes only the fixed --prepared request path and preserves requested_operation_id for create and reuse.",
+    "One retained work-batch lineage spans request/plan/blob validation and create staging.",
+    "A staged-route complete no-follow Vault sibling snapshot is revalidated around all downstream boundaries.",
+    "Reuse creates no proposal, staging, child, network attempt, or write.",
+    "Create builds one capture-create facade, uses one shared public compact encoder, accepted staging, and accepted pinned read-only inspect.",
+    "The encoder leaves the 8 MiB check to callers so accepted staging keeps digest mismatch before limit.",
+    "No result or plan integrity digest is described as human approval or apply authority."
+  ],
+  "architecture_local_schema_check": {
+    "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/contract/test_schemas.py tests/contract/test_additional_properties.py",
+    "result": "51 passed"
+  },
+  "architecture_local_full_suites": {
+    "python_3_12": {
+      "version": "3.12.14",
+      "passed": 1901,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 83.238,
+      "junit_sha256": "637f329a354bbf78413cdc53ddf0cecaa6a8b6ddb0b7bc8691b064d7a8e8254d",
+      "junit_size_bytes": 474153
+    },
+    "python_3_13": {
+      "version": "3.13.13",
+      "passed": 1901,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "duration_seconds": 74.495,
+      "junit_sha256": "3ac7611f5bef4418468a7a1c66a857d380bac43210c6efc1ed5e72562ef91900",
+      "junit_size_bytes": 474153
+    },
+    "steward_independent_python_3_12": {
+      "passed": 1901,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "80eba39fd409423759720b8718249858fc017099564ccca586ac8342bbd64df0",
+      "junit_size_bytes": 474153
+    }
+  },
+  "architecture_installed_wheel": {
+    "wheel_sha256": "dc973c8e106c22ddf33471bd692ac34120648f1578c44796908393b786e480f3",
+    "wheel_size_bytes": 211426,
+    "schema_count": 26,
+    "request_schema_sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f",
+    "authority_schema_sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+    "schema_title_lookup_passed": true,
+    "pip_check": "passed",
+    "checkout_external": true,
+    "network_used": false
+  },
+  "catalog_policy": "frozen-67",
+  "pr_policy": "PR 94 remains open draft to integration; no merge, ready, review, auto-merge, or human-gate action",
+  "decision": "GO_FOR_EXACT_ARCHITECTURE_DELIVERY_AND_FRESH_CI",
+  "implementation_authorized": false,
+  "remaining_gates": [
+    "exact-path delivery audit",
+    "fresh four-job merge-ref CI",
+    "separate exact-head Architect acceptance"
+  ]
+}

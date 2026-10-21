@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.experiment-publication-apply-result.v1.schema.json",
+  "title": "video-paper-wiki.experiment-publication-apply-result.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "request_sha256",
+    "basis",
+    "prospective_inventory_sha256",
+    "applied_inventory_sha256",
+    "touched_conditions",
+    "applied_paths",
+    "payload_count",
+    "heads_mode",
+    "heads_before_sha256",
+    "write_kind",
+    "applied",
+    "publication",
+    "receipt_backed",
+    "audit_coverage",
+    "backup_coverage",
+    "transaction_authority",
+    "canonical_official",
+    "current_supported_typed_fact",
+    "typed_fact_promotion",
+    "ranking",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.experiment-publication-apply-result.v1"
+    },
+    "batch_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+    },
+    "request_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "domain_store_inventory_sha256",
+        "claim_ledger_sha256",
+        "assessment_heads_sha256",
+        "experiment_store_inventory_sha256"
+      ],
+      "properties": {
+        "domain_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "claim_ledger_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "assessment_heads_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        "experiment_store_inventory_sha256": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        }
+      }
+    },
+    "prospective_inventory_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "applied_inventory_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "touched_conditions": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 512,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 24,
+        "maxLength": 24,
+        "pattern": "^exc-[0-9a-f]{20}$(?![\\s\\S])"
+      }
+    },
+    "applied_paths": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 513,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 32,
+        "maxLength": 84,
+        "pattern": "^wiki/meta/experiments/(?:records/exc-[0-9a-f]{20}/exr-[0-9a-f]{20}\\.json|heads\\.json)$(?![\\s\\S])"
+      }
+    },
+    "payload_count": {
+      "type": "integer",
+      "minimum": 2,
+      "maximum": 513
+    },
+    "heads_mode": {
+      "enum": [
+        "create",
+        "replace"
+      ]
+    },
+    "heads_before_sha256": {
+      "anyOf": [
+        {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "write_kind": {
+      "const": "direct_store_write"
+    },
+    "applied": {
+      "const": true,
+      "type": "boolean"
+    },
+    "publication": {
+      "const": "unpublished"
+    },
+    "receipt_backed": {
+      "const": false,
+      "type": "boolean"
+    },
+    "audit_coverage": {
+      "const": "not_wired"
+    },
+    "backup_coverage": {
+      "const": "not_wired"
+    },
+    "transaction_authority": {
+      "const": "not_wired"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    },
+    "typed_fact_promotion": {
+      "const": "none"
+    },
+    "ranking": {
+      "const": "not_ranked"
+    },
+    "next_action": {
+      "const": "experiments_status"
+    }
+  }
+}

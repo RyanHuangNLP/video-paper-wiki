@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-decision.v1.schema.json",
+  "title": "video-paper-wiki-research.preview-decision.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "preview-decision.v1"
+    },
+    "kind": {
+      "const": "decision"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^rw1:decision:[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/sha256"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "preview",
+        "sequence",
+        "previous",
+        "action",
+        "selected_version",
+        "user_record"
+      ],
+      "properties": {
+        "preview": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/reference"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "previous": {
+          "oneOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "action": {
+          "enum": [
+            "ingest",
+            "skip",
+            "later"
+          ]
+        },
+        "selected_version": {
+          "oneOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/version"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "user_record": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "event_id",
+            "text",
+            "recorded_at",
+            "source"
+          ],
+          "properties": {
+            "event_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$(?![\\s\\S])"
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096
+            },
+            "recorded_at": {
+              "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/utc_timestamp"
+            },
+            "source": {
+              "enum": [
+                "user_message",
+                "fixture"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

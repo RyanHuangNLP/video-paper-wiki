@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.source-analysis-proposal.v1.schema.json",
+  "title": "video-paper-wiki-research.source-analysis-proposal.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "content_sha256", "data"],
+  "properties": {
+    "schema": {"const": "video-paper-wiki-research.source-analysis-proposal.v1"},
+    "id": {"type": "string", "pattern": "^mp1-proposal-[0-9a-f]{64}$"},
+    "content_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "context",
+        "generator",
+        "generated_at",
+        "prompt_sha256",
+        "transport_draft",
+        "legacy_draft_sha256",
+        "state",
+        "capture_authorized",
+        "receipt_backed",
+        "published"
+      ],
+      "properties": {
+        "context": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/content_ref"},
+        "generator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["model", "runtime"],
+          "properties": {
+            "model": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/identity_component"},
+            "runtime": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/identity_component"}
+          }
+        },
+        "generated_at": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/utc_timestamp"},
+        "prompt_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "transport_draft": {"$ref": "#/$defs/transport_draft"},
+        "legacy_draft_sha256": {"$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json#/$defs/sha256"},
+        "state": {"const": "staged_analysis_proposal"},
+        "capture_authorized": {"const": false},
+        "receipt_backed": {"const": false},
+        "published": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "heading_zh"],
+      "properties": {
+        "id": {
+          "enum": [
+            "one_sentence_conclusion",
+            "research_question",
+            "method",
+            "representation_architecture",
+            "training_data",
+            "experiments_results",
+            "limitations",
+            "code_resources",
+            "evidence_status",
+            "related"
+          ]
+        },
+        "heading_zh": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "claim_text", "section", "core", "locators", "assessment"],
+      "properties": {
+        "claim_id": {"type": "string", "pattern": "^clm-[0-9a-f]{20}$"},
+        "claim_text": {"type": "string", "minLength": 1, "maxLength": 8192},
+        "section": {
+          "enum": [
+            "one_sentence_conclusion",
+            "research_question",
+            "method",
+            "representation_architecture",
+            "training_data",
+            "experiments_results",
+            "limitations",
+            "code_resources",
+            "evidence_status",
+            "related"
+          ]
+        },
+        "core": {"type": "boolean"},
+        "locators": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 128,
+          "items": {"type": "string", "minLength": 1, "maxLength": 65536}
+        },
+        "assessment": {"const": "provisional"}
+      }
+    },
+    "transport_draft": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "paper_id", "title", "title_zh", "sections", "taxonomy", "claims"],
+      "properties": {
+        "schema": {"const": "video-paper-wiki-research.paper-analysis-transport.v1"},
+        "paper_id": {"type": "string", "minLength": 1, "maxLength": 256},
+        "title": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "title_zh": {"type": "string", "minLength": 1, "maxLength": 2048},
+        "sections": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": {"$ref": "#/$defs/section"}
+        },
+        "taxonomy": {
+          "type": "array",
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["axis", "slug"],
+            "properties": {
+              "axis": {"type": "string", "minLength": 1},
+              "slug": {"type": "string", "minLength": 1, "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"}
+            }
+          }
+        },
+        "claims": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {"$ref": "#/$defs/claim"}
+        }
+      }
+    }
+  }
+}

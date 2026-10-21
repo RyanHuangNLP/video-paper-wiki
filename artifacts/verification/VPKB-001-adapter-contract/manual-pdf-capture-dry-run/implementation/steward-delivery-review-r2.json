@@ -1,0 +1,135 @@
+{
+  "$schema": "video-paper-wiki.repo-steward-delivery-review.v1",
+  "authority": {
+    "architect_local_preflight_r2_history": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/architect-local-acceptance-preflight-r2.json",
+      "sha256": "fc5dcfb9ef2173feb5678eae3d514874a9e42a409e11cdd2664a6ba1c2d018af",
+      "size_bytes": 10636
+    },
+    "delivery_manifest_preflight_r2_history": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate-preflight-r2.json",
+      "sha256": "8c5744df77f9b79a5cdd4d269311438a8e60349942b70f98e08991a243887dee",
+      "size_bytes": 15258
+    },
+    "revision_1_work_package_history": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package-r1.json",
+      "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+      "size_bytes": 20794
+    },
+    "revision_2_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json",
+      "sha256": "bab6c7fcf0691d15dfb0056712404daa6e67c0046c1c75ca25a1459e9ad9c522",
+      "size_bytes": 25490
+    }
+  },
+  "authorized_correction": {
+    "all_other_r2_source_test_and_evidence_bytes": "historical read-only; no relabelling or mutation",
+    "old_snapshots_must_remain_historical": [
+      "d33fd20e3b8029dc1b0bd0d5ffa2ef3dcfdfa8c29a922e256bed6355d74f922a",
+      "0b382041b022d8b2e76c08c2bffdcd31ad8b9df00781d1c754d9cc835578481b"
+    ],
+    "only_source_or_test_byte_delta_authorized": "tests/upstream/_manual_pdf_capture_fixture.py terminal LF run must change from two bytes to one byte.",
+    "required_new_evidence": [
+      "builder-candidate-r3.json",
+      "steward-review-r3.json",
+      "fresh Architect local acceptance",
+      "fresh delivery-candidate.json"
+    ],
+    "status": "pending_builder_r3"
+  },
+  "blockers": [
+    {
+      "id": "CACHED-DIFF-CHECK-EOF-001",
+      "minimal_correction": "remove exactly one terminal LF byte",
+      "path": "tests/upstream/_manual_pdf_capture_fixture.py",
+      "status": "open_for_r2_closed_by_future_authorized_r3_only"
+    }
+  ],
+  "blocking_check": {
+    "command_semantics": "Run git diff --cached --check only after the exact 22 manifest paths were staged; require zero diagnostics before commit.",
+    "diagnostic": "tests/upstream/_manual_pdf_capture_fixture.py:46: new blank line at EOF.",
+    "exit_result": "nonzero",
+    "line": 46,
+    "observed_terminal_lf_count": 2,
+    "path": "tests/upstream/_manual_pdf_capture_fixture.py",
+    "r2_raw_sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+    "r2_size_bytes": 1485,
+    "reason": "A cached diff-check failure is a delivery blocker; no whitespace exception was accepted."
+  },
+  "expected_authority": {
+    "all_match": true,
+    "architect_local_preflight_r2_sha256": "fc5dcfb9ef2173feb5678eae3d514874a9e42a409e11cdd2664a6ba1c2d018af",
+    "delivery_manifest_preflight_r2_sha256": "8c5744df77f9b79a5cdd4d269311438a8e60349942b70f98e08991a243887dee",
+    "revision_1_work_package_sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+    "revision_2_work_package_sha256": "bab6c7fcf0691d15dfb0056712404daa6e67c0046c1c75ca25a1459e9ad9c522"
+  },
+  "gates": {
+    "auto_merge_authorized": false,
+    "fresh_four_job_ci_required_after_future_exact_commit": true,
+    "git_commit_authorized_for_rejected_r2": false,
+    "human_gate_changed": false,
+    "merge_authorized": false,
+    "post_ci_architect_acceptance_required": true,
+    "pr_body_or_base_change_authorized": false,
+    "push_authorized_for_rejected_r2": false,
+    "ready_for_review_authorized": false
+  },
+  "limitations": [
+    "This report records the R2 precommit rejection only; it is not an implementation acceptance, commit authorization, CI observation, merge authorization or human approval."
+  ],
+  "packet": "VPKB-001-adapter-contract",
+  "protected_paths": {
+    "preserved_and_never_staged": [
+      ".DS_Store",
+      "docs/feishu-multi-bot-phase1-plan.md",
+      "docs/hermes-subscription-collaboration-prd.md",
+      "docs/pi-feishu-cli-assessment.md",
+      "docs/video-paper-wiki-development-plan-v0.3.2.md",
+      "docs/video-paper-wiki-development-plan.md",
+      "inbox/**",
+      "tools/**"
+    ],
+    "removed_or_modified_by_steward": false
+  },
+  "recorded_at_utc": "2026-09-01T06:05:54.039825+00:00",
+  "rejected_delivery_candidate": {
+    "all_staged_blob_hashes_and_sizes_matched_manifest_and_worktree": true,
+    "allowed_path_count": 22,
+    "external_full_22_path_snapshot_sha256": "0b382041b022d8b2e76c08c2bffdcd31ad8b9df00781d1c754d9cc835578481b",
+    "non_self_snapshot_sha256": "d33fd20e3b8029dc1b0bd0d5ffa2ef3dcfdfa8c29a922e256bed6355d74f922a",
+    "path": "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/delivery-candidate.json",
+    "raw_sha256": "8c5744df77f9b79a5cdd4d269311438a8e60349942b70f98e08991a243887dee",
+    "size_bytes": 15258,
+    "staged_path_count": 22,
+    "staged_path_set_exact": true
+  },
+  "reviewer": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "revision": 2,
+  "rollback_and_repository_outcome": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "commit_created": false,
+    "head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "index_empty_after_rollback": true,
+    "only_the_22_delivery_paths_unstaged": true,
+    "pull_request": 94,
+    "pull_request_changed": false,
+    "pull_request_observation_before_rejection": {
+      "base_branch": "integration",
+      "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+      "draft": true,
+      "head_sha": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+      "merge_state": "CLEAN",
+      "state": "OPEN"
+    },
+    "push_performed": false,
+    "rollback_semantics": "Run git restore --staged -- followed by the same exact 22 paths; no worktree byte was edited.",
+    "tree": "9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca"
+  },
+  "subrelease": "pinned-manual-pdf-capture-dry-run-v1",
+  "verdict": "CHANGES_REQUIRED_PRECOMMIT"
+}

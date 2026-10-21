@@ -1,0 +1,89 @@
+{
+  "schema": "video-paper-wiki.base-foundation-correction-1-steward-review.v1",
+  "verdict": "GO",
+  "scope": "Independent implementation review of correction-1; final delivery still requires Architect full two-Python, installed-wheel and exact-candidate CI acceptance.",
+  "candidate": {
+    "manifest": "/private/tmp/vpkb-base-foundation-builder-candidate-correction-1.json",
+    "manifest_sha256": "6e6e17a6aee81d8e3cb58e476f089c735b70f0861703d924da955f11ceca6c0e",
+    "file_count": 20,
+    "declared_snapshot_sha256": "4cb20593b27df1d09859e54fd3fcbde84fccbe1ce440bd9a370a964bd326a287",
+    "recomputed_snapshot_sha256_before_and_after": "4cb20593b27df1d09859e54fd3fcbde84fccbe1ce440bd9a370a964bd326a287",
+    "all_file_hashes_match": true,
+    "all_eight_frozen_hashes_match": true,
+    "correction_work_package_sha256": "d5b363f2cc4c2dfa5f13ff272b505ee40f2a522b1e48da6ba9f02c40319b0b96",
+    "superseded_blocker_report_sha256": "3accab5273b006556a9fe3404a244639ad28d037a1fb037111ad6d842e0791b0",
+    "git_diff_check": "pass",
+    "git_index": "empty"
+  },
+  "reviewed_correction_paths": [
+    "src/video_paper_wiki/projection_catalog.py",
+    "src/video_paper_wiki/resources.py",
+    "tests/contract/test_additional_properties.py",
+    "tests/contract/test_schemas.py",
+    "tests/test_projection_catalog.py",
+    "tests/fixtures/projection-catalog/complete-baseline.json"
+  ],
+  "blocker_replays": {
+    "evidence_path": "/private/tmp/vpkb-base-foundation-steward-review-c1-blockers.json",
+    "evidence_sha256": "2450ec7992938e0dff867caf9e850ba69caa3ceaa25cf7742dd8a63770d10c64",
+    "code_complete_file_vs_self_hash": {
+      "fixed": true,
+      "contract_valid_baseline_accepted": true,
+      "canonical_sha256": "bf9194056f58ff6b9160f752138c3071c8eef8a1de36b2e26492f1a282b43d02"
+    },
+    "semantic_locator_limit_mapping": {"fixed": true, "code": "CATALOG_ROWS_INVALID"},
+    "installed_ancestor_resource_and_schema_decoys": {"fixed": true, "resource": null, "schema_names": []},
+    "exact_source_layout_positive_control": {"passed": true},
+    "collection_before_cell": {"fixed": true, "message": "complete table set is required"},
+    "cell_winner_manifest_order": {"fixed": true, "winning_table_both_orders": "canonical_inputs", "note": "JSON pointer table index changes with caller representation, while the logical winning cell remains identical."},
+    "presence_before_pk": {"fixed": true, "message": "presence pair is inconsistent"},
+    "generation_subtree_preflight": {"fixed": true, "cases": 3, "code": "PROJECTION_GENERATION_INVALID"},
+    "tables_subtree_preflight": {"fixed": true, "code": "CATALOG_ROWS_INVALID"},
+    "public_limit_preservation": "covered by focused tests"
+  },
+  "independent_oracle": {
+    "expected_oracle_sha256": "bf63dfe257b43680cefb47a2f52509baba81767595d6da1e3689de1c08079af4",
+    "contract_valid_suite": "/private/tmp/vpkb-base-foundation-steward-review-catalog-suite-contract-valid.json",
+    "contract_valid_suite_sha256": "2022c623cf334bcb663353310ebfdf1b574b1fbb156de71d1f92e2349ea9ccf2",
+    "vector_count": 30,
+    "semantic_ids_exactly_once": 25,
+    "checks": 148,
+    "failures": 0,
+    "report": "/private/tmp/vpkb-base-foundation-steward-review-c1-oracle.json",
+    "report_sha256": "7237811af31e434b865f5ee45caca8e27cb69006dae3b4ebe34a56452760da48",
+    "reachability_hack_used": false
+  },
+  "focused_tests": {
+    "python": "3.13.13",
+    "passed": 621,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/private/tmp/vpkb-base-foundation-steward-review-c1-focused.log",
+    "log_sha256": "5fcb530d658af4a03aa85736542b7a23a8ecd3dfb656195253cce94ff4553048",
+    "junit": "/private/tmp/vpkb-base-foundation-steward-review-c1-focused.xml",
+    "junit_sha256": "ff0f43df9362566590168a04b2eb31bdfda6c5639a2f9a5702f885d28dd2e577"
+  },
+  "conditional_overlay_review": {
+    "passed": true,
+    "schema_revision_required": false,
+    "parent_runtime_closed": true,
+    "three_overlay_branches_exact": true,
+    "generic_test_narrowing_is_exact": true
+  },
+  "guards": {
+    "catalog_67": "passed by independent oracle",
+    "schema_count_21": "passed by focused tests and oracle",
+    "resource_count_25": "profile and prior wheel control; correction wheel not run",
+    "no_sqlite_network_subprocess_caller_path": "passed by oracle/static focused guards",
+    "user_untracked_preserved": "passed by oracle",
+    "repository_writes": false,
+    "git_mutations": false,
+    "network_used": false
+  },
+  "limitations": [
+    "Steward did not rerun the full 1658-test Python 3.13 suite; Builder's exact-candidate full result is recorded but was not substituted for independent focused evidence.",
+    "Python 3.12 full acceptance was not run in this review.",
+    "The available wheel predates correction-1, so no correction-1 installed-wheel verdict is claimed.",
+    "Remote CI was not run or inspected in this read-only review."
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-delivery-steward-review.v1",
+  "audit_evidence": {
+    "file_audit_log": {
+      "path": "/private/tmp/vpkb-stage-delivery-audit.log",
+      "sha256": "496728b6e2dbdbbc19222934dc4d1d130e8c958f4d67d23a8271cf76dba7d8b3",
+      "size_bytes": 4533
+    },
+    "file_audit_script": {
+      "path": "/private/tmp/vpkb-stage-delivery-audit.py",
+      "sha256": "3c197e491acc4fbec36825ca38db46f73ee10376abc1f94b8b8282f386539106",
+      "size_bytes": 3398
+    }
+  },
+  "authority": {
+    "architect_local_acceptance": {
+      "decision": "PASSED_LOCAL_R2_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI",
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/architect-local-acceptance.json",
+      "sha256": "98ec4d0c3a7571fc46e271bed260191f0bbae6b89230bbd69734a5c132126d9b",
+      "size_bytes": 13182
+    },
+    "baseline": {
+      "base_branch": "integration",
+      "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+      "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+      "head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+      "tree": "37dfbba09e9f73656af4bb5510f7586bb5d4223e"
+    },
+    "delivery_manifest": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/delivery-candidate.json",
+      "sha256": "a921c72590ece7ed64cfbaf84e81677394b163791d068bf3260cf79d6e447e29",
+      "size_bytes": 14939
+    },
+    "work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package.json",
+      "revision": 2,
+      "sha256": "c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633",
+      "size_bytes": 25850
+    }
+  },
+  "blockers": [
+    {
+      "diagnostic": "new blank line at EOF.",
+      "id": "CACHED-DIFF-CHECK-EOF-001",
+      "invalidation": "Any byte correction changes this file hash, the ten-path source snapshot, Builder R2 evidence, Architect local acceptance bindings, the 25-file snapshot and delivery manifest. Those exact-byte records must be regenerated and independently re-audited before Git authorization.",
+      "line": 77,
+      "minimum_fix": "Remove only one terminal LF so the file ends with exactly one LF; do not change semantic test content.",
+      "observed_raw_tail": "The 2849-byte candidate ends with two LF bytes.",
+      "path": "tests/contract/test_transaction_staging.py",
+      "reason": "The untracked file is invisible to working-tree git diff --check, but exact temporary-index staging exposes the cached diff-check failure. Delivery cannot proceed with a nonzero cached diff-check.",
+      "severity": "precommit-blocker",
+      "steward_action": "No source or evidence correction was made; no real staging, commit, push or PR mutation occurred."
+    }
+  ],
+  "generated_at_utc": "2026-09-01T08:52:47Z",
+  "immutable_verification": {
+    "architecture_post_ci_three_records_byte_exact": true,
+    "catalog_count": 67,
+    "frozen_contract": {
+      "match": true,
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "size_bytes": 16847
+    },
+    "frozen_schema": {
+      "match": true,
+      "sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "size_bytes": 2470
+    },
+    "invalid_fixture": {
+      "match": true,
+      "sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "size_bytes": 710
+    },
+    "r1_history_byte_exact": true,
+    "task_index_yaml_parse": "passed",
+    "valid_fixture": {
+      "match": true,
+      "sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "size_bytes": 1186
+    }
+  },
+  "limitations": [
+    "This is a delivery-shape audit, not a new implementation acceptance or CI result.",
+    "The temporary index simulation wrote only an independent index and necessary Git blob objects; the actual repository index bytes remained unchanged.",
+    "No source, test, manifest, Architect record, carriage evidence, protected user content, commit, branch, push, PR state, review, readiness, auto-merge, merge or human gate was changed."
+  ],
+  "manifest_audit": {
+    "all_25_hashes_sizes_modes_and_tracked_at_baseline_match": true,
+    "allowed_path_count": 27,
+    "allowed_paths_unique": true,
+    "candidate_source_path_count": 10,
+    "candidate_source_snapshot_sha256": "75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2",
+    "declared_25_path_snapshot_sha256": "6eedf04d77867dbb0c5313a7916958c494ce0032947d898905f94d43d73cc69d",
+    "hashed_existing_non_self_non_reviewer_count": 25,
+    "independently_recomputed_25_path_snapshot_sha256": "6eedf04d77867dbb0c5313a7916958c494ce0032947d898905f94d43d73cc69d",
+    "manifest_order_exactly_equals_work_package_delivery_allowed_paths": true,
+    "self_binding": {
+      "current_existing_delivery_paths_before_report": 26,
+      "manifest": "delivery-candidate.json is excluded from its internal 25-file snapshot because its raw-byte hash cannot be embedded without recursion; this review independently binds the manifest raw SHA-256 and size above.",
+      "no_placeholder_created": true,
+      "reviewer": "steward-delivery-review.json is intentionally late-bound and absent while the 25-file manifest snapshot is formed. This report likewise cannot embed its own final raw hash; Architect must independently hash these frozen bytes before any exact Git authorization."
+    },
+    "source_snapshot_recomputed_equal": true
+  },
+  "next_gate": "CHANGES_REQUIRED. No exact Git authorization is safe until the single terminal-LF correction and all invalidated exact-byte evidence are regenerated and independently reviewed.",
+  "pr_observation": {
+    "base_branch": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "draft": true,
+    "head_branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head_sha": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "mergeable": "MERGEABLE",
+    "mutated": false,
+    "number": 94,
+    "query": "gh pr view 94 --json number,state,isDraft,headRefName,headRefOid,baseRefName,baseRefOid,mergeable,url",
+    "state": "OPEN"
+  },
+  "role": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "role": "Repo Steward"
+  },
+  "temporary_index_simulation": {
+    "all_staged_blobs_equal_worktree_and_manifest_or_external_manifest_hash": true,
+    "cached_diff_check_exit_code": 2,
+    "cached_diff_check_output": "tests/contract/test_transaction_staging.py:77: new blank line at EOF.\n",
+    "commands": [
+      "git read-tree HEAD",
+      "git add -- <each of 26 literal existing paths, one call per path>",
+      "git diff --cached --name-only -z",
+      "git diff --cached --check",
+      "git show :<each path>"
+    ],
+    "environment": "GIT_INDEX_FILE=/private/tmp/vpkb-stage-index-tcjrrvox",
+    "existing_path_count": 26,
+    "external_full_26_path_snapshot_sha256": "8634c887db1d4951719085bcd2afc07cfec476453d045c9fd410218ec7da1bb7",
+    "log": {
+      "path": "/private/tmp/vpkb-stage-temp-index-audit.log",
+      "sha256": "4db6259110a1ae9a8ae726cc1ba00d941f93bb54e7477b790ee967e9b501bd7a",
+      "size_bytes": 473
+    },
+    "purpose": "Simulate explicit staging of the 26 currently existing allowed paths without modifying the real index; the late-bound reviewer path was not fabricated.",
+    "real_index_unchanged": true,
+    "script": {
+      "path": "/private/tmp/vpkb-stage-temp-index-audit.py",
+      "sha256": "83a06129c16376f0edc3d4177725cc035cbe75490ac27a1ee488ae3363c000d4",
+      "size_bytes": 1765
+    },
+    "staged_path_count": 26,
+    "staged_path_set_exact": true
+  },
+  "verdict": "CHANGES_REQUIRED",
+  "working_tree_scope": {
+    "non_protected_changes_outside_27_path_ceiling": [],
+    "protected_entry_count": 76,
+    "protected_paths_preserved": [
+      ".DS_Store",
+      "five user-owned docs",
+      "inbox/**",
+      "tools/**"
+    ],
+    "protected_paths_staged": [],
+    "real_index_empty_before_and_after": true,
+    "real_index_final_sha256": "0f6cdd7dc44a328b2a3b1a8c6f6814b6258a04fdfebaa14b4db5b82896816c44",
+    "real_index_initial_sha256": "0f6cdd7dc44a328b2a3b1a8c6f6814b6258a04fdfebaa14b4db5b82896816c44",
+    "status_command": "git status --porcelain=v1 -z --untracked-files=all",
+    "status_entry_count": 102,
+    "working_tree_git_diff_check_exit_code": 0
+  }
+}

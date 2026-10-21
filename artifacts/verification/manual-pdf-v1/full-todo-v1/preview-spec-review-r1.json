@@ -1,0 +1,100 @@
+{
+  "schema": "video-paper-wiki.discovery-preview-spec-review.v1",
+  "review": "discovery-preview-r1",
+  "reviewed_on": "2026-09-08",
+  "reviewer": {
+    "agent": "cursor-lanes34-controller",
+    "role": "controller/spec-review"
+  },
+  "verdict": "GO",
+  "verdict_reason": "The R1 discovery-preview packet and its exact allowlist are coherent and implementable for the authorized preview slice. The historical W1 contract is explicitly preserved, current-baseline adaptations are bounded, and the six freeze conditions below are sufficient to prevent contract drift during implementation.",
+  "inputs": {
+    "docs/ai/packets/full-todo-v1/DISCOVERY-PREVIEW-R1.md": {
+      "sha256": "61869d187c4eca01aee093726463676877368993e233c9940e338b1a23094fbf",
+      "size_bytes": 6454
+    },
+    "docs/ai/packets/full-todo-v1/DISCOVERY-PREVIEW-allowed-paths-r1.json": {
+      "sha256": "bb667b29fe0b9d9531b5b99c0981ba4dbf7d60309080d06de71b4a3ecbc44c34",
+      "size_bytes": 1316
+    },
+    "docs/ai/contracts/research-wiki-w1-preview-v1.md": {
+      "sha256": "1ac864cc19e8080cba19d98b2157fd8d8ea59f277f361df4851dcfca05c864d3",
+      "size_bytes": 25119
+    }
+  },
+  "scope": {
+    "allowed_path_count": 23,
+    "allowed_paths_file_is_exact": true,
+    "historical_contract_preserved_byte_for_byte": true,
+    "implementation_authorized": true,
+    "git_or_remote_mutation_authorized": false,
+    "real_vault_or_admin_authorized": false,
+    "human_gate_changed": false,
+    "live_data_or_user_selection_claimed": false,
+    "paths": [
+      ".agents/skills/video-paper-preview/SKILL.md",
+      ".agents/skills/video-paper-preview/skill-contract.v1.json",
+      "docs/paper-preview-quickstart.md",
+      "src/video_paper_wiki_research/arxiv_preview.py",
+      "src/video_paper_wiki_research/cli.py",
+      "src/video_paper_wiki_research/paper_preview.py",
+      "src/video_paper_wiki_research/preview_contracts.py",
+      "src/video_paper_wiki_research/preview_storage.py",
+      "src/video_paper_wiki_research/prompts/paper-preview-v1.md",
+      "src/video_paper_wiki_research/schemas/arxiv-metadata.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/connector-observation.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/connector-request.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/paper-preview.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/preview-common.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/preview-decision.v1.schema.json",
+      "src/video_paper_wiki_research/schemas/skill-contract.v1.schema.json",
+      "tests/fixtures/research-preview/cap-web-obs-001-excerpts.json",
+      "tests/preview_fixture.py",
+      "tests/research/test_arxiv_preview.py",
+      "tests/research/test_paper_preview.py",
+      "tests/research/test_preview_contracts.py",
+      "tests/research/test_preview_storage.py",
+      "tests/security/test_paper_preview_boundary.py"
+    ]
+  },
+  "freeze_conditions": [
+    {
+      "id": "CAP_FIXTURE_EXACT_COPY",
+      "result": "pass",
+      "requirement": "The checked-in CAP excerpt fixture must be the exact 5804-byte copy with SHA-256 68518fe631e9e7163d97d8a2c5ed7326e8eec620148a665be42857b517db395a; incomplete excerpts remain negative metadata-completeness cases and cannot be promoted to positives."
+    },
+    {
+      "id": "CLI_SINGLE_REGISTRATION",
+      "result": "pass",
+      "requirement": "The existing CLI may receive only one preview import and one register_preview_commands call; preview commands must serialize through the shared CLI and retain the SOURCE-CAPTURE command behavior."
+    },
+    {
+      "id": "HISTORICAL_PREVIEW_LIMITS",
+      "result": "pass",
+      "requirement": "Preview request, parser and storage boundaries must enforce the historical W1 one MiB limits even where existing repository contracts use larger limits."
+    },
+    {
+      "id": "CONFLICT_EXIT_75",
+      "result": "pass",
+      "requirement": "DECISION_CONFLICT and staged reference or lineage conflicts must produce the frozen stable refusal and exit status 75, including the relevant failure paths."
+    },
+    {
+      "id": "WHEEL_RESOURCE_CLOSURE",
+      "result": "pass",
+      "requirement": "The built wheel must expose all seven new schemas and the preview prompt, while the existing preview-common.v1.schema.json resource bytes remain unchanged."
+    },
+    {
+      "id": "CONCISE_AUTOMATIC_SKILL",
+      "result": "pass",
+      "requirement": "The preview Skill and manifest must stay concise and automatic for inspect, revisit, request/cache, one official generated-URL open when needed, truthful observation, model preview, render and explicit selection; no unnecessary UI or unrelated files may be added."
+    }
+  ],
+  "implementation_handoff": {
+    "builder_dispatch": "pending_explicit_controller_dispatch",
+    "source_capture_lane_is_separate": true,
+    "candidate_must_stop_after_packet": true,
+    "fresh_exact_head_ci_required": true,
+    "installed_wheel_and_full_regression_required": true
+  },
+  "blockers": []
+}

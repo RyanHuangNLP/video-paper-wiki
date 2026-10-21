@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.local/research/research-session.v1.schema.json",
+  "title": "video-paper-wiki-research.research-session.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "video-paper-wiki-research.research-session.v1"
+    },
+    "kind": {
+      "const": "research-session"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180,
+      "pattern": "^rw3:research-session:[0-9a-f]{64}$"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session_key",
+        "config"
+      ],
+      "properties": {
+        "session_key": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/slug"
+        },
+        "config": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        }
+      }
+    }
+  }
+}

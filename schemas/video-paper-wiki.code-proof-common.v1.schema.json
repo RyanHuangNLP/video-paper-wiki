@@ -1,0 +1,4037 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.code-proof-common.v1.schema.json",
+  "title": "video-paper-wiki.code-proof-common.v1",
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "\\A(?:[0-9a-f]{64})\\Z",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "oid": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "\\A(?:[0-9a-f]{40})\\Z",
+          "minLength": 40,
+          "maxLength": 40
+        },
+        {
+          "type": "string",
+          "pattern": "\\A(?:[0-9a-f]{64})\\Z",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      ]
+    },
+    "name_hex": {
+      "type": "string",
+      "pattern": "\\A(?:(?:[0-9a-f]{2})+)\\Z",
+      "minLength": 2,
+      "maxLength": 1024
+    },
+    "paper_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "\\A(?:arxiv:(?:[0-9]{4}\\.[0-9]{4,5}|[a-z-]+(?:\\.[a-z]{2})?/[0-9]{7}))\\Z",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        {
+          "type": "string",
+          "pattern": "\\A(?:doi:10\\.[0-9]{4,9}/[\\x21-\\x40\\x5b-\\x7e]+)\\Z",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        {
+          "type": "string",
+          "pattern": "\\A(?:openalex:W[0-9]+)\\Z",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        {
+          "type": "string",
+          "pattern": "\\A(?:sha256:[0-9a-f]{64})\\Z",
+          "minLength": 71,
+          "maxLength": 71
+        }
+      ]
+    },
+    "repository_input": {
+      "type": "string",
+      "pattern": "\\A(?:(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[A-Za-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![A-Za-z0-9._-]{0,96}\\.[Gg][Ii][Tt](?:/|$))[A-Za-z0-9._-]{1,100})\\Z",
+      "minLength": 3,
+      "maxLength": 201
+    },
+    "repository_saved": {
+      "type": "string",
+      "pattern": "\\A(?:(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100})\\Z",
+      "minLength": 3,
+      "maxLength": 201
+    },
+    "git_path": {
+      "type": "string",
+      "pattern": "\\A(?:(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+(?:/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+){0,31})\\Z",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "object_format": {
+      "enum": [
+        "sha1",
+        "sha256"
+      ]
+    },
+    "batch_id": {
+      "type": "string",
+      "pattern": "\\A(?:[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?)\\Z",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "utc_datetime": {
+      "type": "string",
+      "pattern": "\\A(?:(?:000[1-9]|00[1-9][0-9]|0[1-9][0-9]{2}|[1-9][0-9]{3})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01])T(?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z)\\Z",
+      "minLength": 20,
+      "maxLength": 20
+    },
+    "json_pointer": {
+      "type": "string",
+      "pattern": "\\A(?:(?:|(?:/(?:[^/~]|~0|~1)*)+))\\Z",
+      "maxLength": 16416
+    },
+    "git_role": {
+      "enum": [
+        "readme",
+        "citation",
+        "license",
+        "implementation",
+        "configuration",
+        "entrypoint"
+      ]
+    },
+    "git_roles": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "readme",
+          "citation",
+          "license",
+          "implementation",
+          "configuration",
+          "entrypoint"
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 6,
+      "uniqueItems": true
+    },
+    "request_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "roles": {
+          "$ref": "#/$defs/git_roles"
+        },
+        "allow_executable_source": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "roles",
+        "allow_executable_source"
+      ],
+      "if": {
+        "properties": {
+          "allow_executable_source": {
+            "const": true
+          }
+        },
+        "required": [
+          "allow_executable_source"
+        ]
+      },
+      "then": {
+        "properties": {
+          "roles": {
+            "items": {
+              "enum": [
+                "implementation",
+                "entrypoint"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "request_targets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/request_target"
+      },
+      "minItems": 1,
+      "maxItems": 32
+    },
+    "git_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_targets": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_objects": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "max_tree_entries": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32768
+        },
+        "max_object_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8388608
+        },
+        "max_total_object_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 33554432
+        }
+      },
+      "required": [
+        "max_targets",
+        "max_objects",
+        "max_tree_entries",
+        "max_object_bytes",
+        "max_total_object_bytes"
+      ]
+    },
+    "config_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_source_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "max_depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "max_nodes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "max_array_items": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "max_object_keys": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "max_key_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "max_string_codepoints": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "max_scalars": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 512
+        },
+        "max_numeric_lexeme_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "max_numeric_coefficient_digits": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "max_numeric_abs_exponent": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "max_numeric_canonical_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "max_declarations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        }
+      },
+      "required": [
+        "max_source_bytes",
+        "max_depth",
+        "max_nodes",
+        "max_array_items",
+        "max_object_keys",
+        "max_key_bytes",
+        "max_string_codepoints",
+        "max_scalars",
+        "max_numeric_lexeme_bytes",
+        "max_numeric_coefficient_digits",
+        "max_numeric_abs_exponent",
+        "max_numeric_canonical_bytes",
+        "max_declarations"
+      ]
+    },
+    "public_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_bundle_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "max_inline_normalized_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "max_request_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65536
+        },
+        "max_intent_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "max_observation_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2097152
+        },
+        "max_config_document_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2097152
+        },
+        "max_handoff_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 131072
+        },
+        "max_output_peak_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 134217728
+        }
+      },
+      "required": [
+        "max_bundle_bytes",
+        "max_inline_normalized_bytes",
+        "max_request_bytes",
+        "max_intent_bytes",
+        "max_observation_bytes",
+        "max_config_document_bytes",
+        "max_handoff_bytes",
+        "max_output_peak_bytes"
+      ]
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git": {
+          "$ref": "#/$defs/git_limits"
+        },
+        "config": {
+          "$ref": "#/$defs/config_limits"
+        },
+        "public": {
+          "$ref": "#/$defs/public_limits"
+        }
+      },
+      "required": [
+        "git",
+        "config",
+        "public"
+      ]
+    },
+    "source_association": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "association_id": {
+              "type": "string",
+              "pattern": "\\A(?:sva-[0-9a-f]{64})\\Z",
+              "minLength": 68,
+              "maxLength": 68
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "association_id",
+            "sha256"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_code_proof_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\A(?:ce1:code-proof-request:[0-9a-f]{64})\\Z",
+          "minLength": 87,
+          "maxLength": 87
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "sha256"
+      ]
+    },
+    "nullable_ref_code_proof_request": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ref_code_proof_request"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_code_git_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\A(?:ce1:code-git-bundle:[0-9a-f]{64})\\Z",
+          "minLength": 84,
+          "maxLength": 84
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "sha256"
+      ]
+    },
+    "nullable_ref_code_git_bundle": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ref_code_git_bundle"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_code_acquisition_intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\A(?:ce1:code-acquisition-intent:[0-9a-f]{64})\\Z",
+          "minLength": 92,
+          "maxLength": 92
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "sha256"
+      ]
+    },
+    "nullable_ref_code_acquisition_intent": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ref_code_acquisition_intent"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_code_proof_observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\A(?:ce1:code-proof-observation:[0-9a-f]{64})\\Z",
+          "minLength": 91,
+          "maxLength": 91
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "sha256"
+      ]
+    },
+    "nullable_ref_code_proof_observation": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ref_code_proof_observation"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_code_config_evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\A(?:ce1:code-config-evidence:[0-9a-f]{64})\\Z",
+          "minLength": 89,
+          "maxLength": 89
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "sha256"
+      ]
+    },
+    "nullable_ref_code_config_evidence": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ref_code_config_evidence"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_code_source_handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "\\A(?:ce1:code-source-handoff:[0-9a-f]{64})\\Z",
+          "minLength": 88,
+          "maxLength": 88
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "id",
+        "sha256"
+      ]
+    },
+    "nullable_ref_code_source_handoff": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ref_code_source_handoff"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "executor": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "human",
+                "host_tool"
+              ]
+            },
+            "id": {
+              "type": "string",
+              "pattern": "\\A(?:[^\\x00-\\x1F\\x7F-\\x9F\\u2028\\u2029]+)\\Z",
+              "minLength": 1,
+              "maxLength": 128
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "unknown"
+            },
+            "id": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ]
+        }
+      ]
+    },
+    "hosting_assertion": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provider": {
+              "const": "github"
+            },
+            "actor": {
+              "$ref": "#/$defs/executor"
+            },
+            "repository": {
+              "$ref": "#/$defs/repository_saved"
+            },
+            "object_format": {
+              "$ref": "#/$defs/object_format"
+            },
+            "commit_oid": {
+              "$ref": "#/$defs/oid"
+            },
+            "locator": {
+              "type": "string",
+              "pattern": "\\A(?:https://github.com/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100}/commit/[0-9a-f]{40}(?:[0-9a-f]{24})?)\\Z",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "statement": {
+              "type": "string",
+              "pattern": "\\A(?:[^\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F-\\x9F\\u2028\\u2029]+)\\Z",
+              "minLength": 1,
+              "maxLength": 2048
+            }
+          },
+          "required": [
+            "provider",
+            "actor",
+            "repository",
+            "object_format",
+            "commit_oid",
+            "locator",
+            "statement"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "text_metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "normalized_size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        },
+        "normalized_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "newline_style": {
+          "enum": [
+            "none",
+            "lf",
+            "crlf",
+            "mixed"
+          ]
+        },
+        "ends_with_newline": {
+          "type": "boolean"
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        }
+      },
+      "required": [
+        "normalized_size_bytes",
+        "normalized_sha256",
+        "newline_style",
+        "ends_with_newline",
+        "line_count"
+      ]
+    },
+    "github_blob_url": {
+      "type": "string",
+      "pattern": "\\A(?:https://github.com/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100}/blob/[0-9a-f]{40}(?:[0-9a-f]{24})?/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+(?:/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+){0,31})\\Z",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "github_raw_url": {
+      "type": "string",
+      "pattern": "\\A(?:https://raw.githubusercontent.com/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100}/[0-9a-f]{40}(?:[0-9a-f]{24})?/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+(?:/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+){0,31})\\Z",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "github_commit_url": {
+      "type": "string",
+      "pattern": "\\A(?:https://github.com/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100}/commit/[0-9a-f]{40}(?:[0-9a-f]{24})?)\\Z",
+      "minLength": 1,
+      "maxLength": 2048
+    },
+    "acquisition_locator": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "\\A(?:https://github.com/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100}/blob/[0-9a-f]{40}(?:[0-9a-f]{24})?/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+(?:/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+){0,31})\\Z",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        {
+          "type": "string",
+          "pattern": "\\A(?:https://raw.githubusercontent.com/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[a-z0-9._-]{1,100}/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))(?![a-z0-9._-]{0,96}\\.git(?:/|$))[a-z0-9._-]{1,100}/[0-9a-f]{40}(?:[0-9a-f]{24})?/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+(?:/(?!(?:\\.|\\.\\.|\\.[Gg][Ii][Tt])(?:/|\\Z))[A-Za-z0-9._-]+){0,31})\\Z",
+          "minLength": 1,
+          "maxLength": 2048
+        }
+      ]
+    },
+    "nullable_acquisition_locator": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/acquisition_locator"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "object_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "object_type": {
+          "enum": [
+            "commit",
+            "tree",
+            "blob"
+          ]
+        },
+        "body_size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        },
+        "body_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "framed_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "oid",
+        "object_type",
+        "body_size_bytes",
+        "body_sha256",
+        "framed_sha256"
+      ]
+    },
+    "git_blob": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "body_size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        },
+        "body_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "framed_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "oid",
+        "body_size_bytes",
+        "body_sha256",
+        "framed_sha256"
+      ]
+    },
+    "git_walk_edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tree_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "name_hex": {
+          "$ref": "#/$defs/name_hex"
+        },
+        "mode": {
+          "enum": [
+            "40000",
+            "100644",
+            "100755",
+            "120000",
+            "160000"
+          ]
+        },
+        "oid": {
+          "$ref": "#/$defs/oid"
+        }
+      },
+      "required": [
+        "tree_oid",
+        "name_hex",
+        "mode",
+        "oid"
+      ]
+    },
+    "git_stopped_at": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "component_index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 31
+        },
+        "tree_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "name_hex": {
+          "$ref": "#/$defs/name_hex"
+        },
+        "mode": {
+          "oneOf": [
+            {
+              "enum": [
+                "40000",
+                "100644",
+                "100755",
+                "120000",
+                "160000"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "oid": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/oid"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "component_index",
+        "tree_oid",
+        "name_hex",
+        "mode",
+        "oid"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "oid": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "enum": [
+                  "40000",
+                  "100644",
+                  "100755",
+                  "120000",
+                  "160000"
+                ]
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "oid": {
+                "$ref": "#/$defs/oid"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "git_target_permitted": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "outcome": {
+          "const": "permitted_regular_blob"
+        },
+        "reason": {
+          "type": "null"
+        },
+        "walk": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/git_walk_edge"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        },
+        "stopped_at": {
+          "$ref": "#/$defs/git_stopped_at"
+        },
+        "blob": {
+          "$ref": "#/$defs/git_blob"
+        }
+      },
+      "required": [
+        "path",
+        "outcome",
+        "reason",
+        "walk",
+        "stopped_at",
+        "blob"
+      ]
+    },
+    "git_target_missing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "outcome": {
+          "const": "missing"
+        },
+        "reason": {
+          "const": "absent_entry"
+        },
+        "walk": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/git_walk_edge"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "stopped_at": {
+          "$ref": "#/$defs/git_stopped_at"
+        },
+        "blob": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "outcome",
+        "reason",
+        "walk",
+        "stopped_at",
+        "blob"
+      ]
+    },
+    "git_target_unsafe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "outcome": {
+          "const": "unsafe"
+        },
+        "reason": {
+          "enum": [
+            "executable_without_permission",
+            "symlink",
+            "gitlink",
+            "directory",
+            "non_directory_intermediate"
+          ]
+        },
+        "walk": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/git_walk_edge"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        },
+        "stopped_at": {
+          "$ref": "#/$defs/git_stopped_at"
+        },
+        "blob": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "outcome",
+        "reason",
+        "walk",
+        "stopped_at",
+        "blob"
+      ]
+    },
+    "git_target": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/git_target_permitted"
+        },
+        {
+          "$ref": "#/$defs/git_target_missing"
+        },
+        {
+          "$ref": "#/$defs/git_target_unsafe"
+        }
+      ]
+    },
+    "git_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "object_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2048
+        },
+        "declared_body_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 33554432
+        },
+        "actual_body_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 33554432
+        },
+        "parsed_tree_entries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32768
+        },
+        "target_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 32
+        },
+        "walk_edges": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        }
+      },
+      "required": [
+        "object_count",
+        "declared_body_bytes",
+        "actual_body_bytes",
+        "parsed_tree_entries",
+        "target_count",
+        "walk_edges"
+      ]
+    },
+    "git_proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "object_format": {
+          "$ref": "#/$defs/object_format"
+        },
+        "commit_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "root_tree_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "object_records": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/object_declaration"
+          },
+          "minItems": 1,
+          "maxItems": 2048
+        },
+        "consumed_oids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/oid"
+          },
+          "minItems": 1,
+          "maxItems": 2048,
+          "uniqueItems": true
+        },
+        "budget": {
+          "$ref": "#/$defs/git_budget"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/git_target"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "object_format",
+        "commit_oid",
+        "root_tree_oid",
+        "object_records",
+        "consumed_oids",
+        "budget",
+        "targets"
+      ]
+    },
+    "span": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "byte_start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "byte_end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "codepoint_start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        },
+        "codepoint_end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "line_start": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "column_start": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "line_end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "column_end": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262145
+        },
+        "raw_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "snippet_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "byte_start",
+        "byte_end",
+        "codepoint_start",
+        "codepoint_end",
+        "line_start",
+        "column_start",
+        "line_end",
+        "column_end",
+        "raw_sha256",
+        "snippet_sha256"
+      ]
+    },
+    "config_declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "json_key",
+            "toml_key",
+            "toml_table"
+          ]
+        },
+        "span": {
+          "$ref": "#/$defs/span"
+        }
+      },
+      "required": [
+        "kind",
+        "span"
+      ]
+    },
+    "config_declarations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/config_declaration"
+      },
+      "minItems": 0,
+      "maxItems": 4096
+    },
+    "config_node_object": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "object"
+        },
+        "value": {
+          "type": "null"
+        },
+        "numeric_lexeme": {
+          "type": "null"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/json_pointer"
+          },
+          "minItems": 0,
+          "maxItems": 1024
+        },
+        "value_span": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/span"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node_array": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "array"
+        },
+        "value": {
+          "type": "null"
+        },
+        "numeric_lexeme": {
+          "type": "null"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/json_pointer"
+          },
+          "minItems": 0,
+          "maxItems": 256
+        },
+        "value_span": {
+          "$ref": "#/$defs/span"
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node_string": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "string"
+        },
+        "value": {
+          "type": "string",
+          "maxLength": 16384
+        },
+        "numeric_lexeme": {
+          "type": "null"
+        },
+        "children": {
+          "const": []
+        },
+        "value_span": {
+          "$ref": "#/$defs/span"
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node_integer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "integer"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "numeric_lexeme": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "children": {
+          "const": []
+        },
+        "value_span": {
+          "$ref": "#/$defs/span"
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node_decimal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "decimal"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "numeric_lexeme": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "children": {
+          "const": []
+        },
+        "value_span": {
+          "$ref": "#/$defs/span"
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node_boolean": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "boolean"
+        },
+        "value": {
+          "type": "boolean"
+        },
+        "numeric_lexeme": {
+          "type": "null"
+        },
+        "children": {
+          "const": []
+        },
+        "value_span": {
+          "$ref": "#/$defs/span"
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node_null": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/json_pointer"
+        },
+        "kind": {
+          "const": "null"
+        },
+        "value": {
+          "type": "null"
+        },
+        "numeric_lexeme": {
+          "type": "null"
+        },
+        "children": {
+          "const": []
+        },
+        "value_span": {
+          "$ref": "#/$defs/span"
+        },
+        "declarations": {
+          "$ref": "#/$defs/config_declarations"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "value",
+        "numeric_lexeme",
+        "children",
+        "value_span",
+        "declarations"
+      ]
+    },
+    "config_node": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/config_node_object"
+        },
+        {
+          "$ref": "#/$defs/config_node_array"
+        },
+        {
+          "$ref": "#/$defs/config_node_string"
+        },
+        {
+          "$ref": "#/$defs/config_node_integer"
+        },
+        {
+          "$ref": "#/$defs/config_node_decimal"
+        },
+        {
+          "$ref": "#/$defs/config_node_boolean"
+        },
+        {
+          "$ref": "#/$defs/config_node_null"
+        }
+      ]
+    },
+    "config_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "body_size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 262144
+        },
+        "body_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "normalized_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "newline_style": {
+          "enum": [
+            "none",
+            "lf",
+            "crlf",
+            "mixed"
+          ]
+        },
+        "ends_with_newline": {
+          "type": "boolean"
+        },
+        "line_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 262144
+        }
+      },
+      "required": [
+        "body_size_bytes",
+        "body_sha256",
+        "normalized_sha256",
+        "newline_style",
+        "ends_with_newline",
+        "line_count"
+      ]
+    },
+    "config_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "node_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1024
+        },
+        "scalar_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 512
+        },
+        "max_depth_observed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 32
+        },
+        "declaration_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "max_array_items_observed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 256
+        },
+        "max_object_keys_observed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1024
+        }
+      },
+      "required": [
+        "node_count",
+        "scalar_count",
+        "max_depth_observed",
+        "declaration_count",
+        "max_array_items_observed",
+        "max_object_keys_observed"
+      ]
+    },
+    "config_result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "config_format": {
+          "enum": [
+            "json",
+            "toml"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/config_source"
+        },
+        "budget": {
+          "$ref": "#/$defs/config_budget"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/config_node"
+          },
+          "minItems": 1,
+          "maxItems": 1024
+        }
+      },
+      "required": [
+        "config_format",
+        "source",
+        "budget",
+        "nodes"
+      ]
+    },
+    "stored_body_path": {
+      "type": "string",
+      "pattern": "\\A(?:\\.work(?:/[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?)+/code-evidence-v1/objects/[0-9a-f]{40}(?:[0-9a-f]{24})?\\.body)\\Z",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "stored_derived_path": {
+      "type": "string",
+      "pattern": "\\A(?:\\.work(?:/[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?)+/code-evidence-v1/(?:configs|handoffs)/[0-9a-f]{64}\\.json)\\Z",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "bundle_directory": {
+      "type": "string",
+      "pattern": "\\A(?:\\.work/(?:(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[^\\x00-\\x1f\\x7f-\\x9f\\u2028\\u2029/\\\\]+)(?:/(?!\\.(?:/|$))(?!\\.\\.(?:/|$))[^\\x00-\\x1f\\x7f-\\x9f\\u2028\\u2029/\\\\]+)*)\\Z",
+      "minLength": 7,
+      "maxLength": 4096
+    },
+    "raw_body": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/stored_body_path"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8388608
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "path",
+        "size_bytes",
+        "sha256"
+      ]
+    },
+    "observe_present_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "present"
+        },
+        "locator": {
+          "$ref": "#/$defs/acquisition_locator"
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 16384
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "locator",
+        "text"
+      ]
+    },
+    "observe_missing_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "missing"
+        },
+        "locator": {
+          "$ref": "#/$defs/nullable_acquisition_locator"
+        },
+        "reason": {
+          "const": "host_reported_missing"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "locator",
+        "reason"
+      ]
+    },
+    "observe_inaccessible_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "inaccessible"
+        },
+        "locator": {
+          "$ref": "#/$defs/nullable_acquisition_locator"
+        },
+        "reason": {
+          "const": "permission_denied"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "locator",
+        "reason"
+      ]
+    },
+    "observe_unavailable_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "unavailable"
+        },
+        "locator": {
+          "$ref": "#/$defs/nullable_acquisition_locator"
+        },
+        "reason": {
+          "enum": [
+            "not_returned",
+            "capability_unavailable",
+            "request_failed"
+          ]
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "locator",
+        "reason"
+      ]
+    },
+    "normalized_observe_target": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/observe_present_target"
+        },
+        {
+          "$ref": "#/$defs/observe_missing_target"
+        },
+        {
+          "$ref": "#/$defs/observe_inaccessible_target"
+        },
+        {
+          "$ref": "#/$defs/observe_unavailable_target"
+        }
+      ]
+    },
+    "observe_input_git_objects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "git_objects"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/utc_datetime"
+        },
+        "executor": {
+          "$ref": "#/$defs/executor"
+        },
+        "hosting_assertion": {
+          "$ref": "#/$defs/hosting_assertion"
+        }
+      },
+      "required": [
+        "mode",
+        "observed_at",
+        "executor",
+        "hosting_assertion"
+      ]
+    },
+    "observe_input_normalized": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "const": "normalized_text"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/utc_datetime"
+        },
+        "executor": {
+          "$ref": "#/$defs/executor"
+        },
+        "hosting_assertion": {
+          "$ref": "#/$defs/hosting_assertion"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/normalized_observe_target"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "mode",
+        "observed_at",
+        "executor",
+        "hosting_assertion",
+        "targets"
+      ]
+    },
+    "observe_input": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/observe_input_git_objects"
+        },
+        {
+          "$ref": "#/$defs/observe_input_normalized"
+        }
+      ]
+    },
+    "observation_source_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "source_text"
+        },
+        "reason": {
+          "type": "null"
+        },
+        "text": {
+          "$ref": "#/$defs/text_metadata"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_unsupported": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "unsupported_source_bytes"
+        },
+        "reason": {
+          "const": "unsupported_source_bytes"
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_missing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "missing"
+        },
+        "reason": {
+          "const": "absent_entry"
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_unsafe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "unsafe"
+        },
+        "reason": {
+          "enum": [
+            "executable_without_permission",
+            "symlink",
+            "gitlink",
+            "directory",
+            "non_directory_intermediate"
+          ]
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_normalized_text": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "normalized_text"
+        },
+        "reason": {
+          "type": "null"
+        },
+        "text": {
+          "$ref": "#/$defs/text_metadata"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_host_missing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "host_missing"
+        },
+        "reason": {
+          "const": "host_reported_missing"
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_host_inaccessible": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "host_inaccessible"
+        },
+        "reason": {
+          "const": "permission_denied"
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "observation_host_unavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "host_unavailable"
+        },
+        "reason": {
+          "enum": [
+            "not_returned",
+            "capability_unavailable",
+            "request_failed"
+          ]
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "raw_observation_target": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/observation_source_text"
+        },
+        {
+          "$ref": "#/$defs/observation_unsupported"
+        },
+        {
+          "$ref": "#/$defs/observation_missing"
+        },
+        {
+          "$ref": "#/$defs/observation_unsafe"
+        }
+      ]
+    },
+    "normalized_observation_target": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/observation_normalized_text"
+        },
+        {
+          "$ref": "#/$defs/observation_host_missing"
+        },
+        {
+          "$ref": "#/$defs/observation_host_inaccessible"
+        },
+        {
+          "$ref": "#/$defs/observation_host_unavailable"
+        }
+      ]
+    },
+    "observation_target": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/raw_observation_target"
+        },
+        {
+          "$ref": "#/$defs/normalized_observation_target"
+        }
+      ]
+    },
+    "unobserved_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "status": {
+          "const": "unobserved"
+        },
+        "reason": {
+          "type": "null"
+        },
+        "text": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "path",
+        "status",
+        "reason",
+        "text"
+      ]
+    },
+    "status_target": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/unobserved_target"
+        },
+        {
+          "$ref": "#/$defs/observation_target"
+        }
+      ]
+    },
+    "capabilities_raw": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git_objects_verified": {
+          "const": true,
+          "type": "boolean"
+        },
+        "raw_bytes_retained": {
+          "const": true,
+          "type": "boolean"
+        },
+        "repository_assertion": {
+          "enum": [
+            "host_asserted",
+            "unverified"
+          ]
+        },
+        "source_association_verified": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "git_objects_verified",
+        "raw_bytes_retained",
+        "repository_assertion",
+        "source_association_verified"
+      ]
+    },
+    "capabilities_normalized": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git_objects_verified": {
+          "const": false,
+          "type": "boolean"
+        },
+        "raw_bytes_retained": {
+          "const": false,
+          "type": "boolean"
+        },
+        "repository_assertion": {
+          "enum": [
+            "host_asserted",
+            "unverified"
+          ]
+        },
+        "source_association_verified": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "git_objects_verified",
+        "raw_bytes_retained",
+        "repository_assertion",
+        "source_association_verified"
+      ]
+    },
+    "capabilities": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/capabilities_raw"
+        },
+        {
+          "$ref": "#/$defs/capabilities_normalized"
+        }
+      ]
+    },
+    "eligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "complete_target_set": {
+          "type": "boolean"
+        },
+        "repository_requirement_met": {
+          "type": "boolean"
+        },
+        "source_handoff_eligible": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "complete_target_set",
+        "repository_requirement_met",
+        "source_handoff_eligible"
+      ]
+    },
+    "request_input": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "paper_id": {
+          "$ref": "#/$defs/paper_id"
+        },
+        "source_association": {
+          "$ref": "#/$defs/source_association"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository_input"
+        },
+        "object_format": {
+          "$ref": "#/$defs/object_format"
+        },
+        "commit_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "targets": {
+          "$ref": "#/$defs/request_targets"
+        },
+        "require_repository_assertion": {
+          "type": "boolean"
+        },
+        "limits": {
+          "$ref": "#/$defs/limits"
+        }
+      },
+      "required": [
+        "paper_id",
+        "source_association",
+        "repository",
+        "object_format",
+        "commit_oid",
+        "targets",
+        "require_repository_assertion"
+      ]
+    },
+    "request_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "paper_id": {
+          "$ref": "#/$defs/paper_id"
+        },
+        "source_association": {
+          "$ref": "#/$defs/source_association"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository_saved"
+        },
+        "object_format": {
+          "$ref": "#/$defs/object_format"
+        },
+        "commit_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "targets": {
+          "$ref": "#/$defs/request_targets"
+        },
+        "require_repository_assertion": {
+          "type": "boolean"
+        },
+        "limits": {
+          "$ref": "#/$defs/limits"
+        },
+        "profile_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "required": [
+        "paper_id",
+        "source_association",
+        "repository",
+        "object_format",
+        "commit_oid",
+        "targets",
+        "require_repository_assertion",
+        "limits",
+        "profile_sha256"
+      ]
+    },
+    "bundle_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/ref_code_proof_request"
+        },
+        "object_format": {
+          "$ref": "#/$defs/object_format"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository_saved"
+        },
+        "commit_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "root_tree_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/object_declaration"
+          },
+          "minItems": 1,
+          "maxItems": 2048
+        }
+      },
+      "required": [
+        "request",
+        "object_format",
+        "repository",
+        "commit_oid",
+        "root_tree_oid",
+        "objects"
+      ]
+    },
+    "intent_bundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "directory": {
+          "$ref": "#/$defs/bundle_directory"
+        },
+        "reference": {
+          "$ref": "#/$defs/ref_code_git_bundle"
+        }
+      },
+      "required": [
+        "directory",
+        "reference"
+      ]
+    },
+    "intent_data": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "mode": {
+              "const": "git_objects"
+            },
+            "acquisition": {
+              "$ref": "#/$defs/observe_input_git_objects"
+            },
+            "bundle": {
+              "$ref": "#/$defs/intent_bundle"
+            }
+          },
+          "required": [
+            "request",
+            "mode",
+            "acquisition",
+            "bundle"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "mode": {
+              "const": "normalized_text"
+            },
+            "acquisition": {
+              "$ref": "#/$defs/observe_input_normalized"
+            },
+            "bundle": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "request",
+            "mode",
+            "acquisition",
+            "bundle"
+          ]
+        }
+      ]
+    },
+    "observation_data": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "intent": {
+              "$ref": "#/$defs/ref_code_acquisition_intent"
+            },
+            "bundle": {
+              "$ref": "#/$defs/ref_code_git_bundle"
+            },
+            "mode": {
+              "const": "git_objects"
+            },
+            "git_proof": {
+              "$ref": "#/$defs/git_proof"
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/raw_observation_target"
+              },
+              "minItems": 1,
+              "maxItems": 32
+            },
+            "capabilities": {
+              "$ref": "#/$defs/capabilities_raw"
+            },
+            "eligibility": {
+              "$ref": "#/$defs/eligibility"
+            }
+          },
+          "required": [
+            "request",
+            "intent",
+            "bundle",
+            "mode",
+            "git_proof",
+            "targets",
+            "capabilities",
+            "eligibility"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "intent": {
+              "$ref": "#/$defs/ref_code_acquisition_intent"
+            },
+            "bundle": {
+              "type": "null"
+            },
+            "mode": {
+              "const": "normalized_text"
+            },
+            "git_proof": {
+              "type": "null"
+            },
+            "targets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/normalized_observation_target"
+              },
+              "minItems": 1,
+              "maxItems": 32
+            },
+            "capabilities": {
+              "$ref": "#/$defs/capabilities_normalized"
+            },
+            "eligibility": {
+              "$ref": "#/$defs/eligibility"
+            }
+          },
+          "required": [
+            "request",
+            "intent",
+            "bundle",
+            "mode",
+            "git_proof",
+            "targets",
+            "capabilities",
+            "eligibility"
+          ]
+        }
+      ]
+    },
+    "config_data": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "observation": {
+              "$ref": "#/$defs/ref_code_proof_observation"
+            },
+            "bundle": {
+              "$ref": "#/$defs/ref_code_git_bundle"
+            },
+            "path": {
+              "$ref": "#/$defs/git_path"
+            },
+            "object_format": {
+              "$ref": "#/$defs/object_format"
+            },
+            "blob_oid": {
+              "$ref": "#/$defs/oid"
+            },
+            "raw_body": {
+              "$ref": "#/$defs/raw_body"
+            },
+            "format": {
+              "const": "source-only"
+            },
+            "result": {
+              "type": "null"
+            },
+            "source_only_reason": {
+              "const": "explicit_source_only"
+            }
+          },
+          "required": [
+            "request",
+            "observation",
+            "bundle",
+            "path",
+            "object_format",
+            "blob_oid",
+            "raw_body",
+            "format",
+            "result",
+            "source_only_reason"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "observation": {
+              "$ref": "#/$defs/ref_code_proof_observation"
+            },
+            "bundle": {
+              "$ref": "#/$defs/ref_code_git_bundle"
+            },
+            "path": {
+              "$ref": "#/$defs/git_path"
+            },
+            "object_format": {
+              "$ref": "#/$defs/object_format"
+            },
+            "blob_oid": {
+              "$ref": "#/$defs/oid"
+            },
+            "raw_body": {
+              "$ref": "#/$defs/raw_body"
+            },
+            "format": {
+              "const": "json"
+            },
+            "result": {
+              "$ref": "#/$defs/config_result"
+            },
+            "source_only_reason": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "request",
+            "observation",
+            "bundle",
+            "path",
+            "object_format",
+            "blob_oid",
+            "raw_body",
+            "format",
+            "result",
+            "source_only_reason"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "$ref": "#/$defs/ref_code_proof_request"
+            },
+            "observation": {
+              "$ref": "#/$defs/ref_code_proof_observation"
+            },
+            "bundle": {
+              "$ref": "#/$defs/ref_code_git_bundle"
+            },
+            "path": {
+              "$ref": "#/$defs/git_path"
+            },
+            "object_format": {
+              "$ref": "#/$defs/object_format"
+            },
+            "blob_oid": {
+              "$ref": "#/$defs/oid"
+            },
+            "raw_body": {
+              "$ref": "#/$defs/raw_body"
+            },
+            "format": {
+              "const": "toml"
+            },
+            "result": {
+              "$ref": "#/$defs/config_result"
+            },
+            "source_only_reason": {
+              "type": "null"
+            }
+          },
+          "required": [
+            "request",
+            "observation",
+            "bundle",
+            "path",
+            "object_format",
+            "blob_oid",
+            "raw_body",
+            "format",
+            "result",
+            "source_only_reason"
+          ]
+        }
+      ]
+    },
+    "handoff_data": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "successor_only": {
+          "const": true,
+          "type": "boolean"
+        },
+        "request": {
+          "$ref": "#/$defs/ref_code_proof_request"
+        },
+        "observation": {
+          "$ref": "#/$defs/ref_code_proof_observation"
+        },
+        "bundle": {
+          "$ref": "#/$defs/ref_code_git_bundle"
+        },
+        "paper_id": {
+          "$ref": "#/$defs/paper_id"
+        },
+        "source_association": {
+          "$ref": "#/$defs/source_association"
+        },
+        "repository": {
+          "$ref": "#/$defs/repository_saved"
+        },
+        "object_format": {
+          "$ref": "#/$defs/object_format"
+        },
+        "commit_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "root_tree_oid": {
+          "$ref": "#/$defs/oid"
+        },
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "roles": {
+          "$ref": "#/$defs/git_roles"
+        },
+        "allow_executable_source": {
+          "type": "boolean"
+        },
+        "blob": {
+          "$ref": "#/$defs/git_blob"
+        },
+        "raw_body": {
+          "$ref": "#/$defs/raw_body"
+        },
+        "text": {
+          "$ref": "#/$defs/text_metadata"
+        },
+        "proof": {
+          "$ref": "#/$defs/git_target_permitted"
+        },
+        "repository_assertion": {
+          "enum": [
+            "host_asserted",
+            "unverified"
+          ]
+        },
+        "source_association_verified": {
+          "const": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "successor_only",
+        "request",
+        "observation",
+        "bundle",
+        "paper_id",
+        "source_association",
+        "repository",
+        "object_format",
+        "commit_oid",
+        "root_tree_oid",
+        "path",
+        "roles",
+        "allow_executable_source",
+        "blob",
+        "raw_body",
+        "text",
+        "proof",
+        "repository_assertion",
+        "source_association_verified"
+      ]
+    },
+    "missing_name": {
+      "type": "string",
+      "pattern": "\\A(?:intent\\.json|bundle\\.json|observation\\.json|objects/[0-9a-f]{40}(?:[0-9a-f]{24})?\\.body)\\Z",
+      "minLength": 11,
+      "maxLength": 77
+    },
+    "derived_config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "reference": {
+          "$ref": "#/$defs/ref_code_config_evidence"
+        },
+        "stored_path": {
+          "$ref": "#/$defs/stored_derived_path"
+        }
+      },
+      "required": [
+        "path",
+        "reference",
+        "stored_path"
+      ]
+    },
+    "derived_handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "reference": {
+          "$ref": "#/$defs/ref_code_source_handoff"
+        },
+        "stored_path": {
+          "$ref": "#/$defs/stored_derived_path"
+        }
+      },
+      "required": [
+        "path",
+        "reference",
+        "stored_path"
+      ]
+    },
+    "status_payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": {
+          "$ref": "#/$defs/batch_id"
+        },
+        "state": {
+          "enum": [
+            "empty",
+            "requested",
+            "pending_normalized",
+            "pending_raw_bundle",
+            "pending_raw_bodies",
+            "observed"
+          ]
+        },
+        "request": {
+          "$ref": "#/$defs/nullable_ref_code_proof_request"
+        },
+        "intent": {
+          "$ref": "#/$defs/nullable_ref_code_acquisition_intent"
+        },
+        "bundle": {
+          "$ref": "#/$defs/nullable_ref_code_git_bundle"
+        },
+        "observation": {
+          "$ref": "#/$defs/nullable_ref_code_proof_observation"
+        },
+        "mode": {
+          "oneOf": [
+            {
+              "enum": [
+                "git_objects",
+                "normalized_text"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "missing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/missing_name"
+          },
+          "minItems": 0,
+          "maxItems": 2049
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/status_target"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "capabilities": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/capabilities"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "eligibility": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/eligibility"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/derived_config"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "handoffs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/derived_handoff"
+          },
+          "minItems": 0,
+          "maxItems": 32
+        },
+        "next_action": {
+          "enum": [
+            "prepare_request",
+            "supply_observation",
+            "resume_same_observation",
+            "prepare_source_handoff",
+            "successor_capture",
+            "new_request_or_acquisition_required"
+          ]
+        }
+      },
+      "required": [
+        "batch_id",
+        "state",
+        "request",
+        "intent",
+        "bundle",
+        "observation",
+        "mode",
+        "missing",
+        "targets",
+        "capabilities",
+        "eligibility",
+        "configs",
+        "handoffs",
+        "next_action"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "empty"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "request": {
+                "type": "null"
+              },
+              "intent": {
+                "type": "null"
+              },
+              "bundle": {
+                "type": "null"
+              },
+              "observation": {
+                "type": "null"
+              },
+              "mode": {
+                "type": "null"
+              },
+              "missing": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "targets": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "capabilities": {
+                "type": "null"
+              },
+              "eligibility": {
+                "type": "null"
+              },
+              "configs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "handoffs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "next_action": {
+                "const": "prepare_request"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "requested"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "request": {
+                "$ref": "#/$defs/ref_code_proof_request"
+              },
+              "intent": {
+                "type": "null"
+              },
+              "bundle": {
+                "type": "null"
+              },
+              "observation": {
+                "type": "null"
+              },
+              "mode": {
+                "type": "null"
+              },
+              "missing": {
+                "const": [
+                  "intent.json"
+                ]
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/unobserved_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              },
+              "capabilities": {
+                "type": "null"
+              },
+              "eligibility": {
+                "type": "null"
+              },
+              "configs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "handoffs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "next_action": {
+                "const": "supply_observation"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "pending_normalized"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "request": {
+                "$ref": "#/$defs/ref_code_proof_request"
+              },
+              "intent": {
+                "$ref": "#/$defs/ref_code_acquisition_intent"
+              },
+              "bundle": {
+                "type": "null"
+              },
+              "observation": {
+                "type": "null"
+              },
+              "mode": {
+                "const": "normalized_text"
+              },
+              "missing": {
+                "const": [
+                  "observation.json"
+                ]
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/unobserved_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              },
+              "capabilities": {
+                "type": "null"
+              },
+              "eligibility": {
+                "type": "null"
+              },
+              "configs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "handoffs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "next_action": {
+                "const": "resume_same_observation"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "pending_raw_bundle"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "request": {
+                "$ref": "#/$defs/ref_code_proof_request"
+              },
+              "intent": {
+                "$ref": "#/$defs/ref_code_acquisition_intent"
+              },
+              "bundle": {
+                "type": "null"
+              },
+              "observation": {
+                "type": "null"
+              },
+              "mode": {
+                "const": "git_objects"
+              },
+              "missing": {
+                "const": [
+                  "bundle.json",
+                  "observation.json"
+                ]
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/unobserved_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              },
+              "capabilities": {
+                "type": "null"
+              },
+              "eligibility": {
+                "type": "null"
+              },
+              "configs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "handoffs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "next_action": {
+                "const": "resume_same_observation"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "pending_raw_bodies"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "request": {
+                "$ref": "#/$defs/ref_code_proof_request"
+              },
+              "intent": {
+                "$ref": "#/$defs/ref_code_acquisition_intent"
+              },
+              "bundle": {
+                "$ref": "#/$defs/ref_code_git_bundle"
+              },
+              "observation": {
+                "type": "null"
+              },
+              "mode": {
+                "const": "git_objects"
+              },
+              "missing": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/missing_name"
+                },
+                "minItems": 1,
+                "maxItems": 2049
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/unobserved_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              },
+              "capabilities": {
+                "type": "null"
+              },
+              "eligibility": {
+                "type": "null"
+              },
+              "configs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "handoffs": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "next_action": {
+                "const": "resume_same_observation"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "observed"
+              }
+            },
+            "required": [
+              "state"
+            ]
+          },
+          "then": {
+            "properties": {
+              "request": {
+                "$ref": "#/$defs/ref_code_proof_request"
+              },
+              "intent": {
+                "$ref": "#/$defs/ref_code_acquisition_intent"
+              },
+              "observation": {
+                "$ref": "#/$defs/ref_code_proof_observation"
+              },
+              "mode": {
+                "enum": [
+                  "git_objects",
+                  "normalized_text"
+                ]
+              },
+              "missing": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/observation_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              },
+              "capabilities": {
+                "$ref": "#/$defs/capabilities"
+              },
+              "eligibility": {
+                "$ref": "#/$defs/eligibility"
+              },
+              "next_action": {
+                "enum": [
+                  "prepare_source_handoff",
+                  "successor_capture",
+                  "new_request_or_acquisition_required"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "observed"
+              },
+              "mode": {
+                "const": "git_objects"
+              }
+            },
+            "required": [
+              "state",
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "bundle": {
+                "$ref": "#/$defs/ref_code_git_bundle"
+              },
+              "capabilities": {
+                "$ref": "#/$defs/capabilities_raw"
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/raw_observation_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "observed"
+              },
+              "mode": {
+                "const": "normalized_text"
+              }
+            },
+            "required": [
+              "state",
+              "mode"
+            ]
+          },
+          "then": {
+            "properties": {
+              "bundle": {
+                "type": "null"
+              },
+              "capabilities": {
+                "$ref": "#/$defs/capabilities_normalized"
+              },
+              "targets": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/normalized_observation_target"
+                },
+                "minItems": 1,
+                "maxItems": 32
+              }
+            }
+          }
+        }
+      ]
+    },
+    "acquisition_target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "github_url": {
+          "$ref": "#/$defs/github_blob_url"
+        },
+        "raw_url": {
+          "$ref": "#/$defs/github_raw_url"
+        }
+      },
+      "required": [
+        "path",
+        "github_url",
+        "raw_url"
+      ]
+    },
+    "command_result_request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": {
+          "$ref": "#/$defs/batch_id"
+        },
+        "request": {
+          "$ref": "#/$defs/ref_code_proof_request"
+        },
+        "already_staged": {
+          "type": "boolean"
+        },
+        "acquisition_targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/acquisition_target"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "batch_id",
+        "request",
+        "already_staged",
+        "acquisition_targets"
+      ]
+    },
+    "command_result_observe": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": {
+          "$ref": "#/$defs/batch_id"
+        },
+        "observation": {
+          "$ref": "#/$defs/ref_code_proof_observation"
+        },
+        "status": {
+          "$ref": "#/$defs/status_payload"
+        }
+      },
+      "required": [
+        "batch_id",
+        "observation",
+        "status"
+      ]
+    },
+    "command_result_status": {
+      "$ref": "#/$defs/status_payload"
+    },
+    "command_result_config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": {
+          "$ref": "#/$defs/batch_id"
+        },
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "config": {
+          "$ref": "#/$defs/ref_code_config_evidence"
+        },
+        "stored_path": {
+          "$ref": "#/$defs/stored_derived_path"
+        },
+        "already_staged": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "batch_id",
+        "path",
+        "config",
+        "stored_path",
+        "already_staged"
+      ]
+    },
+    "command_result_handoff_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/git_path"
+        },
+        "handoff": {
+          "$ref": "#/$defs/ref_code_source_handoff"
+        },
+        "stored_path": {
+          "$ref": "#/$defs/stored_derived_path"
+        },
+        "source_body_path": {
+          "$ref": "#/$defs/stored_body_path"
+        },
+        "already_staged": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "path",
+        "handoff",
+        "stored_path",
+        "source_body_path",
+        "already_staged"
+      ]
+    },
+    "command_result_handoff": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "batch_id": {
+          "$ref": "#/$defs/batch_id"
+        },
+        "handoffs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command_result_handoff_row"
+          },
+          "minItems": 1,
+          "maxItems": 32
+        }
+      },
+      "required": [
+        "batch_id",
+        "handoffs"
+      ]
+    },
+    "command_result": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/command_result_request"
+        },
+        {
+          "$ref": "#/$defs/command_result_observe"
+        },
+        {
+          "$ref": "#/$defs/command_result_status"
+        },
+        {
+          "$ref": "#/$defs/command_result_config"
+        },
+        {
+          "$ref": "#/$defs/command_result_handoff"
+        }
+      ]
+    },
+    "profile_git_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_targets": {
+          "type": "integer",
+          "const": 32
+        },
+        "max_objects": {
+          "type": "integer",
+          "const": 2048
+        },
+        "max_tree_entries": {
+          "type": "integer",
+          "const": 32768
+        },
+        "max_object_bytes": {
+          "type": "integer",
+          "const": 8388608
+        },
+        "max_total_object_bytes": {
+          "type": "integer",
+          "const": 33554432
+        }
+      },
+      "required": [
+        "max_targets",
+        "max_objects",
+        "max_tree_entries",
+        "max_object_bytes",
+        "max_total_object_bytes"
+      ]
+    },
+    "profile_config_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_source_bytes": {
+          "type": "integer",
+          "const": 262144
+        },
+        "max_depth": {
+          "type": "integer",
+          "const": 32
+        },
+        "max_nodes": {
+          "type": "integer",
+          "const": 1024
+        },
+        "max_array_items": {
+          "type": "integer",
+          "const": 256
+        },
+        "max_object_keys": {
+          "type": "integer",
+          "const": 1024
+        },
+        "max_key_bytes": {
+          "type": "integer",
+          "const": 256
+        },
+        "max_string_codepoints": {
+          "type": "integer",
+          "const": 16384
+        },
+        "max_scalars": {
+          "type": "integer",
+          "const": 512
+        },
+        "max_numeric_lexeme_bytes": {
+          "type": "integer",
+          "const": 128
+        },
+        "max_numeric_coefficient_digits": {
+          "type": "integer",
+          "const": 64
+        },
+        "max_numeric_abs_exponent": {
+          "type": "integer",
+          "const": 128
+        },
+        "max_numeric_canonical_bytes": {
+          "type": "integer",
+          "const": 256
+        },
+        "max_declarations": {
+          "type": "integer",
+          "const": 4096
+        }
+      },
+      "required": [
+        "max_source_bytes",
+        "max_depth",
+        "max_nodes",
+        "max_array_items",
+        "max_object_keys",
+        "max_key_bytes",
+        "max_string_codepoints",
+        "max_scalars",
+        "max_numeric_lexeme_bytes",
+        "max_numeric_coefficient_digits",
+        "max_numeric_abs_exponent",
+        "max_numeric_canonical_bytes",
+        "max_declarations"
+      ]
+    },
+    "profile_public_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_bundle_bytes": {
+          "type": "integer",
+          "const": 1048576
+        },
+        "max_inline_normalized_bytes": {
+          "type": "integer",
+          "const": 16384
+        },
+        "max_request_bytes": {
+          "type": "integer",
+          "const": 65536
+        },
+        "max_intent_bytes": {
+          "type": "integer",
+          "const": 1048576
+        },
+        "max_observation_bytes": {
+          "type": "integer",
+          "const": 2097152
+        },
+        "max_config_document_bytes": {
+          "type": "integer",
+          "const": 2097152
+        },
+        "max_handoff_bytes": {
+          "type": "integer",
+          "const": 131072
+        },
+        "max_output_peak_bytes": {
+          "type": "integer",
+          "const": 134217728
+        }
+      },
+      "required": [
+        "max_bundle_bytes",
+        "max_inline_normalized_bytes",
+        "max_request_bytes",
+        "max_intent_bytes",
+        "max_observation_bytes",
+        "max_config_document_bytes",
+        "max_handoff_bytes",
+        "max_output_peak_bytes"
+      ]
+    },
+    "profile_limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "git": {
+          "$ref": "#/$defs/profile_git_limits"
+        },
+        "config": {
+          "$ref": "#/$defs/profile_config_limits"
+        },
+        "public": {
+          "$ref": "#/$defs/profile_public_limits"
+        }
+      },
+      "required": [
+        "git",
+        "config",
+        "public"
+      ]
+    },
+    "profile_admission": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_request_input_bytes": {
+          "type": "integer",
+          "const": 65536
+        },
+        "max_observe_input_bytes": {
+          "type": "integer",
+          "const": 1048576
+        }
+      },
+      "required": [
+        "max_request_input_bytes",
+        "max_observe_input_bytes"
+      ]
+    },
+    "profile_schema_row": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-proof-common.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-proof-common.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-proof-request-input.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-proof-request-input.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-proof-observe-input.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-proof-observe-input.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-proof-command-result.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-proof-command-result.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-proof-request.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-proof-request.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-git-bundle.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-git-bundle.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-acquisition-intent.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-acquisition-intent.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-proof-observation.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-proof-observation.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-config-evidence.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-config-evidence.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "title": {
+              "const": "video-paper-wiki.code-source-handoff.v1"
+            },
+            "filename": {
+              "const": "video-paper-wiki.code-source-handoff.v1.schema.json"
+            },
+            "size_bytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          },
+          "required": [
+            "title",
+            "filename",
+            "size_bytes",
+            "sha256"
+          ]
+        }
+      ]
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema": {
+          "const": "video-paper-wiki.code-proof-profile.v1"
+        },
+        "profile": {
+          "const": "code-proof-v1"
+        },
+        "revision": {
+          "type": "integer",
+          "const": 1
+        },
+        "limits": {
+          "$ref": "#/$defs/profile_limits"
+        },
+        "admission": {
+          "$ref": "#/$defs/profile_admission"
+        },
+        "schemas": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/profile_schema_row"
+          },
+          "minItems": 10,
+          "maxItems": 10
+        }
+      },
+      "required": [
+        "schema",
+        "profile",
+        "revision",
+        "limits",
+        "admission",
+        "schemas"
+      ]
+    }
+  }
+}

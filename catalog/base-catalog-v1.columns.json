@@ -1,0 +1,4665 @@
+{
+  "schema": "video-paper-wiki.catalog-column-manifest.v1",
+  "profile": "base-catalog-v1",
+  "ddl_path": "video_paper_wiki/catalog/base-catalog-v1.sql",
+  "ddl_sha256": "3459beb249e348c869070220fda658cfd95c0f092fc12a18978baf19651a5c8c",
+  "sqlite_min_version": "3.37.0",
+  "table_order": "ASCII table name ascending",
+  "row_order": "complete declared primary key; INTEGER numeric and TEXT exact UTF-8 bytes under BINARY collation",
+  "table_count": 34,
+  "column_count": 230,
+  "tables": [
+    {
+      "name": "alignment_absence_patterns",
+      "strict": true,
+      "columns": [
+        {
+          "name": "alignment_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "capability_name",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 2
+        },
+        {
+          "name": "pattern",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "alignment_path",
+        "capability_name",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "alignment_path",
+            "capability_name"
+          ],
+          "target_table": "alignment_capabilities",
+          "target_columns": [
+            "alignment_path",
+            "name"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(alignment_path,capability_name,ordinal), composite FK capability. absence_scope.search_patterns[i], preserving empty list, duplicate and empty string values currently allowed. Rows require absence_scope_present=1.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "alignment_path",
+            "capability_name"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "alignment_capabilities",
+      "strict": true,
+      "columns": [
+        {
+          "name": "alignment_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"name\" IN ('training', 'inference', 'data', 'evaluation', 'checkpoints')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "training",
+            "inference",
+            "data",
+            "evaluation",
+            "checkpoints"
+          ],
+          "primary_key_position": 1
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"status\" IN ('present', 'absent', 'partial', 'unverified')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "present",
+            "absent",
+            "partial",
+            "unverified"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "absence_scope_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"absence_scope_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "absence_commit",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "scope-object-absent-null-otherwise-required-nonnull",
+          "primary_key_position": null
+        },
+        {
+          "name": "absence_tree_prefix",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "scope-object-absent-null-otherwise-required-nonnull",
+          "primary_key_position": null
+        },
+        {
+          "name": "checkpoint_kind",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"checkpoint_kind\" IN ('link_only', 'artifact_verified')"
+          ],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "enum": [
+            "link_only",
+            "artifact_verified"
+          ],
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "alignment_path",
+        "name"
+      ],
+      "unique_keys": [
+        [
+          "alignment_path",
+          "ordinal"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "alignment_path"
+          ],
+          "target_table": "alignment_manifests",
+          "target_columns": [
+            "input_path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "(absence_scope_present = 0 AND absence_commit IS NULL AND absence_tree_prefix IS NULL) OR (absence_scope_present = 1 AND absence_commit IS NOT NULL AND absence_tree_prefix IS NOT NULL)",
+        "status <> 'absent' OR absence_scope_present = 1",
+        "checkpoint_kind IS NULL OR name = 'checkpoints'"
+      ],
+      "source_mapping": "PK(alignment_path,name), U(alignment_path,ordinal), FK alignment. Exactly five distinct names, original capability order retained. status present/absent/partial/unverified. absence_scope is absent or required-field object, never null: presence=0 requires both scalar NULL/no patterns; presence=1 requires both nonnull, including empty tree_prefix if admitted. checkpoint_kind NULL means absent; otherwise link_only/artifact_verified and name must checkpoints.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "alignment_path"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "alignment_capability_locators",
+      "strict": true,
+      "columns": [
+        {
+          "name": "alignment_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "capability_name",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 2
+        },
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "locator_wire",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "alignment_path",
+        "capability_name",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "alignment_path",
+            "capability_name"
+          ],
+          "target_table": "alignment_capabilities",
+          "target_columns": [
+            "alignment_path",
+            "name"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(alignment_path,capability_name,ordinal), composite FK capability, FK source. Each required locators[i] is a complete code locator encoded canonically. Present/partial requires ≥1; absent/unverified do not silently erase locators allowed by schema.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "alignment_path",
+            "capability_name"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "alignment_manifests",
+      "strict": true,
+      "columns": [
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"schema\" IN ('video-paper-wiki.paper-code-alignment.v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "video-paper-wiki.paper-code-alignment.v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "repo_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "repository",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "commit",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "officiality",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"officiality\" IN ('official', 'unofficial', 'unverified_candidate')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "official",
+            "unofficial",
+            "unverified_candidate"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "license_spdx_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required-nullable",
+          "primary_key_position": null
+        },
+        {
+          "name": "license_notes",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "archived",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"archived\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "input_path"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "repo_id"
+          ],
+          "target_table": "repos",
+          "target_columns": [
+            "repo_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(input_path), FK input→canonical_inputs, paper→papers, repo→repos. Full root fields; officiality.status flattened; explicit nullable license.spdx_id and required archived. Original repository spelling retained. Multiple input paths for same paper/repo/commit are retained; no unique current alignment.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "alignment_officiality_evidence",
+      "strict": true,
+      "columns": [
+        {
+          "name": "alignment_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "locator_wire",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "alignment_path",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "alignment_path"
+          ],
+          "target_table": "alignment_manifests",
+          "target_columns": [
+            "input_path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(alignment_path,ordinal), FK alignment/source. Each officiality.evidence[i] PDF locator encoded with frozen locator codec (not evidence wrapper: no invented relation). Require min1 for official status; duplicates/order retained.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "alignment_path"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "artifacts",
+      "strict": true,
+      "columns": [
+        {
+          "name": "artifact_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "artifact_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"artifact_kind\" IN ('captured-artifact', 'docling-document', 'parser-config', 'model-manifest')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "captured-artifact",
+            "docling-document",
+            "parser-config",
+            "model-manifest"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "file_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "size_bytes",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"size_bytes\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "artifact_path"
+      ],
+      "unique_keys": [
+        [
+          "artifact_path",
+          "file_sha256"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "artifact_path",
+            "file_sha256"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path",
+            "file_sha256"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(artifact_path); composite FK(artifact_path,file_sha256) to canonical_inputs(path,file_sha256). Exactly the four opaque input kinds captured-artifact, docling-document, parser-config and model-manifest; size_bytes and artifact_kind must equal the canonical input row. Typed JSON inputs use their own root tables and never receive generic artifact rows.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "assessment_events",
+      "strict": true,
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"schema\" IN ('video-paper-wiki.assessment-event.v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "video-paper-wiki.assessment-event.v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "claim_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "previous_event_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required-nullable",
+          "primary_key_position": null
+        },
+        {
+          "name": "actor_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"actor_kind\" IN ('system', 'human')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "system",
+            "human"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "transition_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"transition_kind\" IN ('genesis', 'human_assessment', 'evidence_invalidation')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "genesis",
+            "human_assessment",
+            "evidence_invalidation"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "from_assessment",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"from_assessment\" IN ('provisional', 'accepted', 'contested', 'unsupported', 'deprecated')"
+          ],
+          "presence_semantics": "required-nullable",
+          "enum": [
+            "provisional",
+            "accepted",
+            "contested",
+            "unsupported",
+            "deprecated"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "to_assessment",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"to_assessment\" IN ('provisional', 'accepted', 'contested', 'unsupported', 'deprecated')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "provisional",
+            "accepted",
+            "contested",
+            "unsupported",
+            "deprecated"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "claim_text_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "evidence_fingerprint",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "decided_by",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "decided_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "reason",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "event_id"
+      ],
+      "unique_keys": [
+        [
+          "input_path"
+        ],
+        [
+          "claim_id",
+          "event_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "claim_id"
+          ],
+          "target_table": "claims",
+          "target_columns": [
+            "claim_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "claim_id",
+            "previous_event_id"
+          ],
+          "target_table": "assessment_events",
+          "target_columns": [
+            "claim_id",
+            "event_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "(actor_kind = 'system' AND transition_kind = 'genesis' AND previous_event_id IS NULL AND from_assessment IS NULL AND to_assessment = 'provisional') OR (actor_kind = 'system' AND transition_kind = 'evidence_invalidation' AND previous_event_id IS NOT NULL AND from_assessment IS NOT NULL AND to_assessment = 'provisional') OR (actor_kind = 'human' AND transition_kind = 'human_assessment' AND previous_event_id IS NOT NULL AND from_assessment IS NOT NULL AND to_assessment <> 'provisional')",
+        "transition_kind <> 'human_assessment' OR from_assessment <> to_assessment"
+      ],
+      "source_mapping": "PK(event_id), U(input_path), U(claim_id,event_id); FK input→canonical_inputs, claim→claims, FK(claim_id,previous_event_id)→assessment_events(claim_id,event_id) when predecessor nonnull. Every existing schema field preserved verbatim. Required nullable previous/from represent genesis, not omission. Input path must bind claim/event filename.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "assessment_heads",
+      "strict": true,
+      "columns": [
+        {
+          "name": "claim_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "head_event_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "claim_id"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "claim_id"
+          ],
+          "target_table": "claims",
+          "target_columns": [
+            "claim_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "claim_id",
+            "head_event_id"
+          ],
+          "target_table": "assessment_events",
+          "target_columns": [
+            "claim_id",
+            "event_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(claim_id); FK claim→claims; composite FK(claim_id,head_event_id)→assessment_events(claim_id,event_id). Exactly the frozen derive_assessment_heads output, one row per owned claim. No input path, registry, chosen timestamp, sequence or guessed current-state column.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "canonical_inputs",
+      "strict": true,
+      "columns": [
+        {
+          "name": "path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"kind\" IN ('source-ledger', 'claim-ledger', 'taxonomy', 'paper-record', 'repo-record', 'assessment-event', 'captured-artifact', 'docling-document', 'parser-config', 'model-manifest', 'run-manifest', 'code-evidence-manifest', 'alignment-manifest')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "source-ledger",
+            "claim-ledger",
+            "taxonomy",
+            "paper-record",
+            "repo-record",
+            "assessment-event",
+            "captured-artifact",
+            "docling-document",
+            "parser-config",
+            "model-manifest",
+            "run-manifest",
+            "code-evidence-manifest",
+            "alignment-manifest"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "file_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "size_bytes",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"size_bytes\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "path"
+      ],
+      "unique_keys": [
+        [
+          "path",
+          "file_sha256"
+        ]
+      ],
+      "foreign_keys": [],
+      "checks": [],
+      "source_mapping": "PK(path); U(path,file_sha256). Exactly one row per complete projection-input inventory entry with the frozen 13-kind path/cardinality/order/collision profile. Every typed JSON input has exactly one matching typed root; the four opaque artifact kinds have exactly one artifacts row.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "claim_evidence",
+      "strict": true,
+      "columns": [
+        {
+          "name": "claim_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "wire_relation",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"wire_relation\" IN ('supports', 'contradicts', 'context')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "supports",
+            "contradicts",
+            "context"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "locator_wire",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "claim_id",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "claim_id"
+          ],
+          "target_table": "claims",
+          "target_columns": [
+            "claim_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(claim_id,ordinal), FK claim/source. `.evidence[i].source_id/relation/locator` are the exact admitted outer wire fields. Relation enum supports/contradicts/context; domain uncertain derives only by codec. Required complete canonical tagged locator string under the closed input profile: no absent/null/free-text locator. Preserve order and repeated evidence. Full decoded locator.source_id must match source_id.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "claim_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "claim_refs",
+      "strict": true,
+      "columns": [
+        {
+          "name": "claim_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "subject_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "section",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"section\" IN ('one_sentence_conclusion', 'research_question', 'method', 'representation_architecture', 'training_data', 'experiments_results', 'limitations', 'code_resources', 'evidence_status', 'related')"
+          ],
+          "presence_semantics": "owner-kind-inapplicable-null",
+          "enum": [
+            "one_sentence_conclusion",
+            "research_question",
+            "method",
+            "representation_architecture",
+            "training_data",
+            "experiments_results",
+            "limitations",
+            "code_resources",
+            "evidence_status",
+            "related"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "capability",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"capability\" IN ('training', 'inference', 'data', 'evaluation', 'checkpoints')"
+          ],
+          "presence_semantics": "owner-kind-inapplicable-null",
+          "enum": [
+            "training",
+            "inference",
+            "data",
+            "evaluation",
+            "checkpoints"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "core",
+          "type": "INTEGER",
+          "nullable": true,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"core\" IN (0, 1)"
+          ],
+          "presence_semantics": "owner-kind-inapplicable-null",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "lifecycle",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"lifecycle\" IN ('active', 'retired')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "active",
+            "retired"
+          ],
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "claim_id"
+      ],
+      "unique_keys": [
+        [
+          "subject_id",
+          "ordinal"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "claim_id"
+          ],
+          "target_table": "claims",
+          "target_columns": [
+            "claim_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "subject_id"
+          ],
+          "target_table": "subjects",
+          "target_columns": [
+            "subject_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "(section IS NOT NULL AND core IS NOT NULL AND capability IS NULL) OR (section IS NULL AND core IS NULL AND capability IS NOT NULL)"
+      ],
+      "source_mapping": "PK(claim_id), U(subject_id,ordinal); FK claim→claims, subject→subjects. Paper section_claim_refs[i] supplies section/core/lifecycle and has capability=NULL; repo capability_claim_refs[i] supplies capability/lifecycle and has section/core=NULL. These NULLs mean type-inapplicable, not source omission. Enforce owner-kind discriminated shape, same source ordinal, and complete exactly-one-owner coverage for every claim. No filtering of retired refs.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "subject_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "claims",
+      "strict": true,
+      "columns": [
+        {
+          "name": "claim_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ledger_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"ledger_kind\" IN ('claim')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "claim"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "text",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "risk",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"risk\" IN ('normal', 'high')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "normal",
+            "high"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "assessment",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"assessment\" IN ('provisional', 'accepted', 'contested', 'unsupported', 'deprecated')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "provisional",
+            "accepted",
+            "contested",
+            "unsupported",
+            "deprecated"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "confidence",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"confidence\" IN ('high', 'medium', 'low', 'unknown')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "location_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "location_anchor_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"location_anchor_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "location_anchor",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-location_anchor_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "reviewed_at",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required-nullable",
+          "primary_key_position": null
+        },
+        {
+          "name": "notes_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"notes_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "notes",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-notes_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "supersedes_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"supersedes_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "supersedes",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-supersedes_present",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "claim_id"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "ledger_kind"
+          ],
+          "target_table": "ledger_meta",
+          "target_columns": [
+            "ledger_kind"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "supersedes"
+          ],
+          "target_table": "claims",
+          "target_columns": [
+            "claim_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "\"location_anchor_present\" = 1 OR \"location_anchor\" IS NULL",
+        "\"notes_present\" = 1 OR \"notes\" IS NULL",
+        "\"supersedes_present\" = 1 OR \"supersedes\" IS NULL"
+      ],
+      "source_mapping": "PK(claim_id); ledger_kind fixed claim FK→ledger_meta. Map key and required fields direct. location.path is literal ledger fact, not a Markdown input FK; anchor pair reflects `.location.anchor`. Require explicit reviewed_at under the selected whole-history admission; nullable date is enough, no presence pair. notes and supersedes preserve absent/null/empty where valid. supersedes FK→claims with complete acyclicity validation.",
+      "presence_pairs": [
+        {
+          "presence_column": "location_anchor_present",
+          "value_column": "location_anchor",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "notes_present",
+          "value_column": "notes",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "supersedes_present",
+          "value_column": "supersedes",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        }
+      ],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "code_manifests",
+      "strict": true,
+      "columns": [
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"schema\" IN ('video-paper-wiki.code-evidence-manifest.v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "video-paper-wiki.code-evidence-manifest.v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "state",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"state\" IN ('inspected')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "inspected"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "repo_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "repository",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "commit",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "origin_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "payload_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "payload_size_bytes",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"payload_size_bytes\" >= 0",
+            "\"payload_size_bytes\" <= 67108864"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "media_type",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"media_type\" IN ('text/plain')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "text/plain"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "encoding",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"encoding\" IN ('utf-8')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "utf-8"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "line_canonicalization",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"line_canonicalization\" IN ('utf8-lf-v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "utf8-lf-v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "newline_style",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"newline_style\" IN ('none', 'lf', 'crlf', 'mixed')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "none",
+            "lf",
+            "crlf",
+            "mixed"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "ends_with_newline",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ends_with_newline\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "line_count",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"line_count\" >= 0",
+            "\"line_count\" <= 67108864"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "normalized_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "proposal_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "stored_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "source_identity",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "inspection_approval_hash",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "operation_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required-nullable",
+          "primary_key_position": null
+        },
+        {
+          "name": "manifest_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "input_path"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "repo_id",
+            "commit",
+            "origin_path",
+            "source_id"
+          ],
+          "target_table": "code_origins",
+          "target_columns": [
+            "repo_id",
+            "commit",
+            "origin_path",
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "stored_path",
+            "payload_sha256"
+          ],
+          "target_table": "artifacts",
+          "target_columns": [
+            "artifact_path",
+            "file_sha256"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(input_path), FK input→canonical_inputs; FK(repo_id,commit,origin_path,source_id)→code_origins; FK(stored_path,payload_sha256)→artifacts(artifact_path,file_sha256). repository preserves original origin spelling, while repo_id is derived identity. payload maps sha256/size_bytes; capture maps stored_path/source_identity/source_id/inspection_approval_hash/operation_id; all root line/media/digest fields retained. state fixed inspected for canonical profile, and operation_id required nullable.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "code_origins",
+      "strict": true,
+      "columns": [
+        {
+          "name": "repo_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "commit",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "origin_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 2
+        },
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 3
+        }
+      ],
+      "primary_key": [
+        "repo_id",
+        "commit",
+        "origin_path",
+        "source_id"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "repo_id"
+          ],
+          "target_table": "repos",
+          "target_columns": [
+            "repo_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(all four), FK repo→repos, source→sources. Derived logical identity from each inspected manifest's origin.repository/commit/path plus capture.source_id; repo_id uses existing canonical repo identity. Repeated raw bytes across logical repo/commit/path origins are retained. No FK commit→repos.canonical_commit.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "ledger_meta",
+      "strict": true,
+      "columns": [
+        {
+          "name": "ledger_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"ledger_kind\" IN ('source', 'claim')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "source",
+            "claim"
+          ],
+          "primary_key_position": 0
+        },
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "generated_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "ledger_kind"
+      ],
+      "unique_keys": [
+        [
+          "input_path"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "(ledger_kind = 'source' AND schema = 'claude-obsidian.source-ledger.v1' AND input_path = 'wiki/meta/ledgers/source-ledger.json') OR (ledger_kind = 'claim' AND schema = 'claude-obsidian.claim-ledger.v1' AND input_path = 'wiki/meta/ledgers/claim-ledger.json')"
+      ],
+      "source_mapping": "PK(ledger_kind); U(input_path); FK(input_path)→canonical_inputs. Exactly source and claim rows, fixed paths/schema enums. Root `.schema`, `.generated_at`; preserve even with empty source/claim maps. `ledgers.py:417-430,478-499,915-934` requires whole-second UTC spelling; do not borrow event's fractional grammar or index-build time.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "paper_aliases",
+      "strict": true,
+      "columns": [
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "alias",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "paper_id",
+        "ordinal"
+      ],
+      "unique_keys": [
+        [
+          "paper_id",
+          "alias"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(paper_id,ordinal), U(paper_id,alias), FK paper. `.aliases[i]`; schema uniqueItems, original order retained.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "paper_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "paper_authors",
+      "strict": true,
+      "columns": [
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "author",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "paper_id",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(paper_id,ordinal), FK paper. `.authors[i]`; duplicates allowed and retained.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "paper_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "paper_code_urls",
+      "strict": true,
+      "columns": [
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "url",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "paper_id",
+        "ordinal"
+      ],
+      "unique_keys": [
+        [
+          "paper_id",
+          "url"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(paper_id,ordinal), U(paper_id,url), FK paper. `.code_urls[i]`; no children when presence=0; present empty is presence=1 with no rows.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "paper_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "paper_sources",
+      "strict": true,
+      "columns": [
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "paper_id",
+        "ordinal"
+      ],
+      "unique_keys": [
+        [
+          "paper_id",
+          "source_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(paper_id,ordinal), U(paper_id,source_id), FK paper/source. `.source_ids[i]` is required, may be empty, unique.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "paper_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "paper_taxonomy",
+      "strict": true,
+      "columns": [
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "axis",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "slug",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "paper_id",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "axis",
+            "slug"
+          ],
+          "target_table": "taxonomy_terms",
+          "target_columns": [
+            "axis",
+            "slug"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(paper_id,ordinal), FK paper and (axis,slug)→taxonomy_terms. paper.taxonomy[i]; no U(paper,axis,slug) because current paper schema permits repeated refs.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "paper_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "papers",
+      "strict": true,
+      "columns": [
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"schema\" IN ('video-paper-wiki.paper-record.v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "video-paper-wiki.paper-record.v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "title_zh",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "published_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "arxiv_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "doi",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "active_extraction_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "active_extraction_sha256",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "code_urls_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"code_urls_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "paper_id"
+      ],
+      "unique_keys": [
+        [
+          "input_path"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "active_extraction_path",
+            "active_extraction_sha256"
+          ],
+          "target_table": "artifacts",
+          "target_columns": [
+            "artifact_path",
+            "file_sha256"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(paper_id); U(input_path); FK input to canonical_inputs; composite active extraction FK to artifacts. All scalar fields map directly. published_at spelling is retained. arxiv_id/doi absence maps to NULL; present empty remains empty. code_urls_present is actual key presence. Record filename is lexical only; embedded paper_id is authoritative. Active extraction follows semantic check paper-active-extraction.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "repo_papers",
+      "strict": true,
+      "columns": [
+        {
+          "name": "repo_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "repo_id",
+        "ordinal"
+      ],
+      "unique_keys": [
+        [
+          "repo_id",
+          "paper_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "repo_id"
+          ],
+          "target_table": "repos",
+          "target_columns": [
+            "repo_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(repo_id,ordinal), U(repo_id,paper_id), FK repo/paper. Required nonempty unique `.paper_ids[i]`.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "repo_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "repos",
+      "strict": true,
+      "columns": [
+        {
+          "name": "repo_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"schema\" IN ('video-paper-wiki.repo-record.v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "video-paper-wiki.repo-record.v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "canonical_repository",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "canonical_commit",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "officiality",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"officiality\" IN ('official', 'unofficial', 'unverified_candidate')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "official",
+            "unofficial",
+            "unverified_candidate"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "license_spdx_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required-nullable",
+          "primary_key_position": null
+        },
+        {
+          "name": "license_notes",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "archived",
+          "type": "INTEGER",
+          "nullable": true,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"archived\" IN (0, 1)"
+          ],
+          "presence_semantics": "optional-nonnull-bool-null-means-absent",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "updated_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "repo_id"
+      ],
+      "unique_keys": [
+        [
+          "input_path"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(repo_id), U(input_path), FK input. Direct root fields, flattened required license.spdx_id/notes. spdx_id NULL is required explicit JSON null. archived NULL means absent; 0 and 1 mean present false/true. canonical_repository preserves original accepted case; repo_id supplies canonical logical identity.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "run_artifact_bindings",
+      "strict": true,
+      "columns": [
+        {
+          "name": "run_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "role",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"role\" IN ('source', 'parser_config', 'model_manifest', 'document')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "source",
+            "parser_config",
+            "model_manifest",
+            "document"
+          ],
+          "primary_key_position": 1
+        },
+        {
+          "name": "artifact_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "run_path",
+        "role"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "run_path"
+          ],
+          "target_table": "run_manifests",
+          "target_columns": [
+            "input_path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "artifact_path"
+          ],
+          "target_table": "artifacts",
+          "target_columns": [
+            "artifact_path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(run_path,role), FK run to run_manifests and artifact to artifacts. Every run has exactly one source role for its source-qualified S context. parser_config/model_manifest/document roles exist iff their named manifest hash is present, use the exact S/P sibling path and equal the named hash. P and qualifying document closure follow semantic check run-role-association; provenance plan/prepared/draft/receipt hashes never become artifact roles.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "run_manifests",
+      "strict": true,
+      "columns": [
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "schema",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"schema\" IN ('video-paper-wiki.run-manifest.v1')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "video-paper-wiki.run-manifest.v1"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "run_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "vpwiki_version",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "python_version",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "docling_version",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"docling_version\" IN ('2.117.0')"
+          ],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "enum": [
+            "2.117.0"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "docling_core_version",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"docling_core_version\" IN ('2.92.0')"
+          ],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "enum": [
+            "2.92.0"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "claude_obsidian_version",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "input_ingest_plan_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "input_prepared_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "input_source_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "input_parser_config_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "input_model_manifest_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "output_document_json_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "output_draft_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "output_receipt_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        },
+        {
+          "name": "started_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "ended_at",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "error_code",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required-nullable",
+          "primary_key_position": null
+        },
+        {
+          "name": "pipeline_fingerprint",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nonnull-null-means-absent",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "input_path"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(input_path), FK input→canonical_inputs. Every field of run schema is flattened explicitly. tool_versions/input_hashes/output_hashes objects are required; the named optional values are nonnullable when present, so SQL NULL unambiguously means absent. error_code is required nullable, with empty string distinct from null. Do not make run_id globally unique without a frozen namespace; source-qualified filenames can legitimately reuse a run ID.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "source_artifacts",
+      "strict": true,
+      "columns": [
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "artifact_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "source_id"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "artifact_path"
+          ],
+          "target_table": "artifacts",
+          "target_columns": [
+            "artifact_path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(source_id); FK source to sources and artifact to artifacts. Exactly one row iff origin.kind=file, zero for url/manual. The artifact is a captured-artifact whose path equals origin.locator and hash equals the required nonnull source.content_sha256. Several source IDs may bind one captured artifact; no first-hash selection or artifact-path uniqueness is added.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "source_pages",
+      "strict": true,
+      "columns": [
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "page_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "source_id",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "source_id"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(source_id,ordinal), FK source. Required `.pages[i]`; upstream does not reject duplicates, so no U(source,page_path). These are declared generated-page links, **not** FKs to canonical_inputs (Markdown is excluded). Actual page comparison remains later compiler/audit work.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "source_id"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "sources",
+      "strict": true,
+      "columns": [
+        {
+          "name": "source_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ledger_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"ledger_kind\" IN ('source')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "source"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "origin_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"origin_kind\" IN ('file', 'url', 'manual')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "file",
+            "url",
+            "manual"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "origin_locator",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "content_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"content_kind\" IN ('document', 'webpage', 'dataset', 'image', 'audio', 'video', 'code', 'conversation', 'synthetic', 'other')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "document",
+            "webpage",
+            "dataset",
+            "image",
+            "audio",
+            "video",
+            "code",
+            "conversation",
+            "synthetic",
+            "other"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "authority",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"authority\" IN ('official', 'primary', 'secondary', 'community', 'synthetic', 'unknown')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "official",
+            "primary",
+            "secondary",
+            "community",
+            "synthetic",
+            "unknown"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "review_status",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"review_status\" IN ('unreviewed', 'active', 'superseded', 'rejected')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "unreviewed",
+            "active",
+            "superseded",
+            "rejected"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "content_sha256_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"content_sha256_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "content_sha256",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-content_sha256_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "ingested_at_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ingested_at_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "ingested_at",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-ingested_at_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "retrieved_at_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"retrieved_at_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "retrieved_at",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-retrieved_at_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "refresh_due_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"refresh_due_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "refresh_due",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-refresh_due_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "independence_key_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"independence_key_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "independence_key",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-independence_key_present",
+          "primary_key_position": null
+        },
+        {
+          "name": "supersedes_present",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"supersedes_present\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "supersedes",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "optional-nullable-controlled-by-supersedes_present",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "source_id"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "ledger_kind"
+          ],
+          "target_table": "ledger_meta",
+          "target_columns": [
+            "ledger_kind"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "supersedes"
+          ],
+          "target_table": "sources",
+          "target_columns": [
+            "source_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "(content_kind = 'synthetic') = (authority = 'synthetic')",
+        "\"content_sha256_present\" = 1 OR \"content_sha256\" IS NULL",
+        "\"ingested_at_present\" = 1 OR \"ingested_at\" IS NULL",
+        "\"retrieved_at_present\" = 1 OR \"retrieved_at\" IS NULL",
+        "\"refresh_due_present\" = 1 OR \"refresh_due\" IS NULL",
+        "\"independence_key_present\" = 1 OR \"independence_key\" IS NULL",
+        "\"supersedes_present\" = 1 OR \"supersedes\" IS NULL"
+      ],
+      "source_mapping": "PK(source_id); ledger_kind fixed source, FK→ledger_meta. Map key→source_id. `.origin.kind/locator` flatten; required content_kind/title/authority/review_status direct. Six presence pairs preserve the upstream omitted/null/string states. supersedes FK→sources(source_id) when nonnull; acyclicity independently checked. Source-ID recomputation remains pinned public adapter authority, not a new SQL hash function.",
+      "presence_pairs": [
+        {
+          "presence_column": "content_sha256_present",
+          "value_column": "content_sha256",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "ingested_at_present",
+          "value_column": "ingested_at",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "retrieved_at_present",
+          "value_column": "retrieved_at",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "refresh_due_present",
+          "value_column": "refresh_due",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "independence_key_present",
+          "value_column": "independence_key",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        },
+        {
+          "presence_column": "supersedes_present",
+          "value_column": "supersedes",
+          "allowed": [
+            [
+              0,
+              null
+            ],
+            [
+              1,
+              null
+            ],
+            [
+              1,
+              "original scalar string"
+            ]
+          ]
+        }
+      ],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "subjects",
+      "strict": true,
+      "columns": [
+        {
+          "name": "subject_id",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "owner_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [
+            "\"owner_kind\" IN ('paper', 'repo')"
+          ],
+          "presence_semantics": "required",
+          "enum": [
+            "paper",
+            "repo"
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "paper_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "owner-kind-inapplicable-null",
+          "primary_key_position": null
+        },
+        {
+          "name": "repo_id",
+          "type": "TEXT",
+          "nullable": true,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "owner-kind-inapplicable-null",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "subject_id"
+      ],
+      "unique_keys": [
+        [
+          "paper_id"
+        ],
+        [
+          "repo_id"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "paper_id"
+          ],
+          "target_table": "papers",
+          "target_columns": [
+            "paper_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        },
+        {
+          "columns": [
+            "repo_id"
+          ],
+          "target_table": "repos",
+          "target_columns": [
+            "repo_id"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "(owner_kind = 'paper' AND paper_id IS NOT NULL AND repo_id IS NULL) OR (owner_kind = 'repo' AND repo_id IS NOT NULL AND paper_id IS NULL)"
+      ],
+      "source_mapping": "PK(subject_id), U(paper_id), U(repo_id), separate nullable FKs to papers/repos. Check exact XOR: paper kind has paper_id nonnull and repo_id NULL; repo inverse. Subject is computed using existing identity from that actual owner ID. No concept rows in this corpus. Exactly one subject per admitted record.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "taxonomy_axes",
+      "strict": true,
+      "columns": [
+        {
+          "name": "axis",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "taxonomy_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "label_zh",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "label_en",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "axis"
+      ],
+      "unique_keys": [
+        [
+          "taxonomy_path",
+          "ordinal"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "taxonomy_path"
+          ],
+          "target_table": "taxonomy_meta",
+          "target_columns": [
+            "input_path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(axis), U(taxonomy_path,ordinal), FK taxonomy_path→taxonomy_meta. axes[i].slug and original index.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "taxonomy_path"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "taxonomy_axis_aliases",
+      "strict": true,
+      "columns": [
+        {
+          "name": "axis",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "alias",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "axis",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "axis"
+          ],
+          "target_table": "taxonomy_axes",
+          "target_columns": [
+            "axis"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(axis,ordinal), FK axis. axes[i].aliases[j]; do not require unique alias text without explicit input rule.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "axis"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "taxonomy_meta",
+      "strict": true,
+      "columns": [
+        {
+          "name": "input_path",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "version",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "unknown_terms",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "silent_create",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"silent_create\" IN (0, 1)"
+          ],
+          "presence_semantics": "exact-json-bool-to-int-or-derived-presence-bit",
+          "enum": [
+            0,
+            1
+          ],
+          "primary_key_position": null
+        },
+        {
+          "name": "statement_en",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "statement_zh",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "input_path"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "input_path"
+          ],
+          "target_table": "canonical_inputs",
+          "target_columns": [
+            "path"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [
+        "input_path = 'taxonomy/v1.json'"
+      ],
+      "source_mapping": "PK(input_path), FK→canonical_inputs, exactly taxonomy/v1.json row. Map root version and all four policy fields. Current values v1/review_queue/false plus exact bilingual statements; label/policy bytes remain material.",
+      "presence_pairs": [],
+      "ordinal_groups": [],
+      "default_values": false
+    },
+    {
+      "name": "taxonomy_term_aliases",
+      "strict": true,
+      "columns": [
+        {
+          "name": "axis",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "slug",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": 2
+        },
+        {
+          "name": "alias",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "axis",
+        "slug",
+        "ordinal"
+      ],
+      "unique_keys": [],
+      "foreign_keys": [
+        {
+          "columns": [
+            "axis",
+            "slug"
+          ],
+          "target_table": "taxonomy_terms",
+          "target_columns": [
+            "axis",
+            "slug"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(axis,slug,ordinal), composite FK→taxonomy_terms. Ordered term aliases; no silent dedup/alias resolution.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "axis",
+            "slug"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    },
+    {
+      "name": "taxonomy_terms",
+      "strict": true,
+      "columns": [
+        {
+          "name": "axis",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 0
+        },
+        {
+          "name": "slug",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": 1
+        },
+        {
+          "name": "ordinal",
+          "type": "INTEGER",
+          "nullable": false,
+          "collation": null,
+          "python_cell_type": "int",
+          "checks": [
+            "\"ordinal\" >= 0"
+          ],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "label_zh",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": false,
+          "collation": "BINARY",
+          "python_cell_type": "str",
+          "checks": [],
+          "presence_semantics": "required",
+          "primary_key_position": null
+        }
+      ],
+      "primary_key": [
+        "axis",
+        "slug"
+      ],
+      "unique_keys": [
+        [
+          "axis",
+          "ordinal"
+        ]
+      ],
+      "foreign_keys": [
+        {
+          "columns": [
+            "axis"
+          ],
+          "target_table": "taxonomy_axes",
+          "target_columns": [
+            "axis"
+          ],
+          "on_update": "NO ACTION",
+          "on_delete": "NO ACTION",
+          "deferrable": true,
+          "initially_deferred": true
+        }
+      ],
+      "checks": [],
+      "source_mapping": "PK(axis,slug), U(axis,ordinal), FK axis. axes[i].terms[j] exact fields; current canonical status retained.",
+      "presence_pairs": [],
+      "ordinal_groups": [
+        {
+          "parent_columns": [
+            "axis"
+          ],
+          "ordinal_column": "ordinal",
+          "minimum": 0,
+          "contiguous": true,
+          "contiguity_enforced_by_sql": false
+        }
+      ],
+      "default_values": false
+    }
+  ],
+  "semantic_checks": [
+    {
+      "id": "exact-python-scalars",
+      "scope": "all tables",
+      "requirement": "Before relational validation accept only exact built-in str, int or None permitted by the column. Reject bool for INTEGER, float including 1.0, numeric strings, subclasses and coercions. Signed integers are limited to SQLite int64 so the later writer can preserve them exactly.",
+      "sql_enforced": false
+    },
+    {
+      "id": "inventory-profile",
+      "scope": "canonical_inputs",
+      "requirement": "Enforce the frozen 13-kind path grammar, exact singleton ledgers/taxonomy, UTF-8 path order, unique paths, portable NFC/casefold collision safety, per-file 64 MiB and aggregate 8 GiB declaration limits, filename hash/embedded-ID bindings and exact complete inventory coverage.",
+      "sql_enforced": false
+    },
+    {
+      "id": "inventory-declaration-only",
+      "scope": "all rows",
+      "requirement": "Rows and a valid declaration do not prove that rows were compiled from the declared bytes. Only validate_projection_bytes proves supplied byte equality; only the later authenticated VPKB-001 mapper proves byte-to-row derivation and corpus completeness.",
+      "sql_enforced": false
+    },
+    {
+      "id": "artifact-metadata-equality",
+      "scope": "artifacts",
+      "requirement": "artifact_kind and size_bytes equal canonical_inputs.kind and size_bytes at artifact_path; the composite FK checks path/hash. Artifact internals remain opaque and never become generic JSON columns.",
+      "sql_enforced": false
+    },
+    {
+      "id": "one-profile-per-input",
+      "scope": "canonical_inputs and typed roots",
+      "requirement": "Every declared typed JSON file has exactly one appropriate typed root and every opaque artifact exactly one artifacts row. Refuse unknown inputs, omitted roots, extra roots and cross-kind reuse.",
+      "sql_enforced": false
+    },
+    {
+      "id": "closed-schema-reconstruction",
+      "scope": "record/ledger/event/manifest rows",
+      "requirement": "Losslessly reconstruct every named closed source object and enforce its exact schema/profile, ID/hash/path/date grammar, required/optional/null presence and array order. No absent value is defaulted and no unknown field is dropped.",
+      "sql_enforced": false
+    },
+    {
+      "id": "ledger-roots",
+      "scope": "ledger_meta",
+      "requirement": "Require exactly one source and one claim ledger row, including empty maps, and preserve each original whole-second generated_at. Future-date, freshness, sensitive URL and authentic source-ID checks remain the pinned adapter with an explicit audit date.",
+      "sql_enforced": false
+    },
+    {
+      "id": "contiguous-ordinals",
+      "scope": "all ordinal tables",
+      "requirement": "For every manifest ordinal group, require exactly 0 through child-count minus one. Preserve admitted duplicates and original order; SQL only checks nonnegative integers and positional uniqueness.",
+      "sql_enforced": false
+    },
+    {
+      "id": "optional-array-presence",
+      "scope": "papers and paper_code_urls",
+      "requirement": "code_urls_present=0 requires zero children; =1 with zero children represents a present empty array. Never conflate absence and empty.",
+      "sql_enforced": false
+    },
+    {
+      "id": "owner-coverage",
+      "scope": "subjects, claim_refs and claims",
+      "requirement": "Create exactly one subject per paper/repo and exactly one paper/repo reference per claim including retired claims. Enforce owner-kind section/core versus capability shape and recompute unchanged subject/claim identity from the actual owner and raw claim text.",
+      "sql_enforced": false
+    },
+    {
+      "id": "supersedes-acyclic",
+      "scope": "sources and claims",
+      "requirement": "All nonnull supersedes values resolve inside the complete respective map and the full directed graphs have no self edge or cycle. Do not select a current row from these graphs.",
+      "sql_enforced": false
+    },
+    {
+      "id": "source-artifact-binding",
+      "scope": "sources and source_artifacts",
+      "requirement": "Every file source in every review state has content_sha256 present and nonnull and exactly one captured binding at origin.locator with equal SHA; URL/manual have none. Lexical src-20hex is checked here, while authentic stable_source_id recomputation remains the pinned adapter.",
+      "sql_enforced": false
+    },
+    {
+      "id": "managed-page-addresses",
+      "scope": "source_pages and claims.location_path",
+      "requirement": "Derive the complete paper, repo and taxonomy concept page-address set. Every source page is an exact member, preserving order/duplicates. Each claim location is its one exact paper/repo owner page. Page-byte existence and anchor resolution remain later compiler/audit checks.",
+      "sql_enforced": false
+    },
+    {
+      "id": "paper-active-extraction",
+      "scope": "papers, paper_sources, sources and run_artifact_bindings",
+      "requirement": "The active path/hash names a qualifying docling document. At least one source role for its S context resolves to a file/document source that binds the exact captured S and is an exact member of that paper's source_ids. Do not join by hash alone or require every source sharing S to be a member.",
+      "sql_enforced": false
+    },
+    {
+      "id": "repo-paper-minimum",
+      "scope": "repo_papers",
+      "requirement": "Each repo has at least one paper child. Historical code/alignment commits remain independent of the repo record's canonical current commit except where a locator profile explicitly requires equality.",
+      "sql_enforced": false
+    },
+    {
+      "id": "complete-history",
+      "scope": "assessment_events, assessment_heads and claims",
+      "requirement": "Apply frozen assessment-history revision 1: complete coverage, recomputed IDs/raw-text SHA/fingerprints, one genesis, no fork/cycle, same-claim predecessors, state continuity, historical fingerprint epochs and exact ledger head assessment/reviewed_at. Choose no head by time, event ID or file order.",
+      "sql_enforced": false
+    },
+    {
+      "id": "taxonomy-profile",
+      "scope": "taxonomy tables and paper_taxonomy",
+      "requirement": "Require one v1 root, exact four policy constants, exact ten-axis order, nonempty term arrays, within-axis unique slug, canonical status and nonempty-as-UTF8-length-greater-than-zero labels/aliases. Preserve duplicate aliases and ordinals; infer no parent, term English label or alias resolver.",
+      "sql_enforced": false
+    },
+    {
+      "id": "tagged-locator-closure",
+      "scope": "claim_evidence and alignment locator tables",
+      "requirement": "For claim_evidence, decode and canonical re-encode the locator wire and require the outer source_id/relation to equal the decoded locator source/domain relation. For alignment locator rows, which have no outer relation wrapper, require the direct decoded locator source/kind and exact PDF/code domain represented by that row. Apply owner membership: paper PDF source in paper_sources; repo PDF source in at least one linked paper; alignment PDF source in its paper; code locator resolves the exact repo/commit/path/source code manifest. Actual PDF text/ref/page/span/bbox truth remains VPKB-001/002 adapter work.",
+      "sql_enforced": false
+    },
+    {
+      "id": "code-origin-manifest",
+      "scope": "code_origins and code_manifests",
+      "requirement": "Derive repo ID from original repository spelling; retain every logical repo/commit/path/source origin and immutable manifest; reconstruct the closed manifest and validate proposal/self hashes, declared source identity, payload SHA/size/newline/line metadata and stored capture association. capture.source_id resolves a file source with content_kind=code whose source_artifact path/hash exactly equal stored_path/payload_sha256; no orphan origin rows. Row validation does not inspect payload bytes: actual payload newline/normalized/snippet/content truth and byte-to-row derivation remain VPKB-001.",
+      "sql_enforced": false
+    },
+    {
+      "id": "run-role-association",
+      "scope": "run_manifests and run_artifact_bindings",
+      "requirement": "Every source-qualified run has one source role. P absent permits no config/model/document hashes or roles. P present requires the unchanged complete five-field pinned Docling tuple and recomputed P; each named hash has exactly its S/P sibling role. Every config/model artifact is role-referenced. Every document has config/model siblings and at least one error-null fully matched pinned run. Preserve all admitted runs; never select first/latest. Plan/prepared/draft/receipt hashes are provenance only.",
+      "sql_enforced": false
+    },
+    {
+      "id": "alignment-five-capabilities",
+      "scope": "alignment_capabilities",
+      "requirement": "Each alignment has exactly five distinct names in its original ordinals 0 through 4. SQL enum and unique keys alone do not require all five.",
+      "sql_enforced": false
+    },
+    {
+      "id": "alignment-required-children",
+      "scope": "alignment tables",
+      "requirement": "Official requires at least one officiality PDF locator; present/partial capability requires at least one code locator; patterns require scope presence. Preserve schema-admitted scope/locators, empty strings and duplicate patterns on every status rather than silently dropping them.",
+      "sql_enforced": false
+    },
+    {
+      "id": "alignment-version-and-locator-binding",
+      "scope": "alignment manifests and children",
+      "requirement": "Retain every immutable version and original repository/full commit. Officiality PDF sources belong to the alignment paper and qualifying document context. Capability code locators resolve exact inspected code origin for the alignment repo/commit. Missing alignment remains absence and is never synthesized as unverified.",
+      "sql_enforced": false
+    },
+    {
+      "id": "row-export-order",
+      "scope": "all tables",
+      "requirement": "Emit all tables in ASCII name order, exact manifest column order and rows by the complete PK using INTEGER numeric and TEXT exact UTF-8/BINARY comparison. No rowid, default fill, physical SQLite bytes, locale or normalization.",
+      "sql_enforced": false
+    },
+    {
+      "id": "generation-binding",
+      "scope": "row export and generation material",
+      "requirement": "Require the complete frozen generation shape, exact profile-owned file-name arrays, exact vpwiki-jsonschema-date-utc-v1 format profile and the exact dependency distribution set selected by the runtime Python version. canonical_inputs exactly equals material.inventory; taxonomy input/resource SHA agrees; DDL and column-manifest resource hashes equal the packaged bytes. This proves structural/material consistency only, not loaded-code/dependency authenticity or byte-to-row derivation.",
+      "sql_enforced": false
+    }
+  ],
+  "limitations": [
+    "The canonical row API is a pure Python validator and does not use SQLite acceptance as part of its public result.",
+    "The later SQLite writer and DDL acceptance tests require SQLite >= 3.37, PRAGMA foreign_keys=ON, transaction commit and PRAGMA foreign_key_check; STRICT affinity is only a defense because SQLite can accept some lossless coercions.",
+    "DDL tests and canonical row validation prove declared structural consistency, not canonical byte-to-row mapping, producer execution, publication authorization or semantic PDF/model truth."
+  ]
+}

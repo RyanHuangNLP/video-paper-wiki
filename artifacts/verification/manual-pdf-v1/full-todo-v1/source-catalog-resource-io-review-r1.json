@@ -1,0 +1,393 @@
+{
+  "$schema": "full-todo.source-catalog-resource-io-review-r1.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R5-resource-view-source-conversion-r1",
+  "reviewed_at_utc": "2026-09-09T08:07:52.587901+00:00",
+  "scope": "Bounded independent preimplementation review of R1-R5 source-catalog resource acquisition and schema-registry dispatch against the observed source-conversion candidate package. Read-only; no source, tests, catalog resources, Git, Vault, network or human-gate mutation.",
+  "decision": "GO_FOR_SOURCE_CATALOG_RESOURCE_IO_IMPLEMENTATION",
+  "status": "PASS_PREIMPLEMENTATION_RESOURCE_IO_REVIEW",
+  "blockers": [],
+  "inputs": {
+    "packets": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md",
+        "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46",
+        "size_bytes": 17546
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md",
+        "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c",
+        "size_bytes": 4579
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R3.md",
+        "sha256": "c4b7cadcf83a427be690470adcf6c2b7709a8c4a6b493197106ec98ab95af7f4",
+        "size_bytes": 4540
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R4-PARALLEL-START.md",
+        "sha256": "aab6dd8c33ba2d28847e2d0b43b78160c5cd57568162b713747c2ae566be6c1d",
+        "size_bytes": 1386
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R5-RESOURCE-VIEW.md",
+        "sha256": "f71ff416a93e277fd24c8fac1021174474119111a8e5993c06b548a05050275d",
+        "size_bytes": 4194
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+        "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+        "size_bytes": 4376
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-allowed-paths-r2.json",
+        "sha256": "059e68788ecf03e5bba3d767fd47b143a0d121099e1b6c06d0dde9e26386493f",
+        "size_bytes": 1143
+      }
+    ],
+    "prior_resource_view_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/E/source-catalog-resource-view-review-r1.json",
+      "sha256": "dc05381cf0d21b7b5c3cc33cfc047f1bb5fa63d5f3bfbdcaa72caa64d50fad82",
+      "used_as": "historical context only; this review independently rechecked the source tree and call sites"
+    },
+    "conversion_candidate": {
+      "root": ".work/parallel/source-conversion-v1/terminal-1/source",
+      "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+      "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+      "candidate_manifest": {
+        "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/local-candidate-r2.json",
+        "sha256": "b6d426a541204cb8f0191796c12ec7dca1fab0ebf2da12bb4c2823f81914719b"
+      },
+      "source_snapshot_sha256": "4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c",
+      "status": "observed source-conversion R2 candidate tree; conversion fresh CI/exact-head acceptance remain separate gates"
+    },
+    "allowed_path_count": 19,
+    "r5_owned_additions": [
+      "src/video_paper_wiki/resources.py",
+      "src/video_paper_wiki/contracts.py"
+    ]
+  },
+  "observed_source_generation": {
+    "package_python_set": {
+      "scope": "src/video_paper_wiki/**/*.py",
+      "count": 99,
+      "set_sha256": "68d3ea5d9cf41ba1e5494ec9275e451c5ec1b569142b53ba433341ca4bd0d9cf",
+      "pycache_and_pyc_excluded": true
+    },
+    "canonical_schema_registry_set": {
+      "scope": "schemas/*.schema.json",
+      "count": 70,
+      "set_sha256": "c86e7cd1d8d6260462ab6c260849c09543388656eb623de73cc0d65b854679c2",
+      "resource_origin": "source checkout fallback under exact src/package layout; package-first behavior remains part of the observed reader"
+    },
+    "resource_module": {
+      "path": "src/video_paper_wiki/resources.py",
+      "sha256": "3617fa4cbb5693fde15eb9f134a1ecd5e6f1bd5d19c8a6719646df1755615470",
+      "size_bytes": 6287
+    },
+    "contracts_module": {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "351cb539a855b339994fa7aed00f4e1ec7efffcd4691e36ccd0535020450495b",
+      "size_bytes": 81471
+    },
+    "taxonomy": {
+      "path": "taxonomy/v1.json",
+      "sha256": "470224dbd26f851b667a3d4bb4659adba6bcfad63ff957ae13fdbffb0ec19717",
+      "size_bytes": 4060
+    },
+    "profile": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+      "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+      "size_bytes": 4376,
+      "catalog_copy_observed": false,
+      "required_future_path": "catalog/source-catalog-v1.json"
+    }
+  },
+  "direct_import_call_sites": {
+    "registry_and_validation": [
+      {
+        "path": "src/video_paper_wiki/contracts.py",
+        "sha256": "351cb539a855b339994fa7aed00f4e1ec7efffcd4691e36ccd0535020450495b",
+        "symbols": [
+          "_registry",
+          "schema_by_title",
+          "_validator_for",
+          "validate_document"
+        ],
+        "lines": [
+          156,
+          182,
+          194,
+          997
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/projection_generation.py",
+        "sha256": "805d1c8ecb999792ad323c5b51b00d9407d12bcb85180007ecbc767c2718815f",
+        "uses": [
+          "_registry()[0]",
+          "schema_by_title",
+          "read_projection_resource_bytes"
+        ],
+        "lines": [
+          9,
+          38,
+          64
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/projection_catalog.py",
+        "sha256": "eeca1bf0fa8b24c4255673d29273acd3ee54aa8ac78b35f8fd4b0795d4103392",
+        "uses": [
+          "_registry()[0]",
+          "schema_by_title",
+          "read_projection_resource_bytes"
+        ],
+        "lines": [
+          14,
+          58,
+          63
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/source_semantics_contracts.py",
+        "sha256": "406a1c1b14e53dcaec7bd9f3656de877923a46575423fa5d37549cebd082b790",
+        "uses": [
+          "_validator_for",
+          "schema_by_title"
+        ],
+        "lines": [
+          132,
+          134
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/code_evidence_contracts.py",
+        "sha256": "c9cbcd3b8495179e47f6f02fb5a65a1a9ac3acab34f3f4d22ccabf66927a237a",
+        "uses": [
+          "_validator_for",
+          "schema_by_title"
+        ],
+        "lines": [
+          16,
+          171,
+          172
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/projection_runtime.py",
+        "sha256": "87f426511f722c65660d548b83af70d0fe2d2afaae1be83bebf2b3348bd149c7",
+        "uses": [
+          "schema_by_title"
+        ],
+        "lines": [
+          18,
+          333
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/ledger_locator.py",
+        "sha256": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0",
+        "uses": [
+          "schema_by_title"
+        ],
+        "lines": [
+          14,
+          56
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/assessment_history.py",
+        "sha256": "db681b6c993e12837977c91e579959d26203e6b8a21e567f2b08961827bd7694",
+        "uses": [
+          "schema_by_title"
+        ],
+        "lines": [
+          12,
+          96
+        ]
+      }
+    ],
+    "projection_resource_readers": [
+      {
+        "path": "src/video_paper_wiki/resources.py",
+        "sha256": "3617fa4cbb5693fde15eb9f134a1ecd5e6f1bd5d19c8a6719646df1755615470",
+        "uses": [
+          "schema_resource_names",
+          "load_schema_json",
+          "read_projection_resource_bytes",
+          "read_schema_text"
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/canonical_compiler_v2.py",
+        "sha256": "7b6449b3416188843684a681e238439dacc7adc788737b68e690e4e87e5e7241",
+        "uses": [
+          "read_projection_resource_bytes(\"taxonomy\",\"v1.json\")"
+        ],
+        "lines": [
+          21,
+          43
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/canonical_compiler.py",
+        "sha256": "f4dde9f914796006af6b4b03c2d969f3686859e911854a49e69995e53e046291",
+        "uses": [
+          "read_projection_resource_bytes(\"taxonomy\",\"v1.json\")"
+        ],
+        "lines": [
+          17,
+          33,
+          41
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/domain.py",
+        "sha256": "050ddfa701f5165d6d0f64536a30c00c2f57d9225e56592500b40d16a1cc3ddc",
+        "uses": [
+          "read_projection_resource_bytes(\"taxonomy\",\"v1.json\") in compile_concept_page"
+        ],
+        "lines": [
+          95,
+          96
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/source_state.py",
+        "sha256": "ae5fcfb35bafea93a6448f5542073530e774aeb617f19236df2f6dbb497b743d",
+        "uses": [
+          "collect_source_state -> validate_document/parse_projection_json/compile_pages"
+        ],
+        "lines": [
+          11,
+          13,
+          20,
+          113,
+          422,
+          477
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/source_registration.py",
+        "sha256": "cde1f4e5460308b63b7669cafe180868e9789d125b916a20b131bd97b530bc7f",
+        "uses": [
+          "validate_document during ledger/history validation"
+        ],
+        "lines": [
+          11,
+          44
+        ]
+      },
+      {
+        "path": "src/video_paper_wiki/upstream_adapter.py",
+        "sha256": "4ffe8d84be005d25cc3d5e377e8a5ca9f79d5b9441e5075682552e884aa23406",
+        "uses": [
+          "read_projection_resource_bytes(catalog, profile)"
+        ],
+        "lines": [
+          26,
+          140,
+          867
+        ],
+        "classification": "legacy/upstream route; not on source-catalog source-state path"
+      }
+    ],
+    "out_of_route_readers": [
+      {
+        "paths": [
+          "src/video_paper_wiki/catalog_collector.py",
+          "src/video_paper_wiki/catalog_store.py"
+        ],
+        "classification": "legacy search-catalog route; reads base/search catalog resources excluded from source-catalog-v1 generation resource set; source-catalog implementation must not call this route under the captured view"
+      },
+      {
+        "path": "src/video_paper_wiki_research/contracts.py",
+        "classification": "separate research-package registry outside installed video_paper_wiki generation scope; no source_state/source-catalog call path observed"
+      },
+      {
+        "path": "src/video_paper_wiki_research/catalog_index.py",
+        "classification": "separate research-package reader; no source_state/source-catalog call path observed"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "R5-RESOURCE-ORIGIN-CLOSURE",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "The observed reader selects package schemas/resources first and exact source-checkout fallback under the src/package layout. Active catalog view can replace those live reads with a frozen kind/name byte map; the view must retain the selected origin, complete schema set, ancestors, identities and bytes so a later package/repository change cannot be hidden."
+    },
+    {
+      "id": "R5-REGISTRY-DISPATCH-CLOSURE",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "The default contracts._registry is @lru_cache(maxsize=1), but both direct _registry()[0] consumers call the imported selector at runtime. Replacing _registry with a ContextVar-aware selector reaches projection_generation and projection_catalog; schema_by_title, _validator_for and validate_document then share the same private view registry. The default cache must remain untouched outside a view."
+    },
+    {
+      "id": "R5-SOURCE-COMPILER-CLOSURE",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "collect_source_state validates through contracts and compiles via canonical_compiler_v2. That path reaches the legacy compiler and domain concept compiler, whose taxonomy reads all use resources.read_projection_resource_bytes. Entering the view before audit_integrity and keeping it through collection/compilation covers the retained source-state call chain."
+    },
+    {
+      "id": "R5-TRANSITIVE-SCHEMA-CLOSURE",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "source_state, source_registration, source_semantics_contracts, code_evidence_contracts, projection_runtime, ledger_locator and assessment_history all reach schema_by_title/_validator_for/validate_document. A per-view Registry built from the captured complete schema bytes covers local and transitive $ref resolution without patching consumers."
+    },
+    {
+      "id": "R5-READ-FALLBACK-CLOSURE",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "No source-state call site uses resources.read_schema_text, resolve_schema_path or seed loaders. The active view nevertheless must make all schema/projection reads captured-only; read_schema_text's existing post-helper CWD fallback must be bypassed whenever a view is active, while ordinary behavior outside a view stays unchanged."
+    },
+    {
+      "id": "R5-ALL-EXITS-SAFETY",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "The retained _vault/_Snapshot and audit_integrity paths verify Vault identities, bytes and complete inventory on ordinary and exceptional exits. Nesting the resource view around audit, source collection, catalog validation and result assembly, resetting its token in finally, and independently verifying generation complete sets/bytes lets outer Vault finalization still run and preserves WORK_PATH_UNSAFE priority over parser/limit/absence errors."
+    },
+    {
+      "id": "R5-CONTEXT-ISOLATION",
+      "status": "PASS_WITH_REQUIRED_IMPLEMENTATION",
+      "evidence": "ContextVar tokens provide nested restoration and exception cleanup, provided each entered view allocates new private registry state. The default prewarmed registry must never be consulted in a view; separate execution contexts must not share parsed schemas or Registry identities."
+    },
+    {
+      "id": "R5-LEGACY-ROUTE-SEPARATION",
+      "status": "PASS",
+      "evidence": "Legacy catalog_collector/store and research-package registry readers are outside the new source-state route. They must remain unchanged or be excluded from the source-catalog resource view; invoking them would require resources excluded by the frozen source-catalog generation resource set and should fail closed."
+    }
+  ],
+  "required_implementation_acceptance": {
+    "resource_view": [
+      "Capture selected package/repository schema resource names and exact taxonomy/profile bytes before projection; include the future byte-identical catalog/source-catalog-v1.json copy.",
+      "Enter one view per source-catalog operation before audit_integrity and keep it through source collection/compilation, catalog schema/row validation and result assembly for build/status/lookup/query/resolve.",
+      "Within the view, schema_resource_names, load_schema_json, read_schema_text and read_projection_resource_bytes return only captured bytes; missing names stay missing and never fall through to package, repository or CWD resources.",
+      "Reset ContextVar tokens in finally and verify all retained generation files, resource ancestors, exact bytes and complete sets on success and every exception."
+    ],
+    "registry": [
+      "Prime the ordinary registry, then prove a deliberate schema/transitive-reference difference is visible only inside the view and that the default registry remains unchanged after exit.",
+      "Exercise projection_generation and projection_catalog direct _registry()[0] users, nested views, ordinary validation exceptions and independent execution contexts; prove no registry/schema object sharing.",
+      "Keep parsed schemas private to the view registry and preserve ordinary default callers and cache behavior outside a view."
+    ],
+    "race_vectors": [
+      "Add/remove/replace a schema or taxonomy/profile file and replace an ancestor during projection; final safety must return WORK_PATH_UNSAFE even when projection also raises a ContractError.",
+      "Add/remove a package .py or schema sibling and mutate a traversed resource directory; complete-set re-enumeration must refuse, while __pycache__/.pyc activity remains outside the declared generation set.",
+      "Run absent/empty/typed legacy/modern source-state reconstruction and all five source-catalog APIs without a second Vault snapshot or live Vault path reread."
+    ],
+    "delivery": [
+      "Keep catalog/source-catalog-v1.json byte-identical to SOURCE-CATALOG-PROFILE-R1.json; preserve source-catalog generation profile hash over raw bytes.",
+      "Run ordinary legacy schema/resource tests, both locked full suites and installed-wheel/resource parity before exact delivery; current review does not claim those future results."
+    ]
+  },
+  "limitations": [
+    "No SOURCE-CATALOG implementation files were present in the observed source-conversion tree; this is a preimplementation contract and call-site review, not an implementation acceptance.",
+    "The source-conversion worktree contains untracked R2 candidate files and remains separately gated by fresh conversion CI and exact-head acceptance; this review does not relabel those gates.",
+    "No real Vault, external approval, merge or human gate was used or closed."
+  ],
+  "mutations": {
+    "source": false,
+    "tests": false,
+    "catalog_resources": false,
+    "git": false,
+    "vault": false,
+    "network": false,
+    "human_gates": false
+  },
+  "reviewer_conclusion": "GO. The captured per-operation view is sufficient to bind every source-catalog resource/registry consumer in the observed source-conversion package, including both direct _registry users and the transitive taxonomy/compiler path. No concrete preimplementation blocker remains. Implementation must satisfy the listed captured-only reads, private registry isolation, complete generation/resource sets and all-exits safety precedence before implementation acceptance."
+}

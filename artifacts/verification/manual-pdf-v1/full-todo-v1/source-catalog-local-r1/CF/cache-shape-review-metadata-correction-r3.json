@@ -1,0 +1,62 @@
+{
+  "schema": "full-todo.source-catalog-cache-shape-metadata-correction-r3.v1",
+  "recorded_at_utc": "2026-09-09T09:38:25Z",
+  "status": "SUCCESSOR_METADATA_ONLY",
+  "decision": "METADATA_CORRECTION_ACCEPTED",
+  "scope": "Metadata-only successor to the preserved R2 cache-shape review. The original report remains immutable; this record corrects only the historical R1-bound reference spelling, adapted-probe byte count, and recording timestamp.",
+  "prior_report": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/cache-shape-review-r2.json",
+    "sha256": "26baea1e5ea8b43929b4f93da7552550e1e48313cf5baf8d54e097f13322586b",
+    "immutable": true,
+    "candidate_scope": "R1 candidate; the successor does not relabel it as R2 or R3 implementation evidence."
+  },
+  "r1_binding": {
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "manifest_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r1.json",
+    "manifest_sha256": "52c85d4e36f746d8edc212db050278d6977ebee13f3241e1b1b739eed232a15d",
+    "manifest_size_bytes": 4214,
+    "snapshot_sha256": "aba54b97d1db9c016ce14ce67f6f7234066417652bf749058dd48b1b5e16812e"
+  },
+  "corrections": [
+    {
+      "field": "r1_binding.manifest_sha256",
+      "historical_error": "One consumed R1 metadata reference was rendered without the final hexadecimal d.",
+      "corrected_value": "52c85d4e36f746d8edc212db050278d6977ebee13f3241e1b1b739eed232a15d",
+      "basis": "SHA-256 recomputation of the preserved local-candidate-r1.json bytes."
+    },
+    {
+      "field": "mixed_current_checkout_replay.adapted_r1_probe.size_bytes",
+      "historical_value": 28410,
+      "corrected_value": 23246,
+      "basis": "The retained adapted R1 probe byte count supplied for this metadata correction; no source or test file was rewritten."
+    },
+    {
+      "field": "recorded_at_utc",
+      "historical_value": "2026-09-09T09:30:00Z",
+      "corrected_value": "2026-09-09T09:38:25Z",
+      "basis": "Actual UTC recording clock at creation of this successor record."
+    }
+  ],
+  "unchanged_claims": {
+    "cache_shape_replay": "All eight retained-shape mutations and their SOURCE_CATALOG_INVALID results remain exactly as preserved in the prior report.",
+    "adapted_r1_probe_identity": "The corrected byte count does not create a new replay, alter its candidate binding, or convert temporary evidence into repository acceptance.",
+    "r1_only": "The corrected metadata remains bound to the prior R1 candidate head/tree/snapshot and is not relabelled as the later R2/R3 candidate."
+  },
+  "controls": {
+    "source": false,
+    "tests": false,
+    "catalog": false,
+    "vault": false,
+    "network": false,
+    "git": false,
+    "remote": false,
+    "review_artifact_only": true,
+    "original_report_modified": false
+  },
+  "remaining_gates": [
+    "This successor adds no implementation, full-suite, wheel, CI, delivery, or human-acceptance evidence.",
+    "Consumers should retain the original report and use this successor only for the corrected metadata fields."
+  ]
+}

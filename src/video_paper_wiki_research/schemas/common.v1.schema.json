@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.common.v1.schema.json",
+  "title": "video-paper-wiki-research.common.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {},
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "utc_timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "content_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sha256"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1, "maxLength": 256},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "local_artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 1}
+      }
+    },
+    "identity_component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "identity_source", "reason"],
+      "properties": {
+        "value": {"type": "string", "minLength": 1, "maxLength": 256},
+        "identity_source": {"enum": ["platform_reported", "self_reported", "unknown"]},
+        "reason": {"type": ["string", "null"], "maxLength": 4096}
+      }
+    },
+    "parser": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["engine", "engine_version", "core_version", "config_sha256", "model_manifest_sha256"],
+      "properties": {
+        "engine": {"const": "docling"},
+        "engine_version": {"const": "2.117.0"},
+        "core_version": {"const": "2.92.0"},
+        "config_sha256": {"$ref": "#/$defs/sha256"},
+        "model_manifest_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "parser_options": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enable_remote_services",
+        "allow_external_plugins",
+        "do_ocr",
+        "do_table_structure",
+        "generate_page_images",
+        "generate_picture_images",
+        "do_code_enrichment",
+        "do_formula_enrichment",
+        "do_picture_classification",
+        "do_picture_description",
+        "do_chart_extraction",
+        "document_timeout",
+        "accelerator_device",
+        "num_threads"
+      ],
+      "properties": {
+        "enable_remote_services": {"const": false},
+        "allow_external_plugins": {"const": false},
+        "do_ocr": {"const": false},
+        "do_table_structure": {"const": true},
+        "generate_page_images": {"const": false},
+        "generate_picture_images": {"const": false},
+        "do_code_enrichment": {"const": false},
+        "do_formula_enrichment": {"const": false},
+        "do_picture_classification": {"const": false},
+        "do_picture_description": {"const": false},
+        "do_chart_extraction": {"const": false},
+        "document_timeout": {"const": 300},
+        "accelerator_device": {"const": "cpu"},
+        "num_threads": {"const": 4}
+      }
+    },
+    "parser_config": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "engine", "engine_version", "core_version", "options"],
+      "properties": {
+        "schema": {"const": "manual-pdf-parser-config.v1"},
+        "engine": {"const": "docling"},
+        "engine_version": {"const": "2.117.0"},
+        "core_version": {"const": "2.92.0"},
+        "options": {"$ref": "#/$defs/parser_options"}
+      }
+    },
+    "model_file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "size_bytes"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "size_bytes": {"type": "integer", "minimum": 0, "maximum": 4294967296}
+      }
+    },
+    "model_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "files", "total_bytes"],
+      "properties": {
+        "schema": {"const": "manual-pdf-model-manifest.v1"},
+        "files": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {"$ref": "#/$defs/model_file"}
+        },
+        "total_bytes": {"type": "integer", "minimum": 0, "maximum": 34359738368}
+      }
+    }
+  }
+}

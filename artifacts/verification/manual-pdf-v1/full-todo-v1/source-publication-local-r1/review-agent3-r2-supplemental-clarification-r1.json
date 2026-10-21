@@ -1,0 +1,35 @@
+{
+  "$schema": "full-todo.source-publication-local-review-agent3-r2-supplemental-clarification.v1",
+  "recorded_at_utc": "2026-09-09T05:55:00Z",
+  "kind": "successor_evidence_correction",
+  "prior_records_preserved": [
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/review-agent3-r2.json",
+      "role": "immutable original review"
+    },
+    {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/review-agent3-r2-supplemental.json",
+      "role": "immutable supplemental review"
+    }
+  ],
+  "corrections": [
+    {
+      "id": "EVIDENCE-HASH-001",
+      "path": "schemas/video-paper-wiki.source-publication-request.v1.schema.json",
+      "old_recorded_hash": "8e487033c03ac40fec73f9afcdd1825a7ed86b3158a86d81803731d779ef22",
+      "correct_hash": "8e487033c03ac40fecfe73f9afcdd1825a7ed86b3158a86d81803731d779ef22",
+      "reason": "The original R2 review entry omitted one 'fe' substring in the recorded SHA-256. The supplemental review already carries the correct hash."
+    },
+    {
+      "id": "EVIDENCE-SCOPE-001",
+      "prior_text": "R5 updates publication.py, markdown_source.py, catalog_collector.py, formal_source.py, cli.py and selected tests/fixtures for the command-tree fixture and current regressions; these are outside this supplemental probe's source-binding claims.",
+      "corrected_text": "R5 adds the command-tree fixture, its allowlist/schema compatibility evidence and related test evidence. The named production implementation files are inherited from R2-R4; a later malformed-map fix changed publication.py and is reflected in the frozen candidate hash. This supplemental probe makes no claim about those unrelated implementation deltas.",
+      "reason": "The prior sentence incorrectly attributed existing production implementation changes to R5."
+    }
+  ],
+  "candidate_binding": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-publication-local-r1/local-candidate-r1.json",
+    "sha256": "67e0daeb27d89c057c7b43d4d87fea9431a0923d245d06232e10aa53af284b62",
+    "snapshot_sha256": "6d4e89c7b8cefcfac6910ec984248fbb7736fcfef0a0b9ba13860cac16086204"
+  }
+}

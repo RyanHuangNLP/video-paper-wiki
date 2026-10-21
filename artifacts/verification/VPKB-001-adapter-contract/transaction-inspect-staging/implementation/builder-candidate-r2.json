@@ -1,0 +1,224 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-transaction-inspect-staging-implementation-candidate.v1",
+  "baseline": {
+    "head": "62f3063fb612024179125bc7d842abdd3de0a4ee",
+    "tree": "37dfbba09e9f73656af4bb5510f7586bb5d4223e"
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "99cd327c23bafda60c77e51ed3be2e1e133292b7aa8155f8dcc34a9691093c47",
+      "size_bytes": 74963
+    },
+    "src/video_paper_wiki/staging.py": {
+      "sha256": "91baae30b77e77f588f605ec1cec4bbff993a13b9a147f63a78631891b56a0d8",
+      "size_bytes": 34712
+    },
+    "src/video_paper_wiki/transaction_staging.py": {
+      "sha256": "31bbbfe4d201e6f9b2625ddb485cdfeaf14c9867424b3677634eb64d007055ab",
+      "size_bytes": 6084
+    },
+    "tests/contract/test_transaction_staging.py": {
+      "sha256": "80bd284fa2c66d1ca8ecd68ff7ed7aa9b481513b45450e3b8d8166b1b059a1a9",
+      "size_bytes": 2849
+    },
+    "tests/security/test_transaction_staging_boundary.py": {
+      "sha256": "167aac1265704e89b7252494da1a38e24658903f72b35fd71711cb431563c2f7",
+      "size_bytes": 4142
+    },
+    "tests/security/test_work_staging_boundary.py": {
+      "sha256": "78abc0cc95f711c2b27ac275fdcb1672edc513b9d40a2ea71a7009e304f469e7",
+      "size_bytes": 36031
+    },
+    "tests/unit/test_staging.py": {
+      "sha256": "8f8811ebf7afe484121d3d3a32a9933d9c9d40534fe1f84d58e3563734435bd7",
+      "size_bytes": 14593
+    },
+    "tests/unit/test_transaction_staging.py": {
+      "sha256": "a49d147495d8f433c2637e6f8202f38a9e8a40afb716baffafe07fe15c1437b6",
+      "size_bytes": 11251
+    },
+    "tests/upstream/_transaction_staging_fixture.py": {
+      "sha256": "defe2ce3260f0d20c2e4be64596d2f716834e605fa2194b05f1d1c8ace973dc1",
+      "size_bytes": 2815
+    },
+    "tests/upstream/test_vpkb001_staged_transaction_inspect.py": {
+      "sha256": "3fbc2e954c05edd7a838f5f7268e81b2bba037d98a429906b10941750387e890",
+      "size_bytes": 1832
+    }
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted_by_raw_utf8(repo_relative_path) of utf8(path) || TAB || ascii(sha256(raw_file_bytes)) || TAB || ascii(decimal_size_bytes) || LF))",
+    "includes_raw_bytes_directly": false,
+    "path_count": 10,
+    "sha256": "75179e9d0a66b3d528a14d6cc48be7139d350380be9b945b61eeb18eb6cb4ab2"
+  },
+  "correction": {
+    "behavior": [
+      "pre-bundle and final checks enumerate retained transaction-inspect and content descriptors",
+      "transport permits only content plus optional/required bundle.json according to phase",
+      "unreferenced content is accepted only for full lowercase 64-hex names with no-follow regular-file type",
+      "safe digest-named regular orphan bytes are not read or rehashed",
+      "FIFO, symlink, directory, non-digest regular and transport extra are rejected as WORK_PATH_UNSAFE",
+      "unsafe discovery does not delete a preexisting exact bundle and bundle remains last for new publication"
+    ],
+    "blocker": "COMPLETE_SET_UNSAFE_ORPHAN_001",
+    "production_delta_paths": [
+      "src/video_paper_wiki/staging.py"
+    ],
+    "regressions": [
+      "test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle[fifo]",
+      "test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle[symlink]",
+      "test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle[directory]",
+      "test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle[non-digest-regular]",
+      "test_transaction_session_rejects_unsafe_unreferenced_entries_before_bundle[transport-extra]",
+      "test_transaction_session_allows_unrelated_safe_orphan_content",
+      "test_unsafe_orphan_does_not_delete_preexisting_exact_bundle",
+      "test_transaction_session_final_enumeration_rejects_new_extra_entry"
+    ]
+  },
+  "correction_authority": {
+    "revision_1_candidate_preserved": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/builder-candidate.json",
+      "sha256": "d180b6143115c8f96a6b3fa52e8429d5fbb4e479eaf8a7050b7048f0ac90def3",
+      "size_bytes": 10720
+    },
+    "revision_1_snapshot_sha256": "dbdc7f617c1bddaa8bb25169a779c8a5ad264d555d6ca25066c86e0b886b635d",
+    "revision_1_steward_review_preserved": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/steward-review.json",
+      "sha256": "175374326431284916b62479ee05239a68883caea63df2da68539a3f9c0b559b",
+      "size_bytes": 11687
+    },
+    "revision_1_work_package_archive": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package-r1.json",
+      "sha256": "13a739ac8ad38bdf5935df202c52fa9d980d1f81899cbbfffdcfd453a00e023a",
+      "size_bytes": 22084
+    },
+    "revision_2_work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/transaction-inspect-staging/implementation/implementation-work-package.json",
+      "sha256": "c79ade9aa3b9c70c77250ef3f5a3aa7743c60652b3c4725d5d4e0995a5a67633",
+      "size_bytes": 25850
+    }
+  },
+  "frozen_inputs": {
+    "contract": {
+      "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+      "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+      "size_bytes": 16847
+    },
+    "invalid_fixture": {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.transaction-staging.v1.invalid.json",
+      "sha256": "069e9a050c61f61117b8ea57eb929a829a156e1760bcdd6b943f2b2a9eff9d73",
+      "size_bytes": 710
+    },
+    "schema": {
+      "path": "schemas/video-paper-wiki.transaction-staging.v1.schema.json",
+      "sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+      "size_bytes": 2470
+    },
+    "valid_fixture": {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.transaction-staging.v1.json",
+      "sha256": "97d3a7c7c3353f0f967ea055f3df58709e677a911922466db643695cdfa870f5",
+      "size_bytes": 1186
+    }
+  },
+  "limitations": [
+    "Unreferenced safe digest-named regular orphan bytes are intentionally not read or authenticated.",
+    "Independent Steward review, Architect acceptance, exact delivery, fresh merge-ref CI and post-CI acceptance remain pending."
+  ],
+  "revision": 2,
+  "scope_verification": {
+    "diff_check_exit_code": 0,
+    "git_commit_push_pr_mutated": false,
+    "git_index_mutated": false,
+    "only_production_delta_from_r1": "src/video_paper_wiki/staging.py",
+    "protected_untracked_content_preserved": true,
+    "source_test_writes_stopped_before_evidence": true
+  },
+  "status": "builder_candidate_local_only",
+  "tests": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_staging.py tests/unit/test_transaction_staging.py tests/contract/test_transaction_staging.py tests/security/test_work_staging_boundary.py tests/security/test_transaction_staging_boundary.py tests/upstream/test_vpkb001_staged_transaction_inspect.py tests/unit/test_transaction_contracts.py tests/contract/test_transaction_contracts.py tests/unit/test_upstream_adapter.py tests/security/test_upstream_adapter_boundary.py tests/upstream/test_vpkb001_transaction_inspect.py tests/unit/test_upstream_adapter_capture.py tests/security/test_upstream_capture_boundary.py tests/contract/test_upstream_capture_authority.py tests/upstream/test_vpkb001_manual_pdf_capture.py tests/contract/test_schemas.py --basetemp=/private/tmp/vpkb-stage-r2-focus -o cache_dir=/private/tmp/vpkb-stage-r2-focus-cache --junitxml=/private/tmp/vpkb-stage-r2-focus.xml",
+      "duration_seconds": 16.99,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-r2-focus.xml",
+        "sha256": "28b7244399c3cb11dc9311cd2d8bd7b8214200b64381c609d2cb679794b3f316",
+        "size_bytes": 64774
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-r2-focus.log",
+        "sha256": "514eb8d635cdf67c3a4e5e5dc5c844254ae8055fc570df7083d6d54d67dd90dd",
+        "size_bytes": 581
+      },
+      "name": "focused_and_compatibility",
+      "passed": 435,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 435
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q --basetemp=/private/tmp/vpkb-stage-r2-full13 -o cache_dir=/private/tmp/vpkb-stage-r2-full13-cache --junitxml=/private/tmp/vpkb-stage-r2-full13.xml",
+      "duration_seconds": 74.66,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-r2-full13.xml",
+        "sha256": "a9075773a6a4c87d916ef0f7dbd336860c8220fce27e53c020e70510746bbe44",
+        "size_bytes": 473233
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-r2-full13.log",
+        "sha256": "42a0e32ae48420cd110ea294387f1373d40701fdb05e7cfb81b834f8a444e981",
+        "size_bytes": 2192
+      },
+      "name": "complete_python_3_13",
+      "passed": 1895,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 1895
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 /private/tmp/vpkb-py312-venv/bin/python -m pytest -q --basetemp=/private/tmp/vpkb-stage-r2-full12 -o cache_dir=/private/tmp/vpkb-stage-r2-full12-cache --junitxml=/private/tmp/vpkb-stage-r2-full12.xml",
+      "duration_seconds": 76.16,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpkb-stage-r2-full12.xml",
+        "sha256": "e58de2dba79c3a4b080c67db47026431533d5461a36146fb44fb4e1203e98d39",
+        "size_bytes": 473233
+      },
+      "log": {
+        "path": "/private/tmp/vpkb-stage-r2-full12.log",
+        "sha256": "b7a4e2e6fc542d98fe3a0fcde6a2e572f808d9966a3c17796dc32f08741d773a",
+        "size_bytes": 2192
+      },
+      "name": "complete_python_3_12",
+      "passed": 1895,
+      "python": "3.12.14",
+      "skipped": 0,
+      "tests": 1895
+    }
+  ],
+  "unresolved_contract_blockers": [],
+  "wheel": {
+    "build_command": "UV_CACHE_DIR=/private/tmp/vpkb-uv-cache /Users/huangzhanpeng/.hermes/bin/uv build --offline --out-dir /private/tmp/vpkb-stage-r2-dist",
+    "installed_outside_checkout": true,
+    "module_and_api_imported": true,
+    "schema_count": 24,
+    "smoke_log": {
+      "path": "/private/tmp/vpkb-stage-r2-wheel.log",
+      "sha256": "b1bce588911ca91294b7a533de40e9cb8217f45a92eb0c3eaca571aca181f9cd",
+      "size_bytes": 268
+    },
+    "transaction_staging_schema_sha256": "1d4b62b04469143dc269a76ecd90e5d573cb83b33e65da8d1dd22e07a44c1f78",
+    "wheel": {
+      "path": "/private/tmp/vpkb-stage-r2-dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+      "sha256": "3d5c9e077fe26fc7ddc2f63f1c7dbd68d967c17703864b0630756ba23e67056f",
+      "size_bytes": 209365
+    }
+  }
+}

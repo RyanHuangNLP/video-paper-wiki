@@ -1,0 +1,204 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-implementation-architect-local-acceptance.v1",
+  "architect": {
+    "agent": "Codex",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "ultra"
+  },
+  "architect_adversarial_replay": {
+    "controls": {
+      "create_dry_run": "accepted-vault-unchanged",
+      "reuse_noop": "accepted-vault-unchanged"
+    },
+    "identity_replacements": {
+      "matching_sibling_equal_bytes_mode_new_inode": "UPSTREAM_CONTRACT_MISMATCH",
+      "private_execution": "UPSTREAM_CONTRACT_MISMATCH",
+      "private_root": "UPSTREAM_CONTRACT_MISMATCH",
+      "private_scratch": "UPSTREAM_CONTRACT_MISMATCH"
+    },
+    "probe_script_archived": false,
+    "probe_script_raw_sha256": "43f4fbfcb31a0577d3a6adc33e0065d602cf549fbd743f7ec0a31cf4c6b9a879",
+    "result_archived": false,
+    "result_raw_sha256": "69cb5c7386a0a6e091fe6b2a2534611513b04d0bffccd47d9139dcfc0371f992",
+    "result_size_bytes": 956
+  },
+  "baseline": {
+    "base_branch": "integration",
+    "base_sha": "08709894adfb20ec07e976783f0ba436d975b74f",
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "pull_request": 94,
+    "tree": "9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca"
+  },
+  "candidate": {
+    "builder_evidence": "builder-candidate-r2.json",
+    "builder_evidence_sha256": "4b1fb44c43691c92b04f3a0443e18c06308aa27d211f8e810485a69d042939b5",
+    "file_count": 7,
+    "files": {
+      "src/video_paper_wiki/contracts.py": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+      "src/video_paper_wiki/upstream_adapter.py": "8f54858d3e16a66167e2b98edbf2eca6c67525aa501fb85c5c6603b0b8b72adc",
+      "tests/contract/test_upstream_capture_authority.py": "195f353403557dfd7e52a38a8cff53bb6ac36497fc67025aa0bb57f2acac68eb",
+      "tests/security/test_upstream_capture_boundary.py": "ad218f3335dfdf4778cd0d6fb5d73294a4c69d63452cdfe1d7c28a2979c7b49e",
+      "tests/unit/test_upstream_adapter_capture.py": "ec0e9bfb03796a94b9b8cf8b4d18c625f53be32853d5b01d254639062f530188",
+      "tests/upstream/_manual_pdf_capture_fixture.py": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+      "tests/upstream/test_vpkb001_manual_pdf_capture.py": "6e7bd265528716506ae52daa43ba5e96bc74770dfae69dcb0447cef73bd6c486"
+    },
+    "git_diff_check": "passed",
+    "git_index": "empty",
+    "source_before_after_equal": true,
+    "source_snapshot_formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "source_snapshot_sha256": "4ae784a1ab302c626688ef3e724ee2cd546e502c42e74b4ea8c8fd6afcb5b3f3"
+  },
+  "decided_at_utc": "2026-09-01T05:53:05.630480+00:00",
+  "decision": "PASSED_LOCAL_IMPLEMENTATION_CANDIDATE_PENDING_EXACT_COMMIT_AND_CI",
+  "environment_correction": {
+    "initial_full_runs": "1833 passed and two AF_UNIX fixture setup failures per Python because the first basetemp path exceeded the macOS socket path limit",
+    "python_3_12_initial_log_sha256": "ce9098b02f273993c1efc6c66374f7a07214441c0bf5d9da0a6a22aa409bc558",
+    "python_3_13_initial_log_sha256": "9b4d50ca6f33f0c03ff85b6ee2f158ee2008b082b09921729c46e9d6fee041d5",
+    "resolution": "reran the unchanged complete suite on each Python with a short real /private/tmp basetemp; both passed 1835/1835"
+  },
+  "focused_suites": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 <PY312>/python -m pytest -q -p no:cacheprovider <EXACT_10_WORK_PACKAGE_TEST_FILES> --basetemp=<SHORT_PRIVATE_TMP> --junitxml=<PRIVATE_TMP>/focused.xml",
+      "duration_seconds": 8.74,
+      "errors": 0,
+      "failed": 0,
+      "junit_archived": false,
+      "junit_raw_sha256": "35cbf4283c8ee5ce7296f877b345baf3df2e44049d373ebd7351b94d1f44487e",
+      "junit_size_bytes": 51908,
+      "log_archived": false,
+      "log_raw_sha256": "df0bfeff0e98675d265b03e838b9f02c1e4626e4c2016a8ec346400629e45ac4",
+      "log_size_bytes": 420,
+      "passed": 342,
+      "python": "CPython 3.12.14",
+      "skipped": 0
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 <PY313>/python -m pytest -p no:cacheprovider <EXACT_10_WORK_PACKAGE_TEST_FILES> --basetemp=<PRIVATE_TMP> --junitxml=<PRIVATE_TMP>/focused.xml",
+      "duration_seconds": 10.6,
+      "errors": 0,
+      "failed": 0,
+      "junit_archived": false,
+      "junit_raw_sha256": "6b071d09395111c072ccd596d24c92b9405655d780fb2478e0d07f09dcc71c73",
+      "junit_size_bytes": 51909,
+      "log_archived": false,
+      "log_raw_sha256": "d6850a9024d7577d2c5bfcc43cdd64948ce6186f5a864a27e7ee3a9548ce3074",
+      "log_size_bytes": 1693,
+      "passed": 342,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    }
+  ],
+  "frozen_inputs": {
+    "architecture_acceptance": {
+      "path": "../architecture-freeze-architect-acceptance.json",
+      "sha256": "e7261b9ec0bfaa5dd3378fb58aedcb09fe70066a798e4f063e6bbd1fa11bb25d"
+    },
+    "architecture_ci_run_id": 33469912314,
+    "architecture_head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "architecture_post_ci_records": {
+      "../architecture-freeze-ci-observation.json": "0c072258f001146bc7ebbf7e84f086f01c899d6d0c6f56b82c9c49d176419784",
+      "../architecture-freeze-merge-parents.json": "63ae48c50bbc0cce79db484f0ad7d04925d5eb156120f6fa9402ebc90630832f"
+    },
+    "architecture_tested_merge_sha": "ea86e96fbbbcaf6fbda360679c6e6d209a6151b7",
+    "contract_sha256": "6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b",
+    "implementation_work_package_sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+    "profile_sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+    "schema_sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+    "upstream_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "upstream_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "upstream_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a"
+  },
+  "independent_review": {
+    "blockers": [],
+    "focused": {
+      "failed": 0,
+      "passed": 342
+    },
+    "preserved_r1_candidate_sha256": "14070f9dc7985a52dde69ba5074553664bc4823d1ca509ebd9c8c4e51686f6a8",
+    "preserved_r1_report_sha256": "43a60a6ce499f86910a1bb95f70faf8be31084018bc556fc65cd724060d6eb5d",
+    "report": "steward-review-r2.json",
+    "report_sha256": "38d49fccb9e02f021cf3b24e200ead2472b163c4aad5aafdd35dff8bb238e081",
+    "security_source_cli_selection": {
+      "failed": 0,
+      "passed": 131
+    },
+    "verdict": "GO_FOR_ARCHITECT_ACCEPTANCE"
+  },
+  "invariants": {
+    "catalog_count": 67,
+    "dependency_lock_sha256": "67e928d696ad5e73e3635a67c8b231867734a0b93ba937cbb0a58b655d64afc0",
+    "frozen_generation_revision": 1,
+    "human_gate_changed": false,
+    "merge_authorized": false,
+    "network_or_real_vault_used": false,
+    "profile_file_count": 21,
+    "protected_user_untracked_preserved": true,
+    "pyproject_sha256": "5d9c487b0979bfe06a2c5fcb4e1e765760475fa9e80a60fa23f47b035d9d0a9a",
+    "schema_count": 23,
+    "vendor_changed": false
+  },
+  "limitations": [
+    "This is working-tree local acceptance; no implementation commit or exact implementation head exists yet.",
+    "Fresh Linux/macOS x Python 3.12/3.13 merge-ref CI and a separate exact-head Architect decision remain required.",
+    "Zero-network evidence is bounded Python/source/argv/environment observation, not an operating-system egress sandbox.",
+    "This record does not authorize actual apply/recover/admin, ledger merge, mapper/compiler, models/network, real Vault mutation, PR readiness, merge, auto-merge or a human-gate change."
+  ],
+  "local_full_suites": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 <PY312>/python -m pytest -q -p no:cacheprovider --basetemp=<SHORT_PRIVATE_TMP> --junitxml=<PRIVATE_TMP>/full.xml",
+      "duration_seconds": 94.99,
+      "errors": 0,
+      "failed": 0,
+      "junit_archived": false,
+      "junit_raw_sha256": "a1a15ace40b927fb30485b506ad45867c494e1fef8e3814df3d0b08192c4cd13",
+      "junit_size_bytes": 464241,
+      "log_archived": false,
+      "log_raw_sha256": "0e8549e5ea6a900fc6d2481874c0a95196c81172485a93bdff8d83f86cfced0c",
+      "log_size_bytes": 2112,
+      "passed": 1835,
+      "python": "CPython 3.12.14",
+      "skipped": 0
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 <PY313>/python -m pytest -q -p no:cacheprovider --basetemp=<SHORT_PRIVATE_TMP> --junitxml=<PRIVATE_TMP>/full.xml",
+      "duration_seconds": 92.55,
+      "errors": 0,
+      "failed": 0,
+      "junit_archived": false,
+      "junit_raw_sha256": "bdbc124abf893ef8e517d5f199dd33b65bf2955259e81b4adc306b509b175150",
+      "junit_size_bytes": 464241,
+      "log_archived": false,
+      "log_raw_sha256": "6a2a689d32b0b8cc20b5f571211e1ea5fedb12154323adcc450951e9d0f13359",
+      "log_size_bytes": 2112,
+      "passed": 1835,
+      "python": "CPython 3.13.13",
+      "skipped": 0
+    }
+  ],
+  "wheel": {
+    "build_command": "UV_CACHE_DIR=<PRIVATE_TMP>/uv-cache uv build --offline --wheel --out-dir <PRIVATE_TMP>/dist",
+    "install_command": "UV_CACHE_DIR=<PRIVATE_TMP>/uv-cache uv pip install --offline --reinstall --no-deps --python <PRIVATE_TMP>/wheel-venv/bin/python <PRIVATE_TMP>/dist/video_paper_wiki-0.1.0-py3-none-any.whl",
+    "installed_adapter_sha256": "8f54858d3e16a66167e2b98edbf2eca6c67525aa501fb85c5c6603b0b8b72adc",
+    "installed_contracts_sha256": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+    "missing_upstream_code": "ADAPTER_PATH_INVALID",
+    "network_attempts": 0,
+    "profile_sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+    "public_return_deep_copy": true,
+    "python": "CPython 3.13.13",
+    "schema_count": 23,
+    "schema_sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+    "smoke_command": "<PRIVATE_TMP>/wheel-venv/bin/python -I -B <PRIVATE_TMP>/smoke.py",
+    "smoke_output_archived": false,
+    "smoke_output_raw_sha256": "53a85010c078be6baff3c492e32e1e8e50af73023071eabcec5f10bfc5211b04",
+    "smoke_output_size_bytes": 919,
+    "smoke_script_archived": false,
+    "smoke_script_raw_sha256": "c854f4f3c8db9d491a77d33343b58941e64a67765d2f41b53e4d2f3263ea3cd6",
+    "smoke_script_size_bytes": 4729,
+    "status": "passed from outside the repository with isolated import path",
+    "valid_authority_public_and_central": true,
+    "wheel_archived": false,
+    "wheel_sha256": "d5143148fb40b1504cee7778247cf5f7cce0154d3beade126c19a1953d14264d",
+    "wheel_size_bytes": 204791
+  }
+}

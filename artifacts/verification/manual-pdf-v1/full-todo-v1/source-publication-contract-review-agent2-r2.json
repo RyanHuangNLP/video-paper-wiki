@@ -1,0 +1,104 @@
+{
+  "schema": "video-paper-wiki.source-publication-contract-review.v1",
+  "reviewed_at": "2026-09-09",
+  "decision": "CHANGES_REQUIRED_FOR_R2",
+  "scope": "Read-only bounded review of the stationary SOURCE-PUBLICATION revision 2 against the actual pinned source/claim ledger validators and current _ledgers collector. This review is limited to exact field shape, optionality, enums, source identity, and local-versus-pinned validation boundaries. No source, Git, Vault, upstream, subprocess, or operator mutation was performed.",
+  "packet": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R2.md",
+    "sha256": "908c94b376f5e130883acd332c7d9c12378daf2cd37b21507a16185dd58d5628",
+    "size_bytes": 23088
+  },
+  "reviewed_inputs": {
+    "pinned_ledgers": {
+      "path": "vendor/claude-obsidian/claude_obsidian/ledgers.py",
+      "sha256": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1",
+      "size_bytes": 53046
+    },
+    "local_catalog_collector": {
+      "path": "src/video_paper_wiki/catalog_collector.py",
+      "sha256": "588d0cd6533a930223b96116540b3e34903692771f784ec990f967d442359e9f",
+      "size_bytes": 21184
+    },
+    "ledger_locator": {
+      "path": "src/video_paper_wiki/ledger_locator.py",
+      "sha256": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0",
+      "size_bytes": 10310
+    },
+    "frozen_projection_contract": {
+      "path": "docs/ai/contracts/projection-input-v1.md",
+      "sha256": "79a500abca2406f060b9363b4675bd07b9fedbbccf78e2aac058763de13892c8",
+      "size_bytes": 19279
+    },
+    "source_semantics_r2": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R2.md",
+      "sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9",
+      "size_bytes": 22923
+    }
+  },
+  "resolved_checks": [
+    {
+      "id": "SP-R2-RESOLVED-001",
+      "statement": "R2 now uses location.path plus optional anchor at lines 196-203. The pinned field is confirmed at ledgers.py:964-985, and the collector carries location_path/location_anchor at catalog_collector.py:78-80."
+    },
+    {
+      "id": "SP-R2-RESOLVED-002",
+      "statement": "R2 now lists claim risk, assessment, and confidence values at lines 193-195. The evidence relation domain remains the pinned supports|contradicts|context set at ledgers.py:49 and :1073-1074 and must be stated explicitly."
+    },
+    {
+      "id": "SP-R2-RESOLVED-003",
+      "statement": "R2 keeps local audit upstream-free and reports upstream_validated:false at lines 156-162 and 209-211. The explicit inspect boundary is compatible with the pinned validator accepting its optional roots/readers at ledgers.py:467-474 and :901-909."
+    },
+    {
+      "id": "SP-R2-RESOLVED-004",
+      "statement": "R2 now names paper section_claim_refs and repo capability_claim_refs at lines 205-207, matching the current collector owner-reference branches."
+    }
+  ],
+  "findings": [
+    {
+      "id": "SP-R2-CLAIM-001",
+      "severity": "blocker",
+      "title": "Local reviewed_at optionality collapses a required frozen projection distinction",
+      "evidence": "R2.md:190-196 says reviewed_at is absent/null or an ISO date. The pinned validator obtains it with record.get at vendor/claude-obsidian/claude_obsidian/ledgers.py:1030, accepts omitted or null for non-accepted claims, requires a non-null ISO date only for assessment accepted at :1031-1039, and rejects future dates at :1040-1045. The frozen local projection contract instead says reviewed_at is a required key that may be null and that missing never becomes null (docs/ai/contracts/projection-input-v1.md:154-156). Current _ledgers uses item.get without a presence bit at catalog_collector.py:79-80.",
+      "required_fix": "State the two layers separately. Pinned/upstream validation may accept an omitted or null reviewed_at for non-accepted claims, validates an ISO date when present, and requires a non-null date for accepted claims. The local closed projection must either preserve missing-versus-null with a reviewed_at presence flag or explicitly supersede that frozen projection rule; it must not claim exact closure while _ledgers silently collapses both to the same row.",
+      "acceptance": "A non-accepted pinned-valid claim with omitted reviewed_at is handled only at the upstream layer. A local projected row preserves the omission or rejects it by the named closure rule; explicit null remains distinct. Accepted claims with omitted/null reviewed_at fail pinned validation; accepted claims with a non-future ISO date pass this field rule."
+    },
+    {
+      "id": "SP-R2-CLAIM-002",
+      "severity": "blocker",
+      "title": "Pinned evidence permits absent/null locator, while local decoding requires the closed wire",
+      "evidence": "The pinned validator checks locator only when present at vendor/claude-obsidian/claude_obsidian/ledgers.py:1089-1093; it does not require the key. Local decode_ledger_evidence requires exactly source_id, relation, and locator at src/video_paper_wiki/ledger_locator.py:203-215, and _ledgers accesses evidence[\"locator\"] directly at catalog_collector.py:81-83. R2.md:204 says to decode the accepted v1/v2 union without specifying this upstream/local distinction.",
+      "required_fix": "Declare the boundary: the pinned adapter may accept absent/null locator according to its current validator, while the local closed projection requires the exact wire needed by decode_ledger_evidence and rejects or explicitly classifies any pinned-valid item that cannot be represented. Never invent a locator or let a missing locator reach the direct collector indexing path.",
+      "acceptance": "A pinned-valid evidence object with a missing/null locator produces the stable local-closure refusal before row emission, without a KeyError. A canonical tagged locator with source_id, relation, and locator decodes, preserves supports|contradicts|context, and retains order and duplicates."
+    },
+    {
+      "id": "SP-R2-CLAIM-003",
+      "severity": "high",
+      "title": "R2 still omits source enum domains and the evidence relation domain from its exact field clause",
+      "evidence": "R2.md:190-196 lists claim risk/assessment/confidence but does not list source origin/content/authority/status values or evidence relations. The pinned constants are at vendor/claude-obsidian/claude_obsidian/ledgers.py:25-49 and enforcement is at :514-582, :955-963, and :1073-1074.",
+      "required_fix": "Add the exact domains: origin.kind = file|url|manual; source content_kind = document|webpage|dataset|image|audio|video|code|conversation|synthetic|other; source authority = official|primary|secondary|community|synthetic|unknown; source review_status = unreviewed|active|superseded|rejected; claim risk = normal|high; assessment = accepted|provisional|contested|unsupported|deprecated; confidence = high|medium|low|unknown; evidence relation = supports|contradicts|context. Keep synthetic-content/authority pairing and accepted/high-risk/contested evidence checks separate from enum membership.",
+      "acceptance": "Every listed value is accepted in its field and every unlisted spelling is rejected in both the pinned/local contract resources. The relation transport keeps context as the wire relation and does not rewrite it to supports."
+    },
+    {
+      "id": "SP-R2-CLAIM-004",
+      "severity": "high",
+      "title": "Paper anchor ^claim-id is a new local restriction and is not a pinned claim-field rule",
+      "evidence": "R2.md:197-203 requires a paper anchor of ^<claim-id>, while the pinned validator only checks that a non-null anchor is scalar text and, when a page is available, matches either an existing heading or an existing block ID at vendor/claude-obsidian/claude_obsidian/ledgers.py:981-1028. The frozen projection contract describes anchor as optional-nullable at docs/ai/contracts/projection-input-v1.md:154-156; current _ledgers preserves the raw anchor at catalog_collector.py:79-80.",
+      "required_fix": "If ^<claim-id> is an intentional paper-only local profile rule, label it as a prospective owner/page invariant rather than a pinned claim-ledger field and provide its exact migration/legacy exception. Otherwise remove it and retain the pinned heading-or-block anchor check. Do not impose this spelling on repository claims, whose v1 renderer has no claim block anchors as R2 already notes.",
+      "acceptance": "A legacy paper claim with a valid heading anchor or null anchor follows its declared profile; a paper ^claim-id rule is enforced only where explicitly versioned and rendered. Repository claims retain their existing optional/null/text anchor semantics. Pinned validation remains independent of the local owner policy."
+    },
+    {
+      "id": "SP-R2-CLAIM-005",
+      "severity": "high",
+      "title": "Source identity must retain the pinned formula and broader historical safe-ID boundary",
+      "evidence": "The pinned validator accepts source-map keys through _safe_ledger_id(source_id, \"src-\") at vendor/claude-obsidian/claude_obsidian/ledgers.py:501-504 and checks the stable formula at :607-624. stable_source_id is computed only from origin_kind, canonicalized locator, and optional content_sha256 at :407-414, not from an entire source row. The accepted historical registration projection uses src-[A-Za-z0-9][A-Za-z0-9._-]* at source_registration.py:21 and :86-90, and catalog_collector.py:71-77 preserves map keys verbatim.",
+      "required_fix": "Keep this profile distinction explicit. Do not impose src-<20hex> on all legacy/historical IDs and do not describe source identity as a digest of the complete row. For full pinned validation, compare a source key with stable_source_id(origin.kind, origin.locator, content_sha256) where that validator applies; for historical projection, retain its broader safe src- grammar. Claim evidence requires resolution in the complete source map under the applicable profile.",
+      "acceptance": "A historical-safe ID such as src-paper is not rejected merely for lacking a 20-hex suffix; a pinned row with a wrong stable formula is rejected; changing formula inputs is an identity conflict rather than a new unrelated row."
+    }
+  ],
+  "review_notes": [
+    "The prior source-claim projection note remains a rejected draft and is not frozen contract material.",
+    "R2 has corrected the previously reported location spelling, claim enum list, owner-reference names, audit boundary, and automatic old/new ledger snapshot assembly. This review does not reopen those resolved points.",
+    "No implementation, Git mutation, Vault mutation, subprocess, remote action, or human-gate claim is included in this review."
+  ],
+  "implementation_gate": "Do not freeze or dispatch SOURCE-PUBLICATION until the remaining local/upstream optionality, evidence-wire, source-enum, paper-anchor-profile, and source-identity clarifications are recorded in the successor contract."
+}

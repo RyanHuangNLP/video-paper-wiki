@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.article-heads.v1.schema.json",
+  "title": "video-paper-wiki.article-heads.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "heads"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.article-heads.v1"
+    },
+    "heads": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 4096,
+      "patternProperties": {
+        "^art-[0-9a-f]{20}$(?![\\s\\S])": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "revision_id",
+            "record_sha256"
+          ],
+          "properties": {
+            "revision_id": {
+              "type": "string",
+              "pattern": "^arv-[0-9a-f]{20}$(?![\\s\\S])"
+            },
+            "record_sha256": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+            }
+          }
+        }
+      }
+    }
+  }
+}

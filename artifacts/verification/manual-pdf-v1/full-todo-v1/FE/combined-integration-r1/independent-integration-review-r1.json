@@ -1,0 +1,90 @@
+{
+  "schema": "video-paper-wiki.combined-integration-independent-review-r1.v1",
+  "revision": 1,
+  "packet": "DISCOVERY-PREVIEW+SOURCE",
+  "scope": "Read-only independent integration review of the frozen combined SOURCE+PREVIEW candidate. No production source edits, Git mutation, Vault mutation, or external runtime.",
+  "recorded_at_utc": "2026-09-09T03:05:00Z",
+  "review_decision": "GO_FOR_ARCHITECT_COMBINED_INTEGRATION_REVIEW",
+  "candidate": {
+    "source_root": ".work/parallel/full-todo-v1/integration-r1/source",
+    "baseline": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "head": "b973f840ff57702db31d89c198a3bffc74ff8fcf",
+    "working_tree_expected_changes": [
+      "src/video_paper_wiki_research/cli.py",
+      "22 imported SOURCE+PREVIEW paths"
+    ],
+    "manifest_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/combined-integration-r1/candidate-r1.json",
+    "manifest_sha256": "d0c03c3d0a05b435e2a2370b0b027adc20830bb04b73cb4d0230c0dbc005a148",
+    "manifest_size_bytes": 5123,
+    "manifest_row_count": 23,
+    "manifest_snapshot_sha256": "f8efad4bdc8ebeb32809d8ba3a5d4266b6ce77a03a8dd03cac40077427b9cdd7"
+  },
+  "checks": [
+    {
+      "id": "COMBINED_MANIFEST_BYTES",
+      "result": "pass",
+      "detail": "All 23 candidate rows exist and match source SHA-256 and byte size exactly."
+    },
+    {
+      "id": "PREVIEW_SOURCE_IMPORT",
+      "result": "pass",
+      "detail": "The 22 non-CLI PREVIEW rows match the integration source byte-for-byte; the CLI row is intentionally owned by the combined merge."
+    },
+    {
+      "id": "SOURCE_CAPTURE_IMPORT",
+      "result": "pass",
+      "detail": "The 24 non-CLI SOURCE-CAPTURE rows match the integration source byte-for-byte; baseline paths are absent from the combined manifest as expected."
+    },
+    {
+      "id": "CLI_REGISTRATION",
+      "result": "pass",
+      "detail": "The combined CLI registers paper commands after the existing backup commands, and paper/preview help reaches both command groups."
+    },
+    {
+      "id": "CLI_LEGACY_HELP",
+      "result": "pass",
+      "detail": "Existing top-level, formal-source, pdf, backup, and workspace help remained reachable with exit code 0."
+    },
+    {
+      "id": "CLI_ERROR_COMPATIBILITY",
+      "result": "pass",
+      "detail": "Missing backup.verify arguments retain USAGE; missing paper.preview arguments use the paper-specific USAGE_ERROR code."
+    },
+    {
+      "id": "DIFF_CHECK",
+      "result": "pass",
+      "detail": "git diff --check passed for the integration source."
+    }
+  ],
+  "cli_smoke": [
+    {
+      "argv": ["--help"],
+      "exit_code": 0,
+      "assertions": ["paper appears in top-level choices"]
+    },
+    {
+      "argv": ["paper", "--help"],
+      "exit_code": 0,
+      "assertions": ["preview", "request", "observe", "decide", "list"]
+    },
+    {
+      "argv": ["paper", "preview", "--help"],
+      "exit_code": 0,
+      "assertions": ["context", "validate", "render"]
+    },
+    {
+      "argv": ["backup", "verify"],
+      "exit_code": 2,
+      "error_code": "USAGE"
+    },
+    {
+      "argv": ["paper", "preview", "render", "--session", "/tmp/no-session"],
+      "exit_code": 2,
+      "error_code": "USAGE_ERROR"
+    }
+  ],
+  "limitations": [
+    "This is a working-tree integration review; exact commit and fresh CI remain outside this report.",
+    "Full test-suite evidence is maintained by the coordinator and is not duplicated here."
+  ]
+}

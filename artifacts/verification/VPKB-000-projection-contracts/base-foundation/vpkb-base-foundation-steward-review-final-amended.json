@@ -1,0 +1,136 @@
+{
+  "blockers": [
+    {
+      "counterexample": {
+        "complete_file_sha256": "96dbcd598fdbc21b7303d802a5fb89ea1cc48ea5111ffc94cf936ca9e2b173b5",
+        "manifest_sha256": "6c28cdc42b7722e6581ade223edf2ce4514aa10b32eaf52f237cd460a7388045"
+      },
+      "evidence_path": "/private/tmp/vpkb-base-foundation-steward-review-codehash-counterexample.json",
+      "evidence_sha256": "dcfc1c1508a09af2b51645667b13d26c5d0743bfecdde665c5dbd6a9f83ef794",
+      "file": "src/video_paper_wiki/projection_catalog.py",
+      "id": "code-full-file-sha-conflated-with-self-hash",
+      "line": 567,
+      "required_fix_boundary": "Keep the inventory/path digest as the complete file SHA and validate manifest_sha256 only with the frozen self-excluding code_manifest_hash. Do not equate the two domains or change the capture contract."
+    },
+    {
+      "actual": "PROJECTION_LIMIT_EXCEEDED",
+      "evidence_path": "/private/tmp/vpkb-base-foundation-steward-review-locator-limit-counterexample.json",
+      "evidence_sha256": "185f7b48e2630f9471d48082cf5163c13fdc58e49e8cf7e23dfd510d43070d20",
+      "file": "src/video_paper_wiki/projection_catalog.py",
+      "id": "semantic-locator-limit-leaks-runtime-limit-code",
+      "lines": [
+        456,
+        458,
+        699,
+        702
+      ],
+      "required": "CATALOG_ROWS_INVALID",
+      "required_fix_boundary": "Remap errors from row semantic history/locator validation locally; preserve only public phase-1 runtime preflight and generation inventory limits."
+    },
+    {
+      "evidence_path": "/private/tmp/vpkb-base-foundation-steward-review-resource-fallback-counterexample.json",
+      "evidence_sha256": "4becf4ca827ba25473bc1fa0938385e1e293bc3e96cd3e0635f46e0bdd6aa8e9",
+      "file": "src/video_paper_wiki/resources.py",
+      "id": "installed-resource-miss-can-read-arbitrary-ancestor",
+      "lines": [
+        127,
+        150
+      ],
+      "required_fix_boundary": "Permit repository fallback only for the exact source-checkout src/video_paper_wiki layout; installed package resource and schema-enumeration misses must return missing even if an ancestor has catalog/taxonomy/schemas. Keep CWD excluded."
+    },
+    {
+      "counterexamples": [
+        "missing table loses to a bad cell",
+        "bad-cell winner changes when caller table order is reversed",
+        "duplicate PK wins before a presence-pair violation"
+      ],
+      "evidence_path": "/private/tmp/vpkb-base-foundation-steward-review-phase-order-counterexample.json",
+      "evidence_sha256": "22d43a24b4f81fdafcc936e223babeb8ebb988f14358b3e94a633e79a3a8ba6e",
+      "file": "src/video_paper_wiki/projection_catalog.py",
+      "id": "catalog-collection-cell-presence-key-phase-order",
+      "lines": [
+        95,
+        187
+      ],
+      "required_fix_boundary": "Separate complete collection/column/row-shape validation, manifest-order cell and presence validation, then PK/UQ/FK/ordinal closure. Do not merely sort the existing mixed loop."
+    },
+    {
+      "actual": "CATALOG_ROWS_INVALID under /generation_material",
+      "cases": [
+        "cycle",
+        "surrogate",
+        "dict-subclass"
+      ],
+      "evidence_path": "/private/tmp/vpkb-base-foundation-steward-review-catalog-generation-preflight-counterexample.json",
+      "evidence_sha256": "c6c070a32262fd5708428a6efe24019d555f1d903284c987f78677cc84f3a3d5",
+      "file": "src/video_paper_wiki/projection_catalog.py",
+      "id": "catalog-wrapper-generation-preflight-misclassified",
+      "lines": [
+        86,
+        92
+      ],
+      "required": "PROJECTION_GENERATION_INVALID",
+      "required_fix_boundary": "Classify non-limit virtual-root preflight failures by subtree: /generation_material maps to PROJECTION_GENERATION_INVALID, /tables maps to CATALOG_ROWS_INVALID; preserve PROJECTION_LIMIT_EXCEEDED globally. A simultaneous unsupported tables value still wins according to phase-1 traversal."
+    }
+  ],
+  "candidate": {
+    "all_declared_file_hashes_match": true,
+    "all_eight_frozen_hashes_match": true,
+    "declared_and_recomputed_snapshot_sha256": "b28a1e3d441c6d089477bdce9efabbafbacaceae278969d208132bd5cc4625f8",
+    "file_count": 18,
+    "git_diff_check": "pass",
+    "git_index_empty": true,
+    "manifest_path": "/private/tmp/vpkb-base-foundation-builder-candidate.json",
+    "manifest_sha256": "afe88f3437898ca3eb4641d18e367be20717fca45386c53abb64542560aa57ce"
+  },
+  "independent_catalog_oracle": {
+    "candidate_result": "blocked at code full-file/self-hash conflation",
+    "contract_valid_baseline_path": "/private/tmp/vpkb-base-foundation-steward-review-complete-baseline.json",
+    "contract_valid_baseline_sha256": "3ec24475b08de892682968f2616b3aa0d95e977ace55a54814288664dc8d4199",
+    "contract_valid_expected_catalog_sha256": "bf9194056f58ff6b9160f752138c3071c8eef8a1de36b2e26492f1a282b43d02",
+    "contract_valid_suite_path": "/private/tmp/vpkb-base-foundation-steward-review-catalog-suite-contract-valid.json",
+    "contract_valid_suite_sha256": "2022c623cf334bcb663353310ebfdf1b574b1fbb156de71d1f92e2349ea9ccf2",
+    "post_blocker_oracle_checks": 148,
+    "post_blocker_oracle_failures": 0,
+    "post_blocker_reachability_suite_sha256": "f19d0dd8f50d216f91d02e1996c4b14cb793102591e0732a57251ce008a75420",
+    "post_blocker_warning": "The reachability scaffold deliberately forces the two code hashes equal and is not acceptance evidence.",
+    "semantic_ids_exactly_once": 25,
+    "unique_vector_count": 30,
+    "vector_count": 30
+  },
+  "not_run_or_not_claimed": [
+    "The contract-valid complete catalog suite cannot pass until blocker 1 is fixed; the 148-pass reachability result is explicitly non-acceptance.",
+    "No full two-Python acceptance rerun was performed by Steward on this blocked snapshot.",
+    "No Git mutation, network, SQLite execution, Docling execution, or caller-path I/O was performed."
+  ],
+  "other_checks": {
+    "claim_evidence_permutation": {
+      "both_accepted": true,
+      "evidence_sha256": "22cf73ab10b2b36d7d1408b9c4c49f3b7e0571d548cad211b65a687eb2bc3d65",
+      "occurrences": 2,
+      "same_canonical_bytes": true
+    },
+    "conditional_overlay_schema_test": "No schema defect: runtime parent is closed; oneOf branches are conditional property overlays. Narrow the generic test and assert exact parent/branch structure; no architecture revision.",
+    "focused_pytest": {
+      "failed": 0,
+      "junit_sha256": "f4ac548d874678c3dd26785502679325b493a076f2cee8ec25ab4d5c0314923b",
+      "log_sha256": "d4d884c39a6a6bef4f6dffa713efc08f39f5c98b41bb50dbecc49ad997613121",
+      "passed": 134
+    },
+    "generation_preflight_boundary": "Standalone generation and catalog-wrapper /generation_material failures use PROJECTION_GENERATION_INVALID. Catalog-wrapper /tables unsupported values use CATALOG_ROWS_INVALID. The pre-fixed oracle was corrected only where its constructed virtual-root failure occurred first under /tables.",
+    "input_preflight_boundary": "Unsupported exact-runtime containers/subclasses map to SCHEMA_INVALID, while JSON root list reaches closed-shape and maps to PROJECTION_INPUT_INVALID.",
+    "wheel": {
+      "all_resource_bytes_equal_repo": true,
+      "resource_count": 25,
+      "resource_set_exact": true,
+      "review_sha256": "4be64d77efe4887b4710d15cc2df1e52aaf8fb7c49dc0225443c15b0ec1facfc",
+      "sha256": "76b8df22765e819fc4fef13612817dfcbb417c40be2cccc44fcff0ec767d4c0a"
+    }
+  },
+  "schema": "video-paper-wiki.base-foundation-steward-review.v1.amended",
+  "supersedes": {
+    "path": "/private/tmp/vpkb-base-foundation-steward-review-final.json",
+    "sha256": "551fd1276e224f43a074bb3c2dcaf4802b612d744775cea8db2ef8d974ea36ad"
+  },
+  "verdict": "CHANGES_REQUIRED"
+}

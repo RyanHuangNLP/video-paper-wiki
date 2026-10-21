@@ -1,0 +1,73 @@
+........................................................................ [  6%]
+........................................................................ [ 12%]
+........................................................................ [ 18%]
+........................................................................ [ 24%]
+........................................................................ [ 30%]
+........................................................................ [ 37%]
+...........F........................F................................... [ 43%]
+........................................................................ [ 49%]
+........................................................................ [ 55%]
+........................................................................ [ 61%]
+........................................................................ [ 68%]
+........................................................................ [ 74%]
+........................................................................ [ 80%]
+........................................................................ [ 86%]
+........................................................................ [ 92%]
+........................................................................ [ 98%]
+............                                                             [100%]
+=================================== FAILURES ===================================
+_______________ test_agent_source_has_no_network_client_imports ________________
+
+    def test_agent_source_has_no_network_client_imports() -> None:
+        forbidden = (
+            "requests",
+            "httpx",
+            "urllib.request",
+            "http.client",
+            "aiohttp",
+        )
+        for path in (ROOT / "src" / "video_paper_wiki").rglob("*.py"):
+            text = path.read_text()
+            for name in forbidden:
+>               assert name not in text, f"{path} contains {name}"
+E               AssertionError: <REPOSITORY>/src/video_paper_wiki/transaction_contracts.py contains requests
+E               assert 'requests' not in '"""Pure tra...s differ")\n'
+E
+E                 'requests' is contained here:
+E                    "address_requests", "source_manifest_updates", "engine_expanded_paths", "receipt", "head", "input_bundle_sha256"})
+E                 ?           ++++++++
+E                   _PREFIXES = ("wiki/papers/", "wiki/code/", "wiki/concepts/", "wiki/meta/ledgers/", "wiki/meta/records/", "wiki/meta/reviews/", "wiki/meta/gates/")
+E
+E                   ...
+E
+E                 ...Full output truncated (321 lines hidden), use '-vv' to show
+
+tests/security/test_cli_isolation.py:74: AssertionError
+_________________ test_no_network_clients_or_boundary_bypasses _________________
+
+network_attempts = []
+
+    def test_no_network_clients_or_boundary_bypasses(network_attempts) -> None:
+        forbidden_mods = ("requests", "httpx", "urllib.request", "http.client", "aiohttp")
+        concat_vault = False
+        for path in SRC.rglob("*.py"):
+            text = path.read_text(encoding="utf-8")
+            for name in forbidden_mods:
+>               assert name not in text, f"{path} contains {name}"
+E               AssertionError: <REPOSITORY>/src/video_paper_wiki/transaction_contracts.py contains requests
+E               assert 'requests' not in '"""Pure tra...s differ")\n'
+E
+E                 'requests' is contained here:
+E                    "address_requests", "source_manifest_updates", "engine_expanded_paths", "receipt", "head", "input_bundle_sha256"})
+E                 ?           ++++++++
+E                   _PREFIXES = ("wiki/papers/", "wiki/code/", "wiki/concepts/", "wiki/meta/ledgers/", "wiki/meta/records/", "wiki/meta/reviews/", "wiki/meta/gates/")
+E
+E                   ...
+E
+E                 ...Full output truncated (321 lines hidden), use '-vv' to show
+
+tests/security/test_work_staging_boundary.py:380: AssertionError
+=========================== short test summary info ============================
+FAILED tests/security/test_cli_isolation.py::test_agent_source_has_no_network_client_imports
+FAILED tests/security/test_work_staging_boundary.py::test_no_network_clients_or_boundary_bypasses
+2 failed, 1162 passed in 61.36s (0:01:01)

@@ -1,0 +1,29 @@
+{
+  "schema": "video-paper-wiki.preview-bounded-revision.v1",
+  "revision": 2,
+  "recorded_at_utc": "2026-09-09T02:37:45.384396+00:00",
+  "parent_candidate_sha256": "5475983c206fa92118ab818e8aa71c1411078fc693e0a4c0f74a90392aea0ec8",
+  "prior_rejection_sha256": "74155304f36ca0451fe2500a8568b99496991e936e00f3af0d60b7a54a079e13",
+  "additional_confirmed_blocker": {
+    "probe_path": "artifacts/verification/manual-pdf-v1/full-todo-v1/probes/probe_preview_decision_r1.result.json",
+    "sha256": "eb23c91ef268405c9e90ada6dc6f50cb064faee607d872603ddb0273fdcc51af",
+    "finding": "Concurrent valid writer conflict was overridden by complete-set WORK_PATH_UNSAFE; require retryable conflict75."
+  },
+  "allowed_changes": [
+    "src/video_paper_wiki_research/arxiv_preview.py",
+    "src/video_paper_wiki_research/preview_storage.py",
+    "tests/research/test_arxiv_preview.py",
+    "tests/research/test_preview_storage.py"
+  ],
+  "fixes": [
+    "Consume complete Authors block, preserving linked/plain continuation order, rejecting unparsed remnants and title/author omissions; only explicit observed download boilerplate is discarded.",
+    "A strict safe addition to the captured family set refuses with STAGING_CONFLICT75; existing entry byte/identity changes and named directory changes remain WORK_PATH_UNSAFE. No new object is silently reused; caller must re-read."
+  ],
+  "scope_unchanged": true,
+  "semantic_guarantees": [
+    "No bytes overwritten",
+    "No new permissions",
+    "Named directory safety dominates errors on all exits",
+    "R1sourceandtestsandliveevidencepreserved"
+  ]
+}

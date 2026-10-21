@@ -1,0 +1,155 @@
+{
+  "$schema": "full-todo.source-publication-local-review-agent3-r1.v1",
+  "packet": "SOURCE-PUBLICATION",
+  "revision": "R4-local-implementation-independent-agent3-r1",
+  "recorded_at_utc": "2026-09-09T05:05:00Z",
+  "role": "Independent local implementation reviewer",
+  "reviewer": "Codex",
+  "scope": "Read-only review of the isolated source-publication implementation worktree. Reviewed source_publication_io.py, source_publication_contracts.py, additive contracts.py/schema changes, and the publication.py transaction-helper extraction. No production, test, Git, Vault, network, or runtime-state mutation.",
+  "decision": "CHANGES_REQUIRED_AT_LOCAL_REVIEW",
+  "baseline": {
+    "source_root": ".work/parallel/source-publication-v1/terminal-1/source",
+    "head": "c32e68d08a142d5a5559ce717ff397f9b27f55d1",
+    "freeze": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-freeze-r4.json",
+      "sha256": "5629054bfc7e2f385bf2f9cadc4964a1651a52d89564a0f485372515963f7a95"
+    },
+    "contract_inputs": [
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R2.md",
+        "sha256": "908c94b376f5e130883acd332c7d9c12378daf2cd37b21507a16185dd58d5628"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R3.md",
+        "sha256": "67f3e8b0b287eb20e144de9f9300e97fd78adff6f785979a9dc9559a636310f6"
+      },
+      {
+        "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R4.md",
+        "sha256": "658ed78359a9baf3ae7974afee07c1f3b396eac820e085fd2927bdae9ae3f3cd"
+      }
+    ],
+    "allowlist": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-allowed-paths-r1.json",
+      "sha256": "1a7d3b54c3d9695941bc87a04a53c6096a0ed393f24e008229e83cf775484c61",
+      "path_count": 26
+    }
+  },
+  "inspected_files": [
+    {
+      "path": "src/video_paper_wiki/source_publication_io.py",
+      "sha256": "aa270616f227da447d5c4d04ec7a59deaacba350b6002922d57c19bce83c9f2f",
+      "size_bytes": 10425
+    },
+    {
+      "path": "src/video_paper_wiki/source_publication_contracts.py",
+      "sha256": "b745a63e77732ea38edc5554e7442ef027010636787e2346855207663043d44a",
+      "size_bytes": 9669
+    },
+    {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "351cb539a855b339994fa7aed00f4e1ec7efffcd4691e36ccd0535020450495b",
+      "size_bytes": 81471
+    },
+    {
+      "path": "src/video_paper_wiki/publication.py",
+      "sha256": "a9c281efa13be89b389cbeb0471e69fa01a41c6c89c099d66b3d1bd6c441fdfc",
+      "size_bytes": 43228
+    },
+    {
+      "path": "schemas/video-paper-wiki.source-publication-authority.v1.schema.json",
+      "sha256": "daee531097a5f9f973ca5bf5e86cb4b65e3fd15974d1fb5a62063b0161941a30",
+      "size_bytes": 1344
+    },
+    {
+      "path": "schemas/video-paper-wiki.source-publication-proposal.v1.schema.json",
+      "sha256": "39d17bdcb5fcdf6448b6ff41ea7e444f6411f2e92207bde4ffa1b70678e10ed9",
+      "size_bytes": 1937
+    },
+    {
+      "path": "schemas/video-paper-wiki.source-publication-request.v1.schema.json",
+      "sha256": "8e487033c03ac40fecfe73f9afcdd1825a7ed86b3158a86d81803731d779ef22",
+      "size_bytes": 3156
+    },
+    {
+      "path": "schemas/video-paper-wiki.assessment-heads.v2.schema.json",
+      "sha256": "f11e808ddb9af0dd5394a684904b130f5b31adf922a64e2a7c824f6946db6982",
+      "size_bytes": 1248
+    }
+  ],
+  "positive_checks": [
+    {
+      "id": "R4-OPERATION-KIND",
+      "status": "pass",
+      "evidence": "source_publication_contracts._authority requires ingest for the transaction, receipt, staging and upstream children for both knowledge and registration, matching R4; registration claims the accepted raw Markdown path while knowledge has no claims."
+    },
+    {
+      "id": "R4-REGISTRY-PATHS",
+      "status": "pass",
+      "evidence": "SOURCE_LEDGER, CLAIM_LEDGER, ASSESSMENT_HEADS and DISPLAY_HEADS use the fully qualified wiki/meta paths frozen by R4; no root-level records alias is admitted by kind_for_path."
+    },
+    {
+      "id": "REQUEST-CLOSED-SHAPE",
+      "status": "pass",
+      "evidence": "The four new schemas are registered, additionalProperties are closed, request payloads are checked for portable paths, digest-named content slots, sorted uniqueness, bounded sizes, and kind/registration consistency."
+    },
+    {
+      "id": "RETAINED-TREE-BOUNDARY",
+      "status": "pass",
+      "evidence": "PublicationTree retains named directory/file descriptors, rejects unknown entries, symlinks, hardlinks and unsafe permissions, checks complete content sets, and repeats named-lineage checks in verify finally paths."
+    },
+    {
+      "id": "TRANSACTION-HELPER-EXTRACTION",
+      "status": "pass",
+      "evidence": "publication.py moves receipt/head/transport construction into _assemble_publication_transaction while leaving the existing front-end prospective validation and post-assembly retained-input checks in place; the inspected diff shows no intentional legacy schema or path change."
+    },
+    {
+      "id": "SCHEMA-REGISTRY",
+      "status": "pass",
+      "evidence": "contracts.py dispatches all four source-publication schema titles through source_publication_contracts.check_document and wraps schema failures with SOURCE_PUBLICATION_INVALID."
+    }
+  ],
+  "findings": [
+    {
+      "id": "REGISTRATION-CAPTURE-RESULT-CROSS-BIND",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "source_publication_contracts.py:95-104 validates registration.authority with capture_validate and registration.capture_result with validate_operation_result_authority independently. source_publication_contracts.py:146-173 then checks only the publication transaction's claimed raw path/hash derived from registration.authority; it never compares capture_result.transaction to authority.upstream_authority.transaction, nor its operation ID, stored path, after hash, after mode, vault_before/vault_after or exact capture disposition. Existing markdown_source_contracts._authority (lines 139-155) performs these exact capture transaction bindings, but the source-publication registration branch does not reuse or mirror them."
+      ,"impact": "A syntactically valid capture authority A and an unrelated syntactically valid operation-result authority B can be paired in one registration request. A later ingest authority can claim A's raw path while B's result describes a different transaction, path, bytes or mode. The source registration proof is therefore detached from the captured bytes and operator-approved capture operation."
+      ,"required_fix": "In registration validation, require the capture result's transaction to be the exact inspected transaction named by the capture authority (or the exact accepted reuse result under the frozen reuse rule), bind operation IDs and bundle/declaration hashes, require the result changed_paths/hashes/modes and vault_after descriptor to equal the authority's stored_path, digest, size and retained mode, require the vault_before absence/current descriptor expected by capture, and reject mismatched disposition/child authorities before source ingest authority is accepted. Add adversarial cross-pair, wrong-mode, wrong-before and wrong-after tests."
+    },
+    {
+      "id": "STAGED-CONTENT-DIGEST-VERIFICATION",
+      "severity": "blocker",
+      "status": "open",
+      "evidence": "source_publication_io.py:138-155 validates a retained slot's digest only when held.data is already present. For an absent content slot, bind(..., allow_missing=True) retains a missing file and reaches source_publication_io.py:157-174; _install writes the caller's data by the caller-supplied digest name without checking sha(data) == name or the declared size. PublicationTree.install at lines 176-186 therefore succeeds for a missing digest slot containing arbitrary bytes."
+      ,"impact": "Prepare can report a successful staged publication whose content filename and request descriptor claim one digest while the staged bytes are different. A later inspect may refuse the tree, but the prepare boundary has already accepted and persisted an invalid external transport, violating the frozen content-addressed complete-set contract and making success/error behavior dependent on a later phase."
+      ,"required_fix": "Before bind/install or inside _install, require data to be bytes, len(data) <= MAX_FILE, sha(data) == the target digest, and (where available) the exact descriptor size. Preserve the existing refusal for a conflicting retained entry; add a test that a missing slot with wrong bytes fails without leaving the file and that the valid digest/size case still installs."
+    }
+  ],
+  "required_acceptance_matrix": [
+    "registration authority paired with unrelated capture result, wrong capture operation ID/bundle, wrong stored path/hash, wrong vault-before, wrong vault-after hash/mode, and reuse/create disposition mismatch",
+    "missing staged content slot with wrong digest bytes, wrong size, non-bytes, replacement race, existing identical bytes reuse, and no leftover invalid slot after refusal",
+    "knowledge and registration transaction operation_type=ingest, claim-set distinction, receipt/head binding, and exact fully qualified registry paths",
+    "request/proposal canonical bytes, sorted unique payloads, unknown content entries, symlink/hardlink/permission/replacement races and all-exits retained-tree checks",
+    "authority transaction business descriptors, receipt/head descriptors, staging bundle/declaration hashes, upstream transaction identity and basis head precondition",
+    "all four new schemas in the registry and installed wheel with valid/invalid fixtures and stable SOURCE_PUBLICATION_INVALID pointers",
+    "publication helper extraction parity against the existing generic bootstrap path and legacy tests"
+  ],
+  "verification": {
+    "commands": [
+      {
+        "command": "PYTHONPYCACHEPREFIX=/tmp/vpwiki-pyc python3 -m py_compile ...",
+        "result": "pass",
+        "details": "The four inspected Python modules compile. The default /usr/bin/python3 environment lacks jsonschema, so no runtime contract suite was claimed."
+      }
+    ],
+    "not_run": [
+      "No source-publication test files exist in the isolated worktree yet despite the R4 allowlist entries.",
+      "No real Vault, apply, vpwiki-admin, remote CI, installed-wheel resource check, or human approval was performed."
+    ]
+  },
+  "limitations": [
+    "This review is limited to the listed implementation files and additive schema/registry/helper changes; source_publication.py was absent from the reviewed candidate, and source_state.py was outside the requested scope (it appeared as a concurrent untracked path after the inspected snapshot).",
+    "The findings are static contract/data-flow findings. No production or test files were modified, and no Git mutation was performed."
+  ]
+}

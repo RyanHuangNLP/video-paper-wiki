@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-display-decision.v1.schema.json",
+  "title": "video-paper-wiki.source-display-decision.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "decision_id",
+    "paper_id",
+    "sequence",
+    "previous_decision_id",
+    "association",
+    "actor",
+    "choice",
+    "decided_at",
+    "reason"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.source-display-decision.v1"
+    },
+    "decision_id": {
+      "type": "string",
+      "pattern": "^svd-[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "paper_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8192
+    },
+    "previous_decision_id": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^svd-[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      ]
+    },
+    "association": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "association_id",
+        "sha256"
+      ],
+      "properties": {
+        "association_id": {
+          "type": "string",
+          "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "identity"
+      ],
+      "properties": {
+        "kind": {
+          "const": "human"
+        },
+        "identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        }
+      }
+    },
+    "choice": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "reference",
+        "text"
+      ],
+      "properties": {
+        "source": {
+          "enum": [
+            "user_message",
+            "user_file",
+            "fixture"
+          ]
+        },
+        "reference": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        }
+      }
+    },
+    "decided_at": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/utc_timestamp"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8192
+    }
+  },
+  "$defs": {
+    "decision_ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "sha256"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "pattern": "^svd-[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    }
+  }
+}

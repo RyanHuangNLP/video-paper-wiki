@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.upstream-bm25-profile.v1.schema.json",
+  "title": "video-paper-wiki.upstream-bm25-profile.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "params",
+    "doc_count",
+    "avg_dl",
+    "updated_at",
+    "vocab",
+    "docs"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 2
+    },
+    "params": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "k1",
+        "b"
+      ],
+      "properties": {
+        "k1": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 100
+        },
+        "b": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "doc_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "avg_dl": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 2147483647
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 20,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "vocab": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[\\s\\S]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "df",
+            "postings"
+          ],
+          "properties": {
+            "df": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 2147483647
+            },
+            "postings": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  }
+                ],
+                "items": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "docs": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[\\s\\S]+$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "dl",
+            "body_hash",
+            "page_body_hash"
+          ],
+          "properties": {
+            "path": {
+              "type": "string"
+            },
+            "dl": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 2147483647
+            },
+            "body_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "minLength": 71,
+              "maxLength": 71
+            },
+            "page_body_hash": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "minLength": 71,
+              "maxLength": 71
+            }
+          }
+        }
+      }
+    }
+  }
+}

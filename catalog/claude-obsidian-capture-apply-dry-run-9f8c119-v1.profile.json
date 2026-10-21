@@ -1,0 +1,198 @@
+{
+  "schema": "video-paper-wiki.upstream-profile.v1",
+  "profile": "claude-obsidian-capture-apply-dry-run-9f8c119-v1",
+  "distribution": "claude-obsidian",
+  "version": "2.1.1",
+  "git_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+  "git_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a",
+  "tracked_and_untracked_clean": true,
+  "execution_snapshot": {
+    "mode": "private-profile-source-copy-v1",
+    "scope": "verified_files-only",
+    "temporary_root_mode": "0700",
+    "directory_mode": "0700",
+    "file_mode": "0400",
+    "source_reads": "no-follow-regular-file-exact-size-sha256",
+    "bytecode_cache": "excluded",
+    "verification_order": [
+      "checkout-before-copy",
+      "snapshot-before-child",
+      "snapshot-after-child",
+      "checkout-after-child"
+    ],
+    "host_path_serialized": true,
+    "scratch_directory": "private-sibling-mode-0700",
+    "child_environment": {
+      "mode": "replace-subprocess-env-mapping",
+      "keys": [
+        "HOME",
+        "TEMP",
+        "TMP",
+        "TMPDIR"
+      ],
+      "value": "private-scratch-directory"
+    },
+    "host_path_serialization_policy": "raw-stdout-hash-and-size-only; portable-authority-projection-omits-content-file"
+  },
+  "public_cli": {
+    "entrypoint": "scripts/claude-obsidian.py",
+    "python_flags": [
+      "-I",
+      "-B",
+      "-X",
+      "utf8"
+    ],
+    "command": [
+      "capture",
+      "apply"
+    ],
+    "mode": "dry-run-only",
+    "required_fixed_arguments": [
+      "--vault",
+      "<explicit-vault-root>",
+      "--inbox",
+      "inbox",
+      "--max-items",
+      "1",
+      "--max-total-bytes",
+      "67108864",
+      "--max-file-bytes",
+      "67108864",
+      "--operation-id",
+      "<explicit-operation-id>",
+      "--generated-at",
+      "<explicit-utc-second>",
+      "<explicit-vault-relative-source>"
+    ],
+    "forbidden_arguments": [
+      "--apply",
+      "--approved-plan-sha256"
+    ]
+  },
+  "source_snapshot_formula": "ASCII-sort verified_files.path; concatenate path UTF-8 + NUL + lowercase raw-file SHA256 hex ASCII + LF, including final LF; SHA256 bytes",
+  "source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+  "verified_files": [
+    {
+      "path": "claude_obsidian/__init__.py",
+      "sha256": "fc9eded2259f55c00e36899e2572a876c110e3c0d6b51084d860aabe2d52be24",
+      "size_bytes": 296
+    },
+    {
+      "path": "claude_obsidian/__main__.py",
+      "sha256": "9573278a10fd58f03b8d2480311533fb9d8ceec8e0ec13ce414b811d27c78c04",
+      "size_bytes": 85
+    },
+    {
+      "path": "claude_obsidian/capture.py",
+      "sha256": "9fded207710e1e9b2fb60c6616b0675338b5eeaa1959f4ad972faec3c1ebd891",
+      "size_bytes": 83828
+    },
+    {
+      "path": "claude_obsidian/checkpoint.py",
+      "sha256": "12fb1522321cddc72e2fe2123f56010a1c81ff0a0ec91b8659c2451a566a3e85",
+      "size_bytes": 50166
+    },
+    {
+      "path": "claude_obsidian/cli.py",
+      "sha256": "38703e6db742f1c76ba6f8cce797b8ecf69a7cdf2ff1f9c739df60acab7e973a",
+      "size_bytes": 44772
+    },
+    {
+      "path": "claude_obsidian/contracts.py",
+      "sha256": "995baf1ce86fc2b2ad426523bd142ef0853f6a41841dcd0e557c463cc8e9025c",
+      "size_bytes": 49622
+    },
+    {
+      "path": "claude_obsidian/extensions.py",
+      "sha256": "846ef977af9d8029fdde3c7024159b3e8c35e3bd6c5fba020173726009bb5ee9",
+      "size_bytes": 2679
+    },
+    {
+      "path": "claude_obsidian/gates.py",
+      "sha256": "d36cf301e5c4bbd40e5f225abd9cfa8f2071e59ef918a8a9d119ad4a8932b974",
+      "size_bytes": 5014
+    },
+    {
+      "path": "claude_obsidian/hook_adapter.py",
+      "sha256": "79a3824641fd146a8960b57ca74bc4cd7fa29688f8928cdcd0e6ecbce5b35743",
+      "size_bytes": 11886
+    },
+    {
+      "path": "claude_obsidian/json_utils.py",
+      "sha256": "31143eebb4e9d22de3159753a368a71ef2a15f3c84177e0507a29885ac1d31f1",
+      "size_bytes": 1105
+    },
+    {
+      "path": "claude_obsidian/ledgers.py",
+      "sha256": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1",
+      "size_bytes": 53046
+    },
+    {
+      "path": "claude_obsidian/legacy_lock.py",
+      "sha256": "6edd094debd30ac3550974a624e37bc13d1902a355888009778cad812ebe5d18",
+      "size_bytes": 24317
+    },
+    {
+      "path": "claude_obsidian/lint_engine.py",
+      "sha256": "775cecd84170774fc3bf2f95a61c8b68df30e870baf863b4ac054b08587b94c3",
+      "size_bytes": 44602
+    },
+    {
+      "path": "claude_obsidian/mode_config.py",
+      "sha256": "0dfa01bfcf52e55bcc50f5f7bbc4b2c2cc945f333cb5847b933da9c2a2579cbb",
+      "size_bytes": 2800
+    },
+    {
+      "path": "claude_obsidian/package_validation.py",
+      "sha256": "963a54659a961de4e9791dd9abaffa9ede7a9e490a48bccadb5f4122cdd731ef",
+      "size_bytes": 20819
+    },
+    {
+      "path": "claude_obsidian/paths.py",
+      "sha256": "970e7ba997d9a7666d99c24562881a3ea677053d77fe8fd3c689fd3b7988bbf6",
+      "size_bytes": 14533
+    },
+    {
+      "path": "claude_obsidian/release.py",
+      "sha256": "a99e4f09821caba7ccfd1f4cc564d7270447db47d3d1938f0d725786f1f49f87",
+      "size_bytes": 90792
+    },
+    {
+      "path": "claude_obsidian/transaction.py",
+      "sha256": "e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2",
+      "size_bytes": 179506
+    },
+    {
+      "path": "claude_obsidian/url_safety.py",
+      "sha256": "d32b74164daa1bc735cc9a96b2cce07a5e3aa08209e4bdd2328dc6b8ef761d6b",
+      "size_bytes": 2402
+    },
+    {
+      "path": "claude_obsidian/vault_ops.py",
+      "sha256": "baab23cb2fd4936186108cc6fb47d4c5663b4026978fc56c06810489ba833a57",
+      "size_bytes": 5131
+    },
+    {
+      "path": "scripts/claude-obsidian.py",
+      "sha256": "34f3030da4a0ebc223a5dfba7f7180638d08dffa3d044be33fa72234866900c2",
+      "size_bytes": 357
+    }
+  ],
+  "capture_scope": {
+    "route": "manual-inbox",
+    "media_type": "application/pdf",
+    "source_count": 1,
+    "source_path_prefix": "inbox/",
+    "source_path_suffix": ".pdf",
+    "capture_config": "must-be-absent",
+    "raw_store": ".raw",
+    "captured_store": ".raw/captured",
+    "max_source_bytes": 67108864,
+    "max_captured_directory_entries": 4096,
+    "outcomes": [
+      "create-dry-run",
+      "reuse-noop"
+    ],
+    "mutation_authorized": false
+  }
+}

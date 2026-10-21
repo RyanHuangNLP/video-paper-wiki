@@ -1,0 +1,30 @@
+{
+  "cases": [
+    {
+      "case": "cycle",
+      "code": "CATALOG_ROWS_INVALID",
+      "exit_code": 2,
+      "message": "unsupported catalog row value",
+      "pointer": "/generation_material/self"
+    },
+    {
+      "case": "surrogate",
+      "code": "CATALOG_ROWS_INVALID",
+      "exit_code": 2,
+      "message": "unsupported catalog row value",
+      "pointer": "/generation_material/x"
+    },
+    {
+      "case": "dict-subclass",
+      "code": "CATALOG_ROWS_INVALID",
+      "exit_code": 2,
+      "message": "unsupported catalog row value",
+      "pointer": "/generation_material"
+    }
+  ],
+  "classification_rule": "non-limit preflight failure under /generation_material is invalid generation; under /tables it is invalid catalog rows",
+  "conclusion": "Candidate _safe_preflight collapses generation-subtree unsupported values into CATALOG_ROWS_INVALID and violates the frozen catalog wrapper error surface.",
+  "frozen_error_surface": "invalid generation uses PROJECTION_GENERATION_INVALID; invalid table/cell/key/FK/semantic uses CATALOG_ROWS_INVALID",
+  "frozen_phase": "catalog phase 1 preflights a virtual root containing generation_material and tables",
+  "schema": "video-paper-wiki.base-foundation-catalog-generation-preflight-counterexample.v1"
+}

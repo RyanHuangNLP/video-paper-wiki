@@ -1,0 +1,103 @@
+{
+  "$schema": "full-todo.source-catalog-semantic-review-r2.v1",
+  "packet": "SOURCE-CATALOG",
+  "revision": "R3-clarification-rereview-read-only",
+  "recorded_at_utc": "2026-09-09T07:32:24Z",
+  "reviewer": {
+    "agent": "cursor_cli_preflight",
+    "role": "independent semantic contract reviewer"
+  },
+  "scope": "Short supplement to the immutable R1 semantic review. R3 was reviewed against immutable R1/R2/profile and the prior report; no production source, test source, catalog resource, real Vault, operator receipt, Git, network, or human-gate mutation was performed.",
+  "inputs": {
+    "prior_review": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-semantic-review-r1.json",
+      "sha256": "48a4d0cb2cd546faa49d4d494422ed9d77e3fd46be868565af6cc24614c872c9",
+      "bytes": 13415
+    },
+    "r1": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R1.md",
+      "sha256": "cf7767abc88bb2b3122daca13709df95aa80b4d4ea9a9c172c615e4f8ad6fe46",
+      "bytes": 17546
+    },
+    "r2": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R2.md",
+      "sha256": "098536370b0848937a1da42284c7bf3f6c13852bc4358e82492d2827b2c6ce4c",
+      "bytes": 4579
+    },
+    "r3": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-R3.md",
+      "sha256": "c4b7cadcf83a427be690470adcf6c2b7709a8c4a6b493197106ec98ab95af7f4",
+      "bytes": 4540
+    },
+    "profile": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-CATALOG-PROFILE-R1.json",
+      "sha256": "3263bdc02f570d5d6fbd06aa3c8c7e0a6d796ecf80cf76f673e84aea0d3b83f8",
+      "bytes": 4376
+    }
+  },
+  "closure_review": [
+    {
+      "finding": "SEM-001",
+      "status": "CLOSED_BY_R3",
+      "evidence": [
+        "SOURCE-CATALOG-R3:7-33"
+      ],
+      "assessment": "R3 now requires exact producer identity sets, one owner/reference and assessment head per claim, exact original evidence count and ordinals 0..count-1, foreign-key resolution, exactly one coverage row per source/artifact, and ancestry-derived sorted sets. It also explicitly permits the intended unowned/unreferenced coverage states and null legacy display fields."
+    },
+    {
+      "finding": "SEM-002",
+      "status": "CLOSED_BY_R3",
+      "evidence": [
+        "SOURCE-CATALOG-R3:50-60"
+      ],
+      "assessment": "R3 fixes the order and domain: validate exact UTF-8 input, raw code-point/byte limits, NFKC then casefold, normalized code-point/byte limits, then token-count limit; overflow is SOURCE_CATALOG_LIMIT, blank/zero-token or invalid UTF-8 is SOURCE_CATALOG_INVALID, and no truncation."
+    },
+    {
+      "finding": "SEM-003",
+      "status": "CLOSED_BY_R3",
+      "evidence": [
+        "SOURCE-CATALOG-R3:9-17",
+        "SOURCE-CATALOG-R3:62-66"
+      ],
+      "assessment": "R3 makes lifecycle a required active/retired reference value and assessment the validated ledger/event value, rejects missing/unknown/conflicting provenance without defaults, and requires source-excerpt hits to inherit the owning claim values including retired references."
+    },
+    {
+      "finding": "SEM-004",
+      "status": "CLOSED_BY_R3",
+      "evidence": [
+        "SOURCE-CATALOG-R3:35-40",
+        "SOURCE-CATALOG-R3:62-66"
+      ],
+      "assessment": "R3 requires complete validated source/capture/parser/run or code-manifest ancestry before legacy resolution, treats ancestry failure as typed validation error rather than unsupported success, and forbids modern display selection from supplying legacy citation authority."
+    }
+  ],
+  "remaining_semantic_observation": {
+    "status": "PASS",
+    "evidence": [
+      "SOURCE-CATALOG-R3:42-48",
+      "SOURCE-CATALOG-R3:68-72"
+    ],
+    "text": "The clarification also closes the cache-forgery path by requiring schema/canonical/self-digest parsing followed by complete current reconstruction and fresh producer assertions, including status. Required coverage and expansion tests are named. No unresolved semantic blocker remains in this rereview."
+  },
+  "required_tests_reconfirmed": [
+    "Projection set, ordinal, foreign-key, coverage-cardinality and malformed/missing history fixtures refuse before cache installation.",
+    "All five assessment values with active/retired lifecycle and source-excerpt inheritance.",
+    "Exact PDF/code ancestry success, ancestry mismatch typed error, and display selection independence.",
+    "Raw and normalized code-point/UTF-8 expansion at limits, token-count overflow, invalid UTF-8 and zero-token query error codes.",
+    "Forged/old cache versus complete current reconstruction, including status path."
+  ],
+  "decision": "PASS",
+  "decision_basis": "R3 closes SEM-001 through SEM-004 with concrete producer, provenance, legacy ancestry, and query-bound rules. Existing R1/R2 IO/cache safety requirements and all prior review artifacts remain immutable and applicable.",
+  "implementation_boundary": {
+    "allowed": "This supplement only; no source/catalog/Git changes.",
+    "forbidden": [
+      "production source edits",
+      "test edits",
+      "catalog freeze changes",
+      "real Vault/operator writes",
+      "network/external index actions",
+      "human-gate closure"
+    ],
+    "stopped_writing": true
+  }
+}

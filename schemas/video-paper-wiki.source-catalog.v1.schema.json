@@ -1,0 +1,1590 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-catalog.v1.schema.json",
+  "title": "video-paper-wiki.source-catalog.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "profile",
+    "basis",
+    "generation",
+    "rows",
+    "catalog_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.source-catalog.v1"
+    },
+    "profile": {
+      "const": "source-catalog-v1"
+    },
+    "basis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "operation_head_sha256",
+        "inventory_sha256",
+        "inventory"
+      ],
+      "properties": {
+        "operation_head_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "inventory_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "inventory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "size_bytes",
+              "mode"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "mode": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 511
+              }
+            }
+          }
+        }
+      }
+    },
+    "generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profile_sha256",
+        "resources",
+        "implementation",
+        "runtime",
+        "rows_sha256"
+      ],
+      "properties": {
+        "profile_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            }
+          }
+        },
+        "implementation": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "size_bytes"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            }
+          }
+        },
+        "runtime": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "python_implementation",
+            "python_version",
+            "unicode_version",
+            "jsonschema",
+            "referencing",
+            "rpds-py"
+          ],
+          "properties": {
+            "python_implementation": {
+              "type": "string",
+              "minLength": 1
+            },
+            "python_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "unicode_version": {
+              "type": "string",
+              "minLength": 1
+            },
+            "jsonschema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "referencing": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rpds-py": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "rows_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        }
+      }
+    },
+    "rows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "documents",
+        "papers",
+        "repositories",
+        "claims",
+        "evidence",
+        "sources",
+        "associations",
+        "display_decisions",
+        "assessment_heads",
+        "display_heads",
+        "artifacts",
+        "compiled_pages",
+        "coverage"
+      ],
+      "properties": {
+        "documents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/documents"
+          }
+        },
+        "papers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/papers"
+          }
+        },
+        "repositories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repositories"
+          }
+        },
+        "claims": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claims"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sources"
+          }
+        },
+        "associations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/associations"
+          }
+        },
+        "display_decisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/display_decisions"
+          }
+        },
+        "assessment_heads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/assessment_heads"
+          }
+        },
+        "display_heads": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/display_heads"
+          }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/artifacts"
+          }
+        },
+        "compiled_pages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/compiled_pages"
+          }
+        },
+        "coverage": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/coverage"
+          }
+        }
+      }
+    },
+    "catalog_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    }
+  },
+  "$defs": {
+    "documents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "path",
+        "sha256",
+        "json_text"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "paper",
+            "repo",
+            "event",
+            "association",
+            "decision",
+            "observation",
+            "assessment_heads",
+            "display_heads",
+            "code-evidence-manifest",
+            "alignment-manifest",
+            "run-manifest",
+            "source-ledger",
+            "claim-ledger",
+            "source-ledger-snapshot"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "json_text": {
+          "type": "string"
+        }
+      }
+    },
+    "papers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_id",
+        "record_path",
+        "record_schema",
+        "title",
+        "title_zh",
+        "authors",
+        "published_at",
+        "aliases",
+        "taxonomy",
+        "code_urls",
+        "source_ids",
+        "association_ids",
+        "display_association_id",
+        "active_extraction_path",
+        "active_extraction_sha256"
+      ],
+      "properties": {
+        "paper_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        },
+        "record_path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "record_schema": {
+          "enum": [
+            "video-paper-wiki.paper-record.v1",
+            "video-paper-wiki.paper-record.v2"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "title_zh": {
+          "type": "string"
+        },
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "published_at": {
+          "type": "string"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "taxonomy": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/taxonomy_ref"
+          }
+        },
+        "code_urls": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/https_url"
+          },
+          "uniqueItems": true
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+          },
+          "uniqueItems": true
+        },
+        "association_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+          },
+          "uniqueItems": true
+        },
+        "display_association_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          ]
+        },
+        "active_extraction_path": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+            }
+          ]
+        },
+        "active_extraction_sha256": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          ]
+        }
+      }
+    },
+    "repositories": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repo_id",
+        "record_path",
+        "canonical_repository",
+        "canonical_commit",
+        "paper_ids",
+        "officiality",
+        "license",
+        "archived"
+      ],
+      "properties": {
+        "repo_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+        },
+        "record_path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "canonical_repository": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repository"
+        },
+        "canonical_commit": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/full_commit"
+        },
+        "paper_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+          },
+          "uniqueItems": true
+        },
+        "officiality": {
+          "enum": [
+            "official",
+            "unofficial",
+            "unverified_candidate"
+          ]
+        },
+        "license": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.repo-record.v1.schema.json#/$defs/license"
+        },
+        "archived": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "boolean"
+            }
+          ]
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "text",
+        "owner_kind",
+        "owner_id",
+        "page",
+        "reference",
+        "assessment",
+        "reviewed_at",
+        "risk",
+        "confidence",
+        "location",
+        "head_event_id",
+        "head_event_sha256",
+        "evidence_profile"
+      ],
+      "properties": {
+        "claim_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owner_kind": {
+          "enum": [
+            "paper",
+            "repo"
+          ]
+        },
+        "owner_id": {
+          "oneOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+            },
+            {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+            }
+          ]
+        },
+        "page": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "reference": {
+          "oneOf": [
+            {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.paper-record.v1.schema.json#/$defs/section_claim_ref"
+            },
+            {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.repo-record.v1.schema.json#/$defs/capability_claim_ref"
+            }
+          ]
+        },
+        "assessment": {
+          "enum": [
+            "accepted",
+            "provisional",
+            "contested",
+            "unsupported",
+            "deprecated"
+          ]
+        },
+        "reviewed_at": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "risk": {
+          "enum": [
+            "normal",
+            "high"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "high",
+            "medium",
+            "low",
+            "unknown"
+          ]
+        },
+        "location": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+            },
+            "anchor": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        "head_event_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/assessment_event_id"
+        },
+        "head_event_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "evidence_profile": {
+          "enum": [
+            "legacy-v1",
+            "mixed-v2"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "ordinal",
+        "source_id",
+        "kind",
+        "wire",
+        "association_id",
+        "display_association_id",
+        "resolution"
+      ],
+      "properties": {
+        "claim_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "source_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+        },
+        "kind": {
+          "enum": [
+            "markdown",
+            "pdf",
+            "code"
+          ]
+        },
+        "wire": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_id",
+            "relation",
+            "locator"
+          ],
+          "properties": {
+            "source_id": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+            },
+            "relation": {
+              "enum": [
+                "supports",
+                "contradicts",
+                "context"
+              ]
+            },
+            "locator": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "association_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          ]
+        },
+        "display_association_id": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+            }
+          ]
+        },
+        "resolution": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "reason",
+                "excerpt",
+                "excerpt_sha256",
+                "source_path",
+                "source_sha256",
+                "position"
+              ],
+              "properties": {
+                "state": {
+                  "const": "RESOLVED"
+                },
+                "reason": {
+                  "type": "null"
+                },
+                "excerpt": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "excerpt_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                },
+                "source_path": {
+                  "type": "string",
+                  "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+                },
+                "source_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "charspan",
+                        "page_anchor"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "markdown"
+                        },
+                        "charspan": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "page_anchor": {
+                          "anyOf": [
+                            {
+                              "type": "null"
+                            },
+                            {
+                              "type": "string"
+                            }
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "page",
+                        "ref",
+                        "charspan"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "pdf"
+                        },
+                        "page": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 300
+                        },
+                        "ref": {
+                          "type": "string"
+                        },
+                        "charspan": {
+                          "type": "array",
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "items": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "kind",
+                        "lines"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "code"
+                        },
+                        "lines": {
+                          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/lines"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "reason",
+                "excerpt",
+                "excerpt_sha256",
+                "source_path",
+                "source_sha256",
+                "position"
+              ],
+              "properties": {
+                "state": {
+                  "const": "UNSUPPORTED_LEGACY_RESOLUTION"
+                },
+                "reason": {
+                  "enum": [
+                    "legacy_json_pointer_unavailable",
+                    "legacy_object_not_text",
+                    "legacy_page_not_reconstructable",
+                    "legacy_charspan_unavailable",
+                    "excerpt_limit"
+                  ]
+                },
+                "excerpt": {
+                  "type": "null"
+                },
+                "excerpt_sha256": {
+                  "type": "null"
+                },
+                "source_path": {
+                  "type": "string",
+                  "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+                },
+                "source_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                },
+                "position": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "charspan",
+                            "page_anchor"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "const": "markdown"
+                            },
+                            "charspan": {
+                              "type": "array",
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            },
+                            "page_anchor": {
+                              "anyOf": [
+                                {
+                                  "type": "null"
+                                },
+                                {
+                                  "type": "string"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "page",
+                            "ref",
+                            "charspan"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "const": "pdf"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "minimum": 1,
+                              "maximum": 300
+                            },
+                            "ref": {
+                              "type": "string"
+                            },
+                            "charspan": {
+                              "type": "array",
+                              "minItems": 2,
+                              "maxItems": 2,
+                              "items": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "kind",
+                            "lines"
+                          ],
+                          "properties": {
+                            "kind": {
+                              "const": "code"
+                            },
+                            "lines": {
+                              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/lines"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "row"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+        },
+        "row": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "origin",
+            "content_kind",
+            "title",
+            "authority",
+            "review_status",
+            "pages"
+          ],
+          "properties": {
+            "origin": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "locator"
+              ],
+              "properties": {
+                "kind": {
+                  "enum": [
+                    "file",
+                    "url",
+                    "manual"
+                  ]
+                },
+                "locator": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "content_kind": {
+              "enum": [
+                "document",
+                "webpage",
+                "dataset",
+                "image",
+                "audio",
+                "video",
+                "code",
+                "conversation",
+                "synthetic",
+                "other"
+              ]
+            },
+            "title": {
+              "type": "string",
+              "minLength": 1
+            },
+            "authority": {
+              "enum": [
+                "official",
+                "primary",
+                "secondary",
+                "community",
+                "synthetic",
+                "unknown"
+              ]
+            },
+            "review_status": {
+              "enum": [
+                "unreviewed",
+                "active",
+                "superseded",
+                "rejected"
+              ]
+            },
+            "pages": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+              }
+            },
+            "content_sha256": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                }
+              ]
+            },
+            "ingested_at": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "retrieved_at": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "refresh_due": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "independence_key": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "supersedes": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "associations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "association_id",
+        "path",
+        "sha256",
+        "document"
+      ],
+      "properties": {
+        "association_id": {
+          "type": "string",
+          "pattern": "^sva-[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "document": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-version-association.v1.schema.json"
+        }
+      }
+    },
+    "display_decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decision_id",
+        "path",
+        "sha256",
+        "document"
+      ],
+      "properties": {
+        "decision_id": {
+          "type": "string",
+          "pattern": "^svd-[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "document": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-display-decision.v1.schema.json"
+        }
+      }
+    },
+    "assessment_heads": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "claim_id",
+        "event_id",
+        "event_sha256",
+        "evidence_profile"
+      ],
+      "properties": {
+        "claim_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/claim_id"
+        },
+        "event_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/assessment_event_id"
+        },
+        "event_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "evidence_profile": {
+          "enum": [
+            "legacy-v1",
+            "mixed-v2"
+          ]
+        }
+      }
+    },
+    "display_heads": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paper_id",
+        "head"
+      ],
+      "properties": {
+        "paper_id": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+        },
+        "head": {
+          "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.source-display-heads.v1.schema.json#/properties/heads/items"
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "kind",
+        "sha256",
+        "size_bytes",
+        "source_ids"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "kind": {
+          "enum": [
+            "captured",
+            "source-ledger-snapshot",
+            "markdown-observation",
+            "code-manifest",
+            "alignment-manifest",
+            "run-manifest",
+            "parser-artifact",
+            "derived"
+          ]
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "source_ids": {
+          "type": "array",
+          "items": {
+            "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "compiled_pages": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "text"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^(?!\\.{1,2}(?:/|$))(?!.*?/\\.{1,2}(?:/|$))[^/\\\\\\x00-\\x1f\\x7f]+(?:/[^/\\\\\\x00-\\x1f\\x7f]+)*$(?![\\s\\S])"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "coverage": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "state",
+            "source_ids",
+            "paper_ids",
+            "repo_ids",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "source"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "const": "registered_owned"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+              },
+              "uniqueItems": true
+            },
+            "paper_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "uniqueItems": true
+            },
+            "repo_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "const": "source_has_canonical_owner"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "state",
+            "source_ids",
+            "paper_ids",
+            "repo_ids",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "source"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "const": "registered_unclaimed"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+              },
+              "uniqueItems": true
+            },
+            "paper_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "uniqueItems": true
+            },
+            "repo_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "const": "source_has_no_canonical_owner"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "state",
+            "source_ids",
+            "paper_ids",
+            "repo_ids",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "artifact"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "const": "captured_registered"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+              },
+              "uniqueItems": true
+            },
+            "paper_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "uniqueItems": true
+            },
+            "repo_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "const": "capture_has_registered_source"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "state",
+            "source_ids",
+            "paper_ids",
+            "repo_ids",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "artifact"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "const": "captured_unregistered"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+              },
+              "uniqueItems": true
+            },
+            "paper_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "uniqueItems": true
+            },
+            "repo_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "const": "capture_has_no_source_row"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "state",
+            "source_ids",
+            "paper_ids",
+            "repo_ids",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "artifact"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "const": "derived_referenced"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+              },
+              "uniqueItems": true
+            },
+            "paper_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "uniqueItems": true
+            },
+            "repo_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "const": "artifact_in_canonical_evidence_ancestry"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "id",
+            "state",
+            "source_ids",
+            "paper_ids",
+            "repo_ids",
+            "reason"
+          ],
+          "properties": {
+            "kind": {
+              "const": "artifact"
+            },
+            "id": {
+              "type": "string"
+            },
+            "state": {
+              "const": "derived_unreferenced"
+            },
+            "source_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/source_id"
+              },
+              "uniqueItems": true
+            },
+            "paper_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/canonical_paper_id"
+              },
+              "uniqueItems": true
+            },
+            "repo_ids": {
+              "type": "array",
+              "items": {
+                "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/repo_id"
+              },
+              "uniqueItems": true
+            },
+            "reason": {
+              "const": "artifact_without_canonical_evidence_reference"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

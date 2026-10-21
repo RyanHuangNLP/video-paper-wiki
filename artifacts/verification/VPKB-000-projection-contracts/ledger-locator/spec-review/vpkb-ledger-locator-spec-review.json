@@ -1,0 +1,17 @@
+{
+  "status": "independent specification review: no blocking gap found",
+  "spec": "docs/ai/contracts/ledger-locator-v1.md",
+  "spec_sha256": "e0afd75ea214afc7ddaa1657f0fb8172a6dcd63656df5c857c24bfd233096d57",
+  "baseline": "208c206801214bb8f6e2f58f995ad7755ce87332",
+  "existing_r2_wire_bytes": 457,
+  "existing_r2_wire_sha256": "0c404bf4e18d52c6ed2446d22f9361144ae495fdbc241e93a2f275a16c50d1fc",
+  "r2_envelope_canonical_under_new_spec": true,
+  "release_scope": "isolated ledger_locator codec only; not full snapshot/input/history/SQLite/generation or upstream authenticity",
+  "source_id_grammar_evidence": "vendor/claude-obsidian/claude_obsidian/ledgers.py:459-465 at pin9f8c119 uses same fullmatch src prefix subset",
+  "review_notes": [
+    "Shared runtime helper failures must retain LIMIT and map remaining failures to locator/evidence codes per active API phase.",
+    "Decoded common-field pointers are relative to envelope (/locator/...), raw wire errors root; forwarded errors keep pointer, no string character offsets.",
+    "No decoder approximation of rationals; d=1 yields int and +/-zero/integral floats intentionally share canonical material.",
+    "Existingr2 synthetic coordinates remain transport evidence only; standalone implementation must cover all mandatory limits/refusals/copy/no-I/O tests."
+  ]
+}

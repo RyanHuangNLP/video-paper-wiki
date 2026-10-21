@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-heads.v1.schema.json",
+  "title": "video-paper-wiki.domain-heads.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "heads"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.domain-heads.v1"
+    },
+    "heads": {
+      "type": "object",
+      "additionalProperties": false,
+      "maxProperties": 4096,
+      "patternProperties": {
+        "^dln-[0-9a-f]{20}$(?![\\s\\S])": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "annotation_id",
+            "annotation_sha256",
+            "review_id",
+            "review_sha256",
+            "review_decision",
+            "reviewed_officiality"
+          ],
+          "properties": {
+            "annotation_id": {
+              "type": "string",
+              "pattern": "^dan-[0-9a-f]{20}$(?![\\s\\S])"
+            },
+            "annotation_sha256": {
+              "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+            },
+            "review_id": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string",
+                  "pattern": "^drv-[0-9a-f]{20}$(?![\\s\\S])"
+                }
+              ]
+            },
+            "review_sha256": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+                }
+              ]
+            },
+            "review_decision": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "enum": [
+                    "accepted",
+                    "contested",
+                    "rejected"
+                  ]
+                }
+              ]
+            },
+            "reviewed_officiality": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "enum": [
+                    "official",
+                    "unofficial",
+                    "unverified_candidate"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,509 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.connector-observation.v1.schema.json",
+  "title": "video-paper-wiki-research.connector-observation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "connector-observation.v1"
+    },
+    "kind": {
+      "const": "observation"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^rw1:observation:[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/sha256"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "request",
+        "observed_at",
+        "executor",
+        "source_url",
+        "capability_profile",
+        "reported_content_type",
+        "transport",
+        "outcome",
+        "payload"
+      ],
+      "properties": {
+        "request": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/reference"
+        },
+        "observed_at": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/utc_timestamp"
+        },
+        "executor": {
+          "$ref": "https://video-paper-wiki.dev/research-schemas/video-paper-wiki-research.preview-common.v1.schema.json#/$defs/identity"
+        },
+        "source_url": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "capability_profile": {
+          "enum": [
+            "normalized-content",
+            "byte-exact"
+          ]
+        },
+        "reported_content_type": {
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "transport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "final_url",
+            "redirect_chain",
+            "headers",
+            "content_type",
+            "dns_ips",
+            "raw_response_sha256",
+            "wire_bytes",
+            "timeout_enforced",
+            "redirect_policy_verified"
+          ],
+          "properties": {
+            "final_url": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "redirect_chain": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "minItems": 0,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "maxProperties": 64,
+                      "propertyNames": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      "additionalProperties": {
+                        "type": "string",
+                        "maxLength": 4096
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "content_type": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "dns_ips": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "minItems": 0,
+                      "maxItems": 32,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "raw_response_sha256": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "wire_bytes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 1048576
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "timeout_enforced": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "redirect_policy_verified": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "value",
+                "unavailable_reason"
+              ],
+              "properties": {
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "unavailable_reason": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 4096
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "outcome": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "retry_after_seconds"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "ok",
+                "not_found",
+                "timeout",
+                "rate_limited",
+                "failure"
+              ]
+            },
+            "retry_after_seconds": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 86400
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "payload": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "format",
+                "text",
+                "sha256"
+              ],
+              "properties": {
+                "format": {
+                  "const": "arxiv-abs-normalized-text-v1"
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1048576
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "format",
+                "path",
+                "sha256",
+                "bytes",
+                "executor_receipt_sha256"
+              ],
+              "properties": {
+                "format": {
+                  "const": "raw-response-reference-v1"
+                },
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1048576
+                },
+                "executor_receipt_sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

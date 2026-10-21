@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.code-proof-observation.v1.schema.json",
+  "title": "video-paper-wiki.code-proof-observation.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.code-proof-observation.v1"
+    },
+    "kind": {
+      "const": "code-proof-observation"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "\\A(?:ce1:code-proof-observation:[0-9a-f]{64})\\Z",
+      "minLength": 91,
+      "maxLength": 91
+    },
+    "data": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.code-proof-common.v1.schema.json#/$defs/observation_data"
+    }
+  },
+  "required": [
+    "schema",
+    "kind",
+    "id",
+    "data"
+  ]
+}

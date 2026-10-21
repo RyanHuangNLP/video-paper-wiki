@@ -1,0 +1,107 @@
+{
+  "schema": "full-todo.code-config-dynamic-offset-vectors.v1",
+  "revision": 2,
+  "purpose": "Hand-authored source-token offset and classification expectations; production parser not yet implemented.",
+  "vectors": [
+    {
+      "id": "escaped_marker",
+      "format": "json",
+      "source": "{\"x\":\"\\u0024{x}\"}",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 5,
+        "codepoint_offset": 5,
+        "reason": "dynamic_marker"
+      }
+    },
+    {
+      "id": "escaped_newline_callable",
+      "format": "toml",
+      "source": "x = \"call(\\narg)\"\n",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 4,
+        "codepoint_offset": 4,
+        "reason": "callable_string"
+      }
+    },
+    {
+      "id": "escaped_dynamic_key",
+      "format": "json",
+      "source": "{\"\\u0069nclude\": 1}",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 1,
+        "codepoint_offset": 1,
+        "reason": "dynamic_key"
+      }
+    },
+    {
+      "id": "dotted_key_component",
+      "format": "toml",
+      "source": "root . \"\\u0069nclude\" = 1\n",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 7,
+        "codepoint_offset": 7,
+        "reason": "dynamic_key"
+      }
+    },
+    {
+      "id": "marker_before_callable",
+      "format": "json",
+      "source": "[\"call(\\n${x})\"]",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 1,
+        "codepoint_offset": 1,
+        "reason": "dynamic_marker"
+      }
+    },
+    {
+      "id": "header_key_component",
+      "format": "toml",
+      "source": "[outer.\"import\"]\nx=1\n",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 7,
+        "codepoint_offset": 7,
+        "reason": "dynamic_key"
+      }
+    },
+    {
+      "id": "astral_prefix_offsets",
+      "format": "json",
+      "source": "{\"🙂\":\"ok\",\"x\":\"${a}\"}",
+      "expected": {
+        "code": "CODE_CONFIG_DYNAMIC_UNSUPPORTED",
+        "instance_pointer": "/payload",
+        "byte_offset": 17,
+        "codepoint_offset": 14,
+        "reason": "dynamic_marker"
+      }
+    },
+    {
+      "id": "near_matches",
+      "format": "json",
+      "source": "{\"x\":\"cost $5\",\"y\":\"factory(arg) tail\"}",
+      "expected": {
+        "accepted": true
+      }
+    },
+    {
+      "id": "comment_markers_ignored",
+      "format": "toml",
+      "source": "# include = \"${x}\"\nx=1\n",
+      "expected": {
+        "accepted": true
+      }
+    }
+  ]
+}

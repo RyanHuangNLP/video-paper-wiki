@@ -1,0 +1,181 @@
+{
+  "authenticated_upstream_source_snapshot_sha256": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+  "baseline": {
+    "head": "3ab19eda4f417b96d89a0a50b2ce2c05233a8478",
+    "tree": "9580fd8735ba8dfc286b257ac5c2b9ed9aae6cca"
+  },
+  "candidate_files": {
+    "src/video_paper_wiki/contracts.py": {
+      "sha256": "43411bb435dcab974cf228fce1367ff5be5862567875a1480baf3e1cb6b27c72",
+      "size_bytes": 74613
+    },
+    "src/video_paper_wiki/upstream_adapter.py": {
+      "sha256": "9b43036ff1be16fae8fbdb4a696877c97fa5321822459c324fc71bec8c2ce9e7",
+      "size_bytes": 61849
+    },
+    "tests/contract/test_upstream_capture_authority.py": {
+      "sha256": "0322318e8d25f01af7223331325868d240ae16d910a492c520f94ed50c60b7d1",
+      "size_bytes": 1980
+    },
+    "tests/security/test_upstream_capture_boundary.py": {
+      "sha256": "0459712ad15c9c5a3f1f67a78a614eaece3e8579720482bf720d592c58907d59",
+      "size_bytes": 6617
+    },
+    "tests/unit/test_upstream_adapter_capture.py": {
+      "sha256": "95cd10c43567253b3d2f5426db0d98c119996d69efbad9f6215884c189d68eb2",
+      "size_bytes": 5464
+    },
+    "tests/upstream/_manual_pdf_capture_fixture.py": {
+      "sha256": "0cf0b632f4dae7d41162506cafd7fa0be51148a0d69376b33484b95aa96832e6",
+      "size_bytes": 1485
+    },
+    "tests/upstream/test_vpkb001_manual_pdf_capture.py": {
+      "sha256": "e75fbed711da885d8bd82bfbcb7e4ecf6648325154c8568d6ee055296b24c307",
+      "size_bytes": 2523
+    }
+  },
+  "candidate_source_snapshot": {
+    "formula": "sha256(concat(sorted(utf8(repo_relative_path) || NUL || ascii(sha256(raw_file_bytes)) || LF)))",
+    "includes_raw_bytes_directly": false,
+    "sha256": "ac2164090a710123ecedaf8199ecd582cf13307aea70cff4a2bd74795ffede58"
+  },
+  "frozen_inputs": {
+    "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/architecture-freeze-architect-acceptance.json": {
+      "sha256": "e7261b9ec0bfaa5dd3378fb58aedcb09fe70066a798e4f063e6bbd1fa11bb25d",
+      "size_bytes": 6318
+    },
+    "artifacts/verification/VPKB-001-adapter-contract/manual-pdf-capture-dry-run/implementation/implementation-work-package.json": {
+      "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+      "size_bytes": 20794
+    },
+    "catalog/claude-obsidian-capture-apply-dry-run-9f8c119-v1.profile.json": {
+      "sha256": "fa5864b3dcbc9880689110e4aa36ede500b785cb2c2ca1290ca9b52817ef8dd6",
+      "size_bytes": 6221
+    },
+    "docs/ai/contracts/vpkb-001-manual-pdf-capture-dry-run-v1.md": {
+      "sha256": "6d156fd55112136c1ee9cc86dad9adeab8eb8fa8ee7d464b685426fffb09e92b",
+      "size_bytes": 18851
+    },
+    "docs/ai/packets/VPKB-001-adapter-contract.md": {
+      "sha256": "64f9e82a1325138c5bf97eafd5cf590274df8cc945ab357e636dd6cf6ba5a879",
+      "size_bytes": 8076
+    },
+    "schemas/video-paper-wiki.upstream-capture-authority.v1.schema.json": {
+      "sha256": "7e45ae0bcd2cf1c1cbbf91fcbc72834f71f6292ac9b65b5dd82e89343f1b1e23",
+      "size_bytes": 8032
+    },
+    "tests/fixtures/contracts/invalid/video-paper-wiki.upstream-capture-authority.v1.invalid.json": {
+      "sha256": "45519643e265f7f9c0d5990d74b2c51a1274bc918d9d9bd12f4e2212dd5ebde1",
+      "size_bytes": 3257
+    },
+    "tests/fixtures/contracts/valid/video-paper-wiki.upstream-capture-authority.v1.json": {
+      "sha256": "03ea808a63f70750e6265a80c94c2ac01fee463f685ac193485105f653e8dbe6",
+      "size_bytes": 3262
+    }
+  },
+  "git_observation": {
+    "branch_or_remote_mutated": false,
+    "index_mutated": false,
+    "note": "Pre-existing protected and user untracked content was preserved and excluded."
+  },
+  "implementation_authority": {
+    "sha256": "712c70d7b042de47307f1bf488092dc8f0becede1dadaccb9184e52d424bf1a0",
+    "size_bytes": 20794
+  },
+  "implemented": [
+    "pinned public capture apply default dry-run for one explicit manual inbox PDF",
+    "isolated exact-21-source execution, four-key scratch environment, pre/post checkout/Vault/allocation checks",
+    "strict create/noop stdout projection, capture inspection, approval hash and closed authority validation",
+    "central title-scoped semantic dispatch without changing accepted v1 behavior"
+  ],
+  "limitations": [
+    "Python 3.12 is not installed in the Builder environment; Architect/CI must run the required 3.12 suite.",
+    "Installed-wheel verification remains acceptance work because this environment has no offline wheel builder or pip module.",
+    "This dry-run adapter does not authorize apply/recover/admin, real Vault use, ledger merge/audit, mapper, network, models, or publication.",
+    "Point-in-time no-follow snapshots do not claim an OS sandbox against a privileged same-host actor."
+  ],
+  "revision": 1,
+  "schema": "video-paper-wiki.vpkb-001-manual-pdf-capture-implementation-candidate.v1",
+  "status": "builder_candidate_local_only",
+  "tests": [
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q <10 focused files> --basetemp=<PRIVATE_TMP>/tmp --junitxml=<PRIVATE_TMP>/all-focused.xml",
+      "duration_seconds": 6.1,
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpm-builder-focus/all-focused.xml",
+        "sha256": "87d72354e9aed02820c5f2d7cfb42c3b79f0daedf40ada4ce7860e33863b5240",
+        "size_bytes": 45596
+      },
+      "log": {
+        "path": "/private/tmp/vpm-builder-focus/all-focused.log",
+        "sha256": "98ef6822df1ee25e0f422e8b368bb551f363e03d68a6adb76f83cdb53ffaacb9",
+        "size_bytes": 420
+      },
+      "name": "focused_new_old_and_contract",
+      "passed": 308,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 308
+    },
+    {
+      "duration_seconds": 69.21,
+      "errors": 0,
+      "exit_code": 1,
+      "failures": 5,
+      "junit": {
+        "path": "/private/tmp/vpm-builder-full313/full.xml",
+        "sha256": "21d61226a1c15bd3287d0cd8fbe23fcd5fe20272760103fe3dc40c034ee6a678",
+        "size_bytes": 466690
+      },
+      "log": {
+        "path": "/private/tmp/vpm-builder-full313/full.log",
+        "sha256": "ab1119d13ccd089870443a8fdc3ea0cfeb5165cc970a57a75906219e63cda024",
+        "size_bytes": 11427
+      },
+      "name": "full_locked_local_managed_sandbox_observation",
+      "passed": 1796,
+      "python": "3.13.13",
+      "result_note": "All five failures were AF_UNIX bind PermissionError from the managed sandbox; preserved and rerun without skipping.",
+      "skipped": 0,
+      "tests": 1801
+    },
+    {
+      "command": "PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider --basetemp=<PRIVATE_TMP>/tmp --junitxml=<PRIVATE_TMP>/full-escalated.xml",
+      "duration_seconds": 69.28,
+      "environment_note": "Ran outside the managed sandbox solely so the existing AF_UNIX security tests could bind local sockets under the short real /private/tmp base.",
+      "errors": 0,
+      "exit_code": 0,
+      "failures": 0,
+      "junit": {
+        "path": "/private/tmp/vpm-builder-full313/full-escalated.xml",
+        "sha256": "4f29a68678d22c35dd4e156ad8313f5aff3de03671d3f2f2deacfc4713ab39e6",
+        "size_bytes": 457929
+      },
+      "log": {
+        "path": "/private/tmp/vpm-builder-full313/full-escalated.log",
+        "sha256": "e674b993ad83664444cda3f9ce6ba9ecc0849f2337a39b9972850ade4190f4c1",
+        "size_bytes": 2112
+      },
+      "name": "full_locked_local_authorized_af_unix",
+      "passed": 1801,
+      "python": "3.13.13",
+      "skipped": 0,
+      "tests": 1801
+    },
+    {
+      "exit_code": 1,
+      "log": {
+        "path": "/private/tmp/vpm-builder-wheel/build.log",
+        "sha256": "bfeddcad017b0e3aca6b106a8c932570607ead66e4917a5651d0fc0d46089838",
+        "size_bytes": 88
+      },
+      "name": "offline_wheel_attempt",
+      "python": "3.13.13",
+      "result_note": "Not runnable in the locked Builder environment: .venv has no pip module and no uv/build/hatchling executable; no download or dependency mutation attempted."
+    }
+  ],
+  "unresolved_contract_blockers": []
+}

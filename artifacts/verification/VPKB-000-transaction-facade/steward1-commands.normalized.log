@@ -1,0 +1,1038 @@
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "init", "<RUN>/v", "--operation-id", "fixture-init", "--generated-at", "2026-08-31T00:00:00Z"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "fixture-init-dry"}
+[stdout_file]
+{
+  "approval_hint": "review the operation, then repeat the exact pinned command with --approved-plan-sha256 dd457bccde4ec7a80669386a33717922a2a6c83bd6edc3673316b33656277442 --apply",
+  "approved_plan_sha256": "dd457bccde4ec7a80669386a33717922a2a6c83bd6edc3673316b33656277442",
+  "changed_paths": [
+    ".claude-obsidian.json",
+    ".gitignore",
+    ".obsidian/app.json",
+    ".obsidian/appearance.json",
+    ".obsidian/graph.json",
+    ".obsidian/snippets/vault-colors.css",
+    ".raw/.manifest.json",
+    "inbox/.gitkeep",
+    "wiki/hot.md",
+    "wiki/index.md",
+    "wiki/log.md",
+    "wiki/meta/ledgers/claim-ledger.json",
+    "wiki/meta/ledgers/source-ledger.json",
+    "wiki/overview.md"
+  ],
+  "generated_at": "2026-08-31T00:00:00Z",
+  "operation": {
+    "expected_hashes": {
+      ".claude-obsidian.json": null,
+      ".gitignore": null,
+      ".obsidian/app.json": null,
+      ".obsidian/appearance.json": null,
+      ".obsidian/graph.json": null,
+      ".obsidian/snippets/vault-colors.css": null,
+      ".raw/.manifest.json": null,
+      "inbox/.gitkeep": null,
+      "wiki/hot.md": null,
+      "wiki/index.md": null,
+      "wiki/log.md": null,
+      "wiki/meta/ledgers/claim-ledger.json": null,
+      "wiki/meta/ledgers/source-ledger.json": null,
+      "wiki/overview.md": null
+    },
+    "operation_id": "fixture-init",
+    "operation_type": "setup",
+    "schema": "claude-obsidian.transaction.v1",
+    "writes": [
+      {
+        "content": "{\n  \"legacy_raw\": \".raw\",\n  \"role\": \"vault\",\n  \"schema\": \"claude-obsidian.workspace.v1\",\n  \"source_inbox\": \"inbox\",\n  \"vault\": \".\"\n}\n",
+        "mode": "create",
+        "path": ".claude-obsidian.json",
+        "sha256": "5701c6910dcdb39cd0494769e6e8e2814cbb01cf2bc5c29d2b40fcf5094e1453"
+      },
+      {
+        "content": "# Vault-local runtime and recovery state may contain note text or source URLs.\n.vault-meta/\n\n# Local MCP launch configuration may contain commands or credentials. Share a\n# reviewed `.mcp.example.json` instead of committing the live file.\n.mcp.json\n\n# Obsidian and operating-system session state.\n.obsidian/workspace*.json\n.trash/\n.DS_Store\nThumbs.db\n",
+        "mode": "create",
+        "path": ".gitignore",
+        "sha256": "0d62dd96ce7a511d2f0154b6373b7a0bfc74b7985c2342af9357751b9fba42dd"
+      },
+      {
+        "content": "{\n  \"userIgnoreFilters\": [\n    \".raw/\",\n    \".vault-meta/\"\n  ]\n}\n",
+        "mode": "create",
+        "path": ".obsidian/app.json",
+        "sha256": "b8c736f8900e4d28ead438125440572f32f5a475dd094ba7155b0879dc253c4b"
+      },
+      {
+        "content": "{\n  \"enabledCssSnippets\": [\n    \"vault-colors\"\n  ]\n}\n",
+        "mode": "create",
+        "path": ".obsidian/appearance.json",
+        "sha256": "d0bd766999b3bb8d45bdb5997916d82c51123c295599ff6a5db39ba40618bd7a"
+      },
+      {
+        "content": "{\n  \"search\": \"path:wiki\",\n  \"showAttachments\": false,\n  \"showArrow\": true,\n  \"showOrphans\": false\n}\n",
+        "mode": "create",
+        "path": ".obsidian/graph.json",
+        "sha256": "574d00b8e5c2e16724678023c50a85e727af9067839f8612c55958e525f90c99"
+      },
+      {
+        "content": "/* Minimal, local-only color tokens for the generated vault. */\n:root {\n  --claude-obsidian-knowledge: #4fc1ff;\n  --claude-obsidian-source: #6a9955;\n  --claude-obsidian-entity: #c586c0;\n  --claude-obsidian-meta: #569cd6;\n}\n\n.nav-folder-title[data-path=\"wiki\"],\n.nav-folder-title[data-path^=\"wiki/meta\"] {\n  color: var(--claude-obsidian-meta);\n}\n\n.nav-folder-title[data-path^=\"wiki/concepts\"] {\n  color: var(--claude-obsidian-knowledge);\n}\n\n.nav-folder-title[data-path^=\"wiki/sources\"] {\n  color: var(--claude-obsidian-source);\n}\n\n.nav-folder-title[data-path^=\"wiki/entities\"] {\n  color: var(--claude-obsidian-entity);\n}\n",
+        "mode": "create",
+        "path": ".obsidian/snippets/vault-colors.css",
+        "sha256": "908fd97fabd94e989cc979605bb7b17b4da33c409e4846fd701780aea53107fd"
+      },
+      {
+        "content": "{\n  \"address_map\": {},\n  \"description\": \"Ingest delta tracker. Source payloads are create-only.\",\n  \"sources\": {},\n  \"version\": 1\n}\n",
+        "mode": "create",
+        "path": ".raw/.manifest.json",
+        "sha256": "3061feca9f7973930654de66ebf3bb0959e23783f0129ce899634c91e2c050fb"
+      },
+      {
+        "content": "\n",
+        "mode": "create",
+        "path": "inbox/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "content": "---\ntype: meta\ntitle: Hot Cache\nstatus: developing\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - meta\n  - hot-cache\n---\n\n# Recent Context\n\n## Last Updated\n\nVault initialized. No knowledge operations have completed yet.\n\n## Key Recent Facts\n\n- No facts recorded.\n\n## Recent Changes\n\n- Created the vault foundation.\n\n## Active Threads\n\n- Add a source to `inbox/`, then ingest it.\n",
+        "mode": "create",
+        "path": "wiki/hot.md",
+        "sha256": "c439b5142193cd511be8da6b7a547d63875dad5453a117ecdfbe6df095bd4eba"
+      },
+      {
+        "content": "---\ntype: meta\ntitle: Wiki Index\nstatus: evergreen\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - meta\n  - index\n---\n\n# Wiki Index\n\nThis catalog is updated by completed knowledge operations.\n\n## Sources\n\n- No sources indexed yet.\n\n## Concepts\n\n- No concepts indexed yet.\n\n## Entities\n\n- No entities indexed yet.\n\n## Questions\n\n- No questions indexed yet.\n",
+        "mode": "create",
+        "path": "wiki/index.md",
+        "sha256": "b466ff40cef29aae34121d674df1c4ffcb07f0280d3580705f32f11894f73896"
+      },
+      {
+        "content": "---\ntype: meta\ntitle: Wiki Log\nstatus: evergreen\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - meta\n  - log\n---\n\n# Wiki Log\n\nNewest completed operations appear first.\n",
+        "mode": "create",
+        "path": "wiki/log.md",
+        "sha256": "01ab0554ad18835c5e4f18072fa7b7ef51f99a07f9ccfdd3055aafb20aa58bab"
+      },
+      {
+        "content": "{\n  \"claims\": {},\n  \"generated_at\": \"2026-08-31T00:00:00Z\",\n  \"schema\": \"claude-obsidian.claim-ledger.v1\"\n}\n",
+        "mode": "create",
+        "path": "wiki/meta/ledgers/claim-ledger.json",
+        "sha256": "23fe54a75f224a19abdfe5b5d0397b5aadffacad5df640145d5ee14061425537"
+      },
+      {
+        "content": "{\n  \"generated_at\": \"2026-08-31T00:00:00Z\",\n  \"schema\": \"claude-obsidian.source-ledger.v1\",\n  \"sources\": {}\n}\n",
+        "mode": "create",
+        "path": "wiki/meta/ledgers/source-ledger.json",
+        "sha256": "0cd76681f3a7c92f62b9dd5f2b6249f16b6f3d2af6c5fead254c2b688b040f47"
+      },
+      {
+        "content": "---\ntype: overview\ntitle: Vault Overview\nstatus: developing\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - overview\n---\n\n# Vault Overview\n\nThis local-first vault compounds source-backed knowledge over time.\n",
+        "mode": "create",
+        "path": "wiki/overview.md",
+        "sha256": "f6cb62f502c6dfe96fca170eab4c2954a496eee013aa245ebffc14d75579e7f3"
+      }
+    ]
+  },
+  "scan": {
+    "exists": false,
+    "is_directory": false,
+    "legacy_raw_present": false,
+    "markdown_notes": 0,
+    "obsidian_config": false,
+    "sample_notes": [],
+    "schema": "claude-obsidian.adoption-scan.v1",
+    "wiki_present": false,
+    "workspace_config": false
+  },
+  "schema": "claude-obsidian.initialization-plan.v1",
+  "status": "dry-run"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "init", "<RUN>/v", "--operation-id", "fixture-init", "--generated-at", "2026-08-31T00:00:00Z", "--approved-plan-sha256", "dd457bccde4ec7a80669386a33717922a2a6c83bd6edc3673316b33656277442", "--apply"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "fixture-init-apply"}
+[stdout_file]
+{
+  "approval_sha256": "dd457bccde4ec7a80669386a33717922a2a6c83bd6edc3673316b33656277442",
+  "bundle_sha256": "91c378c2233c72cd9090a880a3e7f3b426bf70d37484c9616a3058c4629370e8",
+  "changed_paths": [
+    ".claude-obsidian.json",
+    ".gitignore",
+    ".obsidian/app.json",
+    ".obsidian/appearance.json",
+    ".obsidian/graph.json",
+    ".obsidian/snippets/vault-colors.css",
+    ".raw/.manifest.json",
+    "inbox/.gitkeep",
+    "wiki/hot.md",
+    "wiki/index.md",
+    "wiki/log.md",
+    "wiki/meta/ledgers/claim-ledger.json",
+    "wiki/meta/ledgers/source-ledger.json",
+    "wiki/overview.md"
+  ],
+  "expanded_bundle_sha256": "91c378c2233c72cd9090a880a3e7f3b426bf70d37484c9616a3058c4629370e8",
+  "hashes": {
+    ".claude-obsidian.json": "5701c6910dcdb39cd0494769e6e8e2814cbb01cf2bc5c29d2b40fcf5094e1453",
+    ".gitignore": "0d62dd96ce7a511d2f0154b6373b7a0bfc74b7985c2342af9357751b9fba42dd",
+    ".obsidian/app.json": "b8c736f8900e4d28ead438125440572f32f5a475dd094ba7155b0879dc253c4b",
+    ".obsidian/appearance.json": "d0bd766999b3bb8d45bdb5997916d82c51123c295599ff6a5db39ba40618bd7a",
+    ".obsidian/graph.json": "574d00b8e5c2e16724678023c50a85e727af9067839f8612c55958e525f90c99",
+    ".obsidian/snippets/vault-colors.css": "908fd97fabd94e989cc979605bb7b17b4da33c409e4846fd701780aea53107fd",
+    ".raw/.manifest.json": "3061feca9f7973930654de66ebf3bb0959e23783f0129ce899634c91e2c050fb",
+    "inbox/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "wiki/hot.md": "c439b5142193cd511be8da6b7a547d63875dad5453a117ecdfbe6df095bd4eba",
+    "wiki/index.md": "b466ff40cef29aae34121d674df1c4ffcb07f0280d3580705f32f11894f73896",
+    "wiki/log.md": "01ab0554ad18835c5e4f18072fa7b7ef51f99a07f9ccfdd3055aafb20aa58bab",
+    "wiki/meta/ledgers/claim-ledger.json": "23fe54a75f224a19abdfe5b5d0397b5aadffacad5df640145d5ee14061425537",
+    "wiki/meta/ledgers/source-ledger.json": "0cd76681f3a7c92f62b9dd5f2b6249f16b6f3d2af6c5fead254c2b688b040f47",
+    "wiki/overview.md": "f6cb62f502c6dfe96fca170eab4c2954a496eee013aa245ebffc14d75579e7f3"
+  },
+  "modes": {
+    ".claude-obsidian.json": 384,
+    ".gitignore": 384,
+    ".obsidian/app.json": 384,
+    ".obsidian/appearance.json": 384,
+    ".obsidian/graph.json": 384,
+    ".obsidian/snippets/vault-colors.css": 384,
+    ".raw/.manifest.json": 384,
+    "inbox/.gitkeep": 384,
+    "wiki/hot.md": 384,
+    "wiki/index.md": 384,
+    "wiki/log.md": 384,
+    "wiki/meta/ledgers/claim-ledger.json": 384,
+    "wiki/meta/ledgers/source-ledger.json": 384,
+    "wiki/overview.md": 384
+  },
+  "operation_id": "fixture-init",
+  "operation_type": "setup",
+  "schema": "claude-obsidian.transaction-result.v1",
+  "status": "complete"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/setup-navigation-inspect.bundle.json", "--vault", "<RUN>/v"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "setup-navigation-inspect"}
+[stdout_file]
+{
+  "approval_sha256": "c42a1f977c3ff85d199b3cd917fb9afcef0a3c4e54390244e35d06865472aaf0",
+  "changed_paths": [
+    "wiki/index.md"
+  ],
+  "expanded_bundle_sha256": "adb4ec90ec3921442c1713f9cd550833cceadf40e37f162a152efd4c2ed6fc09",
+  "hashes": {
+    "wiki/index.md": "1f225b0e3d86ddf86ec71bb20831327a5c66d8a709bf977a75039d6fdae3f607"
+  },
+  "input_bundle_sha256": "adb4ec90ec3921442c1713f9cd550833cceadf40e37f162a152efd4c2ed6fc09",
+  "modes": {
+    "wiki/index.md": 384
+  },
+  "operation_id": "fixture-navigation",
+  "operation_type": "setup",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315083,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "apply", "<RUN>/setup-navigation-apply.bundle.json", "--vault", "<RUN>/v", "--approved-plan-sha256", "c42a1f977c3ff85d199b3cd917fb9afcef0a3c4e54390244e35d06865472aaf0"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "setup-navigation-apply"}
+[stdout_file]
+{
+  "approval_sha256": "c42a1f977c3ff85d199b3cd917fb9afcef0a3c4e54390244e35d06865472aaf0",
+  "bundle_sha256": "adb4ec90ec3921442c1713f9cd550833cceadf40e37f162a152efd4c2ed6fc09",
+  "changed_paths": [
+    "wiki/index.md"
+  ],
+  "expanded_bundle_sha256": "adb4ec90ec3921442c1713f9cd550833cceadf40e37f162a152efd4c2ed6fc09",
+  "hashes": {
+    "wiki/index.md": "1f225b0e3d86ddf86ec71bb20831327a5c66d8a709bf977a75039d6fdae3f607"
+  },
+  "modes": {
+    "wiki/index.md": 384
+  },
+  "operation_id": "fixture-navigation",
+  "operation_type": "setup",
+  "schema": "claude-obsidian.transaction-result.v1",
+  "status": "complete"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/fixture-genesis-inspect.bundle.json", "--vault", "<RUN>/v"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "fixture-genesis-inspect"}
+[stdout_file]
+{
+  "approval_sha256": "8872d316d264dd083fa946820a134e88c45b7cec614c9dc3d0b17289e34140a6",
+  "changed_paths": [
+    "wiki/meta/records/fixture-bootstrap.json",
+    "wiki/meta/operations/000000000001-fixture-genesis.json",
+    "wiki/meta/registries/operation-head.json"
+  ],
+  "expanded_bundle_sha256": "63da9b090eacac79af2bd140bda8a01c59186fc764c498212a507e4c827842d0",
+  "hashes": {
+    "wiki/meta/operations/000000000001-fixture-genesis.json": "570df33329931c947c03c60ffa04a9212f4c52d0994aaa1c07c03a29a62b55e8",
+    "wiki/meta/records/fixture-bootstrap.json": "b434fdd1adb8c6c02792556fff06ca38a16d35bb08e18e380927c07490e20f15",
+    "wiki/meta/registries/operation-head.json": "fd69da9f7f75086805339b11602bba7299d83ce618e2e485b7806b35ceeca0af"
+  },
+  "input_bundle_sha256": "63da9b090eacac79af2bd140bda8a01c59186fc764c498212a507e4c827842d0",
+  "modes": {
+    "wiki/meta/operations/000000000001-fixture-genesis.json": 384,
+    "wiki/meta/records/fixture-bootstrap.json": 384,
+    "wiki/meta/registries/operation-head.json": 384
+  },
+  "operation_id": "fixture-genesis",
+  "operation_type": "generic",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315083,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "apply", "<RUN>/fixture-genesis-apply.bundle.json", "--vault", "<RUN>/v", "--approved-plan-sha256", "8872d316d264dd083fa946820a134e88c45b7cec614c9dc3d0b17289e34140a6"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "fixture-genesis-apply"}
+[stdout_file]
+{
+  "approval_sha256": "8872d316d264dd083fa946820a134e88c45b7cec614c9dc3d0b17289e34140a6",
+  "bundle_sha256": "63da9b090eacac79af2bd140bda8a01c59186fc764c498212a507e4c827842d0",
+  "changed_paths": [
+    "wiki/meta/records/fixture-bootstrap.json",
+    "wiki/meta/operations/000000000001-fixture-genesis.json",
+    "wiki/meta/registries/operation-head.json"
+  ],
+  "expanded_bundle_sha256": "63da9b090eacac79af2bd140bda8a01c59186fc764c498212a507e4c827842d0",
+  "hashes": {
+    "wiki/meta/operations/000000000001-fixture-genesis.json": "570df33329931c947c03c60ffa04a9212f4c52d0994aaa1c07c03a29a62b55e8",
+    "wiki/meta/records/fixture-bootstrap.json": "b434fdd1adb8c6c02792556fff06ca38a16d35bb08e18e380927c07490e20f15",
+    "wiki/meta/registries/operation-head.json": "fd69da9f7f75086805339b11602bba7299d83ce618e2e485b7806b35ceeca0af"
+  },
+  "modes": {
+    "wiki/meta/operations/000000000001-fixture-genesis.json": 384,
+    "wiki/meta/records/fixture-bootstrap.json": 384,
+    "wiki/meta/registries/operation-head.json": 384
+  },
+  "operation_id": "fixture-genesis",
+  "operation_type": "generic",
+  "schema": "claude-obsidian.transaction-result.v1",
+  "status": "complete"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "capture", "apply", "--vault", "<RUN>/v", "--operation-id", "fixture-capture", "--generated-at", "2026-08-31T00:00:00Z", "inbox/source.pdf"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "capture-dry"}
+[stdout_file]
+{
+  "approval_hint": "review the operation, then repeat the exact pinned command with --approved-plan-sha256 0774734b6821e31714c5a8b17e0eb73defcceefd6e1e6bebeccd091d7118525f --apply",
+  "approved_plan_sha256": "0774734b6821e31714c5a8b17e0eb73defcceefd6e1e6bebeccd091d7118525f",
+  "generated_at": "2026-08-31T00:00:00Z",
+  "items": [
+    {
+      "adapter": "filesystem",
+      "execute": false,
+      "metadata": {
+        "detected_by": "magic",
+        "extension": ".pdf",
+        "kind": "pdf",
+        "media_type": "application/pdf",
+        "name": "source.pdf",
+        "sha256": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+        "size_bytes": 705
+      },
+      "schema": "claude-obsidian.filesystem-capture-plan.v1",
+      "skip_reason": null,
+      "source": "inbox/source.pdf",
+      "source_identity": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+      "stored_path": ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf",
+      "would_change": true
+    }
+  ],
+  "operation": {
+    "address_requests": [],
+    "expected_hashes": {
+      ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf": null
+    },
+    "operation_id": "fixture-capture",
+    "operation_type": "capture",
+    "schema": "claude-obsidian.transaction.v1",
+    "source_manifest_updates": {},
+    "writes": [
+      {
+        "content_file": "<RUN>/v/inbox/source.pdf",
+        "mode": "create",
+        "path": ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf",
+        "sha256": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a"
+      }
+    ]
+  },
+  "schema": "claude-obsidian.capture-plan.v1",
+  "status": "dry-run"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "capture", "apply", "--vault", "<RUN>/v", "--operation-id", "fixture-capture", "--generated-at", "2026-08-31T00:00:00Z", "inbox/source.pdf", "--approved-plan-sha256", "0774734b6821e31714c5a8b17e0eb73defcceefd6e1e6bebeccd091d7118525f", "--apply"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "capture-apply"}
+[stdout_file]
+{
+  "items": [
+    {
+      "changed": true,
+      "metadata": {
+        "detected_by": "magic",
+        "extension": ".pdf",
+        "kind": "pdf",
+        "media_type": "application/pdf",
+        "name": "source.pdf",
+        "sha256": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+        "size_bytes": 705
+      },
+      "schema": "claude-obsidian.filesystem-capture.v1",
+      "skip_reason": null,
+      "source": "inbox/source.pdf",
+      "source_identity": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+      "stored_path": ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf"
+    }
+  ],
+  "schema": "claude-obsidian.capture-result.v1",
+  "status": "applied",
+  "summary": {
+    "changed": 1,
+    "items": 1
+  },
+  "transaction": {
+    "approval_sha256": "0774734b6821e31714c5a8b17e0eb73defcceefd6e1e6bebeccd091d7118525f",
+    "bundle_sha256": "a056321a23765f4dcd154eb38eed8704c96f6d346e9ee73a730a75de32fd8d35",
+    "changed_paths": [
+      ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf"
+    ],
+    "expanded_bundle_sha256": "a056321a23765f4dcd154eb38eed8704c96f6d346e9ee73a730a75de32fd8d35",
+    "hashes": {
+      ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a"
+    },
+    "modes": {
+      ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf": 384
+    },
+    "operation_id": "fixture-capture",
+    "operation_type": "capture",
+    "schema": "claude-obsidian.transaction-result.v1",
+    "status": "complete"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/fixture-ingest-inspect.bundle.json", "--vault", "<RUN>/v"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "fixture-ingest-inspect"}
+[stdout_file]
+{
+  "approval_sha256": "5879c16143512dc46110770214731de2f2bc8946ccc9aad567930d1f58dbfcf9",
+  "changed_paths": [
+    "wiki/meta/ledgers/claim-ledger.json",
+    "wiki/meta/ledgers/source-ledger.json",
+    "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+    "wiki/meta/operations/000000000002-fixture-ingest.json",
+    "wiki/meta/registries/operation-head.json"
+  ],
+  "expanded_bundle_sha256": "0426cff93c1b37c9e0fc552bc8cb3786e3397a7364b637637984a8e4ba4c9b34",
+  "hashes": {
+    "wiki/meta/ledgers/claim-ledger.json": "47ed151a899cd92b9622840c1ad7ccd322b19cd9a984c47db201bcf853dfdfae",
+    "wiki/meta/ledgers/source-ledger.json": "244a9d07c527deace35e1a45d59079eb357ac2d32e1481c9199806ac8d7af0bc",
+    "wiki/meta/operations/000000000002-fixture-ingest.json": "8f113d5faa54757d2592c1888c0d268118eb91c6c99ec973df83ff0ed55b6b0c",
+    "wiki/meta/registries/operation-head.json": "0d0c247025245f978fa388bc661b1372258f9bfa70d45190076c93ff7631932b",
+    "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md": "dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3"
+  },
+  "input_bundle_sha256": "0426cff93c1b37c9e0fc552bc8cb3786e3397a7364b637637984a8e4ba4c9b34",
+  "modes": {
+    "wiki/meta/ledgers/claim-ledger.json": 384,
+    "wiki/meta/ledgers/source-ledger.json": 384,
+    "wiki/meta/operations/000000000002-fixture-ingest.json": 384,
+    "wiki/meta/registries/operation-head.json": 384,
+    "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md": 384
+  },
+  "operation_id": "fixture-ingest",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315083,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "apply", "<RUN>/fixture-ingest-apply.bundle.json", "--vault", "<RUN>/v", "--approved-plan-sha256", "5879c16143512dc46110770214731de2f2bc8946ccc9aad567930d1f58dbfcf9"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "fixture-ingest-apply"}
+[stdout_file]
+{
+  "approval_sha256": "5879c16143512dc46110770214731de2f2bc8946ccc9aad567930d1f58dbfcf9",
+  "bundle_sha256": "0426cff93c1b37c9e0fc552bc8cb3786e3397a7364b637637984a8e4ba4c9b34",
+  "changed_paths": [
+    "wiki/meta/ledgers/claim-ledger.json",
+    "wiki/meta/ledgers/source-ledger.json",
+    "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+    "wiki/meta/operations/000000000002-fixture-ingest.json",
+    "wiki/meta/registries/operation-head.json"
+  ],
+  "expanded_bundle_sha256": "0426cff93c1b37c9e0fc552bc8cb3786e3397a7364b637637984a8e4ba4c9b34",
+  "hashes": {
+    "wiki/meta/ledgers/claim-ledger.json": "47ed151a899cd92b9622840c1ad7ccd322b19cd9a984c47db201bcf853dfdfae",
+    "wiki/meta/ledgers/source-ledger.json": "244a9d07c527deace35e1a45d59079eb357ac2d32e1481c9199806ac8d7af0bc",
+    "wiki/meta/operations/000000000002-fixture-ingest.json": "8f113d5faa54757d2592c1888c0d268118eb91c6c99ec973df83ff0ed55b6b0c",
+    "wiki/meta/registries/operation-head.json": "0d0c247025245f978fa388bc661b1372258f9bfa70d45190076c93ff7631932b",
+    "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md": "dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3"
+  },
+  "modes": {
+    "wiki/meta/ledgers/claim-ledger.json": 384,
+    "wiki/meta/ledgers/source-ledger.json": 384,
+    "wiki/meta/operations/000000000002-fixture-ingest.json": 384,
+    "wiki/meta/registries/operation-head.json": 384,
+    "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md": 384
+  },
+  "operation_id": "fixture-ingest",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-result.v1",
+  "status": "complete"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "lint", "--vault", "<RUN>/v", "--as-of", "2026-08-31", "--strict"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "strict-lint"}
+[stdout_file]
+{
+  "allowlisted_dangling_links": [],
+  "ambiguous_targets": [],
+  "as_of": "2026-08-31",
+  "configuration_errors": [],
+  "dead_links": [],
+  "duplicate_basenames": [],
+  "empty_sections": [],
+  "engine_version": "1.1.1",
+  "missing_frontmatter": [],
+  "orphans": [],
+  "provenance_errors": [],
+  "read_errors": [],
+  "stale_index_entries": [],
+  "summary": {
+    "allowlisted_dangling_links": 0,
+    "category_counts": {
+      "ambiguous_targets": 0,
+      "configuration_errors": 0,
+      "dead_links": 0,
+      "duplicate_basenames": 0,
+      "empty_sections": 0,
+      "missing_frontmatter": 0,
+      "orphans": 0,
+      "provenance_errors": 0,
+      "read_errors": 0,
+      "stale_index_entries": 0
+    },
+    "issues_found": 0,
+    "links_scanned": 2,
+    "pages_scanned": 5
+  },
+  "version": 1
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/contextual-prefix.py", "--vault", "<RUN>/v", "--all", "--no-llm"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "contextual-prefix"}
+[stdout_file]
+
+[stderr_file]
+[1/5] -> wiki/hot.md  address=syn-e93d27d8cfd734822d69cffbec37b87b62952140db4e6be06a03654ac1025ef5  chunks=1  tier=synthetic
+   wrote=1  skipped(unchanged)=0  removed(stale)=0
+[2/5] -> wiki/index.md  address=syn-0b2b8021fc47d672521ef6639edc1440a7340e3538e98f648f5dfbf44a4a6302  chunks=1  tier=synthetic
+   wrote=1  skipped(unchanged)=0  removed(stale)=0
+[3/5] -> wiki/log.md  address=syn-4440800135caeb6842be50f1fec3f7101cb4ef427e78ffcaebf0841907285f3c  chunks=1  tier=synthetic
+   wrote=1  skipped(unchanged)=0  removed(stale)=0
+[4/5] -> wiki/overview.md  address=syn-a7c4ded4837eca526733f6af8b84ce80be4cc0e36413be858ee7f7de1cfc64f7  chunks=1  tier=synthetic
+   wrote=1  skipped(unchanged)=0  removed(stale)=0
+[5/5] -> wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md  address=syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9  chunks=1  tier=synthetic
+   wrote=1  skipped(unchanged)=0  removed(stale)=0
+
+Done. pages=5  chunks_written=5  chunks_unchanged=0  chunks_removed=0
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/bm25-index.py", "--vault", "<RUN>/v", "build"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "bm25-build"}
+[stdout_file]
+
+[stderr_file]
+Wrote <RUN>/v/.vault-meta/bm25/index.json  docs=5  vocab=79  avg_dl=36.2
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/bm25-index.py", "--vault", "<RUN>/v", "query", "quasarnebula", "--top", "10"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "bm25-query"}
+[stdout_file]
+[
+  {
+    "chunk_id": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9:0",
+    "score": 2.276325,
+    "path": ".vault-meta/chunks/syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9/chunk-000.json",
+    "body_hash": "sha256:810f69f36db9f255e2be41565030e1029956e24c483d572390a30c2ce67c5965",
+    "page_body_hash": "sha256:dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3"
+  }
+]
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/retrieve.py", "--vault", "<RUN>/v", "quasarnebula", "--no-rerank", "--top", "10"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "retrieval"}
+[stdout_file]
+{
+  "query": "quasarnebula",
+  "strategy": "bm25-only",
+  "top_k": 10,
+  "candidates": [
+    {
+      "chunk_id": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9:0",
+      "page_address": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9",
+      "page_path": "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+      "absolute_path": "<RUN>/v/wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+      "chunk_index": 0,
+      "bm25_score": 2.276325,
+      "path": ".vault-meta/chunks/syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9/chunk-000.json",
+      "snippet": "# Quasarnebula Fixture Paper\n\n## 一句话结论\n\nThe fixture PDF contains the deterministic query marker quasarnebula. ^clm-ed6a0307ad08e7302d8d\n\n## 证据状态\n\nThis is a provisional fixture claim, not human accepta…",
+      "rerank_score": 2.276325,
+      "rerank_source": "skipped"
+    }
+  ]
+}
+
+[stderr_file]
+bm25: 1 hits
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "init", "<RUN>/n", "--operation-id", "negative-init", "--generated-at", "2026-08-31T00:00:00Z"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "negative-init-dry"}
+[stdout_file]
+{
+  "approval_hint": "review the operation, then repeat the exact pinned command with --approved-plan-sha256 46ac1fbf19360e34dd5dc1647bc75180a6075ea87f293b24f8c5fad7e43e04bd --apply",
+  "approved_plan_sha256": "46ac1fbf19360e34dd5dc1647bc75180a6075ea87f293b24f8c5fad7e43e04bd",
+  "changed_paths": [
+    ".claude-obsidian.json",
+    ".gitignore",
+    ".obsidian/app.json",
+    ".obsidian/appearance.json",
+    ".obsidian/graph.json",
+    ".obsidian/snippets/vault-colors.css",
+    ".raw/.manifest.json",
+    "inbox/.gitkeep",
+    "wiki/hot.md",
+    "wiki/index.md",
+    "wiki/log.md",
+    "wiki/meta/ledgers/claim-ledger.json",
+    "wiki/meta/ledgers/source-ledger.json",
+    "wiki/overview.md"
+  ],
+  "generated_at": "2026-08-31T00:00:00Z",
+  "operation": {
+    "expected_hashes": {
+      ".claude-obsidian.json": null,
+      ".gitignore": null,
+      ".obsidian/app.json": null,
+      ".obsidian/appearance.json": null,
+      ".obsidian/graph.json": null,
+      ".obsidian/snippets/vault-colors.css": null,
+      ".raw/.manifest.json": null,
+      "inbox/.gitkeep": null,
+      "wiki/hot.md": null,
+      "wiki/index.md": null,
+      "wiki/log.md": null,
+      "wiki/meta/ledgers/claim-ledger.json": null,
+      "wiki/meta/ledgers/source-ledger.json": null,
+      "wiki/overview.md": null
+    },
+    "operation_id": "negative-init",
+    "operation_type": "setup",
+    "schema": "claude-obsidian.transaction.v1",
+    "writes": [
+      {
+        "content": "{\n  \"legacy_raw\": \".raw\",\n  \"role\": \"vault\",\n  \"schema\": \"claude-obsidian.workspace.v1\",\n  \"source_inbox\": \"inbox\",\n  \"vault\": \".\"\n}\n",
+        "mode": "create",
+        "path": ".claude-obsidian.json",
+        "sha256": "5701c6910dcdb39cd0494769e6e8e2814cbb01cf2bc5c29d2b40fcf5094e1453"
+      },
+      {
+        "content": "# Vault-local runtime and recovery state may contain note text or source URLs.\n.vault-meta/\n\n# Local MCP launch configuration may contain commands or credentials. Share a\n# reviewed `.mcp.example.json` instead of committing the live file.\n.mcp.json\n\n# Obsidian and operating-system session state.\n.obsidian/workspace*.json\n.trash/\n.DS_Store\nThumbs.db\n",
+        "mode": "create",
+        "path": ".gitignore",
+        "sha256": "0d62dd96ce7a511d2f0154b6373b7a0bfc74b7985c2342af9357751b9fba42dd"
+      },
+      {
+        "content": "{\n  \"userIgnoreFilters\": [\n    \".raw/\",\n    \".vault-meta/\"\n  ]\n}\n",
+        "mode": "create",
+        "path": ".obsidian/app.json",
+        "sha256": "b8c736f8900e4d28ead438125440572f32f5a475dd094ba7155b0879dc253c4b"
+      },
+      {
+        "content": "{\n  \"enabledCssSnippets\": [\n    \"vault-colors\"\n  ]\n}\n",
+        "mode": "create",
+        "path": ".obsidian/appearance.json",
+        "sha256": "d0bd766999b3bb8d45bdb5997916d82c51123c295599ff6a5db39ba40618bd7a"
+      },
+      {
+        "content": "{\n  \"search\": \"path:wiki\",\n  \"showAttachments\": false,\n  \"showArrow\": true,\n  \"showOrphans\": false\n}\n",
+        "mode": "create",
+        "path": ".obsidian/graph.json",
+        "sha256": "574d00b8e5c2e16724678023c50a85e727af9067839f8612c55958e525f90c99"
+      },
+      {
+        "content": "/* Minimal, local-only color tokens for the generated vault. */\n:root {\n  --claude-obsidian-knowledge: #4fc1ff;\n  --claude-obsidian-source: #6a9955;\n  --claude-obsidian-entity: #c586c0;\n  --claude-obsidian-meta: #569cd6;\n}\n\n.nav-folder-title[data-path=\"wiki\"],\n.nav-folder-title[data-path^=\"wiki/meta\"] {\n  color: var(--claude-obsidian-meta);\n}\n\n.nav-folder-title[data-path^=\"wiki/concepts\"] {\n  color: var(--claude-obsidian-knowledge);\n}\n\n.nav-folder-title[data-path^=\"wiki/sources\"] {\n  color: var(--claude-obsidian-source);\n}\n\n.nav-folder-title[data-path^=\"wiki/entities\"] {\n  color: var(--claude-obsidian-entity);\n}\n",
+        "mode": "create",
+        "path": ".obsidian/snippets/vault-colors.css",
+        "sha256": "908fd97fabd94e989cc979605bb7b17b4da33c409e4846fd701780aea53107fd"
+      },
+      {
+        "content": "{\n  \"address_map\": {},\n  \"description\": \"Ingest delta tracker. Source payloads are create-only.\",\n  \"sources\": {},\n  \"version\": 1\n}\n",
+        "mode": "create",
+        "path": ".raw/.manifest.json",
+        "sha256": "3061feca9f7973930654de66ebf3bb0959e23783f0129ce899634c91e2c050fb"
+      },
+      {
+        "content": "\n",
+        "mode": "create",
+        "path": "inbox/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      },
+      {
+        "content": "---\ntype: meta\ntitle: Hot Cache\nstatus: developing\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - meta\n  - hot-cache\n---\n\n# Recent Context\n\n## Last Updated\n\nVault initialized. No knowledge operations have completed yet.\n\n## Key Recent Facts\n\n- No facts recorded.\n\n## Recent Changes\n\n- Created the vault foundation.\n\n## Active Threads\n\n- Add a source to `inbox/`, then ingest it.\n",
+        "mode": "create",
+        "path": "wiki/hot.md",
+        "sha256": "c439b5142193cd511be8da6b7a547d63875dad5453a117ecdfbe6df095bd4eba"
+      },
+      {
+        "content": "---\ntype: meta\ntitle: Wiki Index\nstatus: evergreen\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - meta\n  - index\n---\n\n# Wiki Index\n\nThis catalog is updated by completed knowledge operations.\n\n## Sources\n\n- No sources indexed yet.\n\n## Concepts\n\n- No concepts indexed yet.\n\n## Entities\n\n- No entities indexed yet.\n\n## Questions\n\n- No questions indexed yet.\n",
+        "mode": "create",
+        "path": "wiki/index.md",
+        "sha256": "b466ff40cef29aae34121d674df1c4ffcb07f0280d3580705f32f11894f73896"
+      },
+      {
+        "content": "---\ntype: meta\ntitle: Wiki Log\nstatus: evergreen\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - meta\n  - log\n---\n\n# Wiki Log\n\nNewest completed operations appear first.\n",
+        "mode": "create",
+        "path": "wiki/log.md",
+        "sha256": "01ab0554ad18835c5e4f18072fa7b7ef51f99a07f9ccfdd3055aafb20aa58bab"
+      },
+      {
+        "content": "{\n  \"claims\": {},\n  \"generated_at\": \"2026-08-31T00:00:00Z\",\n  \"schema\": \"claude-obsidian.claim-ledger.v1\"\n}\n",
+        "mode": "create",
+        "path": "wiki/meta/ledgers/claim-ledger.json",
+        "sha256": "23fe54a75f224a19abdfe5b5d0397b5aadffacad5df640145d5ee14061425537"
+      },
+      {
+        "content": "{\n  \"generated_at\": \"2026-08-31T00:00:00Z\",\n  \"schema\": \"claude-obsidian.source-ledger.v1\",\n  \"sources\": {}\n}\n",
+        "mode": "create",
+        "path": "wiki/meta/ledgers/source-ledger.json",
+        "sha256": "0cd76681f3a7c92f62b9dd5f2b6249f16b6f3d2af6c5fead254c2b688b040f47"
+      },
+      {
+        "content": "---\ntype: overview\ntitle: Vault Overview\nstatus: developing\ncreated: 2026-08-31\nupdated: 2026-08-31\ntags:\n  - overview\n---\n\n# Vault Overview\n\nThis local-first vault compounds source-backed knowledge over time.\n",
+        "mode": "create",
+        "path": "wiki/overview.md",
+        "sha256": "f6cb62f502c6dfe96fca170eab4c2954a496eee013aa245ebffc14d75579e7f3"
+      }
+    ]
+  },
+  "scan": {
+    "exists": false,
+    "is_directory": false,
+    "legacy_raw_present": false,
+    "markdown_notes": 0,
+    "obsidian_config": false,
+    "sample_notes": [],
+    "schema": "claude-obsidian.adoption-scan.v1",
+    "wiki_present": false,
+    "workspace_config": false
+  },
+  "schema": "claude-obsidian.initialization-plan.v1",
+  "status": "dry-run"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "init", "<RUN>/n", "--operation-id", "negative-init", "--generated-at", "2026-08-31T00:00:00Z", "--approved-plan-sha256", "46ac1fbf19360e34dd5dc1647bc75180a6075ea87f293b24f8c5fad7e43e04bd", "--apply"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "negative-init-apply"}
+[stdout_file]
+{
+  "approval_sha256": "46ac1fbf19360e34dd5dc1647bc75180a6075ea87f293b24f8c5fad7e43e04bd",
+  "bundle_sha256": "df8b2580fe9cd698385ada438b148e94d13c8c011ba041732a50046db355ceb0",
+  "changed_paths": [
+    ".claude-obsidian.json",
+    ".gitignore",
+    ".obsidian/app.json",
+    ".obsidian/appearance.json",
+    ".obsidian/graph.json",
+    ".obsidian/snippets/vault-colors.css",
+    ".raw/.manifest.json",
+    "inbox/.gitkeep",
+    "wiki/hot.md",
+    "wiki/index.md",
+    "wiki/log.md",
+    "wiki/meta/ledgers/claim-ledger.json",
+    "wiki/meta/ledgers/source-ledger.json",
+    "wiki/overview.md"
+  ],
+  "expanded_bundle_sha256": "df8b2580fe9cd698385ada438b148e94d13c8c011ba041732a50046db355ceb0",
+  "hashes": {
+    ".claude-obsidian.json": "5701c6910dcdb39cd0494769e6e8e2814cbb01cf2bc5c29d2b40fcf5094e1453",
+    ".gitignore": "0d62dd96ce7a511d2f0154b6373b7a0bfc74b7985c2342af9357751b9fba42dd",
+    ".obsidian/app.json": "b8c736f8900e4d28ead438125440572f32f5a475dd094ba7155b0879dc253c4b",
+    ".obsidian/appearance.json": "d0bd766999b3bb8d45bdb5997916d82c51123c295599ff6a5db39ba40618bd7a",
+    ".obsidian/graph.json": "574d00b8e5c2e16724678023c50a85e727af9067839f8612c55958e525f90c99",
+    ".obsidian/snippets/vault-colors.css": "908fd97fabd94e989cc979605bb7b17b4da33c409e4846fd701780aea53107fd",
+    ".raw/.manifest.json": "3061feca9f7973930654de66ebf3bb0959e23783f0129ce899634c91e2c050fb",
+    "inbox/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "wiki/hot.md": "c439b5142193cd511be8da6b7a547d63875dad5453a117ecdfbe6df095bd4eba",
+    "wiki/index.md": "b466ff40cef29aae34121d674df1c4ffcb07f0280d3580705f32f11894f73896",
+    "wiki/log.md": "01ab0554ad18835c5e4f18072fa7b7ef51f99a07f9ccfdd3055aafb20aa58bab",
+    "wiki/meta/ledgers/claim-ledger.json": "23fe54a75f224a19abdfe5b5d0397b5aadffacad5df640145d5ee14061425537",
+    "wiki/meta/ledgers/source-ledger.json": "0cd76681f3a7c92f62b9dd5f2b6249f16b6f3d2af6c5fead254c2b688b040f47",
+    "wiki/overview.md": "f6cb62f502c6dfe96fca170eab4c2954a496eee013aa245ebffc14d75579e7f3"
+  },
+  "modes": {
+    ".claude-obsidian.json": 384,
+    ".gitignore": 384,
+    ".obsidian/app.json": 384,
+    ".obsidian/appearance.json": 384,
+    ".obsidian/graph.json": 384,
+    ".obsidian/snippets/vault-colors.css": 384,
+    ".raw/.manifest.json": 384,
+    "inbox/.gitkeep": 384,
+    "wiki/hot.md": 384,
+    "wiki/index.md": 384,
+    "wiki/log.md": 384,
+    "wiki/meta/ledgers/claim-ledger.json": 384,
+    "wiki/meta/ledgers/source-ledger.json": 384,
+    "wiki/overview.md": 384
+  },
+  "operation_id": "negative-init",
+  "operation_type": "setup",
+  "schema": "claude-obsidian.transaction-result.v1",
+  "status": "complete"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/address-b0.bundle.json", "--vault", "<RUN>/n"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "address-b0"}
+[stdout_file]
+{
+  "approval_sha256": "85e57643f7036fa766410d7cf41137ebd0c52e3d92672c95f1cbd3df7c105885",
+  "changed_paths": [
+    "wiki/papers/AddressFixture.md",
+    ".vault-meta/address-counter.txt",
+    ".raw/.manifest.json"
+  ],
+  "expanded_bundle_sha256": "c57737f5657c05d6ebcea06bdca3620de7849bcb245f45c134db7740fc54ee66",
+  "hashes": {
+    ".raw/.manifest.json": "eb8453c7a287c525bb3439acd666750fb1c2cdf42ecf283bebe3ce97f00c3e26",
+    ".vault-meta/address-counter.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+    "wiki/papers/AddressFixture.md": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9"
+  },
+  "input_bundle_sha256": "2798a311811c75d169fcc23a4d19ad41d3ab80f80d603eed120a3adc2522b2fd",
+  "modes": {
+    ".raw/.manifest.json": 384,
+    ".vault-meta/address-counter.txt": 384,
+    "wiki/papers/AddressFixture.md": 384
+  },
+  "operation_id": "address-b0",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315335,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/address-b1.bundle.json", "--vault", "<RUN>/n"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "address-b1"}
+[stdout_file]
+{
+  "approval_sha256": "8379377e7040dce2e955f1113896ebeb7408870b6f14fa59eb8d35a7d2a9d916",
+  "changed_paths": [
+    "wiki/papers/AddressFixture.md",
+    "wiki/meta/operations/000000000001-address-b1.json",
+    "wiki/meta/registries/operation-head.json",
+    ".vault-meta/address-counter.txt",
+    ".raw/.manifest.json"
+  ],
+  "expanded_bundle_sha256": "e0473f4b18e1489201dc67dadf731b8c5a3e9387e12988af2a40f88d48fca56d",
+  "hashes": {
+    ".raw/.manifest.json": "eb8453c7a287c525bb3439acd666750fb1c2cdf42ecf283bebe3ce97f00c3e26",
+    ".vault-meta/address-counter.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+    "wiki/meta/operations/000000000001-address-b1.json": "c72bd580588d9706c08c8d9ca635831dbfa7c8d3257674269406e1cf0dd7d748",
+    "wiki/meta/registries/operation-head.json": "29c72d8c495326c9e0794607b057e8486b0dfe53401030d1a639853788477629",
+    "wiki/papers/AddressFixture.md": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9"
+  },
+  "input_bundle_sha256": "d2963b772ef0489c984e7be73ba728d7fbdfd1152b26bd1f13e2138982e8c44b",
+  "modes": {
+    ".raw/.manifest.json": 384,
+    ".vault-meta/address-counter.txt": 384,
+    "wiki/meta/operations/000000000001-address-b1.json": 384,
+    "wiki/meta/registries/operation-head.json": 384,
+    "wiki/papers/AddressFixture.md": 384
+  },
+  "operation_id": "address-b1",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315335,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/address-predeclared.bundle.json", "--vault", "<RUN>/n"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "address-predeclared"}
+[stdout_file]
+{
+  "approval_sha256": "4acebe8ec387f4cd9de2b6e698a8b79385c8d4e151d308b9c7a95a93fc55fca9",
+  "changed_paths": [
+    "wiki/papers/AddressFixture.md",
+    "wiki/meta/operations/000000000001-address-b1.json",
+    "wiki/meta/registries/operation-head.json",
+    ".vault-meta/address-counter.txt",
+    ".raw/.manifest.json"
+  ],
+  "expanded_bundle_sha256": "b2fab4460c2a8b398e8fc48807df6a01be62697d8b759a44687b419ed0ec91b8",
+  "hashes": {
+    ".raw/.manifest.json": "eb8453c7a287c525bb3439acd666750fb1c2cdf42ecf283bebe3ce97f00c3e26",
+    ".vault-meta/address-counter.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+    "wiki/meta/operations/000000000001-address-b1.json": "c72bd580588d9706c08c8d9ca635831dbfa7c8d3257674269406e1cf0dd7d748",
+    "wiki/meta/registries/operation-head.json": "29c72d8c495326c9e0794607b057e8486b0dfe53401030d1a639853788477629",
+    "wiki/papers/AddressFixture.md": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9"
+  },
+  "input_bundle_sha256": "75093e367a5682cb6f3791bd72c363381eff30aa4f31a3212b5faabece6cd928",
+  "modes": {
+    ".raw/.manifest.json": 384,
+    ".vault-meta/address-counter.txt": 384,
+    "wiki/meta/operations/000000000001-address-b1.json": 384,
+    "wiki/meta/registries/operation-head.json": 384,
+    "wiki/papers/AddressFixture.md": 384
+  },
+  "operation_id": "address-predeclared",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315335,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/source-update-only.bundle.json", "--vault", "<RUN>/n"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "source-update-only"}
+[stdout_file]
+{
+  "approval_sha256": "29e3231ddc802273ebea72a0616c0babc1297a912266321be22b445f34acd47a",
+  "changed_paths": [
+    "wiki/papers/AddressFixture.md",
+    "wiki/meta/operations/000000000001-address-b1.json",
+    "wiki/meta/registries/operation-head.json",
+    ".raw/.manifest.json"
+  ],
+  "expanded_bundle_sha256": "58efe6c013242237b22ef0962ade582cda75d468b90860503c7097da4fb9a3e0",
+  "hashes": {
+    ".raw/.manifest.json": "94556553e5968a3524f2416f339b7b734d64bd7f96535c535908b97296a03084",
+    "wiki/meta/operations/000000000001-address-b1.json": "c72bd580588d9706c08c8d9ca635831dbfa7c8d3257674269406e1cf0dd7d748",
+    "wiki/meta/registries/operation-head.json": "29c72d8c495326c9e0794607b057e8486b0dfe53401030d1a639853788477629",
+    "wiki/papers/AddressFixture.md": "eb5c26f32038e42f0a102fff670fe30d59ec98ca94e60a93866626fdfa96df96"
+  },
+  "input_bundle_sha256": "65cd72a1f4245bcf189844980d244f90d03705bac623987bc4cff7b5925cab62",
+  "modes": {
+    ".raw/.manifest.json": 384,
+    "wiki/meta/operations/000000000001-address-b1.json": 384,
+    "wiki/meta/registries/operation-head.json": 384,
+    "wiki/papers/AddressFixture.md": 384
+  },
+  "operation_id": "source-update-only",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315335,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/direct-managed.bundle.json", "--vault", "<RUN>/n"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 2, "name": "direct-managed"}
+[stdout_file]
+
+[stderr_file]
+ERR MANAGED_METADATA_COLLISION: managed metadata is request-owned for this operation type: .raw/.manifest.json
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "apply", "<RUN>/address-b0-apply.bundle.json", "--vault", "<RUN>/n", "--approved-plan-sha256", "85e57643f7036fa766410d7cf41137ebd0c52e3d92672c95f1cbd3df7c105885"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "address-b0-apply"}
+[stdout_file]
+{
+  "approval_sha256": "85e57643f7036fa766410d7cf41137ebd0c52e3d92672c95f1cbd3df7c105885",
+  "bundle_sha256": "2798a311811c75d169fcc23a4d19ad41d3ab80f80d603eed120a3adc2522b2fd",
+  "changed_paths": [
+    "wiki/papers/AddressFixture.md",
+    ".vault-meta/address-counter.txt",
+    ".raw/.manifest.json"
+  ],
+  "expanded_bundle_sha256": "c57737f5657c05d6ebcea06bdca3620de7849bcb245f45c134db7740fc54ee66",
+  "hashes": {
+    ".raw/.manifest.json": "eb8453c7a287c525bb3439acd666750fb1c2cdf42ecf283bebe3ce97f00c3e26",
+    ".vault-meta/address-counter.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+    "wiki/papers/AddressFixture.md": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9"
+  },
+  "modes": {
+    ".raw/.manifest.json": 384,
+    ".vault-meta/address-counter.txt": 384,
+    "wiki/papers/AddressFixture.md": 384
+  },
+  "operation_id": "address-b0",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-result.v1",
+  "status": "complete"
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/existing-address.bundle.json", "--vault", "<RUN>/n"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 0, "name": "existing-address"}
+[stdout_file]
+{
+  "approval_sha256": "faa951a6ea75b94350a7e93f146c400dcdad9ec53414ba12e091f23cf89e4fcc",
+  "changed_paths": [
+    "wiki/papers/AddressFixture.md",
+    "wiki/meta/operations/000000000001-address-b1.json",
+    "wiki/meta/registries/operation-head.json",
+    ".vault-meta/address-counter.txt",
+    ".raw/.manifest.json"
+  ],
+  "expanded_bundle_sha256": "a68738c3191fc7eb6c572cddedd3861e61ddbefbe6c2afb703e0cae55c0fc031",
+  "hashes": {
+    ".raw/.manifest.json": "eb8453c7a287c525bb3439acd666750fb1c2cdf42ecf283bebe3ce97f00c3e26",
+    ".vault-meta/address-counter.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+    "wiki/meta/operations/000000000001-address-b1.json": "c72bd580588d9706c08c8d9ca635831dbfa7c8d3257674269406e1cf0dd7d748",
+    "wiki/meta/registries/operation-head.json": "29c72d8c495326c9e0794607b057e8486b0dfe53401030d1a639853788477629",
+    "wiki/papers/AddressFixture.md": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9"
+  },
+  "input_bundle_sha256": "3b42f8799f1e0077221db6fb9c0453781140414f00ffc7e05c94a4a5fe32e676",
+  "modes": {
+    ".raw/.manifest.json": 384,
+    ".vault-meta/address-counter.txt": 384,
+    "wiki/meta/operations/000000000001-address-b1.json": 384,
+    "wiki/meta/registries/operation-head.json": 384,
+    "wiki/papers/AddressFixture.md": 384
+  },
+  "operation_id": "existing-address",
+  "operation_type": "ingest",
+  "schema": "claude-obsidian.transaction-plan.v1",
+  "valid": true,
+  "vault_identity": {
+    "device": 16777233,
+    "inode": 4315335,
+    "state": "existing"
+  }
+}
+
+[stderr_file]
+
+{"argv": ["<REPOSITORY>/.venv/bin/python", "-B", "<REPOSITORY>/vendor/claude-obsidian/scripts/claude-obsidian.py", "transaction", "inspect", "<RUN>/wrong-source-id.bundle.json", "--vault", "<RUN>/v"], "cwd": "<RUN>", "environment": {"HOME": "<RUN>/home", "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8", "PATH": "/usr/bin:/bin", "PYTHONDONTWRITEBYTECODE": "1", "PYTHONNOUSERSITE": "1"}, "exit_code": 2, "name": "wrong-source-id"}
+[stdout_file]
+
+[stderr_file]
+ERR INVALID_PROVENANCE_LEDGER: wiki/meta/ledgers/claim-ledger.json:claims.clm-ed6a0307ad08e7302d8d.evidence.0.source_id: does not resolve; wiki/meta/ledgers/source-ledger.json:sources.src-00000000000000000000: source ID must equal canonical identity src-928020dbc06817512192

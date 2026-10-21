@@ -1,0 +1,30 @@
+{
+  "schema": "video-paper-wiki.source-conversion-rejection-supplement.v1",
+  "recorded_at_utc": "2026-09-09T07:24:01.046925+00:00",
+  "prior_rejection": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/architect-rejection-r1.json",
+    "sha256": "6262eb7fa03872136e566267dea3ace0a595bc13ba9435b89819cbdc50173112",
+    "size_bytes": 2155
+  },
+  "additional_finding": {
+    "id": "CONVERSION-LEGACY-PAGE-RETIREMENT-CODE",
+    "probe": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/probes/source-conversion-mixed-r1/source-conversion-taxonomy-retirement-r1-result.json",
+      "sha256": "ccdc6d41c481b96e2e8120fadf3b38537d6c307f9831357d451ab60a1ba50302",
+      "size_bytes": 775
+    },
+    "expected": "SOURCE_PUBLICATION_UNSUPPORTED_CHANGE",
+    "observed": "SOURCE_PUBLICATION_INVALID",
+    "reason": "Structural legacy collection intentionally has no compiled pages map. Missing old concept pages were caught later as a generic mirror failure instead of the required explicit deletion refusal.",
+    "required_fix": "At conversion only, compare the exact stored current paper/code/concept page paths with the complete prospective compiler page set before preparing, and return the shared unsupported-page-retirement code if any would disappear."
+  },
+  "approved_repair_paths": [
+    "src/video_paper_wiki_research/source_conversion.py",
+    "tests/security/test_source_conversion_boundary.py",
+    "tests/upstream/test_source_conversion.py"
+  ],
+  "shared_publication_body_unchanged_required": true,
+  "contract_semantics_unchanged": true,
+  "rejected_r1_source_preimages": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-local-r1/rejected-r1-source",
+  "historical_evidence_preserved": true
+}

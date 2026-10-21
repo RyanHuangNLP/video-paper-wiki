@@ -1,0 +1,940 @@
+{
+  "schema": "full-todo.source-catalog-compatibility-review-r2.v1",
+  "recorded_at_utc": "2026-09-09T09:06:30.020336+00:00",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "focused read-only source-catalog R2 compatibility reviewer"
+  },
+  "scope": "Read-only comparison of the frozen R1 and repaired R2 source-catalog schema plus production registry. No production source, tests, Git, network, operator, real Vault, or human-gate mutation.",
+  "candidate": {
+    "manifest": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/local-candidate-r2.json",
+      "sha256": "09fca6277e15de4bdb1eebaebcac62a30d18b8928965f9c1f83f53013aab7714",
+      "size_bytes": 4670
+    },
+    "revision": 2,
+    "head": "7ed55cfc2590268488c7bb34c18b572886fb950c",
+    "tree": "f0734fa1834e126c749bed302c1c6a578f1c2fd2",
+    "source_root": ".work/parallel/source-catalog-v1/terminal-1/source",
+    "snapshot_sha256": "3e2d6fe9ba9595e08bc3709144f204b0abaeeee393f20e55a0cdc4916c03624c",
+    "contract_freeze_sha256": "678cb93d0a45bf5a33f9738ef9711f19167a6a0ce9c088996608a5b11e062752"
+  },
+  "inputs": {
+    "r1_schema": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/rejected-r1-source/schemas/video-paper-wiki.source-catalog.v1.schema.json",
+      "sha256": "75853ae6a344182be7fb659179ffb903d70814735910977c90386d0a022c8cd5",
+      "size_bytes": 41266
+    },
+    "r2_schema": {
+      "path": ".work/parallel/source-catalog-v1/terminal-1/source/schemas/video-paper-wiki.source-catalog.v1.schema.json",
+      "sha256": "f9ada8e37e7a940bde521a5fb980586f78f1319a1d04e1e3ff1bf8b9f0f3d259",
+      "size_bytes": 45519
+    },
+    "contracts": {
+      "path": ".work/parallel/source-catalog-v1/terminal-1/source/src/video_paper_wiki/contracts.py",
+      "sha256": "1f27c01706aace27fa55972cb3d0a51ce74351a40131e2611e132b1a08cd1655",
+      "size_bytes": 81936
+    },
+    "valid_fixture": {
+      "path": ".work/parallel/source-catalog-v1/terminal-1/source/tests/fixtures/contracts/valid/video-paper-wiki.source-catalog.v1.json",
+      "sha256": "c1998f360609ae90edeec367b14a4b82236305c5c3dc25ddf50d61309ac930d9",
+      "size_bytes": 25911
+    },
+    "script": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/compatibility-r2-script.py",
+      "sha256": "44404deafc48adc7ebd95b72433c839fbb51764fffd4382ba55f0419cad82721",
+      "size_bytes": 6450
+    },
+    "raw_results": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/compatibility-r2-results.json",
+      "sha256": "53acad14c65688e32f249dbe693c435f4a6fc627aeea7f64011044bbd3a689bf",
+      "size_bytes": 26742
+    },
+    "run_log": {
+      "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-catalog-local-r1/CF/compatibility-r2-run.stdout.log",
+      "sha256": "fcd6678f8b7068bacedbb9ec26f867a3c4c2fbe93dbf22f9490810faa01cc988",
+      "size_bytes": 3275
+    }
+  },
+  "method": {
+    "schema_validator": "jsonschema Draft202012Validator with FormatChecker and referencing.Registry populated from the source checkout schemas; R1 uses archived source-catalog schema with all other refs from the frozen R2 checkout.",
+    "production_validator": "video_paper_wiki.contracts.validate_document(expected_schema=\"video-paper-wiki.source-catalog.v1\") using the frozen checkout package and registry.",
+    "case_families": [
+      "empty valid catalog",
+      "resolved markdown/pdf/code evidence",
+      "all five unsupported legacy reasons",
+      "invalid resolved/unsupported state combinations",
+      "all six coverage states",
+      "wrong coverage reasons and unknown coverage state"
+    ],
+    "cases": 32
+  },
+  "results": {
+    "schema_parity_cases": 32,
+    "production_matches_r2_cases": 32,
+    "schema_case_count": 32,
+    "all_schema_parity": true,
+    "all_production_matches_r2": true,
+    "accepted_cases": [
+      "base_empty_catalog",
+      "resolved_markdown",
+      "resolved_pdf",
+      "resolved_code",
+      "unsupported_legacy_json_pointer_unavailable",
+      "unsupported_legacy_object_not_text",
+      "unsupported_legacy_page_not_reconstructable",
+      "unsupported_legacy_charspan_unavailable",
+      "unsupported_excerpt_limit",
+      "coverage_registered_owned",
+      "coverage_registered_unclaimed",
+      "coverage_captured_registered",
+      "coverage_captured_unregistered",
+      "coverage_derived_referenced",
+      "coverage_derived_unreferenced"
+    ],
+    "rejected_cases": [
+      "resolved_null_excerpt",
+      "resolved_reason_nonnull",
+      "resolved_null_hash",
+      "resolved_null_position",
+      "resolved_bad_position_kind",
+      "unsupported_excerpt_string",
+      "unsupported_hash_string",
+      "unsupported_reason_null",
+      "unsupported_reason_unknown",
+      "unsupported_state_unknown_reason",
+      "coverage_registered_owned_wrong_reason",
+      "coverage_registered_unclaimed_wrong_reason",
+      "coverage_captured_registered_wrong_reason",
+      "coverage_captured_unregistered_wrong_reason",
+      "coverage_derived_referenced_wrong_reason",
+      "coverage_derived_unreferenced_wrong_reason",
+      "coverage_unknown_state"
+    ],
+    "case_details": [
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "base_empty_catalog",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "resolved_markdown",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "resolved_pdf",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "resolved_code",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "unsupported_legacy_json_pointer_unavailable",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "unsupported_legacy_object_not_text",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "unsupported_legacy_page_not_reconstructable",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "unsupported_legacy_charspan_unavailable",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "unsupported_excerpt_limit",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "None is not of type 'string'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "resolved_null_excerpt",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'RESOLVED', 'reason': None, 'excerpt': None, 'excerpt_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "type",
+              "message": "None is not of type 'string'",
+              "path": "/rows/evidence/0/resolution/excerpt"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "'hello' is not of type 'null'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "resolved_reason_nonnull",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'RESOLVED', 'reason': 'excerpt_limit', 'excerpt': 'hello', 'excerpt_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "type",
+              "message": "'excerpt_limit' is not of type 'null'",
+              "path": "/rows/evidence/0/resolution/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "'hello' is not of type 'null'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "resolved_null_hash",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'RESOLVED', 'reason': None, 'excerpt': 'hello', 'excerpt_sha256': None, 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "type",
+              "message": "None is not of type 'string'",
+              "path": "/rows/evidence/0/resolution/excerpt_sha256"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "'hello' is not of type 'null'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "resolved_null_position",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'RESOLVED', 'reason': None, 'excerpt': 'hello', 'excerpt_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'position': None} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "None is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution/position"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "'hello' is not of type 'null'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "resolved_bad_position_kind",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'RESOLVED', 'reason': None, 'excerpt': 'hello', 'excerpt_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'position': {'kind': 'pdf', 'charspan': [0, 5], 'page_anchor': None}} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "anyOf",
+              "message": "{'kind': 'pdf', 'charspan': [0, 5], 'page_anchor': None} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution/position"
+            },
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'pdf', 'charspan': [0, 5], 'page_anchor': None} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution/position"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "'oops' is not of type 'null'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "unsupported_excerpt_string",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'UNSUPPORTED_LEGACY_RESOLUTION', 'reason': 'excerpt_limit', 'excerpt': 'oops', 'excerpt_sha256': None, 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}, 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "type",
+              "message": "'oops' is not of type 'null'",
+              "path": "/rows/evidence/0/resolution/excerpt"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "None is not of type 'string'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "unsupported_hash_string",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'UNSUPPORTED_LEGACY_RESOLUTION', 'reason': 'excerpt_limit', 'excerpt': None, 'excerpt_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}, 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "type",
+              "message": "'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb' is not of type 'null'",
+              "path": "/rows/evidence/0/resolution/excerpt_sha256"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "None is not of type 'string'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "unsupported_reason_null",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'UNSUPPORTED_LEGACY_RESOLUTION', 'reason': None, 'excerpt': None, 'excerpt_sha256': None, 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}, 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "type",
+              "message": "None is not of type 'string'",
+              "path": "/rows/evidence/0/resolution/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "None is not of type 'string'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "unsupported_reason_unknown",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'UNSUPPORTED_LEGACY_RESOLUTION', 'reason': 'unknown', 'excerpt': None, 'excerpt_sha256': None, 'position': {'kind': 'markdown', 'charspan': [0, 5], 'page_anchor': None}, 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "anyOf",
+              "message": "'unknown' is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "None is not of type 'string'",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "unsupported_state_unknown_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'state': 'UNSUPPORTED_LEGACY_RESOLUTION', 'reason': 'unknown', 'excerpt': None, 'excerpt_sha256': None, 'source_path': 'notes/a.md', 'source_sha256': 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', 'position': None} is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "anyOf",
+              "message": "'unknown' is not valid under any of the given schemas",
+              "path": "/rows/evidence/0/resolution/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "coverage_registered_owned",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "coverage_registered_unclaimed",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "coverage_captured_registered",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "coverage_captured_unregistered",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "coverage_derived_referenced",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": true
+        },
+        "current_matches_new": true,
+        "name": "coverage_derived_unreferenced",
+        "new": {
+          "accepted": true,
+          "errors": []
+        },
+        "old": {
+          "accepted": true,
+          "errors": []
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'source', 'id': 'src-test', 'state': 'registered_owned', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_registered_owned_wrong_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'source', 'id': 'src-test', 'state': 'registered_owned', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'wrong' is not one of ['source_has_canonical_owner', 'source_has_no_canonical_owner', 'capture_has_registered_source', 'capture_has_no_source_row', 'artifact_in_canonical_evidence_ancestry', 'artifact_without_canonical_evidence_reference']",
+              "path": "/rows/coverage/0/reason"
+            },
+            {
+              "keyword": "const",
+              "message": "'source_has_canonical_owner' was expected",
+              "path": "/rows/coverage/0/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'source', 'id': 'src-test', 'state': 'registered_unclaimed', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_registered_unclaimed_wrong_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'source', 'id': 'src-test', 'state': 'registered_unclaimed', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'wrong' is not one of ['source_has_canonical_owner', 'source_has_no_canonical_owner', 'capture_has_registered_source', 'capture_has_no_source_row', 'artifact_in_canonical_evidence_ancestry', 'artifact_without_canonical_evidence_reference']",
+              "path": "/rows/coverage/0/reason"
+            },
+            {
+              "keyword": "const",
+              "message": "'source_has_no_canonical_owner' was expected",
+              "path": "/rows/coverage/0/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'captured_registered', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_captured_registered_wrong_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'captured_registered', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'wrong' is not one of ['source_has_canonical_owner', 'source_has_no_canonical_owner', 'capture_has_registered_source', 'capture_has_no_source_row', 'artifact_in_canonical_evidence_ancestry', 'artifact_without_canonical_evidence_reference']",
+              "path": "/rows/coverage/0/reason"
+            },
+            {
+              "keyword": "const",
+              "message": "'capture_has_registered_source' was expected",
+              "path": "/rows/coverage/0/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'captured_unregistered', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_captured_unregistered_wrong_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'captured_unregistered', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'wrong' is not one of ['source_has_canonical_owner', 'source_has_no_canonical_owner', 'capture_has_registered_source', 'capture_has_no_source_row', 'artifact_in_canonical_evidence_ancestry', 'artifact_without_canonical_evidence_reference']",
+              "path": "/rows/coverage/0/reason"
+            },
+            {
+              "keyword": "const",
+              "message": "'capture_has_no_source_row' was expected",
+              "path": "/rows/coverage/0/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'derived_referenced', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_derived_referenced_wrong_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'derived_referenced', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'wrong' is not one of ['source_has_canonical_owner', 'source_has_no_canonical_owner', 'capture_has_registered_source', 'capture_has_no_source_row', 'artifact_in_canonical_evidence_ancestry', 'artifact_without_canonical_evidence_reference']",
+              "path": "/rows/coverage/0/reason"
+            },
+            {
+              "keyword": "const",
+              "message": "'artifact_in_canonical_evidence_ancestry' was expected",
+              "path": "/rows/coverage/0/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'derived_unreferenced', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_derived_unreferenced_wrong_reason",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'artifact', 'id': 'art-test', 'state': 'derived_unreferenced', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'wrong'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'wrong' is not one of ['source_has_canonical_owner', 'source_has_no_canonical_owner', 'capture_has_registered_source', 'capture_has_no_source_row', 'artifact_in_canonical_evidence_ancestry', 'artifact_without_canonical_evidence_reference']",
+              "path": "/rows/coverage/0/reason"
+            },
+            {
+              "keyword": "const",
+              "message": "'artifact_without_canonical_evidence_reference' was expected",
+              "path": "/rows/coverage/0/reason"
+            }
+          ]
+        },
+        "parity": true
+      },
+      {
+        "current_contract": {
+          "accepted": false,
+          "code": "SCHEMA_INVALID",
+          "message": "{'kind': 'source', 'id': 'src-test', 'state': 'bogus', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'source_has_canonical_owner'} is not valid under any of the given schemas",
+          "type": "ContractError"
+        },
+        "current_matches_new": true,
+        "name": "coverage_unknown_state",
+        "new": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "oneOf",
+              "message": "{'kind': 'source', 'id': 'src-test', 'state': 'bogus', 'source_ids': ['src-test'], 'paper_ids': ['arxiv:2311.15127'], 'repo_ids': [], 'reason': 'source_has_canonical_owner'} is not valid under any of the given schemas",
+              "path": "/rows/coverage/0"
+            }
+          ]
+        },
+        "old": {
+          "accepted": false,
+          "errors": [
+            {
+              "keyword": "enum",
+              "message": "'bogus' is not one of ['registered_owned', 'registered_unclaimed', 'captured_registered', 'captured_unregistered', 'derived_referenced', 'derived_unreferenced']",
+              "path": "/rows/coverage/0/state"
+            }
+          ]
+        },
+        "parity": true
+      }
+    ]
+  },
+  "decision": {
+    "status": "GO_FOR_R2_COMPATIBILITY",
+    "basis": [
+      "all 32 probes have R1/R2 schema accept/reject parity",
+      "all 32 probes match the production contracts registry behavior",
+      "resolved evidence remains strict for excerpt/hash/position while all five unsupported legacy reasons remain explicit",
+      "all six coverage states and reason bindings remain accepted/rejected consistently"
+    ],
+    "limits": [
+      "local validator and disposable fixture only",
+      "does not establish CI, real-data, human semantic acceptance, or exact-head implementation acceptance"
+    ]
+  },
+  "controls": {
+    "no_admin_command": true,
+    "no_git_mutation": true,
+    "no_merge": true,
+    "no_network": true,
+    "no_real_vault": true,
+    "stopped_writing": true
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.local/research/research-control-event.v1.schema.json",
+  "title": "video-paper-wiki-research.research-control-event.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "video-paper-wiki-research.research-control-event.v1"
+    },
+    "kind": {
+      "const": "research-control-event"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180,
+      "pattern": "^rw3:research-control-event:[0-9a-f]{64}$"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session",
+        "sequence",
+        "previous",
+        "round",
+        "action",
+        "user_record"
+      ],
+      "properties": {
+        "session": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 64
+        },
+        "previous": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "round": {
+          "anyOf": [
+            {
+              "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "action": {
+          "enum": [
+            "user_stop",
+            "resume"
+          ]
+        },
+        "user_record": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/user_record"
+        }
+      }
+    }
+  }
+}

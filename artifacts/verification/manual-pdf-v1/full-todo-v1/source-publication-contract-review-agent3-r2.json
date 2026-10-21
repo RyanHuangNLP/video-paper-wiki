@@ -1,0 +1,108 @@
+{
+  "$schema": "full-todo.source-publication-contract-review-agent3-r2.v1",
+  "packet": "SOURCE-PUBLICATION",
+  "revision": "R2-reviewed-with-R3-amendment",
+  "recorded_at_utc": "2026-09-09T04:30:00Z",
+  "role": "Independent architecture reviewer",
+  "reviewer": "Codex",
+  "scope": "Read-only bounded review of SOURCE-PUBLICATION-R2 together with SOURCE-PUBLICATION-R3. Focus: transaction operation-kind binding, retained typed namespace paths, and compatibility boundaries explicitly amended by R3. No implementation, source, Git, Vault, network, subprocess, or runtime mutation.",
+  "decision": "GO_FOR_FREEZE_WITH_R3_R4",
+  "historical_decision_before_correction": "CHANGES_REQUIRED_BEFORE_FREEZE",
+  "contract": {
+    "path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R2.md",
+    "sha256": "908c94b376f5e130883acd332c7d9c12378daf2cd37b21507a16185dd58d5628",
+    "size_bytes": 23088,
+    "amendment_path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R3.md",
+    "amendment_sha256": "67f3e8b0b287eb20e144de9f9300e97fd78adff6f785979a9dc9559a636310f6",
+    "amendment_2_path": "docs/ai/packets/full-todo-v1/SOURCE-PUBLICATION-R4.md",
+    "amendment_2_sha256": "658ed78359a9baf3ae7974afee07c1f3b396eac820e085fd2927bdae9ae3f3cd",
+    "new_schema_paths": [
+      "schemas/video-paper-wiki.assessment-heads.v2.schema.json",
+      "schemas/video-paper-wiki.source-publication-authority.v1.schema.json",
+      "schemas/video-paper-wiki.source-publication-proposal.v1.schema.json",
+      "schemas/video-paper-wiki.source-publication-request.v1.schema.json"
+    ]
+  },
+  "reviewed_inputs": {
+    "transaction_facade_contract": {
+      "path": "docs/ai/contracts/transaction-facade-v1.md",
+      "sha256": "not-recomputed-in-this-bounded-review"
+    },
+    "transaction_contracts": {
+      "path": "src/video_paper_wiki/transaction_contracts.py",
+      "sha256": "not-recomputed-in-this-bounded-review"
+    },
+    "source_semantics_r2": {
+      "path": "docs/ai/packets/full-todo-v1/SOURCE-SEMANTICS-R2.md",
+      "sha256": "ad21572558bf1053a248f07d5bb3e950780765aecb8ed4ef4da29025047366f9"
+    }
+  },
+  "positive_checks": [
+    {
+      "id": "R3-PROJECTION-BOUNDARIES",
+      "status": "pass",
+      "evidence": "R3 explicitly separates local reviewed_at presence from pinned optionality, requires a nonnull local evidence locator before row emission, freezes source enum domains and historical safe IDs, and scopes ^<claim-id> to the versioned paper profile."
+    },
+    {
+      "id": "CLAIM-LOCATION-COMPATIBILITY",
+      "status": "pass",
+      "evidence": "The combined R2/R3 contract preserves repository claim location anchor as optional/null/text for the unchanged v1 renderer, while requiring the ^<claim-id> anchor only for the explicitly versioned paper profile."
+    },
+    {
+      "id": "PAGE-CHANGE-COMPATIBILITY",
+      "status": "pass",
+      "evidence": "R2 requires changed source pages to be an explicit sorted unique set with complete owner membership, and preserves untouched legacy row page order and existing links."
+    },
+    {
+      "id": "REQUEST-PROPOSAL-NOOP-CLOSURE",
+      "status": "pass",
+      "evidence": "R2 now freezes exact request fields, the external proposal/content layout, the nondurable no_change envelope, pending registration snapshots, and structural-only legacy collection before prospective validation."
+    },
+    {
+      "id": "RETAINED-SESSION-AND-CAPTURE-BOUNDARY",
+      "status": "pass",
+      "evidence": "R2 requires one retained snapshot and batch session across audit, collection, staging, and success/exception verification; capture remains operation_type=capture with null receipt/head and registration remains a distinct ingest admission."
+    }
+  ],
+  "corrections": [
+    {
+      "id": "SP-R2-OPERATION-KIND-BINDING-WITHDRAWN",
+      "status": "withdrawn",
+      "original_finding": "The first draft of this review treated the R2 authority's fixed operation_type=ingest as a knowledge-versus-registration mismatch.",
+      "evidence": "The existing transaction policy allows `.raw/derived/**` writes only for ingest (docs/ai/contracts/transaction-facade-v1.md:181-188; src/video_paper_wiki/transaction_contracts.py:114-128). Knowledge publication creates derived Markdown observations and historical source-ledger snapshots in those namespaces, while generic is reserved for wiki-only publication and the existing generic genesis (docs/ai/contracts/transaction-facade-v1.md:185-194; SOURCE-PUBLICATION-R2:32, 253-281).",
+      "correction": "R2's fixed inspected ingest transaction is intentional for both new request kinds. Preserve operation_type=ingest for knowledge and registration, with deterministic kind-specific payload, claimed-input, and registration-proof rules. Keep the existing generic genesis and generic wiki-only publication behavior unchanged."
+    }
+  ],
+  "r4_followup": {
+    "decision": "GO_FOR_FREEZE_WITH_R3_R4",
+    "status": "current",
+    "evidence": "SOURCE-PUBLICATION-R4 fully qualifies the two derived registry paths as wiki/meta/records/source-display-heads.json and wiki/meta/records/assessment-heads.json. Together with the withdrawn operation-type observation above, no concrete blocker remains in this bounded review.",
+    "preserved_r2_observation": "The path finding below remains the unchanged R2 prose observation and is not relabeled as an R4 defect; R4 is the explicit correction that closes it.",
+    "remaining_conditions": "Implementation must retain both-kind ingest semantics, use the exact R4 paths, and pass the contract, local, installed-wheel, and exact-head CI gates separately."
+  },
+  "findings": [
+    {
+      "id": "SP-R2-DERIVED-HEAD-PATHS",
+      "severity": "blocker",
+      "status": "open",
+      "title": "Typed collector namespace list omits wiki/meta from both derived-head paths",
+      "evidence": "SOURCE-PUBLICATION-R2:172-179 lists the derived registries as `records/source-display-heads.json` and `records/assessment-heads.json`. The accepted source semantics contract defines their managed paths as `wiki/meta/records/source-display-heads.json` and `wiki/meta/records/assessment-heads.json` (SOURCE-SEMANTICS-R2:106-113), and the R1 source-publication boundary table uses those exact paths. R2 separately requires both registries for source-v1 state at :225.",
+      "impact": "A literal implementation can fail to dispatch the real registry files, treat them as opaque or out-of-band, and then either miss required head equality checks or reject every valid version-aware state. This breaks complete collection and the required source-v1 validation boundary.",
+      "required_fix": "Replace both collector entries with the exact managed paths `wiki/meta/records/source-display-heads.json` and `wiki/meta/records/assessment-heads.json`. Bind filename dispatch, retained slots, read/write sets, derived-head equality, legacy-profile detection, and backup/resource coverage to those exact paths; do not add root-level `records/` aliases.",
+      "acceptance": "A valid source-v1 state with both `wiki/meta/records/...` registries is collected and compared byte-for-byte with derived heads; root-level `records/...` paths are refused as unknown/unsafe rather than silently accepted."
+    }
+  ],
+  "required_acceptance_matrix": [
+    "both kind=knowledge and kind=registration -> ingest across transaction, receipt/head, staging, and upstream authority, with distinct kind-specific payload and proof rules",
+    "cross-kind payload/proof mutation refusal before staging and authority creation; generic genesis and wiki-only generic publication remain unchanged",
+    "exact wiki/meta/records/source-display-heads.json and wiki/meta/records/assessment-heads.json dispatch and derived-head equality",
+    "root-level records aliases rejected and no registry omitted from retained inventory/read sets",
+    "R3 local-versus-pinned reviewed_at and locator presence, source enums/IDs, and versioned paper-anchor compatibility",
+    "repository claim optional/null/text anchor preservation, sorted unique changed-page ownership, and untouched legacy order/link byte compatibility",
+    "R2 request/proposal/no_change, pending snapshot, structural legacy, and retained-session checks"
+  ],
+  "limitations": [
+    "This review covers the stationary contract and R3 amendment only; no source-publication implementation candidate is reviewed.",
+    "No real Vault, operator application, human provenance, remote CI, or human-gate acceptance is claimed."
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.local/research/research-stop-decision.v1.schema.json",
+  "title": "video-paper-wiki-research.research-stop-decision.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "content_sha256",
+    "data"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "video-paper-wiki-research.research-stop-decision.v1"
+    },
+    "kind": {
+      "const": "research-stop-decision"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 180,
+      "pattern": "^rw3:research-stop-decision:[0-9a-f]{64}$"
+    },
+    "content_sha256": {
+      "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "session",
+        "sequence",
+        "plan_id",
+        "input_set_sha256",
+        "assessment",
+        "candidate_set",
+        "rank",
+        "metrics",
+        "matched_reasons",
+        "primary_reason",
+        "next_action"
+      ],
+      "properties": {
+        "session": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8
+        },
+        "plan_id": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/id"
+        },
+        "input_set_sha256": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/sha"
+        },
+        "assessment": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "candidate_set": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "rank": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/ref"
+        },
+        "metrics": {
+          "$ref": "https://video-paper-wiki.local/research/discovery-common.v1.schema.json#/$defs/metrics"
+        },
+        "matched_reasons": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "budget_exhausted",
+              "paths_covered",
+              "duplicate_ratio",
+              "yield_below_threshold"
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 4,
+          "uniqueItems": true
+        },
+        "primary_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "budget_exhausted",
+                "paths_covered",
+                "duplicate_ratio",
+                "yield_below_threshold"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "next_action": {
+          "enum": [
+            "continue",
+            "stop"
+          ]
+        }
+      }
+    }
+  }
+}

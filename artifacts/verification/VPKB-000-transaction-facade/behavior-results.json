@@ -1,0 +1,831 @@
+{
+  "aggregate_process_exit": "The commands ledger records each subprocess exit. No unrecorded aggregate runner exit is inferred for the Steward replay.",
+  "baseline_head": "9d87dc67b949fc0cef5ac64b91a2d15aea8ec0fe",
+  "frozen_contract_revision": 1,
+  "frozen_contract_sha256": "a800f6aff5e1af839c112b1c4da1591c3081601da866b36af83755af8597ef67",
+  "normalization": "Literal checkout/run/investigation absolute-path prefixes are replaced in copied log text with <REPOSITORY>, <RUN>, <INVESTIGATION_ROOT>. Original artifact SHA-256 and byte lengths are recorded; normalized logs are not raw originals. In these normalized log copies only, per-line trailing ASCII spaces/tabs and excess blank lines at EOF are also removed; internal whitespace and content are retained. Raw digests remain unchanged.",
+  "packet": "VPKB-000-transaction-facade",
+  "runs": [
+    {
+      "expected_refusals": [
+        {
+          "exit_code": 2,
+          "name": "direct-managed"
+        },
+        {
+          "exit_code": 2,
+          "name": "wrong-source-id"
+        }
+      ],
+      "name": "r4",
+      "normalized_log": "r4-commands.normalized.log",
+      "normalized_log_sha256": "07039a6e968e5d8bd910474d27599eb940973da57b10cda40d6bd10fa8f1dedb",
+      "observations": {
+        "negative-results.json": {
+          "actual_existing_address_preserves_bytes": true,
+          "b0_page_hash": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9",
+          "b1_changed_paths": [
+            "wiki/papers/AddressFixture.md",
+            "wiki/meta/operations/000000000001-address-b1.json",
+            "wiki/meta/registries/operation-head.json",
+            ".vault-meta/address-counter.txt",
+            ".raw/.manifest.json"
+          ],
+          "b1_page_hash": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9",
+          "business_hash_stable_across_receipt_append": true,
+          "direct_managed_rejection": {
+            "exit_code": 2,
+            "fixture_process_result": true,
+            "stderr": "ERR MANAGED_METADATA_COLLISION: managed metadata is request-owned for this operation type: .raw/.manifest.json\n",
+            "stdout": ""
+          },
+          "existing_address_changed_paths": [
+            "wiki/papers/AddressFixture.md",
+            "wiki/meta/operations/000000000001-address-b1.json",
+            "wiki/meta/registries/operation-head.json",
+            ".vault-meta/address-counter.txt",
+            ".raw/.manifest.json"
+          ],
+          "head_last": false,
+          "inspections_left_page_absent_before_explicit_b0_apply": true,
+          "predeclared_address_preserves_bytes": true,
+          "predeclared_still_appends_metadata": true,
+          "source_update_only_changed_paths": [
+            "wiki/papers/AddressFixture.md",
+            "wiki/meta/operations/000000000001-address-b1.json",
+            "wiki/meta/registries/operation-head.json",
+            ".raw/.manifest.json"
+          ]
+        },
+        "positive-binding.json": {
+          "address_persisted": false,
+          "capture_did_not_write_ledgers": true,
+          "claim_id": "clm-ed6a0307ad08e7302d8d",
+          "head": {
+            "path": "wiki/meta/operations/000000000002-fixture-ingest.json",
+            "sha256": "8f113d5faa54757d2592c1888c0d268118eb91c6c99ec973df83ff0ed55b6b0c"
+          },
+          "legacy_manifest_unchanged": true,
+          "page_path": "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+          "page_sha256": "dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3",
+          "paper_id": "sha256:d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+          "raw_path": ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf",
+          "raw_sha256": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+          "second_render_sha256": "dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3",
+          "source_id": "src-928020dbc06817512192"
+        },
+        "positive-results.json": {
+          "bm25_hits": [
+            {
+              "body_hash": "sha256:810f69f36db9f255e2be41565030e1029956e24c483d572390a30c2ce67c5965",
+              "chunk_id": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9:0",
+              "page_body_hash": "sha256:dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3",
+              "path": ".vault-meta/chunks/syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9/chunk-000.json",
+              "score": 2.276325
+            }
+          ],
+          "lint_zero_findings": true,
+          "paper_chunk_count": 1,
+          "render_repeat_equal": true,
+          "retrieval": {
+            "candidates": [
+              {
+                "absolute_path": "<RUN>/v/wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+                "bm25_score": 2.276325,
+                "chunk_id": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9:0",
+                "chunk_index": 0,
+                "page_address": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9",
+                "page_path": "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+                "path": ".vault-meta/chunks/syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9/chunk-000.json",
+                "rerank_score": 2.276325,
+                "rerank_source": "skipped",
+                "snippet": "# Quasarnebula Fixture Paper\n\n## 一句话结论\n\nThe fixture PDF contains the deterministic query marker quasarnebula. ^clm-ed6a0307ad08e7302d8d\n\n## 证据状态\n\nThis is a provisional fixture claim, not human accepta…"
+              }
+            ],
+            "query": "quasarnebula",
+            "strategy": "bm25-only",
+            "top_k": 10
+          },
+          "synthetic_address": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9",
+          "unchanged_page_after_indexing": true
+        },
+        "wrong-source-id-results.json": {
+          "rejected": {
+            "exit_code": 2,
+            "fixture_process_result": true,
+            "stderr": "ERR INVALID_PROVENANCE_LEDGER: wiki/meta/ledgers/claim-ledger.json:claims.clm-ed6a0307ad08e7302d8d.evidence.0.source_id: does not resolve; wiki/meta/ledgers/source-ledger.json:sources.src-00000000000000000000: source ID must equal canonical identity src-928020dbc06817512192\n",
+            "stdout": ""
+          },
+          "source_ledger_unchanged": true
+        }
+      },
+      "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
+      "project_source_sha256": {
+        "schemas/video-paper-wiki.common.v1.schema.json": "d004a55546358dde8315e9ee552083d27d3a2b35a6825d028bc7ad7b6c1d7dfa",
+        "schemas/video-paper-wiki.operation-receipt.v1.schema.json": "41efe77ad8b57430661d9fc19e978f6a299bd28e6192f64c63257da05f60e367",
+        "src/video_paper_wiki/contracts.py": "b64035183f92858f647d1d67b930194a95c3fde24eae0577302bae1c25fe7d37",
+        "src/video_paper_wiki/identity.py": "fbcd771089587aa2fcc1ebbc3b562ac533bb64f574cc6315806af451325d8966",
+        "src/video_paper_wiki/jcs.py": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6",
+        "tests/fixtures/pdfs/tiny.pdf": "c37df90f89d97fd1e575ee894c8fce6c2a979b2de76332a20105f1af70d8c7b9"
+      },
+      "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+      "raw_artifact_digests": {
+        "01-fixture-init-dry.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "01-fixture-init-dry.stdout": {
+          "sha256": "6b0489f47e078f978d3b8dae7fc02984b95aa226f419085a4a81bd3b239d0278",
+          "size_bytes": 7515
+        },
+        "02-fixture-init-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "02-fixture-init-apply.stdout": {
+          "sha256": "0dcaf2ccb1fb250162e4e2d31340729297af36455bf0d3cd06a3b5962b891b88",
+          "size_bytes": 2685
+        },
+        "03-setup-navigation-inspect.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "03-setup-navigation-inspect.stdout": {
+          "sha256": "9c3bafedf709f3dc05e89352fdf9afb995c18edb40c53bb5e31ea5eb113642ba",
+          "size_bytes": 711
+        },
+        "04-setup-navigation-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "04-setup-navigation-apply.stdout": {
+          "sha256": "52eb4c78ed76cf6ad51893cfd65812cbf578c71c6ec97149171c1226fff5e0ec",
+          "size_bytes": 617
+        },
+        "05-fixture-genesis-inspect.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "05-fixture-genesis-inspect.stdout": {
+          "sha256": "2f8d4a0626ece312f876b235ac86a63c44deb2d636270c0c48bcda7af7ac2698",
+          "size_bytes": 1267
+        },
+        "06-fixture-genesis-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "06-fixture-genesis-apply.stdout": {
+          "sha256": "00502f7ead477e2c0917664a0b91c0027c24333a3866d53c60accbb0fb2f1aa7",
+          "size_bytes": 1173
+        },
+        "07-capture-dry.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "07-capture-dry.stdout": {
+          "sha256": "66f4e24ef8cee706910f24173bd501246a2911d55c0c0039b42104802de721c1",
+          "size_bytes": 1792
+        },
+        "08-capture-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "08-capture-apply.stdout": {
+          "sha256": "39390d3ec124093f6f8b6906bec6190f49d491de8d919a2c8973cca4647bcc62",
+          "size_bytes": 1671
+        },
+        "09-fixture-ingest-inspect.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "09-fixture-ingest-inspect.stdout": {
+          "sha256": "a8b9a94a61be7a74a048ab7d89afc96a9bfdcebf555fd9f18a6d186d1c11533a",
+          "size_bytes": 1807
+        },
+        "10-fixture-ingest-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "10-fixture-ingest-apply.stdout": {
+          "sha256": "c376de4fd6dd412d30e659d82c45f733a38a1eb48c253b341b9690b64837ce3f",
+          "size_bytes": 1713
+        },
+        "11-strict-lint.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "11-strict-lint.stdout": {
+          "sha256": "cceb660a8df76b9a16f32b5cfa0be9b150a9158a8383fa8ad7820799a43b7942",
+          "size_bytes": 803
+        },
+        "12-contextual-prefix.stderr": {
+          "sha256": "1af03970f81385f031086605cd50bc29f15f7df8e626b99e74c0258362ded82c",
+          "size_bytes": 1033
+        },
+        "12-contextual-prefix.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "13-bm25-build.stderr": {
+          "sha256": "d63b54b2d18135a9e80494ff6914e01d60553db0506550cba567f5d35ab19696",
+          "size_bytes": 104
+        },
+        "13-bm25-build.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "14-bm25-query.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "14-bm25-query.stdout": {
+          "sha256": "1f96f556156ed7c0391a89c7b36ef6a8c71ea974c743c544a4d2eae604f2638c",
+          "size_bytes": 431
+        },
+        "15-retrieval.stderr": {
+          "sha256": "5c696242feba274f0c3e33e363ff9332d5a9f5b52253097edadc1d57580653f1",
+          "size_bytes": 13
+        },
+        "15-retrieval.stdout": {
+          "sha256": "d3396793c042c75ba0f76bf0252a8d9a53363ca7807ad924425c310af2c648d6",
+          "size_bytes": 1043
+        },
+        "16-negative-init-dry.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "16-negative-init-dry.stdout": {
+          "sha256": "5c0e280aef1e34dd1fc5ab1cab1381aa710c776ad8cb53ecb19b009e2c404052",
+          "size_bytes": 7516
+        },
+        "17-negative-init-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "17-negative-init-apply.stdout": {
+          "sha256": "bcbdd4e8a4ceefe31b4ccb33a708961de1638d800cc1b9bccbd3545ed46330a7",
+          "size_bytes": 2686
+        },
+        "18-address-b0.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "18-address-b0.stdout": {
+          "sha256": "00fcb6530137554c9920f1d3a215fb80d1ccf5c059a51be87dd13d9dce805b02",
+          "size_bytes": 1096
+        },
+        "19-address-b1.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "19-address-b1.stdout": {
+          "sha256": "5ad4ec47cdd88b28e75137a2ce03717cde4799e6d31933e9875c98e37ba24050",
+          "size_bytes": 1557
+        },
+        "20-address-predeclared.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "20-address-predeclared.stdout": {
+          "sha256": "b7a07316489bf49fef51dae3f13bd689a373e8b4ca85bbeb1e663b90ee2d1227",
+          "size_bytes": 1566
+        },
+        "21-source-update-only.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "21-source-update-only.stdout": {
+          "sha256": "4f8c24d56444818c1623d148467581bcf66a2ca77fd7d8456085c2c9fc024ccd",
+          "size_bytes": 1375
+        },
+        "22-direct-managed.stderr": {
+          "sha256": "9b31a3d75d444fab059189a01e880c854e3ac501fd0a7478172cd9a06c7a044c",
+          "size_bytes": 111
+        },
+        "22-direct-managed.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "23-address-b0-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "23-address-b0-apply.stdout": {
+          "sha256": "000c4057c48612d9f09e3e4b1509207a3cd95401151495915f1ff0d6a533664c",
+          "size_bytes": 1002
+        },
+        "24-existing-address.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "24-existing-address.stdout": {
+          "sha256": "031d8fdeeed3281a5809b4c72d7ec5f59643e020492f77d9668de2e1f969599d",
+          "size_bytes": 1563
+        },
+        "25-wrong-source-id.stderr": {
+          "sha256": "ae2bded5e5d4a83d22ea01d8d59931a551c71a45ef882dbff5aab7e074a0d63f",
+          "size_bytes": 275
+        },
+        "25-wrong-source-id.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "commands.json": {
+          "sha256": "7c7561689937a30f7cc04ec38a2279a55191fcec82aaf7112c5abbf27f1ea2d0",
+          "size_bytes": 21572
+        },
+        "negative-results.json": {
+          "sha256": "4732213bc1401eef5d5ab1489b88634341cba649cce70cd16de4ca6c9644eb93",
+          "size_bytes": 1399
+        },
+        "positive-binding.json": {
+          "sha256": "fdd493d64f051a4a0d0e3683d9de5f92735e5b7fcc86fdd815621c7ec4694e46",
+          "size_bytes": 920
+        },
+        "positive-results.json": {
+          "sha256": "d3bceea707681c43db6750d5a2fd515ea479f18ef200ffa05f7469fd8e98549b",
+          "size_bytes": 1784
+        },
+        "runner-provenance.json": {
+          "sha256": "b81b46974bc129b85e4de459b60f656c24452fd63f3d81c427e7728e9060401f",
+          "size_bytes": 802
+        },
+        "runner.py": {
+          "sha256": "194ea887de43206cf5af9ccd993e1f9252d36e139308694f9d6bb13fa44d14ed",
+          "size_bytes": 22516
+        },
+        "source-after.json": {
+          "sha256": "e7cf699ed70a9d86e28ad73bd55543ef76853af4cd3f0bc98bf5a33eee401653",
+          "size_bytes": 20930
+        },
+        "source-provenance.json": {
+          "sha256": "9c02d312f7563b37a5f7117d502473455bffa563d6a0919562d5b6a3a249e186",
+          "size_bytes": 22336
+        },
+        "summary.json": {
+          "sha256": "e02e91b8db6dceb6b7f59ae645fabfcba63ec9c7cf69226727568ce5bee40336",
+          "size_bytes": 942
+        },
+        "wrong-source-id-results.json": {
+          "sha256": "9c6e7788c0c631b201230db6685613643507e1cee629800fbeb9a0dcf7e7e429",
+          "size_bytes": 426
+        }
+      },
+      "replay_command_template": "PYTHONDONTWRITEBYTECODE=1 <REPOSITORY>/.venv/bin/python <INVESTIGATION_ROOT>/r4/runner.py --run-name <FRESH_ALNUM_RUN_NAME>",
+      "role": "Builder investigation",
+      "runner_sha256": "194ea887de43206cf5af9ccd993e1f9252d36e139308694f9d6bb13fa44d14ed",
+      "source_files": {
+        "LICENSE": "1c5915b8cde3e16949e40961353e483d44a65f90fae72405465dcff60118e57f",
+        "claude_obsidian/ledgers.py": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1",
+        "claude_obsidian/transaction.py": "e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2",
+        "skills/wiki/references/operation-transactions.md": "75a6c01950983c6210647ee11104f3be0c389fd7f81458d9d0f06306401a8f83"
+      },
+      "source_inventory_sha256": "96978aa1733f5a575e898f246ab1942c84ee7e813dd70c330a58fdd558be6ff5",
+      "subprocess_count": 25,
+      "subprocess_exit_counts": {
+        "0": 23,
+        "2": 2
+      },
+      "summary": {
+        "cases": {
+          "negative": {
+            "status": "passed"
+          },
+          "positive": {
+            "status": "passed"
+          },
+          "wrong_source_id": {
+            "status": "passed"
+          }
+        },
+        "head_schema": "fixture-only",
+        "limitations": [
+          "Fixture record is not a validated video-paper-wiki.paper-record.v1; its metadata only drives compatibility rendering.",
+          "Two-section page and upstream string evidence locator prove engine compatibility, not complete project projection/prospective/structured-locator mapping.",
+          "Fixture-only head schema; no production operation-head contract is asserted.",
+          "Global wiki/index.md navigation is a separate setup fixture, outside publication receipt scope.",
+          "Command flags disable LLM/rerank; this is not an OS-level network-confinement proof."
+        ],
+        "scope": "Disposable upstream behavior investigation; no production adapter or human gate acceptance.",
+        "source_inventory_unchanged": true
+      },
+      "upstream_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+      "upstream_version": "2.1.1"
+    },
+    {
+      "expected_refusals": [
+        {
+          "exit_code": 2,
+          "name": "direct-managed"
+        },
+        {
+          "exit_code": 2,
+          "name": "wrong-source-id"
+        }
+      ],
+      "name": "steward1",
+      "normalized_log": "steward1-commands.normalized.log",
+      "normalized_log_sha256": "a9b6af028162550be1cda71ab7e720761df6d32bc2924b4e60d913b6e4d033b9",
+      "observations": {
+        "negative-results.json": {
+          "actual_existing_address_preserves_bytes": true,
+          "b0_page_hash": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9",
+          "b1_changed_paths": [
+            "wiki/papers/AddressFixture.md",
+            "wiki/meta/operations/000000000001-address-b1.json",
+            "wiki/meta/registries/operation-head.json",
+            ".vault-meta/address-counter.txt",
+            ".raw/.manifest.json"
+          ],
+          "b1_page_hash": "577b2f9503d4d6f0f55179690020d2f080786770d085704764d3b2ce57e46cf9",
+          "business_hash_stable_across_receipt_append": true,
+          "direct_managed_rejection": {
+            "exit_code": 2,
+            "fixture_process_result": true,
+            "stderr": "ERR MANAGED_METADATA_COLLISION: managed metadata is request-owned for this operation type: .raw/.manifest.json\n",
+            "stdout": ""
+          },
+          "existing_address_changed_paths": [
+            "wiki/papers/AddressFixture.md",
+            "wiki/meta/operations/000000000001-address-b1.json",
+            "wiki/meta/registries/operation-head.json",
+            ".vault-meta/address-counter.txt",
+            ".raw/.manifest.json"
+          ],
+          "head_last": false,
+          "inspections_left_page_absent_before_explicit_b0_apply": true,
+          "predeclared_address_preserves_bytes": true,
+          "predeclared_still_appends_metadata": true,
+          "source_update_only_changed_paths": [
+            "wiki/papers/AddressFixture.md",
+            "wiki/meta/operations/000000000001-address-b1.json",
+            "wiki/meta/registries/operation-head.json",
+            ".raw/.manifest.json"
+          ]
+        },
+        "positive-binding.json": {
+          "address_persisted": false,
+          "capture_did_not_write_ledgers": true,
+          "claim_id": "clm-ed6a0307ad08e7302d8d",
+          "head": {
+            "path": "wiki/meta/operations/000000000002-fixture-ingest.json",
+            "sha256": "8f113d5faa54757d2592c1888c0d268118eb91c6c99ec973df83ff0ed55b6b0c"
+          },
+          "legacy_manifest_unchanged": true,
+          "page_path": "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+          "page_sha256": "dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3",
+          "paper_id": "sha256:d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+          "raw_path": ".raw/captured/d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.pdf",
+          "raw_sha256": "d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a",
+          "second_render_sha256": "dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3",
+          "source_id": "src-928020dbc06817512192"
+        },
+        "positive-results.json": {
+          "bm25_hits": [
+            {
+              "body_hash": "sha256:810f69f36db9f255e2be41565030e1029956e24c483d572390a30c2ce67c5965",
+              "chunk_id": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9:0",
+              "page_body_hash": "sha256:dd8b842fa37deb568e8c152e9a51a5ad54422151db9b23eb5eb4ae5ad4b1eab3",
+              "path": ".vault-meta/chunks/syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9/chunk-000.json",
+              "score": 2.276325
+            }
+          ],
+          "lint_zero_findings": true,
+          "paper_chunk_count": 1,
+          "render_repeat_equal": true,
+          "retrieval": {
+            "candidates": [
+              {
+                "absolute_path": "<RUN>/v/wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+                "bm25_score": 2.276325,
+                "chunk_id": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9:0",
+                "chunk_index": 0,
+                "page_address": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9",
+                "page_path": "wiki/papers/sha256-d23811dea2c2c2f0d5e5d9eea0ade1848a02ac23e8a8b4367e817f0caf37684a.md",
+                "path": ".vault-meta/chunks/syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9/chunk-000.json",
+                "rerank_score": 2.276325,
+                "rerank_source": "skipped",
+                "snippet": "# Quasarnebula Fixture Paper\n\n## 一句话结论\n\nThe fixture PDF contains the deterministic query marker quasarnebula. ^clm-ed6a0307ad08e7302d8d\n\n## 证据状态\n\nThis is a provisional fixture claim, not human accepta…"
+              }
+            ],
+            "query": "quasarnebula",
+            "strategy": "bm25-only",
+            "top_k": 10
+          },
+          "synthetic_address": "syn-99f723fece79b01fc2cea36d6a8e0e31e3f86586fa3374aed511d5249445f9d9",
+          "unchanged_page_after_indexing": true
+        },
+        "wrong-source-id-results.json": {
+          "rejected": {
+            "exit_code": 2,
+            "fixture_process_result": true,
+            "stderr": "ERR INVALID_PROVENANCE_LEDGER: wiki/meta/ledgers/claim-ledger.json:claims.clm-ed6a0307ad08e7302d8d.evidence.0.source_id: does not resolve; wiki/meta/ledgers/source-ledger.json:sources.src-00000000000000000000: source ID must equal canonical identity src-928020dbc06817512192\n",
+            "stdout": ""
+          },
+          "source_ledger_unchanged": true
+        }
+      },
+      "platform": "macOS-26.3-arm64-arm-64bit-Mach-O",
+      "project_source_sha256": {
+        "schemas/video-paper-wiki.common.v1.schema.json": "d004a55546358dde8315e9ee552083d27d3a2b35a6825d028bc7ad7b6c1d7dfa",
+        "schemas/video-paper-wiki.operation-receipt.v1.schema.json": "41efe77ad8b57430661d9fc19e978f6a299bd28e6192f64c63257da05f60e367",
+        "src/video_paper_wiki/contracts.py": "b64035183f92858f647d1d67b930194a95c3fde24eae0577302bae1c25fe7d37",
+        "src/video_paper_wiki/identity.py": "fbcd771089587aa2fcc1ebbc3b562ac533bb64f574cc6315806af451325d8966",
+        "src/video_paper_wiki/jcs.py": "2c616e1da5002ad68e56e2fc372b8bf5a7c702ac3d3df5073b126d03720036a6",
+        "tests/fixtures/pdfs/tiny.pdf": "c37df90f89d97fd1e575ee894c8fce6c2a979b2de76332a20105f1af70d8c7b9"
+      },
+      "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+      "raw_artifact_digests": {
+        "01-fixture-init-dry.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "01-fixture-init-dry.stdout": {
+          "sha256": "e0620038935d3e1c208dc6ae8df49675424f69c5fe6efa41585909e62d15f427",
+          "size_bytes": 7515
+        },
+        "02-fixture-init-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "02-fixture-init-apply.stdout": {
+          "sha256": "bd9b76aaae0705406c70fa38a86e67347e62add8c1e6fc60eb113615f9fb6af0",
+          "size_bytes": 2685
+        },
+        "03-setup-navigation-inspect.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "03-setup-navigation-inspect.stdout": {
+          "sha256": "8b8633cfa0313f721152d04fb2d7173eb164df4d81d24b80b6beb56f1f98eb20",
+          "size_bytes": 711
+        },
+        "04-setup-navigation-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "04-setup-navigation-apply.stdout": {
+          "sha256": "1277848e82c51911d5a34294adf2fcb9ff2890159ac13df2cb9ad037932fb65c",
+          "size_bytes": 617
+        },
+        "05-fixture-genesis-inspect.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "05-fixture-genesis-inspect.stdout": {
+          "sha256": "b1b5f6bd6df672cf2d5ae2623558fe7c6e16c88a9fc6aea9fd88bd3c95df4b58",
+          "size_bytes": 1267
+        },
+        "06-fixture-genesis-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "06-fixture-genesis-apply.stdout": {
+          "sha256": "ae9b2952c6f6d9401fabe5bad3f18e684054fc961673cbd63313ef113737f6ac",
+          "size_bytes": 1173
+        },
+        "07-capture-dry.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "07-capture-dry.stdout": {
+          "sha256": "5110181e19dbf3275283042345e7c0641c6a49065cfab9964d07827ea6008e0f",
+          "size_bytes": 1798
+        },
+        "08-capture-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "08-capture-apply.stdout": {
+          "sha256": "e046f135bf7d11461aa46d8342e8f208627b7752031658131d53d8f9df1b3542",
+          "size_bytes": 1671
+        },
+        "09-fixture-ingest-inspect.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "09-fixture-ingest-inspect.stdout": {
+          "sha256": "0c6b7222488e01a391cef3f23e6dfc12eda9d8e9a9e767c4d0f3a7f9db7b0341",
+          "size_bytes": 1807
+        },
+        "10-fixture-ingest-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "10-fixture-ingest-apply.stdout": {
+          "sha256": "27441277d1684e85203fcbabf00621d23233fcbf2cfcedb1e6a4af3af29f9c57",
+          "size_bytes": 1713
+        },
+        "11-strict-lint.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "11-strict-lint.stdout": {
+          "sha256": "cceb660a8df76b9a16f32b5cfa0be9b150a9158a8383fa8ad7820799a43b7942",
+          "size_bytes": 803
+        },
+        "12-contextual-prefix.stderr": {
+          "sha256": "1af03970f81385f031086605cd50bc29f15f7df8e626b99e74c0258362ded82c",
+          "size_bytes": 1033
+        },
+        "12-contextual-prefix.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "13-bm25-build.stderr": {
+          "sha256": "997b2d80d827ff717769f26ae653294baa71b1d6745213e4f771215824d9d40c",
+          "size_bytes": 110
+        },
+        "13-bm25-build.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "14-bm25-query.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "14-bm25-query.stdout": {
+          "sha256": "1f96f556156ed7c0391a89c7b36ef6a8c71ea974c743c544a4d2eae604f2638c",
+          "size_bytes": 431
+        },
+        "15-retrieval.stderr": {
+          "sha256": "5c696242feba274f0c3e33e363ff9332d5a9f5b52253097edadc1d57580653f1",
+          "size_bytes": 13
+        },
+        "15-retrieval.stdout": {
+          "sha256": "31ce3f8a8916c5f8e08f429424b8c250a473e9deecbeef227b2a41e2d322fa5c",
+          "size_bytes": 1049
+        },
+        "16-negative-init-dry.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "16-negative-init-dry.stdout": {
+          "sha256": "4361173e1373774a8a630415425833458307eddd57927a9d2444ee98c10de5a0",
+          "size_bytes": 7516
+        },
+        "17-negative-init-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "17-negative-init-apply.stdout": {
+          "sha256": "148c357faae721de1d89b12de7873a7dcc17e75d2cff9c7c30320a896a72ec12",
+          "size_bytes": 2686
+        },
+        "18-address-b0.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "18-address-b0.stdout": {
+          "sha256": "7984e834180e5a3851168c50b58758a473db1b1a63ea721b4e942ab5028c377f",
+          "size_bytes": 1096
+        },
+        "19-address-b1.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "19-address-b1.stdout": {
+          "sha256": "62423a983842cf12306ed1f3d8e450b9e6023d038c092d32a2c60ca64550d375",
+          "size_bytes": 1557
+        },
+        "20-address-predeclared.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "20-address-predeclared.stdout": {
+          "sha256": "4c7c6b2e0e708b735e2a68eb79ae588d8056aa20213ff508c90807167035d010",
+          "size_bytes": 1566
+        },
+        "21-source-update-only.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "21-source-update-only.stdout": {
+          "sha256": "1f1515b312fb0df29e2915cbe4a6d1de320ec6a8933c91c0379483ed30c2ea1a",
+          "size_bytes": 1375
+        },
+        "22-direct-managed.stderr": {
+          "sha256": "9b31a3d75d444fab059189a01e880c854e3ac501fd0a7478172cd9a06c7a044c",
+          "size_bytes": 111
+        },
+        "22-direct-managed.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "23-address-b0-apply.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "23-address-b0-apply.stdout": {
+          "sha256": "598c18370a1121162d0a3bfaa423fb0664727af541e93ad909b82f64c93c8366",
+          "size_bytes": 1002
+        },
+        "24-existing-address.stderr": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "24-existing-address.stdout": {
+          "sha256": "385db837a5a857e53eb01470c560bbf6d161c6a3feb615cdc5969c406f3da1fc",
+          "size_bytes": 1563
+        },
+        "25-wrong-source-id.stderr": {
+          "sha256": "ae2bded5e5d4a83d22ea01d8d59931a551c71a45ef882dbff5aab7e074a0d63f",
+          "size_bytes": 275
+        },
+        "25-wrong-source-id.stdout": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "size_bytes": 0
+        },
+        "commands.json": {
+          "sha256": "9e94202c908525e523c36fa70e814a7177670a81ea7efa3c9f26670a1e7cdaf1",
+          "size_bytes": 22106
+        },
+        "negative-results.json": {
+          "sha256": "4732213bc1401eef5d5ab1489b88634341cba649cce70cd16de4ca6c9644eb93",
+          "size_bytes": 1399
+        },
+        "positive-binding.json": {
+          "sha256": "fdd493d64f051a4a0d0e3683d9de5f92735e5b7fcc86fdd815621c7ec4694e46",
+          "size_bytes": 920
+        },
+        "positive-results.json": {
+          "sha256": "0944c182b4ee1cb64c9df3eb1356a098aed282eec7c7168824d0bac2df3fd104",
+          "size_bytes": 1790
+        },
+        "runner-provenance.json": {
+          "sha256": "b81b46974bc129b85e4de459b60f656c24452fd63f3d81c427e7728e9060401f",
+          "size_bytes": 802
+        },
+        "runner.py": {
+          "sha256": "194ea887de43206cf5af9ccd993e1f9252d36e139308694f9d6bb13fa44d14ed",
+          "size_bytes": 22516
+        },
+        "source-after.json": {
+          "sha256": "e7cf699ed70a9d86e28ad73bd55543ef76853af4cd3f0bc98bf5a33eee401653",
+          "size_bytes": 20930
+        },
+        "source-provenance.json": {
+          "sha256": "9c02d312f7563b37a5f7117d502473455bffa563d6a0919562d5b6a3a249e186",
+          "size_bytes": 22336
+        },
+        "summary.json": {
+          "sha256": "e02e91b8db6dceb6b7f59ae645fabfcba63ec9c7cf69226727568ce5bee40336",
+          "size_bytes": 942
+        },
+        "wrong-source-id-results.json": {
+          "sha256": "9c6e7788c0c631b201230db6685613643507e1cee629800fbeb9a0dcf7e7e429",
+          "size_bytes": 426
+        }
+      },
+      "replay_command_template": "PYTHONDONTWRITEBYTECODE=1 <REPOSITORY>/.venv/bin/python <INVESTIGATION_ROOT>/r4/runner.py --run-name <FRESH_ALNUM_RUN_NAME>",
+      "role": "Steward independent fresh replay",
+      "runner_sha256": "194ea887de43206cf5af9ccd993e1f9252d36e139308694f9d6bb13fa44d14ed",
+      "source_files": {
+        "LICENSE": "1c5915b8cde3e16949e40961353e483d44a65f90fae72405465dcff60118e57f",
+        "claude_obsidian/ledgers.py": "9751d56272e2256bde643e7d3effd47f4c875ce02422be09a8dc0a148113f2d1",
+        "claude_obsidian/transaction.py": "e007e3b7d08f72eabc4a95c7031fb596c201562432cf37cc649136b02b223de2",
+        "skills/wiki/references/operation-transactions.md": "75a6c01950983c6210647ee11104f3be0c389fd7f81458d9d0f06306401a8f83"
+      },
+      "source_inventory_sha256": "96978aa1733f5a575e898f246ab1942c84ee7e813dd70c330a58fdd558be6ff5",
+      "subprocess_count": 25,
+      "subprocess_exit_counts": {
+        "0": 23,
+        "2": 2
+      },
+      "summary": {
+        "cases": {
+          "negative": {
+            "status": "passed"
+          },
+          "positive": {
+            "status": "passed"
+          },
+          "wrong_source_id": {
+            "status": "passed"
+          }
+        },
+        "head_schema": "fixture-only",
+        "limitations": [
+          "Fixture record is not a validated video-paper-wiki.paper-record.v1; its metadata only drives compatibility rendering.",
+          "Two-section page and upstream string evidence locator prove engine compatibility, not complete project projection/prospective/structured-locator mapping.",
+          "Fixture-only head schema; no production operation-head contract is asserted.",
+          "Global wiki/index.md navigation is a separate setup fixture, outside publication receipt scope.",
+          "Command flags disable LLM/rerank; this is not an OS-level network-confinement proof."
+        ],
+        "scope": "Disposable upstream behavior investigation; no production adapter or human gate acceptance.",
+        "source_inventory_unchanged": true
+      },
+      "upstream_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+      "upstream_version": "2.1.1"
+    }
+  ],
+  "runtime_limitations": [
+    "Fixture record is not a validated video-paper-wiki.paper-record.v1; its metadata only drives compatibility rendering.",
+    "Two-section page and upstream string evidence locator prove engine compatibility, not complete project projection/prospective/structured-locator mapping.",
+    "Fixture-only head schema; no production operation-head contract is asserted.",
+    "Global wiki/index.md navigation is a separate setup fixture, outside publication receipt scope.",
+    "Command flags disable LLM/rerank; this is not an OS-level network-confinement proof."
+  ],
+  "schema": "vpkb-verification-observation.v1",
+  "scope": "Pre-implementation public engine compatibility investigation; not acceptance of a transaction facade implementation or production adapter."
+}

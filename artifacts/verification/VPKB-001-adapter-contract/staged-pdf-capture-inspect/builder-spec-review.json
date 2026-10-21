@@ -1,0 +1,108 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-builder-spec-review.v1",
+  "recorded_on": "2026-09-01",
+  "role": "Builder",
+  "agent": "Codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "medium",
+  "baseline_head": "fb2cbcb565195a232f22d02c0474ac1b1b34f7d3",
+  "reviewed_paths": [
+    {
+      "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+      "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f"
+    },
+    {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+      "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f"
+    },
+    {
+      "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+      "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af"
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.staged-pdf-capture-request.v1.json",
+      "sha256": "c973201fee3ab52066fc083932764d2887dab2ba449ec5ac59e6790a7f81cce2"
+    },
+    {
+      "path": "tests/fixtures/contracts/valid/video-paper-wiki.staged-pdf-capture-authority.v1.json",
+      "sha256": "240ec49009fbb801c16c093fd6c5008063ae9855b57000b50b16ec746ea38aed"
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.staged-pdf-capture-request.v1.invalid.json",
+      "sha256": "a7d773754aecd618f29080b4c73da0c3f20ae94eb80dfa373be0630756cf4428"
+    },
+    {
+      "path": "tests/fixtures/contracts/invalid/video-paper-wiki.staged-pdf-capture-authority.v1.invalid.json",
+      "sha256": "5d2dbcbaf4da9002ce0152c2f74838f5d47e3a702d7a6b1fb87d28dcdc7e0acd"
+    },
+    {
+      "path": "src/video_paper_wiki/contracts.py",
+      "sha256": "46856cd5e4458862ff7fa2e43db087bba38af540a28149f22136a9c95e23251e"
+    },
+    {
+      "path": "tests/contract/test_schemas.py",
+      "sha256": "046e52fd5e10aaf024296e84e0a560900be0b58b7426a710379581702011d3b0"
+    },
+    {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/architecture-work-package.json",
+      "sha256": "298ae880c5013c79a3db94dbc05c0d6d1c77eb0af3e507a55d5a2a2752c02421"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "verdict": "CHANGES_REQUIRED",
+      "blockers": [
+        "approval provenance absent without a persisted request",
+        "prepare/request multi-file lineage not frozen",
+        "reuse caller operation ID would be lost"
+      ]
+    },
+    {
+      "round": 2,
+      "verdict": "CHANGES_REQUIRED",
+      "blockers": [
+        "object-only request validator was assigned byte-dependent checks",
+        "contract PDF minimum conflicted with schema",
+        "public encoder error domain and shared delegation were incomplete"
+      ]
+    },
+    {
+      "round": 3,
+      "verdict": "CHANGES_REQUIRED",
+      "blockers": [
+        "encoder-side 8 MiB rejection would violate accepted digest-mismatch-before-limit order"
+      ]
+    },
+    {
+      "round": 4,
+      "verdict": "GO",
+      "resolution": "Request persists the parsed desensitized approval-ref; prepare is one blob-first/request-last retained session; wrapper retains requested_operation_id; object-only/runtime checks are separated; PDF minimum is 5; one public encoder serves all three callers; caller-side size checks preserve accepted ordering."
+    },
+    {
+      "round": 5,
+      "verdict": "GO",
+      "resolution": "The revised authority schema preserves root closure and the complete create/reuse conditional matrix: create requires would_change=true with both downstream objects, while reuse requires would_change=false with both downstream fields null. The architecture work package changes only the corresponding authority-schema hash."
+    }
+  ],
+  "checks": {
+    "contract_sha256_match": true,
+    "schema_sha256_match": true,
+    "fixture_goldens_recomputed": true,
+    "prepare_retained_lineage_closed": true,
+    "reuse_operation_binding_closed": true,
+    "hash_graph_acyclic": true,
+    "encoder_compatibility_closed": true,
+    "implementation_paths_sufficient": true,
+    "frozen_bytes_excluded_from_implementation": true,
+    "authority_conditional_matrix_closed": true,
+    "authority_root_closure_preserved": true,
+    "schema_checks": {
+      "passed": 51,
+      "failed": 0
+    }
+  },
+  "verdict": "GO",
+  "remaining_blockers": [],
+  "note": "Read-only architecture review. No repository, Git, PR, Vault, network, or protected-file mutation was performed."
+}

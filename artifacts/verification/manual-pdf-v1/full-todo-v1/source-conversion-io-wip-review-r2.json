@@ -1,0 +1,60 @@
+{
+  "schema": "full-todo.source-conversion-io-wip-review-r2.v1",
+  "reviewed_at_utc": "2026-09-09T06:48:04Z",
+  "reviewer": {
+    "agent": "five_agent_config_review",
+    "role": "independent read-only IO rereviewer"
+  },
+  "scope": "Bounded read-only rereview of the revised source_conversion_io.py against the three R1 WIP findings: safety exception normalization, foreign mirror collision refusal, and partial acquisition sibling tracking. No source, test, Git, Vault, network, or external-process mutation.",
+  "source": {
+    "root": ".work/parallel/source-conversion-v1/terminal-1/source",
+    "head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "tree": "ff07f5cdeaf65b2c09970f704770e46340f4468a",
+    "io_path": "src/video_paper_wiki_research/source_conversion_io.py",
+    "io_sha256": "7a587741aeb002e983648a3024ef9550b59883b127cab48a84c9e95147670523",
+    "io_size_bytes": 14199,
+    "boundary_path": "src/video_paper_wiki_research/source_conversion.py",
+    "boundary_sha256": "304f29d17ebbda69e2c30d74759232c8379698ea39064c5b2fd4fe8a7ff0d947",
+    "boundary_size_bytes": 6356
+  },
+  "prior_review": {
+    "path": "artifacts/verification/manual-pdf-v1/full-todo-v1/source-conversion-io-wip-review-r1.json",
+    "sha256": "2dc03e8385adf2ef2e17030eacdeba3109d8826f336cd4d4680c790e0d7856d7"
+  },
+  "decision": "GO_FOR_REVISED_IO_HANDOFF",
+  "checks": [
+    {
+      "id": "IO-WIP-001_EXCEPTION_NORMALIZATION",
+      "status": "PASS",
+      "evidence": "_verify_all now retains ContractError, OSError, and StagingError while continuing checks over every held object. StagingError is converted to ContractError with its code, details, instance pointer default, and exit_code default 2. source_conversion._boundary now preserves named exception code/details/exit information for the direct API, and the AST parses successfully."
+    },
+    {
+      "id": "IO-WIP-002_FOREIGN_COLLISION_REFUSAL",
+      "status": "PASS",
+      "evidence": "validator_mirror maps fresh nonce creation OSError to WORK_PATH_UNSAFE. RetainedTree.mkdir maps directory creation conflicts and changes to WORK_PATH_UNSAFE. RetainedTree.install maps OSError and StagingError, including differing foreign installs, to WORK_PATH_UNSAFE; an already occupied identical slot remains explicitly refused."
+    },
+    {
+      "id": "IO-WIP-003_PARTIAL_ACQUISITION_PREPASS",
+      "status": "PASS",
+      "evidence": "capture now performs a sibling stat/type/nlink prepass before reading any payload, records every safe sibling identity in directories/files, then reads payloads in a second pass. Early limit/read/parse failure therefore retains all reached sibling identities and complete directory sets for final verification; unread bytes are not claimed as captured."
+    },
+    {
+      "id": "BOUNDS_AND_PERFORMANCE",
+      "status": "PASS",
+      "evidence": "The prepass preserves the bounded 8192-entry, depth-16, 16 MiB-file and 128 MiB-total limits. The extra stat pass remains bounded; no independent performance blocker was found."
+    }
+  ],
+  "remaining_blockers": [],
+  "validation": {
+    "checks_run": [
+      "sha256sum of revised IO and boundary sources",
+      "AST parse of revised IO and conversion boundary"
+    ],
+    "tests_run": false,
+    "source_git_edited": false,
+    "production_edits": false,
+    "test_edits": false,
+    "vault_mutation": false,
+    "network_or_external_process": false
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-publication-inspection.v1.schema.json",
+  "title": "video-paper-wiki.domain-publication-inspection.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "batch_id",
+    "request_sha256",
+    "request",
+    "basis_verified",
+    "content_verified",
+    "publication",
+    "applied",
+    "receipt_backed",
+    "audit_coverage",
+    "backup_coverage",
+    "transaction_authority",
+    "canonical_official",
+    "current_supported_typed_fact",
+    "next_action"
+  ],
+  "properties": {
+    "schema": {
+      "const": "video-paper-wiki.domain-publication-inspection.v1"
+    },
+    "batch_id": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/batch_id"
+    },
+    "request_sha256": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.common.v1.schema.json#/$defs/sha256"
+    },
+    "request": {
+      "$ref": "https://video-paper-wiki.dev/schemas/video-paper-wiki.domain-publication-request.v1.schema.json"
+    },
+    "basis_verified": {
+      "const": true,
+      "type": "boolean"
+    },
+    "content_verified": {
+      "const": true,
+      "type": "boolean"
+    },
+    "publication": {
+      "const": "unpublished"
+    },
+    "applied": {
+      "const": false,
+      "type": "boolean"
+    },
+    "receipt_backed": {
+      "const": false,
+      "type": "boolean"
+    },
+    "audit_coverage": {
+      "const": "not_wired"
+    },
+    "backup_coverage": {
+      "const": "not_wired"
+    },
+    "transaction_authority": {
+      "const": "not_wired"
+    },
+    "canonical_official": {
+      "const": false,
+      "type": "boolean"
+    },
+    "current_supported_typed_fact": {
+      "const": false,
+      "type": "boolean"
+    },
+    "next_action": {
+      "const": "apply_requires_later_slice"
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://video-paper-wiki.dev/schemas/video-paper-wiki.backup-manifest.v2.schema.json",
+  "title": "video-paper-wiki.backup-manifest.v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "policy",
+    "source_roots",
+    "source_anchor",
+    "vault_manifest_sha256",
+    "roots",
+    "raw_included",
+    "scope",
+    "coverage",
+    "excluded",
+    "directories",
+    "files",
+    "manifest_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "video-paper-wiki.backup-manifest.v2"},
+    "policy": {"const": "vpwiki-private-research-complete-set-r1"},
+    "source_roots": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vault", "checkout"],
+      "properties": {
+        "vault": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "checkout": {"type": "string", "minLength": 1, "maxLength": 4096}
+      }
+    },
+    "source_anchor": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "vault_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "roots": {"const": [".raw", "wiki", ".work"]},
+    "raw_included": {"const": true},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coverage_version", "batch_ids", "complete_project"],
+      "properties": {
+        "coverage_version": {"const": "p3-r1"},
+        "batch_ids": {
+          "type": "array",
+          "maxItems": 128,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?$"
+          }
+        },
+        "complete_project": {"const": false}
+      }
+    },
+    "coverage": {
+      "type": "array",
+      "maxItems": 1024,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["batch_id", "rule_id", "state", "file_count", "total_bytes"],
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9_-]{0,126}[A-Za-z0-9])?$"
+          },
+          "rule_id": {
+            "enum": [
+              "code-evidence",
+              "flow",
+              "domain",
+              "experiments",
+              "articles",
+              "draft",
+              "review",
+              "plan"
+            ]
+          },
+          "state": {"enum": ["included", "absent"]},
+          "file_count": {"type": "integer", "minimum": 0, "maximum": 65534},
+          "total_bytes": {"type": "integer", "minimum": 0, "maximum": 4294967294}
+        }
+      }
+    },
+    "excluded": {
+      "type": "array",
+      "maxItems": 8192,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["root", "path", "reason"],
+        "properties": {
+          "root": {"enum": ["vault", "checkout"]},
+          "path": {"type": "string", "minLength": 1, "maxLength": 1024},
+          "reason": {"enum": ["rebuildable", "out_of_scope"]}
+        }
+      }
+    },
+    "directories": {
+      "type": "array",
+      "maxItems": 65534,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "mode"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+          "mode": {"type": "integer", "minimum": 0, "maximum": 4095}
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "maxItems": 65534,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size_bytes", "mode"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1, "maxLength": 4096},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "size_bytes": {"type": "integer", "minimum": 0, "maximum": 67108864},
+          "mode": {"type": "integer", "minimum": 0, "maximum": 4095}
+        }
+      }
+    },
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

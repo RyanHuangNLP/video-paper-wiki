@@ -1,0 +1,108 @@
+{
+  "schema": "full-todo.code-proof-io-complete-instruction-review-r2.v1",
+  "recorded_at_utc": "2026-09-11T03:13:23.219645Z",
+  "reviewer": "cursor_lanes34_controller",
+  "decision": "GO_R2_INSTRUCTION_CLOSURES_CONFIRMED",
+  "scope": "Read-only delta review of R18 and the exact R2 implementation instruction against the two bounded R1 findings, R6/R8/R9/R13-R17, the accepted foundation public API and the accepted pure Git kernel. No broad redesign, source/test/harness/build/Git/model/UI/network/implementation action was performed. Only this R2 review artifact is written.",
+  "reviewed_inputs": [
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-PRIVATE-ARGUMENT-CLOSURES-R18.md",
+      "size_bytes": 3540,
+      "sha256": "1122d9069eebde83a3db4ad76aae029dc9bd1da61a53bf6018fccc7c5b894ac7",
+      "label": "r18"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-IO-IMPLEMENTATION-R2.md",
+      "size_bytes": 48349,
+      "sha256": "0d1f0a30df7c097be05b5e03fe0813d4a929385b90e94896733316f7802c39d7",
+      "label": "instruction_r2"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/GROK-CODE-PROOF-IO-IMPLEMENTATION-R1.md",
+      "size_bytes": 45264,
+      "sha256": "0d515e86a7d773afa16f9d3339be9207e94b4d4f4241e8875872932ff3514b2f",
+      "label": "instruction_r1"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/io-complete-instruction-review-r1.json",
+      "size_bytes": 14475,
+      "sha256": "3c23c3fc00ddca12f466451c9b5ded0c4c21dc7f7f08561347026fcf14160921",
+      "label": "r1_review"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/docs/ai/packets/full-todo-v1/CODE-PROOF-IO-DISPATCH-CLOSURES-R17.md",
+      "size_bytes": 7933,
+      "sha256": "a3b730b6732a8acc4ee05830b4578e9b493260ef78d41c3ac8a6043ed80eaa9f",
+      "label": "r17"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/full-todo-v1/code-proof-v1/foundation-r1/io-dispatch-closures-review-r17.json",
+      "size_bytes": 10233,
+      "sha256": "22c912b7e6b9c6e5618c3c2a98eb9244a0617bfb60a12385dc6e1d38f6c6b9f9",
+      "label": "r17_review"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_proof_resources.py",
+      "size_bytes": 29412,
+      "sha256": "00ec3d46eb57dc7e902bfcacbae0964934a24af63a86c5c3ddc183e605943ea6",
+      "label": "foundation"
+    },
+    {
+      "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/code-proof-v1/terminal-1/source/src/video_paper_wiki/code_git_objects.py",
+      "size_bytes": 30702,
+      "sha256": "86c2c0b2e58239bb44b8b8a2bf302a8fd99478a9faaf3ea8d63586f29a8d861b",
+      "label": "git_kernel"
+    }
+  ],
+  "delta_audit": [
+    {
+      "r1_finding": "IO-COMPLETE-R1-001 raw_count_pointer_and_prebody_order",
+      "status": "CLOSED_BY_R2",
+      "r18_refs": [
+        "CODE-PROOF-IO-PRIVATE-ARGUMENT-CLOSURES-R18.md:7-14"
+      ],
+      "r2_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R2.md:385-414",
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R2.md:659-665"
+      ],
+      "evidence": "R2 explicitly maps initial pre-manifest physical raw-object count and raw aggregate admission to /objects with hard max_objects/max_total_object_bytes; maps post-manifest retained physical body-map count to /bodies with selected max_objects; keeps declared inventory count at /objects; and states the exact pre-body order count-cap, width, extra, missing. The count check is placed before the numbered width/extra/missing reconciliation and all precede body open/read.",
+      "kernel_consistency": "The accepted code_git_objects.py _validate_bodies_map checks len(bodies)>max_objects, then physical key width, then extra, then missing. R2 now matches this exact order and the R16/R17 stage-specific pointer distinction."
+    },
+    {
+      "r1_finding": "IO-COMPLETE-R1-002 private_input_install_argument_types_and_refusal_taxonomy",
+      "status": "CLOSED_BY_R2",
+      "r18_refs": [
+        "CODE-PROOF-IO-PRIVATE-ARGUMENT-CLOSURES-R18.md:16-31"
+      ],
+      "r2_refs": [
+        "GROK-CODE-PROOF-IO-IMPLEMENTATION-R2.md:108-146"
+      ],
+      "evidence": "R2 freezes active lifetime first; install in-flight/previously failed phase_mismatch before caller inspection, then setter prerequisite; retain_input exact builtin str path then exact builtin int maximum 65536/1048576 then lexical checks; wrong path type CodeProofStructureError(\"type\"); install exact builtin str relative_name then exact builtin bytes payload before conversion, hashing, comparison, len, slicing or filesystem access; wrong type CodeProofStructureError(\"type\"); invalid fixed-layout names WORK_PATH_UNSAFE/path_spelling in installation; lexical retain_input refusal WORK_PATH_UNSAFE/path_spelling in metadata; valid oversized payloads use CODE_PROOF_LIMIT_EXCEEDED with the fixed install pointer and actual limit fields; C+2*N remains independent; all direct raises suppress context and unwind the graph.",
+      "taxonomy_consistency": "These are existing private/facade classes and codes, with no new public fields or codes. The order explicitly prevents hostile subclass/path-like conversion hooks and distinguishes malformed type, lexical name, valid per-file limit and peak limit refusals."
+    }
+  ],
+  "unchanged_readiness_checks": [
+    {
+      "area": "foundation_public_api_and_resource_ownership",
+      "status": "PASS",
+      "evidence": "R1 content is retained; R2 adds only the bounded argument/order section and raw-count clarifications. The accepted foundation exposes only .reason on its two private exception classes, requires one exact eleven-entry bytes dict and one pure compiler call, and R2 remains consistent."
+    },
+    {
+      "area": "zero_egress_builder_boundary",
+      "status": "PASS",
+      "evidence": "The exact R2 opening still requires two complete Python blocks and Tests not run, forbids file/shell/network/model tools and product/source/Git/Vault changes, and leaves runtime fixture copying to isolated tests."
+    },
+    {
+      "area": "facade_shapes_and_all_exits",
+      "status": "PASS",
+      "evidence": "R1 fixed messages, closed details, bounded prior-code union, installer phases, lineage > cleanup > original > success selection, same-descriptor checks, reverse close order and interruption identity remain unchanged. R18/R2 adds only the specified private state/type precedence and uses existing phase_mismatch/path_spelling/limit contexts."
+    },
+    {
+      "area": "fixture_feasibility",
+      "status": "PASS",
+      "evidence": "R2 preserves genuine copied eleven-resource source/installed fixture requirements and adds adversarial subclass, simultaneous-failure-order, no-body-open and no-output-creation tests without requiring Builder tools."
+    }
+  ],
+  "contradictory_delta": [],
+  "conclusion": "Both R1 blockers are concretely and self-containedly closed by the exact R18 additions integrated into R2. R2 is ready for the next freeze/dispatch gate, subject to the separate harness review and the existing implementation/source review process. This report does not authorize implementation or any launch."
+}

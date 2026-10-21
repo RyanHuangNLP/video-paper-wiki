@@ -1,0 +1,221 @@
+{
+  "$schema": "video-paper-wiki.vpkb-001-staged-pdf-capture-inspect-steward-review.v1",
+  "reviewed_at_utc": "2026-09-01T19:59:30Z",
+  "role": "Repo Steward",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "medium",
+  "verdict": "GO_FOR_ARCHITECT_LOCAL_ACCEPTANCE",
+  "authority": {
+    "work_package": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/implementation-work-package.json",
+      "revision": 5,
+      "sha256": "71e5af783fbb5410bc4e0fae91fec775dd92a5334aeacdb197af0e7ed76dccd5",
+      "size_bytes": 19409
+    },
+    "builder_candidate": {
+      "path": "artifacts/verification/VPKB-001-adapter-contract/staged-pdf-capture-inspect/implementation/builder-candidate-r5.json",
+      "revision": 5,
+      "sha256": "e4fb96af7b0eeb62d3c3cd3aa8a3c492c2ea9f1dae7a765fb4cf53f3b233435f",
+      "size_bytes": 15811
+    },
+    "candidate_source_snapshot": {
+      "path_count": 18,
+      "sha256": "c3634d7b575e25f1221f3a566014f688c90544b3d215edb1cd2b7d2b10102b8d",
+      "formula": "sha256(concat(sorted_by_raw_utf8(repo_relative_path) of utf8(path) || TAB || ascii(sha256(raw_file_bytes)) || TAB || ascii(decimal_size_bytes) || LF))"
+    },
+    "baseline": {
+      "head": "4168e151c332cdcf89227bf086d4a6bc5308e649",
+      "branch": "repair/vpkb000-plan-approval-prepare-follow2"
+    }
+  },
+  "exact_byte_review": {
+    "candidate_raw_hash_and_size_match": true,
+    "all_18_file_hashes_and_sizes_match": true,
+    "computed_snapshot_matches": true,
+    "r4_to_r5_changed_source_test_paths": [
+      "src/video_paper_wiki/captured_snapshot.py",
+      "src/video_paper_wiki/staging.py",
+      "tests/security/test_staged_pdf_capture_boundary.py",
+      "tests/security/test_work_staging_boundary.py"
+    ],
+    "all_other_r4_source_test_bytes_unchanged": true,
+    "frozen_inputs": [
+      {
+        "path": "docs/ai/contracts/vpkb-001-staged-pdf-capture-inspect-v1.md",
+        "sha256": "8f9624c98ebbc9ae7eba51e61645291f11bc482f2fde1353e2ec4187f6c9d21f",
+        "size_bytes": 20132
+      },
+      {
+        "path": "docs/ai/contracts/vpkb-001-transaction-inspect-staging-v1.md",
+        "sha256": "4f201c2878f255156d75eae42821327fd757f0366acc9cbf5191eca23701ddea",
+        "size_bytes": 16847
+      },
+      {
+        "path": "schemas/video-paper-wiki.staged-pdf-capture-request.v1.schema.json",
+        "sha256": "18be4aa64e2b89554faf0780374231c76e8d200b8daad8899a8ea165a826d73f",
+        "size_bytes": 5052
+      },
+      {
+        "path": "schemas/video-paper-wiki.staged-pdf-capture-authority.v1.schema.json",
+        "sha256": "8eae6e8f453661d90233c6584a3e1460aef5aaee86d618f31214158a433f51af",
+        "size_bytes": 3002
+      }
+    ],
+    "r1_through_r4_work_packages_and_candidates_match_builder_manifest": true
+  },
+  "code_review": {
+    "staging_exception_exit": {
+      "passed": true,
+      "finding": "Both standalone and retained transaction staging install an exception verifier only after the complete directory identity baseline exists. Every later content, bundle, safe-entry or final-set exception re-proves all named directory edges before preserving the original exception. Persistent drift therefore overrides a conflict with WORK_PATH_UNSAFE, while unchanged different-byte conflicts remain STAGING_CONFLICT.",
+      "resource_cleanup": "Comparison descriptors are closed by each verifier and retained descriptors remain closed in the existing finally blocks."
+    },
+    "captured_snapshot_exit": {
+      "passed": true,
+      "finding": "The inventory-independent directory verifier checks retained descriptors and reopens vault/.raw/captured. Initial scan and verification rescan each have pre-check plus success/exception post-checks. OSError from a missing or replaced named vault root is sanitized as CAPTURE_SNAPSHOT_INVALID rather than escaping FileNotFoundError.",
+      "unchanged_limit_behavior": "An unchanged 1025-entry captured directory remains UPSTREAM_LIMIT_EXCEEDED."
+    },
+    "r4_input_phase_fix": {
+      "passed": true,
+      "finding": "Request parsing/schema/correlation/canonical validation still precedes plan access; request/prepared drift and post-bind plan drift retain the frozen phase-aware override behavior."
+    },
+    "public_surface": {
+      "passed": true,
+      "finding": "No public API, schema, contract, authority bytes, normal conflict/limit code, publication ordering or create/reuse behavior changed."
+    }
+  },
+  "independent_probes": [
+    {
+      "name": "retained staging conflict plus persistent named content replacement",
+      "command": "PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 .venv/bin/python /private/tmp/vpkb-retained-staging-conflict-lineage-probe.py",
+      "probe_sha256": "ffaa2e82e6724c38d4df25c4f1e15b632642460edafe69b144f7d5060d7857f3",
+      "output_path": "/private/tmp/vpkb-retained-staging-conflict-lineage-probe-r5-final.out",
+      "output_sha256": "841a4bdb58bd783d6b517bf6fed1fc65e7aeb7f8aa478d19a899f566c118a674",
+      "exit_code": 0,
+      "observed_code": "WORK_PATH_UNSAFE",
+      "passed": true
+    },
+    {
+      "name": "initial captured scan limit plus persistent named captured replacement",
+      "command": "PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 .venv/bin/python /private/tmp/vpkb-capture-snapshot-initial-exit-probe.py",
+      "probe_sha256": "a540458f5a9703367a76e6731a067a4025f596240c0a6275cbb4acbf93b8c2b8",
+      "output_path": "/private/tmp/vpkb-capture-snapshot-initial-exit-probe-r5-final.out",
+      "output_sha256": "47ba8dd5deb2eb7a47a760d55a674a9ef1c211c7de413b2d6a384ca84e85ce47",
+      "exit_code": 0,
+      "observed_code": "CAPTURE_SNAPSHOT_INVALID",
+      "passed": true
+    },
+    {
+      "name": "R4 request-before-plan and named input lineage matrix",
+      "command": "PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 .venv/bin/python /private/tmp/vpkb-staged-input-lineage-probe.py",
+      "probe_sha256": "0e06944a07c5b66c154d2754d22bacd9942447773be36162f469746af424baf4",
+      "output_path": "/private/tmp/vpkb-staged-input-lineage-probe-r5-final.out",
+      "output_sha256": "d0dc2773479cf3906283630799e6af6770b1cccdef43dad2c3aadf0a21a9e235",
+      "exit_code": 0,
+      "passed": true,
+      "observations": [
+        "malformed and schema-invalid request errors precede a missing plan",
+        "prepared replacement during parse or semantic validation returns WORK_PATH_UNSAFE",
+        "plan replacement before plan binding does not preempt the request error"
+      ]
+    },
+    {
+      "name": "direct CapturedSnapshot.verify after persistent named vault-root rename",
+      "command": "PYTHONPATH=. PYTHONDONTWRITEBYTECODE=1 .venv/bin/python - [inline disposable-vault probe]",
+      "output_path": "/private/tmp/vpkb-capture-snapshot-direct-vault-rename-r5-final.out",
+      "output_sha256": "1484d3ecf528c96f7d589174bb84ad88797c8b92764b25b09aad91218f80ccf5",
+      "exit_code": 0,
+      "direct_observed_code": "CAPTURE_SNAPSHOT_INVALID",
+      "context_exit_observed_code": "CAPTURE_SNAPSHOT_INVALID",
+      "passed": true
+    }
+  ],
+  "independent_focused_run": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q tests/unit/test_staged_capture.py tests/contract/test_staged_pdf_capture.py tests/security/test_staged_pdf_capture_boundary.py tests/upstream/test_vpkb001_staged_pdf_capture.py tests/unit/test_prepare.py tests/security/test_prepare_offline.py tests/security/test_work_staging_boundary.py tests/security/test_cli_isolation.py tests/contract/test_agent_command_tree.py tests/unit/test_transaction_staging.py tests/security/test_transaction_staging_boundary.py tests/upstream/test_vpkb001_staged_transaction_inspect.py tests/unit/test_upstream_adapter_capture.py tests/security/test_upstream_adapter_boundary.py tests/unit/test_json_boundary.py --basetemp=/private/tmp/vpkb-spci-r5-steward-final --junitxml=/private/tmp/vpkb-spci-r5-steward-final.xml",
+    "sandbox": "require_escalated solely for temporary AF_UNIX socket fixtures",
+    "python": "3.13.13",
+    "passed": 289,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "duration_seconds": 10.54,
+    "log": {
+      "path": "/private/tmp/vpkb-spci-r5-steward-final.log",
+      "sha256": "30de2e85e58b27d82cf57b3303a961e429caeb315f2c0b578758ea91d786f891"
+    },
+    "junit": {
+      "path": "/private/tmp/vpkb-spci-r5-steward-final.xml",
+      "sha256": "63e348035ede4961a142013e5f5aa634a970fd68b4a0994369bcf95113d29c24"
+    },
+    "coverage": [
+      "standalone and retained content/bundle drift",
+      "unchanged conflicts",
+      "initial scan error and success exits",
+      "verify rescan error and success exits",
+      "direct vault-root rename",
+      "R3 missing-slot identity regressions",
+      "R4 request phase and named-edge regressions",
+      "real pinned create/reuse compatibility"
+    ]
+  },
+  "builder_evidence_verification": [
+    {
+      "name": "targeted",
+      "python": "3.13.13",
+      "passed": 109,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 0,
+      "log_sha256": "6c9a69ec1b305f847b1d1039cc2bd4219b72865ce36069d90adbb56b17e439bd",
+      "junit_sha256": "65248105e083fd9f5df09d1199594d0650955ca2c2d6da4d21fa3821c7efedcc"
+    },
+    {
+      "name": "focused_and_compatibility",
+      "python": "3.13.13",
+      "passed": 289,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 0,
+      "log_sha256": "da93ff487a7da83002968b35f040b30033d8bff930b6e86b0cc1d58ce834b3aa",
+      "junit_sha256": "f420b4f953db1f49a231fe0ad32ec845ad0923cee0968a566978c56febf97e12"
+    },
+    {
+      "name": "complete_python_3_13_no_deselect",
+      "python": "3.13.13",
+      "passed": 1962,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 0,
+      "log_sha256": "90a06f181d6ca952ac94656f994ad93c4e78d5133e6f140f588ea25bd44c117d",
+      "junit_sha256": "369c604b0b13e9e5fca69dfb40b36475c3e1b428f169723a4947db2406bffbad"
+    },
+    {
+      "name": "complete_python_3_12_no_deselect",
+      "python": "3.12.14",
+      "passed": 1962,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "deselected": 0,
+      "log_sha256": "69c4689846b70442d77d5acbe925829f79f7207be048ee9dd3d2dce74014dcf8",
+      "junit_sha256": "947bf4c735f2289956862c78232b07e2b4e768a5bcd1d009159777d94749808b"
+    }
+  ],
+  "repository_scope": {
+    "catalog_entries": 67,
+    "git_index_empty_before_review_write": true,
+    "git_diff_check_exit_code": 0,
+    "protected_paths_remained_untracked_and_outside_candidate": true,
+    "network_accessed": false,
+    "real_vault_accessed": false,
+    "git_or_pr_mutated": false
+  },
+  "limitations": [
+    "The Steward did not rerun the complete dual-Python suites; their immutable raw logs and JUnit files were independently hashed and parsed, while the Architect retains final dual-version and wheel acceptance ownership.",
+    "Fresh offline wheel smoke, exact delivery manifest, commit/push, merge-ref CI and separate exact-head Architect acceptance remain pending and are not implied by this local review."
+  ],
+  "unresolved_blockers": []
+}

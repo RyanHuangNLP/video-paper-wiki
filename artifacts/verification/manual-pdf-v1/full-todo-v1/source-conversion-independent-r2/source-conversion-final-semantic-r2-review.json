@@ -1,0 +1,92 @@
+{
+  "$schema": "video-paper-wiki.source-conversion-semantic-review-r2.v1",
+  "packet": "SOURCE-CONVERSION",
+  "revision": "R2-independent-semantic-rereview",
+  "reviewed_at_utc": "2026-09-09T08:10:00Z",
+  "reviewer": {
+    "agent": "cursor_lanes34_controller",
+    "role": "independent read-only semantic reviewer"
+  },
+  "decision": "GO_FOR_SOURCE_CONVERSION_R2_LOCAL_ACCEPTANCE",
+  "scope": "Read-only rereview of the exact frozen R2 candidate after the boundary normalization and retained-page retirement repair. The review also replays mixed legacy/code conversion and an actual legacy last-taxonomy retirement. No production, test, Git, Vault, network, operator or external-process mutation was performed by this review.",
+  "candidate": {
+    "candidate_sha256": "b6d426a541204cb8f0191796c12ec7dca1fab0ebf2da12bb4c2823f81914719b",
+    "snapshot_sha256": "4e18ee01704b4c995dc5824acac164d26c19ffc920a37cef5a6466b8bbc2802c",
+    "baseline_head": "fb37dcd80fa4445d86872a9e03ecb6a720048596",
+    "source_root": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/source-conversion-v1/terminal-1/source",
+    "changed_since_r1": [
+      {
+        "path": "src/video_paper_wiki_research/source_conversion.py",
+        "sha256": "b7a2c5337e3d5e06c1c971ec58abeae841b9e58f5a44aa8732b26d590ce377bd"
+      },
+      {
+        "path": "tests/security/test_source_conversion_boundary.py",
+        "sha256": "8c2ab1adaf2c421c0dc503ea32aeb363b5673672e8e1eadd2cc50b0376c45600"
+      },
+      {
+        "path": "tests/upstream/test_source_conversion.py",
+        "sha256": "8e12635dc1340c8ae9f9b648050175a42eebd54945a119ccd14cae7574194343"
+      }
+    ],
+    "source_writes_stopped": true
+  },
+  "semantic_checks": [
+    {
+      "id": "BOUNDARY_AUDIT_RACE_MAPPING",
+      "status": "PASS",
+      "evidence": "The conversion boundary maps only ContractError code AUDIT_RACE to WORK_PATH_UNSAFE and preserves the original message, details and exit code. Other ContractError codes retain their existing public code and instance pointer."
+    },
+    {
+      "id": "RETAINED_PAGE_RETIREMENT_GUARD",
+      "status": "PASS",
+      "evidence": "Before conversion staging, the candidate compares every retained current wiki/papers, wiki/code and wiki/concepts path from the audited byte snapshot with prospective compiler pages. Any omission raises SOURCE_PUBLICATION_UNSUPPORTED_CHANGE at /compiled_pages with exit code 75. The check is conversion-local and does not alter the shared publication helper."
+    },
+    {
+      "id": "ACTUAL_LEGACY_TAXONOMY_RETIREMENT",
+      "status": "PASS",
+      "evidence": "The successor report source-conversion-taxonomy-retirement-r2-result.json (SHA-256 d85a46f6d2d7d5f61d0c29dd8f083abd576bf98e02c0596f1237be165f32b6b4) retains one last legacy wiki/concepts/backbone-dit.md page, submits metadata taxonomy=[], and observes SOURCE_PUBLICATION_UNSUPPORTED_CHANGE at /compiled_pages with exit code 75. The Vault snapshot is byte-identical after refusal and no source-publication staging directory exists."
+    },
+    {
+      "id": "MIXED_LEGACY_CODE_CONVERSION",
+      "status": "PASS",
+      "evidence": "The corrected successor report source-conversion-mixed-r2-result.json (SHA-256 9e630355a6221ab71544b23ce00c3193efc334f431ec99aac57570c0d2e696da) converts one receipt-backed Markdown paper into a Vault containing the existing legacy PDF/code state. It moves legacy-v1 4 claims/3 papers/1 repo to source-v1 5 claims/4 papers, remains receipt_backed, preserves old code pages and immutable history, and verifies preparation leaves the Vault unchanged before apply."
+    },
+    {
+      "id": "LEGACY_REVIEWED_AT_MIGRATION",
+      "status": "PASS",
+      "evidence": "The mixed report binds one unrelated provisional legacy row whose reviewed_at key was absent. Conversion adds only reviewed_at:null to that row; text, assessment, confidence, evidence, owner location, notes and supersedes remain byte-equivalent."
+    },
+    {
+      "id": "LEGACY_CODE_AND_RAW_HISTORY",
+      "status": "PASS",
+      "evidence": "The mixed probe's changed-path audit rejects replacements of pre-existing raw captures, derived artifacts, review events and operation receipts, and rejects changes to old wiki/code pages. Its final receipt audit is receipt_backed."
+    },
+    {
+      "id": "HISTORICAL_GAP_RETAINED",
+      "status": "PASS",
+      "evidence": "The prior taxonomy reproduction remains immutable as source-conversion-taxonomy-retirement-r1-result.json, SHA-256 ccdc6d41c481b96e2e8120fadf3b38537d6c307f9831357d451ab60a1ba50302; it records the pre-R2 SOURCE_PUBLICATION_INVALID /compiled_pages ordering gap and an unchanged Vault. The prior mixed report remains source-conversion-mixed-r1-result.json, SHA-256 3d87a124e61b080767d7fc27d43e194ceec75ab1d6539c79caf4eacf6dd2d023."
+    }
+  ],
+  "validation": {
+    "candidate_focused_tests": {
+      "count": 48,
+      "passed": true,
+      "elapsed_seconds": 90.77,
+      "paths": [
+        "tests/security/test_source_conversion_boundary.py",
+        "tests/upstream/test_source_conversion.py"
+      ]
+    },
+    "independent_targeted_replay": {
+      "taxonomy_retirement_tests": "2 passed, 9 deselected in 5.77s",
+      "boundary_tests": "37 passed in 58.94s",
+      "probe_scripts_py_compile": "passed"
+    },
+    "real_vault_or_admin_used": false,
+    "human_gate_closed": false
+  },
+  "remaining_blockers": [
+    "The exact candidate still requires both locked full suites, installed actual Hatch wheel parity, fresh exact-head four-job CI, and Architect acceptance.",
+    "Real-data, human assessment, external license/provenance and delivery gates remain open."
+  ]
+}

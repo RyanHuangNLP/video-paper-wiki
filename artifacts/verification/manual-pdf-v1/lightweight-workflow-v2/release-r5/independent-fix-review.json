@@ -1,0 +1,92 @@
+{
+  "schema": "lightweight-workflow-v2-lane4-python312-post-fix-independent-review.v1",
+  "review": "lane4-r5-conditional-runtime-seed-delta",
+  "observed_at_utc": "2026-09-07T18:06:37.642424+00:00",
+  "decision": "GO_R5_MINIMAL_TEST_ONLY_DELTA",
+  "scope": "Read-only independent review of the authorized R5 test-only repair. No test execution, wheel build, source edit, Git mutation, or external model invocation.",
+  "candidate": {
+    "source_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/.work/parallel/lightweight-workflow-v2/terminal-4/source/tests/research/test_light_workflow_installed.py",
+    "before_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/installed-test-before.py",
+    "after_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/installed-test-after.py",
+    "before_sha256": "541d2ee195d1eb9ed5aa7948bfae4a56eed431121050d26a4a6e01ced786de4e",
+    "after_sha256": "c0ddaf33feaa99bb70cd2202f9eaf6a84d2e2fc1389a20f9602669ac6134a169",
+    "current_sha256": "c0ddaf33feaa99bb70cd2202f9eaf6a84d2e2fc1389a20f9602669ac6134a169",
+    "diff_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/installed-test.diff",
+    "diff_sha256": "c5d5b95ef390d75e3c86e3f676d5ae5883d250c1a6f63a9c1d4f648f30759624",
+    "after_equals_current": true
+  },
+  "delta": {
+    "summary": "Only the locked-environment conditional runtime seed was added. Existing assertions, module observations, console checks, and retained-output checks are byte-preserved.",
+    "added_lines": [
+      "# Match referencing's conditional dependency in the locked default environment.",
+      "if sys.version_info < (3, 13):",
+      "    _RUNTIME_DISTS += (\"typing-extensions\",)"
+    ],
+    "production_or_lock_changes": false,
+    "assertions_changed": false,
+    "observation_logic_changed": false
+  },
+  "runtime_condition": {
+    "python312": {
+      "version": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+      "runtime_dists": [
+        "attrs",
+        "jsonschema",
+        "jsonschema_specifications",
+        "pypdf",
+        "referencing",
+        "rpds-py",
+        "typing-extensions"
+      ]
+    },
+    "python313": {
+      "version": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:14:06) [Clang 20.1.8 ]",
+      "runtime_dists": [
+        "attrs",
+        "jsonschema",
+        "jsonschema_specifications",
+        "pypdf",
+        "referencing",
+        "rpds-py"
+      ]
+    },
+    "python312_contains_typing_extensions": true,
+    "python313_preserves_previous_inventory": true,
+    "condition_matches_uv_lock_marker": true
+  },
+  "source_manifest": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/source-manifest.json",
+    "sha256": "99febd6fe5dae82cd2d18861f8e2facbed1238557fdd44081dcaff54cf55ead8",
+    "path_count": 25,
+    "all_current_hashes_match": true,
+    "changed_from_r4": [
+      "tests/research/test_light_workflow_installed.py"
+    ],
+    "other_24_paths_unchanged": true
+  },
+  "lock_integrity": {
+    "uv_lock": "/Users/huangzhanpeng/python_code/video-paper-wiki/uv.lock",
+    "uv_lock_sha256": "67e928d696ad5e73e3635a67c8b231867734a0b93ba937cbb0a58b655d64afc0",
+    "referencing_marker": "python_full_version < '3.13'",
+    "lane_git_diff_for_uv_lock_and_pyproject_empty": true
+  },
+  "historical_failure": {
+    "result_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/before312-result.json",
+    "result_sha256": "8b5df760e65187dfabe6f8e50b13fd64440bea9ba6be28a9e30b0dd7fb8c386c",
+    "returncode": 1,
+    "log_path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/before312.log",
+    "log_sha256": "19a53e7dbef5762152318712e321b963503a71bb7039287e20286f17e6f5cbaa",
+    "failure": "Python 3.12 isolated wheel import failed in referencing.typing at TypeVar(default=Any), as previously diagnosed."
+  },
+  "authorization": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/local-integration-authorization.json",
+    "sha256": "e614bb644ea2b02f39f6c359b2955fa8ff8535d60bac7c06bcc2a1704c66962c",
+    "old_test_sha256": "541d2ee195d1eb9ed5aa7948bfae4a56eed431121050d26a4a6e01ced786de4e",
+    "allowed_source_path": "tests/research/test_light_workflow_installed.py"
+  },
+  "prior_diagnostic_immutable": {
+    "path": "/Users/huangzhanpeng/python_code/video-paper-wiki/artifacts/verification/manual-pdf-v1/lightweight-workflow-v2/architect-overall-r2/lane4-python312-r5/independent-review/verification-review.json",
+    "sha256": "22f7d0d2b28217620e1cd6e397cbb17359f3c59a913c8bddcdcf127c4280591c"
+  },
+  "reviewer_constraints": "This is structural post-fix review only. Architect-owned Python 3.12/3.13 test runs remain separate evidence and must bind this exact candidate SHA."
+}

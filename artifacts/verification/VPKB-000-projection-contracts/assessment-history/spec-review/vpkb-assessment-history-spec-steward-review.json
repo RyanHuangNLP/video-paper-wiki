@@ -1,0 +1,58 @@
+{
+  "observed_at_utc": "2026-08-31T20:18:28.346050+00:00",
+  "status": "independent specification review passed; no blocking change required",
+  "spec": "docs/ai/contracts/assessment-history-v1.md",
+  "spec_sha256": "00e928ec0ab43787c734436fac48c81bab7889009f35cdff59e3e8fc910bb7f6",
+  "baseline": "3e2bebb1d50928a7af95e07b4868bdbe8113cd0b",
+  "release_authority": "Architect only; this review does not freeze or authorize implementation",
+  "blockers": [],
+  "review_notes": [
+    {
+      "area": "history graph and mutability",
+      "finding": "Complete coverage, exactly one genesis, same-claim existing predecessor, no fork/cycle, iterative traversal visiting every supplied event and unique terminal suffice for a complete supplied chain. No mutable registry or ledger is introduced. Assessment/reviewed_at are compared with the derived head; inputs and returned containers remain separate.",
+      "authority": "assessment-event schema oneOf; active plan 5.4 rules 3-7"
+    },
+    {
+      "area": "fingerprint and text",
+      "finding": "Only the terminal fingerprint binds current evidence; historical genesis/human events may retain old FP. Human preserves parent FP; invalidation changes it, including provisional-to-provisional. Exact persisted UTF-8 text SHA across every event remains distinct from NFKC claim identity. Evidence order is irrelevant but multiplicity/relation/content remain material; bbox/charspan/symbol exclusions preserve identity."
+    },
+    {
+      "area": "UTC grammar",
+      "finding": "Real Gregorian year/date/time plus explicit 1..9 fractional digits and Z is implementable with fullmatch and component validation without clock/time-zone lookup. Fractional spelling stays in event ID; graph order, not timestamp order, is authoritative. Do not round fractional digits or use an implicit ISO parser accepting offsets/leap seconds."
+    },
+    {
+      "area": "type/resources/error phase",
+      "finding": "Virtual-root preflight charges keys/aliases before normalization/schema/hash; codec validation enforces per-locator wire cap. Claim text additionally has character-before-UTF8 65536 byte bound. Collision precedence after all claim shapes but before individual hash mismatch is explicit. Ordinary value preflight maps SCHEMA_INVALID, codec errors preserve their codes with evidence prefix, resources preserve LIMIT, collision exit75. Implement safe bounded diagnostics instead of passing identity helper messages containing claim text through unchanged."
+    },
+    {
+      "area": "compatibility",
+      "finding": "Human no-op rejection is a deliberately narrower whole-history profile consistent with active plan 5.4 rule3; legacy per-event and prospective APIs remain unchanged. Retired claims are retained without inferring deprecated from lifecycle. No source schemas, identity, codec/runtime or dependency changes are required."
+    },
+    {
+      "area": "adversarial test honesty",
+      "finding": "Cycles with genuine truncated self-referential event hashes require fixed points; end-to-end synthetic cycles may correctly fail EVENT_ID_MISMATCH first. A graph-only test with synthetic IDs or explicitly isolated identity stub must be labelled separately; do not disable production checks or claim a valid-hash cycle. Duplicate conflicting supplied claim bindings are testable without solving a real collision because precedence explicitly inspects stated IDs."
+    }
+  ],
+  "source_sha256": {
+    "src/video_paper_wiki/identity.py": "fbcd771089587aa2fcc1ebbc3b562ac533bb64f574cc6315806af451325d8966",
+    "src/video_paper_wiki/ledger_locator.py": "76be8d811693bfafc58e7ab3460706e7cb7004bbbd45181252a79b541cdd02b0",
+    "src/video_paper_wiki/projection_runtime.py": "87f426511f722c65660d548b83af70d0fe2d2afaae1be83bebf2b3348bd149c7",
+    "schemas/video-paper-wiki.assessment-event.v1.schema.json": "6d2f8bfce940fe6c274c06bcc6ae02cbcf3d1d18a04c0d671e0d14423385ec2f",
+    "docs/video-paper-wiki-development-plan.md": "3738176a71f82464ece997ab75e0cdbd91c7d1ad08276e6072f323bf38812ea3"
+  },
+  "bounded_compatibility_controls": {
+    "script": "<TMP>/vpkb-assessment-history-spec-probes.py",
+    "script_sha256": "a3552cd6e2f736c215bfbb76999098e5bfbbc305e873ed6a04cc024df484fb19",
+    "result": "<TMP>/vpkb-assessment-history-spec-probes.json",
+    "result_sha256": "5aabe426ecc8b39f1abcf3dddbcffb35f80895d0644f53823c785833857c3d50",
+    "status": "passed",
+    "scope": "Existing helper/schema only; independent event hashes and 4-event history specimen. No new history validator implementation or acceptance claim."
+  },
+  "remaining_adapter_obligations": [
+    "Complete active+retired enumeration and primary owner/source/artifact closure",
+    "Immutable event filenames/raw-byte provenance, signed/approved transaction receipts, human authorization and rollback resistance",
+    "Core replacement co-publication and invalidation followed by a separately authorized human transaction"
+  ],
+  "repository_mutations": false,
+  "git_mutations": false
+}

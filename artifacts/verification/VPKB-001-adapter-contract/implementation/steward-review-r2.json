@@ -1,0 +1,343 @@
+{
+  "additional_security_observations": [
+    "AST contains no network-capable import or shell execution; filesystem writes are confined to private allocation construction/cleanup",
+    "focused tests cover bounded timeout/output, malformed/unknown exits, symlink/FIFO transport/source, transport races, refused-child postchecks and cleanup error",
+    "exact supplied child environment contains HOME/TEMP/TMP/TMPDIR only; runtime observation adds only platform LC_CTYPE and all four paths point to private scratch",
+    "hostile parent environment and ignored pyc/import-shadow test executes real isolated source-ID child successfully",
+    "real pinned capture control preserved full Vault and staging tree names/types/modes/bytes, left no new private temp root, and confirmed proposal/result deep-copy isolation",
+    "real public capture/generic/ingest inspect and source-ID vectors passed in focused suite",
+    "authority central dispatch and public validation parity passed schema/security selection"
+  ],
+  "architect_acceptance_work_remaining": [
+    "full local Python 3.12 acceptance",
+    "independent/full Python 3.13 acceptance as Architect chooses",
+    "installed-wheel build/install/-I smoke proving adapter module plus frozen schema/profile resources",
+    "fresh Linux/macOS x Python 3.12/3.13 CI bound to exact committed candidate and actual merge parents"
+  ],
+  "baseline": {
+    "branch": "repair/vpkb000-plan-approval-prepare-follow2",
+    "head": "be7ecf303af2879459036ed8e6831291f168fac4",
+    "index_empty": true,
+    "tree": "757f33cfcfc561e919b0b5d2702e40834cb53204"
+  },
+  "blockers": [],
+  "candidate": {
+    "evidence_path": "artifacts/verification/VPKB-001-adapter-contract/implementation/builder-candidate-r2.json",
+    "evidence_sha256": "d0ec923d72b86ec1d1c0b49d64941751caf5182d5c41ebe9deea29795358531e",
+    "expected_evidence_sha256": "d0ec923d72b86ec1d1c0b49d64941751caf5182d5c41ebe9deea29795358531e",
+    "files": {
+      "src/video_paper_wiki/contracts.py": {
+        "actual_sha256": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+        "expected_sha256": "473eaa62f60ee68b2f2db83adc899b38306e76b52550ddb41a46c680eaf553af",
+        "match": true
+      },
+      "src/video_paper_wiki/upstream_adapter.py": {
+        "actual_sha256": "febf3e08274892f50d3a8e01bcc06c72362000db6f279f37a9f3d41db5c7c199",
+        "expected_sha256": "febf3e08274892f50d3a8e01bcc06c72362000db6f279f37a9f3d41db5c7c199",
+        "match": true
+      },
+      "tests/contract/test_upstream_authority.py": {
+        "actual_sha256": "8d51287f233563265ae84a6cd040a3700571143f885885ce5beb958f9dff21d4",
+        "expected_sha256": "8d51287f233563265ae84a6cd040a3700571143f885885ce5beb958f9dff21d4",
+        "match": true
+      },
+      "tests/fixtures/upstream-authority/source-id-vectors.json": {
+        "actual_sha256": "adf41eb1599df42a95324c3f8c732e5a61c255a623d482e4450833a5f8f8bb93",
+        "expected_sha256": "adf41eb1599df42a95324c3f8c732e5a61c255a623d482e4450833a5f8f8bb93",
+        "match": true
+      },
+      "tests/security/test_upstream_adapter_boundary.py": {
+        "actual_sha256": "262c0f22ac935cd58fe5731b5074adb74e6951df3f07c103f899791ca0017a47",
+        "expected_sha256": "262c0f22ac935cd58fe5731b5074adb74e6951df3f07c103f899791ca0017a47",
+        "match": true
+      },
+      "tests/unit/test_upstream_adapter.py": {
+        "actual_sha256": "26b5d8d214c7d4b0dd7798518710d9cc460b505989ee4011c9bc2dc8ce818d89",
+        "expected_sha256": "26b5d8d214c7d4b0dd7798518710d9cc460b505989ee4011c9bc2dc8ce818d89",
+        "match": true
+      },
+      "tests/upstream/test_vpkb001_transaction_inspect.py": {
+        "actual_sha256": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817",
+        "expected_sha256": "2f3b4b96f3fe656317e653c712501daf289d8634aabff9a49e8ff80233651817",
+        "match": true
+      }
+    },
+    "scope": "seven implementation/test/fixture files are within the eight architecture allowed classes; R2 evidence is implementation evidence; three root-owned architecture post-freeze records are pre-existing and not Builder scope drift",
+    "seven_file_snapshot_actual": "2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f",
+    "seven_file_snapshot_expected": "2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f",
+    "source_stable_before_after_review": true
+  },
+  "decision": "The exact R2 implementation candidate has no remaining independent code-review blocker and may proceed to Architect dual-Python, wheel, full-suite and exact-CI acceptance. This verdict is not merge authorization.",
+  "evidence": {
+    "/private/tmp/test_vpkb001_r2_steward.py": {
+      "sha256": "a1972c2de4438af6d6e00014cbb495d662ca022fbbd0b99e4f2dc9e14e7bda46",
+      "size_bytes": 7948
+    },
+    "/private/tmp/test_vpkb001_r2b_steward.py": {
+      "sha256": "0853d737463338b0834f4c70cdd79f659ed5285a5c99eea7431dda7b3fc63990",
+      "size_bytes": 8002
+    },
+    "/private/tmp/vpkb001-r2-steward-adversarial.log": {
+      "sha256": "e05b3ca0cfa3bdb92511e608279c9c12acc9c847abf8d6b71b3287ebd3ade57b",
+      "size_bytes": 2587
+    },
+    "/private/tmp/vpkb001-r2-steward-adversarial.xml": {
+      "sha256": "01b8fc728f470588ea6c844e5757ea563059677533ba6a11f74fdd251c195da7",
+      "size_bytes": 5477
+    },
+    "/private/tmp/vpkb001-r2-steward-focused.log": {
+      "sha256": "7ae94a6ddd07b56a2c696fe45cd15be5aec6cf350a74219dc3798ec60ae6474f",
+      "size_bytes": 179
+    },
+    "/private/tmp/vpkb001-r2-steward-focused.xml": {
+      "sha256": "d82cd459ea7703d37474725693ddc940d5a7146d58c21d0a8d07a6ec6ef9771d",
+      "size_bytes": 13286
+    },
+    "/private/tmp/vpkb001-r2-steward-real-control.json": {
+      "sha256": "1c591cfa1d7468fd03bce98147717a3a9322f3ff1058256c0ddb26c3c038f87c",
+      "size_bytes": 294
+    },
+    "/private/tmp/vpkb001-r2-steward-security-escalated.log": {
+      "sha256": "5d4d4b49dc8369bfe798f8ad8f0e62e8b8ecddd098b61332a27ea7421ba85c4d",
+      "size_bytes": 1657
+    },
+    "/private/tmp/vpkb001-r2-steward-security-escalated.xml": {
+      "sha256": "7bf8e6dc752a2e60ed75ad65aca421ec468fd024ae62a4ac9a54ec5a6e30c482",
+      "size_bytes": 77063
+    },
+    "/private/tmp/vpkb001-r2-steward-security-final.log": {
+      "sha256": "04eddb5ae391a61ad4775fc6815718528fc2e87b8b577ef6464eeecefc64be10",
+      "size_bytes": 581
+    },
+    "/private/tmp/vpkb001-r2-steward-security-final.xml": {
+      "sha256": "051fe852fcb4f9754147055b1f575793b1814df50ded911abc14f05c6b805111",
+      "size_bytes": 76244
+    },
+    "/private/tmp/vpkb001-r2-steward-security.log": {
+      "sha256": "36ffbdd5ec66c604ad0e183dafdcd9cfcfebabd41403f66efe7a567b41640bc0",
+      "size_bytes": 4687
+    },
+    "/private/tmp/vpkb001-r2-steward-security.xml": {
+      "sha256": "7f887c02c3251807e5b160c4c392c287c0ee2181bb42a99df13bdbd118f76de5",
+      "size_bytes": 79905
+    },
+    "/private/tmp/vpkb001-r2-steward-source-snapshot.json": {
+      "sha256": "7108cf98c25ff2fc9beee01f465a2030f65d10ca0a81d0de7eb67d663841dd01",
+      "size_bytes": 426
+    },
+    "/private/tmp/vpkb001-r2-steward-static.json": {
+      "sha256": "5faa70445be44a3163b93fab0bdbb77dabda92e09380fd7375dad552a786ab32",
+      "size_bytes": 1892
+    },
+    "/private/tmp/vpkb001-r2b-steward-adversarial.log": {
+      "sha256": "8f826c211f86140e2d5912d87cfa8599fe95fabcbaaf9c98b171736142274e4f",
+      "size_bytes": 99
+    },
+    "/private/tmp/vpkb001-r2b-steward-adversarial.xml": {
+      "sha256": "ce36618039700cdbffd60d4e64352f3938756b659b2edb3f8301d3d3f0f49195",
+      "size_bytes": 3280
+    }
+  },
+  "frozen_inputs": {
+    "architect_acceptance": {
+      "actual_sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827",
+      "expected_sha256": "83ab077f439995d5a39a4fcbeb20ddafcd94dac82b03db0ce3df86ddf7533827",
+      "match": true,
+      "path": "artifacts/verification/VPKB-001-adapter-contract/vpkb-001-architecture-freeze-architect-acceptance.json"
+    },
+    "contract": {
+      "actual_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "expected_sha256": "823011bf1ba300c0388268dbbe0d7e47013e2533c3ca225376af79ac64489792",
+      "match": true,
+      "path": "docs/ai/contracts/vpkb-001-adapter-contract-v1.md"
+    },
+    "packet": {
+      "actual_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+      "expected_sha256": "c6011bd2783b3142c8af8a2a95544c9f8f0ef657f57245ed9380fd7643022ee9",
+      "match": true,
+      "path": "docs/ai/packets/VPKB-001-adapter-contract.md"
+    },
+    "profile": {
+      "actual_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "expected_sha256": "776f6c4e0d6c327c3237dc1821628007a3d9082dca9e70511a81eee0f1e1f6a1",
+      "match": true,
+      "path": "catalog/claude-obsidian-transaction-inspect-9f8c119-v1.profile.json"
+    },
+    "schema": {
+      "actual_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "expected_sha256": "8479af806700f250cb775b724542253cc5dfe68dcd4a53ecb163af6a834f1d0a",
+      "match": true,
+      "path": "schemas/video-paper-wiki.upstream-authority.v1.schema.json"
+    }
+  },
+  "history_immutability": {
+    "expected_r1_steward_review_sha256": "5b4fb1012912cb6e000144fca3d7df858721b5e8456cc87139233123e9a76790",
+    "expected_rejected_sha256": "6956a0ca43f2be06dc5b4a23bfe64487780e019193f10d79253452606bc2f635",
+    "r1_steward_review_sha256": "5b4fb1012912cb6e000144fca3d7df858721b5e8456cc87139233123e9a76790",
+    "rejected_builder_candidate_sha256": "6956a0ca43f2be06dc5b4a23bfe64487780e019193f10d79253452606bc2f635"
+  },
+  "limitations": [
+    "No network, real Vault, models, admin/apply/recover, repository write, index/branch mutation, remote or PR action occurred.",
+    "The only ephemeral Git mutations were explicitly authorized private /private/tmp clone/config operations for the fsmonitor marker regression.",
+    "This verdict applies only to exact seven-file snapshot 2303b5a9919eabc63545e2800411879bf17f36585c3e428c0657b8740945445f; any source change invalidates it."
+  ],
+  "nonblocking_observations": [
+    "git subprocess.run applies its output cap after communicate has collected stdout/stderr; a pathological checkout can allocate more than the post-hoc cap, but the frozen contract gives a byte cap to public child transport and does not define a streaming Git-output budget",
+    "a syntactically valid approval_sha256 is intentionally opaque upstream evidence; local validation cannot reject one valid digest merely because it differs from another observed run"
+  ],
+  "preserved_test_setup_history": [
+    {
+      "attempt": "independent adversarial attempt 1",
+      "classification": "review-oracle error, not candidate failure",
+      "counts": {
+        "failed": 1,
+        "passed": 26,
+        "tests": 27
+      },
+      "detail": "a different syntactically valid approval_sha256 is opaque upstream evidence and has no local expected value; final oracle instead uses schema-invalid approval",
+      "junit_sha256": "01b8fc728f470588ea6c844e5757ea563059677533ba6a11f74fdd251c195da7",
+      "log_sha256": "e05b3ca0cfa3bdb92511e608279c9c12acc9c847abf8d6b71b3287ebd3ade57b"
+    },
+    {
+      "attempt": "security sandbox",
+      "classification": "managed sandbox denied AF_UNIX bind before candidate logic",
+      "counts": {
+        "failed": 3,
+        "passed": 469
+      },
+      "junit_sha256": "7f887c02c3251807e5b160c4c392c287c0ee2181bb42a99df13bdbd118f76de5",
+      "log_sha256": "36ffbdd5ec66c604ad0e183dafdcd9cfcfebabd41403f66efe7a567b41640bc0"
+    },
+    {
+      "attempt": "security escalated long basetemp",
+      "classification": "AF_UNIX fixture path exceeded platform length; candidate logic not reached for that case",
+      "counts": {
+        "failed": 1,
+        "passed": 471
+      },
+      "junit_sha256": "7bf8e6dc752a2e60ed75ad65aca421ec468fd024ae62a4ac9a54ec5a6e30c482",
+      "log_sha256": "5d4d4b49dc8369bfe798f8ad8f0e62e8b8ecddd098b61332a27ea7421ba85c4d"
+    }
+  ],
+  "prior_blocker_replays": [
+    {
+      "id": "B1",
+      "observed": "wrong work name, wrong layout, and invalid batch each returned ADAPTER_PATH_INVALID without touching _profile or pin I/O",
+      "result": "pass"
+    },
+    {
+      "id": "B2",
+      "observed": "wrong bundle size and a facade/inspection/declaration/transport self-consistent but noncanonical bundle hash were rejected by public and central validators as UPSTREAM_CONTRACT_MISMATCH",
+      "result": "pass"
+    },
+    {
+      "id": "B3",
+      "observed": "NUL, high surrogate, low surrogate, and surrogate-pair spellings produced sanitized ADAPTER_PATH_INVALID with empty details and no caller value",
+      "result": "pass"
+    },
+    {
+      "id": "B4",
+      "observed": "root 0755, execution 0755, scratch regular file, and execution regular file were rejected by allocation revalidation",
+      "result": "pass"
+    },
+    {
+      "id": "B5",
+      "observed": "an exact private clone with checkout-local hostile core.fsmonitor did not create its marker; observed Git argv includes --no-optional-locks, --no-replace-objects, -c core.fsmonitor=false and env includes GIT_NO_LAZY_FETCH=1/GIT_OPTIONAL_LOCKS=0",
+      "result": "pass"
+    },
+    {
+      "id": "B6",
+      "observed": "ordinary forced construction failure removed its allocation; forced removal failure surfaced sanitized UPSTREAM_CONTRACT_MISMATCH",
+      "result": "pass"
+    },
+    {
+      "id": "B7",
+      "observed": "operation_id, changed_paths, hashes, modes, input/expanded bundle correlations and schema-invalid approval each mapped to sanitized UPSTREAM_CONTRACT_MISMATCH",
+      "result": "pass"
+    },
+    {
+      "id": "B8",
+      "observed": "independent replacements of work, batch, transaction-inspect, and content directory identities while preserving leaf inodes/bytes were all rejected by postcheck",
+      "result": "pass"
+    }
+  ],
+  "repository_guards": {
+    "catalog_count": 67,
+    "diff_check": "pass",
+    "ignored_live_pycache_present_and_excluded_by_source_only_execution": true,
+    "index_paths": [],
+    "ordinary_clean": true,
+    "profile_file_count": 21,
+    "profile_paths_unique_sorted_regular_no_symlink": true,
+    "profile_source_snapshot": "94148615f5aec9c137a7b449d869de0ca2a85e92e10581eafb7de4f799a18c34",
+    "protected_user_untracked": ".DS_Store, five user documents, inbox/** and tools/** remained present and unstaged",
+    "repo_git_remote_pr_writes": false,
+    "vendor_commit": "9f8c1199047eac2c3828496279fbb7ba9540b90b",
+    "vendor_tree": "b00665e266988fe99138e761dbbf4da04b2ddb5a"
+  },
+  "review_mode": "fresh independent read-only exact-byte/security review",
+  "revision": 2,
+  "role": "Repo Steward",
+  "schema": "video-paper-wiki.vpkb-001-implementation-steward-review.v1",
+  "tests": {
+    "builder_focused": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 86
+      },
+      "hashes_verified": true,
+      "junit_sha256": "97431151e42dcce62d3b552a449f4ac5a8bd149c533d48621ae1d772ccc11339",
+      "log_sha256": "10396077902662843047980a422139533dae9385eb243bef847a59c5193d2c2e"
+    },
+    "builder_full_python313": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 1747
+      },
+      "hashes_verified": true,
+      "independent_full_rerun": false,
+      "junit_sha256": "3765f44af2b7fbce4623049df09a85c8b752f319aac8273a7c31522744f7cb6e",
+      "log_sha256": "b1606f3a1bc5a523a58b42a381d6d88ef03193205dcc133fef7b43fdf414728a"
+    },
+    "independent_adversarial_final": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 27
+      },
+      "junit_sha256": "ce36618039700cdbffd60d4e64352f3938756b659b2edb3f8301d3d3f0f49195",
+      "log_sha256": "8f826c211f86140e2d5912d87cfa8599fe95fabcbaaf9c98b171736142274e4f",
+      "python": "3.13.13",
+      "runner_sha256": "0853d737463338b0834f4c70cdd79f659ed5285a5c99eea7431dda7b3fc63990"
+    },
+    "independent_focused": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 86
+      },
+      "junit_sha256": "d82cd459ea7703d37474725693ddc940d5a7146d58c21d0a8d07a6ec6ef9771d",
+      "log_sha256": "7ae94a6ddd07b56a2c696fe45cd15be5aec6cf350a74219dc3798ec60ae6474f",
+      "python": "3.13.13"
+    },
+    "independent_security_schema_final": {
+      "counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 472
+      },
+      "execution": "authorized outside managed sandbox solely for disposable AF_UNIX bind; short basetemp /private/tmp/v2se",
+      "junit_sha256": "051fe852fcb4f9754147055b1f575793b1814df50ded911abc14f05c6b805111",
+      "log_sha256": "04eddb5ae391a61ad4775fc6815718528fc2e87b8b577ef6464eeecefc64be10",
+      "python": "3.13.13"
+    }
+  },
+  "verdict": "GO_FOR_ARCHITECT_ACCEPTANCE"
+}
